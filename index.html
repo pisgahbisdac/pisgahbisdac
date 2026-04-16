@@ -61,21 +61,63 @@
         crossorigin="anonymous"></script>
 
     <style>
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-        .prose p { margin-bottom: 1rem; line-height: 1.7; color: #4b5563; }
-        .prose h3 { font-weight: bold; font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #1f2937; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .pengumuman-text b, .pengumuman-text strong { font-weight: 800 !important; color: #0b1a30; }
-        .pengumuman-text i, .pengumuman-text em { font-weight: 800 !important; color: #0b1a30; }
-        .warta-content b, .warta-content strong { font-weight: 800 !important; color: #0b1a30; }
-        .warta-content i, .warta-content em { font-style: italic !important; color: #0b1a30; }
-        .pengumuman-text a { color: #9c851e; text-decoration: underline; font-weight: 500; }
-        .pengumuman-text a:hover { color: #9c851e; }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .prose p {
+            margin-bottom: 1rem;
+            line-height: 1.7;
+            color: #4b5563;
+        }
+
+        .prose h3 {
+            font-weight: bold;
+            font-size: 1.25rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #1f2937;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .welcome-box-gradient {
+            background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 30%, #ffffff 60%, #dbeafe 100%);
+        }
+
     </style>
 </head>
 
@@ -196,6 +238,10 @@ const truncateText = (text, maxLength = 500) => {
                 Camera: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
                 FolderPlus: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokewidth="2" strokelinecap="round" stroke-linejoin="round" className={className}><path d="M12 10v6"/><path d="M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>,   
                 Folder: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokewidth="2" strokelinecap="round" strokelinejoin="round" className={className}><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>,
+                Search: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8" /><line x1="21" x2="16.65" y1="21" y2="16.65" /></svg>,
+                Image: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>,
+                Upload: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" x2="12" y1="3" y2="15" /></svg>
+
             };
             return icons[name] || null;
         };
@@ -235,100 +281,206 @@ const truncateText = (text, maxLength = 500) => {
 
 
         // --- COMPONENTS ---
-        const Home = ({ setActiveTab, youtubeUrl, pengumuman }) => (
-            <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
-                
-                {pengumuman && pengumuman.isi && (
-                    <div className="bg-gradient-to-r from-gold-50 to-gold-100 p-5 md:p-6 rounded-[1.5rem] shadow-sm border border-gold-200 hover:shadow-md transition-shadow relative overflow-hidden">
-                        <div className="absolute top-0 right-0 bg-gold-500 text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center"><Icon name="Info" className="w-3 h-3 mr-1" /> Info</div>
-                    <h2 className="text-[1.15rem] font-bold mb-4 text-navy-900 flex items-center">
-                        <Icon name="Megaphone" className="w-[1.5rem] h-[1.5rem] mr-2 text-gold-500" /> PENGUMUMAN JEMAAT
-                    </h2>
-                    <h3 className="text-[1rem] font-bold mb-3 text-navy-900 flex items-center">
-                     {pengumuman.header || "Pengumuman Jemaat"}
-                    </h3>
-                        <div className="pengumuman-text text-navy-800 text-sm whitespace-pre-wrap font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}>
+const Home = ({ setActiveTab, youtubeUrl, heroImageUrl, jadwalDB, dataPejabat, pengumuman }) => {
+            const [searchQuery, setSearchQuery] = React.useState('');
+
+            // Listen for search events from the mobile header
+            React.useEffect(() => {
+                const handleSearch = (e) => setSearchQuery(e.detail || '');
+                window.addEventListener('homeSearch', handleSearch);
+                return () => window.removeEventListener('homeSearch', handleSearch);
+            }, []);
+
+            const featureItems = [
+                { id: 'sekolah_sabat', label: 'Sekolah Sabat', icon: 'BookOpen', isExternal: true, link: 'https://sabbath-school.adventech.io/in' },
+                { id: 'keanggotaan', label: 'Layanan Anggota', icon: 'Users' },
+                { id: 'hubungi', label: 'Hubungi Kami', icon: 'Phone' },
+                { id: 'lagu_sion', label: 'Lagu Sion', icon: 'Music', isExternal: true, link: 'https://play.lagusion.org/' },
+                { id: 'susunan_ibadah', label: 'Susunan Ibadah', icon: 'List' },
+                { id: 'persembahan', label: 'Persembahan & Perpuluhan', icon: 'Gift' }
+            ];
+
+            const filteredItems = searchQuery.trim()
+                ? featureItems.filter(item => item.label.toLowerCase().includes(searchQuery.toLowerCase()))
+                : featureItems;
+
+            // Search petugas from jadwalDB and dataPejabat
+            const searchPetugas = () => {
+                if (!searchQuery.trim()) return [];
+                const q = searchQuery.toLowerCase();
+                const results = [];
+                const seen = new Set();
+
+                // Search in jadwalDB (upcoming schedules)
+                if (jadwalDB) {
+                    Object.entries(jadwalDB).forEach(([date, data]) => {
+                        const sections = [
+                            { key: 'petugas', label: 'Ibadah Rabu' },
+                            { key: 'sekolahSabat', label: 'Sekolah Sabat' },
+                            { key: 'khotbah', label: 'Ibadah Khotbah' },
+                            { key: 'diakon', label: 'Petugas Diakon' },
+                            { key: 'musik', label: 'Petugas Musik' },
+                            { key: 'perjamuan', label: 'Perjamuan Kudus' }
+                        ];
+                        sections.forEach(({ key, label }) => {
+                            if (data[key] && Array.isArray(data[key])) {
+                                data[key].forEach(p => {
+                                    if (p.nama && p.nama.toLowerCase().includes(q)) {
+                                        const uid = `${p.nama}-${p.tugas}-${date}`;
+                                        if (!seen.has(uid)) {
+                                            seen.add(uid);
+                                            results.push({ nama: p.nama, tugas: p.tugas, section: label, date: date });
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    });
+                }
+
+                // Search in dataPejabat (church officials)
+                if (dataPejabat) {
+                    dataPejabat.forEach(p => {
+                        if (p.nama && p.nama.toLowerCase().includes(q)) {
+                            const uid = `pejabat-${p.id}`;
+                            if (!seen.has(uid)) {
+                                seen.add(uid);
+                                results.push({ nama: p.nama, tugas: p.jabatan, section: 'Pejabat Jemaat', date: null, img: p.img });
+                            }
+                        }
+                    });
+                }
+
+                return results;
+            };
+
+            const petugasResults = searchPetugas();
+
+            const renderFeatureCard = (item) => {
+                const labelParts = item.label.split(' ');
+                const line1 = labelParts.length > 1 ? labelParts.slice(0, Math.ceil(labelParts.length / 2)).join(' ') : labelParts[0];
+                const line2 = labelParts.length > 1 ? labelParts.slice(Math.ceil(labelParts.length / 2)).join(' ') : '';
+
+                const cardContent = (
+                    <>
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-[1rem] bg-navy-50 group-hover:bg-gold-50 transition-colors flex items-center justify-center mb-2.5 md:mb-3">
+                            <Icon name={item.icon} className="w-6 h-6 md:w-8 md:h-8 text-navy-600 group-hover:text-gold-500 transition-colors" />
+                        </div>
+                        <h3 className="font-bold text-[11px] md:text-sm leading-tight text-navy-900 group-hover:text-gold-700 transition-colors">{line1}{line2 && <><br />{line2}</>}</h3>
+                    </>
+                );
+
+                if (item.isExternal) {
+                    return (
+                        <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" className="bg-white p-4 md:p-6 rounded-[1.25rem] shadow-sm flex flex-col items-center text-center justify-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-navy-100/60 group">
+                            {cardContent}
+                        </a>
+                    );
+                }
+                return (
+                    <div key={item.id} onClick={() => setActiveTab(item.id)} className="bg-white p-4 md:p-6 rounded-[1.25rem] shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-navy-100/60 group">
+                        {cardContent}
+                    </div>
+                );
+            };
+
+            return (
+                <div className="animate-fade-in relative z-10">
+                    {/* Hero Image + Overlapping Welcome Box */}
+                    <div className="-mx-4 md:mx-0 -mt-6 md:-mt-10 mb-6 md:mb-10">
+                        <div className="w-full overflow-hidden md:rounded-[1.5rem] relative z-0" style={{ aspectRatio: '16/8.5' }}>
+                            <img
+                                src={heroImageUrl}
+                                alt="Hero Banner"
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                        {/* Welcome Box - overlapping hero */}
+                        <div className="relative z-10 mx-4 md:mx-6 -mt-6 md:-mt-7">
+                            <div className="welcome-box-gradient rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-blue-100/80 px-5 py-3.5 md:px-8 md:py-4 flex items-center justify-center backdrop-blur-sm">
+                                <h2 className="text-[0.95rem] md:text-lg font-bold text-navy-900 flex items-center flex-wrap justify-center gap-x-2">
+                                    <span>Selamat Datang di</span>
+                                    <img src="./art1s-outline.svg" alt="ART1S" className="h-7 md:h-9 w-auto inline-block" style={{ verticalAlign: 'middle' }} />
+                                    <span>app</span>
+                                </h2>
+                            </div>
                         </div>
                     </div>
-                )}
 
-                <div className="grid grid-cols-3 gap-3 md:gap-5">
-                    <a href="https://sabbath-school.adventech.io/in" target="_blank" rel="noopener noreferrer" className="bg-white p-4 md:p-6 rounded-[1.25rem] shadow-sm flex flex-col items-center text-center justify-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-navy-100/60 group">
-                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-[1rem] bg-navy-50 group-hover:bg-gold-50 transition-colors flex items-center justify-center mb-2.5 md:mb-3">
-                            <Icon name="BookOpen" className="w-6 h-6 md:w-8 md:h-8 text-navy-600 group-hover:text-gold-500 transition-colors" />
+                    {/* Petugas Search Results */}
+                    {searchQuery.trim() && petugasResults.length > 0 && (
+                        <div className="mb-5 bg-white rounded-[1.25rem] shadow-sm border border-navy-100/60 overflow-hidden">
+                            <div className="px-4 py-3 bg-navy-50/50 border-b border-navy-100/60 flex items-center">
+                                <Icon name="Users" className="w-4 h-4 text-gold-500 mr-2" />
+                                <h3 className="font-bold text-xs text-navy-700 uppercase tracking-widest">Petugas Ditemukan ({petugasResults.length})</h3>
+                            </div>
+                            <div className="divide-y divide-navy-50 max-h-64 overflow-y-auto">
+                                {petugasResults.map((p, i) => (
+                                    <div key={i} className="flex items-center px-4 py-3 hover:bg-navy-50/30 transition-colors">
+                                        {p.img ? (
+                                            <img src={p.img} alt={p.nama} className="w-9 h-9 rounded-lg object-cover border border-navy-100 mr-3 shrink-0" />
+                                        ) : (
+                                            <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center mr-3 shrink-0">
+                                                <Icon name="Users" className="w-4 h-4 text-navy-400" />
+                                            </div>
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-bold text-sm text-navy-900 truncate">{p.nama}</p>
+                                            <p className="text-[11px] text-navy-500 font-medium truncate">{p.tugas}</p>
+                                        </div>
+                                        <div className="text-right shrink-0 ml-2">
+                                            <span className="text-[9px] px-2 py-0.5 rounded-full bg-gold-50 text-gold-600 border border-gold-200 font-bold uppercase tracking-wider">{p.section}</span>
+                                            {p.date && <p className="text-[10px] text-navy-400 font-medium mt-1">{formatIndoDateShort(p.date)}</p>}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                        <h3 className="font-bold text-[11px] md:text-sm leading-tight text-navy-900 group-hover:text-gold-700 transition-colors">Sekolah<br />Sabat</h3>
-                    </a>
+                    )}
 
-                    <div onClick={() => setActiveTab('keanggotaan')} className="bg-white p-4 md:p-6 rounded-[1.25rem] shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-navy-100/60 group">
-                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-[1rem] bg-navy-50 group-hover:bg-gold-50 transition-colors flex items-center justify-center mb-2.5 md:mb-3">
-                            <Icon name="Users" className="w-6 h-6 md:w-8 md:h-8 text-navy-600 group-hover:text-gold-500 transition-colors" />
-                        </div>
-                        <h3 className="font-bold text-[11px] md:text-sm leading-tight text-navy-900 group-hover:text-gold-700 transition-colors">Layanan<br />Anggota</h3>
+                    {/* Feature Grid */}
+                    <div className={`grid ${filteredItems.length < 3 ? 'grid-cols-2' : 'grid-cols-3'} gap-3 md:gap-5 mb-5 md:mb-8`}>
+                        {filteredItems.map(item => renderFeatureCard(item))}
+                        {searchQuery.trim() && filteredItems.length === 0 && petugasResults.length === 0 && (
+                            <div className="col-span-3 text-center py-8 text-navy-400 font-medium text-sm">
+                                <Icon name="Search" className="w-8 h-8 mx-auto mb-2 text-navy-300" />
+                                Tidak ditemukan hasil untuk "{searchQuery}"
+                            </div>
+                        )}
                     </div>
 
-                    <div onClick={() => setActiveTab('hubungi')} className="bg-white p-4 md:p-6 rounded-[1.25rem] shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-navy-100/60 group">
-                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-[1rem] bg-navy-50 group-hover:bg-gold-50 transition-colors flex items-center justify-center mb-2.5 md:mb-3">
-                            <Icon name="Phone" className="w-6 h-6 md:w-8 md:h-8 text-navy-600 group-hover:text-gold-500 transition-colors" />
+                    <div className="bg-white p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8">
+                        <h2 className="text-[1.15rem] font-bold mb-4 text-navy-900 flex items-center">
+                            <Icon name="Video" className="w-[1.15rem] h-[1.15rem] mr-2 text-gold-500" /> Video Terbaru
+                        </h2>
+                        <div className="relative w-full overflow-hidden rounded-[1rem] shadow-sm border border-navy-50" style={{ paddingTop: '56.25%' }}>
+                            <iframe
+                                className="absolute top-0 left-0 w-full h-full"
+                                src={youtubeUrl}
+                                title="YouTube video player"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen>
+                            </iframe>
                         </div>
-                        <h3 className="font-bold text-[11px] md:text-sm leading-tight text-navy-900 group-hover:text-gold-700 transition-colors">Hubungi<br />Kami</h3>
                     </div>
 
-                    <a href="https://play.lagusion.org/" target="_blank" rel="noopener noreferrer" className="bg-white p-4 md:p-6 rounded-[1.25rem] shadow-sm flex flex-col items-center text-center justify-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-navy-100/60 group">
-                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-[1rem] bg-navy-50 group-hover:bg-gold-50 transition-colors flex items-center justify-center mb-2.5 md:mb-3">
-                            <Icon name="Music" className="w-6 h-6 md:w-8 md:h-8 text-navy-600 group-hover:text-gold-500 transition-colors" />
+                    <div className="bg-white p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8">
+                        <div className="flex items-center space-x-2 mb-4">
+                            <Icon name="Headphones" className="w-[1.15rem] h-[1.15rem] text-gold-500" />
+                            <h3 className="font-bold text-[1.15rem] text-navy-900">Podcast Kita</h3>
                         </div>
-                        <h3 className="font-bold text-[11px] md:text-sm leading-tight text-navy-900 group-hover:text-gold-700 transition-colors">Lagu<br />Sion</h3>
-                    </a>
-
-                    <div onClick={() => setActiveTab('susunan_ibadah')} className="bg-white p-4 md:p-6 rounded-[1.25rem] shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-navy-100/60 group">
-                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-[1rem] bg-navy-50 group-hover:bg-gold-50 transition-colors flex items-center justify-center mb-2.5 md:mb-3">
-                            <Icon name="List" className="w-6 h-6 md:w-8 md:h-8 text-navy-600 group-hover:text-gold-500 transition-colors" />
+                        <div className="w-full flex justify-center">
+                            <iframe data-testid="embed-iframe" style={{ borderRadius: '1rem' }} src="https://open.spotify.com/embed/show/6PcT9H7ksbbJjsnl1qUfKB/video?utm_source=generator" width="100%" height="152" frameBorder="0" allowFullScreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
                         </div>
-                        <h3 className="font-bold text-[11px] md:text-sm leading-tight text-navy-900 group-hover:text-gold-700 transition-colors">Susunan<br />Ibadah</h3>
                     </div>
 
-                    <div onClick={() => setActiveTab('persembahan')} className="bg-white p-4 md:p-6 rounded-[1.25rem] shadow-sm flex flex-col items-center text-center justify-center cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-navy-100/60 group">
-                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-[1rem] bg-navy-50 group-hover:bg-gold-50 transition-colors flex items-center justify-center mb-2.5 md:mb-3">
-                            <Icon name="Gift" className="w-6 h-6 md:w-8 md:h-8 text-navy-600 group-hover:text-gold-500 transition-colors" />
-                        </div>
-                        <h3 className="font-bold text-[11px] md:text-sm leading-tight text-navy-900 group-hover:text-gold-700 transition-colors">Persembahan<br />& Perpuluhan</h3>
-                    </div>
+                    <footer className="pt-6 pb-2 border-t border-navy-200 text-center text-navy-500 font-medium tracking-wide text-[10px] md:text-xs">
+                        Copyright &copy; by ART1S Tech Team 2026
+                    </footer>
                 </div>
-
-                <div className="bg-white p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow">
-                    <h2 className="text-[1.15rem] font-bold mb-4 text-navy-900 flex items-center">
-                        <Icon name="Video" className="w-[1.5rem] h-[1.5rem] mr-2 text-gold-500" /> Video Terbaru
-                    </h2>
-                    <div className="relative w-full overflow-hidden rounded-[1rem] shadow-sm border border-navy-50" style={{ paddingTop: '56.25%' }}>
-                        <iframe
-                            className="absolute top-0 left-0 w-full h-full"
-                            src={youtubeUrl}
-                            title="YouTube video player"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen>
-                        </iframe>
-                    </div>
-                </div>
-
-                <div className="bg-white p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow">
-                    <div className="flex items-center space-x-2 mb-4">
-                        <Icon name="Headphones" className="w-[1.5rem] h-[1.5rem] text-gold-500" />
-                        <h3 className="font-bold text-[1.15rem] text-navy-900">SDA Tithing System</h3>
-                    </div>
-                    <div className="w-full flex justify-center">
-                        <iframe data-testid="embed-iframe" style={{ borderRadius: '1rem' }} src="https://www.youtube.com/embed/EAO55pnNsgs" width="100%" height="200" frameBorder="0" allowFullScreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-                    </div>
-                </div>
-
-                <footer className="mt-8 pt-6 pb-2 border-t border-navy-200 text-center text-navy-500 font-medium tracking-wide text-[10px] md:text-xs">
-                    <p>Copyright &copy; by PISGAH BISDAC Team 2026</p>
-                    <p>Thanks to ART1SAN tech Team for CodeSources</p>
-                    <p>GOD BLESS US</p>
-                </footer>
-            </div>
-        );
+            );
+        };
 
         const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
             const [openSection, setOpenSection] = React.useState('khotbah');
@@ -1413,6 +1565,17 @@ const truncateText = (text, maxLength = 500) => {
             }) => {
             const [adminTab, setAdminTab] = React.useState('pengaturan'); // jadwal, pelayan, warta, pengaturan
 
+            const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken, youtubeUrl, setYoutubeUrl, kategoriPejabat, setKategoriPejabat, heroImageUrl, setHeroImageUrl }) => {
+            const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, pengaturan
+            const [viewMonth, setViewMonth] = React.useState(new Date().getMonth());
+            const [viewYear, setViewYear] = React.useState(new Date().getFullYear());
+            const [subTab, setSubTab] = React.useState('rabu');
+            const [editingDate, setEditingDate] = React.useState(null);
+            const [editForm, setEditForm] = React.useState([]);
+            const [isSavingJadwal, setIsSavingJadwal] = React.useState(false);
+            const [isSavingPejabat, setIsSavingPejabat] = React.useState(false);
+
+
             // State Ganti Password
             const [oldPassword, setOldPassword] = React.useState('');
             const [newPassword, setNewPassword] = React.useState('');
@@ -1424,6 +1587,7 @@ const truncateText = (text, maxLength = 500) => {
             const [editYoutubeUrl, setEditYoutubeUrl] = React.useState(youtubeUrl);
             const [isSavingUrl, setIsSavingUrl] = React.useState(false);
 
+
             // State Pengumuman
             const [editPengumuman, setEditPengumuman] = React.useState(pengumuman);
             const [isSavingPengumuman, setIsSavingPengumuman] = React.useState(false);
@@ -1431,6 +1595,14 @@ const truncateText = (text, maxLength = 500) => {
             const [linkModalOpenPengumuman, setLinkModalOpenPengumuman] = React.useState(false);
             const [linkUrlPengumuman, setLinkUrlPengumuman] = React.useState('');
             const [linkTextPengumuman, setLinkTextPengumuman] = React.useState('');
+
+            // State Hero Image
+            const [editHeroUrl, setEditHeroUrl] = React.useState(heroImageUrl);
+            const [isSavingHero, setIsSavingHero] = React.useState(false);
+            const [heroPreview, setHeroPreview] = React.useState(heroImageUrl);
+
+            // Drag and Drop States
+            const [draggedItem, setDraggedItem] = React.useState(null);
 
             // State Warta (form)
             const [editingWarta, setEditingWarta] = React.useState(null); // { rowIndex, judul, isi, gambarUrl }
@@ -2247,6 +2419,7 @@ const insertEditWartaFormatting = (tag) => {
                 setIsSavingUrl(false);
             };
 
+
             // SIMPAN PENGUMUMAN
             const handleSavePengumuman = async (e) => {
                 e.preventDefault();
@@ -2266,11 +2439,58 @@ const insertEditWartaFormatting = (tag) => {
                         setPengumuman(editPengumuman);
                     } else {
                         alert("Gagal merubah pengumuman: " + (result.message || "Akses ditolak."));
+
+            // SIMPAN HERO IMAGE URL
+            const handleSaveHeroImage = async (e) => {
+                e.preventDefault();
+                setIsSavingHero(true);
+                try {
+                    const res = await fetch(GAS_API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'saveHeroImage', password: adminToken, url: editHeroUrl })
+                    });
+                    const result = await res.json();
+                    if (result.success) {
+                        alert("Hero Image berhasil diperbarui!");
+                        setHeroImageUrl(editHeroUrl);
+                        setHeroPreview(editHeroUrl);
+                    } else {
+                        alert("Gagal merubah Hero Image: " + (result.message || "Akses ditolak."));
+
                     }
                 } catch (err) {
                     alert("Gagal terhubung ke server.");
                 }
+
                 setIsSavingPengumuman(false);
+
+                setIsSavingHero(false);
+            };
+
+            const handleHeroFileUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const MAX_WIDTH = 1200;
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        setEditHeroUrl(dataUrl);
+                        setHeroPreview(dataUrl);
+                    };
+                };
+
             };
 
             const handleFileChange = (e, id) => {
@@ -3131,6 +3351,56 @@ const insertEditWartaFormatting = (tag) => {
     </div>
 )}
 
+                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                                        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                                            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
+                                            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">URL YouTube Embed</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Live Streaming Acara</p></div>
+                                        </div>
+                                        <form onSubmit={handleSaveYoutubeUrl} className="space-y-5">
+                                            <div>
+                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Video Embed</label>
+                                                <textarea value={editYoutubeUrl} onChange={e => setEditYoutubeUrl(e.target.value)} required rows="3" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono font-medium shadow-sm leading-relaxed"></textarea>
+                                                <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Pastikan URL diawali dengan <br /><span className="text-gold-600">https://www.youtube.com/embed/</span>... atau <br /><span className="text-gold-600">https://www.youtube-nocookie.com/embed/</span>...</p>
+                                            </div>
+                                            <button type="submit" disabled={isSavingUrl} className={`w-full ${isSavingUrl ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center`}>
+                                                {isSavingUrl ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan URL Baru'}
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                                        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                                            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><Icon name="Image" className="w-6 h-6" /></div>
+                                            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Hero Image Banner</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Gambar Utama Homepage</p></div>
+                                        </div>
+                                        <div className="mb-5">
+                                            <div className="relative w-full overflow-hidden rounded-xl border border-navy-100 shadow-sm" style={{ aspectRatio: '16/8.5' }}>
+                                                <img src={heroPreview} alt="Hero Preview" className="w-full h-full object-cover" />
+                                            </div>
+                                        </div>
+                                        <form onSubmit={handleSaveHeroImage} className="space-y-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Upload Gambar Hero</label>
+                                                <div className="flex items-center space-x-3">
+                                                    <label className="flex-1 flex items-center justify-center bg-navy-50 border-2 border-dashed border-navy-200 rounded-xl py-4 px-4 cursor-pointer hover:border-gold-400 hover:bg-gold-50 transition-all group">
+                                                        <Icon name="Upload" className="w-5 h-5 mr-2 text-navy-400 group-hover:text-gold-500 transition-colors" />
+                                                        <span className="text-sm font-bold text-navy-500 group-hover:text-gold-600 transition-colors">Pilih file gambar...</span>
+                                                        <input type="file" accept="image/*" className="hidden" onChange={handleHeroFileUpload} />
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Atau Masukkan URL Gambar</label>
+                                                <input type="text" value={editHeroUrl} onChange={e => { setEditHeroUrl(e.target.value); setHeroPreview(e.target.value); }} placeholder="https://example.com/hero.jpg" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono font-medium shadow-sm" />
+                                            </div>
+                                            <button type="submit" disabled={isSavingHero} className={`w-full ${isSavingHero ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center`}>
+                                                {isSavingHero ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Hero Image'}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            )}
+
                         </div>
                     </div>
                 </div>
@@ -3177,11 +3447,13 @@ const insertEditWartaFormatting = (tag) => {
 
             const [jadwalDB, setJadwalDB] = React.useState({});
             const [dataPejabat, setDataPejabat] = React.useState(initialDataPejabat);
-            const [kategoriPejabat, setKategoriPejabat] = React.useState(["Gembala", "Officers", "Departemen & Pelayanan", "Lainnya"]);
-            const [youtubeUrl, setYoutubeUrl] = React.useState("https://www.youtube.com/embed/EAO55pnNsgs");
             
+            const [kategoriPejabat, setKategoriPejabat] = React.useState(["Kepemimpinan", "Keuangan", "Departemen & Pelayanan", "Lainnya"]);
+            const [youtubeUrl, setYoutubeUrl] = React.useState("https://www.youtube-nocookie.com/embed?listType=playlist&list=UUz6rQ_5zP0Y0c8V7aKx2jLQ");
+            const [heroImageUrl, setHeroImageUrl] = React.useState("./hero-default.jpg");
             // Pengumuman default State
             const [pengumuman, setPengumuman] = React.useState({ header: "Pengumuman Jemaat", isi: "" });
+
 
             // Token Admin (berisi password valid setelah login)
             const [adminToken, setAdminToken] = React.useState('');
@@ -3271,6 +3543,7 @@ const insertEditWartaFormatting = (tag) => {
                         if (data.jadwalDB) setJadwalDB(data.jadwalDB);
                         if (data.youtubeUrl) setYoutubeUrl(data.youtubeUrl);
                         if (data.kategoriPejabat) setKategoriPejabat(data.kategoriPejabat);
+<<<<<<< HEAD
                         if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
                         
                         // Menangani Pengumuman agar kompatibel dengan data lama (String biasa) dan JSON object baru
@@ -3290,6 +3563,9 @@ const insertEditWartaFormatting = (tag) => {
                                 setPengumuman({ header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) });
                             }
                         }
+=======
+                        if (data.heroImageUrl) setHeroImageUrl(data.heroImageUrl);
+>>>>>>> 545d396 (Tambahan fitur hero image)
                         setIsAppLoading(false);
                     })
                     .catch(error => {
@@ -3315,7 +3591,7 @@ const insertEditWartaFormatting = (tag) => {
 
             const renderContent = () => {
                 switch (activeTab) {
-                    case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} pengumuman={pengumuman} />;
+                    case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImageUrl={heroImageUrl} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} />;
                     case 'belajar': return <Belajar setActiveTab={setActiveTab} />;
                     case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
@@ -3330,6 +3606,7 @@ const insertEditWartaFormatting = (tag) => {
                     case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
                     case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
+<<<<<<< HEAD
                     case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard 
                             dataPejabat={dataPejabat} setDataPejabat={setDataPejabat}
                             jadwalDB={jadwalDB} setJadwalDB={setJadwalDB}
@@ -3343,6 +3620,15 @@ const insertEditWartaFormatting = (tag) => {
                         <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} pengumuman={pengumuman} />;
                         }
                      };
+=======
+                    case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImageUrl={heroImageUrl} setHeroImageUrl={setHeroImageUrl} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImageUrl={heroImageUrl} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman}
+                            daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta}
+                            refreshWarta={refreshWarta}/>;
+                    default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImageUrl={heroImageUrl} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman}/>;
+                
+                }
+            };
+>>>>>>> 545d396 (Tambahan fitur hero image)
 
             if (isAppLoading) {
                 return (
@@ -3365,6 +3651,7 @@ const insertEditWartaFormatting = (tag) => {
                     <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} onSuccess={(token) => { setAdminToken(token); setIsAdminLoggedIn(true); setShowLoginModal(false); setActiveTab('admin_dashboard'); }} />
 
                     <header className="md:hidden bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 shadow-sm">
+<<<<<<< HEAD
     <div className="flex justify-between items-center px-5 py-4">
         <img src="./PisgahLogoColor.png" alt="PISGAH-BISDAC Logo" className="h-7 w-auto" />
         <div className="flex gap-2">
@@ -3385,6 +3672,22 @@ const insertEditWartaFormatting = (tag) => {
         </div>
     </div>
 </header>
+=======
+                        <div className="flex items-center px-4 py-3 gap-3">
+                            <div className="flex-1 relative">
+                                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-navy-400 pointer-events-none">
+                                    <Icon name="Search" className="w-4 h-4" />
+                                </div>
+                                <input type="text" placeholder="Cari menu..." className="w-full pl-10 pr-4 py-2.5 bg-navy-50/80 border border-navy-100/60 rounded-full text-sm font-medium text-navy-900 placeholder-navy-400 outline-none focus:border-gold-400 focus:bg-white transition-all shadow-sm" onChange={(e) => { const event = new CustomEvent('homeSearch', { detail: e.target.value }); window.dispatchEvent(event); }} />
+                            </div>
+                            {isAdminLoggedIn ? (
+                                <button onClick={handleLogout} className="w-10 h-10 bg-red-50 rounded-full text-red-600 hover:bg-red-100 transition flex items-center justify-center shrink-0 shadow-sm"><Icon name="LogOut" className="w-4 h-4" /></button>
+                            ) : (
+                                <button onClick={handleAdminClick} className="w-10 h-10 bg-gold-500 rounded-full text-white hover:bg-gold-600 transition flex items-center justify-center shrink-0 shadow-md"><Icon name="LogIn" className="w-4 h-4" /></button>
+                            )}
+                        </div>
+                    </header>
+>>>>>>> 545d396 (Tambahan fitur hero image)
 
                     <header className="hidden md:block bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 shadow-sm">
                             <div className="max-w-6xl mx-auto px-6 py-4 flex justify-center items-center gap-6">
@@ -3411,6 +3714,7 @@ const insertEditWartaFormatting = (tag) => {
                     </header>
 
                     <main className="flex-1 max-w-5xl mx-auto w-full p-4 md:p-8 pb-32 md:pb-12">
+<<<<<<< HEAD
                         <div className="mb-6 md:mb-10">
 
  {/* LOGO PISGAH DI HOME */}                          
@@ -3455,6 +3759,16 @@ const insertEditWartaFormatting = (tag) => {
     <p className="text-navy-500 font-medium mt-1">Kelola data dinamis untuk website PISGAH-BISDAC</p>
   )}
 </div>
+=======
+                        {activeTab !== 'home' && (
+                            <div className="mb-6 md:mb-10">
+                                <h2 className="text-2xl md:text-[2rem] font-bold text-navy-900 capitalize tracking-tight">
+                                    {activeTab === 'belajar' ? 'Halaman Belajar' : activeTab.startsWith('belajar_') ? 'Detail Pembelajaran' : activeTab === 'keanggotaan' ? 'Keanggotaan Jemaat' : activeTab === 'member_baru' ? 'Permohonan Member Baru' : activeTab === 'pindah_masuk' ? 'Permohonan Pindah Masuk' : activeTab === 'hubungi' ? 'Hubungi Kami' : activeTab === 'form_acms' ? 'Formulir Pindah Masuk' : activeTab === 'susunan_ibadah' ? 'Susunan Ibadah' : activeTab === 'admin_dashboard' ? 'Dashboard Admin' : activeTab}
+                                </h2>
+                                {activeTab === 'admin_dashboard' && <p className="text-navy-500 font-medium mt-1">Kelola data dinamis untuk website ART1S.</p>}
+                            </div>
+                        )}
+>>>>>>> 545d396 (Tambahan fitur hero image)
                         {renderContent()}
                     </main>
 
