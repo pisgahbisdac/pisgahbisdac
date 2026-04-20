@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PISGAH BISDAC App</title>
 
+    <!-- Preconnect ke server Google untuk mempercepat koneksi fetch data -->
+    <link rel="preconnect" href="https://script.google.com">
+    <link rel="preconnect" href="https://script.googleusercontent.com">
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="./Pisgahpavicon.png">
 
@@ -53,9 +57,11 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
-        crossorigin="anonymous"></script>
+        crossorigin="anonymous" defer></script>
+    <!-- Library untuk konversi HEIC ke JPEG -->
+    <script src="https://unpkg.com/heic2any@0.0.4/dist/heic2any.min.js"></script>
 
     <style>
         ::-webkit-scrollbar {
@@ -175,6 +181,17 @@
         // ========================================================
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyLvoo8gnP5SoDFCAGiDxofxGXpXdriQ0hpTxt5B5OA0TStLHzUolgzaFHIBbeW80lE/exec";
 
+        // Mulaikan fetch data LEBIH AWAL bahkan sebelum React selesai di-compile (Mempercepat Loading Data)
+        const initialDataPromise = fetch(`${GAS_API_URL}?action=getData`)
+            .then(response => {
+                if (!response.ok) throw new Error('Jaringan bermasalah');
+                return response.json();
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                return null;
+            });
+
         // ========== HELPER UNTUK WARTA PANJANG ==========
 const stripHtml = (html) => {
   if (!html) return '';
@@ -236,7 +253,7 @@ const truncateText = (text, maxLength = 500) => {
             { id: 'gembala', jabatan: "Gembala Jemaat", nama: "Pdt. [Nama Gembala]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Gembala+Jemaat&background=eff6ff&color=1e3a8a&size=128", kategori: "Gembala" },
             { id: 'ketua', jabatan: "Ketua Jemaat", nama: "Bpk. [Nama Ketua]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Ketua+Jemaat&background=eff6ff&color=1e3a8a&size=128", kategori: "Officers" },
             { id: 'sekertaris', jabatan: "Sekertaris", nama: "Bpk. [Nama Sekertaris]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Sekertaris&background=eff6ff&color=1e3a8a&size=128", kategori: "Officers" },
-            { id: 'bendahara', jabatan: "Bendahara", nama: "Bpk. [Nama Bendahara]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Bendahara+Jemaat&background=f0fdf4&color=14532d&size=128", kategori: "Officers" },
+            { id: 'bendahara', jabatan: "Bendahara", nama: "Ibu [Nama Bendahara]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Bendahara+Jemaat&background=f0fdf4&color=14532d&size=128", kategori: "Officers" },
             { id: 'penginjilan', jabatan: "Penginjilan", nama: "Bpk. [Nama Penginjilan]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Penginjilan&background=f0fdf4&color=14532d&size=128", kategori: "Departemen & Pelayanann" },
             { id: 'ss', jabatan: "Sekolah Sabat", nama: "Ibu. [Nama Sekolah Sabat]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Sekolah+Sabat&background=fffbeb&color=78350f&size=128", kategori: "Departemen & Pelayanan" },
             { id: 'diakon', jabatan: "Ketua Diakon", nama: "Ibu. [Nama Ketua Diakon", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Ketua+Diakon&background=fffbeb&color=78350f&size=128", kategori: "Departemen & Pelayanan" },
@@ -246,47 +263,51 @@ const truncateText = (text, maxLength = 500) => {
             { id: 'komunikasi', jabatan: "komunikasi", nama: "Sdr. [Nama Komunikasi]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Kominikasi&background=faf5ff&color=581c87&size=128", kategori: "Lainnya" }
         ];
 
-        // --- ICONS (SVG MAPPING) ---
+        // --- ICONS (SVG MAPPING) - Dioptimasi dengan dipindah ke luar komponen ---
+        const ICON_DATA = {
+            Home: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>,
+            BookOpen: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>,
+            Warta: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/><path d="M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14"/><path d="M8 6v8"/></svg>,
+            Video: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 8-6 4 6 4V8Z" /><rect width="14" height="12" x="2" y="6" rx="2" ry="2" /></svg>,
+            Calendar: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" /></svg>,
+            Gift: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 12 20 22 4 22 4 12" /><rect width="20" height="5" x="2" y="7" /><line x1="12" x2="12" y1="22" y2="7" /><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" /><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" /></svg>,
+            LogIn: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" x2="3" y1="12" y2="12" /></svg>,
+            LogOut: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>,
+            Download: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>,
+            Headphones: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" /></svg>,
+            Users: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>,
+            MessageCircle: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>,
+            Phone: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>,
+            ChevronLeft: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="15 18 9 12 15 6" /></svg>,
+            ArrowLeft: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg>,
+            ChevronRight: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6" /></svg>,
+            ChevronDown: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9" /></svg>,
+            Check: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12" /></svg>,
+            X: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>,
+            Edit: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>,
+            Trash: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>,
+            Settings: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>,
+            Eye: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>,
+            EyeOff: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" /><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" /><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" /><line x1="2" x2="22" y1="2" y2="22" /></svg>,
+            Music: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>,
+            List: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>,
+            Search: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8" /><line x1="21" x2="16.65" y1="21" y2="16.65" /></svg>,
+            Image: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>,
+            Upload: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" x2="12" y1="3" y2="15" /></svg>,
+            Megaphone: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg>,
+            Info: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>,
+            PlusCircle: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><path d="M12 8v8" /><path d="M8 12h8" /></svg>,
+            Save: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>,
+            Plus: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>,
+            Trash2: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>,
+            Camera: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
+            Shield: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+            Folder: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        };
+
         const Icon = ({ name, className }) => {
-            const icons = {
-                Home: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>,
-                BookOpen: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>,
-                Warta: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokewidth="2" strokelinecap="round" strokelinejoin="round" className={className}><path d="M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/><path d="M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14"/><path d="M8 6v8"/></svg>,
-                Video: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 8-6 4 6 4V8Z" /><rect width="14" height="12" x="2" y="6" rx="2" ry="2" /></svg>,
-                Calendar: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" /></svg>,
-                Gift: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 12 20 22 4 22 4 12" /><rect width="20" height="5" x="2" y="7" /><line x1="12" x2="12" y1="22" y2="7" /><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" /><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" /></svg>,
-                LogIn: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" x2="3" y1="12" y2="12" /></svg>,
-                LogOut: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>,
-                Download: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>,
-                Headphones: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" /></svg>,
-                Users: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>,
-                MessageCircle: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>,
-                Phone: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>,
-                ChevronLeft: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="15 18 9 12 15 6" /></svg>,
-                ArrowLeft: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg>,
-                ChevronRight: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6" /></svg>,
-                ChevronDown: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9" /></svg>,
-                Check: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12" /></svg>,
-                X: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>,
-                Edit: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>,
-                Trash: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>,
-                Settings: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>,
-                Eye: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>,
-                EyeOff: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" /><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" /><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" /><line x1="2" x2="22" y1="2" y2="22" /></svg>,
-                Music: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>,
-                List: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>,
-                Search: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8" /><line x1="21" x2="16.65" y1="21" y2="16.65" /></svg>,
-                Image: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>,
-                Upload: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" x2="12" y1="3" y2="15" /></svg>,
-                Megaphone: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg>,
-                Info: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>,
-                PlusCircle: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><path d="M12 8v8" /><path d="M8 12h8" /></svg>,
-                Save: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>,
-                Plus: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>,
-                Trash2: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>,
-                Camera: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            };
-            return icons[name] || null;
+            const renderIcon = ICON_DATA[name];
+            return renderIcon ? renderIcon(className) : null;
         };
 
         // --- HELPER FUNCTIONS FOR DATE ---
@@ -515,6 +536,7 @@ const truncateText = (text, maxLength = 500) => {
                                 src={youtubeUrl}
                                 title="YouTube video player"
                                 frameBorder="0"
+                                loading="lazy"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowFullScreen>
                             </iframe>
@@ -589,20 +611,6 @@ const truncateText = (text, maxLength = 500) => {
                             </div>
 
                             {/* TAB CONTENT */}
-                            {openSection === 'ss' && (
-                                <div className="p-4 md:p-6 animate-fade-in bg-white">
-                                    {renderItem("Lagu Pengantar", "LS 205")}
-                                    {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pembawa Acara"))}
-                                    {renderItem("Lagu Buka", susunan.ssLaguBuka)}
-                                    {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka"))}
-                                    {renderItem("Berita Misi", getOfficer(activeSabat.sekolahSabat, "Berita Misi"))}
-                                    {renderItem("Diskusi Sekolah Sabat", "Kelas Pemuda 1, Kelas Dewasa, Kelas Pemuda 2, Kelas Anak-anak")}
-                                    {renderItem("Pelayanan Perorangan", getOfficer(activeSabat.sekolahSabat, "Pelayanan Perorangan"))}
-                                    {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
-                                    {renderItem("Doa Tutup", getOfficer(activeSabat.sekolahSabat, "Pelayanan Perorangan"))}
-                                </div>
-                            )}
-
                             {openSection === 'khotbah' && (
                                 <div className="p-4 md:p-6 animate-fade-in bg-white">
                                     {renderItem("Lagu Pengantar", "LS 515 - Tuhan Ada Dalam Bait Allah")}
@@ -610,11 +618,10 @@ const truncateText = (text, maxLength = 500) => {
                                     {renderItem("Doa Buka", getOfficer(activeSabat.khotbah, "Khotbah"))}
                                     {renderItem("Ayat Bersahutan", susunan.kAyatBersahutan)}
                                     {renderItem("Lagu Buka", susunan.kLaguBuka)}
-                                    {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Pendamping 1"))}
-                                    {susunan.kLaguPujian1_show && renderItem("Lagu Pujian", susunan.kLaguPujian1_judul, true)}
-                                    {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Pendamping 2"))}
-                                    {renderItem("Lagu Persembahan", "LS 260 - Bawa Persembahanmu")}
-                                    {renderItem("Doa Persembahan", getOfficer(activeSabat.khotbah, "Pendamping 2"))}
+                                    {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Doa Syafaat"))}
+                                    {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Presider"))}
+                                    {renderItem("Lagu Persembahan - Special ", susunan.kLaguPujian1_judul || "Judul Lagu Belum Diisi", true)}
+                                    {renderItem("Doa Persembahan", getOfficer(activeSabat.khotbah, "Presider"))}
                                     {susunan.kLaguPujian2_show && renderItem("Lagu Pujian", susunan.kLaguPujian2_judul, true)}
                                     {renderItem("Cerita Anak-anak", getOfficer(activeSabat.khotbah, "Cerita Anak-anak"))}
                                     {susunan.kLaguPujian3_show && renderItem("Lagu Pujian", susunan.kLaguPujian3_judul, true)}
@@ -622,11 +629,25 @@ const truncateText = (text, maxLength = 500) => {
                                     {renderItem("Lagu Tema", "Misi Kita")}
                                     {renderItem("Khotbah", getOfficer(activeSabat.khotbah, "Khotbah"), true)}
                                     {renderItem("Lagu Tutup", susunan.kLaguTutup)}
-                                    {renderItem("Doa Berkat", "Pdt. David Indra Utomo")}
-                                    {renderItem("Lagu Berkat", "LS 60 - Pada Akhir Kebaktian")}
+                                    {renderItem("Doa Berkat", getOfficer(activeSabat.khotbah, "Khotbah"))}
                                     {renderItem("Pengumuman", "Dept. Komunikasi")}
                                 </div>
                             )}
+
+                            {openSection === 'ss' && (
+                                <div className="p-4 md:p-6 animate-fade-in bg-white">
+                                    {renderItem("Lagu Pengantar", "LS 205")}
+                                    {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Presider"))}
+                                    {renderItem("Lagu Buka", susunan.ssLaguBuka)}
+                                    {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka"))}
+                                    {renderItem("Berita Misi", getOfficer(activeSabat.sekolahSabat, "Berita Misi"))}
+                                    {renderItem("Diskusi Sekolah Sabat", "Kelas Dewasa, Kelas Pendalaman Alkitab, Kelas Anak-anak")}
+                                    {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
+                                    {renderItem("Doa Tutup", getOfficer(activeSabat.sekolahSabat, "Doa Tutup"))}
+                                </div>
+                            )}
+
+                            
 
                             {openSection === 'diakon' && (
                                 <div className="p-4 md:p-6 animate-fade-in bg-white">
@@ -1018,12 +1039,12 @@ const truncateText = (text, maxLength = 500) => {
                     <p className="text-sm font-medium text-navy-600 mb-6">Pilih jenis permohonan keanggotaan yang sesuai dengan status Anda saat ini.</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
                         <button onClick={() => setActiveTab('member_baru')} className="w-full text-left p-5 rounded-[1.25rem] border border-navy-100/50 bg-navy-50/30 hover:bg-navy-50 transition-colors flex items-center justify-between h-full group shadow-sm"><div><h3 className="font-bold text-navy-900 group-hover:text-gold-600 transition-colors">Member Baru</h3><p className="text-xs font-medium text-navy-500 mt-1.5 leading-relaxed">Untuk yang belum pernah menjadi anggota GMAHK (Non-Adventist).</p></div><span className="text-gold-500 font-black text-xl ml-4 transform group-hover:translate-x-1 transition-transform">&rarr;</span></button>
-                        <button onClick={() => setActiveTab('pindah_masuk')} className="w-full text-left p-5 rounded-[1.25rem] border border-navy-100/50 bg-navy-50/30 hover:bg-navy-50 transition-colors flex items-center justify-between h-full group shadow-sm"><div><h3 className="font-bold text-navy-900 group-hover:text-gold-600 transition-colors">Pindah Masuk - ACMS</h3><p className="text-xs font-medium text-navy-500 mt-1.5 leading-relaxed">Untuk anggota GMAHK yang ingin pindah ke Tidar 1.</p></div><span className="text-gold-500 font-black text-xl ml-4 transform group-hover:translate-x-1 transition-transform">&rarr;</span></button>
+                        <button onClick={() => setActiveTab('pindah_masuk')} className="w-full text-left p-5 rounded-[1.25rem] border border-navy-100/50 bg-navy-50/30 hover:bg-navy-50 transition-colors flex items-center justify-between h-full group shadow-sm"><div><h3 className="font-bold text-navy-900 group-hover:text-gold-600 transition-colors">Pindah Masuk - ACMS</h3><p className="text-xs font-medium text-navy-500 mt-1.5 leading-relaxed">Untuk anggota GMAHK yang ingin pindah ke Jemaat PISGAH BISDAC.</p></div><span className="text-gold-500 font-black text-xl ml-4 transform group-hover:translate-x-1 transition-transform">&rarr;</span></button>
                     </div>
                 </div>
                 <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60 pb-safe">
                     <h2 className="text-[1.3rem] font-black mb-4 text-navy-900 border-b pb-3 border-navy-50">Jadwal Kegiatan & Pelayanan</h2>
-                    <p className="text-sm font-medium text-navy-600 mb-6">Lihat jadwal ibadah rutin dan daftar petugas pelayanan jemaat Tidar 1.</p>
+                    <p className="text-sm font-medium text-navy-600 mb-6">Lihat jadwal ibadah rutin dan daftar petugas pelayanan jemaat PISGAH BISDAC.</p>
                     <button onClick={() => setActiveTab('jadwal')} className="w-full text-left p-5 rounded-[1.25rem] border border-gold-200 bg-gradient-to-br from-gold-50 to-white hover:border-gold-300 transition-colors flex items-center justify-between group shadow-sm"><div className="flex items-center"><div className="w-[3rem] h-[3rem] bg-gold-400 rounded-full flex items-center justify-center text-navy-900 mr-4 shrink-0 shadow-sm"><Icon name="Calendar" className="w-5 h-5" /></div><div><h3 className="font-bold text-navy-900">Lihat Jadwal Jemaat</h3><p className="text-xs font-medium text-navy-600 mt-1">Jadwal petugas ibadah hari Rabu dan Sabat.</p></div></div><span className="text-gold-500 font-black text-xl ml-4 transform group-hover:translate-x-1 transition-transform">&rarr;</span></button>
                 </div>
             </div>
@@ -1121,13 +1142,13 @@ const truncateText = (text, maxLength = 500) => {
                     setIsGenerating(false); setStep('success');
                     const subject = encodeURIComponent(`Permohonan Pindah Masuk ACMS - ${formData.namaLengkap}`);
                     const body = encodeURIComponent(`Syalom Admin,\n\nBerikut saya lampirkan dokumen PDF permohonan pindah keanggotaan (ACMS) atas nama ${formData.namaLengkap} yang baru saja saya unduh dari aplikasi PISGAH BISDAC.\n\nTerima kasih.\n\n(Mohon jangan lupa untuk melampirkan file ${filename} yang baru saja terdownload ke dalam email ini)`);
-                    window.location.href = `mailto:admin@tidar1.org?subject=${subject}&body=${body}`;
+                    window.location.href = `mailto:gmahkpisgahbisdac@gmail.com?subject=${subject}&body=${body}`;
                 });
             };
 
             if (step === 'success') {
                 return (
-                    <div className="bg-white p-8 md:p-10 rounded-[1.5rem] shadow-sm border border-navy-100/60 text-center animate-fade-in relative z-10"><div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm"><Icon name="Check" className="w-10 h-10" /></div><h2 className="text-[1.8rem] font-black text-navy-900 mb-3 tracking-tight">Dokumen Berhasil Dibuat!</h2><p className="text-navy-600 mb-8 font-medium">File PDF permohonan Anda telah berhasil <b>diunduh</b> ke perangkat Anda.</p><div className="bg-navy-50/50 p-6 rounded-2xl text-left border border-navy-100 mb-8 shadow-inner"><h3 className="font-bold text-navy-900 mb-2 flex items-center"><Icon name="Info" className="w-5 h-5 mr-2 text-gold-500" /> Langkah Selanjutnya</h3><p className="text-sm text-navy-600 mb-4 leading-relaxed">Aplikasi email standar/bawaan Anda (seperti Gmail atau Mail) akan terbuka secara otomatis.</p><ol className="list-decimal list-outside ml-4 space-y-2 text-sm text-navy-700 font-medium"><li>Temukan file PDF yang baru saja terunduh (biasanya di folder Downloads).</li><li><b>"Attach / Lampirkan"</b> file tersebut ke dalam badan email yang terbuka.</li><li>Klik tombol <b>Kirim</b> untuk mengirimkannya ke Sekretaris Jemaat Tidar 1.</li></ol></div><button onClick={() => setActiveTab('pindah_masuk')} className="bg-navy-900 hover:bg-navy-800 text-gold-400 px-8 py-3.5 rounded-xl font-bold transition shadow hover:shadow-md">Selesai & Kembali</button></div>
+                    <div className="bg-white p-8 md:p-10 rounded-[1.5rem] shadow-sm border border-navy-100/60 text-center animate-fade-in relative z-10"><div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm"><Icon name="Check" className="w-10 h-10" /></div><h2 className="text-[1.8rem] font-black text-navy-900 mb-3 tracking-tight">Dokumen Berhasil Dibuat!</h2><p className="text-navy-600 mb-8 font-medium">File PDF permohonan Anda telah berhasil <b>diunduh</b> ke perangkat Anda.</p><div className="bg-navy-50/50 p-6 rounded-2xl text-left border border-navy-100 mb-8 shadow-inner"><h3 className="font-bold text-navy-900 mb-2 flex items-center"><Icon name="Info" className="w-5 h-5 mr-2 text-gold-500" /> Langkah Selanjutnya</h3><p className="text-sm text-navy-600 mb-4 leading-relaxed">Aplikasi email standar/bawaan Anda (seperti Gmail atau Mail) akan terbuka secara otomatis.</p><ol className="list-decimal list-outside ml-4 space-y-2 text-sm text-navy-700 font-medium"><li>Temukan file PDF yang baru saja terunduh (biasanya di folder Downloads).</li><li><b>"Attach / Lampirkan"</b> file tersebut ke dalam badan email yang terbuka.</li><li>Klik tombol <b>Kirim</b> untuk mengirimkannya ke Sekretaris Jemaat PISGAH BISDAC</li></ol></div><button onClick={() => setActiveTab('pindah_masuk')} className="bg-navy-900 hover:bg-navy-800 text-gold-400 px-8 py-3.5 rounded-xl font-bold transition shadow hover:shadow-md">Selesai & Kembali</button></div>
                 );
             }
 
@@ -1146,7 +1167,7 @@ const truncateText = (text, maxLength = 500) => {
                         <div className="bg-navy-100/50 shadow-inner overflow-x-auto border border-navy-200 rounded-[1.5rem] p-4 sm:p-8 relative">
                             <div className="absolute top-4 right-4 text-xs font-bold text-navy-400 uppercase tracking-widest bg-white/50 px-3 py-1 rounded-full backdrop-blur-sm z-10 pointer-events-none">Preview Saja</div>
                             <div className="w-max mx-auto shadow-xl bg-white relative rounded overflow-hidden">
-                                <div id="pdf-content" className="p-10 bg-white text-black text-sm relative" style={{ width: '210mm', minHeight: '297mm', fontFamily: '"Open Sans", sans-serif', boxSizing: 'border-box' }}><p className="text-[10px] text-gray-500 absolute top-4 right-10 leading-none">Form ACMS-03</p><div className="flex justify-between items-center mb-10 mt-6"><div className="w-[180px] flex justify-start"><img src="https://i.postimg.cc/dQhq2HGf/png-acms-new-logo.png" alt="ACMS Logo" crossOrigin="anonymous" className="h-[60px] object-contain block" /></div><div className="flex-1 text-center px-4"><h2 className="font-bold text-[16px] leading-tight">PERMOHONAN PERPINDAHAN ANGGOTA</h2><h2 className="font-bold text-[16px] leading-tight mt-1">GMAHK KONFERENS JAWA KAWASAN TIMUR</h2><h2 className="font-bold text-[16px] leading-tight mt-1">JEMAAT TIDAR 1 SURABAYA</h2></div><div className="w-[180px] flex flex-col items-center"><div className="border border-black bg-[#dce6f1] font-bold py-1 w-full text-center text-[12px]">DIISI OLEH PEMOHON</div><p className="italic text-center mt-1 text-[12px] leading-snug">Bagi Pemohon yang namanya <br /><span className="font-bold not-italic">SUDAH</span> ada di ACMS</p></div></div><div className="mb-6"><p className="font-bold mb-2">A. PROFIL PEMOHON <span className="font-normal text-[11px]">(Mohon diisi sesuai dengan KTP/Akte Kelahiran / identitas lainnya menggunakan huruf besar)</span></p><table className="w-full ml-4" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}><tbody><tr><td className="w-1/4 py-1 align-top">1. Nama Lengkap</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.namaLengkap}</span></td></tr><tr><td className="w-1/4 py-1 align-top">2. Jenis Kelamin</td><td className="w-3/4 py-1 align-top">: {formData.jenisKelamin}</td></tr><tr><td className="w-1/4 py-1 align-top">3. Tanggal Lahir</td><td className="w-3/4 py-1 align-top">: {formatDate(formData.tanggalLahir)}</td></tr><tr><td className="w-1/4 py-1 align-top">4. Nama Ibu</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.namaIbu}</span></td></tr><tr><td className="w-1/4 py-1 align-top">5. Baptisan</td><td className="w-3/4 py-1"></td></tr><tr><td className="w-1/4 py-1 pl-4 align-top">- tanggal</td><td className="w-3/4 py-1 align-top">: {formatDate(formData.baptisanTanggal)}</td></tr><tr><td className="w-1/4 py-1 pl-4 align-top">- tempat</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.baptisanTempat}</span></td></tr><tr><td className="w-1/4 py-1 pl-4 align-top">- pendeta</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.baptisanPendeta}</span></td></tr></tbody></table></div><div className="mb-8"><p className="font-bold mb-2">B. PERNYATAAN PEMOHON</p><table className="w-full ml-4 mb-4" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}><tbody><tr><td className="w-[80%] py-1 align-top">1. Apakah Anda dalam masa disiplin Gereja?</td><td className="w-[20%] py-1 font-bold align-top">: {formData.masaDisiplin}</td></tr><tr><td className="w-[80%] py-1 align-top">2. Apakah Anda sudah pernah mengajukan permohonan perpindahan keanggotaan?</td><td className="w-[20%] py-1 font-bold align-top">: {formData.pernahPindah}</td></tr></tbody></table><p className="mb-2">Dengan ini saya memohon agar memindahkan keanggotaan saya dari:</p><table className="w-full ml-4 mb-4" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}><tbody><tr><td className="w-1/4 py-1 align-top">1. Nama Jemaat Asal</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.jemaatAsalNama}</span></td></tr><tr><td className="w-1/4 py-1 align-top">2. Alamat Jemaat Asal</td><td className="w-3/4 py-1 align-top">: {formData.jemaatAsalAlamat}</td></tr><tr><td className="w-1/4 py-1 align-top">3. Nama Sekretaris</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.jemaatAsalSekretaris}</span></td></tr><tr><td className="w-1/4 py-1 align-top">4. Telp/Email Aktif</td><td className="w-3/4 py-1 align-top">: {formData.jemaatAsalKontak}</td></tr></tbody></table><p className="mb-6">Demikian permohonan ini saya ajukan tanpa ada paksaan dari pihak manapun.</p><div className="flex justify-end pr-10"><div className="text-center w-64"><p>Tempat/Tanggal diajukan:</p><p className="mb-14">Surabaya, {formatDate(new Date())}</p><p className="border-t border-black pt-1 uppercase leading-none">( {formData.namaLengkap || '..........................'} )</p><p className="text-[11px] mt-1">Nama dan Tanda Tangan Pemohon</p></div></div></div><div className="mb-6 mt-10 pt-6 border-t-[1.5px] border-dashed border-gray-400"><p className="font-bold text-center mb-5 tracking-wide text-[13px]">DIISI OLEH SEKRETARIS JEMAAT</p><p className="font-bold mb-2 text-[13px]">C. DATA KEPUTUSAN MAJELIS</p><table className="w-full ml-4" style={{ borderCollapse: 'separate', borderSpacing: '0 6px' }}><tbody><tr><td className="w-[40%] py-1.5 align-bottom">1. Keputusan Majelis Tanggal</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom"> Nomor Keputusan</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom">2. Di proses tanggal</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom">3. Ketua Jemaat</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom">4. Gembala Jemaat</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr></tbody></table><div className="flex justify-end pr-10 mt-8"><div className="text-center w-64"><p className="mb-14">20........</p><p className="border-t border-black pt-1 leading-none">( ........................................ )</p><p className="text-[11px] mt-1">Nama dan Tanda Tangan Sekretaris Jemaat</p></div></div></div><div className="mt-8 pt-4 border-t border-gray-200 flex justify-between items-center text-[10px] text-gray-400 font-sans"><p>ACMS v.3.03</p><p>&copy; Copyright by PISGAH BISDAC 2026</p></div></div>
+                                <div id="pdf-content" className="p-10 bg-white text-black text-sm relative" style={{ width: '210mm', minHeight: '297mm', fontFamily: '"Open Sans", sans-serif', boxSizing: 'border-box' }}><p className="text-[10px] text-gray-500 absolute top-4 right-10 leading-none">Form ACMS-03</p><div className="flex justify-between items-center mb-10 mt-6"><div className="w-[180px] flex justify-start"><img src="https://i.postimg.cc/dQhq2HGf/png-acms-new-logo.png" alt="ACMS Logo" crossOrigin="anonymous" className="h-[60px] object-contain block" /></div><div className="flex-1 text-center px-4"><h2 className="font-bold text-[16px] leading-tight">PERMOHONAN PERPINDAHAN ANGGOTA</h2><h2 className="font-bold text-[16px] leading-tight mt-1">GMAHK DAERAH SUMATERA KAWASAN TENGAH</h2><h2 className="font-bold text-[16px] leading-tight mt-1">JEMAAT PISGAH BISDAC</h2></div><div className="w-[180px] flex flex-col items-center"><div className="border border-black bg-[#dce6f1] font-bold py-1 w-full text-center text-[12px]">DIISI OLEH PEMOHON</div><p className="italic text-center mt-1 text-[12px] leading-snug">Bagi Pemohon yang namanya <br /><span className="font-bold not-italic">SUDAH</span> ada di ACMS</p></div></div><div className="mb-6"><p className="font-bold mb-2">A. PROFIL PEMOHON <span className="font-normal text-[11px]">(Mohon diisi sesuai dengan KTP/Akte Kelahiran / identitas lainnya menggunakan huruf besar)</span></p><table className="w-full ml-4" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}><tbody><tr><td className="w-1/4 py-1 align-top">1. Nama Lengkap</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.namaLengkap}</span></td></tr><tr><td className="w-1/4 py-1 align-top">2. Jenis Kelamin</td><td className="w-3/4 py-1 align-top">: {formData.jenisKelamin}</td></tr><tr><td className="w-1/4 py-1 align-top">3. Tanggal Lahir</td><td className="w-3/4 py-1 align-top">: {formatDate(formData.tanggalLahir)}</td></tr><tr><td className="w-1/4 py-1 align-top">4. Nama Ibu</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.namaIbu}</span></td></tr><tr><td className="w-1/4 py-1 align-top">5. Baptisan</td><td className="w-3/4 py-1"></td></tr><tr><td className="w-1/4 py-1 pl-4 align-top">- tanggal</td><td className="w-3/4 py-1 align-top">: {formatDate(formData.baptisanTanggal)}</td></tr><tr><td className="w-1/4 py-1 pl-4 align-top">- tempat</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.baptisanTempat}</span></td></tr><tr><td className="w-1/4 py-1 pl-4 align-top">- pendeta</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.baptisanPendeta}</span></td></tr></tbody></table></div><div className="mb-8"><p className="font-bold mb-2">B. PERNYATAAN PEMOHON</p><table className="w-full ml-4 mb-4" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}><tbody><tr><td className="w-[80%] py-1 align-top">1. Apakah Anda dalam masa disiplin Gereja?</td><td className="w-[20%] py-1 font-bold align-top">: {formData.masaDisiplin}</td></tr><tr><td className="w-[80%] py-1 align-top">2. Apakah Anda sudah pernah mengajukan permohonan perpindahan keanggotaan?</td><td className="w-[20%] py-1 font-bold align-top">: {formData.pernahPindah}</td></tr></tbody></table><p className="mb-2">Dengan ini saya memohon agar memindahkan keanggotaan saya dari:</p><table className="w-full ml-4 mb-4" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}><tbody><tr><td className="w-1/4 py-1 align-top">1. Nama Jemaat Asal</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.jemaatAsalNama}</span></td></tr><tr><td className="w-1/4 py-1 align-top">2. Alamat Jemaat Asal</td><td className="w-3/4 py-1 align-top">: {formData.jemaatAsalAlamat}</td></tr><tr><td className="w-1/4 py-1 align-top">3. Nama Sekretaris</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.jemaatAsalSekretaris}</span></td></tr><tr><td className="w-1/4 py-1 align-top">4. Telp/Email Aktif</td><td className="w-3/4 py-1 align-top">: {formData.jemaatAsalKontak}</td></tr></tbody></table><p className="mb-6">Demikian permohonan ini saya ajukan tanpa ada paksaan dari pihak manapun.</p><div className="flex justify-end pr-10"><div className="text-center w-64"><p>Tempat/Tanggal diajukan:</p><p className="mb-14">Surabaya, {formatDate(new Date())}</p><p className="border-t border-black pt-1 uppercase leading-none">( {formData.namaLengkap || '..........................'} )</p><p className="text-[11px] mt-1">Nama dan Tanda Tangan Pemohon</p></div></div></div><div className="mb-6 mt-10 pt-6 border-t-[1.5px] border-dashed border-gray-400"><p className="font-bold text-center mb-5 tracking-wide text-[13px]">DIISI OLEH SEKRETARIS JEMAAT</p><p className="font-bold mb-2 text-[13px]">C. DATA KEPUTUSAN MAJELIS</p><table className="w-full ml-4" style={{ borderCollapse: 'separate', borderSpacing: '0 6px' }}><tbody><tr><td className="w-[40%] py-1.5 align-bottom">1. Keputusan Majelis Tanggal</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom"> Nomor Keputusan</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom">2. Di proses tanggal</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom">3. Ketua Jemaat</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom">4. Gembala Jemaat</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr></tbody></table><div className="flex justify-end pr-10 mt-8"><div className="text-center w-64"><p className="mb-14">20........</p><p className="border-t border-black pt-1 leading-none">( ........................................ )</p><p className="text-[11px] mt-1">Nama dan Tanda Tangan Sekretaris Jemaat</p></div></div></div><div className="mt-8 pt-4 border-t border-gray-200 flex justify-between items-center text-[10px] text-gray-400 font-sans"><p>ACMS v.3.03</p><p>&copy; Copyright by PISGAH BISDAC 2026</p></div></div>
                             </div>
                         </div>
                     </div>
@@ -1615,6 +1636,81 @@ const truncateText = (text, maxLength = 500) => {
             const [editForm, setEditForm] = React.useState([]);
             const [isSavingJadwal, setIsSavingJadwal] = React.useState(false);
             const [isSavingPejabat, setIsSavingPejabat] = React.useState(false);
+            const [isConverting, setIsConverting] = React.useState(false);
+
+            // Fungsi untuk menangani upload file dengan dukungan HEIC
+            const handleImageUpload = async (e, type, wartaIndex = null) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                let fileToProcess = file;
+                const fileName = file.name.toLowerCase();
+
+                // Cek jika format adalah HEIC atau HEIF
+                if (fileName.endsWith(".heic") || fileName.endsWith(".heif")) {
+                    try {
+                        setIsConverting(true);
+                        // Konversi HEIC ke Blob JPEG
+                        const convertedBlob = await heic2any({
+                            blob: file,
+                            toType: "image/jpeg",
+                            quality: 0.7
+                        });
+                        
+                        // Jika hasilnya array (kasus jarang), ambil elemen pertama
+                        const finalBlob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                        
+                        // Buat file object baru dari blob hasil konversi
+                        fileToProcess = new File([finalBlob], fileName.replace(/\.heic|\.heif/, ".jpg"), {
+                            type: "image/jpeg"
+                        });
+                        setIsConverting(false);
+                    } catch (error) {
+                        console.error("Gagal mengonversi HEIC:", error);
+                        setIsConverting(false);
+                        alert("Gagal memproses gambar HEIC. Silakan gunakan format JPG/PNG.");
+                        return;
+                    }
+                }
+
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64String = reader.result;
+                    if (type === 'hero') setHeroImageUrl(base64String);
+                    if (type === 'warta' && wartaIndex !== null) {
+                        const newWarta = [...daftarWarta];
+                        newWarta[wartaIndex].url = base64String;
+                        setDaftarWarta(newWarta);
+                    }
+                };
+                reader.readAsDataURL(fileToProcess);
+            };
+
+            return (
+                <div className="p-4 max-w-4xl mx-auto pb-24">
+                    {isConverting && (
+                        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center backdrop-blur-sm">
+                            <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center">
+                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-4"></div>
+                                <p className="font-bold text-navy-900">Mengonversi format HEIC...</p>
+                                <p className="text-sm text-gray-500">Mohon tunggu sebentar</p>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* ... Sisa UI Admin Panel ... */}
+                    {/* Pastikan input file menerima .heic */}
+                    <div className="mb-8 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <h3 className="font-bold mb-4 flex items-center"><Icon name="Image" className="mr-2 w-5 h-5" /> Ganti Gambar Welcome (Hero)</h3>
+                        <input 
+                            type="file" 
+                            accept="image/*,.heic,.heif" 
+                            onChange={(e) => handleImageUpload(e, 'hero')}
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        />
+                    </div>
+                </div>
+            );
 
             // State Ganti Password
             const [oldPassword, setOldPassword] = React.useState('');
@@ -3650,16 +3746,10 @@ const insertEditWartaFormatting = (tag) => {
             const jadwalKhususSabat = jadwalDB[displaySabatYMD] || initialJadwalSabat;
             // ----------------------------------------------------------------------
 
-            // MENGAMBIL DATA DARI REST API GOOGLE APPS SCRIPT
+            // MENGAMBIL DATA DARI REST API GOOGLE APPS SCRIPT (Menggunakan Promise yang sudah berjalan di awal)
             React.useEffect(() => {
-                fetch(`${GAS_API_URL}?action=getData`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Jaringan bermasalah atau API tidak ditemukan');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
+                initialDataPromise.then(data => {
+                    if (data) {
                         if (data.dataPejabat) setDataPejabat(data.dataPejabat);
                         if (data.jadwalDB) setJadwalDB(data.jadwalDB);
                         if (data.youtubeUrl) setYoutubeUrl(data.youtubeUrl);
@@ -3684,13 +3774,9 @@ const insertEditWartaFormatting = (tag) => {
                                 setPengumuman({ header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) });
                             }
                         }
-                        setIsAppLoading(false);
-                    })
-
-                    .catch(error => {
-                        console.error('Error fetching data, menggunakan data default:', error);
-                        setIsAppLoading(false);
-                    });
+                    }
+                    setIsAppLoading(false);
+                });
             }, []);
 
             // FIX TYPO: Memperbaiki penulisan state yang sebelumnya kurang kurung siku
