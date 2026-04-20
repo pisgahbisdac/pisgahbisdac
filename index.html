@@ -326,20 +326,6 @@ const truncateText = (text, maxLength = 500) => {
         const Home = ({ setActiveTab, youtubeUrl, heroImageUrl, jadwalDB, dataPejabat, pengumuman }) => {
             const [searchQuery, setSearchQuery] = React.useState('');
 
-            {pengumuman && pengumuman.isi && (
-                    <div className="bg-gradient-to-r from-gold-50 to-gold-100 p-5 md:p-6 rounded-[1.5rem] shadow-sm border border-gold-200 hover:shadow-md transition-shadow relative overflow-hidden">
-                        <div className="absolute top-0 right-0 bg-gold-500 text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center"><Icon name="Info" className="w-3 h-3 mr-1" /> Info</div>
-                    <h2 className="text-[1.15rem] font-bold mb-4 text-navy-900 flex items-center">
-                        <Icon name="Megaphone" className="w-[1.5rem] h-[1.5rem] mr-2 text-gold-500" /> PENGUMUMAN JEMAAT
-                    </h2>
-                    <h3 className="text-[1rem] font-bold mb-3 text-navy-900 flex items-center">
-                     {pengumuman.header || "Pengumuman Jemaat"}
-                    </h3>
-                        <div className="pengumuman-text text-navy-800 text-sm whitespace-pre-wrap font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}>
-                        </div>
-                    </div>
-                )}
-
             // Listen for search events from the mobile header
             React.useEffect(() => {
                 const handleSearch = (e) => setSearchQuery(e.detail || '');
@@ -462,6 +448,20 @@ const truncateText = (text, maxLength = 500) => {
                             </div>
                         </div>
                     </div>
+
+                    {pengumuman && pengumuman.isi && (
+                        <div className="bg-gradient-to-r from-gold-50 to-gold-100 p-5 md:p-6 rounded-[1.5rem] shadow-sm border border-gold-200 hover:shadow-md transition-shadow relative overflow-hidden mb-6 md:mb-8">
+                            <div className="absolute top-0 right-0 bg-gold-500 text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center"><Icon name="Info" className="w-3 h-3 mr-1" /> Info</div>
+                            <h2 className="text-[1.15rem] font-bold mb-4 text-navy-900 flex items-center">
+                                <Icon name="Megaphone" className="w-[1.5rem] h-[1.5rem] mr-2 text-gold-500" /> PENGUMUMAN JEMAAT
+                            </h2>
+                            <h3 className="text-[1rem] font-bold mb-3 text-navy-900 flex items-center">
+                                {pengumuman.header || "Pengumuman Jemaat"}
+                            </h3>
+                            <div className="pengumuman-text text-navy-800 text-sm whitespace-pre-wrap font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Petugas Search Results */}
                     {searchQuery.trim() && petugasResults.length > 0 && (
@@ -1435,7 +1435,6 @@ const truncateText = (text, maxLength = 500) => {
                 return (
                     <div className="space-y-6 animate-fade-in">
                         <div className="flex justify-between items-center">
-                            <button onClick={() => setShowGallery(false)} className="text-navy-600 font-bold flex items-center hover:text-gold-600">&larr; Kembali ke Warta</button>
                             <h2 className="text-xl font-bold text-navy-800">Galeri Foto</h2>
                         </div>
                         <div className="bg-white rounded-[1.5rem] p-6 shadow-sm border border-navy-100/60">
@@ -3667,8 +3666,27 @@ const insertEditWartaFormatting = (tag) => {
                         if (data.kategoriPejabat) setKategoriPejabat(data.kategoriPejabat);
                         if (data.heroImageUrl) setHeroImageUrl(data.heroImageUrl);
                         if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
+
+                        // Menangani Pengumuman agar kompatibel dengan data lama (String biasa) dan JSON object baru
+                        if (data.pengumuman !== undefined) {
+                            try {
+                                const parsed = JSON.parse(data.pengumuman);
+                                if (parsed && typeof parsed === 'object') {
+                                    setPengumuman({ 
+                                        header: parsed.header || "Pengumuman Jemaat", 
+                                        isi: decodeHTML(parsed.isi || "") 
+                                    });
+                                } else {
+                                    setPengumuman({ header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) });
+                                }
+                            } catch (e) {
+                                // Jika gagal di-parse, artinya datanya masih berupa string murni dari versi sebelumnya
+                                setPengumuman({ header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) });
+                            }
+                        }
                         setIsAppLoading(false);
                     })
+
                     .catch(error => {
                         console.error('Error fetching data, menggunakan data default:', error);
                         setIsAppLoading(false);
@@ -3693,12 +3711,12 @@ const insertEditWartaFormatting = (tag) => {
 
             const renderContent = () => {
                 switch (activeTab) {
-                    case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImageUrl={heroImageUrl} jadwalDB={jadwalDB} dataPejabat={dataPejabat} />;
+                    case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImageUrl={heroImageUrl} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman}/>;
                     case 'belajar': return <Belajar setActiveTab={setActiveTab} />;
                     case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'belajar_egw': return <DetailEGW setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
-                    case 'warta':  return <WartaPage daftarWarta={daftarWarta} setActiveTab={setActiveTab} />;
+                    case 'warta':  return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta}  />;
                     case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} youtubeUrl={youtubeUrl} />;
                     case 'jadwal': return <Jadwal activeRabu={jadwalKhususRabu} activeSabat={jadwalKhususSabat} rabuYMD={displayRabuYMD} sabatYMD={displaySabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} />;
                     case 'persembahan': return <Persembahan dataPejabat={dataPejabat} />;
@@ -3710,8 +3728,7 @@ const insertEditWartaFormatting = (tag) => {
                     case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
                     case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImageUrl={heroImageUrl} setHeroImageUrl={setHeroImageUrl} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImageUrl={heroImageUrl} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} />;
                     case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} />;
-                    default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImageUrl={heroImageUrl} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman}
-                            daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta}
+                    default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImageUrl={heroImageUrl} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta}
                             refreshWarta={refreshWarta}/>;
                 }
             };
