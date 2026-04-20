@@ -1,234 +1,118 @@
 // =========================================================================
-// KONFIGURASI TABEL JADWAL
+// KONFIGURASI UTAMA
 // =========================================================================
-var SCHEDULE_CONFIGS = [
-  { sheetName: "Jadwal Rabu", key: "petugas", headers: ["Tanggal", "Pemimpin Acara", "Renungan", "Tempat", "Persembahan Kas", "Lagu Pujian"] },
+const SPREADSHEET_ID = "1A2CnyZkwVQDPxnHaLgYexSoVmh8IwWsRByWapgy6f58";
+const IMAGE_PARENT_FOLDER_ID = "1AutGgLJM0AHZhYWGyfrD6TJQ1xpg97fm";
+
+const SCHEDULE_CONFIGS = [
+  { sheetName: "Jadwal Rabu", key: "petugas", headers: ["Tanggal", "Pemimpin Acara", "Renungan", "Judul", "Doa Buka", "Doa Tutup", "Tempat", "Lagu Pujian", "Persembahan Kas"] },
   { sheetName: "Jadwal SS", key: "sekolahSabat", headers: ["Tanggal", "Pianis", "Presider", "Ayat Inti & Doa Buka", "Berita Misi", "Doa Tutup"] },
-  { sheetName: "Jadwal Khotbah", key: "khotbah", headers: ["Tanggal", "Pianis", "Khotbah", "Doa Syafaat", "Presider", "Cerita Anak-anak", "Song Leader", "Lagu Pujian"] },
+  { sheetName: "Jadwal Khotbah", key: "khotbah", headers: ["Tanggal", "Pianis", "Khotbah", "Doa Syafaat", "Presider", "Song Leader", "Cerita Anak-anak", "Lagu Pujian"] },
   { sheetName: "Jadwal Diakon", key: "diakon", headers: ["Tanggal", "Diakon"] },
-  { sheetName: "Jadwal Musik", key: "musik", headers: ["Tanggal", "Pianis SS", "Pianis Khotbah"] },
+  { sheetName: "Jadwal Musik", key: "musik", headers: ["Tanggal", "Pianis SS", "Pianis Khotbah", "Gitar"] },
   { sheetName: "Jadwal Perjamuan", key: "perjamuan", headers: ["Tanggal", "Pelayan Perjamuan (L1)", "Pelayan Perjamuan (L2)", "Pelayan Perjamuan (P1)", "Pelayan Perjamuan (P2)"] }
 ];
 
-// =========================================================================
-// FUNGSI UPLOAD GAMBAR KE GOOGLE DRIVE DAN HASILKAN THUMBNAIL URL
-// =========================================================================
-function uploadImageToDrive(base64Data, fileName) {
-  try {
-    var base64 = base64Data;
-    if (base64Data && base64Data.includes(',')) {
-      base64 = base64Data.split(',')[1];
-    }
-    var blob = Utilities.newBlob(Utilities.base64Decode(base64), 'image/jpeg', fileName);
-    var folderName = "Warta_Images_PISGAH";
-    var folders = DriveApp.getFoldersByName(folderName);
-    var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
-    var file = folder.createFile(blob);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    var fileId = file.getId();
-    // Thumbnail URL yang stabil
-    return "https://drive.google.com/thumbnail?id=" + fileId + "&sz=w1000";
-  } catch (e) {
-    console.error("Upload gambar gagal: " + e.toString());
-    return "";
-  }
+function jsonResponse(data) {
+  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
 }
 
 // =========================================================================
-// INISIALISASI SHEET
-// =========================================================================
-function checkAndInitSheets() {
-  var ss = SpreadsheetApp.openById("1FbdIMEHbY5PY61kx3SFTLjq2CZUISmeQObuO_qPJ5MM");
-  
-  // Sheet Pengaturan
-  var sPengaturan = ss.getSheetByName("Pengaturan");
-  if (!sPengaturan) {
-    sPengaturan = ss.insertSheet("Pengaturan");
-    sPengaturan.appendRow(["Konfigurasi", "Nilai"]);
-    sPengaturan.appendRow(["PASSWORD", "admin"]);
-    sPengaturan.appendRow(["YOUTUBE_URL", "https://www.youtube-nocookie.com/embed?listType=playlist&list=UUz6rQ_5zP0Y0c8V7aKx2jLQ"]);
-    sPengaturan.appendRow(["PENGUMUMAN", ""]);
-    sPengaturan.appendRow(["KATEGORI_PEJABAT", JSON.stringify(["Gembala", "Officers", "Departemen & Pelayanan", "Lainnya"])]);
-    sPengaturan.getRange("A1:B1").setFontWeight("bold");
-    sPengaturan.setColumnWidth(1, 150);
-    sPengaturan.setColumnWidth(2, 400);
-  }
-  
-  // Sheet Pejabat
-  var sPejabat = ss.getSheetByName("Pejabat");
-  if (!sPejabat) {
-    sPejabat = ss.insertSheet("Pejabat");
-    sPejabat.appendRow(["ID", "Jabatan", "Nama", "WhatsApp", "Link Foto", "Kategori"]);
-    sPejabat.getRange("A1:F1").setFontWeight("bold");
-    sPejabat.setFrozenRows(1);
-    var initialPejabat = [
-      ["gembala", "Gembala Jemaat", "Pdt. [Nama Gembala]", "62800000000", "https://ui-avatars.com/api/?name=Gembala+Jemaat&background=eff6ff&color=1e3a8a&size=128", "Gembala"],
-      ["ketua", "Ketua Jemaat", "Bpk. [Nama Ketua]", "62800000000", "https://ui-avatars.com/api/?name=Ketua+Jemaat&background=eff6ff&color=1e3a8a&size=128", "Officers"],
-      ["sekertaris", "Sekertaris", "Bpk. [Nama Sekertaris]", "62800000000", "https://ui-avatars.com/api/?name=Sekertaris&background=eff6ff&color=1e3a8a&size=128", "Officers"],
-      ["bendahara", "Bendahara", "Ibu [Nama Bendahara]", "62800000000", "https://ui-avatars.com/api/?name=Bendahara&background=f0fdf4&color=14532d&size=128", "Officers"],
-      ["penginjilan", "Penginjilan", "Bpk. [Nama Penginjilan]", "62800000000", "https://ui-avatars.com/api/?name=Penginjilan+2&background=f0fdf4&color=14532d&size=128", "Departemen & Pelayanan"],
-      ["ss", "Sekolah Sabat", "Ibu. [Nama Sekolah Sabat]", "62800000000", "https://ui-avatars.com/api/?name=Sekolah+Sabat&background=fffbeb&color=78350f&size=128", "Departemen & Pelayanan"],
-      ["diakon", "Ketua Diakon", "Ibu. [Nama Ketua Diakon]", "62800000000", "https://ui-avatars.com/api/?name=Ketua+Diakon&background=fffbeb&color=78350f&size=128", "Departemen & Pelayanan"],
-      ["rumah", "Rumah Tangga", "Sdr. [Nama Rumah Tangga]", "62800000000", "https://ui-avatars.com/api/?name=Rumah+Tangga&background=e0e7ff&color=3730a3&size=128", "Departemen & Pelayanan"],
-      ["pemuda", "Pemuda", "Sdr. [Nama Pemuda]", "62800000000", "https://ui-avatars.com/api/?name=Pemuda&background=e0e7ff&color=3730a3&size=128", "Departemen & Pelayanan"],
-      ["hotline", "Hotline", "Bpk. [Nama Hotline]", "62800000000", "https://ui-avatars.com/api/?name=Hotline&background=f3f4f6&color=1f2937&size=128", "Lainnya"],
-      ["komunikasi", "Komunikasi", "Sdr. [Nama Komunikasi]", "62800000000", "https://ui-avatars.com/api/?name=Kominikasi&background=faf5ff&color=581c87&size=128", "Lainnya"]
-    ];
-    sPejabat.getRange(2, 1, initialPejabat.length, 6).setValues(initialPejabat);
-  }
-  
-  // Sheet Jadwal
-  for (var i = 0; i < SCHEDULE_CONFIGS.length; i++) {
-    var conf = SCHEDULE_CONFIGS[i];
-    var sheet = ss.getSheetByName(conf.sheetName);
-    if (!sheet) {
-      sheet = ss.insertSheet(conf.sheetName);
-      sheet.appendRow(conf.headers);
-      sheet.getRange(1, 1, 1, conf.headers.length).setFontWeight("bold").setBackground("#eef2f6");
-      sheet.setFrozenRows(1);
-    }
-  }
-  
-  // Sheet Susunan Lagu
-  var sSusunan = ss.getSheetByName("Susunan_Lagu");
-  if (!sSusunan) {
-    sSusunan = ss.insertSheet("Susunan_Lagu");
-    sSusunan.appendRow([
-      "Tanggal", "SS Lagu Buka", "SS Lagu Tutup", "Khotbah Ayat Bersahutan",
-      "Khotbah Lagu Buka", "Pujian 1 Tampil", "Pujian 1 Judul",
-      "Pujian 2 Tampil", "Pujian 2 Judul", "Pujian 3 Tampil", "Pujian 3 Judul",
-      "Ayat Inti", "Lagu Tutup"
-    ]);
-    sSusunan.setFrozenRows(1);
-  }
-  
-  // Sheet Warta
-  var sWarta = ss.getSheetByName("Warta");
-  if (!sWarta) {
-    sWarta = ss.insertSheet("Warta");
-    sWarta.appendRow(["Tanggal", "Judul", "Isi", "URL Gambar", "Penulis"]);
-    sWarta.getRange(1,1,1,5).setFontWeight("bold");
-  } else {
-    // Cek apakah kolom Penulis sudah ada
-    var headers = sWarta.getRange(1,1,1,sWarta.getLastColumn()).getValues()[0];
-    if (headers.indexOf("Penulis") === -1) {
-      sWarta.getRange(1, sWarta.getLastColumn()+1).setValue("Penulis");
-    }
-  }
-  
-  return ss;
-}
-
-// =========================================================================
-// MENGAMBIL DATA (doGet)
+// GET DATA
 // =========================================================================
 function doGet(e) {
-  var ss = checkAndInitSheets();
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const timezone = Session.getScriptTimeZone();
   
-  // Baca Pengaturan
-  var sPengaturan = ss.getSheetByName("Pengaturan");
-  var pengData = sPengaturan.getDataRange().getValues();
-  var youtubeUrl = "https://www.youtube-nocookie.com/embed?listType=playlist&list=UUz6rQ_5zP0Y0c8V7aKx2jLQ";
-  var pengumuman = "";
-  var kategoriPejabat = ["Gembala", "Officers", "Departemen & Pelayanan", "Lainnya"];
-  for (var i = 1; i < pengData.length; i++) {
-    if (pengData[i][0] === "YOUTUBE_URL") youtubeUrl = pengData[i][1].toString();
-    if (pengData[i][0] === "PENGUMUMAN") pengumuman = pengData[i][1].toString();
+  // Baca sheet Pengaturan
+  const sPengaturan = ss.getSheetByName("Pengaturan");
+  const pengData = sPengaturan ? sPengaturan.getDataRange().getValues() : [];
+  let youtubeUrl = "https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g";
+  let pengumuman = "";
+  let kategoriPejabat = ["Gembala", "Officers", "Departemen & Pelayanan", "Lainnya"];
+  
+  for (let i = 1; i < pengData.length; i++) {
+    if (pengData[i][0] === "YOUTUBE_URL") youtubeUrl = String(pengData[i][1]);
+    if (pengData[i][0] === "PENGUMUMAN") pengumuman = String(pengData[i][1]);
     if (pengData[i][0] === "KATEGORI_PEJABAT") {
-      try { kategoriPejabat = JSON.parse(pengData[i][1].toString()); } catch(e) {}
+      try { kategoriPejabat = JSON.parse(pengData[i][1]); } catch(e) {}
     }
   }
   
-  // Baca Pejabat
-  var sPejabat = ss.getSheetByName("Pejabat");
-  var pData = sPejabat.getDataRange().getValues();
-  var dataPejabat = [];
-  for (var i = 1; i < pData.length; i++) {
-    if (pData[i][0]) {
-      dataPejabat.push({
-        id: pData[i][0].toString(),
-        jabatan: pData[i][1].toString(),
-        nama: pData[i][2].toString(),
-        wa: pData[i][3].toString().replace(/'/g, ''),
-        img: pData[i][4].toString(),
-        kategori: pData[i][5] ? pData[i][5].toString() : 'Umum'
-      });
-    }
-  }
-  
-  // Baca Jadwal
-  var jadwalDB = {};
-  for (var i = 0; i < SCHEDULE_CONFIGS.length; i++) {
-    var conf = SCHEDULE_CONFIGS[i];
-    var sheet = ss.getSheetByName(conf.sheetName);
-    if (!sheet) continue;
-    var data = sheet.getDataRange().getValues();
-    for (var r = 1; r < data.length; r++) {
-      var tglObj = data[r][0];
-      if (!tglObj || tglObj === "") continue;
-      var dateStr = typeof tglObj === 'object' ? Utilities.formatDate(tglObj, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(tglObj);
-      if (!jadwalDB[dateStr]) {
-        var isRabu = new Date(dateStr + "T00:00:00").getDay() === 3;
-        if (isRabu) {
-          jadwalDB[dateStr] = { title: "Ibadah Permintaan Doa (Rabu)", time: "19:30 WIB - selesai", petugas: [] };
-        } else {
-          jadwalDB[dateStr] = { title: "Ibadah Sabat (Sabtu)", time: "10:00 - 13:00 WIB", sekolahSabatTime: "11:45 - 12:40 WIB", khotbahTime: "10:00 - 11:40 WIB", sekolahSabat: [], khotbah: [], diakon: [], musik: [], perjamuan: [] };
-        }
-      }
-      var taskArray = [];
-      for (var c = 1; c < conf.headers.length; c++) {
-        taskArray.push({
-          tugas: conf.headers[c],
-          nama: data[r][c] ? data[r][c].toString() : ""
+  // Baca sheet Pejabat
+  const sPejabat = ss.getSheetByName("Pejabat");
+  const dataPejabat = [];
+  if (sPejabat) {
+    const pData = sPejabat.getDataRange().getValues();
+    for (let i = 1; i < pData.length; i++) {
+      if (pData[i][0]) {
+        dataPejabat.push({
+          id: String(pData[i][0]),
+          jabatan: String(pData[i][1]),
+          nama: String(pData[i][2]),
+          wa: String(pData[i][3]).replace(/'/g, ''),
+          img: String(pData[i][4]),
+          kategori: pData[i][5] ? String(pData[i][5]) : 'Umum'
         });
+      }
+    }
+  }
+  
+  // Baca semua jadwal
+  const jadwalDB = {};
+  SCHEDULE_CONFIGS.forEach(conf => {
+    const sheet = ss.getSheetByName(conf.sheetName);
+    if (!sheet) return;
+    const data = sheet.getDataRange().getValues();
+    for (let r = 1; r < data.length; r++) {
+      const tglObj = data[r][0];
+      if (!tglObj) continue;
+      const dateStr = typeof tglObj === 'object' ? Utilities.formatDate(tglObj, timezone, "yyyy-MM-dd") : String(tglObj);
+      if (!jadwalDB[dateStr]) initJadwalObj(jadwalDB, dateStr);
+      const taskArray = [];
+      for (let c = 1; c < conf.headers.length; c++) {
+        taskArray.push({ tugas: conf.headers[c], nama: String(data[r][c] || "") });
       }
       jadwalDB[dateStr][conf.key] = taskArray;
     }
-  }
+  });
   
   // Baca Susunan Lagu
-  var sheetSusunan = ss.getSheetByName("Susunan_Lagu");
+  const sheetSusunan = ss.getSheetByName("Susunan_Lagu");
   if (sheetSusunan) {
-    var dataSusunan = sheetSusunan.getDataRange().getValues();
-    for (var r = 1; r < dataSusunan.length; r++) {
-      var tglObj = dataSusunan[r][0];
+    const dataSusunan = sheetSusunan.getDataRange().getValues();
+    for (let r = 1; r < dataSusunan.length; r++) {
+      const tglObj = dataSusunan[r][0];
       if (!tglObj) continue;
-      var dateStr = typeof tglObj === 'object' ? Utilities.formatDate(tglObj, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(tglObj);
-      if (!jadwalDB[dateStr]) {
-        var isRabu = new Date(dateStr + "T00:00:00").getDay() === 3;
-        if (isRabu) {
-          jadwalDB[dateStr] = { title: "Ibadah Permintaan Doa (Rabu)", time: "19:30 - selesai", petugas: [] };
-        } else {
-          jadwalDB[dateStr] = { title: "Ibadah Sabat (Sabtu)", time: "10:00 - 13:00 WIB", sekolahSabatTime: "11:45 - 12:40 WIB", khotbahTime: "10:00 - 11:40 WIB", sekolahSabat: [], khotbah: [], diakon: [], musik: [], perjamuan: [] };
-        }
-      }
+      const dateStr = typeof tglObj === 'object' ? Utilities.formatDate(tglObj, timezone, "yyyy-MM-dd") : String(tglObj);
+      if (!jadwalDB[dateStr]) initJadwalObj(jadwalDB, dateStr);
       jadwalDB[dateStr].susunan = {
-        ssLaguBuka: dataSusunan[r][1] ? String(dataSusunan[r][1]) : "",
-        ssLaguTutup: dataSusunan[r][2] ? String(dataSusunan[r][2]) : "",
-        kAyatBersahutan: dataSusunan[r][3] ? String(dataSusunan[r][3]) : "",
-        kLaguBuka: dataSusunan[r][4] ? String(dataSusunan[r][4]) : "",
+        ssLaguBuka: String(dataSusunan[r][1] || ""),
+        ssLaguTutup: String(dataSusunan[r][2] || ""),
+        kAyatBersahutan: String(dataSusunan[r][3] || ""),
+        kLaguBuka: String(dataSusunan[r][4] || ""),
         kLaguPujian1_show: dataSusunan[r][5] === "YA",
-        kLaguPujian1_judul: dataSusunan[r][6] ? String(dataSusunan[r][6]) : "",
+        kLaguPujian1_judul: String(dataSusunan[r][6] || ""),
         kLaguPujian2_show: dataSusunan[r][7] === "YA",
-        kLaguPujian2_judul: dataSusunan[r][8] ? String(dataSusunan[r][8]) : "",
+        kLaguPujian2_judul: String(dataSusunan[r][8] || ""),
         kLaguPujian3_show: dataSusunan[r][9] === "YA",
-        kLaguPujian3_judul: dataSusunan[r][10] ? String(dataSusunan[r][10]) : "",
-        kAyatInti: dataSusunan[r][11] ? String(dataSusunan[r][11]) : "",
-        kLaguTutup: dataSusunan[r][12] ? String(dataSusunan[r][12]) : ""
+        kLaguPujian3_judul: String(dataSusunan[r][10] || ""),
+        kAyatInti: String(dataSusunan[r][11] || ""),
+        kLaguTutup: String(dataSusunan[r][12] || "")
       };
     }
   }
   
-  // Baca Warta (dengan rowIndex)
-  var sWarta = ss.getSheetByName("Warta");
-  var daftarWarta = [];
+  // Baca Warta
+  const sWarta = ss.getSheetByName("Warta");
+  const daftarWarta = [];
   if (sWarta) {
-    var wartaData = sWarta.getDataRange().getValues();
-    for (var i = 1; i < wartaData.length; i++) {
+    const wartaData = sWarta.getDataRange().getValues();
+    for (let i = 1; i < wartaData.length; i++) {
       if (wartaData[i][0]) {
         daftarWarta.push({
           rowIndex: i + 1,
-          tanggal: Utilities.formatDate(wartaData[i][0], Session.getScriptTimeZone(), "yyyy-MM-dd"),
+          tanggal: Utilities.formatDate(new Date(wartaData[i][0]), timezone, "yyyy-MM-dd"),
           judul: wartaData[i][1] || "",
           isi: wartaData[i][2] || "",
           gambarUrl: wartaData[i][3] || "",
@@ -238,227 +122,159 @@ function doGet(e) {
     }
   }
   
-  return ContentService.createTextOutput(JSON.stringify({
-    dataPejabat: dataPejabat,
-    jadwalDB: jadwalDB,
-    youtubeUrl: youtubeUrl,
-    pengumuman: pengumuman,
-    kategoriPejabat: kategoriPejabat,
-    daftarWarta: daftarWarta
-  })).setMimeType(ContentService.MimeType.JSON);
+  return jsonResponse({ dataPejabat, jadwalDB, youtubeUrl, pengumuman, kategoriPejabat, daftarWarta });
 }
 
+function initJadwalObj(db, dateStr) {
+  const isRabu = new Date(dateStr + "T00:00:00").getDay() === 3;
+  if (isRabu) {
+    db[dateStr] = { title: "Ibadah Permintaan Doa (Rabu)", time: "19:30 WIB - selesai", petugas: [] };
+  } else {
+    db[dateStr] = { title: "Ibadah Sabat (Sabtu)", time: "10:00 - 13:00 WIB", sekolahSabatTime: "11:45 - 12:40 WIB", khotbahTime: "10:00 - 11:40 WIB", sekolahSabat: [], khotbah: [], diakon: [], musik: [], perjamuan: [] };
+  }
+}
+
+
+
 // =========================================================================
-// MENYIMPAN DATA (doPost)
+// POST DATA
 // =========================================================================
 function doPost(e) {
-  var ss = checkAndInitSheets();
-  var payload = JSON.parse(e.postData.contents);
-  var action = payload.action;
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sPengaturan = ss.getSheetByName("Pengaturan");
+  const currentPassword = sPengaturan.getRange("B2").getValue().toString();
+  const payload = JSON.parse(e.postData.contents);
+  const action = payload.action;
   
-  var sPengaturan = ss.getSheetByName("Pengaturan");
-  var currentPassword = sPengaturan.getRange("B2").getValue().toString();
-  
-  // Verifikasi password (kecuali verifyPassword dan changePassword)
+  // Endpoint publik (tidak perlu password)
+  if (action === 'getPublicImages') {
+  return getPublicImagesHandler(payload);
+}
+  if (action === 'getPublicFolders') {   // <-- TAMBAHKAN INI
+  return getPublicFoldersHandler();
+}
+
+// Handler untuk daftar folder publik
+function getPublicFoldersHandler() {
+  try {
+    const parent = DriveApp.getFolderById(IMAGE_PARENT_FOLDER_ID);
+    const folders = parent.getFolders();
+    const list = [];
+    while (folders.hasNext()) {
+      let f = folders.next();
+      list.push({ id: f.getId(), name: f.getName() });
+    }
+    return jsonResponse({ success: true, folders: list });
+  } catch (err) {
+    return jsonResponse({ success: false, message: err.toString() });
+  }
+}
+
+  // Verifikasi password untuk semua aksi lain
   if (action !== "verifyPassword" && action !== "changePassword") {
     if (payload.password !== currentPassword) {
-      return ContentService.createTextOutput(JSON.stringify({success: false, message: "Akses ditolak, password salah"})).setMimeType(ContentService.MimeType.JSON);
+      return jsonResponse({ success: false, message: "Akses ditolak, password salah" });
     }
   }
   
-  // 1. Verify password
-  if (action === "verifyPassword") {
-    var success = (payload.password === currentPassword);
-    return ContentService.createTextOutput(JSON.stringify({success: success})).setMimeType(ContentService.MimeType.JSON);
+  switch (action) {
+    case "verifyPassword":
+      return jsonResponse({ success: (payload.password === currentPassword) });
+    case "changePassword":
+      if (payload.password === currentPassword) {
+        sPengaturan.getRange("B2").setValue(payload.newPassword);
+        return jsonResponse({ success: true });
+      }
+      return jsonResponse({ success: false, message: "Password lama salah" });
+    case "saveYoutubeUrl":
+      updatePengaturan(sPengaturan, "YOUTUBE_URL", payload.youtubeUrl);
+      return jsonResponse({ success: true });
+    case "savePengumuman":
+      updatePengaturan(sPengaturan, "PENGUMUMAN", payload.pengumuman);
+      return jsonResponse({ success: true });
+    case "saveJadwal":
+      if (payload.data && payload.data.susunan) simpanSusunan(ss, payload.date, payload.data.susunan);
+      simpanDataJadwal(ss, payload);
+      return jsonResponse({ success: true });
+    case "saveDataPejabat":
+      simpanPejabat(ss, payload, sPengaturan);
+      return jsonResponse({ success: true });
+    case "saveWarta":
+      return jsonResponse(tambahWarta(ss, payload));
+    case "updateWarta":
+      return jsonResponse(updateWarta(ss, payload));
+    case "deleteWarta":
+      const sW = ss.getSheetByName("Warta");
+      if (sW) sW.deleteRow(payload.rowIndex);
+      return jsonResponse({ success: true });
+    case "createImageFolder":
+      return jsonResponse(handleCreateImageFolder(payload));
+    case "listImageFolders":
+      return jsonResponse(handleListImageFolders());
+    case "uploadImageToDrive":
+      return jsonResponse(handleUploadImageToDrive(payload, ss));
+    case "listImages":
+      return jsonResponse(handleListImages(payload));
+    case "deleteImage":
+      return jsonResponse(handleDeleteImage(payload));
+    default:
+      return jsonResponse({ success: false, message: "Aksi tidak dikenali" });
   }
-  
-  // 2. Change password
-  if (action === "changePassword") {
-    if (payload.password === currentPassword) {
-      sPengaturan.getRange("B2").setValue(payload.newPassword);
-      return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
+}
+
+// Handler untuk galeri publik
+function getPublicImagesHandler(payload) {
+  try {
+    // Jika payload memiliki folderId, gunakan folder tersebut; jika tidak, gunakan folder induk
+    let folderId = payload ? payload.folderId : null;
+    let folder;
+    if (folderId) {
+      folder = DriveApp.getFolderById(folderId);
     } else {
-      return ContentService.createTextOutput(JSON.stringify({success: false, message: "Password lama salah"})).setMimeType(ContentService.MimeType.JSON);
+      folder = DriveApp.getFolderById(IMAGE_PARENT_FOLDER_ID);
     }
+    const files = folder.getFilesByType(MimeType.JPEG);
+    const images = [];
+    while (files.hasNext()) {
+      const file = files.next();
+      images.push({
+        id: file.getId(),
+        title: file.getName(),
+        url: file.getUrl(),
+        thumbnailUrl: "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w200"
+      });
+    }
+    return jsonResponse({ success: true, images: images });
+  } catch (err) {
+    return jsonResponse({ success: false, message: err.toString() });
   }
-  
-  // 3. Save YouTube URL
-  if (action === "saveYoutubeUrl") {
-    var pengData = sPengaturan.getDataRange().getValues();
-    var found = false;
-    for (var i = 1; i < pengData.length; i++) {
-      if (pengData[i][0] === "YOUTUBE_URL") {
-        sPengaturan.getRange(i+1, 2).setValue(payload.youtubeUrl);
-        found = true;
-        break;
-      }
-    }
-    if (!found) sPengaturan.appendRow(["YOUTUBE_URL", payload.youtubeUrl]);
-    return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  // 4. Save Pengumuman
-  if (action === "savePengumuman") {
-    var pengData = sPengaturan.getDataRange().getValues();
-    var found = false;
-    for (var i = 1; i < pengData.length; i++) {
-      if (pengData[i][0] === "PENGUMUMAN") {
-        sPengaturan.getRange(i+1, 2).setValue(payload.pengumuman);
-        found = true;
-        break;
-      }
-    }
-    if (!found) sPengaturan.appendRow(["PENGUMUMAN", payload.pengumuman]);
-    return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  // 5. Save Jadwal
-  if (action === "saveJadwal") {
-    if (payload.data && payload.data.susunan) {
-      simpanSusunanAcaraKeTab(ss, payload.date, payload.data.susunan);
-    }
-    var targetDateObj = new Date(payload.date + "T00:00:00");
-    var isRabu = targetDateObj.getDay() === 3;
-    for (var i = 0; i < SCHEDULE_CONFIGS.length; i++) {
-      var conf = SCHEDULE_CONFIGS[i];
-      if (isRabu && conf.key !== "petugas") continue;
-      if (!isRabu && conf.key === "petugas") continue;
-      var sheet = ss.getSheetByName(conf.sheetName);
-      if (!sheet) continue;
-      var tasksFromPayload = payload.data[conf.key] || [];
-      var rowData = ["'" + payload.date];
-      for (var c = 1; c < conf.headers.length; c++) {
-        var taskHeader = conf.headers[c];
-        var personName = "";
-        for (var p = 0; p < tasksFromPayload.length; p++) {
-          if (tasksFromPayload[p].tugas === taskHeader) {
-            personName = tasksFromPayload[p].nama;
-            break;
-          }
-        }
-        rowData.push(personName);
-      }
-      var sheetData = sheet.getDataRange().getValues();
-      var foundRow = -1;
-      for (var r = 1; r < sheetData.length; r++) {
-        var dStr = typeof sheetData[r][0] === 'object' ? Utilities.formatDate(sheetData[r][0], Session.getScriptTimeZone(), "yyyy-MM-dd") : String(sheetData[r][0]);
-        if (dStr === payload.date) {
-          foundRow = r+1;
-          break;
-        }
-      }
-      if (foundRow > -1) {
-        sheet.getRange(foundRow, 1, 1, rowData.length).setValues([rowData]);
-      } else {
-        sheet.appendRow(rowData);
-      }
-    }
-    return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  // 6. Save Data Pejabat
-  if (action === "saveDataPejabat") {
-    var sPejabat = ss.getSheetByName("Pejabat");
-    if (sPejabat.getLastRow() > 1) {
-      sPejabat.getRange(2, 1, sPejabat.getLastRow()-1, 6).clearContent();
-    }
-    var newRows = [];
-    for (var i = 0; i < payload.dataPejabat.length; i++) {
-      var p = payload.dataPejabat[i];
-      newRows.push([p.id, p.jabatan, p.nama, "'" + p.wa, p.img, p.kategori || "Lainnya"]);
-    }
-    if (newRows.length > 0) {
-      sPejabat.getRange(2, 1, newRows.length, 6).setValues(newRows);
-    }
-    if (payload.kategoriPejabat) {
-      var pengData = sPengaturan.getDataRange().getValues();
-      var foundKat = false;
-      for (var i = 1; i < pengData.length; i++) {
-        if (pengData[i][0] === "KATEGORI_PEJABAT") {
-          sPengaturan.getRange(i+1, 2).setValue(JSON.stringify(payload.kategoriPejabat));
-          foundKat = true;
-          break;
-        }
-      }
-      if (!foundKat) sPengaturan.appendRow(["KATEGORI_PEJABAT", JSON.stringify(payload.kategoriPejabat)]);
-    }
-    return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  // ==================== FITUR WARTA ====================
-  // 7. Save Warta (tambah baru)
-  if (action === "saveWarta") {
-    var sWarta = ss.getSheetByName("Warta");
-    if (!sWarta) {
-      sWarta = ss.insertSheet("Warta");
-      sWarta.appendRow(["Tanggal", "Judul", "Isi", "URL Gambar", "Penulis"]);
-      sWarta.getRange(1,1,1,5).setFontWeight("bold");
-    }
-    var tanggal = new Date();
-    var gambarUrl = "";
-    if (payload.gambarUrl && payload.gambarUrl.startsWith("data:image")) {
-      gambarUrl = uploadImageToDrive(payload.gambarUrl, "warta_" + new Date().getTime() + ".jpg");
-    } else {
-      gambarUrl = payload.gambarUrl || "";
-    }
-    sWarta.appendRow([tanggal, payload.judul, payload.isi, gambarUrl, payload.penulis || ""]);
-    return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  // 8. Update Warta (edit)
-  if (action === "updateWarta") {
-    try {
-      var sWarta = ss.getSheetByName("Warta");
-      if (!sWarta) {
-        return ContentService.createTextOutput(JSON.stringify({success: false, message: "Sheet Warta tidak ditemukan"}));
-      }
-      var rowIndex = payload.rowIndex;
-      if (!rowIndex || rowIndex < 2) {
-        return ContentService.createTextOutput(JSON.stringify({success: false, message: "RowIndex tidak valid"}));
-      }
-      var gambarUrl = payload.gambarUrl;
-      if (payload.gambarUrl && payload.gambarUrl.startsWith("data:image")) {
-        gambarUrl = uploadImageToDrive(payload.gambarUrl, "warta_" + new Date().getTime() + ".jpg");
-      }
-      sWarta.getRange(rowIndex, 2).setValue(payload.judul || "");
-      sWarta.getRange(rowIndex, 3).setValue(payload.isi || "");
-      sWarta.getRange(rowIndex, 4).setValue(gambarUrl || "");
-      sWarta.getRange(rowIndex, 5).setValue(payload.penulis || "");
-      return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-    } catch (err) {
-      return ContentService.createTextOutput(JSON.stringify({success: false, message: err.toString()})).setMimeType(ContentService.MimeType.JSON);
-    }
-  }
-  
-  // 9. Delete Warta
-  if (action === "deleteWarta") {
-    var sWarta = ss.getSheetByName("Warta");
-    if (!sWarta) {
-      return ContentService.createTextOutput(JSON.stringify({success: false, message: "Sheet Warta tidak ditemukan"})).setMimeType(ContentService.MimeType.JSON);
-    }
-    sWarta.deleteRow(payload.rowIndex);
-    return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  return ContentService.createTextOutput(JSON.stringify({success: false, message: "Aksi tidak dikenali"})).setMimeType(ContentService.MimeType.JSON);
 }
 
 // =========================================================================
-// FUNGSI BANTU: Simpan Susunan Acara
+// FUNGSI PENDUKUNG SIMPAN
 // =========================================================================
-function simpanSusunanAcaraKeTab(ss, tanggal, susunan) {
-  var sheet = ss.getSheetByName("Susunan_Lagu");
-  if (!sheet) return;
-  var data = sheet.getDataRange().getValues();
-  var rowIndex = -1;
-  for (var i = 1; i < data.length; i++) {
-    var rowDate = typeof data[i][0] === 'object' ? Utilities.formatDate(data[i][0], Session.getScriptTimeZone(), "yyyy-MM-dd") : String(data[i][0]);
-    if (rowDate === tanggal) {
-      rowIndex = i+1;
-      break;
+function updatePengaturan(sheet, key, value) {
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === key) {
+      sheet.getRange(i+1, 2).setValue(value);
+      return;
     }
   }
-  var rowData = [
+  sheet.appendRow([key, value]);
+}
+
+function simpanSusunan(ss, tanggal, susunan) {
+  const sheet = ss.getSheetByName("Susunan_Lagu");
+  if (!sheet) return;
+  const data = sheet.getDataRange().getValues();
+  const timezone = Session.getScriptTimeZone();
+  let rowIndex = -1;
+  for (let i = 1; i < data.length; i++) {
+    const rowDate = typeof data[i][0] === 'object' ? Utilities.formatDate(data[i][0], timezone, "yyyy-MM-dd") : String(data[i][0]);
+    if (rowDate === tanggal) { rowIndex = i+1; break; }
+  }
+  const rowData = [
     "'" + tanggal,
     susunan.ssLaguBuka || "",
     susunan.ssLaguTutup || "",
@@ -473,38 +289,220 @@ function simpanSusunanAcaraKeTab(ss, tanggal, susunan) {
     susunan.kAyatInti || "",
     susunan.kLaguTutup || ""
   ];
-  if (rowIndex > -1) {
-    sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
-  } else {
-    sheet.appendRow(rowData);
+  if (rowIndex > -1) sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
+  else sheet.appendRow(rowData);
+}
+
+function simpanDataJadwal(ss, payload) {
+  const isRabu = new Date(payload.date + "T00:00:00").getDay() === 3;
+  const timezone = Session.getScriptTimeZone();
+  SCHEDULE_CONFIGS.forEach(conf => {
+    if (isRabu && conf.key !== "petugas") return;
+    if (!isRabu && conf.key === "petugas") return;
+    const sheet = ss.getSheetByName(conf.sheetName);
+    if (!sheet) return;
+    const tasksFromPayload = payload.data[conf.key] || [];
+    const rowData = ["'" + payload.date];
+    for (let c = 1; c < conf.headers.length; c++) {
+      const taskHeader = conf.headers[c];
+      const match = tasksFromPayload.find(t => t.tugas === taskHeader);
+      rowData.push(match ? match.nama : "");
+    }
+    const sheetData = sheet.getDataRange().getValues();
+    let foundRow = -1;
+    for (let r = 1; r < sheetData.length; r++) {
+      const dStr = typeof sheetData[r][0] === 'object' ? Utilities.formatDate(sheetData[r][0], timezone, "yyyy-MM-dd") : String(sheetData[r][0]);
+      if (dStr === payload.date) { foundRow = r+1; break; }
+    }
+    if (foundRow > -1) sheet.getRange(foundRow, 1, 1, rowData.length).setValues([rowData]);
+    else sheet.appendRow(rowData);
+  });
+}
+
+function simpanPejabat(ss, payload, sPengaturan) {
+  const sPejabat = ss.getSheetByName("Pejabat");
+  const lastRow = sPejabat.getLastRow();
+  if (lastRow > 1) sPejabat.getRange(2, 1, lastRow-1, 6).clearContent();
+  const newRows = payload.dataPejabat.map(p => [p.id, p.jabatan, p.nama, "'" + p.wa, p.img, p.kategori || "Lainnya"]);
+  if (newRows.length > 0) sPejabat.getRange(2, 1, newRows.length, 6).setValues(newRows);
+  if (payload.kategoriPejabat) updatePengaturan(sPengaturan, "KATEGORI_PEJABAT", JSON.stringify(payload.kategoriPejabat));
+}
+
+function tambahWarta(ss, payload) {
+  let sWarta = ss.getSheetByName("Warta");
+  if (!sWarta) {
+    sWarta = ss.insertSheet("Warta");
+    sWarta.appendRow(["Tanggal", "Judul", "Isi", "URL Gambar", "Penulis"]);
+    sWarta.getRange(1,1,1,5).setFontWeight("bold");
+  }
+  let gambarUrl = payload.gambarUrl || "";
+  if (gambarUrl.startsWith("data:image")) gambarUrl = uploadImageToDrive(gambarUrl, "warta_" + Date.now() + ".jpg");
+  sWarta.appendRow([new Date(), payload.judul, payload.isi, gambarUrl, payload.penulis || ""]);
+  return { success: true };
+}
+
+function updateWarta(ss, payload) {
+  const sWarta = ss.getSheetByName("Warta");
+  if (!sWarta) return { success: false, message: "Sheet Warta tidak ditemukan" };
+  if (!payload.rowIndex || payload.rowIndex < 2) return { success: false, message: "RowIndex tidak valid" };
+  let gambarUrl = payload.gambarUrl || "";
+  if (gambarUrl.startsWith("data:image")) gambarUrl = uploadImageToDrive(gambarUrl, "warta_" + Date.now() + ".jpg");
+  sWarta.getRange(payload.rowIndex, 2, 1, 4).setValues([[payload.judul || "", payload.isi || "", gambarUrl, payload.penulis || ""]]);
+  return { success: true };
+}
+
+// =========================================================================
+// MANAJEMEN DRIVE & GAMBAR
+// =========================================================================
+function uploadImageToDrive(base64Data, fileName) {
+  try {
+    const base64 = base64Data.includes(',') ? base64Data.split(',')[1] : base64Data;
+    const blob = Utilities.newBlob(Utilities.base64Decode(base64), 'image/jpeg', fileName);
+    const folderName = "Warta_Images_PISGAH";
+    const folders = DriveApp.getFoldersByName(folderName);
+    const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+    const file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1000";
+  } catch (e) {
+    console.error("Upload gambar gagal: " + e.toString());
+    return "";
+  }
+}
+
+function handleCreateImageFolder(data) {
+  try {
+    const parent = DriveApp.getFolderById(IMAGE_PARENT_FOLDER_ID);
+    const folders = parent.getFoldersByName(data.folderName);
+    const folder = folders.hasNext() ? folders.next() : parent.createFolder(data.folderName);
+    return { success: true, folderId: folder.getId(), folderName: folder.getName() };
+  } catch (e) { return { success: false, message: e.toString() }; }
+}
+
+function handleListImageFolders() {
+  try {
+    const parent = DriveApp.getFolderById(IMAGE_PARENT_FOLDER_ID);
+    const folders = parent.getFolders();
+    const list = [];
+    while (folders.hasNext()) {
+      let f = folders.next();
+      list.push({ id: f.getId(), name: f.getName() });
+    }
+    return { success: true, folders: list };
+  } catch (e) { return { success: false, message: e.toString() }; }
+}
+
+function handleUploadImageToDrive(data, ss) {
+  try {
+    let folder = DriveApp.getFolderById(data.folderId);
+    let blob;
+    let fileName = data.title;
+    let finalMimeType = "image/jpeg";
+    let finalExtension = ".jpg";
+
+    // 1. Proses data Base64 dari payload
+    let base64Data = data.imageBase64;
+    if (base64Data.includes(',')) {
+      base64Data = base64Data.split(',')[1];
+    }
+
+    // 2. Cek apakah ini file HEIC (berdasarkan ekstensi nama file)
+    let isHeic = fileName.toLowerCase().endsWith('.heic');
+    if (isHeic) {
+      console.log("File HEIC terdeteksi, mencoba konversi ke JPEG...");
+      // Simpan sementara sebagai file blob
+      let tempBlob = Utilities.newBlob(Utilities.base64Decode(base64Data), 'application/octet-stream', fileName + '.heic');
+      let tempFile = folder.createFile(tempBlob);
+      let tempFileId = tempFile.getId();
+
+      // Gunakan thumbnail dari Drive sebagai sumber konversi
+      let thumbnailUrl = `https://drive.google.com/thumbnail?id=${tempFileId}&sz=w1000`;
+      let imageBlob = UrlFetchApp.fetch(thumbnailUrl, {
+        headers: { authorization: "Bearer " + ScriptApp.getOAuthToken() }
+      }).getBlob();
+
+      blob = imageBlob.getAs("image/jpeg");
+      fileName = fileName.replace(/\.heic$/i, '');
+
+      // Hapus file sementara
+      tempFile.setTrashed(true);
+    } else {
+      // 3. Jika bukan HEIC, proses seperti biasa
+      let decodedBlob = Utilities.newBlob(Utilities.base64Decode(base64Data), 'image/png', fileName + '.png');
+      blob = decodedBlob.getAs("image/jpeg");
+    }
+
+    // 4. Buat file final di folder tujuan
+    let finalBlob = blob.setName(fileName + finalExtension);
+    let file = folder.createFile(finalBlob);
+    let url = "https://drive.google.com/uc?export=view&id=" + file.getId();
+
+    // 5. Catat ke sheet log (opsional)
+    let sheet = ss.getSheetByName('Gambar');
+    if (!sheet) {
+      sheet = ss.insertSheet('Gambar');
+      sheet.appendRow(['ID', 'Title', 'FolderId', 'URL', 'Tanggal', 'OriginalFormat']);
+    }
+    sheet.appendRow([file.getId(), fileName, data.folderId, url, new Date().toISOString(), isHeic ? 'HEIC (converted)' : 'Direct']);
+
+    return { success: true, fileId: file.getId(), url: url };
+  } catch (e) {
+    console.error("Upload error: " + e.toString());
+    return { success: false, message: e.toString() };
   }
 }
 
 // =========================================================================
-// FUNGSI MIGRASI (opsional, jalankan sekali jika perlu)
+// SETUP PERTAMA KALI (Jalankan manual sekali)
 // =========================================================================
-function migrateWartaToThumbnail() {
-  var ss = SpreadsheetApp.openById("1FbdIMEHbY5PY61kx3SFTLjq2CZUISmeQObuO_qPJ5MM");
-  var sheet = ss.getSheetByName("Warta");
-  if (!sheet) return;
-  var data = sheet.getDataRange().getValues();
-  for (var i = 1; i < data.length; i++) {
-    var url = data[i][3];
-    if (url && (url.includes("uc?export=view&id=") || url.includes("file/d/"))) {
-      var fileId = null;
-      if (url.includes("uc?export=view&id=")) {
-        var match = url.match(/id=([a-zA-Z0-9_-]+)/);
-        if (match) fileId = match[1];
-      } else if (url.includes("file/d/")) {
-        var match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-        if (match) fileId = match[1];
-      }
-      if (fileId) {
-        var newUrl = "https://drive.google.com/thumbnail?id=" + fileId + "&sz=w1000";
-        sheet.getRange(i+1, 4).setValue(newUrl);
-        Logger.log("Migrated: " + url + " -> " + newUrl);
-      }
-    }
+function SETUP_PERTAMA_KALI() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  
+  let sPengaturan = ss.getSheetByName("Pengaturan");
+  if (!sPengaturan) {
+    sPengaturan = ss.insertSheet("Pengaturan");
+    sPengaturan.appendRow(["Konfigurasi", "Nilai"]);
+    sPengaturan.appendRow(["PASSWORD", "admin"]);
+    sPengaturan.appendRow(["YOUTUBE_URL", "https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g"]);
+    sPengaturan.appendRow(["PENGUMUMAN", ""]);
+    sPengaturan.appendRow(["KATEGORI_PEJABAT", JSON.stringify(["Gembala", "Officers", "Departemen & Pelayanan", "Lainnya"])]);
+    sPengaturan.getRange("A1:B1").setFontWeight("bold");
+    sPengaturan.setColumnWidth(1, 150);
+    sPengaturan.setColumnWidth(2, 400);
   }
-  Logger.log("Migrasi selesai");
+  
+  let sPejabat = ss.getSheetByName("Pejabat");
+  if (!sPejabat) {
+    sPejabat = ss.insertSheet("Pejabat");
+    sPejabat.appendRow(["ID", "Jabatan", "Nama", "WhatsApp", "Link Foto", "Kategori"]);
+    sPejabat.getRange("A1:F1").setFontWeight("bold");
+    sPejabat.setFrozenRows(1);
+    sPejabat.appendRow(["gembala", "Gembala Jemaat", "Pdt. [Nama Gembala]", "'62800000000", "https://ui-avatars.com/api/?name=Gembala+Jemaat&background=eff6ff&color=1e3a8a&size=128", "Gembala"]);
+  }
+  
+  SCHEDULE_CONFIGS.forEach(conf => {
+    let sheet = ss.getSheetByName(conf.sheetName);
+    if (!sheet) {
+      sheet = ss.insertSheet(conf.sheetName);
+      sheet.appendRow(conf.headers);
+      sheet.getRange(1, 1, 1, conf.headers.length).setFontWeight("bold").setBackground("#eef2f6");
+      sheet.setFrozenRows(1);
+    }
+  });
+  
+  let sSusunan = ss.getSheetByName("Susunan_Lagu");
+  if (!sSusunan) {
+    sSusunan = ss.insertSheet("Susunan_Lagu");
+    sSusunan.appendRow(["Tanggal", "SS Lagu Buka", "SS Lagu Tutup", "Khotbah Ayat Bersahutan", "Khotbah Lagu Buka", "Pujian 1 Tampil", "Pujian 1 Judul", "Pujian 2 Tampil", "Pujian 2 Judul", "Pujian 3 Tampil", "Pujian 3 Judul", "Ayat Inti", "Lagu Tutup"]);
+    sSusunan.setFrozenRows(1);
+  }
+  
+  let sWarta = ss.getSheetByName("Warta");
+  if (!sWarta) {
+    sWarta = ss.insertSheet("Warta");
+    sWarta.appendRow(["Tanggal", "Judul", "Isi", "URL Gambar", "Penulis"]);
+    sWarta.getRange(1,1,1,5).setFontWeight("bold");
+  }
+  
+  Logger.log("SETUP SELESAI! Silakan deploy ulang Web App.");
 }

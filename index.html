@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <meta name="description" content="Sistem Informasi dan Layanan Jemaat PISGAH-BISDAC">
     <meta name="theme-color" content="#0b1a30">
     <title>PISGAH-BISDAC | Layanan Jemaat</title>
@@ -62,78 +61,21 @@
         crossorigin="anonymous"></script>
 
     <style>
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        .pb-safe {
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        .prose p {
-            margin-bottom: 1rem;
-            line-height: 1.7;
-            color: #4b5563;
-        }
-
-        .prose h3 {
-            font-weight: bold;
-            font-size: 1.25rem;
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
-            color: #1f2937;
-        }
-
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        .pengumuman-text b, .pengumuman-text strong {
-            font-weight: 800 !important;
-            color: #0b1a30;
-        }
-
-        .pengumuman-text i, .pengumuman-text em {
-            font-weight: 800 !important;
-            color: #0b1a30;
-        }
-
-        .warta-content b, .warta-content strong {
-            font-weight: 800 !important;
-            color: #0b1a30;
-        }
-        .warta-content i, .warta-content em {
-            font-style: italic !important;
-            color: #0b1a30;
-        }
-
-        .pengumuman-text a {
-            color: #9c851e;
-            text-decoration: underline;
-            font-weight: 500;
-        }
-        .pengumuman-text a:hover {
-            color: #9c851e;
-        }
-
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .prose p { margin-bottom: 1rem; line-height: 1.7; color: #4b5563; }
+        .prose h3 { font-weight: bold; font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #1f2937; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .pengumuman-text b, .pengumuman-text strong { font-weight: 800 !important; color: #0b1a30; }
+        .pengumuman-text i, .pengumuman-text em { font-weight: 800 !important; color: #0b1a30; }
+        .warta-content b, .warta-content strong { font-weight: 800 !important; color: #0b1a30; }
+        .warta-content i, .warta-content em { font-style: italic !important; color: #0b1a30; }
+        .pengumuman-text a { color: #9c851e; text-decoration: underline; font-weight: 500; }
+        .pengumuman-text a:hover { color: #9c851e; }
     </style>
 </head>
 
@@ -144,7 +86,7 @@
         // ========================================================
         // URL WEB APP MILIKMU
         // ========================================================
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbykhljKHJHVf9DsGtxUxWkD5BMAffI1j01P3-HmxzSwYRg9jdWWvxn8ifwPmN6TrhU6/exec";
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyLvoo8gnP5SoDFCAGiDxofxGXpXdriQ0hpTxt5B5OA0TStLHzUolgzaFHIBbeW80lE/exec";
 
         // ========== HELPER UNTUK WARTA PANJANG ==========
 const stripHtml = (html) => {
@@ -186,7 +128,7 @@ const truncateText = (text, maxLength = 500) => {
 
         const initialJadwalRabu = {
             title: "Ibadah Permintaan Doa (Rabu)", time: "19:30 WIB - selesai",
-            petugas: [{ tugas: "Pemimpin Acara", nama: "Pemimpin" }, { tugas: "Renungan", nama: "Renungan" }, { tugas: "Tempat", nama: "Tempat" }, { tugas: "Lagu Pujian", nama: "Lagu Pujian" }, { tugas: "Persembahan Kas", nama: "Diakon" }]
+            petugas: [{ tugas: "Pemimpin Acara", nama: "Pemimpin" }, { tugas: "Renungan", nama: "Renungan" }, { tugas: "Judul", nama: "Judul" }, { tugas: "Doa Buka", nama: "Doa" }, { tugas: "Doa Tutup", nama: "Doa" }, { tugas: "Tempat", nama: "Tempat" }, { tugas: "Lagu Pujian", nama: "Lagu Pujian" }, { tugas: "Persembahan Kas", nama: "Diakon" }]
         };
 
         const initialJadwalSabat = {
@@ -194,7 +136,7 @@ const truncateText = (text, maxLength = 500) => {
             sekolahSabatTime: "11:45 - 12:40 WIB",
             sekolahSabat: [{ tugas: "Pianis", nama: "Pianis" }, { tugas: "Presider", nama: "Presider" }, { tugas: "Ayat Inti & Doa Buka", nama: "Presider" }, { tugas: "Berita Misi", nama: "Video" }, { tugas: "Doa Tutup", nama: "Doa Tutup" }],
             khotbahTime: "10:00 - 11:45 WIB",
-            khotbah: [{ tugas: "Pianis", nama: "Pianis" }, { tugas: "Khotbah", nama: "Sermon" }, { tugas: "Doa Syafaat", nama: "Syafaat" }, { tugas: "Presider", nama: "Presider" }, { tugas: "Song Leader", nama: "Presider" }, { tugas: "Cerita Anak-anak", nama: "Sermonette" }, { tugas: "Lagu Pujian", nama: "SpesialSong" }],
+            khotbah: [{ tugas: "Pianis", nama: "Sermon" }, { tugas: "Khotbah", nama: "Sermon" }, { tugas: "Doa Syafaat", nama: "Syafaat" }, { tugas: "Presider", nama: "Presider" }, { tugas: "Song Leader", nama: "Presider" }, { tugas: "Cerita Anak-anak", nama: "Sermonette" }, { tugas: "Lagu Pujian", nama: "SpesialSong" }],
             diakon: [{ tugas: "Diakon", nama: "Diakon" }],
             musik: [{ tugas: "Pianis SS", nama: "Pianis SS" }, { tugas: "Pianis Khotbah", nama: "Pianis Khotbah" }],
             susunan: defaultSusunan,
@@ -215,7 +157,9 @@ const truncateText = (text, maxLength = 500) => {
             { id: 'pemuda', jabatan: "Pemuda", nama: "Sdr. [Nama Pemuda]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Pemuda&background=e0e7ff&color=3730a3&size=128", kategori: "Departemen & Pelayanan" },
             { id: 'hotline', jabatan: "Hotline", nama: "Bpk. [Nama Hotline]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Hotline&background=f3f4f6&color=1f2937&size=128", kategori: "Lainnya" },
             { id: 'komunikasi', jabatan: "komunikasi", nama: "Sdr. [Nama Komunikasi]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Kominikasi&background=faf5ff&color=581c87&size=128", kategori: "Lainnya" }
-        ];// --- ICONS (SVG MAPPING) ---
+        ];
+        
+        // --- ICONS (SVG MAPPING) ---
         const Icon = ({ name, className }) => {
             const icons = {
                 Home: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>,
@@ -249,7 +193,9 @@ const truncateText = (text, maxLength = 500) => {
                 Save: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>,
                 Plus: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>,
                 Trash2: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>,
-                Camera: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Camera: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
+                FolderPlus: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokewidth="2" strokelinecap="round" stroke-linejoin="round" className={className}><path d="M12 10v6"/><path d="M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>,   
+                Folder: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokewidth="2" strokelinecap="round" strokelinejoin="round" className={className}><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>,
             };
             return icons[name] || null;
         };
@@ -286,6 +232,7 @@ const truncateText = (text, maxLength = 500) => {
             const y = date.getFullYear();
             return `${d}/${m}/${y}`;
         };
+
 
         // --- COMPONENTS ---
         const Home = ({ setActiveTab, youtubeUrl, pengumuman }) => (
@@ -1119,8 +1066,118 @@ const truncateText = (text, maxLength = 500) => {
             );
         };
 
+        // ========== KOMPONEN GALERI PUBLIK (untuk jemaat) ==========
+        const GaleriPublik = () => {
+  const [folders, setFolders] = React.useState([]);
+  const [selectedFolderId, setSelectedFolderId] = React.useState('');
+  const [images, setImages] = React.useState([]);
+  const [loadingFolders, setLoadingFolders] = React.useState(false);
+  const [loadingImages, setLoadingImages] = React.useState(false);
+  const [error, setError] = React.useState('');
+
+  // Ambil daftar folder publik
+  const loadFolders = async () => {
+    setLoadingFolders(true);
+    setError('');
+    try {
+      const res = await fetch(GAS_API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'getPublicFolders' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setFolders(data.folders || []);
+        if (data.folders && data.folders.length > 0 && !selectedFolderId) {
+          setSelectedFolderId(data.folders[0].id);
+        }
+      } else {
+        setError('Gagal memuat folder: ' + (data.message || 'unknown'));
+      }
+    } catch (err) {
+      setError('Gagal terhubung ke server.');
+    }
+    setLoadingFolders(false);
+  };
+
+  // Ambil gambar dari folder terpilih
+  const loadImages = async (folderId) => {
+    if (!folderId) return;
+    setLoadingImages(true);
+    setError('');
+    try {
+      const res = await fetch(GAS_API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'getPublicImages', folderId: folderId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setImages(data.images || []);
+      } else {
+        setError('Gagal memuat gambar: ' + (data.message || 'unknown'));
+      }
+    } catch (err) {
+      setError('Gagal memuat gambar.');
+    }
+    setLoadingImages(false);
+  };
+
+  React.useEffect(() => {
+    loadFolders();
+  }, []);
+
+  React.useEffect(() => {
+    if (selectedFolderId) loadImages(selectedFolderId);
+  }, [selectedFolderId]);
+
+  if (loadingFolders) return <div className="text-center py-8 text-navy-500">Memuat galeri...</div>;
+  if (error) return <div className="text-center py-8 text-red-500">{error}</div>;
+  if (folders.length === 0) return <div className="text-center py-8 text-navy-500">Belum ada folder galeri.</div>;
+
+  return (
+    <div className="space-y-6">
+      {/* Pilihan Folder */}
+      <div className="flex flex-wrap gap-3 justify-center border-b pb-4">
+        {folders.map(folder => (
+          <button
+            key={folder.id}
+            onClick={() => setSelectedFolderId(folder.id)}
+            className={`px-4 py-2 rounded-full text-sm font-bold transition ${
+              selectedFolderId === folder.id
+                ? 'bg-navy-900 text-gold-400 shadow-md'
+                : 'bg-white text-navy-700 border border-navy-200 hover:bg-navy-50'
+            }`}
+          >
+            <Icon name="Folder" className="w-4 h-4 inline mr-1" /> {folder.name}
+          </button>
+        ))}
+      </div>
+
+      {/* Galeri Gambar */}
+      {loadingImages ? (
+        <div className="text-center py-8">Memuat gambar...</div>
+      ) : images.length === 0 ? (
+        <div className="text-center py-8 text-navy-500">Belum ada gambar di folder ini.</div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {images.map(img => (
+            <div key={img.id} className="bg-white rounded-xl shadow-sm border border-navy-100 overflow-hidden hover:shadow-md transition">
+              <a href={img.url} target="_blank" rel="noopener noreferrer">
+                <img src={img.thumbnailUrl || img.url} alt={img.title} className="w-full h-40 object-cover hover:scale-105 transition duration-300" />
+              </a>
+              <div className="p-2 text-center">
+                <p className="text-xs font-medium text-navy-700 truncate">{img.title}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
         // ========== WARTA PAGE DENGAN PAGINATION (5 per halaman) ==========
         const WartaPage = ({ daftarWarta, setActiveTab }) => {
+            const [showGallery, setShowGallery] = React.useState(false);
             const [imageSizes, setImageSizes] = React.useState({});        // key = rowIndex
             const [imageErrors, setImageErrors] = React.useState({});      // key = rowIndex
             const [expandedWarta, setExpandedWarta] = React.useState({});  // key = rowIndex
@@ -1147,8 +1204,11 @@ const truncateText = (text, maxLength = 500) => {
 
             // Urutkan warta dari terbaru ke terlama
             const sortedWarta = React.useMemo(() => {
-                return [...daftarWarta].sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-            }, [daftarWarta]);
+    return [...daftarWarta].sort((a, b) => {
+        // Urutkan berdasarkan rowIndex (terbesar = terbaru)
+        return (b.rowIndex || 0) - (a.rowIndex || 0);
+    });
+}, [daftarWarta]);
 
             // Hitung total halaman
             const totalPages = Math.ceil(sortedWarta.length / ITEMS_PER_PAGE);
@@ -1169,15 +1229,35 @@ const truncateText = (text, maxLength = 500) => {
 
             const CHAR_LIMIT = 150;
 
+            if (showGallery) {
+                return (
+                    <div className="space-y-6 animate-fade-in">
+                        <div className="flex justify-between items-center">
+                            <button onClick={() => setShowGallery(false)} className="text-navy-600 font-bold flex items-center hover:text-gold-600">&larr; Kembali ke Warta</button>
+                            <h2 className="text-xl font-bold text-navy-800">Galeri Foto</h2>
+                        </div>
+                        <div className="bg-white rounded-[1.5rem] p-6 shadow-sm border border-navy-100/60">
+                            <GaleriPublik />
+                        </div>
+                    </div>
+                );
+            }
+            
             return (
                 <div className="space-y-6 animate-fade-in">
-                   
+                     <center> <button onClick={() => setShowGallery(true)} 
+            className="bg-gold-400 hover:bg-gold-500 text-navy-900 px-5 py-2 rounded-full text-sm font-bold shadow flex items-center gap-2 transition">
+        <Icon name="Image" className="w-4 h-4" /> Lihat Galeri
+    </button></center> 
                     <div className="bg-white rounded-[1.5rem] p-6 shadow-sm border border-navy-100/60">
                         <h2 className="text-2xl font-bold mb-4 text-navy-900">Warta Gereja</h2>
+                              
                         {sortedWarta.length === 0 ? (
                             <p className="text-navy-500">Belum ada warta.</p>
+                            
                         ) : (
                             <>
+                            
                                 <div className="space-y-6">
                                     {paginatedWarta.map((warta) => {
                                         const rowIdx = warta.rowIndex;
@@ -1197,7 +1277,9 @@ const truncateText = (text, maxLength = 500) => {
                                             contentToShow = truncated; // teks polos potongan
                                         }
 
+                                        
                                         return (
+                                            
                                             <div key={rowIdx} className="border-b border-navy-100 pb-4 last:border-0">
                                                 <center>
                                                     <h3 className="font-bold text-lg text-navy-800">{warta.judul}</h3>
@@ -1367,6 +1449,263 @@ const truncateText = (text, maxLength = 500) => {
             const [wartaIsiHtml, setWartaIsiHtml] = React.useState('');
             const wartaTextareaRef = React.useRef(null);
             const editWartaTextareaRef = React.useRef(null);
+            const [wartaCurrentPage, setWartaCurrentPage] = React.useState(1);
+            const wartaItemsPerPage = 3;
+
+            // Subtab untuk Warta
+            const [wartaSubTab, setWartaSubTab] = React.useState('input'); // 'input' atau 'posting'
+            const wartaScrollContainerRef = React.useRef(null);
+
+            const scrollWartaTabs = (direction) => {
+                if (wartaScrollContainerRef.current) {
+                wartaScrollContainerRef.current.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
+            }
+            };
+
+            // ========== GALERI / GAMBAR ==========
+            const { useState, useEffect, useRef } = React;
+            const [galeriSubTab, setGaleriSubTab] = React.useState('folder');
+            const galeriScrollContainerRef = React.useRef(null);
+
+            const [folderList, setFolderList] = useState([]);
+            const [selectedFolder, setSelectedFolder] = useState('');
+            const [isLoadingFolders, setIsLoadingFolders] = useState(false);
+
+            const [selectedFiles, setSelectedFiles] = useState([]);
+            const [uploadProgress, setUploadProgress] = useState({});
+            const [isUploadingMultiple, setIsUploadingMultiple] = useState(false);
+            const MAX_TOTAL_SIZE_MB = 50;
+
+            const [imageTitle, setImageTitle] = useState('');
+            const [imageFile, setImageFile] = useState(null);
+            const [imagePreview, setImagePreview] = useState('');
+            const [isUploading, setIsUploading] = useState(false);
+
+            const [showNewFolderModal, setShowNewFolderModal] = useState(false);
+            const [newFolderName, setNewFolderName] = useState('');
+            const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+
+            const [imageList, setImageList] = useState([]);
+            const [isLoadingImages, setIsLoadingImages] = useState(false);
+            const [showAllFolders, setShowAllFolders] = useState(false);
+
+            const scrollGaleriTabs = (direction) => {
+                if (galeriScrollContainerRef.current) {
+                    galeriScrollContainerRef.current.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
+                }
+            };
+
+            // Fungsi menghitung total ukuran dalam MB
+const getTotalSizeMB = (files) => {
+  let totalBytes = 0;
+  for (let i = 0; i < files.length; i++) {
+    totalBytes += files[i].size;
+  }
+  return totalBytes / (1024 * 1024);
+};
+
+            //Fungsi upload multiple
+            const getTotalFileSizeMB = (files) => {
+  let totalBytes = 0;
+  for (let i = 0; i < files.length; i++) {
+    totalBytes += files[i].size;
+  }
+  return totalBytes / (1024 * 1024);
+};
+
+const handleUploadMultiple = async () => {
+  if (!selectedFolder) {
+    alert('Pilih folder terlebih dahulu');
+    return;
+  }
+  if (selectedFiles.length === 0) {
+    alert('Pilih file gambar terlebih dahulu');
+    return;
+  }
+
+   const totalSizeMB = getTotalSizeMB(selectedFiles);
+  if (totalSizeMB > MAX_TOTAL_SIZE_MB) {
+    alert(`Total ukuran file (${totalSizeMB.toFixed(2)}MB) melebihi batas ${MAX_TOTAL_SIZE_MB}MB. Silakan kurangi jumlah atau pilih file yang lebih kecil.`);
+    return;
+  }
+
+  setIsUploadingMultiple(true);
+  const total = selectedFiles.length;
+  let successCount = 0;
+  let failCount = 0;
+
+  for (let i = 0; i < selectedFiles.length; i++) {
+    const file = selectedFiles[i];
+    const title = file.name.replace(/\.[^/.]+$/, ""); // nama file tanpa ekstensi
+
+    setUploadProgress(prev => ({ ...prev, [file.name]: { status: 'uploading', percent: 0 } }));
+
+    const reader = new FileReader();
+    const uploadPromise = new Promise((resolve) => {
+      reader.onload = async () => {
+        try {
+          const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+              action: 'uploadImageToDrive',
+              password: adminToken,
+              folderId: selectedFolder,
+              title: title,
+              imageBase64: reader.result
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            setUploadProgress(prev => ({ ...prev, [file.name]: { status: 'success', percent: 100 } }));
+            successCount++;
+          } else {
+            setUploadProgress(prev => ({ ...prev, [file.name]: { status: 'failed', message: data.message } }));
+            failCount++;
+          }
+        } catch (err) {
+          setUploadProgress(prev => ({ ...prev, [file.name]: { status: 'failed', message: err.message } }));
+          failCount++;
+        }
+        resolve();
+      };
+      reader.readAsDataURL(file);
+    });
+    await uploadPromise;
+
+    setUploadProgress(prev => ({ ...prev, [file.name]: { ...prev[file.name], percent: ((i + 1) / total) * 100 } }));
+  }
+
+  setIsUploadingMultiple(false);
+  alert(`Selesai! Berhasil: ${successCount}, Gagal: ${failCount}`);
+  if (successCount > 0) {
+    setSelectedFiles([]);
+    setImagePreview('');
+    loadImages(); // refresh galeri
+  }
+  setTimeout(() => setUploadProgress({}), 3000);
+};
+
+// Memuat daftar folder dari Google Drive
+const loadFolders = async () => {
+    setIsLoadingFolders(true);
+    try {
+        const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'listImageFolders', password: adminToken })
+        });
+        const data = await res.json();
+        if (data.success) setFolderList(data.folders || []);
+        else alert('Gagal memuat folder');
+    } catch (err) { console.error(err); alert('Error memuat folder'); }
+    setIsLoadingFolders(false);
+};
+
+// Memuat gambar berdasarkan folder yang dipilih
+const loadImages = async () => {
+    if (!selectedFolder) return;
+    setIsLoadingImages(true);
+    try {
+        const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'listImages', password: adminToken, folderId: selectedFolder })
+        });
+        const data = await res.json();
+        if (data.success) setImageList(data.images || []);
+    } catch (err) { console.error(err); alert('Error memuat gambar'); }
+    setIsLoadingImages(false);
+};
+
+const handleUploadImage = async () => {
+    if (!imageTitle.trim()) return alert('Judul gambar harus diisi');
+    if (!imageFile) return alert('Pilih file gambar');
+    setIsUploading(true);
+    const reader = new FileReader();
+    reader.readAsDataURL(imageFile);
+    reader.onload = async () => {
+        const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'uploadImageToDrive',
+                password: adminToken,
+                folderId: selectedFolder,
+                title: imageTitle,
+                imageBase64: reader.result
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert('Upload berhasil!');
+            setImageTitle(''); setImageFile(null); setImagePreview('');
+            loadImages();
+        } else alert('Upload gagal: ' + data.message);
+        setIsUploading(false);
+    };
+};
+
+const handleCreateFolder = async () => {
+    if (!newFolderName.trim()) return alert('Nama folder tidak boleh kosong');
+    setIsCreatingFolder(true);
+    try {
+        const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'createImageFolder', password: adminToken, folderName: newFolderName })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert('Folder berhasil dibuat');
+            setShowNewFolderModal(false);
+            setNewFolderName('');
+            loadFolders();
+        } else alert('Gagal membuat folder: ' + data.message);
+    } catch (err) { alert('Error: ' + err.message); }
+    setIsCreatingFolder(false);
+};
+
+const handleDeleteImage = async (fileId) => {
+    if (!confirm('Yakin ingin menghapus gambar ini?')) return;
+    try {
+        const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'deleteImage', password: adminToken, fileId })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert('Gambar dihapus');
+            loadImages();
+        } else alert('Gagal menghapus: ' + data.message);
+    } catch (err) { alert('Error: ' + err.message); }
+};
+
+// Efek untuk memuat folder saat subtab galeri dibuka
+React.useEffect(() => {
+    if (adminTab === 'warta' && wartaSubTab === 'galeri') loadFolders();
+}, [adminTab, wartaSubTab]);
+
+React.useEffect(() => {
+    if (adminTab === 'warta' && wartaSubTab === 'galeri' && selectedFolder) loadImages();
+}, [selectedFolder]);
+
+// Reset showAllFolders saat subtab galeri ditutup atau adminTab berubah
+React.useEffect(() => {
+  if (adminTab !== 'warta' || wartaSubTab !== 'galeri') {
+    setShowAllFolders(false);
+  }
+}, [adminTab, wartaSubTab]);
+
+            // Subtab untuk Pengaturan Admin
+const [pengaturanSubTab, setPengaturanSubTab] = React.useState('pengumuman'); // 'pengumuman', 'youtube_url', 'ganti_password' 
+const pengaturanScrollContainerRef = React.useRef(null);
+
+const scrollPengaturanTabs = (direction) => {
+    if (pengaturanScrollContainerRef.current) {
+        pengaturanScrollContainerRef.current.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
+    }
+};
+
+            // Reset ke halaman 1 setiap kali data warta berubah
+            React.useEffect(() => {
+            setWartaCurrentPage(1);
+            }, [daftarWarta]);
 
             const [linkModalOpen, setLinkModalOpen] = React.useState(false);
             const [linkUrl, setLinkUrl] = React.useState('');
@@ -2159,7 +2498,7 @@ const insertEditWartaFormatting = (tag) => {
 
                                                         return (
                                                             <tr key={date} className="hover:bg-navy-50/20 transition group">
-                                                                <td className="p-4 text-center align-middle border-r border-navy-50/50 bg-navy-50/10">
+                                                                <td className="p-8 text-center align-middle border-r border-navy-50/50 bg-navy-50/10">
                                                                     <div className="font-bold text-navy-400 text-xs tracking-wider mb-0.5">{isRabu ? 'RABU' : 'SABTU'}</div>
                                                                     <div className="text-sm font-black text-navy-900">{formatIndoDateShort(date)}</div>
                                                                 </td>
@@ -2267,114 +2606,337 @@ const insertEditWartaFormatting = (tag) => {
                                 
                             )}
 
+                            
                             {adminTab === 'warta' && (
-                                
-                                <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8">
-                                    <div className="mb-8">
-
-  <h3 className="text-xl font-bold text-navy-800 mb-4 border-b pb-2">Daftar Warta</h3>
-  {daftarWarta.length === 0 ? (
-    <p className="text-navy-500">Belum ada warta.</p>
-  ) : (
-    
-    <div className="space-y-4">
-  {daftarWarta.map((warta, idx) => {
-    const plainPreview = stripHtml(warta.isi);
-    const shortPreview = plainPreview.length > 200 ? plainPreview.substring(0, 200) + '...' : plainPreview;
-    return (
-      <div key={idx} className="border border-navy-200 rounded-lg p-4 bg-navy-50">
-        <center>
-          <div className="flex justify-between items-start">
-            <div>
-              <h4 className="font-bold text-navy-800">{warta.judul}</h4>
-              <p className="text-xs text-navy-500">{warta.tanggal}</p>
+    <div className="space-y-4 animate-fade-in">
+        {/* Subtabs seperti pada jadwal */}
+        <div className="flex items-center gap-2">
+            <button onClick={() => scrollWartaTabs('left')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kiri">
+                <Icon name="ChevronLeft" className="w-5 h-5" />
+            </button>
+            <div ref={wartaScrollContainerRef} className="bg-white rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
+                <button onClick={() => setWartaSubTab('input')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${wartaSubTab === 'input' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                    Input Baru
+                </button>
+                <button onClick={() => setWartaSubTab('posting')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${wartaSubTab === 'posting' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                    Posting
+                </button>
+                <button onClick={() => setWartaSubTab('galeri')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${wartaSubTab === 'galeri' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                Galeri
+                </button>
             </div>
-            <div className="relative flex flex-col justify-between h-full">
-              <button onClick={() => handleEditWarta(warta)} className="p-2 text-gold-600 hover:bg-navy-100 rounded-full transition" title="Edit Warta">
-                <Icon name="Edit" className="w-4 h-4" />
-              </button>
-              <button onClick={() => handleDeleteWarta(warta.rowIndex, warta.judul)} className="p-2 text-navy-600 hover:bg-gold-100 rounded-full transition" title="Hapus Warta">
-                <Icon name="Trash" className="w-4 h-4" />
-              </button>
-            </div>
-          </div></center>
-          <div className="flex gap-3 items-start">
-  {warta.gambarUrl && (
-    <img 
-      src={warta.gambarUrl} 
-      className="h-20 w-auto object-cover rounded shrink-0" 
-      alt="preview" 
-    />
-  )}
-  <p className="text-xs text-justify text-navy-700">{shortPreview}</p>
-</div>
-      </div>
-    );
-  })}
-</div>
-  )}
+            <button onClick={() => scrollWartaTabs('right')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kanan">
+                <Icon name="ChevronRight" className="w-5 h-5" />
+            </button>
+        </div>
 
-                                    
-                                        <h1 className="text-xl font-bold text-navy-800 mb-4 border-b pb-2">Input Warta Baru</h1>
-                                        <p className="text-navy-500">Silakan isi konten warta di bawah ini.</p>
-                                    </div>
-                                    
-                                    <form onSubmit={handleWartaFormSubmit}>
-                                        <div className="mb-5">
-                                            <label className="block text-sm font-medium text-navy-700 mb-1">Judul Warta</label>
-                                            <input type="text" value={wartaJudul} onChange={e => setWartaJudul(e.target.value)} required className="w-full px-4 py-2 border border-navy-300 rounded-lg focus:ring-2 focus:ring-navy-500" />
-                                        </div>
-                                        <div className="mb-5">
-  <label className="block text-sm font-medium text-navy-700 mb-1">Penulis</label>
-  <input 
-    type="text" 
-    value={wartaPenulis} 
-    onChange={e => setWartaPenulis(e.target.value)} 
-    className="w-full px-4 py-2 border border-navy-300 rounded-lg" 
-  />
-</div>
-                                        <div className="mb-5">
-  <label className="block text-sm font-medium text-navy-700 mb-1">Isi Warta</label>
-  <div className="flex gap-2 mb-2">
-    <button type="button" onClick={() => insertWartaFormatting('bold')} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded font-bold text-sm">B</button>
-    <button type="button" onClick={() => insertWartaFormatting('italic')} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded italic text-sm">I</button>
-  <button type="button" onClick={() => openLinkModal('warta')} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded text-sm">
-    🔗 Link
-</button>
-    </div>
-  <textarea
-    ref={wartaTextareaRef}
-    rows="5"
-    value={wartaIsi}
-    onChange={e => setWartaIsi(e.target.value)}
-    required
-    className="w-full px-4 py-2 border border-navy-300 rounded-lg focus:ring-2 focus:ring-navy-500"
-  ></textarea>
-</div>
-                                        <div className="mb-8">
-                                            <label className="block text-sm font-medium text-navy-700 mb-1">Unggah Gambar (Opsional)</label>
-                                            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-navy-300 border-dashed rounded-lg">
-                                                <div className="space-y-1 text-center">
-                                                    <div className="flex text-sm text-navy-600 justify-center">
-                                                        <label className="relative cursor-pointer bg-white rounded-md font-medium text-gold-400 hover:text-navy-800">
-                                                            <span>Pilih file gambar</span>
-                                                            <input type="file" accept="image/*" className="sr-only" onChange={(e) => setWartaGambar(e.target.files[0])} />
-                                                        </label>
+        {/* Konten Input Baru */}
+        {wartaSubTab === 'input' && (
+            <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8">
+                <h1 className="text-xl font-bold text-navy-800 mb-4 border-b pb-2">Input Warta Baru</h1>
+                <p className="text-navy-500 mb-4">Silakan isi konten warta di bawah ini.</p>
+                <form onSubmit={handleWartaFormSubmit}>
+                    <div className="mb-5">
+                        <label className="block text-sm font-medium text-navy-700 mb-1">Judul Warta</label>
+                        <input type="text" value={wartaJudul} onChange={e => setWartaJudul(e.target.value)} required className="w-full px-4 py-2 border border-navy-300 rounded-lg focus:ring-2 focus:ring-navy-500" />
+                    </div>
+                    <div className="mb-5">
+                        <label className="block text-sm font-medium text-navy-700 mb-1">Penulis</label>
+                        <input type="text" value={wartaPenulis} onChange={e => setWartaPenulis(e.target.value)} className="w-full px-4 py-2 border border-navy-300 rounded-lg" />
+                    </div>
+                    <div className="mb-5">
+                        <label className="block text-sm font-medium text-navy-700 mb-1">Isi Warta</label>
+                        <div className="flex gap-2 mb-2">
+                            <button type="button" onClick={() => insertWartaFormatting('bold')} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded font-bold text-sm">B</button>
+                            <button type="button" onClick={() => insertWartaFormatting('italic')} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded italic text-sm">I</button>
+                            <button type="button" onClick={() => openLinkModal('warta')} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded text-sm">🔗 Link</button>
+                        </div>
+                        <textarea ref={wartaTextareaRef} rows="5" value={wartaIsi} onChange={e => setWartaIsi(e.target.value)} required className="w-full px-4 py-2 border border-navy-300 rounded-lg focus:ring-2 focus:ring-navy-500"></textarea>
+                    </div>
+                    <div className="mb-8">
+                        <label className="block text-sm font-medium text-navy-700 mb-1">Unggah Gambar (Opsional)</label>
+                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-navy-300 border-dashed rounded-lg">
+                            <div className="space-y-1 text-center">
+                                <div className="flex text-sm text-navy-600 justify-center">
+                                    <label className="relative cursor-pointer bg-white rounded-md font-medium text-gold-400 hover:text-navy-800">
+                                        <span>Pilih file gambar</span>
+                                        <input type="file" accept="image/*" className="sr-only" onChange={(e) => setWartaGambar(e.target.files[0])} />
+                                    </label>
+                                </div>
+                                <p className="text-xs text-navy-500">PNG, JPG up to 10MB</p>
+                                {wartaGambar && <p className="text-sm font-semibold text-navy-600 mt-2">{wartaGambar.name}</p>}
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" disabled={isSavingWarta} className="w-full bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        {isSavingWarta ? "Menyimpan..." : "Simpan Warta"}
+                    </button>
+                </form>
+            </div>
+        )}
+
+        {/* Konten Posting (Daftar Warta) */}
+        {wartaSubTab === 'posting' && (
+            <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8">
+                <h3 className="text-xl font-bold text-navy-800 mb-4 border-b pb-2">Daftar Warta</h3>
+                {daftarWarta.length === 0 ? (
+                    <p className="text-navy-500">Belum ada warta.</p>
+                ) : (
+                    <>
+                        {(() => {
+                            const sortedWarta = [...daftarWarta].sort((a, b) => (b.rowIndex || 0) - (a.rowIndex || 0));
+                            const totalPages = Math.ceil(sortedWarta.length / wartaItemsPerPage);
+                            const startIdx = (wartaCurrentPage - 1) * wartaItemsPerPage;
+                            const paginatedWarta = sortedWarta.slice(startIdx, startIdx + wartaItemsPerPage);
+                            return (
+                                <div className="space-y-4">
+                                    {paginatedWarta.map((warta, idx) => {
+                                        const plainPreview = stripHtml(warta.isi);
+                                        const shortPreview = plainPreview.length > 200 ? plainPreview.substring(0, 200) + '...' : plainPreview;
+                                        return (
+                                            <div key={idx} className="border border-navy-200 rounded-lg p-4 bg-navy-50">
+                                                <center>
+                                                    <div className="flex justify-between items-start">
+                                                        <div>
+                                                            <h4 className="font-bold text-navy-800">{warta.judul}</h4>
+                                                            <p className="text-xs text-navy-500">{warta.tanggal}</p>
+                                                        </div>
+                                                        <div className="relative flex flex-col justify-between h-full">
+                                                            <button onClick={() => handleEditWarta(warta)} className="p-2 text-gold-600 hover:bg-navy-100 rounded-full transition" title="Edit Warta">
+                                                                <Icon name="Edit" className="w-4 h-4" />
+                                                            </button>
+                                                            <button onClick={() => handleDeleteWarta(warta.rowIndex, warta.judul)} className="p-2 text-navy-600 hover:bg-gold-100 rounded-full transition" title="Hapus Warta">
+                                                                <Icon name="Trash" className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                    <p className="text-xs text-navy-500">PNG, JPG up to 10MB</p>
-                                                    {wartaGambar && <p className="text-sm font-semibold text-navy-600 mt-2">{wartaGambar.name}</p>}
+                                                </center>
+                                                <div className="flex gap-3 items-start">
+                                                    {warta.gambarUrl && (
+                                                        <img src={warta.gambarUrl} className="h-20 w-auto object-cover rounded shrink-0" alt="preview" />
+                                                    )}
+                                                    <p className="text-xs text-justify text-navy-700">{shortPreview}</p>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <button type="submit" disabled={isSavingWarta} className="w-full bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                                            {isSavingWarta ? "Menyimpan..." : "Simpan Warta"}
-                                        </button>
-                                    </form>
+                                        );
+                                    })}
                                 </div>
-                                
-                            )}
+                            );
+                        })()}
+                        
+                        {/* Pagination Controls */}
+                        {(() => {
+                            const sortedWarta = [...daftarWarta].sort((a, b) => (b.rowIndex || 0) - (a.rowIndex || 0));
+                            const totalPages = Math.ceil(sortedWarta.length / wartaItemsPerPage);
+                            if (totalPages <= 1) return null;
+                            return (
+                                <div className="flex justify-center items-center gap-2 mt-6 pt-4 border-t border-navy-100">
+                                    <button onClick={() => setWartaCurrentPage(p => Math.max(1, p - 1))} disabled={wartaCurrentPage === 1} className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${wartaCurrentPage === 1 ? 'bg-navy-100 text-navy-400 cursor-not-allowed' : 'bg-navy-200 text-navy-700 hover:bg-navy-300'}`}>Sebelumnya</button>
+                                    <div className="flex gap-1">
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                            <button key={page} onClick={() => setWartaCurrentPage(page)} className={`w-9 h-9 rounded-full text-sm font-bold transition-colors ${page === wartaCurrentPage ? 'bg-gold-500 text-white shadow-sm' : 'bg-navy-100 text-navy-600 hover:bg-navy-200'}`}>{page}</button>
+                                        ))}
+                                    </div>
+                                    <button onClick={() => setWartaCurrentPage(p => Math.min(totalPages, p + 1))} disabled={wartaCurrentPage === totalPages} className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${wartaCurrentPage === totalPages ? 'bg-navy-100 text-navy-400 cursor-not-allowed' : 'bg-navy-200 text-navy-700 hover:bg-navy-300'}`}>Selanjutnya</button>
+                                </div>
+                            );
+                        })()}
+                    </>
+                )}
+            </div>
+        )}
+    </div>
+)}
 
-                            
+                            {wartaSubTab === 'galeri' && (
+    <div className="space-y-6">
+        {/* Area Folder */}
+        <div className="bg-white rounded-xl shadow-md p-6">
+  <div className="flex justify-between items-center mb-4">
+    <h3 className="text-xs font-bold text-navy-800">Kelola Folder Gambar</h3>
+    <button onClick={() => setShowNewFolderModal(true)} className="bg-gold-500 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2">
+      <Icon name="PlusCircle" className="w-4 h-4" /> Folder Baru
+    </button>
+  </div>
+  {isLoadingFolders ? (
+    <div className="text-xs text-center py-8">Memuat folder...</div>
+  ) : folderList.length === 0 ? (
+    <div className="text-xs text-center py-8">Belum ada folder. Buat folder pertama.</div>
+  ) : (
+    <>
+      {/* Urutkan folder berdasarkan nama (descending) -> terbaru di atas */}
+      {(() => {
+        const sortedFolders = [...folderList].sort((a, b) => b.name.localeCompare(a.name));
+        const displayedFolders = showAllFolders ? sortedFolders : sortedFolders.slice(0, 6);
+        return (
+          <div className="flex flex-wrap gap-3 justify-center">
+            {displayedFolders.map(folder => (
+              <button
+                key={folder.id}
+                onClick={() => setSelectedFolder(folder.id)}
+                className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 ${selectedFolder === folder.id ? 'bg-navy-900 text-gold-400' : 'bg-navy-50 text-navy-700'}`}
+              >
+                <Icon name="Folder" className="w-4 h-4" /> {folder.name}
+              </button>
+            ))}
+          </div>
+        );
+      })()}
+      {/* Tombol tampilkan semua / sedikit */}
+      {folderList.length > 6 && (
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setShowAllFolders(!showAllFolders)}
+            className="text-xs w-full bg-navy-900 text-gold-400 py-3 rounded-lg font-bold disabled:opacity-50"
+          >
+            {showAllFolders ? 'Tampilkan Sedikit' : `Tampilkan Semua (${folderList.length} folder)`}
+          </button>
+        </div>
+      )}
+    </>
+  )}
+</div>
+
+        {/* Area Upload Gambar */}
+        <div className="bg-white rounded-xl shadow-md p-6">
+  <h3 className="text-xs font-bold text-navy-800 mb-4">Upload Gambar Baru (Banyak File)</h3>
+  {!selectedFolder ? (
+    <div className="text-xs text-center py-6 text-amber-600 bg-amber-50 rounded-lg">Pilih folder terlebih dahulu</div>
+  ) : (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-xs font-medium text-navy-700 mb-1">Pilih Gambar (bisa banyak)</label>
+        <div className="text-xs border-2 border-dashed rounded-lg p-4 text-center">
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => {
+              const files = Array.from(e.target.files);
+              setSelectedFiles(files);
+              if (files.length > 0) {
+                const reader = new FileReader();
+                reader.onloadend = () => setImagePreview(reader.result);
+                reader.readAsDataURL(files[0]);
+              } else {
+                setImagePreview('');
+              }
+            }}
+            className="w-full"
+          />
+          <p className="text-xs text-navy-500 mt-2">Total maksimal {MAX_TOTAL_SIZE_MB}MB untuk semua file yang dipilih (tidak ada batasan per file)</p>
+          {imagePreview && (
+            <img src={imagePreview} className="max-h-48 mx-auto mt-2 rounded" alt="Preview" />
+          )}
+        </div>
+      </div>
+
+      {/* Tampilan total ukuran file yang dipilih */}
+      {selectedFiles.length > 0 && (
+        <div className="bg-navy-50 p-3 rounded-lg">
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-medium text-navy-700">Total ukuran:</span>
+            <span className={`text-xs font-bold ${getTotalSizeMB(selectedFiles) > MAX_TOTAL_SIZE_MB ? 'text-red-600' : 'text-green-600'}`}>
+              {getTotalSizeMB(selectedFiles).toFixed(2)} MB
+            </span>
+          </div>
+          {getTotalSizeMB(selectedFiles) > MAX_TOTAL_SIZE_MB && (
+            <p className="text-xs text-red-500 mt-1">Melebihi batas {MAX_TOTAL_SIZE_MB}MB, tidak dapat diupload</p>
+          )}
+        </div>
+      )}
+
+      {/* Daftar file yang akan diupload */}
+      {selectedFiles.length > 0 && (
+        <div>
+          <p className="text-xs font-bold text-navy-700">File yang akan diupload ({selectedFiles.length}):</p>
+          <ul className="text-xs text-navy-600 max-h-32 overflow-y-auto border rounded p-2 mt-1">
+            {selectedFiles.map((file, idx) => (
+              <li key={idx} className="text-xs flex justify-between items-center py-1">
+                <span>{file.name} ({(file.size / (1024 * 1024)).toFixed(2)}MB)</span>
+                {uploadProgress[file.name] && (
+                  <span className={`text-${
+                    uploadProgress[file.name].status === 'success' ? 'green' :
+                    uploadProgress[file.name].status === 'failed' ? 'red' : 'yellow'
+                  }-600`}>
+                    {uploadProgress[file.name].status === 'uploading' && '⏳'}
+                    {uploadProgress[file.name].status === 'success' && '✅'}
+                    {uploadProgress[file.name].status === 'failed' && '❌'}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+          {isUploadingMultiple && (
+            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+              <div
+                className="bg-gold-500 h-2 rounded-full transition-all"
+                style={{ width: `${(Object.values(uploadProgress).filter(p => p.status === 'success').length / selectedFiles.length) * 100}%` }}
+              ></div>
+            </div>
+          )}
+        </div>
+      )}
+
+      <button
+        onClick={handleUploadMultiple}
+        disabled={isUploadingMultiple || selectedFiles.length === 0 || getTotalSizeMB(selectedFiles) > MAX_TOTAL_SIZE_MB}
+        className="text-xs w-full bg-navy-900 text-gold-400 py-3 rounded-lg font-bold disabled:opacity-50"
+      >
+        {isUploadingMultiple
+          ? `Mengupload ${Object.values(uploadProgress).filter(p => p.status === 'success').length}/${selectedFiles.length}...`
+          : `Upload ${selectedFiles.length} Gambar`}
+      </button>
+    </div>
+  )}
+</div>
+
+        {/* Area Galeri Gambar */}
+        <div className="bg-white rounded-xl shadow-md p-6">
+            <h3 className="text-xs font-bold text-navy-800 mb-4">Galeri Gambar</h3>
+            {isLoadingImages ? (
+                <div className="text-xs text-center py-8">Memuat gambar...</div>
+            ) : imageList.length === 0 ? (
+                <div className="text-xs text-center py-8">Belum ada gambar di folder ini.</div>
+            ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {imageList.map(img => (
+                        <div key={img.id} className="border rounded-lg overflow-hidden">
+                            <img src={img.thumbnailUrl} className="w-full h-32 object-cover" alt={img.title} />
+                            <div className="p-2">
+                                <p className="text-xs font-medium truncate">{img.title}</p>
+                                <div className="flex justify-between mt-2">
+                                    <a href={img.url} target="_blank" className="text-xs text-gold-600">Lihat</a>
+                                    <button onClick={() => handleDeleteImage(img.id)} className="text-xs text-red-500">Hapus</button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    </div>
+)}
+
+{showNewFolderModal && (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold">Buat Folder Baru</h3>
+                <button onClick={() => setShowNewFolderModal(false)} className="text-gray-500">&times;</button>
+            </div>
+            <input type="text" value={newFolderName} onChange={e => setNewFolderName(e.target.value)} className="w-full p-3 border rounded-lg mb-4" placeholder="Nama folder" />
+            <div className="flex justify-end gap-3">
+                <button onClick={() => setShowNewFolderModal(false)} className="px-4 py-2 bg-gray-200 rounded-lg">Batal</button>
+                <button onClick={handleCreateFolder} disabled={isCreatingFolder} className="px-4 py-2 bg-navy-900 text-gold-400 rounded-lg">
+                    {isCreatingFolder ? "Membuat..." : "Buat"}
+                </button>
+            </div>
+        </div>
+    </div>
+)}
+
+
 
                             {adminTab === 'pelayan' && (
                                 <div className="space-y-6 animate-fade-in bg-white p-2 md:p-4 rounded-xl">
@@ -2459,90 +3021,116 @@ const insertEditWartaFormatting = (tag) => {
                             )}
 
                             {adminTab === 'pengaturan' && (
-                                <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
-                                    
-                                    {/* --- FORM GANTI PASSWORD --- */}
-                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-                                        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                            <div className="w-12 h-12 bg-navy-50 rounded-full flex items-center justify-center text-navy-600 shadow-inner"><Icon name="Settings" className="w-6 h-6" /></div>
-                                            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Ganti Password Admin</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Keamanan Sistem</p></div>
-                                        </div>
-                                        <form onSubmit={handleChangePassword} className="space-y-5">
-                                            <div>
-                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Password Lama</label>
-                                                <div className="relative">
-                                                    <input type={showOldPass ? "text" : "password"} value={oldPassword} onChange={e => setOldPassword(e.target.value)} required className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-sm font-bold shadow-sm pr-12" placeholder="Masukkan password lama" />
-                                                    <button type="button" onClick={() => setShowOldPass(!showOldPass)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-navy-400 hover:text-white-600 transition-colors">
-                                                        <Icon name={showOldPass ? "EyeOff" : "Eye"} className="w-5 h-5" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Password Baru</label>
-                                                <div className="relative">
-                                                    <input type={showNewPass ? "text" : "password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} required className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-bold shadow-sm pr-12" placeholder="Masukkan password baru" />
-                                                    <button type="button" onClick={() => setShowNewPass(!showNewPass)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-navy-400 hover:text-white-600 transition-colors">
-                                                        <Icon name={showNewPass ? "EyeOff" : "Eye"} className="w-5 h-5" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <button type="submit" disabled={isChangingPass} className={`w-full ${isChangingPass ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center`}>
-                                                {isChangingPass ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Password Baru'}
-                                            </button>
-                                        </form>
-                                    </div>
+    <div className="space-y-4 animate-fade-in">
+        {/* Subtabs seperti pada jadwal */}
+        <div className="flex items-center gap-2">
+            <button onClick={() => scrollPengaturanTabs('left')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kiri">
+                <Icon name="ChevronLeft" className="w-5 h-5" />
+            </button>
+            <div ref={pengaturanScrollContainerRef} className="bg-white rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
+                
+                <button onClick={() => setPengaturanSubTab('pengumuman')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'pengumuman' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                    Pengumuman
+                </button>
+                <button onClick={() => setPengaturanSubTab('youtube_url')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'youtube_url' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                    URL YouTube
+                </button>
+                <button onClick={() => setPengaturanSubTab('ganti_password')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'ganti_password' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                    Ganti Password
+                </button>
 
-                                    {/* --- FORM YOUTUBE URL --- */}
-                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-                                        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-600 shadow-inner">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
-                                            </div>
-                                            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">URL Video YouTube</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Video di Halaman Utama</p></div>
-                                        </div>
-                                        <form onSubmit={handleSaveYoutubeUrl} className="space-y-5">
-                                            <div>
-                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Link Embed YouTube</label>
-                                                <input type="text" value={editYoutubeUrl} onChange={e => setEditYoutubeUrl(e.target.value)} required placeholder="Contoh: https://www.youtube.com/embed/..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm" />
-                                            </div>
-                                            <button type="submit" disabled={isSavingUrl} className={`w-full ${isSavingUrl ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center`}>
-                                                {isSavingUrl ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan URL YouTube'}
-                                            </button>
-                                        </form>
-                                    </div>
+            </div>
+            <button onClick={() => scrollPengaturanTabs('right')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kanan">
+                <Icon name="ChevronRight" className="w-5 h-5" />
+            </button>
+        </div>
 
-                                    {/* --- FORM PENGUMUMAN --- */}
-                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-                                        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                            <div className="w-12 h-12 bg-gold-50 rounded-full flex items-center justify-center text-gold-600 shadow-inner"><Icon name="Megaphone" className="w-6 h-6" /></div>
-                                            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Pengumuman Jemaat</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Tampil di Halaman Depan</p></div>
-                                        </div>
-                                        <form onSubmit={handleSavePengumuman} className="space-y-5">
-                                            <div>
-                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Judul Pengumuman</label>
-                                                <input type="text" value={editPengumuman.header} onChange={e => setEditPengumuman({...editPengumuman, header: e.target.value})} placeholder="Misal: Pengumuman Penting" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-4" />
-                                                
-                                                <div className="flex justify-between items-end mb-2">
-                                                    <label className="block text-xs font-bold text-navy-700 uppercase tracking-widest">Isi Pengumuman</label>
-                                                    <div className="flex space-x-2">
-                                                        <button type="button" onClick={() => insertFormatting('bold')} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded font-bold text-sm shadow-sm transition-colors" title="Beri efek tebal pada teks yang dipilih">B</button>
-                                                        <button type="button" onClick={() => insertFormatting('italic')} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded italic text-sm">I</button>
-                                                        <button type="button" onClick={openLinkModalPengumuman} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded text-sm">
-    🔗 Link
-</button>
-                                                    </div>
-                                                </div>
-                                                <textarea ref={textareaRef} value={editPengumuman.isi} onChange={e => setEditPengumuman({...editPengumuman, isi: e.target.value})} rows="5" placeholder="Kosongkan isi untuk menyembunyikan kotak pengumuman..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm leading-relaxed whitespace-pre-wrap"></textarea>
-                                                <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Blok teks pada kotak lalu tekan tombol B untuk menambahkan format tebal, tombol I untuk menambahkan format italic dan tombol link untuk menambahkan hyperlink. Hapus semua isi teks untuk menyembunyikan pengumuman dari layar utama.</p>
-                                            </div>
-                                            <button type="submit" disabled={isSavingPengumuman} className={`w-full ${isSavingPengumuman ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center`}>
-                                                {isSavingPengumuman ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Pengumuman'}
-                                            </button>
-                                        </form>
-                                    </div>
+        {/* Konten Pengumuman */}
+        {pengaturanSubTab === 'pengumuman' && (
+            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                    <div className="w-12 h-12 bg-gold-50 rounded-full flex items-center justify-center text-gold-600 shadow-inner"><Icon name="Megaphone" className="w-6 h-6" /></div>
+                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Pengumuman Jemaat</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Tampil di Halaman Depan</p></div>
+                </div>
+                <form onSubmit={handleSavePengumuman} className="space-y-5">
+                    <div>
+                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Judul Pengumuman</label>
+                        <input type="text" value={editPengumuman.header} onChange={e => setEditPengumuman({...editPengumuman, header: e.target.value})} placeholder="Misal: Pengumuman Penting" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-4" />
+                        
+                        <div className="flex justify-between items-end mb-2">
+                            <label className="block text-xs font-bold text-navy-700 uppercase tracking-widest">Isi Pengumuman</label>
+                            <div className="flex space-x-2">
+                                <button type="button" onClick={() => insertFormatting('bold')} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded font-bold text-sm shadow-sm transition-colors" title="Beri efek tebal pada teks yang dipilih">B</button>
+                                <button type="button" onClick={() => insertFormatting('italic')} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded italic text-sm">I</button>
+                                <button type="button" onClick={openLinkModalPengumuman} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded text-sm">🔗 Link</button>
+                            </div>
+                        </div>
+                        <textarea ref={textareaRef} value={editPengumuman.isi} onChange={e => setEditPengumuman({...editPengumuman, isi: e.target.value})} rows="5" placeholder="Kosongkan isi untuk menyembunyikan kotak pengumuman..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm leading-relaxed whitespace-pre-wrap"></textarea>
+                        <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Blok teks pada kotak lalu tekan tombol B untuk menambahkan format tebal, tombol I untuk menambahkan format italic dan tombol link untuk menambahkan hyperlink. Hapus semua isi teks untuk menyembunyikan pengumuman dari layar utama.</p>
+                    </div>
+                    <button type="submit" disabled={isSavingPengumuman} className={`w-full ${isSavingPengumuman ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center`}>
+                        {isSavingPengumuman ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Pengumuman'}
+                    </button>
+                </form>
+            </div>
+        )}
 
-                                </div>
-                            )}
+        {/* Konten URL YouTube */}
+        {pengaturanSubTab === 'youtube_url' && (
+            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                    <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-600 shadow-inner">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
+                    </div>
+                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">URL Video YouTube</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Video di Halaman Utama</p></div>
+                </div>
+                <form onSubmit={handleSaveYoutubeUrl} className="space-y-5">
+                    <div>
+                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Link Embed YouTube</label>
+                        <input type="text" value={editYoutubeUrl} onChange={e => setEditYoutubeUrl(e.target.value)} required placeholder="Contoh: https://www.youtube.com/embed/..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm" />
+                    </div>
+                    <button type="submit" disabled={isSavingUrl} className={`w-full ${isSavingUrl ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center`}>
+                        {isSavingUrl ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan URL YouTube'}
+                    </button>
+                </form>
+            </div>
+        )}
+
+        {/* Konten Ganti Password */}
+        {pengaturanSubTab === 'ganti_password' && (
+            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                    <div className="w-12 h-12 bg-navy-50 rounded-full flex items-center justify-center text-navy-600 shadow-inner"><Icon name="Settings" className="w-6 h-6" /></div>
+                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Ganti Password Admin</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Keamanan Sistem</p></div>
+                </div>
+                <form onSubmit={handleChangePassword} className="space-y-5">
+                    <div>
+                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Password Lama</label>
+                        <div className="relative">
+                            <input type={showOldPass ? "text" : "password"} value={oldPassword} onChange={e => setOldPassword(e.target.value)} required className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-sm font-bold shadow-sm pr-12" placeholder="Masukkan password lama" />
+                            <button type="button" onClick={() => setShowOldPass(!showOldPass)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-navy-400 hover:text-white-600 transition-colors">
+                                <Icon name={showOldPass ? "EyeOff" : "Eye"} className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Password Baru</label>
+                        <div className="relative">
+                            <input type={showNewPass ? "text" : "password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} required className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-bold shadow-sm pr-12" placeholder="Masukkan password baru" />
+                            <button type="button" onClick={() => setShowNewPass(!showNewPass)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-navy-400 hover:text-white-600 transition-colors">
+                                <Icon name={showNewPass ? "EyeOff" : "Eye"} className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" disabled={isChangingPass} className={`w-full ${isChangingPass ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center`}>
+                        {isChangingPass ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Password Baru'}
+                    </button>
+                </form>
+            </div>
+        )}
+    </div>
+)}
+
                         </div>
                     </div>
                 </div>
@@ -2607,8 +3195,8 @@ const insertEditWartaFormatting = (tag) => {
         const res = await fetch(`${GAS_API_URL}?action=getData`);
         const data = await res.json();
         if (data.daftarWarta) {
-            console.log("Warta diterima:", data.daftarWarta);
-            setDaftarWarta(data.daftarWarta);
+            const sortedWarta = [...data.daftarWarta].sort((a, b) => (b.rowIndex || 0) - (a.rowIndex || 0));
+            setDaftarWarta(sortedWarta);
         }
     } catch (err) {
         console.error("Gagal refresh warta", err);
