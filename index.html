@@ -215,7 +215,7 @@ const truncateText = (text, maxLength = 500) => {
 
         const initialJadwalRabu = {
             title: "Ibadah Permintaan Doa (Rabu)", time: "19:30 WIB - selesai",
-            petugas: [{ tugas: "Pemimpin Acara", nama: "Pemimpin" }, { tugas: "Renungan", nama: "Renungan" }, { tugas: "Tempat", nama: "Tempat" }, { tugas: "Lagu Pujian", nama: "Lagu Pujian" }, { tugas: "Persembahan Kas", nama: "Diakon" }]
+            petugas: [{ tugas: "Pemimpin Acara", nama: "Pemimpin" }, { tugas: "Renungan", nama: "Renungan" }, { tugas: "Doa Buka", nama: "Doa" }, { tugas: "Tempat", nama: "Tempat" }, { tugas: "Lagu Pujian", nama: "Lagu Pujian" }, { tugas: "Doa Tutup", nama: "Doa" }, { tugas: "Persembahan Kas", nama: "Diakon" }]
         };
 
         const initialJadwalSabat = {
@@ -225,7 +225,7 @@ const truncateText = (text, maxLength = 500) => {
             khotbahTime: "10:00 - 11:45 WIB",
             khotbah: [{ tugas: "Pianis", nama: "Pianis" }, { tugas: "Khotbah", nama: "Sermon" }, { tugas: "Doa Syafaat", nama: "Syafaat" }, { tugas: "Presider", nama: "Presider" }, { tugas: "Song Leader", nama: "Presider" }, { tugas: "Cerita Anak-anak", nama: "Sermonette" }, { tugas: "Lagu Pujian", nama: "SpesialSong" }],
             diakon: [{ tugas: "Diakon", nama: "Diakon" }],
-            musik: [{ tugas: "Pianis SS", nama: "Pianis SS" }, { tugas: "Pianis Khotbah", nama: "Pianis Khotbah" }],
+            musik: [{ tugas: "Pianis SS", nama: "Pianis SS" }, { tugas: "Pianis Khotbah", nama: "Pianis Khotbah" }, { tugas: "Gitar", nama: "Gitar" }],
             susunan: defaultSusunan,
             perjamuan: [
                 { tugas: "Pelayan Perjamuan (L1)", nama: "" }, { tugas: "Pelayan Perjamuan (P1)", nama: "" }, { tugas: "Pelayan Perjamuan (L2)", nama: "" }, { tugas: "Pelayan Perjamuan (P2)", nama: "" },
@@ -858,29 +858,28 @@ const truncateText = (text, maxLength = 500) => {
                         <span className="text-xs font-bold text-navy-800 bg-gold-50 px-4 py-1.5 rounded-full mt-3 md:mt-0 w-fit border border-gold-200 uppercase tracking-widest shadow-sm">Waktu: {activeSabat.time}</span>
                     </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
                     <div className="space-y-6">
                             <div>
                                 <div className="flex justify-between items-end mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Khotbah / Umum</h3><span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.khotbahTime}</span></div>
                                 <div className="flex flex-col">{activeSabat.khotbah.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
                             </div>
                             <div>
-                                <div className="mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Pelayanan Musik</h3></div>
-                                <div className="flex flex-col">{activeSabat.musik.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
-                            </div>
-                        </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
-                        <div className="space-y-6">
-                            <div>
-                                <div className="flex justify-between items-end mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Sekolah Sabat</h3><span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.sekolahSabatTime}</span></div>
-                                <div className="flex flex-col">{activeSabat.sekolahSabat.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
-                            </div>
-                            <div>
                                 <div className="mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Diakon & Diakones</h3></div>
                                 <div className="flex flex-col">{activeSabat.diakon.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
                             </div>
                         </div>
-  
+                            <div className="space-y-6">
+                            <div>
+                                <div className="flex justify-between items-end mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Sekolah Sabat</h3><span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.sekolahSabatTime}</span></div>
+                                <div className="flex flex-col">{activeSabat.sekolahSabat.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
+                            </div>
+                             <div>
+                                <div className="mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Pelayanan Musik</h3></div>
+                                <div className="flex flex-col">{activeSabat.musik.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
+                            </div>
+                        
+                        </div>  
                     </div>
                 </div>
             </div>
@@ -2763,7 +2762,7 @@ const insertEditWartaFormatting = (tag) => {
                                     {subTab === 'perjamuan' && (
                                         <div className="bg-gold-50/50 border border-gold-200 p-4 rounded-xl text-navy-800 text-sm flex items-start shadow-sm">
                                             <Icon name="Gift" className="w-5 h-5 text-gold-500 mr-3 shrink-0" />
-                                            <p><b>Jadwal Spesial:</b> Perjamuan Kudus hanya dilaksanakan pada <span className="font-bold underline text-gold-600">Sabtu terakhir</span> di bulan Maret, Juni, Oktober, dan Desember. Mengisi jadwal pada tanggal lain tidak akan memunculkannya secara otomatis di bulan tersebut.</p>
+                                            <p><b>Jadwal Spesial:</b> Perjamuan Kudus hanya dilaksanakan pada <span className="font-bold underline text-gold-600">Sabtu</span> di bulan Maret, September, dan Desember. Mengisi jadwal pada tanggal lain tidak akan memunculkannya secara otomatis di bulan tersebut.</p>
                                         </div>
                                     )}
 
@@ -2780,12 +2779,18 @@ const insertEditWartaFormatting = (tag) => {
                                             </div>
                                         </div>
                                         <div className="overflow-x-auto">
-                                            <table className={`w-full text-left border-collapse ${subTab === 'perjamuan' ? 'min-w-[2800px]' : subTab === 'susunanAcara' ? 'min-w-[400px]' : 'min-w-[800px]'}`}>
+                                            <table className={`w-full text-left border-collapse ${
+                                                    subTab === 'perjamuan' ? 'w-full min-w-[800px] mx-auto' : 
+                                                    subTab === 'susunanAcara' ? 'w-full min-w-[300px] mx-auto' : 
+                                                    subTab === 'diakon' ? 'w-full min:w-[200px] mx-auto' :
+                                                    subTab === 'musik' ? 'w-full min:w-[200px] mx-auto' :
+                                                    'w-full min-w-[800px] mx-auto'
+                                                    }`}>
                                                 <thead className="bg-navy-50/50 border-b border-navy-100/60">
                                                     <tr>
                                                         <th className="p-4 text-[10px] md:text-xs font-black text-navy-500 uppercase tracking-widest text-center w-36">Tanggal</th>
                                                         {columns.map((col, i) => <th key={i} className="p-4 text-[10px] md:text-xs font-black text-navy-500 uppercase tracking-widest text-center">{col}</th>)}
-                                                        <th className="p-4 text-[10px] md:text-xs font-black text-navy-500 uppercase tracking-widest text-center w-28">Aksi</th>
+                                                        <th className="p-4 text-[10px] md:text-xs font-black text-navy-500 uppercase tracking-widest text-center w-28">Edit Jadwal</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-navy-50 bg-white">
