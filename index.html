@@ -223,7 +223,7 @@ const truncateText = (text, maxLength = 500) => {
             sekolahSabatTime: "11:45 - 12:40 WIB",
             sekolahSabat: [{ tugas: "Pianis", nama: "Pianis" }, { tugas: "Pemimpin Acara", nama: "Pemimpin Acara" }, { tugas: "Ayat Inti & Doa Buka", nama: "Pemimpin Acara" }, { tugas: "Berita Misi", nama: "Video" }, { tugas: "Doa Tutup", nama: "Doa Tutup" }],
             khotbahTime: "10:00 - 11:45 WIB",
-            khotbah: [{ tugas: "Pianis", nama: "Pianis" }, { tugas: "Khotbah", nama: "Sermon" }, { tugas: "Doa Syafaat", nama: "Syafaat" }, { tugas: "Pemimpin Acara", nama: "Pemimpin Acara" }, { tugas: "Song Leader", nama: "Pemimpin Acara" }, { tugas: "Cerita Anak-anak", nama: "Sermonette" }, { tugas: "Lagu Pujian", nama: "SpesialSong" }],
+            khotbah: [{ tugas: "Pianis", nama: "Pianis" }, { tugas: "Khotbah", nama: "Sermon" }, { tugas: "Doa Syafaat", nama: "Syafaat" }, { tugas: "Pemimpin Acara", nama: "Pemimpin Acara" }, { tugas: "Bacaan Persembahan", nama: "Pemimpin Acara" }, { tugas: "Doa Persembahan", nama: "Pemimpin Acara" }, { tugas: "Song Leader", nama: "Pemimpin Acara" }, { tugas: "Cerita Anak-anak", nama: "Sermonette" }, { tugas: "Lagu Pujian", nama: "SpesialSong" }],
             diakon: [{ tugas: "Diakon", nama: "Diakon" }],
             musik: [{ tugas: "Pianis SS", nama: "Pianis SS" }, { tugas: "Pianis Khotbah", nama: "Pianis Khotbah" }, { tugas: "Gitar", nama: "Gitar" }],
             susunan: defaultSusunan,
@@ -663,7 +663,7 @@ const truncateText = (text, maxLength = 500) => {
                                 </div>
                             )}
 
-{openSection === 'khotbah' && (
+                            {openSection === 'khotbah' && (
                                 <div className="p-4 md:p-6 animate-fade-in bg-white">
                                     {renderItem("Lagu Pengantar", "LS 515 - Tuhan Ada Dalam Bait Allah")}
                                     {renderItem("Lagu Sambutan", "LS 1 - Di Hadapan Hadirat-Mu")}
@@ -685,7 +685,6 @@ const truncateText = (text, maxLength = 500) => {
                                     {renderItem("Pengumuman", "Dept. Komunikasi")}
                                 </div>
                             )}
-        
 
                             {openSection === 'diakon' && (
                                 <div className="p-4 md:p-6 animate-fade-in bg-white">
