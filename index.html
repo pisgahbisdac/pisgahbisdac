@@ -223,7 +223,7 @@ const truncateText = (text, maxLength = 500) => {
             sekolahSabatTime: "11:45 - 12:40 WIB",
             sekolahSabat: [{ tugas: "Pianis", nama: "Pianis" }, { tugas: "Pemimpin Acara", nama: "Pemimpin Acara" }, { tugas: "Ayat Inti & Doa Buka", nama: "Pemimpin Acara" }, { tugas: "Berita Misi", nama: "Video" }, { tugas: "Doa Tutup", nama: "Doa Tutup" }],
             khotbahTime: "10:00 - 11:45 WIB",
-            khotbah: [{ tugas: "Pianis", nama: "Pianis" }, { tugas: "Khotbah", nama: "Sermon" }, { tugas: "Doa Syafaat", nama: "Syafaat" }, { tugas: "Pemimpin Acara", nama: "Pemimpin Acara" }, { tugas: "Bacaan Persembahan", nama: "Pemimpin Acara" }, { tugas: "Doa Persembahan", nama: "Pemimpin Acara" }, { tugas: "Song Leader", nama: "Pemimpin Acara" }, { tugas: "Cerita Anak-anak", nama: "Sermonette" }, { tugas: "Lagu Pujian", nama: "SpesialSong" }],
+            khotbah: [{ tugas: "Pianis", nama: "Pianis" }, { tugas: "Khotbah", nama: "Sermon" }, { tugas: "Doa Syafaat", nama: "Syafaat" }, { tugas: "Pemimpin Acara", nama: "Pemimpin Acara" }, { tugas: "Bacaan & Doa Persembahan", nama: "Pemimpin Acara" }, { tugas: "Song Leader", nama: "Pemimpin Acara" }, { tugas: "Cerita Anak-anak", nama: "Sermonette" }, { tugas: "Lagu Pujian", nama: "SpesialSong" }],
             diakon: [{ tugas: "Diakon", nama: "Diakon" }],
             musik: [{ tugas: "Pianis SS", nama: "Pianis SS" }, { tugas: "Pianis Khotbah", nama: "Pianis Khotbah" }, { tugas: "Gitar", nama: "Gitar" }],
             susunan: defaultSusunan,
@@ -672,9 +672,9 @@ const truncateText = (text, maxLength = 500) => {
                                     {renderItem("Ayat Bersahutan", susunan.kAyatBersahutan)}
                                     {renderItem("Lagu Buka", susunan.kLaguBuka)}
                                     {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Doa Syafaat"))}
-                                    {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Bacaan Persembahan"))}
+                                    {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
                                     {susunan.kLaguPujian1_show && renderItem("Lagu Persembahan dan Pujian", susunan.kLaguPujian1_judul, true)}
-                                    {renderItem("Doa Persembahan", getOfficer(activeSabat.khotbah, "Doa Persembahan"))}
+                                    {renderItem("Doa Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
                                     {susunan.kLaguPujian2_show && renderItem("Lagu Pujian", susunan.kLaguPujian2_judul, true)}
                                     {renderItem("Cerita Anak-anak", getOfficer(activeSabat.khotbah, "Cerita Anak-anak"))}
                                     {susunan.kLaguPujian3_show && renderItem("Lagu Pujian", susunan.kLaguPujian3_judul, true)}
