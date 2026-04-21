@@ -133,7 +133,10 @@ function getDaftarWarta() {
 function saveWarta(payload) {
   let sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
   let gambarUrl = payload.gambarUrl || "";
-  if (gambarUrl.startsWith('data:image')) gambarUrl = uploadBase64ToWartaFolder(gambarUrl, "Warta_" + Date.now());
+  if (gambarUrl.startsWith('data:image')) {
+    let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
+    gambarUrl = uploadBase64ToWartaFolder(gambarUrl, "WRT_" + shortId);
+  }
   sheet.appendRow([ new Date(), payload.judul, payload.isi, gambarUrl, payload.penulis ]);
   return jsonResponse({ success: true });
 }
@@ -141,7 +144,10 @@ function saveWarta(payload) {
 function updateWarta(payload) {
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
   let gambarUrl = payload.gambarUrl || "";
-  if (gambarUrl.startsWith('data:image')) gambarUrl = uploadBase64ToWartaFolder(gambarUrl, "Warta_" + Date.now());
+  if (gambarUrl.startsWith('data:image')) {
+    let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
+    gambarUrl = uploadBase64ToWartaFolder(gambarUrl, "WRT_" + shortId);
+  }
   sheet.getRange(payload.rowIndex, 2).setValue(payload.judul);
   sheet.getRange(payload.rowIndex, 3).setValue(payload.isi);
   sheet.getRange(payload.rowIndex, 4).setValue(gambarUrl);
@@ -436,15 +442,28 @@ function saveHeroImages(jsonStringArray) {
   try {
     let images = JSON.parse(jsonStringArray);
     let updatedImages = [];
+
+    // OPTIMASI: Cari atau buat folder "Hero_Images" SEKALI SAJA di luar loop 
+    // agar proses eksekusi berpuluh kali lipat lebih cepat.
+    const parent = DriveApp.getFolderById(FOLDER_GALERI_ID);
+    const folders = parent.getFoldersByName("Hero_Images");
+    const folder = folders.hasNext() ? folders.next() : parent.createFolder("Hero_Images");
+    folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
     for (let i = 0; i < images.length; i++) {
       let img = images[i];
       if (img.startsWith('data:image')) {
-        let url = uploadBase64ToHeroFolder(img, "HeroBanner_" + Date.now() + "_" + i);
+        let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
+        let fileName = "HERO_" + shortId; 
+        
+        // Panggil fungsi upload yang lebih ringan
+        let url = uploadBase64ToFolderOptimized(folder, img, fileName);
         if (url) updatedImages.push(url);
       } else {
         updatedImages.push(img);
       }
     }
+    
     saveSettingRecord('HERO_IMAGE_URL', JSON.stringify(updatedImages));
     return jsonResponse({ success: true, updatedUrls: updatedImages });
   } catch (e) {
@@ -452,12 +471,9 @@ function saveHeroImages(jsonStringArray) {
   }
 }
 
-function uploadBase64ToHeroFolder(base64Data, fileName) {
+// Fungsi upload baru yang lebih singkat karena folder sudah disediakan
+function uploadBase64ToFolderOptimized(folder, base64Data, fileName) {
   try {
-    const parent = DriveApp.getFolderById(FOLDER_GALERI_ID);
-    const folders = parent.getFoldersByName("Hero_Images");
-    const folder = folders.hasNext() ? folders.next() : parent.createFolder("Hero_Images");
-    folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     const splitBase = base64Data.split(','); 
     const type = splitBase[0].split(';')[0].replace('data:', '');
     const file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(splitBase[1]), type, fileName + ".jpg"));

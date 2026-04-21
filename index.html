@@ -3450,7 +3450,9 @@ const insertEditWartaFormatting = (tag) => {
                                             {editHeroImages.map((img, idx) => (
                                                 <div key={idx} className="relative w-full overflow-hidden rounded-xl border border-navy-100 shadow-sm" style={{ aspectRatio: '16/8.5' }}>
                                                     <img src={img} alt={`Hero Preview ${idx + 1}`} className="w-full h-full object-cover bg-navy-50" />
-                                                    <div className="absolute top-0 left-0 bg-black/60 text-white px-3 py-1 rounded-br-lg text-xs font-bold shadow-sm backdrop-blur-sm">Slide {idx + 1}</div>
+                                                    <div className="absolute top-0 left-0 bg-black/60 text-white px-3 py-1 rounded-br-lg text-xs font-bold shadow-sm backdrop-blur-sm">
+                                                        Slide {idx + 1} {img.startsWith('data:image') && <span className="text-gold-400 ml-1 font-black tracking-widest">(BARU)</span>}
+                                                    </div>
                                                     <button 
                                                         type="button" 
                                                         onClick={() => handleRemoveHeroImage(idx)} 
