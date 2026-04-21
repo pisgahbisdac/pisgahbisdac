@@ -66,7 +66,7 @@ function doPost(e) {
     switch (action) {
       case 'changePassword':     return changePassword(payload.oldPassword, payload.newPassword);
       case 'saveYoutubeUrl':     return saveSetting('YOUTUBE_URL', payload.url);
-      case 'saveHeroImage':      return saveSetting('HERO_IMAGE_URL', payload.url);
+      case 'saveHeroImage':      return saveHeroImages(payload.url);
       case 'savePengumuman':     return saveSetting('PENGUMUMAN_DATA', payload.pengumuman);
       
       // -- Manajemen Konten --
@@ -430,6 +430,40 @@ function uploadImageToDrive(folderId, title, base64Data) {
 function deleteImage(fileId) {
   try { DriveApp.getFileById(fileId).setTrashed(true); return jsonResponse({ success: true }); } 
   catch (e) { return jsonResponse({ success: false, message: e.toString() }); }
+}
+
+function saveHeroImages(jsonStringArray) {
+  try {
+    let images = JSON.parse(jsonStringArray);
+    let updatedImages = [];
+    for (let i = 0; i < images.length; i++) {
+      let img = images[i];
+      if (img.startsWith('data:image')) {
+        let url = uploadBase64ToHeroFolder(img, "HeroBanner_" + Date.now() + "_" + i);
+        if (url) updatedImages.push(url);
+      } else {
+        updatedImages.push(img);
+      }
+    }
+    saveSettingRecord('HERO_IMAGE_URL', JSON.stringify(updatedImages));
+    return jsonResponse({ success: true, updatedUrls: updatedImages });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
+}
+
+function uploadBase64ToHeroFolder(base64Data, fileName) {
+  try {
+    const parent = DriveApp.getFolderById(FOLDER_GALERI_ID);
+    const folders = parent.getFoldersByName("Hero_Images");
+    const folder = folders.hasNext() ? folders.next() : parent.createFolder("Hero_Images");
+    folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    const splitBase = base64Data.split(','); 
+    const type = splitBase[0].split(';')[0].replace('data:', '');
+    const file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(splitBase[1]), type, fileName + ".jpg"));
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return `https://drive.google.com/uc?export=view&id=${file.getId()}`;
+  } catch (e) { return ""; }
 }
 
 function uploadBase64ToWartaFolder(base64Data, fileName) {

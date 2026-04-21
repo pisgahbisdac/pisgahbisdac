@@ -2596,12 +2596,17 @@ const insertEditWartaFormatting = (tag) => {
                     const result = await res.json();
                     if (result.success) {
                         alert("Hero Images berhasil diperbarui!");
-                        setHeroImages(editHeroImages);
+                        if (result.updatedUrls) {
+                            setHeroImages(result.updatedUrls);
+                            setEditHeroImages(result.updatedUrls);
+                        } else {
+                            setHeroImages(editHeroImages);
+                        }
                     } else {
                         alert("Gagal merubah Hero Image: " + (result.message || "Akses ditolak."));
                     }
                 } catch (err) {
-                    alert("Gagal terhubung ke server.");
+                    alert("Gagal terhubung ke server. Pastikan ukuran file tidak terlalu besar.");
                 }
                 setIsSavingHero(false);
             };
