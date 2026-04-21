@@ -1788,7 +1788,12 @@ const handleUploadMultiple = async () => {
 
   for (let i = 0; i < selectedFiles.length; i++) {
     const file = selectedFiles[i];
-    const title = file.name.replace(/\.[^/.]+$/, "");
+    
+    // Membuat nama gambar pendek / inisial
+    const rawName = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, '');
+    const initials = rawName.substring(0, 3).toUpperCase() || "IMG";
+    const shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
+    const title = `${initials}_${shortId}`;
 
     setUploadProgress(prev => ({ ...prev, [file.name]: { status: 'uploading', percent: 0 } }));
 
@@ -2740,7 +2745,7 @@ const insertEditWartaFormatting = (tag) => {
                 </label>
               </div>
               <p className="text-xs text-navy-500">PNG, JPG up to 10MB</p>
-              {editWartaGambar && <p className="text-sm font-semibold text-gold-600 mt-2">{editWartaGambar.name}</p>}
+              {editWartaGambar && <p className="text-sm font-semibold text-gold-600 mt-2" title={editWartaGambar.name}>{editWartaGambar.name.length > 20 ? editWartaGambar.name.substring(0, 15) + '... .' + editWartaGambar.name.split('.').pop() : editWartaGambar.name}</p>}
             </div>
           </div>
           {editingWarta?.gambarUrl && !editWartaGambar && (
@@ -3034,7 +3039,7 @@ const insertEditWartaFormatting = (tag) => {
                                     </label>
                                 </div>
                                 <p className="text-xs text-navy-500">PNG, JPG up to 10MB</p>
-                                {wartaGambar && <p className="text-sm font-semibold text-navy-600 mt-2">{wartaGambar.name}</p>}
+                                {wartaGambar && <p className="text-sm font-semibold text-navy-600 mt-2" title={wartaGambar.name}>{wartaGambar.name.length > 20 ? wartaGambar.name.substring(0, 15) + '... .' + wartaGambar.name.split('.').pop() : wartaGambar.name}</p>}
                             </div>
                         </div>
                     </div>
@@ -3227,7 +3232,7 @@ const insertEditWartaFormatting = (tag) => {
                                     <ul className="text-xs text-navy-600 max-h-32 overflow-y-auto border rounded p-2 mt-1">
                                         {selectedFiles.map((file, idx) => (
                                             <li key={idx} className="flex justify-between items-center py-1">
-                                                <span>{file.name} ({(file.size / (1024 * 1024)).toFixed(2)}MB)</span>
+                                                <span title={file.name}>{file.name.length > 20 ? file.name.substring(0, 15) + '... .' + file.name.split('.').pop() : file.name} ({(file.size / (1024 * 1024)).toFixed(2)}MB)</span>
                                                 {uploadProgress[file.name] && (
                                                     <span className={`text-${
                                                         uploadProgress[file.name].status === 'success' ? 'green' :
