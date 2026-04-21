@@ -680,9 +680,9 @@ const truncateText = (text, maxLength = 500) => {
                                     {susunan.kLaguPujian3_show && renderItem("Lagu Pujian", susunan.kLaguPujian3_judul, true)}
                                     {renderItem("Ayat Inti", susunan.kAyatInti)}
                                     {renderItem("Lagu Tema", "Misi Kita")}
-                                    {renderItem("Khotbah", getOfficer(activeSabat.khotbah, "Khotbah"), true)}
+                                    {renderItem("Khotbah", getOfficer(activeSabat.khotbah, "Khotbah"))}
                                     {renderItem("Lagu Tutup", susunan.kLaguTutup)}
-                                    {renderItem("Doa Tutup Berkat", "Khotbah")}
+                                    {renderItem("Doa Tutup Berkat", getOfficer(activeSabat.khotbah, "Khotbah"))}
                                     {renderItem("Pengumuman", "Dept. Komunikasi")}
                                 </div>
                             )}
