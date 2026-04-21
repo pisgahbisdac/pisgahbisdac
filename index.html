@@ -505,7 +505,7 @@ const truncateText = (text, maxLength = 500) => {
                             <div className="welcome-box-gradient rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-blue-100/80 px-5 py-3.5 md:px-8 md:py-4 flex items-center justify-center backdrop-blur-sm">
                                 <h2 className="text-[0.95rem] md:text-lg font-bold text-navy-900 flex items-center flex-wrap justify-center gap-x-2">
                                     <span className="text-navy-700"> Selamat Datang di</span>
-                                    <img src="./PisgahColor.png" alt="PISGAH" className="h-7 md:h-9 w-auto inline-block" style={{ verticalAlign: 'middle' }} />
+                                    <img src="./icons/PisgahColor.png" alt="PISGAH" className="h-7 md:h-9 w-auto inline-block" style={{ verticalAlign: 'middle' }} />
                                     <span><p className="text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span> <span className="text-navy-700">app</span></p></span>
                                 </h2>
                             </div>
@@ -869,7 +869,7 @@ const truncateText = (text, maxLength = 500) => {
                         <h3 className="font-bold text-navy-900 text-[1.15rem]">Jadwal Lengkap</h3>
                         <p className="text-sm text-navy-500 mt-1">Lihat dan unduh file PDF jadwal pelayanan bulanan / triwulan di Google Drive.</p>
                     </div>
-                    <a href="https://drive.google.com/drive/folders/1Gcbhvg_63xKe7jAOg-ZPs8tH-f9e1m5m?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-navy-900 hover:bg-navy-800 text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center shrink-0 w-full sm:w-auto justify-center">
+                    <a href="./document/" target="_blank" rel="noopener noreferrer" className="bg-navy-900 hover:bg-navy-800 text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center shrink-0 w-full sm:w-auto justify-center">
                         <Icon name="BookOpen" className="w-[1.15rem] h-[1.15rem] mr-2 text-gold-500" /> Buka Google Drive
                     </a>
                 </div>
@@ -1029,7 +1029,7 @@ const truncateText = (text, maxLength = 500) => {
 
         const Persembahan = ({ dataPejabat }) => {
             const bendahara = dataPejabat.filter(p => (p.jabatan && p.jabatan.toLowerCase().includes('bendahara')) || (p.kategori && p.kategori.toLowerCase() === 'keuangan'));
-            const qrisUrl = "./notavailable.jpg";
+            const qrisUrl = "./icons/notavailable.jpg";
             return (
                 <div className="space-y-4 md:space-y-6 animate-fade-in relative z-10">
                     <div className="bg-white p-5 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
@@ -3764,7 +3764,7 @@ const insertEditWartaFormatting = (tag) => {
             const [dataPejabat, setDataPejabat] = React.useState(initialDataPejabat);
             const [kategoriPejabat, setKategoriPejabat] = React.useState(["Kepemimpinan", "Keuangan", "Departemen & Pelayanan", "Lainnya"]);
             const [youtubeUrl, setYoutubeUrl] = React.useState("https://www.youtube.com/embed/EAO55pnNsgs");
-            const [heroImages, setHeroImages] = React.useState(["./hero-default.png"]);
+            const [heroImages, setHeroImages] = React.useState(["./carousel/hero-default.png"]);
 
             // Pengumuman default State
             const [pengumuman, setPengumuman] = React.useState({ header: "Pengumuman Jemaat", isi: "" });
@@ -3957,7 +3957,7 @@ const insertEditWartaFormatting = (tag) => {
                                     </button>
                                 )}
                                 <div className="flex items-center shrink-0 cursor-pointer" onClick={() => setActiveTab('home')}>
-                                    <img src="./PisgahColor.png" className="w-7 h-7 md:w-8 md:h-8 flex items-center object-contain opacity-90 mr-1.5" alt="Logo" />
+                                    <img src="./icons/PisgahColor.png" className="w-7 h-7 md:w-8 md:h-8 flex items-center object-contain opacity-90 mr-1.5" alt="Logo" />
                                     <p className="text-xl md:text-2xl font-bold text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></p>
                                 </div>
                             </div>
