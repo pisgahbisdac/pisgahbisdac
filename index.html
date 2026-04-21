@@ -444,19 +444,31 @@ const truncateText = (text, maxLength = 500) => {
                     {/* Hero Image + Overlapping Welcome Box */}
                     <div className="-mx-4 md:mx-0 -mt-6 md:mt-0 mb-6 md:mb-10 relative group">
                         <div className="w-full overflow-hidden md:rounded-[1.5rem] relative z-0 bg-navy-900" style={{ aspectRatio: '16/8.5' }}>
-                            <div 
-                                className="w-full h-full flex transition-transform duration-700 ease-in-out" 
-                                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                            >
-                                {displayImages.map((img, idx) => (
-                                    <img
-                                        key={idx}
-                                        src={img}
-                                        alt={`Hero Banner ${idx + 1}`}
-                                        className="w-full h-full object-cover shrink-0"
-                                    />
-                                ))}
-                            </div>
+    <div 
+        className="w-full h-full flex transition-transform duration-700 ease-in-out" 
+        style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+    >
+        {displayImages.map((img, idx) => (
+            <div key={idx} className="w-full h-full flex-shrink-0 relative">
+                {/* 🌀 Lapisan Blur Background */}
+                <div className="absolute inset-0 overflow-hidden">
+                    <img
+                        src={img}
+                        alt=""
+                        className="w-full h-full object-cover blur-xl scale-110 opacity-60"
+                        aria-hidden="true"
+                    />
+                </div>
+                
+                {/* 🖼️ Gambar Utama (Utuh di tengah) */}
+                <img
+                    src={img}
+                    alt={`Hero Banner ${idx + 1}`}
+                    className="w-full h-full object-contain relative z-10"
+                />
+            </div>
+        ))}
+    </div>
 
                             {/* Carousel Controls */}
                             {displayImages.length > 1 && (
