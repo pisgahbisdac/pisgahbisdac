@@ -3844,46 +3844,33 @@ const insertEditWartaFormatting = (tag) => {
 
                     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 shadow-sm">
                         <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3 gap-3">
-
-                            {(activeTab === 'home' || activeTab === 'search') ? (
-                                <div className="flex-1 flex items-center gap-2">
-                                    {activeTab === 'search' && (
-                                        <button onClick={() => window.history.back()} className="w-10 h-10 flex items-center justify-start shrink-0 text-navy-600 hover:text-gold-500 transition-all border border-transparent">
-                                            <Icon name="ArrowLeft" className="w-6 h-6" />
-                                        </button>
-                                    )}
-                                    <button onClick={() => setActiveTab('search')} className="w-full flex items-center bg-navy-50/80 border border-navy-100/60 rounded-full text-sm font-medium text-navy-400 hover:bg-white hover:border-navy-200 focus:border-gold-400 transition-all shadow-sm">
-                                        <div className="pl-3.5 pr-2 py-2.5 text-navy-400">
-                                            <Icon name="Search" className="w-4 h-4" />
-                                        </div>
-                                        <span className="truncate pr-4 text-left"> Pencarian Jadwal, Nama...</span>
+                            <div className="flex items-center gap-2 md:gap-3 flex-1 justify-start">
+                                {activeTab !== 'home' && (
+                                    <button onClick={() => window.history.back()} className="w-10 h-10 flex items-center justify-center shrink-0 text-navy-600 hover:text-gold-500 transition-all border border-transparent bg-navy-50/50 hover:bg-navy-100 rounded-full">
+                                        <Icon name="ArrowLeft" className="w-5 h-5" />
                                     </button>
+                                )}
+                                <div className="flex items-center shrink-0 cursor-pointer" onClick={() => setActiveTab('home')}>
+                                    <img src="./PisgahColor.png" className="w-7 h-7 md:w-8 md:h-8 flex items-center object-contain opacity-90 mr-1.5" alt="Logo" />
+                                    <p className="text-xl md:text-2xl font-bold text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></p>
                                 </div>
-                            ) : (
-                                <>
-                                <div className="flex-1 flex justify-start">
-                                        <button onClick={() => window.history.back()} className="w-10 h-10 flex items-center justify-start text-navy-600 border border-transparent hover:text-gold-500 transition-all">
-                                            <Icon name="ArrowLeft" className="w-6 h-6" />
-                                        </button>
-                                    </div>                                    
-                                    <div className="flex-1 flex justify-center items-center shrink-0">
-                                        <img src="./PisgahColor.png" className="w-7 h-7 flex items-center w-auto opacity-90" />
-                                        <p className="text-xl md:text-2xl font-bold text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></p>
-                                        
-                                    </div>
-                                    
-                                </>
-                            )}
-                            <div className={`flex justify-end ${!(activeTab === 'home' || activeTab === 'search') ? 'flex-1' : ''}`}>
+                            </div>
+
+                            <div className="flex justify-end items-center gap-2 shrink-0">
+                                {activeTab !== 'search' && (
+                                    <button onClick={() => setActiveTab('search')} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-600 hover:text-gold-500 hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm" title="Pencarian">
+                                        <Icon name="Search" className="w-4 h-4" />
+                                    </button>
+                                )}
                                 {isAdminLoggedIn ? (
                                     <>
-                                    <button onClick={() => setActiveTab('admin_dashboard')} className="p-2.5 bg-navy-50 rounded-full text-navy-700 hover:bg-navy-100 transition" title="Dashboard">
-                                    <Icon name="Settings" className="w-4 h-4" />
+                                    <button onClick={() => setActiveTab('admin_dashboard')} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-600 hover:text-gold-500 hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm" title="Dashboard Admin">
+                                        <Icon name="Settings" className="w-4 h-4" />
                                     </button>
-                                    <button onClick={handleLogout} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-red-500 hover:text-red-700 hover:bg-red-50 transition flex items-center justify-center shrink-0 shadow-sm"><Icon name="LogOut" className="w-4 h-4" /></button>
+                                    <button onClick={handleLogout} className="w-10 h-10 bg-red-50 border border-red-100 rounded-full text-red-500 hover:text-red-700 hover:bg-red-100 transition flex items-center justify-center shrink-0 shadow-sm" title="Keluar"><Icon name="LogOut" className="w-4 h-4" /></button>
                                     </>
                                 ) : (
-                                    <button onClick={handleAdminClick} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-400 hover:text-navy-600 hover:bg-navy-50/50 transition flex items-center justify-center shrink-0 shadow-sm"><Icon name="LogIn" className="w-4 h-4" /></button>
+                                    <button onClick={handleAdminClick} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-400 hover:text-navy-600 hover:bg-navy-50/50 transition flex items-center justify-center shrink-0 shadow-sm" title="Login Admin"><Icon name="LogIn" className="w-4 h-4" /></button>
                                 )}
                             </div>
                         </div>                        
