@@ -3078,7 +3078,7 @@ const insertEditWartaFormatting = (tag) => {
                                 <div className="space-y-4">
                                     {paginatedWarta.map((warta, idx) => {
                                         const plainPreview = stripHtml(warta.isi);
-                                        const shortPreview = plainPreview.length > 200 ? plainPreview.substring(0, 200) + '...' : plainPreview;
+                                        const shortPreview = plainPreview.length > 1500 ? plainPreview.substring(0, 200) + '...' : plainPreview;
                                         return (
                                             <div key={idx} className="border border-navy-200 rounded-lg p-4 bg-navy-50">
                                                 <center>
@@ -3097,13 +3097,14 @@ const insertEditWartaFormatting = (tag) => {
                                                         </div>
                                                     </div>
                                                 </center>
-                                                <center>
                                                 <div className="flex gap-3 items-start">
                                                     {warta.gambarUrl && (
+                                                     <center>
                                                         <img src={warta.gambarUrl} className="h-20 w-auto object-cover rounded shrink-0" alt="preview" />
+                                                        </center>
                                                     )}
                                                     <p className="text-xs text-justify text-navy-700">{shortPreview}</p>
-                                                </div> </center>
+                                                </div> 
                                             </div>
                                         );
                                     })}
