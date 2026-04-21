@@ -173,7 +173,7 @@
         // ========================================================
         // URL WEB APP MILIKMU
         // ========================================================
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzHCGQPiTkOHVA5JYzD8u1iskpJFGcsZTDBr-lGwKtwdn74IptWPyu7sXyD4qLyE8yC/exec";
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwb8jNsO664vfanjuK8NfyJqCynEiP63mwImK89Rg4dwvIW3ZI8gVBOI_j4QMdkUUWi/exec";
 
         // ========== HELPER UNTUK WARTA PANJANG ==========
 const stripHtml = (html) => {
@@ -858,6 +858,17 @@ const truncateText = (text, maxLength = 500) => {
                         <span className="text-xs font-bold text-navy-800 bg-gold-50 px-4 py-1.5 rounded-full mt-3 md:mt-0 w-fit border border-gold-200 uppercase tracking-widest shadow-sm">Waktu: {activeSabat.time}</span>
                     </div>
 
+                    <div className="space-y-6">
+                            <div>
+                                <div className="flex justify-between items-end mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Khotbah / Umum</h3><span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.khotbahTime}</span></div>
+                                <div className="flex flex-col">{activeSabat.khotbah.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
+                            </div>
+                            <div>
+                                <div className="mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Pelayanan Musik</h3></div>
+                                <div className="flex flex-col">{activeSabat.musik.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
+                            </div>
+                        </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
                         <div className="space-y-6">
                             <div>
@@ -869,17 +880,7 @@ const truncateText = (text, maxLength = 500) => {
                                 <div className="flex flex-col">{activeSabat.diakon.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
                             </div>
                         </div>
-
-                        <div className="space-y-6">
-                            <div>
-                                <div className="flex justify-between items-end mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Khotbah / Umum</h3><span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.khotbahTime}</span></div>
-                                <div className="flex flex-col">{activeSabat.khotbah.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
-                            </div>
-                            <div>
-                                <div className="mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Pelayanan Musik</h3></div>
-                                <div className="flex flex-col">{activeSabat.musik.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
-                            </div>
-                        </div>
+  
                     </div>
                 </div>
             </div>
@@ -2347,6 +2348,32 @@ const insertEditWartaFormatting = (tag) => {
                 setEditForm(prev => ({ ...prev, [field]: value }));
             };
 
+            // HELPER: Flatten JSON ke bentuk Array 2D (Tabel)
+            const flattenJadwalData = (date, dataObj) => {
+                const rows = [];
+                const addSection = (sectionName, arr) => {
+                    if (arr && Array.isArray(arr)) {
+                        arr.forEach(item => {
+                            rows.push([date, sectionName, item.tugas || '', item.nama || '']);
+                        });
+                    }
+                };
+
+                addSection('Ibadah Rabu', dataObj.petugas);
+                addSection('Sekolah Sabat', dataObj.sekolahSabat);
+                addSection('Khotbah', dataObj.khotbah);
+                addSection('Diakon', dataObj.diakon);
+                addSection('Musik', dataObj.musik);
+                addSection('Perjamuan', dataObj.perjamuan);
+
+                if (dataObj.susunan) {
+                    Object.entries(dataObj.susunan).forEach(([k, v]) => {
+                        rows.push([date, 'Susunan Acara', k, v === true ? 'Ya' : v === false ? 'Tidak' : String(v)]);
+                    });
+                }
+                return rows;
+            };
+
             // SIMPAN JADWAL
             const handleSaveRow = (date) => {
                 const baseData = jadwalDB[date] ? JSON.parse(JSON.stringify(jadwalDB[date])) : JSON.parse(JSON.stringify(isRabu ? initialJadwalRabu : initialJadwalSabat));
@@ -2359,6 +2386,8 @@ const insertEditWartaFormatting = (tag) => {
                 else if (subTab === 'perjamuan') baseData.perjamuan = editForm;
 
                 setIsSavingJadwal(true);
+                
+                const tableData = flattenJadwalData(date, baseData);
 
                 fetch(GAS_API_URL, {
                     method: 'POST',
@@ -2366,7 +2395,8 @@ const insertEditWartaFormatting = (tag) => {
                         action: 'saveJadwal',
                         password: adminToken, // Otorisasi
                         tanggal: date,
-                        data: baseData
+                        data: baseData, // JSON Asli untuk bacaan React App
+                        tableData: tableData // Array 2D (Tabel) untuk ditulis rapi ke Spreadsheet
                     })
                 })
                     .then(res => res.json())
@@ -2386,6 +2416,7 @@ const insertEditWartaFormatting = (tag) => {
                 if (window.confirm(`Kembalikan jadwal ${formatIndoDateShort(date)} ke default?`)) {
                     setIsSavingJadwal(true);
                     const defaultData = JSON.parse(JSON.stringify(isRabu ? initialJadwalRabu : initialJadwalSabat));
+                    const tableData = flattenJadwalData(date, defaultData);
 
                     fetch(GAS_API_URL, {
                         method: 'POST',
@@ -2393,7 +2424,8 @@ const insertEditWartaFormatting = (tag) => {
                             action: 'saveJadwal',
                             password: adminToken, // Otorisasi
                             tanggal: date,
-                            data: defaultData
+                            data: defaultData, // JSON Asli
+                            tableData: tableData // Array 2D (Tabel)
                         })
                     })
                         .then(res => res.json())
