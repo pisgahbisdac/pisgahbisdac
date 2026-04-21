@@ -665,6 +665,7 @@ const truncateText = (text, maxLength = 500) => {
 
                             {openSection === 'khotbah' && (
                                 <div className="p-4 md:p-6 animate-fade-in bg-white">
+                                    {renderItem("Pemimpin Acara", getOfficer(activeSabat.khotbah, "Pemimpin Acara"))}
                                     {renderItem("Lagu Pengantar", "LS 515 - Tuhan Ada Dalam Bait Allah")}
                                     {renderItem("Lagu Sambutan", "LS 1 - Di Hadapan Hadirat-Mu")}
                                     {renderItem("Doa Buka", getOfficer(activeSabat.khotbah, "Khotbah"))}
