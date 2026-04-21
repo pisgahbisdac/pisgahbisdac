@@ -173,7 +173,7 @@
         // ========================================================
         // URL WEB APP MILIKMU
         // ========================================================
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyLvoo8gnP5SoDFCAGiDxofxGXpXdriQ0hpTxt5B5OA0TStLHzUolgzaFHIBbeW80lE/exec";
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzHCGQPiTkOHVA5JYzD8u1iskpJFGcsZTDBr-lGwKtwdn74IptWPyu7sXyD4qLyE8yC/exec";
 
         // ========== HELPER UNTUK WARTA PANJANG ==========
 const stripHtml = (html) => {
@@ -1275,12 +1275,11 @@ const truncateText = (text, maxLength = 500) => {
         const GaleriPublik = () => {
   const [folders, setFolders] = React.useState([]);
   const [selectedFolderId, setSelectedFolderId] = React.useState('');
-  const [images, setImages] = React.useState([]);
+  const [media, setMedia] = React.useState([]);
   const [loadingFolders, setLoadingFolders] = React.useState(false);
-  const [loadingImages, setLoadingImages] = React.useState(false);
+  const [loadingMedia, setLoadingMedia] = React.useState(false);
   const [error, setError] = React.useState('');
 
-  // Ambil daftar folder publik
   const loadFolders = async () => {
     setLoadingFolders(true);
     setError('');
@@ -1292,11 +1291,11 @@ const truncateText = (text, maxLength = 500) => {
       const data = await res.json();
       if (data.success) {
         setFolders(data.folders || []);
-        if (data.folders && data.folders.length > 0 && !selectedFolderId) {
+        if (data.folders?.length > 0 && !selectedFolderId) {
           setSelectedFolderId(data.folders[0].id);
         }
       } else {
-        setError('Gagal memuat folder: ' + (data.message || 'unknown'));
+        setError('Gagal memuat folder: ' + data.message);
       }
     } catch (err) {
       setError('Gagal terhubung ke server.');
@@ -1304,73 +1303,71 @@ const truncateText = (text, maxLength = 500) => {
     setLoadingFolders(false);
   };
 
-  // Ambil gambar dari folder terpilih
-  const loadImages = async (folderId) => {
+  const loadMedia = async (folderId) => {
     if (!folderId) return;
-    setLoadingImages(true);
+    setLoadingMedia(true);
     setError('');
     try {
       const res = await fetch(GAS_API_URL, {
         method: 'POST',
-        body: JSON.stringify({ action: 'getPublicImages', folderId: folderId })
+        body: JSON.stringify({ action: 'getPublicImages', folderId })
       });
       const data = await res.json();
       if (data.success) {
-        setImages(data.images || []);
+        setMedia(data.media || []);
       } else {
-        setError('Gagal memuat gambar: ' + (data.message || 'unknown'));
+        setError('Gagal memuat media: ' + data.message);
       }
     } catch (err) {
-      setError('Gagal memuat gambar.');
+      setError('Gagal memuat media.');
     }
-    setLoadingImages(false);
+    setLoadingMedia(false);
   };
 
-  React.useEffect(() => {
-    loadFolders();
-  }, []);
+  React.useEffect(() => { loadFolders(); }, []);
+  React.useEffect(() => { if (selectedFolderId) loadMedia(selectedFolderId); }, [selectedFolderId]);
 
-  React.useEffect(() => {
-    if (selectedFolderId) loadImages(selectedFolderId);
-  }, [selectedFolderId]);
-
-  if (loadingFolders) return <div className="text-center py-8 text-navy-500">Memuat galeri...</div>;
+  if (loadingFolders) return <div className="text-center py-8">Memuat folder...</div>;
   if (error) return <div className="text-center py-8 text-red-500">{error}</div>;
-  if (folders.length === 0) return <div className="text-center py-8 text-navy-500">Belum ada folder galeri.</div>;
+  if (folders.length === 0) return <div className="text-center py-8">Belum ada folder galeri.</div>;
 
   return (
     <div className="space-y-6">
-      {/* Pilihan Folder */}
       <div className="flex flex-wrap gap-3 justify-center border-b pb-4">
-        {folders.map(folder => (
+        {folders.map(f => (
           <button
-            key={folder.id}
-            onClick={() => setSelectedFolderId(folder.id)}
+            key={f.id}
+            onClick={() => setSelectedFolderId(f.id)}
             className={`px-4 py-2 rounded-full text-sm font-bold transition ${
-              selectedFolderId === folder.id
-                ? 'bg-navy-900 text-gold-400 shadow-md'
-                : 'bg-white text-navy-700 border border-navy-200 hover:bg-navy-50'
+              selectedFolderId === f.id ? 'bg-navy-900 text-gold-400' : 'bg-white text-navy-700 border'
             }`}
           >
-            <Icon name="Folder" className="w-4 h-4 inline mr-1" /> {folder.name}
+            📁 {f.name}
           </button>
         ))}
       </div>
-
-      {/* Galeri Gambar */}
-      {loadingImages ? (
-        <div className="text-center py-8">Memuat gambar...</div>
-      ) : images.length === 0 ? (
-        <div className="text-center py-8 text-navy-500">Belum ada gambar di folder ini.</div>
+      {loadingMedia ? (
+        <div className="text-center py-8">Memuat media...</div>
+      ) : media.length === 0 ? (
+        <div className="text-center py-8 text-navy-500">Belum ada media di folder ini.</div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {images.map(img => (
-            <div key={img.id} className="bg-white rounded-xl shadow-sm border border-navy-100 overflow-hidden hover:shadow-md transition">
-              <a href={img.url} target="_blank" rel="noopener noreferrer">
-                <img src={img.thumbnailUrl || img.url} alt={img.title} className="w-full h-40 object-cover hover:scale-105 transition duration-300" />
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {media.map(item => (
+            <div key={item.id} className="bg-white rounded-xl shadow-sm border overflow-hidden">
+              <a href={item.url} target="_blank" rel="noopener noreferrer">
+                {item.type === 'video' ? (
+                  <div className="relative w-full h-40 bg-black">
+                    <img src={item.thumbnailUrl} alt={item.title} className="w-full h-40 object-cover opacity-80" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-black/60 rounded-full p-2">▶️</div>
+                    </div>
+                  </div>
+                ) : (
+                  <img src={item.thumbnailUrl} alt={item.title} className="w-full h-40 object-cover hover:scale-105 transition" />
+                )}
               </a>
               <div className="p-2 text-center">
-                <p className="text-xs font-medium text-navy-700 truncate">{img.title}</p>
+                <p className="text-xs font-medium truncate">{item.title}</p>
               </div>
             </div>
           ))}
@@ -1675,28 +1672,26 @@ const truncateText = (text, maxLength = 500) => {
             const [galeriSubTab, setGaleriSubTab] = React.useState('folder');
             const galeriScrollContainerRef = React.useRef(null);
 
+            // State Galeri
             const [folderList, setFolderList] = useState([]);
             const [selectedFolder, setSelectedFolder] = useState('');
             const [isLoadingFolders, setIsLoadingFolders] = useState(false);
-
             const [selectedFiles, setSelectedFiles] = useState([]);
             const [uploadProgress, setUploadProgress] = useState({});
             const [isUploadingMultiple, setIsUploadingMultiple] = useState(false);
             const MAX_TOTAL_SIZE_MB = 50;
-
-            const [imageTitle, setImageTitle] = useState('');
-            const [imageFile, setImageFile] = useState(null);
             const [imagePreview, setImagePreview] = useState('');
-            const [isUploading, setIsUploading] = useState(false);
-
             const [showNewFolderModal, setShowNewFolderModal] = useState(false);
             const [newFolderName, setNewFolderName] = useState('');
             const [isCreatingFolder, setIsCreatingFolder] = useState(false);
-
-            const [imageList, setImageList] = useState([]);
+            const [mediaList, setMediaList] = useState([]);   // Ganti imageList -> mediaList
             const [isLoadingImages, setIsLoadingImages] = useState(false);
             const [showAllFolders, setShowAllFolders] = useState(false);
 
+            const [imageTitle, setImageTitle] = useState('');
+            const [imageFile, setImageFile] = useState(null);
+            const [isUploading, setIsUploading] = useState(false);
+          
             const scrollGaleriTabs = (direction) => {
                 if (galeriScrollContainerRef.current) {
                     galeriScrollContainerRef.current.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
@@ -1731,9 +1726,9 @@ const handleUploadMultiple = async () => {
     return;
   }
 
-   const totalSizeMB = getTotalSizeMB(selectedFiles);
+  const totalSizeMB = getTotalSizeMB(selectedFiles);
   if (totalSizeMB > MAX_TOTAL_SIZE_MB) {
-    alert(`Total ukuran file (${totalSizeMB.toFixed(2)}MB) melebihi batas ${MAX_TOTAL_SIZE_MB}MB. Silakan kurangi jumlah atau pilih file yang lebih kecil.`);
+    alert(`Total ukuran file (${totalSizeMB.toFixed(2)}MB) melebihi batas ${MAX_TOTAL_SIZE_MB}MB.`);
     return;
   }
 
@@ -1744,7 +1739,7 @@ const handleUploadMultiple = async () => {
 
   for (let i = 0; i < selectedFiles.length; i++) {
     const file = selectedFiles[i];
-    const title = file.name.replace(/\.[^/.]+$/, ""); // nama file tanpa ekstensi
+    const title = file.name.replace(/\.[^/.]+$/, "");
 
     setUploadProgress(prev => ({ ...prev, [file.name]: { status: 'uploading', percent: 0 } }));
 
@@ -1779,8 +1774,6 @@ const handleUploadMultiple = async () => {
       reader.readAsDataURL(file);
     });
     await uploadPromise;
-
-    setUploadProgress(prev => ({ ...prev, [file.name]: { ...prev[file.name], percent: ((i + 1) / total) * 100 } }));
   }
 
   setIsUploadingMultiple(false);
@@ -1788,39 +1781,59 @@ const handleUploadMultiple = async () => {
   if (successCount > 0) {
     setSelectedFiles([]);
     setImagePreview('');
-    loadImages(); // refresh galeri
+    loadImages();   // refresh galeri setelah upload
   }
   setTimeout(() => setUploadProgress({}), 3000);
 };
 
 // Memuat daftar folder dari Google Drive
 const loadFolders = async () => {
-    setIsLoadingFolders(true);
-    try {
-        const res = await fetch(GAS_API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'listImageFolders', password: adminToken })
-        });
-        const data = await res.json();
-        if (data.success) setFolderList(data.folders || []);
-        else alert('Gagal memuat folder');
-    } catch (err) { console.error(err); alert('Error memuat folder'); }
-    setIsLoadingFolders(false);
+  setIsLoadingFolders(true);
+  try {
+    const res = await fetch(GAS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'listImageFolders', password: adminToken })
+    });
+    const data = await res.json();
+    if (data.success) {
+      setFolderList(data.folders || []);
+      // 🔥 PENTING: Pilih folder pertama jika belum ada yang dipilih
+      if (data.folders && data.folders.length > 0 && !selectedFolder) {
+        setSelectedFolder(data.folders[0].id);
+      }
+    } else {
+      alert('Gagal memuat folder: ' + (data.message || ''));
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Error memuat folder');
+  }
+  setIsLoadingFolders(false);
 };
 
 // Memuat gambar berdasarkan folder yang dipilih
 const loadImages = async () => {
-    if (!selectedFolder) return;
-    setIsLoadingImages(true);
-    try {
-        const res = await fetch(GAS_API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'listImages', password: adminToken, folderId: selectedFolder })
-        });
-        const data = await res.json();
-        if (data.success) setImageList(data.images || []);
-    } catch (err) { console.error(err); alert('Error memuat gambar'); }
-    setIsLoadingImages(false);
+  if (!selectedFolder) return;
+  setIsLoadingImages(true);
+  try {
+    const res = await fetch(GAS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'getPublicImages',
+        folderId: selectedFolder
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      setMediaList(data.media || []);
+    } else {
+      alert('Gagal memuat media: ' + (data.message || ''));
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Error memuat media');
+  }
+  setIsLoadingImages(false);
 };
 
 const handleUploadImage = async () => {
@@ -1851,47 +1864,72 @@ const handleUploadImage = async () => {
 };
 
 const handleCreateFolder = async () => {
-    if (!newFolderName.trim()) return alert('Nama folder tidak boleh kosong');
-    setIsCreatingFolder(true);
-    try {
-        const res = await fetch(GAS_API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'createImageFolder', password: adminToken, folderName: newFolderName })
-        });
-        const data = await res.json();
-        if (data.success) {
-            alert('Folder berhasil dibuat');
-            setShowNewFolderModal(false);
-            setNewFolderName('');
-            loadFolders();
-        } else alert('Gagal membuat folder: ' + data.message);
-    } catch (err) { alert('Error: ' + err.message); }
-    setIsCreatingFolder(false);
+  if (!newFolderName.trim()) return alert('Nama folder tidak boleh kosong');
+  setIsCreatingFolder(true);
+  try {
+    const res = await fetch(GAS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ 
+        action: 'createImageFolder', 
+        password: adminToken, 
+        folderName: newFolderName 
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert('Folder berhasil dibuat');
+      setShowNewFolderModal(false);
+      setNewFolderName('');
+      
+      // 🔥 PENTING: Muat ulang daftar folder
+      await loadFolders();
+      
+      // 🔥 PENTING: Pilih folder yang baru dibuat (opsional)
+      // Bisa juga biarkan loadFolders yang memilih folder pertama
+    } else {
+      alert('Gagal membuat folder: ' + data.message);
+    }
+  } catch (err) { 
+    alert('Error: ' + err.message); 
+  }
+  setIsCreatingFolder(false);
 };
 
 const handleDeleteImage = async (fileId) => {
-    if (!confirm('Yakin ingin menghapus gambar ini?')) return;
-    try {
-        const res = await fetch(GAS_API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'deleteImage', password: adminToken, fileId })
-        });
-        const data = await res.json();
-        if (data.success) {
-            alert('Gambar dihapus');
-            loadImages();
-        } else alert('Gagal menghapus: ' + data.message);
-    } catch (err) { alert('Error: ' + err.message); }
+  if (!confirm('Yakin ingin menghapus media ini?')) return;
+  try {
+    const res = await fetch(GAS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'deleteImage',
+        password: adminToken,
+        fileId: fileId
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert('Media dihapus');
+      loadImages(); // refresh daftar
+    } else {
+      alert('Gagal menghapus: ' + data.message);
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
 };
 
 // Efek untuk memuat folder saat subtab galeri dibuka
 React.useEffect(() => {
-    if (adminTab === 'warta' && wartaSubTab === 'galeri') loadFolders();
+  if (adminTab === 'warta' && wartaSubTab === 'galeri') {
+    loadFolders();
+  }
 }, [adminTab, wartaSubTab]);
 
 React.useEffect(() => {
-    if (adminTab === 'warta' && wartaSubTab === 'galeri' && selectedFolder) loadImages();
-}, [selectedFolder]);
+  if (adminTab === 'warta' && wartaSubTab === 'galeri' && selectedFolder) {
+    loadImages();
+  }
+}, [selectedFolder, adminTab, wartaSubTab]);
 
 // Reset showAllFolders saat subtab galeri ditutup atau adminTab berubah
 React.useEffect(() => {
@@ -2979,12 +3017,13 @@ const insertEditWartaFormatting = (tag) => {
     </div>
 )}
 
-                            {wartaSubTab === 'galeri' && (
-    <div className="space-y-6">
-        {/* Area Folder */}
-        <div className="bg-white rounded-xl shadow-md p-6">
+    {wartaSubTab === 'galeri' && (
+  <div className="space-y-6">
+
+    {/* Area Folder */}
+<div className="bg-white rounded-xl shadow-md p-6">
   <div className="flex justify-between items-center mb-4">
-    <h3 className="text-xs font-bold text-navy-800">Kelola Folder Gambar</h3>
+    <h3 className="text-xs font-bold text-navy-800">Kelola Folder Media</h3>
     <button onClick={() => setShowNewFolderModal(true)} className="bg-gold-500 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2">
       <Icon name="PlusCircle" className="w-4 h-4" /> Folder Baru
     </button>
@@ -3005,9 +3044,13 @@ const insertEditWartaFormatting = (tag) => {
               <button
                 key={folder.id}
                 onClick={() => setSelectedFolder(folder.id)}
-                className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 ${selectedFolder === folder.id ? 'bg-navy-900 text-gold-400' : 'bg-navy-50 text-navy-700'}`}
+                className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 ${
+                  selectedFolder === folder.id 
+                    ? 'bg-navy-900 text-gold-400' 
+                    : 'bg-navy-50 text-navy-700 hover:bg-navy-100'
+                }`}
               >
-                <Icon name="Folder" className="w-4 h-4" /> {folder.name}
+                📁 {folder.name}
               </button>
             ))}
           </div>
@@ -3018,7 +3061,7 @@ const insertEditWartaFormatting = (tag) => {
         <div className="mt-4 text-center">
           <button
             onClick={() => setShowAllFolders(!showAllFolders)}
-            className="text-xs w-full bg-navy-900 text-gold-400 py-3 rounded-lg font-bold disabled:opacity-50"
+            className="text-xs w-full bg-navy-900 text-gold-400 py-3 rounded-lg font-bold"
           >
             {showAllFolders ? 'Tampilkan Sedikit' : `Tampilkan Semua (${folderList.length} folder)`}
           </button>
@@ -3028,125 +3071,146 @@ const insertEditWartaFormatting = (tag) => {
   )}
 </div>
 
-        {/* Area Upload Gambar */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-  <h3 className="text-xs font-bold text-navy-800 mb-4">Upload Gambar Baru (Banyak File)</h3>
-  {!selectedFolder ? (
-    <div className="text-xs text-center py-6 text-amber-600 bg-amber-50 rounded-lg">Pilih folder terlebih dahulu</div>
-  ) : (
-    <div className="space-y-4">
-      <div>
-        <label className="block text-xs font-medium text-navy-700 mb-1">Pilih Gambar (bisa banyak)</label>
-        <div className="text-xs border-2 border-dashed rounded-lg p-4 text-center">
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) => {
-              const files = Array.from(e.target.files);
-              setSelectedFiles(files);
-              if (files.length > 0) {
-                const reader = new FileReader();
-                reader.onloadend = () => setImagePreview(reader.result);
-                reader.readAsDataURL(files[0]);
-              } else {
-                setImagePreview('');
-              }
-            }}
-            className="w-full"
-          />
-          <p className="text-xs text-navy-500 mt-2">Total maksimal {MAX_TOTAL_SIZE_MB}MB untuk semua file yang dipilih (tidak ada batasan per file)</p>
-          {imagePreview && (
-            <img src={imagePreview} className="max-h-48 mx-auto mt-2 rounded" alt="Preview" />
-          )}
-        </div>
-      </div>
-
-      {/* Tampilan total ukuran file yang dipilih */}
-      {selectedFiles.length > 0 && (
-        <div className="bg-navy-50 p-3 rounded-lg">
-          <div className="flex justify-between items-center">
-            <span className="text-xs font-medium text-navy-700">Total ukuran:</span>
-            <span className={`text-xs font-bold ${getTotalSizeMB(selectedFiles) > MAX_TOTAL_SIZE_MB ? 'text-red-600' : 'text-green-600'}`}>
-              {getTotalSizeMB(selectedFiles).toFixed(2)} MB
-            </span>
+    {/* Area Upload Media */}
+    <div className="bg-white rounded-xl shadow-md p-6">
+      <h3 className="text-xs font-bold text-navy-800 mb-4">Upload Media Baru (Gambar/Video)</h3>
+      {!selectedFolder ? (
+        <div className="text-xs text-center py-6 text-amber-600 bg-amber-50 rounded-lg">Pilih folder terlebih dahulu</div>
+      ) : (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-navy-700 mb-1">Pilih File (gambar/video, bisa banyak)</label>
+            <div className="text-xs border-2 border-dashed rounded-lg p-4 text-center">
+              <input
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                onChange={(e) => {
+                  const files = Array.from(e.target.files);
+                  setSelectedFiles(files);
+                  if (files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => setImagePreview(reader.result);
+                    reader.readAsDataURL(files[0]);
+                  } else {
+                    setImagePreview('');
+                  }
+                }}
+                className="w-full"
+              />
+              <p className="text-xs text-navy-500 mt-2">
+                Total maksimal {MAX_TOTAL_SIZE_MB}MB. Format didukung: gambar (termasuk HEIC) dan video.
+              </p>
+              {imagePreview && selectedFiles[0]?.type.startsWith('image/') && (
+                <img src={imagePreview} className="max-h-48 mx-auto mt-2 rounded" alt="Preview" />
+              )}
+            </div>
           </div>
-          {getTotalSizeMB(selectedFiles) > MAX_TOTAL_SIZE_MB && (
-            <p className="text-xs text-red-500 mt-1">Melebihi batas {MAX_TOTAL_SIZE_MB}MB, tidak dapat diupload</p>
-          )}
-        </div>
-      )}
 
-      {/* Daftar file yang akan diupload */}
-      {selectedFiles.length > 0 && (
-        <div>
-          <p className="text-xs font-bold text-navy-700">File yang akan diupload ({selectedFiles.length}):</p>
-          <ul className="text-xs text-navy-600 max-h-32 overflow-y-auto border rounded p-2 mt-1">
-            {selectedFiles.map((file, idx) => (
-              <li key={idx} className="text-xs flex justify-between items-center py-1">
-                <span>{file.name} ({(file.size / (1024 * 1024)).toFixed(2)}MB)</span>
-                {uploadProgress[file.name] && (
-                  <span className={`text-${
-                    uploadProgress[file.name].status === 'success' ? 'green' :
-                    uploadProgress[file.name].status === 'failed' ? 'red' : 'yellow'
-                  }-600`}>
-                    {uploadProgress[file.name].status === 'uploading' && '⏳'}
-                    {uploadProgress[file.name].status === 'success' && '✅'}
-                    {uploadProgress[file.name].status === 'failed' && '❌'}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
-          {isUploadingMultiple && (
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div
-                className="bg-gold-500 h-2 rounded-full transition-all"
-                style={{ width: `${(Object.values(uploadProgress).filter(p => p.status === 'success').length / selectedFiles.length) * 100}%` }}
-              ></div>
+          {selectedFiles.length > 0 && (
+            <div className="bg-navy-50 p-3 rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-medium text-navy-700">Total ukuran:</span>
+                <span className={`text-xs font-bold ${getTotalSizeMB(selectedFiles) > MAX_TOTAL_SIZE_MB ? 'text-red-600' : 'text-green-600'}`}>
+                  {getTotalSizeMB(selectedFiles).toFixed(2)} MB
+                </span>
+              </div>
+              {getTotalSizeMB(selectedFiles) > MAX_TOTAL_SIZE_MB && (
+                <p className="text-xs text-red-500 mt-1">Melebihi batas {MAX_TOTAL_SIZE_MB}MB</p>
+              )}
             </div>
           )}
+
+          {selectedFiles.length > 0 && (
+            <div>
+              <p className="text-xs font-bold text-navy-700">File yang akan diupload ({selectedFiles.length}):</p>
+              <ul className="text-xs text-navy-600 max-h-32 overflow-y-auto border rounded p-2 mt-1">
+                {selectedFiles.map((file, idx) => (
+                  <li key={idx} className="flex justify-between items-center py-1">
+                    <span>{file.name} ({(file.size / (1024 * 1024)).toFixed(2)}MB)</span>
+                    {uploadProgress[file.name] && (
+                      <span className={`text-${
+                        uploadProgress[file.name].status === 'success' ? 'green' :
+                        uploadProgress[file.name].status === 'failed' ? 'red' : 'yellow'
+                      }-600`}>
+                        {uploadProgress[file.name].status === 'uploading' && '⏳'}
+                        {uploadProgress[file.name].status === 'success' && '✅'}
+                        {uploadProgress[file.name].status === 'failed' && '❌'}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              {isUploadingMultiple && (
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div
+                    className="bg-gold-500 h-2 rounded-full transition-all"
+                    style={{ width: `${(Object.values(uploadProgress).filter(p => p.status === 'success').length / selectedFiles.length) * 100}%` }}
+                  ></div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <button
+            onClick={handleUploadMultiple}
+            disabled={isUploadingMultiple || selectedFiles.length === 0 || getTotalSizeMB(selectedFiles) > MAX_TOTAL_SIZE_MB}
+            className="text-xs w-full bg-navy-900 text-gold-400 py-3 rounded-lg font-bold disabled:opacity-50"
+          >
+            {isUploadingMultiple
+              ? `Mengupload ${Object.values(uploadProgress).filter(p => p.status === 'success').length}/${selectedFiles.length}...`
+              : `Upload ${selectedFiles.length} File`}
+          </button>
         </div>
       )}
+    </div>
 
-      <button
-        onClick={handleUploadMultiple}
-        disabled={isUploadingMultiple || selectedFiles.length === 0 || getTotalSizeMB(selectedFiles) > MAX_TOTAL_SIZE_MB}
-        className="text-xs w-full bg-navy-900 text-gold-400 py-3 rounded-lg font-bold disabled:opacity-50"
-      >
-        {isUploadingMultiple
-          ? `Mengupload ${Object.values(uploadProgress).filter(p => p.status === 'success').length}/${selectedFiles.length}...`
-          : `Upload ${selectedFiles.length} Gambar`}
-      </button>
+    {/* Area Galeri Media */}
+<div className="bg-white rounded-xl shadow-md p-6">
+  <h3 className="text-xs font-bold text-navy-800 mb-4">Galeri Media</h3>
+  {isLoadingImages ? (
+    <div className="text-xs text-center py-8">Memuat media...</div>
+  ) : mediaList.length === 0 ? (
+    <div className="text-xs text-center py-8">Belum ada media di folder ini.</div>
+  ) : (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {mediaList.map(item => (
+        <div key={item.id} className="border rounded-lg overflow-hidden">
+          {item.type === 'video' ? (
+            // Tampilan video
+            <div className="relative w-full h-32 bg-black">
+              <video
+                src={item.url}
+                controls
+                className="w-full h-32 object-cover"
+                poster={item.thumbnailUrl}
+              />
+              <div className="absolute top-1 left-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">
+                VIDEO
+              </div>
+            </div>
+          ) : (
+            // Tampilan gambar
+            <img
+              src={item.thumbnailUrl}
+              className="w-full h-32 object-cover"
+              alt={item.title}
+              onError={(e) => { e.target.src = item.url; }} // fallback jika thumbnail gagal
+            />
+          )}
+          <div className="p-2">
+            <p className="text-xs font-medium truncate">{item.title}</p>
+            <div className="flex justify-between mt-2">
+              <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-gold-600">Lihat</a>
+              <button onClick={() => handleDeleteImage(item.id)} className="text-xs text-red-500">Hapus</button>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   )}
 </div>
-
-        {/* Area Galeri Gambar */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-xs font-bold text-navy-800 mb-4">Galeri Gambar</h3>
-            {isLoadingImages ? (
-                <div className="text-xs text-center py-8">Memuat gambar...</div>
-            ) : imageList.length === 0 ? (
-                <div className="text-xs text-center py-8">Belum ada gambar di folder ini.</div>
-            ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {imageList.map(img => (
-                        <div key={img.id} className="border rounded-lg overflow-hidden">
-                            <img src={img.thumbnailUrl} className="w-full h-32 object-cover" alt={img.title} />
-                            <div className="p-2">
-                                <p className="text-xs font-medium truncate">{img.title}</p>
-                                <div className="flex justify-between mt-2">
-                                    <a href={img.url} target="_blank" className="text-xs text-gold-600">Lihat</a>
-                                    <button onClick={() => handleDeleteImage(img.id)} className="text-xs text-red-500">Hapus</button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    </div>
+  </div>
 )}
 
 {showNewFolderModal && (
