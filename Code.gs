@@ -85,7 +85,7 @@ function getInitialData() {
     dataPejabat: getPejabatDB(),
     jadwalDB: getJadwalDB(),
     kategoriPejabat: getKategoriDB(),
-    youtubeUrl: getSetting('YOUTUBE_URL') || "https://www.youtube.com/embed/EAO55pnNsgs",
+    youtubeUrl: getSetting('YOUTUBE_URL') || "https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g",
     heroImageUrl: getSetting('HERO_IMAGE_URL') || "./pisgahgedung.png",
     pengumuman: getSetting('PENGUMUMAN_DATA') || JSON.stringify({ header: "Pengumuman", isi: "" }),
     daftarWarta: getDaftarWarta()
@@ -428,7 +428,7 @@ function SETUP_PERTAMA_KALI() {
   if (sPengaturan.getLastRow() === 0) {
     sPengaturan.appendRow(['Key', 'Value']);
     sPengaturan.appendRow(['PASSWORD', 'admin123']);
-    sPengaturan.appendRow(['YOUTUBE_URL', 'https://www.youtube.com/embed/EAO55pnNsgs']);
+    sPengaturan.appendRow(['YOUTUBE_URL', 'https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g']);
     sPengaturan.appendRow(['HERO_IMAGE_URL', './pisgahgedung.png']);
     sPengaturan.appendRow(['PENGUMUMAN_DATA', JSON.stringify({ header: "Pengumuman", isi: "" })]);
     sPengaturan.appendRow(['KATEGORI_PEJABAT', JSON.stringify(["Gembala", "Officers", "Departemen & Pelayanan", "Lainnya"])]);
