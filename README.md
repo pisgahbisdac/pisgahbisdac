@@ -1,4 +1,4 @@
-# WEBSITE
+# PISGAH BISDAC APP-WEBSITE
 Sebuah project web apps untuk memberikan informasi yang berhubungan dengan:
  - JADWAL PEMBAWA ACARA
  - WARTA GEREJA
@@ -6,4 +6,4 @@ Sebuah project web apps untuk memberikan informasi yang berhubungan dengan:
  - UPDATE INFORMAS
 
 Serta informasi dan artikel lain-nya yang bisa membangun inam dan kerohanian
-pengunjung untuk lebih delat dengan Tuhan.
+pengunjung untuk lebih dekat dengan Tuhan.
