@@ -114,7 +114,6 @@ function getInitialData() {
 // =========================================================================
 // 4. HANDLER WARTA & PEJABAT
 // =========================================================================
-// (Fungsi Warta dan Pejabat tetap sama, disembunyikan logikanya untuk menjaga fungsionalitas)
 
 function getDaftarWarta() {
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
@@ -186,7 +185,7 @@ function getKategoriDB() {
 
 
 // =========================================================================
-// 5. HANDLER JADWAL (TERPISAH PER KATEGORI SHEET)
+// 5. HANDLER JADWAL (TERPISAH PER KATEGORI & HORIZONTAL EXCEL-STYLE)
 // =========================================================================
 
 function getJadwalDB() {
@@ -199,8 +198,11 @@ function getJadwalDB() {
     if (!sheet) continue;
 
     const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) continue; // Skip jika hanya ada header atau kosong
+
+    const headers = data[0]; // Baris pertama adalah Kolom Tugas (cth: Tanggal, Pemimpin, Doa Buka...)
     
-    // Mulai dari baris ke-2 (Baris 1 adalah Header)
+    // Mulai dari baris ke-2 (Baris Data)
     for (let i = 1; i < data.length; i++) {
       let tanggal = data[i][0];
       if (!tanggal) continue;
@@ -211,9 +213,6 @@ function getJadwalDB() {
       } else {
         tanggal = String(tanggal);
       }
-
-      const tugas = data[i][1];    // Kolom B: Tugas/Item
-      let nama = data[i][2];       // Kolom C: Nama Petugas/Nilai
       
       // Buat kerangka tanggal jika belum ada
       if (!db[tanggal]) {
@@ -229,13 +228,22 @@ function getJadwalDB() {
         };
       }
 
-      // Masukkan data ke properti yang tepat sesuai nama Sheet-nya
-      if (jsonKey === 'susunan') {
-        if (nama === 'Ya' || nama === true) nama = true;
-        else if (nama === 'Tidak' || nama === false) nama = false;
-        db[tanggal].susunan[tugas] = nama;
-      } else {
-        db[tanggal][jsonKey].push({ tugas: tugas, nama: String(nama) });
+      // Loop kolom-kolom ke samping (Mulai dari indeks 1, karena 0 adalah Tanggal)
+      for (let j = 1; j < headers.length; j++) {
+        const tugas = headers[j];
+        let nama = data[i][j];
+        
+        if (!tugas) continue; // Skip jika headernya kosong
+
+        // Masukkan data ke properti yang tepat
+        if (jsonKey === 'susunan') {
+          if (nama === 'Ya' || nama === true) nama = true;
+          else if (nama === 'Tidak' || nama === false || nama === '') nama = false;
+          db[tanggal].susunan[tugas] = nama;
+        } else {
+          // Hanya masukkan tugas, meskipun nama orangnya kosong (agar struktur di React tetap ada)
+          db[tanggal][jsonKey].push({ tugas: tugas, nama: String(nama || '') });
+        }
       }
     }
   }
@@ -246,38 +254,78 @@ function getJadwalDB() {
 function saveJadwal(tanggal, tableData) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
 
-  // 1. Kelompokkan data yang masuk berdasarkan nama Sheet
+  // 1. Ubah data array vertikal dari React menjadi Object per Sheet
   const groupedData = {};
-  Object.values(CATEGORY_MAP).forEach(sheetName => groupedData[sheetName] = []);
+  Object.values(CATEGORY_MAP).forEach(sheetName => groupedData[sheetName] = {});
 
   if (tableData && tableData.length > 0) {
     tableData.forEach(row => {
-      const kategori = row[1]; // Kategori dari React ('Ibadah Rabu', 'Sekolah Sabat', dll)
+      const kategori = row[1]; // misal: 'Sekolah Sabat'
+      const tugas = row[2];    // misal: 'Doa Buka'
+      const nama = row[3];     // misal: 'Bpk. Budi'
       const sheetName = CATEGORY_MAP[kategori];
       
       if (sheetName) {
-        // Simpan dalam format [Tanggal, Tugas, Nama]
-        groupedData[sheetName].push([row[0], row[2], row[3]]);
+        groupedData[sheetName][tugas] = nama;
       }
     });
   }
 
-  // 2. Tulis data ke masing-masing Sheet
-  for (const [sheetName, rows] of Object.entries(groupedData)) {
+  // 2. Tulis data ke masing-masing Sheet secara Horizontal (Baris/Kolom)
+  for (const [sheetName, taskData] of Object.entries(groupedData)) {
+    // Skip menyimpan jika tidak ada data tugas pada sheet tersebut (kecuali sheet Susunan Acara)
+    if (Object.keys(taskData).length === 0 && sheetName !== CATEGORY_MAP['Susunan Acara']) continue;
+
     let sheet = ss.getSheetByName(sheetName);
     
-    // Buat sheet jika tidak sengaja terhapus
+    // Buat sheet jika tidak sengaja terhapus, beri header 'Tanggal'
     if (!sheet) {
       sheet = ss.insertSheet(sheetName);
-      sheet.appendRow(['Tanggal', 'Tugas/Item', 'Nama Petugas/Nilai']);
-      sheet.getRange("A1:C1").setFontWeight("bold");
+      sheet.getRange(1, 1).setValue('Tanggal');
+      sheet.getRange(1, 1).setFontWeight("bold");
     }
 
-    const data = sheet.getDataRange().getValues();
+    // Ambil header saat ini
+    let headers = [];
+    if (sheet.getLastColumn() > 0) {
+      headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    } else {
+      headers = ['Tanggal'];
+      sheet.getRange(1, 1).setValue('Tanggal');
+    }
 
-    // Hapus baris lama dengan TANGGAL YANG SAMA di sheet ini
-    // Loop mundur agar indeks tidak bergeser saat baris dihapus
-    for (let i = data.length - 1; i > 0; i--) {
+    // Periksa apakah ada Kolom Tugas baru yang perlu ditambahkan ke Header
+    let headersModified = false;
+    for (const tugas of Object.keys(taskData)) {
+      if (!headers.includes(tugas)) {
+        headers.push(tugas);
+        headersModified = true;
+      }
+    }
+
+    // Tulis ulang header jika ada penambahan kolom tugas baru
+    if (headersModified) {
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold");
+    }
+
+    // Siapkan array baris kosong sepanjang header yang ada
+    const rowArray = new Array(headers.length).fill('');
+    rowArray[0] = tanggal; // Kolom 1 (Index 0) selalu Tanggal
+
+    // Petakan nama orang ke kolom tugas yang sesuai
+    for (const [tugas, nama] of Object.entries(taskData)) {
+      const colIndex = headers.indexOf(tugas);
+      if (colIndex !== -1) {
+        rowArray[colIndex] = nama;
+      }
+    }
+
+    // Cari apakah data tanggal ini sudah pernah ada sebelumnya
+    const data = sheet.getDataRange().getValues();
+    let rowIndex = -1;
+
+    for (let i = 1; i < data.length; i++) {
       let rowDate = data[i][0];
       if (rowDate instanceof Date) {
         rowDate = Utilities.formatDate(rowDate, Session.getScriptTimeZone(), "yyyy-MM-dd");
@@ -286,13 +334,20 @@ function saveJadwal(tanggal, tableData) {
       }
 
       if (rowDate === tanggal) {
-        sheet.deleteRow(i + 1); // +1 karena getValues base-0, deleteRow base-1
+        rowIndex = i + 1; // +1 karena sheet dimulai dari indeks 1
+        break;
       }
     }
 
-    // Append baris baru (jika ada) ke sheet ini
-    if (rows.length > 0) {
-      sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
+    // Tulis ke spreadsheet
+    if (rowIndex !== -1) {
+      // Jika Tanggal sudah ada, timpa baris tersebut (Update)
+      sheet.getRange(rowIndex, 1, 1, rowArray.length).setValues([rowArray]);
+    } else {
+      // Jika Tanggal belum ada, tambahkan di baris paling bawah (Insert Baru)
+      if (Object.keys(taskData).length > 0) {
+        sheet.appendRow(rowArray);
+      }
     }
   }
 
@@ -331,7 +386,6 @@ function changePassword(oldPass, newPass) {
   return jsonResponse({ success: false, message: 'Password lama salah.' });
 }
 
-// (Fungsi Galeri tetap sama)
 function getPublicFolders() {
   const folders = [];
   try {
@@ -424,15 +478,15 @@ function SETUP_PERTAMA_KALI() {
     sWarta.getRange("A1:E1").setFontWeight("bold");
   }
 
-  // BIKIN TAB-TAB JADWAL SECARA TERPISAH
+  // BIKIN TAB-TAB JADWAL DENGAN HEADER HORIZONTAL ('Tanggal' Saja)
   Object.values(CATEGORY_MAP).forEach(sheetName => {
     let sheet = ss.getSheetByName(sheetName);
     if (!sheet) {
       sheet = ss.insertSheet(sheetName);
-      sheet.appendRow(['Tanggal', 'Tugas/Item', 'Nama Petugas/Nilai']);
-      sheet.getRange("A1:C1").setFontWeight("bold");
+      sheet.appendRow(['Tanggal']);
+      sheet.getRange("A1").setFontWeight("bold");
     }
   });
 
-  Logger.log("SETUP BERHASIL! Database dipisah ke dalam Sheet Jadwal_... dengan rapi.");
+  Logger.log("SETUP BERHASIL! Format Excel Horizontal (Tugas di Header, Nama di Bawahnya) sudah disiapkan.");
 }
