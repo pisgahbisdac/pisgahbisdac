@@ -92,19 +92,48 @@ function doPost(e) {
   }
 }
 
+// =========================================================================
+// HELPER: KONVERSI LINK LAMA KE LINK AMAN (THUMBNAIL)
+// =========================================================================
+function makeSafeImageUrl(url) {
+  if (!url) return "";
+  // Ubah format lama uc?export=view menjadi link thumbnail resolusi tinggi
+  if (url.includes('drive.google.com/uc') && url.includes('id=')) {
+    const idMatch = url.match(/id=([^&]+)/);
+    if (idMatch && idMatch[1]) {
+      return "https://drive.google.com/thumbnail?id=" + idMatch[1] + "&sz=w1200";
+    }
+  }
+  return url;
+}
+
 
 // =========================================================================
 // 3. FUNGSI DATABASE (GETTER UTAMA)
 // =========================================================================
 
 function getInitialData() {
+  // Ambil & perbaiki semua link Hero Image secara otomatis
+  let rawHero = getSetting('HERO_IMAGE_URL') || "[]";
+  let heroImages = [];
+  try {
+    let parsed = JSON.parse(rawHero);
+    if (Array.isArray(parsed)) {
+      heroImages = parsed.map(makeSafeImageUrl); // Konversi massal
+    } else {
+      heroImages = [makeSafeImageUrl(parsed)];
+    }
+  } catch(e) {
+    heroImages = [];
+  }
+
   return jsonResponse({
     success: true,
     dataPejabat: getPejabatDB(),
     jadwalDB: getJadwalDB(),
     kategoriPejabat: getKategoriDB(),
     youtubeUrl: getSetting('YOUTUBE_URL') || "https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g",
-    heroImageUrl: getSetting('HERO_IMAGE_URL') || "./hero-default.png",
+    heroImageUrl: JSON.stringify(heroImages),
     pengumuman: getSetting('PENGUMUMAN_DATA') || JSON.stringify({ header: "Pengumuman", isi: "" }),
     daftarWarta: getDaftarWarta()
   });
@@ -124,7 +153,10 @@ function getDaftarWarta() {
     wartaList.push({
       rowIndex: i + 1,
       tanggal: data[i][0] ? Utilities.formatDate(new Date(data[i][0]), Session.getScriptTimeZone(), "dd MMM yyyy") : '',
-      judul: data[i][1] || '', isi: data[i][2] || '', gambarUrl: data[i][3] || '', penulis: data[i][4] || ''
+      judul: data[i][1] || '', 
+      isi: data[i][2] || '', 
+      gambarUrl: makeSafeImageUrl(data[i][3] || ''), // Otomatis perbaiki link lama
+      penulis: data[i][4] || ''
     });
   }
   return wartaList;
@@ -135,7 +167,6 @@ function getOrCreateNestedFolder(folderName) {
   const root = DriveApp.getRootFolder();
   let masterFolder;
   
-  // 1. Cari atau buat folder induk "Pisgah_Web" di Root
   const masterFolders = root.getFoldersByName("Pisgah_Web");
   if (masterFolders.hasNext()) {
     masterFolder = masterFolders.next();
@@ -144,7 +175,6 @@ function getOrCreateNestedFolder(folderName) {
     masterFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   }
 
-  // 2. Cari atau buat sub-folder di dalam "Pisgah_Web"
   const subFolders = masterFolder.getFoldersByName(folderName);
   if (subFolders.hasNext()) {
     return subFolders.next().getId();
@@ -159,7 +189,6 @@ function saveWarta(payload) {
   let sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
   let gambarUrl = payload.gambarUrl || "";
   
-  // PASTIKAN: Hanya upload jika BUKAN URL (http) dan berupa base64
   if (gambarUrl && !gambarUrl.startsWith('http') && (gambarUrl.startsWith('data:image') || gambarUrl.length > 500)) {
     let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
     let targetFolderId = getOrCreateNestedFolder("Warta_Images");
@@ -174,7 +203,6 @@ function updateWarta(payload) {
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
   let gambarUrl = payload.gambarUrl || "";
   
-  // PASTIKAN: Hanya upload jika BUKAN URL (http) dan berupa base64
   if (gambarUrl && !gambarUrl.startsWith('http') && (gambarUrl.startsWith('data:image') || gambarUrl.length > 500)) {
     let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
     let targetFolderId = getOrCreateNestedFolder("Warta_Images");
@@ -199,7 +227,16 @@ function getPejabatDB() {
   const data = sheet.getDataRange().getValues();
   let result = [];
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0]) result.push({ id: data[i][0], jabatan: data[i][1], nama: data[i][2], wa: data[i][3], img: data[i][4], kategori: data[i][5] || "Lainnya" });
+    if (data[i][0]) {
+      result.push({ 
+        id: data[i][0], 
+        jabatan: data[i][1], 
+        nama: data[i][2], 
+        wa: data[i][3], 
+        img: makeSafeImageUrl(data[i][4] || ''), // Otomatis perbaiki link lama
+        kategori: data[i][5] || "Lainnya" 
+      });
+    }
   }
   return result;
 }
@@ -207,19 +244,14 @@ function getPejabatDB() {
 function savePejabat(dataPejabat, kategoriPejabat) {
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_PEJABAT);
   
-  // Tangkap foto pejabat yang baru diupload (base64)
   if (dataPejabat && dataPejabat.length > 0) {
-    // PERBAIKAN: Masukkan ke subfolder Pejabat_Images di dalam folder Warta_image
     let targetFolderId = getOrCreateNestedFolder("Pejabat_Images");
     
     for (let i = 0; i < dataPejabat.length; i++) {
       let imgData = dataPejabat[i].img;
       
-      // PASTIKAN: Hanya upload jika BUKAN URL (http) dan berupa base64
       if (imgData && !imgData.startsWith('http') && (imgData.startsWith('data:image') || imgData.length > 500)) {
         let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
-        
-        // Teruskan targetFolderId agar tidak masuk ke Folder Galeri
         dataPejabat[i].img = uploadFileToDrive(imgData, "PEJABAT_" + shortId + ".jpg", targetFolderId);
       }
     }
@@ -442,7 +474,8 @@ function getPublicImages(folderId) {
       const file = files.next(); const mimeType = file.getMimeType();
       const isVideo = mimeType.startsWith('video/'); const isImage = mimeType.startsWith('image/');
       if (isImage || isVideo) {
-        const directUrl = isVideo ? file.getUrl() : "https://drive.google.com/uc?export=view&id=" + file.getId();
+        // Gunakan link thumbnail untuk mencegah 403 error
+        const directUrl = isVideo ? file.getUrl() : "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1200";
         media.push({ 
           id: file.getId(), 
           title: file.getName(), 
@@ -462,22 +495,17 @@ function createImageFolder(folderName) {
 }
 
 // =========================================================================
-// 7. FUNGSI UPLOAD GAMBAR UTAMA (BERDASARKAN REFERENSI ANDA)
+// 7. FUNGSI UPLOAD GAMBAR UTAMA
 // =========================================================================
 
-/**
- * UPLOAD GAMBAR DAN KONVERSI KE DIRECT LINK
- */
 function uploadFileToDrive(base64Data, fileName, customFolderId) {
   try {
-    // Gunakan customFolderId jika ada, jika tidak gunakan folder galeri default
     const folderId = customFolderId || FOLDER_GALERI_ID;
     let folder;
     
     try {
       folder = DriveApp.getFolderById(folderId);
     } catch(err) {
-      // Jika ID tidak valid / belum di set, buat folder penampung darurat
       const folders = DriveApp.getFoldersByName("PISGAH_UPLOADS");
       folder = folders.hasNext() ? folders.next() : DriveApp.createFolder("PISGAH_UPLOADS");
     }
@@ -486,15 +514,11 @@ function uploadFileToDrive(base64Data, fileName, customFolderId) {
     let byteCharacters;
 
     if (base64Data.includes(',')) {
-      // Format data:image/png;base64,...
       const splitBase = base64Data.split(',');
       type = splitBase[0].split(';')[0].replace('data:', '');
       byteCharacters = Utilities.base64Decode(splitBase[1]);
     } else {
-      // Format Raw Base64 (seperti UklGRlaBAABXRUJQV...)
       byteCharacters = Utilities.base64Decode(base64Data);
-      
-      // Deteksi Ekstensi File Otomatis dari Raw String
       if (base64Data.startsWith('UklG')) type = 'image/webp';
       else if (base64Data.startsWith('iVBORw')) type = 'image/png';
       else if (base64Data.startsWith('/9j/')) type = 'image/jpeg';
@@ -503,11 +527,10 @@ function uploadFileToDrive(base64Data, fileName, customFolderId) {
     const blob = Utilities.newBlob(byteCharacters, type, fileName);
     const file = folder.createFile(blob);
     
-    // Memberikan izin akses publik ke file tersebut
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     
-    // FORMAT PENTING: Mengubah ID file menjadi direct image link agar bisa muncul di tag <img>
-    return "https://drive.google.com/uc?export=view&id=" + file.getId();
+    // FORMAT PENTING: Mengubah ID file menjadi link thumbnail resolusi tinggi
+    return "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1200";
   } catch (e) {
     throw new Error("Gagal upload ke Drive: " + e.message);
   }
@@ -525,23 +548,22 @@ function uploadImageToDrive(folderId, title, base64Data) {
 }
 
 // Fungsi Panggilan Cepat untuk Hero Images
-function saveHeroImages(jsonStringArray) {
+function saveHeroImages(payloadData) {
   try {
-    let images = JSON.parse(jsonStringArray);
-    let updatedImages = [];
+    let images = typeof payloadData === 'string' ? JSON.parse(payloadData) : payloadData;
+    if (!Array.isArray(images)) images = [images];
     
-    // PERBAIKAN: Masukkan ke subfolder Hero_Images di dalam folder Warta_image
+    let updatedImages = [];
     let targetFolderId = getOrCreateNestedFolder("Hero_Images");
 
     for (let i = 0; i < images.length; i++) {
       let img = images[i];
-      // PASTIKAN: Hanya upload jika BUKAN URL (http) dan berupa base64
-      if (img && !img.startsWith('http') && (img.startsWith('data:image') || img.length > 500)) {
+      if (img && typeof img === 'string' && !img.startsWith('http') && (img.startsWith('data:image') || img.length > 500)) {
         let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
         let url = uploadFileToDrive(img, "HERO_" + shortId + ".jpg", targetFolderId);
         if (url) updatedImages.push(url);
-      } else {
-        updatedImages.push(img); // Jika sudah berupa link, biarkan
+      } else if (img) {
+        updatedImages.push(img); 
       }
     }
     
