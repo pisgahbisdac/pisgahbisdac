@@ -199,6 +199,25 @@ const truncateText = (text, maxLength = 500) => {
             return txt.value;
         };
 
+        // --- HELPER UNTUK MEMPERBAIKI URL GAMBAR GOOGLE DRIVE & BASE64 ---
+        const formatImageUrl = (url) => {
+            if (!url) return '';
+            // Mengubah link Drive biasa ke thumbnail beresolusi tinggi agar tidak kena blokir 403
+            if (url.includes('drive.google.com/uc') && url.includes('id=')) {
+                const idMatch = url.match(/id=([^&]+)/);
+                if (idMatch && idMatch[1]) {
+                    return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1200`;
+                }
+            }
+            // Mengembalikan string Base64 murni jika kehilangan awalan data:image/ saat dikirim
+            if (!url.startsWith('http') && !url.startsWith('data:image') && url.length > 500) {
+                 if (url.startsWith('UklG')) return `data:image/webp;base64,${url}`;
+                 if (url.startsWith('iVBORw')) return `data:image/png;base64,${url}`;
+                 if (url.startsWith('/9j/')) return `data:image/jpeg;base64,${url}`;
+            }
+            return url;
+        };
+
         // --- INITIAL DATA ---
         const defaultSusunan = {
             ssLaguBuka: "LS ...",
@@ -1541,7 +1560,10 @@ const truncateText = (text, maxLength = 500) => {
                                         const rowIdx = warta.rowIndex;
                                         const imageWidth = imageSizes[rowIdx] ?? 100;
                                         const hasError = imageErrors[rowIdx];
-                                        const isValid = warta.gambarUrl && warta.gambarUrl.startsWith('http');
+                                        
+                                        // FORMAT ULANG URL AGAR AMAN DARI BLOKIR DRIVE
+                                        const safeImageUrl = formatImageUrl(warta.gambarUrl);
+                                        const isValid = safeImageUrl && (safeImageUrl.startsWith('http') || safeImageUrl.startsWith('data:image'));
                                         
                                         const plainText = stripHtml(warta.isi);
                                         const isLong = plainText.length > CHAR_LIMIT;
@@ -1581,11 +1603,11 @@ const truncateText = (text, maxLength = 500) => {
                                                         <center>
                                                             {!hasError ? (
                                                                 <img
-                                                                    src={warta.gambarUrl}
+                                                                    src={safeImageUrl}
                                                                     className="h-auto rounded-lg shadow-sm"
                                                                     style={{ width: `${imageWidth}%` }}
                                                                     alt="Gambar warta"
-                                                                    onError={() => handleImageError(rowIdx, warta.gambarUrl)}
+                                                                    onError={() => handleImageError(rowIdx, safeImageUrl)}
                                                                     referrerPolicy="no-referrer"
                                                                 />
                                                             ) : (
@@ -2782,7 +2804,7 @@ const insertEditWartaFormatting = (tag) => {
           {editingWarta?.gambarUrl && !editWartaGambar && (
             <center><div className="mt-2">
               <p className="text-xs text-navy-500">Gambar saat ini:</p>
-              <img src={editingWarta.gambarUrl} className="h-16 w-auto object-cover mt-1 rounded" alt="current" />
+              <img src={formatImageUrl(editingWarta.gambarUrl)} className="h-16 w-auto object-cover mt-1 rounded" alt="current" referrerPolicy="no-referrer" />
             </div></center>
           )}
         </div>
@@ -3119,7 +3141,7 @@ const insertEditWartaFormatting = (tag) => {
                                                 </center>
                                                 <div className="flex flex-col gap-3 items-center">
     {warta.gambarUrl && (
-        <img src={warta.gambarUrl} className="h-20 w-auto object-cover rounded" alt="preview" />
+        <img src={formatImageUrl(warta.gambarUrl)} className="h-20 w-auto object-cover rounded" alt="preview" referrerPolicy="no-referrer" />
     )}
     <p className="text-xs text-justify text-navy-700">{shortPreview}</p>
 </div>

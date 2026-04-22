@@ -133,10 +133,13 @@ function getDaftarWarta() {
 function saveWarta(payload) {
   let sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
   let gambarUrl = payload.gambarUrl || "";
-  if (gambarUrl.startsWith('data:image')) {
+  
+  // Tangkap data:image atau base64 raw yang sangat panjang
+  if (gambarUrl.startsWith('data:image') || gambarUrl.length > 500) {
     let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
-    gambarUrl = uploadBase64ToWartaFolder(gambarUrl, "WRT_" + shortId);
+    gambarUrl = uploadFileToDrive(gambarUrl, "WRT_" + shortId + ".jpg");
   }
+  
   sheet.appendRow([ new Date(), payload.judul, payload.isi, gambarUrl, payload.penulis ]);
   return jsonResponse({ success: true });
 }
@@ -144,10 +147,12 @@ function saveWarta(payload) {
 function updateWarta(payload) {
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
   let gambarUrl = payload.gambarUrl || "";
-  if (gambarUrl.startsWith('data:image')) {
+  
+  if (gambarUrl.startsWith('data:image') || gambarUrl.length > 500) {
     let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
-    gambarUrl = uploadBase64ToWartaFolder(gambarUrl, "WRT_" + shortId);
+    gambarUrl = uploadFileToDrive(gambarUrl, "WRT_" + shortId + ".jpg");
   }
+  
   sheet.getRange(payload.rowIndex, 2).setValue(payload.judul);
   sheet.getRange(payload.rowIndex, 3).setValue(payload.isi);
   sheet.getRange(payload.rowIndex, 4).setValue(gambarUrl);
@@ -173,6 +178,18 @@ function getPejabatDB() {
 
 function savePejabat(dataPejabat, kategoriPejabat) {
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_PEJABAT);
+  
+  // Tangkap foto pejabat yang baru diupload (base64)
+  if (dataPejabat && dataPejabat.length > 0) {
+    for (let i = 0; i < dataPejabat.length; i++) {
+      let imgData = dataPejabat[i].img;
+      if (imgData && (imgData.startsWith('data:image') || imgData.length > 500)) {
+        let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
+        dataPejabat[i].img = uploadFileToDrive(imgData, "PEJABAT_" + shortId + ".jpg");
+      }
+    }
+  }
+
   sheet.clear();
   sheet.appendRow(['ID', 'Jabatan', 'Nama', 'WA', 'Image Base64', 'Kategori']);
   if (dataPejabat && dataPejabat.length > 0) {
@@ -198,29 +215,25 @@ function getJadwalDB() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   let db = {};
 
-  // Loop setiap sheet kategori jadwal
   for (const [sheetName, jsonKey] of Object.entries(CATEGORY_MAP_REV)) {
     const sheet = ss.getSheetByName(sheetName);
     if (!sheet) continue;
 
     const data = sheet.getDataRange().getValues();
-    if (data.length <= 1) continue; // Skip jika hanya ada header atau kosong
+    if (data.length <= 1) continue; 
 
-    const headers = data[0]; // Baris pertama adalah Kolom Tugas (cth: Tanggal, Pemimpin, Doa Buka...)
+    const headers = data[0]; 
     
-    // Mulai dari baris ke-2 (Baris Data)
     for (let i = 1; i < data.length; i++) {
       let tanggal = data[i][0];
       if (!tanggal) continue;
       
-      // Normalisasi format tanggal (YYYY-MM-DD)
       if (tanggal instanceof Date) {
         tanggal = Utilities.formatDate(tanggal, Session.getScriptTimeZone(), "yyyy-MM-dd");
       } else {
         tanggal = String(tanggal);
       }
       
-      // Buat kerangka tanggal jika belum ada
       if (!db[tanggal]) {
         const dateObj = new Date(tanggal + "T00:00:00");
         const isRabu = dateObj.getDay() === 3;
@@ -234,20 +247,17 @@ function getJadwalDB() {
         };
       }
 
-      // Loop kolom-kolom ke samping (Mulai dari indeks 1, karena 0 adalah Tanggal)
       for (let j = 1; j < headers.length; j++) {
         const tugas = headers[j];
         let nama = data[i][j];
         
-        if (!tugas) continue; // Skip jika headernya kosong
+        if (!tugas) continue; 
 
-        // Masukkan data ke properti yang tepat
         if (jsonKey === 'susunan') {
           if (nama === 'Ya' || nama === true) nama = true;
           else if (nama === 'Tidak' || nama === false || nama === '') nama = false;
           db[tanggal].susunan[tugas] = nama;
         } else {
-          // Hanya masukkan tugas, meskipun nama orangnya kosong (agar struktur di React tetap ada)
           db[tanggal][jsonKey].push({ tugas: tugas, nama: String(nama || '') });
         }
       }
@@ -259,16 +269,14 @@ function getJadwalDB() {
 
 function saveJadwal(tanggal, tableData) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-
-  // 1. Ubah data array vertikal dari React menjadi Object per Sheet
   const groupedData = {};
   Object.values(CATEGORY_MAP).forEach(sheetName => groupedData[sheetName] = {});
 
   if (tableData && tableData.length > 0) {
     tableData.forEach(row => {
-      const kategori = row[1]; // misal: 'Sekolah Sabat'
-      const tugas = row[2];    // misal: 'Doa Buka'
-      const nama = row[3];     // misal: 'Bpk. Budi'
+      const kategori = row[1]; 
+      const tugas = row[2];    
+      const nama = row[3];     
       const sheetName = CATEGORY_MAP[kategori];
       
       if (sheetName) {
@@ -277,21 +285,17 @@ function saveJadwal(tanggal, tableData) {
     });
   }
 
-  // 2. Tulis data ke masing-masing Sheet secara Horizontal (Baris/Kolom)
   for (const [sheetName, taskData] of Object.entries(groupedData)) {
-    // Skip menyimpan jika tidak ada data tugas pada sheet tersebut (kecuali sheet Susunan Acara)
     if (Object.keys(taskData).length === 0 && sheetName !== CATEGORY_MAP['Susunan Acara']) continue;
 
     let sheet = ss.getSheetByName(sheetName);
     
-    // Buat sheet jika tidak sengaja terhapus, beri header 'Tanggal'
     if (!sheet) {
       sheet = ss.insertSheet(sheetName);
       sheet.getRange(1, 1).setValue('Tanggal');
       sheet.getRange(1, 1).setFontWeight("bold");
     }
 
-    // Ambil header saat ini
     let headers = [];
     if (sheet.getLastColumn() > 0) {
       headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
@@ -300,7 +304,6 @@ function saveJadwal(tanggal, tableData) {
       sheet.getRange(1, 1).setValue('Tanggal');
     }
 
-    // Periksa apakah ada Kolom Tugas baru yang perlu ditambahkan ke Header
     let headersModified = false;
     for (const tugas of Object.keys(taskData)) {
       if (!headers.includes(tugas)) {
@@ -309,17 +312,14 @@ function saveJadwal(tanggal, tableData) {
       }
     }
 
-    // Tulis ulang header jika ada penambahan kolom tugas baru
     if (headersModified) {
       sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
       sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold");
     }
 
-    // Siapkan array baris kosong sepanjang header yang ada
     const rowArray = new Array(headers.length).fill('');
-    rowArray[0] = tanggal; // Kolom 1 (Index 0) selalu Tanggal
+    rowArray[0] = tanggal; 
 
-    // Petakan nama orang ke kolom tugas yang sesuai
     for (const [tugas, nama] of Object.entries(taskData)) {
       const colIndex = headers.indexOf(tugas);
       if (colIndex !== -1) {
@@ -327,7 +327,6 @@ function saveJadwal(tanggal, tableData) {
       }
     }
 
-    // Cari apakah data tanggal ini sudah pernah ada sebelumnya
     const data = sheet.getDataRange().getValues();
     let rowIndex = -1;
 
@@ -340,17 +339,14 @@ function saveJadwal(tanggal, tableData) {
       }
 
       if (rowDate === tanggal) {
-        rowIndex = i + 1; // +1 karena sheet dimulai dari indeks 1
+        rowIndex = i + 1;
         break;
       }
     }
 
-    // Tulis ke spreadsheet
     if (rowIndex !== -1) {
-      // Jika Tanggal sudah ada, timpa baris tersebut (Update)
       sheet.getRange(rowIndex, 1, 1, rowArray.length).setValues([rowArray]);
     } else {
-      // Jika Tanggal belum ada, tambahkan di baris paling bawah (Insert Baru)
       if (Object.keys(taskData).length > 0) {
         sheet.appendRow(rowArray);
       }
@@ -410,7 +406,16 @@ function getPublicImages(folderId) {
     while (files.hasNext()) {
       const file = files.next(); const mimeType = file.getMimeType();
       const isVideo = mimeType.startsWith('video/'); const isImage = mimeType.startsWith('image/');
-      if (isImage || isVideo) media.push({ id: file.getId(), title: file.getName(), url: file.getUrl(), thumbnailUrl: `https://drive.google.com/thumbnail?id=${file.getId()}&sz=w500-h500`, type: isVideo ? 'video' : 'image' });
+      if (isImage || isVideo) {
+        const directUrl = isVideo ? file.getUrl() : "https://drive.google.com/uc?export=view&id=" + file.getId();
+        media.push({ 
+          id: file.getId(), 
+          title: file.getName(), 
+          url: directUrl, 
+          thumbnailUrl: `https://drive.google.com/thumbnail?id=${file.getId()}&sz=w500-h500`, 
+          type: isVideo ? 'video' : 'image' 
+        });
+      }
     }
     return jsonResponse({ success: true, media: media });
   } catch (e) { return jsonResponse({ success: false, message: e.toString() }); }
@@ -421,45 +426,84 @@ function createImageFolder(folderName) {
   catch (e) { return jsonResponse({ success: false, message: e.toString() }); }
 }
 
+// =========================================================================
+// 7. FUNGSI UPLOAD GAMBAR UTAMA (BERDASARKAN REFERENSI ANDA)
+// =========================================================================
+
+/**
+ * UPLOAD GAMBAR DAN KONVERSI KE DIRECT LINK
+ */
+function uploadFileToDrive(base64Data, fileName, customFolderId) {
+  try {
+    // Gunakan customFolderId jika ada, jika tidak gunakan folder galeri default
+    const folderId = customFolderId || FOLDER_GALERI_ID;
+    let folder;
+    
+    try {
+      folder = DriveApp.getFolderById(folderId);
+    } catch(err) {
+      // Jika ID tidak valid / belum di set, buat folder penampung darurat
+      const folders = DriveApp.getFoldersByName("PISGAH_UPLOADS");
+      folder = folders.hasNext() ? folders.next() : DriveApp.createFolder("PISGAH_UPLOADS");
+    }
+
+    let type = 'image/jpeg';
+    let byteCharacters;
+
+    if (base64Data.includes(',')) {
+      // Format data:image/png;base64,...
+      const splitBase = base64Data.split(',');
+      type = splitBase[0].split(';')[0].replace('data:', '');
+      byteCharacters = Utilities.base64Decode(splitBase[1]);
+    } else {
+      // Format Raw Base64 (seperti UklGRlaBAABXRUJQV...)
+      byteCharacters = Utilities.base64Decode(base64Data);
+      
+      // Deteksi Ekstensi File Otomatis dari Raw String
+      if (base64Data.startsWith('UklG')) type = 'image/webp';
+      else if (base64Data.startsWith('iVBORw')) type = 'image/png';
+      else if (base64Data.startsWith('/9j/')) type = 'image/jpeg';
+    }
+
+    const blob = Utilities.newBlob(byteCharacters, type, fileName);
+    const file = folder.createFile(blob);
+    
+    // Memberikan izin akses publik ke file tersebut
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    // FORMAT PENTING: Mengubah ID file menjadi direct image link agar bisa muncul di tag <img>
+    return "https://drive.google.com/uc?export=view&id=" + file.getId();
+  } catch (e) {
+    throw new Error("Gagal upload ke Drive: " + e.message);
+  }
+}
+
+// Fungsi Panggilan Cepat untuk fitur Galeri Manual
 function uploadImageToDrive(folderId, title, base64Data) {
   try {
-    const folder = DriveApp.getFolderById(folderId);
-    const splitBase = base64Data.split(','); const type = splitBase[0].split(';')[0].replace('data:', '');
-    const byteCharacters = Utilities.base64Decode(splitBase[1]);
-    let ext = ""; if (type.includes("jpeg") || type.includes("jpg")) ext = ".jpg"; else if (type.includes("png")) ext = ".png"; else if (type.includes("mp4") || type.includes("video")) ext = ".mp4";
-    const file = folder.createFile(Utilities.newBlob(byteCharacters, type, title + ext));
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    return jsonResponse({ success: true, fileId: file.getId(), url: file.getUrl() });
-  } catch (e) { return jsonResponse({ success: false, message: e.toString() }); }
+    let ext = ".jpg"; 
+    const directUrl = uploadFileToDrive(base64Data, title + ext, folderId);
+    return jsonResponse({ success: true, url: directUrl });
+  } catch (e) { 
+    return jsonResponse({ success: false, message: e.toString() }); 
+  }
 }
 
-function deleteImage(fileId) {
-  try { DriveApp.getFileById(fileId).setTrashed(true); return jsonResponse({ success: true }); } 
-  catch (e) { return jsonResponse({ success: false, message: e.toString() }); }
-}
-
+// Fungsi Panggilan Cepat untuk Hero Images
 function saveHeroImages(jsonStringArray) {
   try {
     let images = JSON.parse(jsonStringArray);
     let updatedImages = [];
 
-    // OPTIMASI: Cari atau buat folder "Hero_Images" di Root Drive (Luar Folder Galeri)
-    let folder;
-    const folders = DriveApp.getFoldersByName("Hero_Images");
-    folder = folders.hasNext() ? folders.next() : DriveApp.createFolder("Hero_Images");
-    folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-
     for (let i = 0; i < images.length; i++) {
       let img = images[i];
-      if (img.startsWith('data:image')) {
+      // Tangkap data:image atau base64 raw yang sangat panjang
+      if (img.startsWith('data:image') || img.length > 500) {
         let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
-        let fileName = "HERO_" + shortId; 
-        
-        // Panggil fungsi upload yang lebih ringan
-        let url = uploadBase64ToFolderOptimized(folder, img, fileName);
+        let url = uploadFileToDrive(img, "HERO_" + shortId + ".jpg");
         if (url) updatedImages.push(url);
       } else {
-        updatedImages.push(img);
+        updatedImages.push(img); // Jika sudah berupa link, biarkan
       }
     }
     
@@ -470,74 +514,11 @@ function saveHeroImages(jsonStringArray) {
   }
 }
 
-// Fungsi upload baru yang lebih singkat karena folder sudah disediakan
-function uploadBase64ToFolderOptimized(folder, base64Data, fileName) {
-  try {
-    const splitBase = base64Data.split(','); 
-    const type = splitBase[0].split(';')[0].replace('data:', '');
-    const file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(splitBase[1]), type, fileName + ".jpg"));
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    return `https://drive.google.com/uc?export=view&id=${file.getId()}`;
-  } catch (e) { return ""; }
-}
-
-function uploadBase64ToWartaFolder(base64Data, fileName) {
-  try {
-    // Cari atau buat folder "Warta_Images" di Root Drive (Luar Folder Galeri)
-    let folder;
-    const folders = DriveApp.getFoldersByName("Warta_Images");
-    folder = folders.hasNext() ? folders.next() : DriveApp.createFolder("Warta_Images");
-    folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    
-    const splitBase = base64Data.split(','); const type = splitBase[0].split(';')[0].replace('data:', '');
-    const file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(splitBase[1]), type, fileName + ".jpg"));
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    return `https://drive.google.com/uc?export=view&id=${file.getId()}`;
-  } catch (e) { return ""; }
+function deleteImage(fileId) {
+  try { DriveApp.getFileById(fileId).setTrashed(true); return jsonResponse({ success: true }); } 
+  catch (e) { return jsonResponse({ success: false, message: e.toString() }); }
 }
 
 function jsonResponse(data) {
   return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
-}
-
-// =========================================================================
-// 9. SETUP DATABASE PERTAMA KALI
-// =========================================================================
-function SETUP_PERTAMA_KALI() {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  
-  let sPengaturan = ss.getSheetByName(SHEET_PENGATURAN) || ss.insertSheet(SHEET_PENGATURAN);
-  if (sPengaturan.getLastRow() === 0) {
-    sPengaturan.appendRow(['Key', 'Value']);
-    sPengaturan.appendRow(['PASSWORD', 'admin123']);
-    sPengaturan.appendRow(['YOUTUBE_URL', 'https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g']);
-    sPengaturan.appendRow(['HERO_IMAGE_URL', './pisgahgedung.png']);
-    sPengaturan.appendRow(['PENGUMUMAN_DATA', JSON.stringify({ header: "Pengumuman", isi: "" })]);
-    sPengaturan.appendRow(['KATEGORI_PEJABAT', JSON.stringify(["Gembala", "Officers", "Departemen & Pelayanan", "Lainnya"])]);
-    sPengaturan.getRange("A1:B1").setFontWeight("bold");
-  }
-
-  let sPejabat = ss.getSheetByName(SHEET_PEJABAT) || ss.insertSheet(SHEET_PEJABAT);
-  if (sPejabat.getLastRow() === 0) {
-    sPejabat.appendRow(['ID', 'Jabatan', 'Nama', 'WA', 'Image Base64', 'Kategori']);
-    sPejabat.getRange("A1:F1").setFontWeight("bold");
-  }
-
-  let sWarta = ss.getSheetByName(SHEET_WARTA) || ss.insertSheet(SHEET_WARTA);
-  if (sWarta.getLastRow() === 0) {
-    sWarta.appendRow(['Tanggal', 'Judul', 'Isi', 'Gambar URL', 'Penulis']);
-    sWarta.getRange("A1:E1").setFontWeight("bold");
-  }
-
-  // BIKIN TAB-TAB JADWAL DENGAN HEADER HORIZONTAL ('Tanggal' Saja)
-  Object.values(CATEGORY_MAP).forEach(sheetName => {
-    let sheet = ss.getSheetByName(sheetName);
-    if (!sheet) {
-      sheet = ss.insertSheet(sheetName);
-      sheet.appendRow(['Tanggal']);
-      sheet.getRange("A1").setFontWeight("bold");
-    }
-  });
-
-  Logger.log("SETUP BERHASIL! Format Excel Horizontal (Tugas di Header, Nama di Bawahnya) sudah disiapkan.");
 }
