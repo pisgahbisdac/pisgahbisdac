@@ -423,13 +423,33 @@ function createImageFolder(folderName) {
 
 function uploadImageToDrive(folderId, title, base64Data) {
   try {
-    const folder = DriveApp.getFolderById(folderId);
-    const splitBase = base64Data.split(','); const type = splitBase[0].split(';')[0].replace('data:', '');
+    const targetFolderId = folderId || FOLDER_GALERI_ID; // Fallback jika tidak ada folderId
+    let folder;
+    try {
+        folder = DriveApp.getFolderById(targetFolderId);
+    } catch(err) {
+        // Buat folder backup otomatis jika folder utama terhapus/gagal
+        const folders = DriveApp.getFoldersByName("PISGAH_GALERI_UPLOADS");
+        folder = folders.hasNext() ? folders.next() : DriveApp.createFolder("PISGAH_GALERI_UPLOADS");
+        folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    }
+
+    const splitBase = base64Data.split(','); 
+    const type = splitBase[0].split(';')[0].replace('data:', '');
     const byteCharacters = Utilities.base64Decode(splitBase[1]);
-    let ext = ""; if (type.includes("jpeg") || type.includes("jpg")) ext = ".jpg"; else if (type.includes("png")) ext = ".png"; else if (type.includes("mp4") || type.includes("video")) ext = ".mp4";
+    let ext = ""; 
+    if (type.includes("jpeg") || type.includes("jpg")) ext = ".jpg"; 
+    else if (type.includes("png")) ext = ".png"; 
+    else if (type.includes("mp4") || type.includes("video")) ext = ".mp4";
+    else ext = ".webp";
+
     const file = folder.createFile(Utilities.newBlob(byteCharacters, type, title + ext));
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    return jsonResponse({ success: true, fileId: file.getId(), url: file.getUrl() });
+    
+    // FORMAT PENTING: Selalu kembalikan Direct Link agar bisa dirender pada tag <img>
+    const directUrl = "https://drive.google.com/uc?export=view&id=" + file.getId();
+    
+    return jsonResponse({ success: true, fileId: file.getId(), url: directUrl });
   } catch (e) { return jsonResponse({ success: false, message: e.toString() }); }
 }
 
