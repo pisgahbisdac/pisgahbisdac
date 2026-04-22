@@ -9,12 +9,12 @@
     <style>
         .navy-bg { background-color: #0B192C; }
         .navy-text { color: #0B192C; }
-        .gold-bg { background-color: #FFD700; }
-        .gold-text { color: #FFD700; }
-        .gold-border { border-color: #FFD700; }
+        .gold-bg { background-color: #ffc506de; }
+        .gold-text { color: #ffc506de; }
+        .gold-border { border-color: #ffc506de; }
         html { scroll-behavior: smooth; }
         /* Loader */
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #FFD700; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: auto;}
+        .loader { border: 4px solid #383d4e; border-top: 4px solid #ffc506de; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: auto;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -238,10 +238,10 @@
                 console.log("[Mock] Memuat data dummy karena berjalan di luar Google Apps Script");
                 setTimeout(() => onSuccess({
                     info: {
-                        judulProposal: "Pembangunan Panti Asuhan (Mode Preview)",
-                        target: 50000000,
-                        terkumpul: 12500000,
-                        rekening: "BCA 12345678 a.n Yayasan Preview"
+                        judulProposal: "Pembelian Lahan Gereja (Mode Preview)",
+                        target: 2500000000,
+                        terkumpul: 250000000,
+                        rekening: "Mandiri 1090001711043 a.n GMAHK PISGAH BISDAC"
                     },
                     portfolios: [
                         { id: 1, imageUrl: "https://via.placeholder.com/600x400/0B192C/FFD700?text=Desain+Awal", title: "Tahap 1: Desain", description: "Ini adalah mock data untuk preview.\nDesain awal telah diselesaikan." },
