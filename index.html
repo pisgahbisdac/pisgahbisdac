@@ -3,575 +3,610 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proposal Pembangunan</title>
-    <!-- Tailwind CSS (Warna Navy #0B192C dan Gold #FFD700 diatur custom via utility classes) -->
+    <title>Pembangunan</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <style>
-        .navy-bg { background-color: #0B192C; }
-        .navy-text { color: #0B192C; }
-        .gold-bg { background-color: #ffc506de; }
-        .gold-text { color: #ffc506de; }
-        .gold-border { border-color: #ffc506de; }
+        :root {
+            --navy: #0B192C;
+            --gold: #FFC107;
+        }
+        
+        .navy-bg { background-color: var(--navy); }
+        .navy-text { color: var(--navy); }
+        .gold-bg { background-color: var(--gold); }
+        .gold-text { color: var(--gold); }
+        .gold-border { border-color: var(--gold); }
+        .font-gold { color: #FFC107; }
+        .font-navy { color: #3e559e; }
+        
         html { scroll-behavior: smooth; }
-        /* Loader */
-        .loader { border: 4px solid #383d4e; border-top: 4px solid #ffc506de; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: auto;}
+
+        body {
+            background: linear-gradient(-45deg, #3e559e, #b69a3d, #3e559e, #7c6727);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .loader { 
+            border: 4px solid #383d4e; 
+            border-top: 4px solid var(--gold); 
+            border-radius: 50%; 
+            width: 40px; 
+            height: 40px; 
+            animation: spin 1s linear infinite; 
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Mobile Menu Transition */
+        #mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+        #mobile-menu.active {
+            transform: translateX(0);
+        }
+
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+
+        /* Glowing text effect for gold */
+        .gold-glow {
+            text-shadow: 0 0 15px rgba(255, 193, 7, 0.3);
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body class="text-gray-800 font-sans leading-normal overflow-x-hidden">
 
-    <!-- NAVBAR PENGUNJUNG -->
-    <nav id="public-nav" class="navy-bg text-white sticky top-0 z-50 shadow-lg border-b-2 gold-border">
-        <div class="max-w-6xl mx-auto px-4">
+    <!-- NAVBAR -->
+    <nav id="public-nav" class="bg-[#383d4e]/50 text-white sticky top-0 z-50 shadow-2xl border-b border-yellow-500/20">
+        <div class="max-w-6xl mx-auto px-6">
             <div class="flex justify-between items-center py-4">
-                <a href="#home" class="font-bold text-xl gold-text flex items-center gap-2">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
-                    Proposal
+                <a class="font-thin text-2xl tracking-tighter gold-text flex items-center gap-3">
+                    <div class="p-2 gold-bg rounded-lg">
+                        
+                    </div>
+                    <span>PISGAH BISDAC PROPOSAL</span>
                 </a>
-                <div class="space-x-4 flex items-center">
-                    <a href="#home" class="hover:text-yellow-400 transition hidden sm:block">Home</a>
-                    <a href="#rekening" class="hover:text-yellow-400 transition">Rekening</a>
-                    <a href="#artikel" class="hover:text-yellow-400 transition hidden sm:block">Artikel</a>
-                    <button onclick="showLogin()" class="gold-bg navy-text px-4 py-1 rounded font-bold hover:bg-yellow-500 transition">Log-in</button>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-8 items-center font-medium">
+                    <a href="javascript:void(0)" onclick="showHome()" class="hover:text-yellow-400 transition-colors">Home</a>
+                    <a href="#portfolio" class="hover:text-yellow-400 transition-colors">Project</a>
+                    <a href="#artikel" class="hover:text-yellow-400 transition-colors">Update</a>
+                    <button onclick="showLogin()" class="gold-bg navy-text px-6 py-2 rounded-full font-bold shadow-lg hover:scale-105 transition-transform">Login</button>
                 </div>
+
+                <!-- Mobile Toggle Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-white focus:outline-none">
+                    <svg id="menu-icon" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- LOADING SPINNER -->
-    <div id="loading-screen" class="fixed inset-0 navy-bg z-[100] flex flex-col items-center justify-center">
+    <!-- MOBILE MENU OVERLAY -->
+    <div id="mobile-menu" class="fixed inset-y-0 right-0 w-64 bg-[#383d4e]/50 z-[60] shadow-2xl flex flex-col p-8 md:hidden">
+        <button onclick="toggleMobileMenu()" class="self-end text-white mb-8">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+        <div class="flex flex-col space-y-6 text-xl font-bold">
+            <a href="javascript:void(0)" onclick="closeMenuAndShowHome()" class="text-white hover:text-yellow-400">Beranda</a>
+            <a href="#portfolio" onclick="toggleMobileMenu()" class="text-white hover:text-yellow-400">Proyek</a>
+            <a href="#artikel" onclick="toggleMobileMenu()" class="text-white hover:text-yellow-400">Update Kabar</a>
+            <hr class="border-gray-700">
+            <button onclick="showLogin(); toggleMobileMenu()" class="gold-bg navy-text px-6 py-3 rounded-xl font-black text-sm uppercase">Login Admin</button>
+        </div>
+    </div>
+
+    <!-- BACKDROP FOR MOBILE MENU -->
+    <div id="menu-backdrop" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/50 z-[55] hidden md:hidden"></div>
+
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen" class="fixed inset-0 bg-[#383d4e]/90 z-[100] flex flex-col items-center justify-center">
         <div class="loader"></div>
-        <p class="gold-text mt-4 font-bold">Memuat Data...</p>
+        <p class="gold-text mt-4 tracking-widest animate-pulse uppercase text-sm">loading...</p>
     </div>
 
-    <!-- PESAN ERROR URL BELUM DISET -->
-    <div id="url-error-msg" class="hidden fixed top-20 left-0 right-0 z-[60] bg-red-600 text-white p-4 text-center font-bold animate-bounce">
-        Peringatan: GAS_API_URL belum dikonfigurasi! Hubungkan link Google Apps Script Anda.
-    </div>
-
-    <!-- ============================================== -->
-    <!-- VIEW PUBLIK (PENGUNJUNG) -->
-    <!-- ============================================== -->
+    <!-- VIEW PUBLIK -->
     <div id="public-view">
-        <!-- HERO & PROGRESS BAR -->
-        <section id="home" class="max-w-5xl mx-auto p-4 mt-8">
-            <h1 id="judul-proposal" class="text-3xl md:text-5xl font-bold navy-text text-center mb-8">Memuat Judul...</h1>
-            
-            <div class="bg-white rounded-xl shadow-xl p-6 md:p-10 border-t-4 gold-border">
-                <h2 class="text-xl font-bold mb-4">Progres Penggalangan Dana</h2>
-                <div class="flex justify-between mb-2 text-sm font-semibold">
-                    <span>Terkumpul: <span id="dana-terkumpul" class="gold-text text-lg">Rp 0</span></span>
-                    <span>Target: <span id="dana-target" class="text-gray-500">Rp 0</span></span>
-                </div>
-                <!-- Progress Bar -->
-                <div class="w-full bg-gray-200 rounded-full h-6">
-                    <div id="progress-bar" class="gold-bg h-6 rounded-full text-xs font-bold text-center p-1 leading-none navy-text flex items-center justify-center" style="width: 0%">0%</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- PORTFOLIO / PENJELASAN MEMANJANG -->
-        <section id="portfolio" class="max-w-4xl mx-auto p-4 mt-12 space-y-12">
-            <!-- Konten Portfolio akan di-render di sini via JS -->
-        </section>
-
-        <!-- REKENING & KONFIRMASI -->
-        <section id="rekening" class="navy-bg text-white py-16 mt-16 border-y-4 gold-border">
-            <div class="max-w-4xl mx-auto px-4 grid md:grid-cols-2 gap-10 items-center">
-                <div>
-                    <h2 class="text-3xl font-bold gold-text mb-6">Informasi Rekening</h2>
-                    <p class="mb-4 text-gray-300">Silakan salurkan donasi/pembayaran Anda ke rekening di bawah ini:</p>
-                    <div class="bg-white/10 p-6 rounded-lg border border-yellow-500/30">
-                        <pre id="info-rekening" class="whitespace-pre-wrap font-sans text-xl font-bold">Memuat...</pre>
+        <div id="main-content">
+            <!-- HERO & PROGRESS -->
+            <section id="home" class="relative pt-12 pb-20 px-4">
+                <div class="max-w-4xl mx-auto text-center" data-aos="fade-up">
+                    <span class="text-white font-bold tracking-widest uppercase text-[15px] md:text-xs mb-4 block">Laporan Pembangunan</span>
+                    <h1 id="judul-proposal" class="text-3xl md:text-6xl font-gold navy-text mb-6 md:mb-8 uppercase leading-tight">...</h1>
+                    
+                    <div class="glass-card bg-[#383d4e]/50 rounded-3xl shadow-2xl p-6 md:p-12 border-b-8 gold-border relative">
+                        <div class="relative z-10">
+                            <h2 class="text-lg md:text-xl font-bold mb-6 text-white flex items-center justify-center gap-2">
+                                <span class="hidden sm:inline w-8 h-1 gold-bg"></span> Funding Progress | Progres Dana <span class="hidden sm:inline w-8 h-1 gold-bg"></span>
+                            </h2>
+                            <div class="flex flex-col md:flex-row justify-between items-center md:items-end mb-4 gap-4">
+                                <div class="text-center md:text-left">
+                                    <p class="text-white text-[10px] font-bold uppercase tracking-widest">Collected | Terkumpul</p>
+                                    <span id="dana-terkumpul" class="text-2xl md:text-4xl font-gold text-navy">Rp 0</span>
+                                </div>
+                                <div class="text-center md:text-right">
+                                    <p class="text-white text-[10px] font-bold uppercase tracking-widest gold-glow leading-relaxed tracking-wide">Target | Sasaran</p>
+                                    <span id="dana-target" class="whitespace-pre-wrap font-sans text-2xl md:text-4xl font-black font-navy text-center gold-glow leading-relaxed tracking-wide">Rp 0</span>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-200/50 rounded-full h-8 p-1 shadow-inner">
+                                <div id="progress-bar" class="gold-bg h-full rounded-full text-xs font-black navy-text flex items-center justify-center transition-all duration-1000" style="width: 0%">0%</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="bg-white text-gray-800 p-6 rounded-xl shadow-2xl">
-                    <h3 class="text-2xl font-bold navy-text mb-4">Konfirmasi Transfer</h3>
-                    <form id="form-konfirmasi" onsubmit="handleKonfirmasi(event)">
-                        <div class="mb-4">
-                            <label class="block text-sm font-bold mb-2">Nama Pengirim</label>
-                            <input type="text" id="k-nama" class="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-400 outline-none" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-bold mb-2">Jumlah Transfer (Rp)</label>
-                            <input type="number" id="k-jumlah" class="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-400 outline-none" required>
-                        </div>
-                        <div class="mb-6">
-                            <label class="block text-sm font-bold mb-2">Keterangan / Pesan</label>
-                            <textarea id="k-ket" class="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-400 outline-none" rows="2"></textarea>
-                        </div>
-                        <button type="submit" id="btn-konfirmasi" class="w-full navy-bg gold-text font-bold py-3 rounded hover:bg-blue-900 transition">Kirim Konfirmasi</button>
-                    </form>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- ARTIKEL TERBARU -->
-        <section id="artikel" class="max-w-5xl mx-auto p-4 mt-16 mb-20">
-            <h2 class="text-3xl font-bold navy-text text-center mb-10 border-b-2 gold-border pb-2 inline-block">Artikel & Update Terbaru</h2>
-            <div id="grid-artikel" class="grid md:grid-cols-3 gap-6">
-                <!-- Artikel render disini -->
-            </div>
-        </section>
+            <!-- PORTOFOLIO -->
+            <section id="portfolio" class="max-w-6xl mx-auto p-6 mt-12 pb-24">
+                <div class="flex flex-col items-center mb-12 md:mb-16" data-aos="fade-up">
+                    <h2 class="text-2xl md:text-4xl font-gold navy-text text-center">Hasil & Tahapan Kerja</h2>
+                    <div class="w-16 md:w-24 h-1.5 md:h-2 gold-bg mt-4 rounded-full"></div>
+                </div>
+                <div id="portfolio-container" class="space-y-16 md:space-y-24"></div>
+            </section>
+
+            <!-- REKENING & KONFIRMASI -->
+            <section id="rekening" class="bg-[#383d4e]/10 text-white py-16 md:py-24 relative overflow-hidden">
+                <!-- Background Decoration -->
+                <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-yellow-500/10 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-yellow-500/5 rounded-full blur-3xl"></div>
+
+                <div class="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-12 md:gap-16 items-center relative z-10">
+                    <div data-aos="fade-right" class="text-center lg:text-left">
+                        <h2 class="text-3xl md:text-4xl font-gold gold-text mb-6">Supporting | Dukungan Dana</h2>
+                        <p class="text-navy-400 mb-8 text-sm md:text-base px-4 lg:px-0">Salurkan bantuan Anda melalui rekening resmi di bawah ini. Pastikan data sudah sesuai.</p>
+                        
+                        <!-- REKENING DISPLAY - UPDATED TO CENTER & GOLD -->
+                        <div class="bg-[#383d4e]/10 backdrop-blur-xl p-8 rounded-3xl border-2 border-yellow-500/30 shadow-2xl transform hover:scale-[1.02] transition-transform">
+                            <pre id="info-rekening" class="whitespace-pre-wrap font-sans text-2xl md:text-3xl font-black gold-text text-center gold-glow leading-relaxed tracking-wide">...</pre>
+                            <div class="mt-4 flex justify-center">
+                                <span class="text-[10px] font-bold text-white/60 uppercase tracking-[0.3em]">Official Account | Rekening Resmi Terverifikasi</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-[#383d4e]/10 text-gray-800 p-8 md:p-10 rounded-3xl shadow-2xl" data-aos="fade-left">
+                        <h3 class="text-xl md:text-2xl font-gold navy-text mb-4">Confirmation Form | Konfirmasi</h3>
+                        <form id="form-konfirmasi" onsubmit="handleKonfirmasi(event)" class="space-y-4">
+                            <input type="text" id="k-nama" class="w-full p-4 bg-gray-50 border rounded-xl font-bold text-sm" placeholder="Nama Lengkap" required>
+                            <input type="number" id="k-jumlah" class="w-full p-4 bg-gray-50 border rounded-xl font-bold text-sm" placeholder="Nominal Transfer" required>
+                            <textarea id="k-ket" class="w-full p-4 bg-gray-50 border rounded-xl font-bold text-sm" rows="3" placeholder="Pesan Singkat"></textarea>
+                            <button type="submit" id="btn-konfirmasi" class="w-full navy-bg gold-text font-black py-4 rounded-xl shadow-xl uppercase tracking-widest text-xs md:text-sm hover:scale-[1.01] active:scale-95 transition-all">Kirim Konfirmasi</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ARTIKEL -->
+            <section id="artikel" class="max-w-6xl mx-auto p-6 py-16 md:py-24 mb-20">
+                <div class="mb-12" data-aos="fade-up">
+                    <h2 class="text-2xl md:text-4xl font-gold navy-text text-center md:text-left">Informasi Terbaru</h2>
+                    <div class="w-12 h-1.5 gold-bg mt-3 rounded-full mx-auto md:mx-0"></div>
+                </div>
+                <div id="grid-artikel" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10"></div>
+            </section>
+        </div>
+
+        <!-- HALAMAN DETAIL ARTIKEL -->
+        <div id="article-detail" class="hidden max-w-4xl mx-auto px-6 py-12 md:py-16">
+            <button onclick="showHome()" class="mb-8 flex items-center gap-2 text-navy-text font-bold hover:gold-text transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            HOME
+        </button>
+            <div id="detail-content" data-aos="fade-up"></div>
+        </div>
     </div>
 
-    <!-- ============================================== -->
     <!-- MODAL LOGIN ADMIN -->
-    <!-- ============================================== -->
-    <div id="login-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
-            <div class="navy-bg p-4 flex justify-between items-center">
-                <h3 class="gold-text font-bold text-lg">Admin Login</h3>
-                <button onclick="hideLogin()" class="text-white hover:text-red-400">✖</button>
-            </div>
-            <div class="p-6">
-                <input type="text" id="l-user" placeholder="Username" class="w-full p-3 border rounded mb-4 focus:ring-2 focus:ring-blue-900 outline-none">
-                <input type="password" id="l-pass" placeholder="Password" class="w-full p-3 border rounded mb-6 focus:ring-2 focus:ring-blue-900 outline-none">
-                <button onclick="doLogin()" id="btn-login" class="w-full gold-bg navy-text font-bold py-3 rounded hover:bg-yellow-500 transition">Login Sistem</button>
-                <p id="login-msg" class="text-red-500 text-center mt-3 text-sm hidden"></p>
+    <div id="login-modal" class="fixed inset-0 bg-[#383d4e]/50 backdrop-blur-md z-[70] hidden flex items-center justify-center p-4">
+        <div class="bg-[#383d4e]/70 rounded-3xl shadow-2xl w-full max-w-sm p-8">
+            <h3 class="font-gold font-black text-xl text-center mb-6">LOGIN ADMIN</h3>
+            <div class="space-y-4">
+                <input type="text" id="l-user" placeholder="Username" class="w-full p-4 border rounded-xl font-bold text-sm">
+                <input type="password" id="l-pass" placeholder="Password" class="w-full p-4 border rounded-xl font-bold text-sm">
+                <button onclick="doLogin()" id="btn-login" class="w-full gold-bg navy-text font-black py-4 rounded-xl text-sm uppercase">Masuk Admin</button>
+                <button onclick="hideLogin()" class="w-full text-gray-400 font-bold py-2 text-xs">Batal</button>
             </div>
         </div>
     </div>
 
-    <!-- ============================================== -->
-    <!-- VIEW ADMIN (DASHBOARD) -->
-    <!-- ============================================== -->
-    <div id="admin-view" class="hidden min-h-screen bg-gray-100">
-        <nav class="navy-bg text-white p-4 shadow-lg flex justify-between items-center sticky top-0 z-40">
-            <div class="font-bold text-xl gold-text">⚙️ Panel Admin</div>
-            <div class="flex gap-2 sm:gap-4 overflow-x-auto">
-                <button onclick="switchAdminTab('tab-info')" class="hover:text-yellow-400 whitespace-nowrap">Edit Info</button>
-                <button onclick="switchAdminTab('tab-artikel')" class="hover:text-yellow-400 whitespace-nowrap">Kelola Artikel</button>
-                <button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded text-sm whitespace-nowrap">Logout</button>
+    <!-- VIEW ADMIN -->
+    <div id="admin-view" class="hidden min-h-screen bg-white">
+        <nav class="navy-bg text-white p-4 md:p-6 shadow-2xl flex flex-col md:flex-row justify-between items-center sticky top-0 z-50 gap-4">
+            <div class="font-black text-xl gold-text">CONTROL PANEL</div>
+            <div class="flex flex-wrap justify-center gap-4 md:gap-6">
+                <button onclick="switchAdminTab('tab-info')" class="font-bold text-xs uppercase hover:gold-text">Info</button>
+                <button onclick="switchAdminTab('tab-porto')" class="font-bold text-xs uppercase hover:gold-text">Portofolio</button>
+                <button onclick="switchAdminTab('tab-artikel')" class="font-bold text-xs uppercase hover:gold-text">Artikel</button>
+                <button onclick="logout()" class="bg-red-600 px-4 py-1.5 rounded-lg font-bold text-xs uppercase">Logout</button>
             </div>
         </nav>
-
-        <div class="max-w-4xl mx-auto p-4 mt-6">
-            
-            <!-- TAB EDIT INFO UTAMA -->
-            <div id="tab-info" class="admin-tab">
-                <h2 class="text-2xl font-bold navy-text mb-6">Edit Halaman Depan</h2>
-                <div class="bg-white p-6 rounded-xl shadow border-t-4 gold-border space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold mb-1">Judul Proposal</label>
-                        <input type="text" id="e-judul" class="w-full p-2 border rounded">
+        <div class="max-w-4xl mx-auto p-4 md:p-6 mt-8 pb-32">
+             <!-- Konten Admin -->
+             <div id="tab-info" class="admin-tab">
+                <div class="bg-gray-50 p-6 md:p-8 rounded-3xl space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Judul Halaman</label>
+                        <input type="text" id="e-judul" class="w-full p-4 border rounded-xl font-bold text-sm">
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-bold mb-1">Target Dana (Angka)</label>
-                            <input type="number" id="e-target" class="w-full p-2 border rounded">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Target Dana</label>
+                            <input type="number" id="e-target" class="w-full p-4 border rounded-xl font-bold text-sm">
                         </div>
-                        <div>
-                            <label class="block text-sm font-bold mb-1">Dana Terkumpul (Angka)</label>
-                            <input type="number" id="e-terkumpul" class="w-full p-2 border rounded">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Terkumpul</label>
+                            <input type="number" id="e-terkumpul" class="w-full p-4 border rounded-xl font-bold text-sm">
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold mb-1">Informasi Rekening</label>
-                        <textarea id="e-rekening" class="w-full p-2 border rounded" rows="3"></textarea>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Info Rekening</label>
+                        <textarea id="e-rekening" class="w-full p-4 border rounded-xl font-bold text-sm" rows="4"></textarea>
                     </div>
-                    <button onclick="saveInfo()" id="btn-save-info" class="navy-bg gold-text px-6 py-2 rounded font-bold hover:bg-blue-900">Simpan Perubahan Info</button>
-                    <p class="text-sm text-gray-500 mt-2">*Untuk mengedit gambar dan isi proposal memanjang, silakan edit langsung di Spreadsheet tab "Portfolio".</p>
+                    <button onclick="saveInfo()" id="btn-save-info" class="navy-bg gold-text px-10 py-4 rounded-xl font-black uppercase text-xs w-full md:w-auto">Simpan Data Utama</button>
                 </div>
-            </div>
+             </div>
+             <div id="tab-porto" class="admin-tab hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-xl font-black uppercase">Portofolio</h2>
+                    <button onclick="bukaModalPorto()" class="gold-bg px-4 py-2 rounded-xl font-bold text-xs uppercase">+ Proyek</button>
+                </div>
+                <div id="admin-list-porto" class="grid gap-3"></div>
+             </div>
+             <div id="tab-artikel" class="admin-tab hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-xl font-black uppercase">Daftar Berita</h2>
+                    <button onclick="bukaModalArtikel()" class="gold-bg px-4 py-2 rounded-xl font-bold text-xs uppercase">+ Berita</button>
+                </div>
+                <div id="admin-list-artikel" class="grid gap-3"></div>
+             </div>
+        </div>
+    </div>
 
-            <!-- TAB KELOLA ARTIKEL -->
-            <div id="tab-artikel" class="admin-tab hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold navy-text">Kelola Artikel</h2>
-                    <button onclick="bukaModalArtikel()" class="gold-bg navy-text px-4 py-2 rounded font-bold hover:bg-yellow-500">+ Tulis Artikel Baru</button>
+    <!-- MODAL ADD/EDIT -->
+    <div id="modal-porto" class="fixed inset-0 bg-black/80 z-[80] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-xl p-6 md:p-8 overflow-y-auto max-h-[90vh]">
+            <h3 id="porto-modal-title" class="text-lg font-black mb-6 uppercase">Data Portofolio</h3>
+            <input type="hidden" id="p-id"><input type="hidden" id="p-img-url">
+            <div class="space-y-4">
+                <input type="text" id="p-judul" placeholder="Judul Proyek" class="w-full p-4 border rounded-xl font-bold text-sm">
+                <div class="p-4 border-2 border-dashed rounded-xl text-center bg-gray-50">
+                    <input type="file" id="p-file" class="text-xs mb-3 w-full"><br>
+                    <button onclick="uploadGambar('p')" class="bg-navy-text text-white px-6 py-2 rounded-lg text-xs font-bold uppercase">Unggah Foto</button>
+                    <img id="p-preview" class="mt-4 h-32 mx-auto hidden rounded-xl shadow-lg border">
                 </div>
-                <div id="admin-list-artikel" class="space-y-4">
-                    <!-- List Artikel untuk diedit -->
+                <textarea id="p-desk" placeholder="Deskripsi Pembangunan" class="w-full p-4 border rounded-xl font-bold text-sm" rows="5"></textarea>
+                <div class="flex flex-col md:flex-row gap-3">
+                    <button onclick="simpanPortofolioAdmin()" id="btn-save-porto" class="flex-1 navy-bg gold-text py-4 rounded-xl font-black uppercase text-xs">Simpan</button>
+                    <button onclick="tutupModalPorto()" class="flex-1 bg-gray-100 py-4 rounded-xl font-bold text-xs">Batal</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL EDITOR ARTIKEL -->
-    <div id="modal-artikel" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div class="navy-bg p-4 flex justify-between items-center text-white">
-                <h3 class="font-bold" id="modal-art-title">Tambah/Edit Artikel</h3>
-                <button onclick="tutupModalArtikel()" class="hover:text-red-400">✖</button>
-            </div>
-            <div class="p-6 space-y-4">
-                <input type="hidden" id="a-id">
-                <input type="hidden" id="a-img-url">
-                
-                <div>
-                    <label class="block font-bold mb-1">Judul Artikel</label>
-                    <input type="text" id="a-judul" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-900 outline-none">
+    <div id="modal-artikel" class="fixed inset-0 bg-black/80 z-[80] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-xl p-6 md:p-8 overflow-y-auto max-h-[90vh]">
+            <h3 id="art-modal-title" class="text-lg font-black mb-6 uppercase">Input Kabar Baru</h3>
+            <input type="hidden" id="a-id"><input type="hidden" id="a-img-url">
+            <div class="space-y-4">
+                <input type="text" id="a-judul" placeholder="Judul Berita" class="w-full p-4 border rounded-xl font-bold text-sm">
+                <div class="p-4 border-2 border-dashed rounded-xl text-center bg-gray-50">
+                    <input type="file" id="a-file" class="text-xs mb-3 w-full"><br>
+                    <button onclick="uploadGambar('a')" class="bg-navy-text text-white px-6 py-2 rounded-lg text-xs font-bold uppercase">Unggah Gambar</button>
+                    <img id="a-preview" class="mt-4 h-32 mx-auto hidden rounded-xl shadow-lg border">
                 </div>
-                
-                <div class="p-4 border-2 border-dashed rounded bg-gray-50">
-                    <label class="block font-bold mb-2">Gambar Artikel (Upload ke Drive)</label>
-                    <input type="file" id="a-file" accept="image/*" class="mb-2">
-                    <button onclick="uploadGambar()" id="btn-upload" class="bg-gray-200 px-4 py-1 rounded text-sm border">Upload Gambar</button>
-                    <p id="upload-status" class="text-sm mt-2 text-blue-600 font-semibold"></p>
-                    <img id="a-preview" src="" class="mt-2 h-32 object-cover rounded hidden">
+                <textarea id="a-isi" placeholder="Isi Berita Lengkap" class="w-full p-4 border rounded-xl font-bold text-sm" rows="8"></textarea>
+                <div class="flex flex-col md:flex-row gap-3">
+                    <button onclick="simpanArtikelAdmin()" id="btn-save-art" class="flex-1 navy-bg gold-text py-4 rounded-xl font-black uppercase text-xs">Publikasikan</button>
+                    <button onclick="tutupModalArtikel()" class="flex-1 bg-gray-100 py-4 rounded-xl font-bold text-xs">Tutup</button>
                 </div>
-
-                <div>
-                    <label class="block font-bold mb-1">Isi Artikel</label>
-                    <textarea id="a-isi" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-900 outline-none" rows="6"></textarea>
-                </div>
-
-                <button onclick="simpanArtikelAdmin()" id="btn-simpan-art" class="w-full navy-bg gold-text font-bold py-3 rounded">Simpan Artikel</button>
             </div>
         </div>
     </div>
 
-    <!-- ============================================== -->
-    <!-- JAVASCRIPT LOGIC -->
-    <!-- ============================================== -->
     <script>
-        // ========================================================
-        // WAJIB DIISI: GANTI DENGAN URL WEB APP GOOGLE SCRIPT ANDA
-        // ========================================================
+        AOS.init({ duration: 800, once: true });
+
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxvNICOilB-oQG3WfI6nrj_kYjG3tGMBZYndE4K3jw_TuvjR7lOMsyyyCyNHTNCKUOOMg/exec"; 
+        let globalData = {};
 
-        let globalData = {}; 
-
-        const formatRp = (angka) => {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
-        };
-
-        // --- FETCH API WRAPPER ---
         const api = {
-            async request(method, payload = null) {
-                // Pencegahan error jika URL masih placeholder
-                if (!GAS_API_URL || GAS_API_URL.includes("MASUKKAN_URL")) {
-                    console.warn("GAS_API_URL belum diset.");
-                    return null;
-                }
-
-                const options = {
-                    method: method,
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                };
-                if (payload) {
-                    options.body = JSON.stringify(payload);
-                }
-                
+            async req(payload = null) {
+                const opt = { method: 'POST', headers: { 'Content-Type': 'text/plain' } };
+                if(payload) opt.body = JSON.stringify(payload);
                 try {
-                    const response = await fetch(GAS_API_URL, options);
-                    if (!response.ok) throw new Error("HTTP Status " + response.status);
-                    const json = await response.json();
-                    return json;
-                } catch (err) {
-                    console.error("Fetch Error: ", err);
-                    return null;
-                }
+                    const r = await fetch(GAS_API_URL, opt);
+                    return await r.json();
+                } catch(e) { return null; }
             },
-            
-            getInitialData: async (onSuccess) => {
-                const res = await api.request('GET');
-                if(res && res.success) onSuccess(res);
-                else {
-                    // Jika gagal, tampilkan UI statis placeholder agar tidak blank
-                    document.getElementById('loading-screen').style.display = 'none';
-                    if (!GAS_API_URL.includes("MASUKKAN_URL")) {
-                        alert("Gagal memuat data dari server. Periksa koneksi atau URL Web App.");
-                    }
-                }
-            },
-            submitKonfirmasi: async (payload, onSuccess) => {
-                const res = await api.request('POST', { action: 'submitKonfirmasi', payload: payload });
-                if(res) onSuccess(res);
-            },
-            verifyAdmin: async (u, p, onSuccess) => {
-                const res = await api.request('POST', { action: 'verifyAdmin', username: u, password: p });
-                if(res) onSuccess(res);
-            },
-            updateInfoWebsite: async (t, c, r, j, onSuccess) => {
-                const res = await api.request('POST', { action: 'updateInfoWebsite', target: t, terkumpul: c, rekening: r, judul: j });
-                if(res) onSuccess(res);
-            },
-            uploadFileToDrive: async (base64, fileName, onSuccess, onFailure) => {
-                const res = await api.request('POST', { action: 'uploadFileToDrive', base64: base64, fileName: fileName });
-                if(res && res.success) onSuccess(res.url);
-                else if (res) onFailure(res.message);
-            },
-            simpanArtikel: async (payload, onSuccess) => {
-                const res = await api.request('POST', { action: 'simpanArtikel', payload: payload });
-                if(res) onSuccess(res);
-            },
-            hapusArtikel: async (id, onSuccess) => {
-                const res = await api.request('POST', { action: 'hapusArtikel', id: id });
-                if(res) onSuccess(res);
+            async get() {
+                try {
+                    const r = await fetch(GAS_API_URL);
+                    return await r.json();
+                } catch(e) { return null; }
             }
         };
 
-        window.onload = () => {
-            if(!GAS_API_URL || GAS_API_URL.includes("MASUKKAN_URL")) {
-                document.getElementById('url-error-msg').classList.remove('hidden');
-                document.getElementById('loading-screen').style.display = 'none';
-                return;
-            }
-            api.getInitialData(renderData);
+        const formatRp = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
+
+        window.onload = async () => {
+            const data = await api.get();
+            if(data) renderData(data);
         };
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const backdrop = document.getElementById('menu-backdrop');
+            const isActive = menu.classList.contains('active');
+            
+            if(isActive) {
+                menu.classList.remove('active');
+                backdrop.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            } else {
+                menu.classList.add('active');
+                backdrop.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeMenuAndShowHome() {
+            toggleMobileMenu();
+            showHome();
+        }
 
         function renderData(data) {
-            globalData = data; 
+            globalData = data;
             document.getElementById('loading-screen').style.display = 'none';
 
-            document.getElementById('judul-proposal').innerText = data.info.judulProposal || "Proposal Pembangunan";
-            document.getElementById('dana-target').innerText = formatRp(data.info.target || 0);
-            document.getElementById('dana-terkumpul').innerText = formatRp(data.info.terkumpul || 0);
-            document.getElementById('info-rekening').innerText = data.info.rekening || "Belum ada informasi rekening.";
+            document.getElementById('judul-proposal').innerText = data.info.judulProposal;
+            document.getElementById('dana-target').innerText = formatRp(data.info.target);
+            document.getElementById('dana-terkumpul').innerText = formatRp(data.info.terkumpul);
+            document.getElementById('info-rekening').innerText = data.info.rekening;
 
-            let target = data.info.target || 1;
-            let terkumpul = data.info.terkumpul || 0;
-            let persentase = (terkumpul / target) * 100;
-            if(persentase > 100) persentase = 100;
-            
-            const pBar = document.getElementById('progress-bar');
-            pBar.style.width = persentase + '%';
-            pBar.innerText = Math.round(persentase) + '%';
+            let p = (data.info.terkumpul / data.info.target) * 100;
+            const pb = document.getElementById('progress-bar');
+            pb.style.width = (p > 100 ? 100 : p) + '%';
+            pb.innerText = Math.round(p) + '%';
 
-            const portContainer = document.getElementById('portfolio');
-            portContainer.innerHTML = '';
-            if (data.portfolios && data.portfolios.length > 0) {
-                data.portfolios.forEach((item, index) => {
-                    const isEven = index % 2 === 0;
-                    const flexDir = isEven ? 'md:flex-row' : 'md:flex-row-reverse';
-                    
-                    portContainer.innerHTML += `
-                        <div class="flex flex-col ${flexDir} gap-8 items-center bg-white p-6 rounded-2xl shadow-lg border border-gray-100 transform transition hover:-translate-y-1">
-                            <div class="w-full md:w-1/2">
-                                <img src="${item.imageUrl || 'https://via.placeholder.com/600x400'}" alt="${item.title}" class="w-full h-64 md:h-80 object-cover rounded-xl shadow-md border-b-4 gold-border">
-                            </div>
-                            <div class="w-full md:w-1/2 space-y-4">
-                                <h3 class="text-2xl font-bold navy-text">${item.title}</h3>
-                                <p class="text-gray-600 leading-relaxed text-justify">${(item.description || '').replace(/\n/g, '<br>')}</p>
-                            </div>
+            const pCont = document.getElementById('portfolio-container');
+            pCont.innerHTML = '';
+            data.portfolios.forEach((item, i) => {
+                const isEven = i % 2 === 0;
+                pCont.innerHTML += `
+                    <div class="flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} gap-8 md:gap-12 items-center" data-aos="${isEven ? 'fade-right' : 'fade-left'}">
+                        <div class="w-full md:w-1/2">
+                            <img src="${item.imageUrl}" class="w-full h-64 md:h-80 object-cover rounded-3xl shadow-2xl gold-border border-b-4 md:border-b-8">
                         </div>
-                    `;
-                });
-            }
-
-            const artContainer = document.getElementById('grid-artikel');
-            artContainer.innerHTML = '';
-            if (data.articles && data.articles.length > 0) {
-                data.articles.forEach(art => {
-                    artContainer.innerHTML += `
-                        <div class="bg-white rounded-xl shadow overflow-hidden flex flex-col border border-gray-100">
-                            <img src="${art.imageUrl || 'https://via.placeholder.com/600x400'}" class="w-full h-48 object-cover">
-                            <div class="p-5 flex-grow">
-                                <div class="text-xs text-gray-400 mb-2">${art.date}</div>
-                                <h4 class="font-bold navy-text text-lg mb-2 leading-tight">${art.title}</h4>
-                                <p class="text-gray-600 text-sm line-clamp-3">${(art.content || '').substring(0,100)}...</p>
-                            </div>
-                            <div class="p-5 pt-0 mt-auto">
-                                <button onclick="bacaArtikel('${art.id}')" class="text-sm font-bold gold-text hover:text-yellow-500">Baca Selengkapnya &rarr;</button>
-                            </div>
+                        <div class="w-full md:w-1/2 space-y-3 md:space-y-4">
+                            <h3 class="text-xl md:text-3xl font-gold text-gold/90">${item.title}</h3>
+                            <p class="text-white/90 text-sm md:text-lg leading-relaxed text-justify">${item.description.replace(/\n/g, '<br>')}</p>
                         </div>
-                    `;
-                });
-            }
-
-            document.getElementById('e-judul').value = data.info.judulProposal || "";
-            document.getElementById('e-target').value = data.info.target || 0;
-            document.getElementById('e-terkumpul').value = data.info.terkumpul || 0;
-            document.getElementById('e-rekening').value = data.info.rekening || "";
-            renderArtikelAdmin();
-        }
-
-        function bacaArtikel(id) {
-            const art = globalData.articles.find(a => a.id == id);
-            if(art) {
-                alert(art.title + '\n\n' + art.content);
-            }
-        }
-
-        function handleKonfirmasi(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-konfirmasi');
-            btn.innerText = "Mengirim..."; btn.disabled = true;
-
-            const payload = {
-                nama: document.getElementById('k-nama').value,
-                jumlah: document.getElementById('k-jumlah').value,
-                keterangan: document.getElementById('k-ket').value
-            };
-
-            api.submitKonfirmasi(payload, (res) => {
-                alert(res.message);
-                if(res.success) document.getElementById('form-konfirmasi').reset();
-                btn.innerText = "Kirim Konfirmasi"; btn.disabled = false;
+                    </div>
+                `;
             });
+
+            const aGrid = document.getElementById('grid-artikel');
+            aGrid.innerHTML = '';
+            data.articles.forEach((a, i) => {
+                aGrid.innerHTML += `
+                    <div class="bg-[#000080]/10 glass-card rounded-3xl shadow-xl overflow-hidden flex flex-col group hover:shadow-2xl transition-all" data-aos="zoom-in" data-aos-delay="${i*100}">
+                        <img src="${a.imageUrl}" class="w-full h-48 md:h-56 object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="p-6 flex-grow">
+                            <h4 class="font-gold navy-text text-lg md:text-xl mb-3">${a.title}</h4>
+                            <p class="text-white/90 text-[13px] line-clamp-3 mb-6 leading-relaxed">${a.content}</p>
+                            <button onclick="viewArticle('${a.id}')" class="text-[10px] font-navy navy-text uppercase tracking-widest flex items-center gap-2 hover:gold-text transition-all group-hover:translate-x-2">
+                                Baca Detail <span>→</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('e-judul').value = data.info.judulProposal;
+            document.getElementById('e-target').value = data.info.target;
+            document.getElementById('e-terkumpul').value = data.info.terkumpul;
+            document.getElementById('e-rekening').value = data.info.rekening;
+            renderAdminLists();
+        }
+
+        function viewArticle(id) {
+            const article = globalData.articles.find(x => x.id == id);
+            if(!article) return;
+            const detailDiv = document.getElementById('detail-content');
+            detailDiv.innerHTML = `
+                <img src="${article.imageUrl}" class="w-full h-64 md:h-[400px] object-cover rounded-3xl shadow-2xl mb-8 md:mb-10 border-b-4 md:border-b-8 gold-border">
+                <h1 class="text-2xl md:text-5xl font-black navy-text mb-4 md:mb-6 leading-tight">${article.title}</h1>
+                <div class="w-12 md:w-20 h-1.5 md:h-2 gold-bg mb-6 md:mb-8 rounded-full"></div>
+                <div class="text-gray-600 text-sm md:text-xl leading-relaxed text-justify whitespace-pre-wrap">
+                    ${article.content}
+                </div>
+            `;
+            document.getElementById('main-content').classList.add('hidden');
+            document.getElementById('article-detail').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function showHome() {
+            document.getElementById('article-detail').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            window.scrollTo(0, 0);
         }
 
         function showLogin() { document.getElementById('login-modal').classList.remove('hidden'); }
         function hideLogin() { document.getElementById('login-modal').classList.add('hidden'); }
-        
-        function doLogin() {
-            const u = document.getElementById('l-user').value;
-            const p = document.getElementById('l-pass').value;
+        async function doLogin() {
             const btn = document.getElementById('btn-login');
-            const msg = document.getElementById('login-msg');
-            
-            btn.innerText = "Checking...";
-            api.verifyAdmin(u, p, (res) => {
-                btn.innerText = "Login Sistem";
-                if(res && res.success) {
-                    hideLogin();
-                    document.getElementById('public-nav').style.display = 'none';
-                    document.getElementById('public-view').style.display = 'none';
-                    document.getElementById('admin-view').classList.remove('hidden');
-                } else {
-                    msg.innerText = res ? res.message : "Gagal terhubung ke server.";
-                    msg.classList.remove('hidden');
+            btn.innerText = "PROSES...";
+            const res = await api.req({ action: 'verifyAdmin', username: document.getElementById('l-user').value, password: document.getElementById('l-pass').value });
+            if(res && res.success) {
+                hideLogin();
+                document.getElementById('public-nav').classList.add('hidden');
+                document.getElementById('public-view').classList.add('hidden');
+                document.getElementById('mobile-menu').classList.remove('active');
+                document.getElementById('admin-view').classList.remove('hidden');
+            } else { alert("Akses Admin Gagal!"); btn.innerText = "MASUK ADMIN"; }
+        }
+        function logout() { window.location.reload(); }
+        function switchAdminTab(t) {
+            document.querySelectorAll('.admin-tab').forEach(x => x.classList.add('hidden'));
+            document.getElementById(t).classList.remove('hidden');
+        }
+
+        async function uploadGambar(prefix) {
+            const f = document.getElementById(`${prefix}-file`).files[0];
+            if(!f) return alert("Pilih file foto!");
+            const btn = event.target;
+            btn.innerText = "UPLOADING...";
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const res = await api.req({ action: 'uploadFileToDrive', base64: e.target.result, fileName: f.name });
+                if(res.success) {
+                    document.getElementById(`${prefix}-img-url`).value = res.url;
+                    const pre = document.getElementById(`${prefix}-preview`);
+                    pre.src = res.url; pre.classList.remove('hidden');
                 }
-            });
+                btn.innerText = "UPLOAD FOTO";
+            };
+            reader.readAsDataURL(f);
         }
 
-        function logout() {
-            document.getElementById('admin-view').classList.add('hidden');
-            document.getElementById('public-nav').style.display = 'block';
-            document.getElementById('public-view').style.display = 'block';
-            document.getElementById('l-user').value = '';
-            document.getElementById('l-pass').value = '';
-        }
-
-        function switchAdminTab(tabId) {
-            document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
-        }
-
-        function saveInfo() {
+        async function saveInfo() {
             const btn = document.getElementById('btn-save-info');
-            btn.innerText = "Menyimpan...";
-            const t = document.getElementById('e-target').value;
-            const c = document.getElementById('e-terkumpul').value;
-            const r = document.getElementById('e-rekening').value;
-            const j = document.getElementById('e-judul').value;
-
-            api.updateInfoWebsite(t, c, r, j, () => {
-                alert('Info berhasil diupdate! Muat ulang halaman untuk melihat perubahan.');
-                btn.innerText = "Simpan Perubahan Info";
+            btn.innerText = "SAVING...";
+            await api.req({ 
+                action: 'updateInfoWebsite', 
+                target: document.getElementById('e-target').value,
+                terkumpul: document.getElementById('e-terkumpul').value,
+                rekening: document.getElementById('e-rekening').value,
+                judul: document.getElementById('e-judul').value
             });
+            alert("Data Berhasil Disimpan!");
+            btn.innerText = "SIMPAN DATA UTAMA";
         }
 
-        function renderArtikelAdmin() {
-            const container = document.getElementById('admin-list-artikel');
-            container.innerHTML = '';
-            if (globalData.articles) {
-                globalData.articles.forEach(art => {
-                    container.innerHTML += `
-                        <div class="bg-white p-4 rounded shadow border flex justify-between items-center">
-                            <div>
-                                <h4 class="font-bold navy-text">${art.title}</h4>
-                                <p class="text-xs text-gray-500">${art.date}</p>
-                            </div>
-                            <div class="space-x-2">
-                                <button onclick="editArtikel('${art.id}')" class="text-blue-600 hover:underline text-sm font-bold">Edit</button>
-                                <button onclick="deleteArtikel('${art.id}')" class="text-red-600 hover:underline text-sm font-bold">Hapus</button>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
+        function bukaModalPorto() { 
+            document.getElementById('porto-modal-title').innerText = "Proyek Baru";
+            document.getElementById('p-id').value = ''; 
+            document.getElementById('p-judul').value = '';
+            document.getElementById('p-desk').value = '';
+            document.getElementById('p-preview').classList.add('hidden');
+            document.getElementById('modal-porto').classList.remove('hidden'); 
+        }
+        function editPorto(id) {
+            const x = globalData.portfolios.find(i => i.id == id);
+            document.getElementById('porto-modal-title').innerText = "Edit Proyek";
+            document.getElementById('p-id').value = x.id;
+            document.getElementById('p-judul').value = x.title;
+            document.getElementById('p-desk').value = x.description;
+            document.getElementById('p-img-url').value = x.imageUrl;
+            document.getElementById('p-preview').src = x.imageUrl;
+            document.getElementById('p-preview').classList.remove('hidden');
+            document.getElementById('modal-porto').classList.remove('hidden');
+        }
+        function tutupModalPorto() { document.getElementById('modal-porto').classList.add('hidden'); }
+        async function simpanPortofolioAdmin() {
+            await api.req({ action: 'simpanPortofolio', payload: {
+                id: document.getElementById('p-id').value,
+                title: document.getElementById('p-judul').value,
+                description: document.getElementById('p-desk').value,
+                imageUrl: document.getElementById('p-img-url').value
+            }});
+            window.location.reload();
         }
 
-        function bukaModalArtikel() {
-            document.getElementById('a-id').value = '';
+        function bukaModalArtikel() { 
+            document.getElementById('art-modal-title').innerText = "Tambah Berita";
+            document.getElementById('a-id').value = ''; 
             document.getElementById('a-judul').value = '';
             document.getElementById('a-isi').value = '';
-            document.getElementById('a-img-url').value = '';
             document.getElementById('a-preview').classList.add('hidden');
-            document.getElementById('upload-status').innerText = '';
-            document.getElementById('modal-art-title').innerText = "Tulis Artikel Baru";
+            document.getElementById('modal-artikel').classList.remove('hidden'); 
+        }
+        function editArt(id) {
+            const x = globalData.articles.find(i => i.id == id);
+            document.getElementById('art-modal-title').innerText = "Edit Berita";
+            document.getElementById('a-id').value = x.id;
+            document.getElementById('a-judul').value = x.title;
+            document.getElementById('a-isi').value = x.content;
+            document.getElementById('a-img-url').value = x.imageUrl;
+            document.getElementById('a-preview').src = x.imageUrl;
+            document.getElementById('a-preview').classList.remove('hidden');
             document.getElementById('modal-artikel').classList.remove('hidden');
         }
-
-        function tutupModalArtikel() {
-            document.getElementById('modal-artikel').classList.add('hidden');
-        }
-
-        function editArtikel(id) {
-            const art = globalData.articles.find(a => a.id == id);
-            if(art) {
-                bukaModalArtikel();
-                document.getElementById('modal-art-title').innerText = "Edit Artikel";
-                document.getElementById('a-id').value = art.id;
-                document.getElementById('a-judul').value = art.title;
-                document.getElementById('a-isi').value = art.content;
-                document.getElementById('a-img-url').value = art.imageUrl;
-                
-                if(art.imageUrl) {
-                    const img = document.getElementById('a-preview');
-                    img.src = art.imageUrl;
-                    img.classList.remove('hidden');
-                }
-            }
-        }
-
-        function uploadGambar() {
-            const fileInput = document.getElementById('a-file');
-            if(fileInput.files.length === 0) return alert("Pilih file gambar dulu!");
-            
-            const file = fileInput.files[0];
-            const btn = document.getElementById('btn-upload');
-            const status = document.getElementById('upload-status');
-            
-            btn.innerText = "Mengupload..."; status.innerText = "Proses upload ke Drive...";
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64Data = e.target.result;
-                const fileName = new Date().getTime() + "_" + file.name;
-                
-                api.uploadFileToDrive(base64Data, fileName, 
-                    (url) => {
-                        document.getElementById('a-img-url').value = url;
-                        const img = document.getElementById('a-preview');
-                        img.src = url; img.classList.remove('hidden');
-                        btn.innerText = "Upload Selesai";
-                        status.innerText = "Berhasil! URL Gambar tersimpan.";
-                    },
-                    (err) => {
-                        status.innerText = "Error: " + err;
-                        btn.innerText = "Upload Gambar";
-                    }
-                );
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function simpanArtikelAdmin() {
-            const btn = document.getElementById('btn-simpan-art');
-            btn.innerText = "Menyimpan...";
-            
-            const payload = {
+        function tutupModalArtikel() { document.getElementById('modal-artikel').classList.add('hidden'); }
+        async function simpanArtikelAdmin() {
+            await api.req({ action: 'simpanArtikel', payload: {
                 id: document.getElementById('a-id').value,
                 title: document.getElementById('a-judul').value,
-                imageUrl: document.getElementById('a-img-url').value || 'https://via.placeholder.com/600x400?text=No+Image',
-                content: document.getElementById('a-isi').value
-            };
+                content: document.getElementById('a-isi').value,
+                imageUrl: document.getElementById('a-img-url').value
+            }});
+            window.location.reload();
+        }
 
-            if(!payload.title || !payload.content) {
-                alert("Judul dan isi wajib diisi!");
-                btn.innerText = "Simpan Artikel"; return;
-            }
-
-            api.simpanArtikel(payload, () => {
-                alert("Artikel berhasil disimpan!");
-                tutupModalArtikel();
-                btn.innerText = "Simpan Artikel";
-                window.location.reload(); 
+        function renderAdminLists() {
+            const pL = document.getElementById('admin-list-porto'); pL.innerHTML = '';
+            globalData.portfolios.forEach(x => {
+                pL.innerHTML += `<div class="bg-gray-50 p-4 rounded-xl flex justify-between items-center border">
+                    <span class="font-bold text-xs truncate max-w-[150px]">${x.title}</span>
+                    <div class="flex gap-4">
+                        <button onclick="editPorto('${x.id}')" class="text-blue-600 font-bold text-xs">EDIT</button>
+                        <button onclick="hapusPorto('${x.id}')" class="text-red-600 font-bold text-xs">HAPUS</button>
+                    </div>
+                </div>`;
+            });
+            const aL = document.getElementById('admin-list-artikel'); aL.innerHTML = '';
+            globalData.articles.forEach(x => {
+                aL.innerHTML += `<div class="bg-gray-50 p-4 rounded-xl flex justify-between items-center border">
+                    <span class="font-bold text-xs truncate max-w-[150px]">${x.title}</span>
+                    <div class="flex gap-4">
+                        <button onclick="editArt('${x.id}')" class="text-blue-600 font-bold text-xs">EDIT</button>
+                        <button onclick="hapusArt('${x.id}')" class="text-red-600 font-bold text-xs">HAPUS</button>
+                    </div>
+                </div>`;
             });
         }
 
-        function deleteArtikel(id) {
-            if(confirm("Yakin ingin menghapus artikel ini?")) {
-                api.hapusArtikel(id, () => {
-                    alert("Artikel dihapus.");
-                    window.location.reload();
-                });
-            }
+        async function hapusPorto(id) { if(confirm('Yakin menghapus proyek ini?')) { await api.req({ action: 'hapusPortofolio', id: id }); window.location.reload(); } }
+        async function hapusArt(id) { if(confirm('Yakin menghapus berita ini?')) { await api.req({ action: 'hapusArtikel', id: id }); window.location.reload(); } }
+
+        async function handleKonfirmasi(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-konfirmasi');
+            btn.innerText = "SENDING..."; btn.disabled = true;
+            await api.req({ action: 'submitKonfirmasi', payload: {
+                nama: document.getElementById('k-nama').value,
+                jumlah: document.getElementById('k-jumlah').value,
+                keterangan: document.getElementById('k-ket').value
+            }});
+            alert("Terima kasih! Konfirmasi Anda telah diterima."); document.getElementById('form-konfirmasi').reset();
+            btn.innerText = "KIRIM KONFIRMASI"; btn.disabled = false;
         }
     </script>
 </body>

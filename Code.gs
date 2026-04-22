@@ -1,12 +1,11 @@
-// ==========================================
-// KONFIGURASI DATABASE
-// ==========================================
+/**
+ * BACKEND GOOGLE APPS SCRIPT (GAS)
+ * Versi: 2.1 (Update: CRUD Portofolio & Auth)
+ */
+
 const SPREADSHEET_ID = '1Z34p14RRS4NCSlD66NOz4l5QTmnKvckUl5-vKFbPyFQ'; 
 const FOLDER_ID = '1XuGZzprXsY63lTeXv_M4JuRw3WUGRKnn';
 
-// ==========================================
-// API GET REQUEST (Mengirim Data ke Website)
-// ==========================================
 function doGet(e) {
   try {
     const data = getInitialData();
@@ -18,30 +17,24 @@ function doGet(e) {
   }
 }
 
-// ==========================================
-// API POST REQUEST (Menerima Data/Aksi dari Website)
-// ==========================================
 function doPost(e) {
   try {
-    // Parse data JSON yang dikirim dari Frontend GitHub
     const req = JSON.parse(e.postData.contents);
     let result = {};
 
-    if (req.action === 'submitKonfirmasi') {
-      result = submitKonfirmasi(req.payload);
-    } else if (req.action === 'verifyAdmin') {
-      result = verifyAdmin(req.username, req.password);
-    } else if (req.action === 'updateInfoWebsite') {
-      result = { success: updateInfoWebsite(req.target, req.terkumpul, req.rekening, req.judul) };
-    } else if (req.action === 'uploadFileToDrive') {
-      const url = uploadFileToDrive(req.base64, req.fileName);
-      result = { success: true, url: url };
-    } else if (req.action === 'simpanArtikel') {
-      result = { success: simpanArtikel(req.payload) };
-    } else if (req.action === 'hapusArtikel') {
-      result = { success: hapusArtikel(req.id) };
-    } else {
-      result = { success: false, message: "Action tidak dikenali." };
+    switch(req.action) {
+      case 'submitKonfirmasi': result = submitKonfirmasi(req.payload); break;
+      case 'verifyAdmin': result = verifyAdmin(req.username, req.password); break;
+      case 'updateInfoWebsite': result = { success: updateInfoWebsite(req.target, req.terkumpul, req.rekening, req.judul) }; break;
+      case 'uploadFileToDrive': 
+        const url = uploadFileToDrive(req.base64, req.fileName);
+        result = { success: true, url: url }; 
+        break;
+      case 'simpanArtikel': result = { success: simpanArtikel(req.payload) }; break;
+      case 'hapusArtikel': result = { success: hapusArtikel(req.id) }; break;
+      case 'simpanPortofolio': result = { success: simpanPortofolio(req.payload) }; break;
+      case 'hapusPortofolio': result = { success: hapusPortofolio(req.id) }; break;
+      default: result = { success: false, message: "Aksi tidak dikenali." };
     }
 
     return ContentService.createTextOutput(JSON.stringify(result))
@@ -53,12 +46,10 @@ function doPost(e) {
   }
 }
 
-// ==========================================
-// FUNGSI UTAMA PENGELOLAAN SPREADSHEET
-// ==========================================
 function getInitialData() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   
+  // Ambil Info Utama
   const sheetInfo = ss.getSheetByName('Info');
   const infoData = sheetInfo.getRange('B1:B4').getValues(); 
   const info = {
@@ -68,23 +59,65 @@ function getInitialData() {
     judulProposal: infoData[3][0] || "Proposal Pembangunan"
   };
 
+  // Ambil Portofolio
   const sheetPortfolio = ss.getSheetByName('Portfolio');
   const portData = sheetPortfolio.getDataRange().getValues();
-  if (portData.length > 1) portData.shift(); else var portfolios = [];
-  var portfolios = portData.map(row => ({
-    id: row[0], imageUrl: row[1], title: row[2], description: row[3]
-  })).filter(p => p.title !== "");
+  let portfolios = [];
+  if (portData.length > 1) {
+    portData.shift();
+    portfolios = portData.map(row => ({
+      id: row[0], imageUrl: row[1], title: row[2], description: row[3]
+    })).filter(p => p.title !== "");
+  }
 
+  // Ambil Artikel
   const sheetArtikel = ss.getSheetByName('Artikel');
   const artData = sheetArtikel.getDataRange().getValues();
-  if (artData.length > 1) artData.shift(); else var articles = [];
-  var articles = artData.map(row => ({
-    id: row[0], title: row[1], imageUrl: row[2], content: row[3], date: row[4]
-  })).filter(a => a.title !== "");
+  let articles = [];
+  if (artData.length > 1) {
+    artData.shift();
+    articles = artData.map(row => ({
+      id: row[0], title: row[1], imageUrl: row[2], content: row[3], date: row[4]
+    })).filter(a => a.title !== "");
+  }
 
   return { success: true, info: info, portfolios: portfolios, articles: articles.reverse() };
 }
 
+function simpanPortofolio(data) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName('Portfolio');
+  if (data.id) {
+    const rows = sheet.getDataRange().getValues();
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0] == data.id) {
+        sheet.getRange(i + 1, 2).setValue(data.imageUrl);
+        sheet.getRange(i + 1, 3).setValue(data.title);
+        sheet.getRange(i + 1, 4).setValue(data.description);
+        break;
+      }
+    }
+  } else {
+    const newId = "P" + new Date().getTime();
+    sheet.appendRow([newId, data.imageUrl, data.title, data.description]);
+  }
+  return true;
+}
+
+function hapusPortofolio(id) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName('Portfolio');
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0] == id) {
+      sheet.deleteRow(i + 1);
+      return true;
+    }
+  }
+  return false;
+}
+
+// Fungsi pembantu lainnya (simpanArtikel, upload, dll tetap sama)
 function updateInfoWebsite(target, terkumpul, rekening, judul) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName('Info');
@@ -92,7 +125,6 @@ function updateInfoWebsite(target, terkumpul, rekening, judul) {
   sheet.getRange('B2').setValue(terkumpul);
   sheet.getRange('B3').setValue(rekening);
   sheet.getRange('B4').setValue(judul);
-  SpreadsheetApp.flush(); 
   return true;
 }
 
@@ -110,11 +142,10 @@ function simpanArtikel(data) {
       }
     }
   } else {
-    const newId = new Date().getTime();
+    const newId = "A" + new Date().getTime();
     const dateStr = new Date().toLocaleDateString('id-ID');
     sheet.appendRow([newId, data.title, data.imageUrl, data.content, dateStr]);
   }
-  SpreadsheetApp.flush();
   return true;
 }
 
@@ -122,7 +153,7 @@ function submitKonfirmasi(data) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName('Konfirmasi');
   sheet.appendRow([new Date(), data.nama, data.jumlah, data.keterangan]);
-  return { success: true, message: "Data konfirmasi terkirim!" };
+  return { success: true, message: "Konfirmasi berhasil disimpan!" };
 }
 
 function uploadFileToDrive(base64Data, fileName) {
@@ -141,11 +172,8 @@ function verifyAdmin(username, password) {
   const sheetInfo = ss.getSheetByName('Info');
   const validUser = sheetInfo.getRange('B5').getValue();
   const validPass = sheetInfo.getRange('B6').getValue();
-  if(username == validUser && password == validPass) {
-      return { success: true };
-  } else {
-      return { success: false, message: "Username/Password Salah!" };
-  }
+  if(username == validUser && password == validPass) return { success: true };
+  return { success: false, message: "Kredensial tidak valid!" };
 }
 
 function hapusArtikel(id) {
