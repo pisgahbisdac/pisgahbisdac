@@ -130,13 +130,26 @@ function getDaftarWarta() {
   return wartaList;
 }
 
-// HELPER: Buat atau cari folder langsung di Root Drive (My Drive)
-function getOrCreateRootFolder(folderName) {
-  const folders = DriveApp.getRootFolder().getFoldersByName(folderName);
-  if (folders.hasNext()) {
-    return folders.next().getId();
+// HELPER BARU: Buat atau cari folder di dalam folder utama "Pisgah_Web"
+function getOrCreateNestedFolder(folderName) {
+  const root = DriveApp.getRootFolder();
+  let masterFolder;
+  
+  // 1. Cari atau buat folder induk "Pisgah_Web" di Root
+  const masterFolders = root.getFoldersByName("Pisgah_Web");
+  if (masterFolders.hasNext()) {
+    masterFolder = masterFolders.next();
   } else {
-    const newFolder = DriveApp.getRootFolder().createFolder(folderName);
+    masterFolder = root.createFolder("Pisgah_Web");
+    masterFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  }
+
+  // 2. Cari atau buat sub-folder di dalam "Pisgah_Web"
+  const subFolders = masterFolder.getFoldersByName(folderName);
+  if (subFolders.hasNext()) {
+    return subFolders.next().getId();
+  } else {
+    const newFolder = masterFolder.createFolder(folderName);
     newFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     return newFolder.getId();
   }
@@ -146,11 +159,11 @@ function saveWarta(payload) {
   let sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
   let gambarUrl = payload.gambarUrl || "";
   
-  // Tangkap data:image atau base64 raw yang sangat panjang
-  if (gambarUrl.startsWith('data:image') || gambarUrl.length > 500) {
+  // PASTIKAN: Hanya upload jika BUKAN URL (http) dan berupa base64
+  if (gambarUrl && !gambarUrl.startsWith('http') && (gambarUrl.startsWith('data:image') || gambarUrl.length > 500)) {
     let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
-    let rootFolderId = getOrCreateRootFolder("Warta_Images");
-    gambarUrl = uploadFileToDrive(gambarUrl, "WRT_" + shortId + ".jpg", rootFolderId);
+    let targetFolderId = getOrCreateNestedFolder("Warta_Images");
+    gambarUrl = uploadFileToDrive(gambarUrl, "WRT_" + shortId + ".jpg", targetFolderId);
   }
   
   sheet.appendRow([ new Date(), payload.judul, payload.isi, gambarUrl, payload.penulis ]);
@@ -161,10 +174,11 @@ function updateWarta(payload) {
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
   let gambarUrl = payload.gambarUrl || "";
   
-  if (gambarUrl.startsWith('data:image') || gambarUrl.length > 500) {
+  // PASTIKAN: Hanya upload jika BUKAN URL (http) dan berupa base64
+  if (gambarUrl && !gambarUrl.startsWith('http') && (gambarUrl.startsWith('data:image') || gambarUrl.length > 500)) {
     let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
-    let rootFolderId = getOrCreateRootFolder("Warta_Images");
-    gambarUrl = uploadFileToDrive(gambarUrl, "WRT_" + shortId + ".jpg", rootFolderId);
+    let targetFolderId = getOrCreateNestedFolder("Warta_Images");
+    gambarUrl = uploadFileToDrive(gambarUrl, "WRT_" + shortId + ".jpg", targetFolderId);
   }
   
   sheet.getRange(payload.rowIndex, 2).setValue(payload.judul);
@@ -195,16 +209,18 @@ function savePejabat(dataPejabat, kategoriPejabat) {
   
   // Tangkap foto pejabat yang baru diupload (base64)
   if (dataPejabat && dataPejabat.length > 0) {
-    // PERBAIKAN: Buat/Cari folder Pejabat_Images langsung di Root Drive (Luar Folder ID)
-    let rootFolderId = getOrCreateRootFolder("Pejabat_Images");
+    // PERBAIKAN: Masukkan ke subfolder Pejabat_Images di dalam folder Warta_image
+    let targetFolderId = getOrCreateNestedFolder("Pejabat_Images");
     
     for (let i = 0; i < dataPejabat.length; i++) {
       let imgData = dataPejabat[i].img;
-      if (imgData && (imgData.startsWith('data:image') || imgData.length > 500)) {
+      
+      // PASTIKAN: Hanya upload jika BUKAN URL (http) dan berupa base64
+      if (imgData && !imgData.startsWith('http') && (imgData.startsWith('data:image') || imgData.length > 500)) {
         let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
         
-        // Teruskan rootFolderId agar tidak masuk ke Folder Galeri
-        dataPejabat[i].img = uploadFileToDrive(imgData, "PEJABAT_" + shortId + ".jpg", rootFolderId);
+        // Teruskan targetFolderId agar tidak masuk ke Folder Galeri
+        dataPejabat[i].img = uploadFileToDrive(imgData, "PEJABAT_" + shortId + ".jpg", targetFolderId);
       }
     }
   }
@@ -513,14 +529,16 @@ function saveHeroImages(jsonStringArray) {
   try {
     let images = JSON.parse(jsonStringArray);
     let updatedImages = [];
-    let rootFolderId = getOrCreateRootFolder("Hero_Images");
+    
+    // PERBAIKAN: Masukkan ke subfolder Hero_Images di dalam folder Warta_image
+    let targetFolderId = getOrCreateNestedFolder("Hero_Images");
 
     for (let i = 0; i < images.length; i++) {
       let img = images[i];
-      // Tangkap data:image atau base64 raw yang sangat panjang
-      if (img.startsWith('data:image') || img.length > 500) {
+      // PASTIKAN: Hanya upload jika BUKAN URL (http) dan berupa base64
+      if (img && !img.startsWith('http') && (img.startsWith('data:image') || img.length > 500)) {
         let shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
-        let url = uploadFileToDrive(img, "HERO_" + shortId + ".jpg", rootFolderId);
+        let url = uploadFileToDrive(img, "HERO_" + shortId + ".jpg", targetFolderId);
         if (url) updatedImages.push(url);
       } else {
         updatedImages.push(img); // Jika sudah berupa link, biarkan
