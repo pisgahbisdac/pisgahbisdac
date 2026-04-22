@@ -511,6 +511,26 @@ const truncateText = (text, maxLength = 500) => {
                                     <span><p className="text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span> <span className="text-navy-700">app</span></p></span>
                                 </h2>
                             </div>
+
+                            {/* Artikel Promosi Pembangunan */}
+                            <div className="mt-4 bg-white rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
+                                <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-gold-400 text-white text-[9px] md:text-[10px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center z-10">
+                                    <Icon name="Home" className="w-3 h-3 mr-1" /> Proyek Gereja
+                                </div>
+                                <div className="p-5 md:p-6 bg-gradient-to-br from-white via-gold-50/40 to-white">
+                                    <h3 className="text-[1.1rem] md:text-xl font-black text-navy-900 leading-tight mb-2">
+                                        Bersama Membangun Rumah Tuhan
+                                    </h3>
+                                    <p class="text-xs md:text-sm font-medium text-navy-600 leading-relaxed mb-5 text-center">
+                                        Setiap doa, dukungan, dan persembahan pembangunan Anda adalah fondasi utama dalam mewujudkan tempat ibadah yang lebih nyaman bagi jemaat dan saksi kebaikan Tuhan bagi lingkungan sekitar.
+                                        <p class="text-xs md:text-sm font-medium text-navy-600 leading-relaxed mb-5 text-center">Mari ambil bagian!</p>
+                                    </p>
+                                    <a href="https://pembangunan.pisgahbisdac.app" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full bg-navy-900 hover:bg-navy-800 text-gold-400 py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 border border-gold-500/30 group">
+                                        <span className="text-[11px] md:text-sm font-bold uppercase tracking-widest group-hover:text-gold-300 transition-colors">Portal Pembangunan & Donasi</span>
+                                        <Icon name="ChevronRight" className="w-4 h-4 ml-1.5 text-gold-500 group-hover:translate-x-1 transition-transform" />
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -3078,7 +3098,7 @@ const insertEditWartaFormatting = (tag) => {
                                 <div className="space-y-4">
                                     {paginatedWarta.map((warta, idx) => {
                                         const plainPreview = stripHtml(warta.isi);
-                                        const shortPreview = plainPreview.length > 200 ? plainPreview.substring(0, 200) + '...' : plainPreview;
+                                        const shortPreview = plainPreview.length > 100 ? plainPreview.substring(0, 100) + '...' : plainPreview;
                                         return (
                                             <div key={idx} className="border border-navy-200 rounded-lg p-4 bg-navy-50">
                                                 <center>
@@ -3097,12 +3117,12 @@ const insertEditWartaFormatting = (tag) => {
                                                         </div>
                                                     </div>
                                                 </center>
-                                                <div className="flex gap-3 items-start">
-                                                    {warta.gambarUrl && (
-                                                        <img src={warta.gambarUrl} className="h-20 w-auto object-cover rounded shrink-0" alt="preview" />
-                                                    )}
-                                                    <p className="text-xs text-justify text-navy-700">{shortPreview}</p>
-                                                </div>
+                                                <div className="flex flex-col gap-3 items-center">
+    {warta.gambarUrl && (
+        <img src={warta.gambarUrl} className="h-20 w-auto object-cover rounded" alt="preview" />
+    )}
+    <p className="text-xs text-justify text-navy-700">{shortPreview}</p>
+</div>
                                             </div>
                                         );
                                     })}
