@@ -525,7 +525,7 @@ const truncateText = (text, maxLength = 500) => {
                                         Setiap doa, dukungan, dan persembahan pembangunan Anda adalah fondasi utama dalam mewujudkan tempat ibadah yang lebih nyaman bagi jemaat dan saksi kebaikan Tuhan bagi lingkungan sekitar.
                                         <p class="text-xs md:text-sm font-medium text-navy-600 leading-relaxed mb-5 text-center">Mari ambil bagian dalam penatalayanan ini!</p>
                                     </p>
-                                    <a href="https://pembangunan.pisgahbisdac.app" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full bg-navy-700 hover:bg-navy-800 text-gold-400 py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 border border-gold-500/30 group">
+                                    <a href="https://pembangunan.pisgahbisdac.app" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full bg-navy-900 hover:bg-navy-800 text-gold-400 py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 border border-gold-500/30 group">
                                         <span className="text-[11px] md:text-sm font-bold uppercase tracking-widest group-hover:text-gold-300 transition-colors">Portal Pembangunan & Donasi</span>
                                         <Icon name="ChevronRight" className="w-4 h-4 ml-1.5 text-gold-500 group-hover:translate-x-1 transition-transform" />
                                     </a>
@@ -1686,10 +1686,6 @@ const truncateText = (text, maxLength = 500) => {
             youtubeUrl, setYoutubeUrl, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages, 
             pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta }) => {
             const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan
-            
-            // Tambahkan State Loading untuk Upload Pejabat Individual
-            const [uploadingPejabatId, setUploadingPejabatId] = React.useState(null);
-            
             const [viewMonth, setViewMonth] = React.useState(new Date().getMonth());
             const [viewYear, setViewYear] = React.useState(new Date().getFullYear());
             const [subTab, setSubTab] = React.useState('rabu');
@@ -2665,16 +2661,12 @@ const insertEditWartaFormatting = (tag) => {
             const handleHeroFileUpload = (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-
-                // Tampilkan tulisan "Menyimpan..."
-                setIsSavingHero(true);
-
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = (event) => {
                     const img = new Image();
                     img.src = event.target.result;
-                    img.onload = async () => {
+                    img.onload = () => {
                         const MAX_WIDTH = 1200;
                         let width = img.width;
                         let height = img.height;
@@ -2684,32 +2676,9 @@ const insertEditWartaFormatting = (tag) => {
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        const dataUrl = canvas.toDataURL('image/webp', 0.8);
+                        const dataUrl = canvas.toDataURL('image/webp', 0.6);
                         
-                        // UPLOAD OTOMATIS KE DRIVE SEKARANG JUGA
-                        try {
-                            const shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
-                            const res = await fetch(GAS_API_URL, {
-                                method: 'POST',
-                                body: JSON.stringify({
-                                    action: 'uploadImageToDrive',
-                                    password: adminToken,
-                                    folderId: '', // Otomatis masuk ke FOLDER_GALERI_ID
-                                    title: 'HERO_' + shortId,
-                                    imageBase64: dataUrl
-                                })
-                            });
-                            const result = await res.json();
-                            if(result.success) {
-                                // Simpan URL yang sudah dipendekkan ke dalam state antarmuka
-                                setEditHeroImages(prev => [...prev, result.url]);
-                            } else {
-                                alert("Gagal upload gambar: " + result.message);
-                            }
-                        } catch(err) {
-                            alert("Terjadi kesalahan jaringan saat upload ke Drive.");
-                        }
-                        setIsSavingHero(false);
+                        setEditHeroImages([...editHeroImages, dataUrl]);
                     };
                 };
             };
@@ -2718,17 +2687,14 @@ const insertEditWartaFormatting = (tag) => {
                 const file = e.target.files[0];
                 if (!file) return;
 
-                // Tampilkan animasi loading/spinner di foto pejabat yang diedit
-                setUploadingPejabatId(id);
-
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = (event) => {
                     const img = new Image();
                     img.src = event.target.result;
-                    img.onload = async () => {
-                        const MAX_WIDTH = 250;
-                        const MAX_HEIGHT = 250;
+                    img.onload = () => {
+                        const MAX_WIDTH = 150;
+                        const MAX_HEIGHT = 150;
                         let width = img.width;
                         let height = img.height;
 
@@ -2744,34 +2710,10 @@ const insertEditWartaFormatting = (tag) => {
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
 
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
 
-                        // UPLOAD OTOMATIS KE DRIVE
-                        try {
-                            const shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
-                            const res = await fetch(GAS_API_URL, {
-                                method: 'POST',
-                                body: JSON.stringify({
-                                    action: 'uploadImageToDrive',
-                                    password: adminToken,
-                                    folderId: '',
-                                    title: 'PEJABAT_' + id + '_' + shortId,
-                                    imageBase64: dataUrl
-                                })
-                            });
-                            const result = await res.json();
-                            if(result.success) {
-                                // Langsung timpa data dengan Direct URL Drive
-                                const updated = dataPejabat.map(p => p.id === id ? { ...p, img: result.url } : p);
-                                setDataPejabat(updated);
-                            } else {
-                                alert("Gagal upload foto: " + result.message);
-                            }
-                        } catch(err) {
-                            alert("Terjadi kesalahan jaringan saat upload foto ke Drive.");
-                        }
-                        
-                        setUploadingPejabatId(null); // Matikan loading
+                        const updated = dataPejabat.map(p => p.id === id ? { ...p, img: dataUrl } : p);
+                        setDataPejabat(updated);
                     };
                 };
             };
@@ -3478,19 +3420,10 @@ const insertEditWartaFormatting = (tag) => {
                                                                 <div className="flex gap-3">
                                                                     <div className="relative w-12 h-12 flex-shrink-0">
                                                                         <img src={p.img} alt={p.nama} className="w-full h-full rounded-xl object-cover border-2 border-white shadow-sm" />
-                                                                        
-                                                                        {/* Indikator Loading khusus untuk Foto Pejabat */}
-                                                                        {uploadingPejabatId === p.id ? (
-                                                                            <div className="absolute inset-0 bg-white/70 rounded-xl flex items-center justify-center">
-                                                                                <span className="w-4 h-4 border-2 border-navy-500 border-t-transparent rounded-full animate-spin"></span>
-                                                                            </div>
-                                                                        ) : (
-                                                                            <label className="absolute -bottom-1.5 -right-1.5 bg-white border border-navy-100/60 rounded-lg p-1 cursor-pointer hover:bg-navy-50 shadow-sm transition-colors">
-                                                                                <Icon name="Camera" className="w-3 h-3 text-navy-600" />
-                                                                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileChange(e, p.id)} />
-                                                                            </label>
-                                                                        )}
-                                                                        
+                                                                        <label className="absolute -bottom-1.5 -right-1.5 bg-white border border-navy-100/60 rounded-lg p-1 cursor-pointer hover:bg-navy-50 shadow-sm transition-colors">
+                                                                            <Icon name="Camera" className="w-3 h-3 text-navy-600" />
+                                                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileChange(e, p.id)} />
+                                                                        </label>
                                                                     </div>
                                                                     <div className="flex-1 space-y-2 min-w-0">
                                                                         <input type="text" value={p.jabatan} onChange={(e) => handleUbahText(p.id, 'jabatan', e.target.value)} placeholder="Jabatan" className="w-full bg-transparent outline-none focus:border-b border-gold-400 text-xs font-bold uppercase tracking-wider text-navy-500 placeholder-navy-300 truncate" />
@@ -4045,7 +3978,7 @@ const insertEditWartaFormatting = (tag) => {
                                 <div className="flex items-center shrink-0 cursor-pointer" onClick={() => setActiveTab('home')}>
                                     <img src="./icons/PisgahColor.png" className="w-7 h-7 md:w-8 md:h-8 flex items-center object-contain opacity-90 mr-1.5" alt="Logo" />
                                     <p className="text-xl md:text-2xl font-bold text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></p>
-                                </div>
+                                </div>                                
                             </div>
 
                             <div className="flex justify-end items-center gap-2 shrink-0">
