@@ -44,6 +44,11 @@
         <p class="gold-text mt-4 font-bold">Memuat Data...</p>
     </div>
 
+    <!-- PESAN ERROR URL BELUM DISET -->
+    <div id="url-error-msg" class="hidden fixed top-20 left-0 right-0 z-[60] bg-red-600 text-white p-4 text-center font-bold animate-bounce">
+        Peringatan: GAS_API_URL belum dikonfigurasi! Hubungkan link Google Apps Script Anda.
+    </div>
+
     <!-- ============================================== -->
     <!-- VIEW PUBLIK (PENGUNJUNG) -->
     <!-- ============================================== -->
@@ -214,358 +219,360 @@
                 </div>
 
                 <button onclick="simpanArtikelAdmin()" id="btn-simpan-art" class="w-full navy-bg gold-text font-bold py-3 rounded">Simpan Artikel</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- ============================================== -->
-<!-- JAVASCRIPT LOGIC -->
-<!-- ============================================== -->
-<script>
-    let globalData = {}; // Menyimpan data sementara di memory
+    <!-- ============================================== -->
+    <!-- JAVASCRIPT LOGIC -->
+    <!-- ============================================== -->
+    <script>
+        // ========================================================
+        // WAJIB DIISI: GANTI DENGAN URL WEB APP GOOGLE SCRIPT ANDA
+        // ========================================================
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxvNICOilB-oQG3WfI6nrj_kYjG3tGMBZYndE4K3jw_TuvjR7lOMsyyyCyNHTNCKUOOMg/exec"; 
 
-    // Format Rupiah
-    const formatRp = (angka) => {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
-    };
+        let globalData = {}; 
 
-    // --- WRAPPER API UNTUK MENDUKUNG PREVIEW LOKAL & GOOGLE APPS SCRIPT ---
-    const api = {
-        getInitialData: (onSuccess) => {
-            if (typeof google !== 'undefined' && google.script && google.script.run) {
-                google.script.run.withSuccessHandler(onSuccess).getInitialData();
-            } else {
-                console.log("[Mock] Memuat data dummy karena berjalan di luar Google Apps Script");
-                setTimeout(() => onSuccess({
-                    info: {
-                        judulProposal: "Pembelian Lahan Gereja (Mode Preview)",
-                        target: 2500000000,
-                        terkumpul: 250000000,
-                        rekening: "Mandiri 1090001711043 a.n GMAHK PISGAH BISDAC"
-                    },
-                    portfolios: [
-                        { id: 1, imageUrl: "https://via.placeholder.com/600x400/0B192C/FFD700?text=Desain+Awal", title: "Tahap 1: Desain", description: "Ini adalah mock data untuk preview.\nDesain awal telah diselesaikan." },
-                        { id: 2, imageUrl: "https://via.placeholder.com/600x400/FFD700/0B192C?text=Pondasi", title: "Tahap 2: Pondasi", description: "Pondasi sedang dikerjakan saat ini." }
-                    ],
-                    articles: [
-                        { id: 1, title: "Peletakan Batu Pertama", imageUrl: "https://via.placeholder.com/400x300/0B192C/FFFFFF?text=Berita+1", content: "Hari ini acara berjalan lancar...", date: "22/04/2026" }
-                    ]
-                }), 1000);
-            }
-        },
-        submitKonfirmasi: (payload, onSuccess) => {
-            if (typeof google !== 'undefined' && google.script && google.script.run) {
-                google.script.run.withSuccessHandler(onSuccess).submitKonfirmasi(payload);
-            } else {
-                setTimeout(() => onSuccess({success: true, message: "[Mock] Konfirmasi berhasil dikirim!"}), 1000);
-            }
-        },
-        verifyAdmin: (u, p, onSuccess) => {
-            if (typeof google !== 'undefined' && google.script && google.script.run) {
-                google.script.run.withSuccessHandler(onSuccess).verifyAdmin(u, p);
-            } else {
-                setTimeout(() => {
-                    // Kredensial untuk mencoba admin di mode preview
-                    if(u === 'admin' && p === 'admin') onSuccess({success: true});
-                    else onSuccess({success: false, message: "Username/Password salah! (Gunakan admin/admin untuk preview)"});
-                }, 1000);
-            }
-        },
-        updateInfoWebsite: (t, c, r, j, onSuccess) => {
-            if (typeof google !== 'undefined' && google.script && google.script.run) {
-                google.script.run.withSuccessHandler(onSuccess).updateInfoWebsite(t, c, r, j);
-            } else {
-                setTimeout(onSuccess, 1000);
-            }
-        },
-        uploadFileToDrive: (base64, fileName, onSuccess, onFailure) => {
-            if (typeof google !== 'undefined' && google.script && google.script.run) {
-                google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).uploadFileToDrive(base64, fileName);
-            } else {
-                setTimeout(() => onSuccess(base64), 1500); // Saat lokal, base64 data berfungsi juga sebagai URL gambar
-            }
-        },
-        simpanArtikel: (payload, onSuccess) => {
-            if (typeof google !== 'undefined' && google.script && google.script.run) {
-                google.script.run.withSuccessHandler(onSuccess).simpanArtikel(payload);
-            } else {
-                setTimeout(onSuccess, 1000);
-            }
-        },
-        hapusArtikel: (id, onSuccess) => {
-            if (typeof google !== 'undefined' && google.script && google.script.run) {
-                google.script.run.withSuccessHandler(onSuccess).hapusArtikel(id);
-            } else {
-                setTimeout(onSuccess, 1000);
-            }
-        }
-    };
-
-    // KETIKA HALAMAN DIMUAT
-    window.onload = () => {
-        api.getInitialData(renderData);
-    };
-
-    // RENDER DATA KE HTML
-    function renderData(data) {
-        globalData = data; // Simpan ke global variable
-        document.getElementById('loading-screen').style.display = 'none';
-
-        // 1. Render Info & Progress Bar
-        document.getElementById('judul-proposal').innerText = data.info.judulProposal;
-        document.getElementById('dana-target').innerText = formatRp(data.info.target);
-        document.getElementById('dana-terkumpul').innerText = formatRp(data.info.terkumpul);
-        document.getElementById('info-rekening').innerText = data.info.rekening;
-
-        let persentase = (data.info.terkumpul / data.info.target) * 100;
-        if(persentase > 100) persentase = 100;
-        document.getElementById('progress-bar').style.width = persentase + '%';
-        document.getElementById('progress-bar').innerText = Math.round(persentase) + '%';
-
-        // 2. Render Portfolio (Memanjang)
-        const portContainer = document.getElementById('portfolio');
-        portContainer.innerHTML = '';
-        data.portfolios.forEach((item, index) => {
-            // Selang-seling gambar kiri-kanan
-            const isEven = index % 2 === 0;
-            const flexDir = isEven ? 'md:flex-row' : 'md:flex-row-reverse';
-            
-            portContainer.innerHTML += `
-                <div class="flex flex-col ${flexDir} gap-8 items-center bg-white p-6 rounded-2xl shadow-lg border border-gray-100 transform transition hover:-translate-y-1">
-                    <div class="w-full md:w-1/2">
-                        <img src="${item.imageUrl}" alt="${item.title}" class="w-full h-64 md:h-80 object-cover rounded-xl shadow-md border-b-4 gold-border">
-                    </div>
-                    <div class="w-full md:w-1/2 space-y-4">
-                        <h3 class="text-2xl font-bold navy-text">${item.title}</h3>
-                        <p class="text-gray-600 leading-relaxed text-justify">${item.description.replace(/\n/g, '<br>')}</p>
-                    </div>
-                </div>
-            `;
-        });
-
-        // 3. Render Artikel Publik
-        const artContainer = document.getElementById('grid-artikel');
-        artContainer.innerHTML = '';
-        data.articles.forEach(art => {
-            artContainer.innerHTML += `
-                <div class="bg-white rounded-xl shadow overflow-hidden flex flex-col border border-gray-100">
-                    <img src="${art.imageUrl}" class="w-full h-48 object-cover">
-                    <div class="p-5 flex-grow">
-                        <div class="text-xs text-gray-400 mb-2">${art.date}</div>
-                        <h4 class="font-bold navy-text text-lg mb-2 leading-tight">${art.title}</h4>
-                        <p class="text-gray-600 text-sm line-clamp-3">${art.content.substring(0,100)}...</p>
-                    </div>
-                    <div class="p-5 pt-0 mt-auto">
-                        <button onclick="bacaArtikel('${art.id}')" class="text-sm font-bold gold-text hover:text-yellow-500">Baca Selengkapnya &rarr;</button>
-                    </div>
-                </div>
-            `;
-        });
-
-        // 4. Siapkan Data untuk Form Admin (Jika login)
-        document.getElementById('e-judul').value = data.info.judulProposal;
-        document.getElementById('e-target').value = data.info.target;
-        document.getElementById('e-terkumpul').value = data.info.terkumpul;
-        document.getElementById('e-rekening').value = data.info.rekening;
-        renderArtikelAdmin();
-    }
-
-    function bacaArtikel(id) {
-        const art = globalData.articles.find(a => a.id == id);
-        if(art) {
-            alert(art.title + '\n\n' + art.content); // Simplified for MVP. Bisa dibuat modal tersendiri.
-        }
-    }
-
-    // ================= KONFIRMASI TRANSFER =================
-    function handleKonfirmasi(e) {
-        e.preventDefault();
-        const btn = document.getElementById('btn-konfirmasi');
-        btn.innerText = "Mengirim..."; btn.disabled = true;
-
-        const payload = {
-            nama: document.getElementById('k-nama').value,
-            jumlah: document.getElementById('k-jumlah').value,
-            keterangan: document.getElementById('k-ket').value
+        const formatRp = (angka) => {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
         };
 
-        api.submitKonfirmasi(payload, (res) => {
-            alert(res.message);
-            if(res.success) document.getElementById('form-konfirmasi').reset();
-            btn.innerText = "Kirim Konfirmasi"; btn.disabled = false;
-        });
-    }
-
-    // ================= LOGIN SYSTEM =================
-    function showLogin() { document.getElementById('login-modal').classList.remove('hidden'); }
-    function hideLogin() { document.getElementById('login-modal').classList.add('hidden'); }
-    
-    function doLogin() {
-        const u = document.getElementById('l-user').value;
-        const p = document.getElementById('l-pass').value;
-        const btn = document.getElementById('btn-login');
-        const msg = document.getElementById('login-msg');
-        
-        btn.innerText = "Checking...";
-        api.verifyAdmin(u, p, (res) => {
-            btn.innerText = "Login Sistem";
-            if(res.success) {
-                hideLogin();
-                document.getElementById('public-nav').style.display = 'none';
-                document.getElementById('public-view').style.display = 'none';
-                document.getElementById('admin-view').classList.remove('hidden');
-            } else {
-                msg.innerText = res.message;
-                msg.classList.remove('hidden');
-            }
-        });
-    }
-
-    function logout() {
-        document.getElementById('admin-view').classList.add('hidden');
-        document.getElementById('public-nav').style.display = 'block';
-        document.getElementById('public-view').style.display = 'block';
-        document.getElementById('l-user').value = '';
-        document.getElementById('l-pass').value = '';
-    }
-
-    // ================= ADMIN: INFO UTAMA =================
-    function switchAdminTab(tabId) {
-        document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden'));
-        document.getElementById(tabId).classList.remove('hidden');
-    }
-
-    function saveInfo() {
-        const btn = document.getElementById('btn-save-info');
-        btn.innerText = "Menyimpan...";
-        const t = document.getElementById('e-target').value;
-        const c = document.getElementById('e-terkumpul').value;
-        const r = document.getElementById('e-rekening').value;
-        const j = document.getElementById('e-judul').value;
-
-        api.updateInfoWebsite(t, c, r, j, () => {
-            alert('Info berhasil diupdate! Refresh halaman publik untuk melihat perubahan.');
-            btn.innerText = "Simpan Perubahan Info";
-        });
-    }
-
-    // ================= ADMIN: ARTIKEL & UPLOAD =================
-    function renderArtikelAdmin() {
-        const container = document.getElementById('admin-list-artikel');
-        container.innerHTML = '';
-        globalData.articles.forEach(art => {
-            container.innerHTML += `
-                <div class="bg-white p-4 rounded shadow border flex justify-between items-center">
-                    <div>
-                        <h4 class="font-bold navy-text">${art.title}</h4>
-                        <p class="text-xs text-gray-500">${art.date}</p>
-                    </div>
-                    <div class="space-x-2">
-                        <button onclick="editArtikel('${art.id}')" class="text-blue-600 hover:underline text-sm font-bold">Edit</button>
-                        <button onclick="deleteArtikel('${art.id}')" class="text-red-600 hover:underline text-sm font-bold">Hapus</button>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    function bukaModalArtikel() {
-        document.getElementById('a-id').value = '';
-        document.getElementById('a-judul').value = '';
-        document.getElementById('a-isi').value = '';
-        document.getElementById('a-img-url').value = '';
-        document.getElementById('a-preview').classList.add('hidden');
-        document.getElementById('upload-status').innerText = '';
-        document.getElementById('modal-art-title').innerText = "Tulis Artikel Baru";
-        document.getElementById('modal-artikel').classList.remove('hidden');
-    }
-
-    function tutupModalArtikel() {
-        document.getElementById('modal-artikel').classList.add('hidden');
-    }
-
-    function editArtikel(id) {
-        const art = globalData.articles.find(a => a.id == id);
-        if(art) {
-            bukaModalArtikel();
-            document.getElementById('modal-art-title').innerText = "Edit Artikel";
-            document.getElementById('a-id').value = art.id;
-            document.getElementById('a-judul').value = art.title;
-            document.getElementById('a-isi').value = art.content;
-            document.getElementById('a-img-url').value = art.imageUrl;
-            
-            if(art.imageUrl) {
-                const img = document.getElementById('a-preview');
-                img.src = art.imageUrl;
-                img.classList.remove('hidden');
-            }
-        }
-    }
-
-    // FUNGSI CONVERT & UPLOAD GAMBAR BASE64 KE GAS
-    function uploadGambar() {
-        const fileInput = document.getElementById('a-file');
-        if(fileInput.files.length === 0) return alert("Pilih file gambar dulu!");
-        
-        const file = fileInput.files[0];
-        const btn = document.getElementById('btn-upload');
-        const status = document.getElementById('upload-status');
-        
-        btn.innerText = "Mengupload..."; status.innerText = "Proses upload ke Drive...";
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const base64Data = e.target.result;
-            const fileName = new Date().getTime() + "_" + file.name;
-            
-            // Panggil backend upload via API Wrapper
-            api.uploadFileToDrive(base64Data, fileName, 
-                (url) => {
-                    document.getElementById('a-img-url').value = url;
-                    const img = document.getElementById('a-preview');
-                    img.src = url; img.classList.remove('hidden');
-                    btn.innerText = "Upload Selesai";
-                    status.innerText = "Berhasil! URL Gambar tersimpan.";
-                },
-                (err) => {
-                    status.innerText = "Error: " + err;
-                    btn.innerText = "Upload Gambar";
+        // --- FETCH API WRAPPER ---
+        const api = {
+            async request(method, payload = null) {
+                // Pencegahan error jika URL masih placeholder
+                if (!GAS_API_URL || GAS_API_URL.includes("MASUKKAN_URL")) {
+                    console.warn("GAS_API_URL belum diset.");
+                    return null;
                 }
-            );
-        };
-        reader.readAsDataURL(file);
-    }
 
-    function simpanArtikelAdmin() {
-        const btn = document.getElementById('btn-simpan-art');
-        btn.innerText = "Menyimpan...";
-        
-        const payload = {
-            id: document.getElementById('a-id').value,
-            title: document.getElementById('a-judul').value,
-            imageUrl: document.getElementById('a-img-url').value || 'https://via.placeholder.com/600x400?text=No+Image',
-            content: document.getElementById('a-isi').value
+                const options = {
+                    method: method,
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                };
+                if (payload) {
+                    options.body = JSON.stringify(payload);
+                }
+                
+                try {
+                    const response = await fetch(GAS_API_URL, options);
+                    if (!response.ok) throw new Error("HTTP Status " + response.status);
+                    const json = await response.json();
+                    return json;
+                } catch (err) {
+                    console.error("Fetch Error: ", err);
+                    return null;
+                }
+            },
+            
+            getInitialData: async (onSuccess) => {
+                const res = await api.request('GET');
+                if(res && res.success) onSuccess(res);
+                else {
+                    // Jika gagal, tampilkan UI statis placeholder agar tidak blank
+                    document.getElementById('loading-screen').style.display = 'none';
+                    if (!GAS_API_URL.includes("MASUKKAN_URL")) {
+                        alert("Gagal memuat data dari server. Periksa koneksi atau URL Web App.");
+                    }
+                }
+            },
+            submitKonfirmasi: async (payload, onSuccess) => {
+                const res = await api.request('POST', { action: 'submitKonfirmasi', payload: payload });
+                if(res) onSuccess(res);
+            },
+            verifyAdmin: async (u, p, onSuccess) => {
+                const res = await api.request('POST', { action: 'verifyAdmin', username: u, password: p });
+                if(res) onSuccess(res);
+            },
+            updateInfoWebsite: async (t, c, r, j, onSuccess) => {
+                const res = await api.request('POST', { action: 'updateInfoWebsite', target: t, terkumpul: c, rekening: r, judul: j });
+                if(res) onSuccess(res);
+            },
+            uploadFileToDrive: async (base64, fileName, onSuccess, onFailure) => {
+                const res = await api.request('POST', { action: 'uploadFileToDrive', base64: base64, fileName: fileName });
+                if(res && res.success) onSuccess(res.url);
+                else if (res) onFailure(res.message);
+            },
+            simpanArtikel: async (payload, onSuccess) => {
+                const res = await api.request('POST', { action: 'simpanArtikel', payload: payload });
+                if(res) onSuccess(res);
+            },
+            hapusArtikel: async (id, onSuccess) => {
+                const res = await api.request('POST', { action: 'hapusArtikel', id: id });
+                if(res) onSuccess(res);
+            }
         };
 
-        if(!payload.title || !payload.content) {
-            alert("Judul dan isi wajib diisi!");
-            btn.innerText = "Simpan Artikel"; return;
+        window.onload = () => {
+            if(!GAS_API_URL || GAS_API_URL.includes("MASUKKAN_URL")) {
+                document.getElementById('url-error-msg').classList.remove('hidden');
+                document.getElementById('loading-screen').style.display = 'none';
+                return;
+            }
+            api.getInitialData(renderData);
+        };
+
+        function renderData(data) {
+            globalData = data; 
+            document.getElementById('loading-screen').style.display = 'none';
+
+            document.getElementById('judul-proposal').innerText = data.info.judulProposal || "Proposal Pembangunan";
+            document.getElementById('dana-target').innerText = formatRp(data.info.target || 0);
+            document.getElementById('dana-terkumpul').innerText = formatRp(data.info.terkumpul || 0);
+            document.getElementById('info-rekening').innerText = data.info.rekening || "Belum ada informasi rekening.";
+
+            let target = data.info.target || 1;
+            let terkumpul = data.info.terkumpul || 0;
+            let persentase = (terkumpul / target) * 100;
+            if(persentase > 100) persentase = 100;
+            
+            const pBar = document.getElementById('progress-bar');
+            pBar.style.width = persentase + '%';
+            pBar.innerText = Math.round(persentase) + '%';
+
+            const portContainer = document.getElementById('portfolio');
+            portContainer.innerHTML = '';
+            if (data.portfolios && data.portfolios.length > 0) {
+                data.portfolios.forEach((item, index) => {
+                    const isEven = index % 2 === 0;
+                    const flexDir = isEven ? 'md:flex-row' : 'md:flex-row-reverse';
+                    
+                    portContainer.innerHTML += `
+                        <div class="flex flex-col ${flexDir} gap-8 items-center bg-white p-6 rounded-2xl shadow-lg border border-gray-100 transform transition hover:-translate-y-1">
+                            <div class="w-full md:w-1/2">
+                                <img src="${item.imageUrl || 'https://via.placeholder.com/600x400'}" alt="${item.title}" class="w-full h-64 md:h-80 object-cover rounded-xl shadow-md border-b-4 gold-border">
+                            </div>
+                            <div class="w-full md:w-1/2 space-y-4">
+                                <h3 class="text-2xl font-bold navy-text">${item.title}</h3>
+                                <p class="text-gray-600 leading-relaxed text-justify">${(item.description || '').replace(/\n/g, '<br>')}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            const artContainer = document.getElementById('grid-artikel');
+            artContainer.innerHTML = '';
+            if (data.articles && data.articles.length > 0) {
+                data.articles.forEach(art => {
+                    artContainer.innerHTML += `
+                        <div class="bg-white rounded-xl shadow overflow-hidden flex flex-col border border-gray-100">
+                            <img src="${art.imageUrl || 'https://via.placeholder.com/600x400'}" class="w-full h-48 object-cover">
+                            <div class="p-5 flex-grow">
+                                <div class="text-xs text-gray-400 mb-2">${art.date}</div>
+                                <h4 class="font-bold navy-text text-lg mb-2 leading-tight">${art.title}</h4>
+                                <p class="text-gray-600 text-sm line-clamp-3">${(art.content || '').substring(0,100)}...</p>
+                            </div>
+                            <div class="p-5 pt-0 mt-auto">
+                                <button onclick="bacaArtikel('${art.id}')" class="text-sm font-bold gold-text hover:text-yellow-500">Baca Selengkapnya &rarr;</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('e-judul').value = data.info.judulProposal || "";
+            document.getElementById('e-target').value = data.info.target || 0;
+            document.getElementById('e-terkumpul').value = data.info.terkumpul || 0;
+            document.getElementById('e-rekening').value = data.info.rekening || "";
+            renderArtikelAdmin();
         }
 
-        api.simpanArtikel(payload, () => {
-            alert("Artikel berhasil disimpan! Muat ulang halaman untuk melihat perubahan.");
-            tutupModalArtikel();
-            btn.innerText = "Simpan Artikel";
-        });
-    }
+        function bacaArtikel(id) {
+            const art = globalData.articles.find(a => a.id == id);
+            if(art) {
+                alert(art.title + '\n\n' + art.content);
+            }
+        }
 
-    function deleteArtikel(id) {
-        if(confirm("Yakin ingin menghapus artikel ini?")) {
-            api.hapusArtikel(id, () => {
-                alert("Artikel dihapus. Muat ulang halaman untuk memperbarui list.");
+        function handleKonfirmasi(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-konfirmasi');
+            btn.innerText = "Mengirim..."; btn.disabled = true;
+
+            const payload = {
+                nama: document.getElementById('k-nama').value,
+                jumlah: document.getElementById('k-jumlah').value,
+                keterangan: document.getElementById('k-ket').value
+            };
+
+            api.submitKonfirmasi(payload, (res) => {
+                alert(res.message);
+                if(res.success) document.getElementById('form-konfirmasi').reset();
+                btn.innerText = "Kirim Konfirmasi"; btn.disabled = false;
             });
         }
-    }
-</script>
+
+        function showLogin() { document.getElementById('login-modal').classList.remove('hidden'); }
+        function hideLogin() { document.getElementById('login-modal').classList.add('hidden'); }
+        
+        function doLogin() {
+            const u = document.getElementById('l-user').value;
+            const p = document.getElementById('l-pass').value;
+            const btn = document.getElementById('btn-login');
+            const msg = document.getElementById('login-msg');
+            
+            btn.innerText = "Checking...";
+            api.verifyAdmin(u, p, (res) => {
+                btn.innerText = "Login Sistem";
+                if(res && res.success) {
+                    hideLogin();
+                    document.getElementById('public-nav').style.display = 'none';
+                    document.getElementById('public-view').style.display = 'none';
+                    document.getElementById('admin-view').classList.remove('hidden');
+                } else {
+                    msg.innerText = res ? res.message : "Gagal terhubung ke server.";
+                    msg.classList.remove('hidden');
+                }
+            });
+        }
+
+        function logout() {
+            document.getElementById('admin-view').classList.add('hidden');
+            document.getElementById('public-nav').style.display = 'block';
+            document.getElementById('public-view').style.display = 'block';
+            document.getElementById('l-user').value = '';
+            document.getElementById('l-pass').value = '';
+        }
+
+        function switchAdminTab(tabId) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+
+        function saveInfo() {
+            const btn = document.getElementById('btn-save-info');
+            btn.innerText = "Menyimpan...";
+            const t = document.getElementById('e-target').value;
+            const c = document.getElementById('e-terkumpul').value;
+            const r = document.getElementById('e-rekening').value;
+            const j = document.getElementById('e-judul').value;
+
+            api.updateInfoWebsite(t, c, r, j, () => {
+                alert('Info berhasil diupdate! Muat ulang halaman untuk melihat perubahan.');
+                btn.innerText = "Simpan Perubahan Info";
+            });
+        }
+
+        function renderArtikelAdmin() {
+            const container = document.getElementById('admin-list-artikel');
+            container.innerHTML = '';
+            if (globalData.articles) {
+                globalData.articles.forEach(art => {
+                    container.innerHTML += `
+                        <div class="bg-white p-4 rounded shadow border flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold navy-text">${art.title}</h4>
+                                <p class="text-xs text-gray-500">${art.date}</p>
+                            </div>
+                            <div class="space-x-2">
+                                <button onclick="editArtikel('${art.id}')" class="text-blue-600 hover:underline text-sm font-bold">Edit</button>
+                                <button onclick="deleteArtikel('${art.id}')" class="text-red-600 hover:underline text-sm font-bold">Hapus</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function bukaModalArtikel() {
+            document.getElementById('a-id').value = '';
+            document.getElementById('a-judul').value = '';
+            document.getElementById('a-isi').value = '';
+            document.getElementById('a-img-url').value = '';
+            document.getElementById('a-preview').classList.add('hidden');
+            document.getElementById('upload-status').innerText = '';
+            document.getElementById('modal-art-title').innerText = "Tulis Artikel Baru";
+            document.getElementById('modal-artikel').classList.remove('hidden');
+        }
+
+        function tutupModalArtikel() {
+            document.getElementById('modal-artikel').classList.add('hidden');
+        }
+
+        function editArtikel(id) {
+            const art = globalData.articles.find(a => a.id == id);
+            if(art) {
+                bukaModalArtikel();
+                document.getElementById('modal-art-title').innerText = "Edit Artikel";
+                document.getElementById('a-id').value = art.id;
+                document.getElementById('a-judul').value = art.title;
+                document.getElementById('a-isi').value = art.content;
+                document.getElementById('a-img-url').value = art.imageUrl;
+                
+                if(art.imageUrl) {
+                    const img = document.getElementById('a-preview');
+                    img.src = art.imageUrl;
+                    img.classList.remove('hidden');
+                }
+            }
+        }
+
+        function uploadGambar() {
+            const fileInput = document.getElementById('a-file');
+            if(fileInput.files.length === 0) return alert("Pilih file gambar dulu!");
+            
+            const file = fileInput.files[0];
+            const btn = document.getElementById('btn-upload');
+            const status = document.getElementById('upload-status');
+            
+            btn.innerText = "Mengupload..."; status.innerText = "Proses upload ke Drive...";
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                const fileName = new Date().getTime() + "_" + file.name;
+                
+                api.uploadFileToDrive(base64Data, fileName, 
+                    (url) => {
+                        document.getElementById('a-img-url').value = url;
+                        const img = document.getElementById('a-preview');
+                        img.src = url; img.classList.remove('hidden');
+                        btn.innerText = "Upload Selesai";
+                        status.innerText = "Berhasil! URL Gambar tersimpan.";
+                    },
+                    (err) => {
+                        status.innerText = "Error: " + err;
+                        btn.innerText = "Upload Gambar";
+                    }
+                );
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function simpanArtikelAdmin() {
+            const btn = document.getElementById('btn-simpan-art');
+            btn.innerText = "Menyimpan...";
+            
+            const payload = {
+                id: document.getElementById('a-id').value,
+                title: document.getElementById('a-judul').value,
+                imageUrl: document.getElementById('a-img-url').value || 'https://via.placeholder.com/600x400?text=No+Image',
+                content: document.getElementById('a-isi').value
+            };
+
+            if(!payload.title || !payload.content) {
+                alert("Judul dan isi wajib diisi!");
+                btn.innerText = "Simpan Artikel"; return;
+            }
+
+            api.simpanArtikel(payload, () => {
+                alert("Artikel berhasil disimpan!");
+                tutupModalArtikel();
+                btn.innerText = "Simpan Artikel";
+                window.location.reload(); 
+            });
+        }
+
+        function deleteArtikel(id) {
+            if(confirm("Yakin ingin menghapus artikel ini?")) {
+                api.hapusArtikel(id, () => {
+                    alert("Artikel dihapus.");
+                    window.location.reload();
+                });
+            }
+        }
+    </script>
 </body>
 </html>
