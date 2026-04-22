@@ -7,7 +7,9 @@
     <title>PISGAH-BISDAC</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="./Pisgahpavicon.png">
+    <link rel="icon" type="image/svg+xml" href="./icons/Pisgahpavicon.png">
+    <link rel="icon" type="image/png" href="./icons/Pisgahpavicon.png">
+    <link rel="apple-touch-icon" href="./icons/Pisgahpavicon.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -221,9 +223,9 @@ const truncateText = (text, maxLength = 500) => {
         const initialJadwalSabat = {
             title: "Ibadah Sabat (Sabtu)", time: "10:00 - 13:00 WIB",
             sekolahSabatTime: "11:45 - 12:40 WIB",
-            sekolahSabat: [{ tugas: "Pianis", nama: "Pianis" }, { tugas: "Presider", nama: "Presider" }, { tugas: "Ayat Inti & Doa Buka", nama: "Presider" }, { tugas: "Berita Misi", nama: "Video" }, { tugas: "Doa Tutup", nama: "Doa Tutup" }],
+            sekolahSabat: [{ tugas: "Pianis", nama: "Pianis" }, { tugas: "Pemimpin Acara", nama: "Pemimpin Acara" }, { tugas: "Ayat Inti & Doa Buka", nama: "Pemimpin Acara" }, { tugas: "Berita Misi", nama: "Video" }, { tugas: "Doa Tutup", nama: "Doa Tutup" }],
             khotbahTime: "10:00 - 11:45 WIB",
-            khotbah: [{ tugas: "Pianis", nama: "Pianis" }, { tugas: "Khotbah", nama: "Sermon" }, { tugas: "Doa Syafaat", nama: "Syafaat" }, { tugas: "Presider", nama: "Presider" }, { tugas: "Song Leader", nama: "Presider" }, { tugas: "Cerita Anak-anak", nama: "Sermonette" }, { tugas: "Lagu Pujian", nama: "SpesialSong" }],
+            khotbah: [{ tugas: "Pianis", nama: "Pianis" }, { tugas: "Khotbah", nama: "Sermon" }, { tugas: "Doa Syafaat", nama: "Syafaat" }, { tugas: "Pemimpin Acara", nama: "Pemimpin Acara" }, { tugas: "Bacaan & Doa Persembahan", nama: "Pemimpin Acara" }, { tugas: "Song Leader", nama: "Pemimpin Acara" }, { tugas: "Cerita Anak-anak", nama: "Sermonette" }, { tugas: "Lagu Pujian", nama: "SpesialSong" }],
             diakon: [{ tugas: "Diakon", nama: "Diakon" }],
             musik: [{ tugas: "Pianis SS", nama: "Pianis SS" }, { tugas: "Pianis Khotbah", nama: "Pianis Khotbah" }, { tugas: "Gitar", nama: "Gitar" }],
             susunan: defaultSusunan,
@@ -323,8 +325,9 @@ const truncateText = (text, maxLength = 500) => {
         };
 
         // --- COMPONENTS ---
-        const Home = ({ setActiveTab, youtubeUrl, heroImageUrl, jadwalDB, dataPejabat, pengumuman }) => {
+        const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman }) => {
             const [searchQuery, setSearchQuery] = React.useState('');
+            const [currentSlide, setCurrentSlide] = React.useState(0);
 
             // Listen for search events from the mobile header
             React.useEffect(() => {
@@ -332,6 +335,15 @@ const truncateText = (text, maxLength = 500) => {
                 window.addEventListener('homeSearch', handleSearch);
                 return () => window.removeEventListener('homeSearch', handleSearch);
             }, []);
+
+            // Auto-slide carousel effect
+            React.useEffect(() => {
+                if (heroImages.length <= 1) return;
+                const timer = setInterval(() => {
+                    setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+                }, 5000);
+                return () => clearInterval(timer);
+            }, [heroImages]);
 
             const featureItems = [
                 { id: 'sekolah_sabat', label: 'Sekolah Sabat', icon: 'BookOpen', isExternal: true, link: 'https://sabbath-school.adventech.io/in' },
@@ -426,25 +438,98 @@ const truncateText = (text, maxLength = 500) => {
                 );
             };
 
+            // Safeguard untuk berjaga-jaga jika array gambar kosong
+            const displayImages = heroImages.length > 0 ? heroImages : ["./pisgahgedung.png"];
+
             return (
                 <div className="animate-fade-in relative z-10">
                     {/* Hero Image + Overlapping Welcome Box */}
-                    <div className="-mx-4 md:mx-0 -mt-6 md:mt-0 mb-6 md:mb-10">
-                        <div className="w-full overflow-hidden md:rounded-[1.5rem] relative z-0" style={{ aspectRatio: '16/8.5' }}>
-                        <img
-                            src={heroImageUrl}
-                            alt="Hero Banner"
-                            className="w-full h-full object-contain"
-                        />
+                    <div className="-mx-4 md:mx-0 -mt-6 md:mt-0 mb-6 md:mb-10 relative group">
+                        <div className="w-full overflow-hidden md:rounded-[1.5rem] relative z-0 bg-navy-900" style={{ aspectRatio: '16/8.5' }}>
+    <div 
+        className="w-full h-full flex transition-transform duration-700 ease-in-out" 
+        style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+    >
+        {displayImages.map((img, idx) => (
+            <div key={idx} className="w-full h-full flex-shrink-0 relative">
+                {/* 🌀 Lapisan Blur Background */}
+                <div className="absolute inset-0 overflow-hidden">
+                    <img
+                        src={img}
+                        alt=""
+                        className="w-full h-full object-cover blur-xl scale-110 opacity-60"
+                        aria-hidden="true"
+                    />
+                </div>
+                
+                {/* 🖼️ Gambar Utama (Utuh di tengah) */}
+                <img
+                    src={img}
+                    alt={`Hero Banner ${idx + 1}`}
+                    className="w-full h-full object-contain relative z-10"
+                />
+            </div>
+        ))}
+    </div>
+
+                            {/* Carousel Controls */}
+                            {displayImages.length > 1 && (
+                                <>
+                                    <button 
+                                        onClick={() => setCurrentSlide((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1))} 
+                                        className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10"
+                                    >
+                                        <Icon name="ChevronLeft" className="w-5 h-5"/>
+                                    </button>
+                                    <button 
+                                        onClick={() => setCurrentSlide((prev) => (prev + 1) % displayImages.length)} 
+                                        className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10"
+                                    >
+                                        <Icon name="ChevronRight" className="w-5 h-5"/>
+                                    </button>
+                                    
+                                    {/* Pagination Dots */}
+                                    <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-1.5 z-10">
+                                        {displayImages.map((_, idx) => (
+                                            <button 
+                                                key={idx} 
+                                                onClick={() => setCurrentSlide(idx)} 
+                                                className={`h-1.5 rounded-full transition-all duration-300 ${currentSlide === idx ? 'bg-gold-500 w-5' : 'bg-white/60 hover:bg-white w-2'}`} 
+                                                aria-label={`Slide ${idx + 1}`}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
                         </div>
                         {/* Welcome Box - overlapping hero */}
                         <div className="relative z-10 mx-4 md:mx-6 -mt-6 md:-mt-7">
                             <div className="welcome-box-gradient rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-blue-100/80 px-5 py-3.5 md:px-8 md:py-4 flex items-center justify-center backdrop-blur-sm">
                                 <h2 className="text-[0.95rem] md:text-lg font-bold text-navy-900 flex items-center flex-wrap justify-center gap-x-2">
                                     <span className="text-navy-700"> Selamat Datang di</span>
-                                    <img src="./PisgahColor.png" alt="PISGAH" className="h-7 md:h-9 w-auto inline-block" style={{ verticalAlign: 'middle' }} />
+                                    <img src="./icons/PisgahColor.png" alt="PISGAH" className="h-7 md:h-9 w-auto inline-block" style={{ verticalAlign: 'middle' }} />
                                     <span><p className="text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span> <span className="text-navy-700">app</span></p></span>
                                 </h2>
+                            </div>
+
+                            {/* Artikel Promosi Pembangunan */}
+                            <div className="mt-4 bg-white rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
+                                <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-gold-400 text-white text-[9px] md:text-[10px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center z-10">
+                                    <Icon name="Home" className="w-3 h-3 mr-1" /> Proyek Gereja
+                                </div>
+                                <div className="p-5 md:p-6 bg-gradient-to-br from-white via-gold-50/40 to-white">
+                                    <h3 className="text-[1.1rem] md:text-xl font-black text-navy-900 leading-tight mb-2">
+                                        Bersama Membangun Rumah Tuhan
+                                    </h3>
+                                    <p class="text-xs md:text-sm font-medium text-navy-600 leading-relaxed mb-5 text-center">
+                                        Setiap doa, dukungan, dan persembahan pembangunan Anda adalah fondasi utama dalam mewujudkan tempat ibadah yang lebih nyaman bagi jemaat dan saksi kebaikan Tuhan bagi lingkungan sekitar.
+                                        <p class="text-xs md:text-sm font-medium text-navy-600 leading-relaxed mb-5 text-center">Mari ambil bagian dalam penatalayanan ini!</p>
+                                    </p>
+                                    <a href="https://pembangunan.pisgahbisdac.app" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full bg-navy-700 hover:bg-navy-800 text-gold-400 py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 border border-gold-500/30 group">
+                                        <span className="text-[11px] md:text-sm font-bold uppercase tracking-widest group-hover:text-gold-300 transition-colors">Portal Pembangunan & Donasi</span>
+                                        <Icon name="ChevronRight" className="w-4 h-4 ml-1.5 text-gold-500 group-hover:translate-x-1 transition-transform" />
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -590,39 +675,36 @@ const truncateText = (text, maxLength = 500) => {
                             {/* TAB CONTENT */}
                             {openSection === 'ss' && (
                                 <div className="p-4 md:p-6 animate-fade-in bg-white">
-                                    {renderItem("Lagu Pengantar", "LS 205")}
-                                    {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pembawa Acara"))}
+                                    {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pemimpin Acara"))}
                                     {renderItem("Lagu Buka", susunan.ssLaguBuka)}
                                     {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka"))}
                                     {renderItem("Berita Misi", getOfficer(activeSabat.sekolahSabat, "Berita Misi"))}
-                                    {renderItem("Diskusi Sekolah Sabat", "Kelas Pemuda 1, Kelas Dewasa, Kelas Pemuda 2, Kelas Anak-anak")}
-                                    {renderItem("Pelayanan Perorangan", getOfficer(activeSabat.sekolahSabat, "Pelayanan Perorangan"))}
+                                    {renderItem("Diskusi Sekolah Sabat", "Kelas Dewasa, Kelas Pendalaman Alkitab, Kelas Anak-anak")}
                                     {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
-                                    {renderItem("Doa Tutup", getOfficer(activeSabat.sekolahSabat, "Pelayanan Perorangan"))}
+                                    {renderItem("Doa Tutup", getOfficer(activeSabat.sekolahSabat, "Doa Tutup"))}
                                 </div>
                             )}
 
                             {openSection === 'khotbah' && (
                                 <div className="p-4 md:p-6 animate-fade-in bg-white">
+                                    {renderItem("Pemimpin Acara", getOfficer(activeSabat.khotbah, "Pemimpin Acara"))}
                                     {renderItem("Lagu Pengantar", "LS 515 - Tuhan Ada Dalam Bait Allah")}
                                     {renderItem("Lagu Sambutan", "LS 1 - Di Hadapan Hadirat-Mu")}
                                     {renderItem("Doa Buka", getOfficer(activeSabat.khotbah, "Khotbah"))}
                                     {renderItem("Ayat Bersahutan", susunan.kAyatBersahutan)}
                                     {renderItem("Lagu Buka", susunan.kLaguBuka)}
-                                    {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Pendamping 1"))}
-                                    {susunan.kLaguPujian1_show && renderItem("Lagu Pujian", susunan.kLaguPujian1_judul, true)}
-                                    {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Pendamping 2"))}
-                                    {renderItem("Lagu Persembahan", "LS 260 - Bawa Persembahanmu")}
-                                    {renderItem("Doa Persembahan", getOfficer(activeSabat.khotbah, "Pendamping 2"))}
+                                    {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Doa Syafaat"))}
+                                    {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
+                                    {susunan.kLaguPujian1_show && renderItem("Lagu Persembahan dan Pujian", susunan.kLaguPujian1_judul, true)}
+                                    {renderItem("Doa Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
                                     {susunan.kLaguPujian2_show && renderItem("Lagu Pujian", susunan.kLaguPujian2_judul, true)}
                                     {renderItem("Cerita Anak-anak", getOfficer(activeSabat.khotbah, "Cerita Anak-anak"))}
                                     {susunan.kLaguPujian3_show && renderItem("Lagu Pujian", susunan.kLaguPujian3_judul, true)}
                                     {renderItem("Ayat Inti", susunan.kAyatInti)}
                                     {renderItem("Lagu Tema", "Misi Kita")}
-                                    {renderItem("Khotbah", getOfficer(activeSabat.khotbah, "Khotbah"), true)}
+                                    {renderItem("Khotbah", getOfficer(activeSabat.khotbah, "Khotbah"))}
                                     {renderItem("Lagu Tutup", susunan.kLaguTutup)}
-                                    {renderItem("Doa Berkat", "Pdt. David Indra Utomo")}
-                                    {renderItem("Lagu Berkat", "LS 60 - Pada Akhir Kebaktian")}
+                                    {renderItem("Doa Tutup Berkat", getOfficer(activeSabat.khotbah, "Khotbah"))}
                                     {renderItem("Pengumuman", "Dept. Komunikasi")}
                                 </div>
                             )}
@@ -806,7 +888,7 @@ const truncateText = (text, maxLength = 500) => {
                         <h3 className="font-bold text-navy-900 text-[1.15rem]">Jadwal Lengkap</h3>
                         <p className="text-sm text-navy-500 mt-1">Lihat dan unduh file PDF jadwal pelayanan bulanan / triwulan di Google Drive.</p>
                     </div>
-                    <a href="https://drive.google.com/drive/folders/1Gcbhvg_63xKe7jAOg-ZPs8tH-f9e1m5m?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-navy-900 hover:bg-navy-800 text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center shrink-0 w-full sm:w-auto justify-center">
+                    <a href="./document/TW2-2026-R1.pdf" target="_blank" rel="noopener noreferrer" className="bg-navy-900 hover:bg-navy-800 text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center shrink-0 w-full sm:w-auto justify-center">
                         <Icon name="BookOpen" className="w-[1.15rem] h-[1.15rem] mr-2 text-gold-500" /> Buka Google Drive
                     </a>
                 </div>
@@ -966,7 +1048,7 @@ const truncateText = (text, maxLength = 500) => {
 
         const Persembahan = ({ dataPejabat }) => {
             const bendahara = dataPejabat.filter(p => (p.jabatan && p.jabatan.toLowerCase().includes('bendahara')) || (p.kategori && p.kategori.toLowerCase() === 'keuangan'));
-            const qrisUrl = "./notavailable.jpg";
+            const qrisUrl = "./icons/notavailable.jpg";
             return (
                 <div className="space-y-4 md:space-y-6 animate-fade-in relative z-10">
                     <div className="bg-white p-5 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
@@ -1597,11 +1679,11 @@ const truncateText = (text, maxLength = 500) => {
                 </div>
             );
         };
- // ========== AKHIR WARTA PAGE ==========
+        // ========== AKHIR WARTA PAGE ==========
 
         // --- KOMPONEN AdminDashboard yang DIPERBAIKI (dengan fitur warta) ---
         const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken, 
-            youtubeUrl, setYoutubeUrl, kategoriPejabat, setKategoriPejabat, heroImageUrl, setHeroImageUrl, 
+            youtubeUrl, setYoutubeUrl, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages, 
             pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta }) => {
             const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan
             const [viewMonth, setViewMonth] = React.useState(new Date().getMonth());
@@ -1623,10 +1705,9 @@ const truncateText = (text, maxLength = 500) => {
             const [editYoutubeUrl, setEditYoutubeUrl] = React.useState(youtubeUrl);
             const [isSavingUrl, setIsSavingUrl] = React.useState(false);
 
-            // State Hero Image
-            const [editHeroUrl, setEditHeroUrl] = React.useState(heroImageUrl);
+            // State Hero Image Array (Carousel)
+            const [editHeroImages, setEditHeroImages] = React.useState(heroImages);
             const [isSavingHero, setIsSavingHero] = React.useState(false);
-            const [heroPreview, setHeroPreview] = React.useState(heroImageUrl);
 
             // State Pengumuman
             const [editPengumuman, setEditPengumuman] = React.useState(pengumuman);
@@ -1738,7 +1819,12 @@ const handleUploadMultiple = async () => {
 
   for (let i = 0; i < selectedFiles.length; i++) {
     const file = selectedFiles[i];
-    const title = file.name.replace(/\.[^/.]+$/, "");
+    
+    // Membuat nama gambar pendek / inisial
+    const rawName = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, '');
+    const initials = rawName.substring(0, 3).toUpperCase() || "IMG";
+    const shortId = Math.random().toString(36).substr(2, 4).toUpperCase();
+    const title = `${initials}_${shortId}`;
 
     setUploadProgress(prev => ({ ...prev, [file.name]: { status: 'uploading', percent: 0 } }));
 
@@ -2536,24 +2622,40 @@ const insertEditWartaFormatting = (tag) => {
             // SIMPAN HERO IMAGE URL
             const handleSaveHeroImage = async (e) => {
                 e.preventDefault();
+                if (editHeroImages.length === 0) return alert("Pilih setidaknya 1 gambar hero!");
                 setIsSavingHero(true);
                 try {
                     const res = await fetch(GAS_API_URL, {
                         method: 'POST',
-                        body: JSON.stringify({ action: 'saveHeroImage', password: adminToken, url: editHeroUrl })
+                        body: JSON.stringify({ action: 'saveHeroImage', password: adminToken, url: JSON.stringify(editHeroImages) })
                     });
                     const result = await res.json();
                     if (result.success) {
-                        alert("Hero Image berhasil diperbarui!");
-                        setHeroImageUrl(editHeroUrl);
-                        setHeroPreview(editHeroUrl);
+                        alert("Hero Images berhasil diperbarui!");
+                        if (result.updatedUrls) {
+                            setHeroImages(result.updatedUrls);
+                            setEditHeroImages(result.updatedUrls);
+                        } else {
+                            setHeroImages(editHeroImages);
+                        }
                     } else {
                         alert("Gagal merubah Hero Image: " + (result.message || "Akses ditolak."));
                     }
                 } catch (err) {
-                    alert("Gagal terhubung ke server.");
+                    alert("Gagal terhubung ke server. Pastikan ukuran file tidak terlalu besar.");
                 }
                 setIsSavingHero(false);
+            };
+
+            const handleAddHeroUrl = () => {
+                const url = prompt("Masukkan URL gambar gambar penuh (https://...):");
+                if (url) {
+                    setEditHeroImages([...editHeroImages, url]);
+                }
+            };
+
+            const handleRemoveHeroImage = (indexToRemove) => {
+                setEditHeroImages(editHeroImages.filter((_, idx) => idx !== indexToRemove));
             };
 
             const handleHeroFileUpload = (e) => {
@@ -2565,7 +2667,7 @@ const insertEditWartaFormatting = (tag) => {
                     const img = new Image();
                     img.src = event.target.result;
                     img.onload = () => {
-                        const MAX_WIDTH = 1000;
+                        const MAX_WIDTH = 1200;
                         let width = img.width;
                         let height = img.height;
                         if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
@@ -2574,10 +2676,9 @@ const insertEditWartaFormatting = (tag) => {
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        // Convert to webp with 0.6 quality for better compression
                         const dataUrl = canvas.toDataURL('image/webp', 0.6);
-                        setEditHeroUrl(dataUrl);
-                        setHeroPreview(dataUrl);
+                        
+                        setEditHeroImages([...editHeroImages, dataUrl]);
                     };
                 };
             };
@@ -2675,7 +2776,7 @@ const insertEditWartaFormatting = (tag) => {
                 </label>
               </div>
               <p className="text-xs text-navy-500">PNG, JPG up to 10MB</p>
-              {editWartaGambar && <p className="text-sm font-semibold text-gold-600 mt-2">{editWartaGambar.name}</p>}
+              {editWartaGambar && <p className="text-sm font-semibold text-gold-600 mt-2" title={editWartaGambar.name}>{editWartaGambar.name.length > 20 ? editWartaGambar.name.substring(0, 15) + '... .' + editWartaGambar.name.split('.').pop() : editWartaGambar.name}</p>}
             </div>
           </div>
           {editingWarta?.gambarUrl && !editWartaGambar && (
@@ -2969,7 +3070,7 @@ const insertEditWartaFormatting = (tag) => {
                                     </label>
                                 </div>
                                 <p className="text-xs text-navy-500">PNG, JPG up to 10MB</p>
-                                {wartaGambar && <p className="text-sm font-semibold text-navy-600 mt-2">{wartaGambar.name}</p>}
+                                {wartaGambar && <p className="text-sm font-semibold text-navy-600 mt-2" title={wartaGambar.name}>{wartaGambar.name.length > 20 ? wartaGambar.name.substring(0, 15) + '... .' + wartaGambar.name.split('.').pop() : wartaGambar.name}</p>}
                             </div>
                         </div>
                     </div>
@@ -2997,7 +3098,7 @@ const insertEditWartaFormatting = (tag) => {
                                 <div className="space-y-4">
                                     {paginatedWarta.map((warta, idx) => {
                                         const plainPreview = stripHtml(warta.isi);
-                                        const shortPreview = plainPreview.length > 200 ? plainPreview.substring(0, 200) + '...' : plainPreview;
+                                        const shortPreview = plainPreview.length > 100 ? plainPreview.substring(0, 100) + '...' : plainPreview;
                                         return (
                                             <div key={idx} className="border border-navy-200 rounded-lg p-4 bg-navy-50">
                                                 <center>
@@ -3016,12 +3117,12 @@ const insertEditWartaFormatting = (tag) => {
                                                         </div>
                                                     </div>
                                                 </center>
-                                                <div className="flex gap-3 items-start">
-                                                    {warta.gambarUrl && (
-                                                        <img src={warta.gambarUrl} className="h-20 w-auto object-cover rounded shrink-0" alt="preview" />
-                                                    )}
-                                                    <p className="text-xs text-justify text-navy-700">{shortPreview}</p>
-                                                </div>
+                                                <div className="flex flex-col gap-3 items-center">
+    {warta.gambarUrl && (
+        <img src={warta.gambarUrl} className="h-20 w-auto object-cover rounded" alt="preview" />
+    )}
+    <p className="text-xs text-justify text-navy-700">{shortPreview}</p>
+</div>
                                             </div>
                                         );
                                     })}
@@ -3162,7 +3263,7 @@ const insertEditWartaFormatting = (tag) => {
                                     <ul className="text-xs text-navy-600 max-h-32 overflow-y-auto border rounded p-2 mt-1">
                                         {selectedFiles.map((file, idx) => (
                                             <li key={idx} className="flex justify-between items-center py-1">
-                                                <span>{file.name} ({(file.size / (1024 * 1024)).toFixed(2)}MB)</span>
+                                                <span title={file.name}>{file.name.length > 20 ? file.name.substring(0, 15) + '... .' + file.name.split('.').pop() : file.name} ({(file.size / (1024 * 1024)).toFixed(2)}MB)</span>
                                                 {uploadProgress[file.name] && (
                                                     <span className={`text-${
                                                         uploadProgress[file.name].status === 'success' ? 'green' :
@@ -3374,30 +3475,40 @@ const insertEditWartaFormatting = (tag) => {
                                     <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><Icon name="Image" className="w-6 h-6" /></div>
-                                            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Hero Image Banner</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Gambar Utama Homepage</p></div>
+                                            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Hero Image Banner</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Gambar Carousel Homepage</p></div>
                                         </div>
-                                        <div className="mb-5">
-                                            <div className="relative w-full overflow-hidden rounded-xl border border-navy-100 shadow-sm" style={{ aspectRatio: '16/8.5' }}>
-                                                <img src={heroPreview} alt="Hero Preview" className="w-full h-full object-cover" />
-                                            </div>
+                                        <div className="mb-5 space-y-4">
+                                            {editHeroImages.map((img, idx) => (
+                                                <div key={idx} className="relative w-full overflow-hidden rounded-xl border border-navy-100 shadow-sm" style={{ aspectRatio: '16/8.5' }}>
+                                                    <img src={img} alt={`Hero Preview ${idx + 1}`} className="w-full h-full object-cover bg-navy-50" />
+                                                    <div className="absolute top-0 left-0 bg-black/60 text-white px-3 py-1 rounded-br-lg text-xs font-bold shadow-sm backdrop-blur-sm">
+                                                        Slide {idx + 1} {img.startsWith('data:image') && <span className="text-gold-400 ml-1 font-black tracking-widest">(BARU)</span>}
+                                                    </div>
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => handleRemoveHeroImage(idx)} 
+                                                        className="absolute top-2 right-2 bg-red-500/90 text-white p-2.5 rounded-full hover:bg-red-600 shadow-md transition-colors backdrop-blur-md"
+                                                        title="Hapus gambar ini"
+                                                    >
+                                                        <Icon name="Trash" className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
                                         </div>
                                         <form onSubmit={handleSaveHeroImage} className="space-y-4">
-                                            <div>
-                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Upload Gambar Hero</label>
-                                                <div className="flex items-center space-x-3">
-                                                    <label className="flex-1 flex items-center justify-center bg-navy-50 border-2 border-dashed border-navy-200 rounded-xl py-4 px-4 cursor-pointer hover:border-gold-400 hover:bg-gold-50 transition-all group">
-                                                        <Icon name="Upload" className="w-5 h-5 mr-2 text-navy-400 group-hover:text-gold-500 transition-colors" />
-                                                        <span className="text-sm font-bold text-navy-500 group-hover:text-gold-600 transition-colors">Pilih file gambar...</span>
-                                                        <input type="file" accept="image/*" className="hidden" onChange={handleHeroFileUpload} />
-                                                    </label>
-                                                </div>
+                                            <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+                                                <label className="flex-1 flex items-center justify-center bg-navy-50 border-2 border-dashed border-navy-200 rounded-xl py-3 px-4 cursor-pointer hover:border-gold-400 hover:bg-gold-50 transition-all group">
+                                                    <Icon name="Upload" className="w-5 h-5 mr-2 text-navy-400 group-hover:text-gold-500 transition-colors" />
+                                                    <span className="text-sm font-bold text-navy-500 group-hover:text-gold-600 transition-colors">Upload Baru...</span>
+                                                    <input type="file" accept="image/*" className="hidden" onChange={handleHeroFileUpload} />
+                                                </label>
+                                                <button type="button" onClick={handleAddHeroUrl} className="flex-1 bg-white border border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
+                                                    <Icon name="PlusCircle" className="w-4 h-4 mr-2" />
+                                                    Tambah via URL
+                                                </button>
                                             </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Atau Masukkan URL Gambar</label>
-                                                <input type="text" value={editHeroUrl} onChange={e => { setEditHeroUrl(e.target.value); setHeroPreview(e.target.value); }} placeholder="https://example.com/hero.jpg" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono font-medium shadow-sm" />
-                                            </div>
-                                            <button type="submit" disabled={isSavingHero} className={`w-full ${isSavingHero ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center`}>
-                                                {isSavingHero ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Hero Image'}
+                                            <button type="submit" disabled={isSavingHero} className={`w-full ${isSavingHero ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
+                                                {isSavingHero ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Perubahan Carousel'}
                                             </button>
                                         </form>
                                     </div>
@@ -3671,8 +3782,8 @@ const insertEditWartaFormatting = (tag) => {
             const [jadwalDB, setJadwalDB] = React.useState({});
             const [dataPejabat, setDataPejabat] = React.useState(initialDataPejabat);
             const [kategoriPejabat, setKategoriPejabat] = React.useState(["Kepemimpinan", "Keuangan", "Departemen & Pelayanan", "Lainnya"]);
-            const [youtubeUrl, setYoutubeUrl] = React.useState("https://www.youtube.com/embed/EAO55pnNsgs");
-            const [heroImageUrl, setHeroImageUrl] = React.useState("./hero-default.png");
+            const [youtubeUrl, setYoutubeUrl] = React.useState("https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g");
+            const [heroImages, setHeroImages] = React.useState(["./carousel/hero-default.png"]);
 
             // Pengumuman default State
             const [pengumuman, setPengumuman] = React.useState({ header: "Pengumuman Jemaat", isi: "" });
@@ -3765,7 +3876,21 @@ const insertEditWartaFormatting = (tag) => {
                         if (data.jadwalDB) setJadwalDB(data.jadwalDB);
                         if (data.youtubeUrl) setYoutubeUrl(data.youtubeUrl);
                         if (data.kategoriPejabat) setKategoriPejabat(data.kategoriPejabat);
-                        if (data.heroImageUrl) setHeroImageUrl(data.heroImageUrl);
+                        
+                        // Parse JSON String to Array untuk Hero Banner (Carousel)
+                        if (data.heroImageUrl) {
+                            try {
+                                const parsed = JSON.parse(data.heroImageUrl);
+                                if (Array.isArray(parsed)) {
+                                    setHeroImages(parsed);
+                                } else {
+                                    setHeroImages([data.heroImageUrl]); // Fallback versi lawas
+                                }
+                            } catch(e) {
+                                setHeroImages([data.heroImageUrl]); // Fallback versi lawas (string biasa)
+                            }
+                        }
+
                         if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
 
                         // Menangani Pengumuman agar kompatibel dengan data lama (String biasa) dan JSON object baru
@@ -3812,7 +3937,7 @@ const insertEditWartaFormatting = (tag) => {
 
             const renderContent = () => {
                 switch (activeTab) {
-                    case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImageUrl={heroImageUrl} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman}/>;
+                    case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman}/>;
                     case 'belajar': return <Belajar setActiveTab={setActiveTab} />;
                     case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
@@ -3827,9 +3952,9 @@ const insertEditWartaFormatting = (tag) => {
                     case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
                     case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-                    case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImageUrl={heroImageUrl} setHeroImageUrl={setHeroImageUrl} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImageUrl={heroImageUrl} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} />;
+                    case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} />;
                     case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} />;
-                    default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImageUrl={heroImageUrl} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta}
+                    default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta}
                             refreshWarta={refreshWarta}/>;
                 }
             };
@@ -3851,7 +3976,7 @@ const insertEditWartaFormatting = (tag) => {
                                     </button>
                                 )}
                                 <div className="flex items-center shrink-0 cursor-pointer" onClick={() => setActiveTab('home')}>
-                                    <img src="./PisgahColor.png" className="w-7 h-7 md:w-8 md:h-8 flex items-center object-contain opacity-90 mr-1.5" alt="Logo" />
+                                    <img src="./icons/PisgahColor.png" className="w-7 h-7 md:w-8 md:h-8 flex items-center object-contain opacity-90 mr-1.5" alt="Logo" />
                                     <p className="text-xl md:text-2xl font-bold text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></p>
                                 </div>
                             </div>
