@@ -133,6 +133,58 @@
             margin-bottom: 1.25rem; 
             margin-top: 0;
         }
+        
+        /* Styling untuk RichTextEditor agar format terlihat */
+.rich-text-editor h3 {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  margin-top: 1rem !important;
+  margin-bottom: 0.5rem !important;
+  color: #0b1a30 !important;
+  border-bottom: 1px solid #e3e8f1 !important;
+  padding-bottom: 0.25rem !important;
+}
+
+.rich-text-editor ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+  margin: 0.5rem 0 !important;
+}
+
+.rich-text-editor ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem !important;
+  margin: 0.5rem 0 !important;
+}
+
+.rich-text-editor li {
+  margin-bottom: 0.25rem !important;
+}
+
+.rich-text-editor strong {
+  font-weight: 700 !important;
+  color: #0b1a30 !important;
+}
+
+.rich-text-editor em {
+  font-style: italic !important;
+  color: #455e80 !important;
+}
+
+.rich-text-editor u {
+  text-decoration: underline !important;
+}
+
+.rich-text-editor a {
+  color: #c98e21 !important;
+  text-decoration: underline !important;
+}
+
+.rich-text-editor br {
+  display: block !important;
+  content: "" !important;
+  margin: 0.25rem 0 !important;
+}
 
         /* --- Tambahan Styling Heading & Underline untuk Editor --- */
         .warta-content h3, .pengumuman-text h3 {
@@ -2024,9 +2076,87 @@
   };
 
   const execCommand = (cmd, valueArg = null) => {
-    editorRef.current.focus();
+  editorRef.current.focus();
+  
+  if (cmd === 'formatBlock' && valueArg === '<h3>') {
+    // Manual insert H3
+    const selection = window.getSelection();
+    if (selection.rangeCount) {
+      const range = selection.getRangeAt(0);
+      const selectedText = range.toString();
+      if (selectedText) {
+        const h3 = document.createElement('h3');
+        h3.textContent = selectedText;
+        range.deleteContents();
+        range.insertNode(h3);
+        range.setStartAfter(h3);
+        range.setEndAfter(h3);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }
+  } 
+  else if (cmd === 'insertUnorderedList') {
+    // Manual insert unordered list
+    const selection = window.getSelection();
+    if (selection.rangeCount) {
+      const range = selection.getRangeAt(0);
+      const selectedText = range.toString();
+      if (selectedText) {
+        const ul = document.createElement('ul');
+        const li = document.createElement('li');
+        li.textContent = selectedText;
+        ul.appendChild(li);
+        range.deleteContents();
+        range.insertNode(ul);
+        range.setStartAfter(ul);
+        range.setEndAfter(ul);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }
+  }
+  else if (cmd === 'insertOrderedList') {
+    // Manual insert ordered list
+    const selection = window.getSelection();
+    if (selection.rangeCount) {
+      const range = selection.getRangeAt(0);
+      const selectedText = range.toString();
+      if (selectedText) {
+        const ol = document.createElement('ol');
+        const li = document.createElement('li');
+        li.textContent = selectedText;
+        ol.appendChild(li);
+        range.deleteContents();
+        range.insertNode(ol);
+        range.setStartAfter(ol);
+        range.setEndAfter(ol);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }
+  }
+  else if (cmd === 'insertHTML' && valueArg === '<br>') {
+    // Manual insert line break
+    const br = document.createElement('br');
+    const selection = window.getSelection();
+    if (selection.rangeCount) {
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(br);
+      range.setStartAfter(br);
+      range.setEndAfter(br);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  }
+  else {
+    // Default execCommand untuk bold, italic, underline, createLink
     document.execCommand(cmd, false, valueArg);
-  };
+  }
+  
+  handleInput();
+};
 
   const insertLink = () => {
     const url = prompt('Masukkan URL tautan:', 'https://');
@@ -2034,8 +2164,20 @@
   };
 
   const insertBreak = () => {
-    execCommand('insertHTML', '<br>');
-  };
+  editorRef.current.focus();
+  const br = document.createElement('br');
+  const selection = window.getSelection();
+  if (selection.rangeCount) {
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(br);
+    range.setStartAfter(br);
+    range.setEndAfter(br);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+  handleInput();
+};
 
   return (
     <div className="border border-navy-200 rounded-lg overflow-hidden bg-white">
@@ -2053,13 +2195,13 @@
         <button type="button" onMouseDown={(e) => { e.preventDefault(); insertBreak(); }} className="p-1 hover:bg-navy-200 rounded font-bold text-xs px-2">BR</button>
       </div>
       <div
-        ref={editorRef}
-        contentEditable
-        onFocus={() => setIsFocused(true)}
-        onBlur={handleBlur}
-        className="p-3 min-h-[200px] max-h-[400px] overflow-y-auto focus:outline-none bg-white prose prose-sm max-w-none"
-        style={{ whiteSpace: 'pre-wrap' }}
-      />
+  ref={editorRef}
+  contentEditable
+  onFocus={() => setIsFocused(true)}
+  onBlur={handleBlur}
+  className="rich-text-editor p-3 min-h-[200px] max-h-[400px] overflow-y-auto focus:outline-none bg-white prose prose-sm max-w-none"
+  style={{ whiteSpace: 'pre-wrap' }}
+/>
     </div>
   );
 });
