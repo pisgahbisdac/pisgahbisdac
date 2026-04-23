@@ -3160,10 +3160,10 @@ const insertEditWartaFormatting = (tag) => {
                             
     {/* Modal Edit Warta */}
 {editWartaModal && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/60 px-4 backdrop-blur-md overflow-y-auto py-4">
-    <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-lg w-full max-h-[85vh] overflow-y-auto relative border border-navy-100/60" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)' }}>
+  <div className="fixed inset-0 z-[100] flex justify-center bg-navy-900/60 px-4 backdrop-blur-md overflow-y-auto" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 4rem)', paddingBottom: '1rem' }}>
+    <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto relative border border-navy-100/60 mt-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)' }}>
       
-      {/* Tombol Close (absolut, tidak mengapung) */}
+    {/* Tombol Close (absolut, tidak mengapung) */}
       <button 
   onClick={() => setEditWartaModal(false)} 
   className="absolute right-4 text-navy-400 hover:text-red-500 transition-colors bg-navy-50 w-8 h-8 rounded-full flex items-center justify-center font-bold z-20"
