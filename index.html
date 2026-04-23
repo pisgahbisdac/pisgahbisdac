@@ -1984,29 +1984,33 @@
             const editWartaTextareaRef = React.useRef(null);
             const [wartaCurrentPage, setWartaCurrentPage] = React.useState(1);
             const wartaItemsPerPage = 3;
+            const wartaEditorRef = React.useRef(null);      // <-- tambah
+            const editWartaEditorRef = React.useRef(null);  // <-- tambah
 
             // RichTextEditor Component (WYSIWYG)
-const RichTextEditor = ({ initialValue = "", onChange, placeholder }) => {
+    const RichTextEditor = React.forwardRef(({ initialValue = "", onChange, placeholder }, ref) => {
   const editorRef = React.useRef(null);
   const [isFocused, setIsFocused] = React.useState(false);
 
-  // Set konten awal hanya sekali saat mount
+  React.useImperativeHandle(ref, () => ({
+    getContent: () => editorRef.current ? editorRef.current.innerHTML : '',
+    setContent: (html) => { if (editorRef.current) editorRef.current.innerHTML = html; }
+  }));
+
   React.useEffect(() => {
-    if (editorRef.current) {
+    if (editorRef.current && editorRef.current.innerHTML !== initialValue) {
       editorRef.current.innerHTML = initialValue;
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [initialValue]);
 
-  // Notifikasi ke parent tanpa menyebabkan re-render yang timpa
-  const handleInput = () => {
-    const html = editorRef.current.innerHTML;
-    if (onChange) onChange(html);
+  const handleBlur = () => {
+    setIsFocused(false);
+    if (onChange) onChange(editorRef.current.innerHTML);
   };
 
   const execCommand = (cmd, valueArg = null) => {
     editorRef.current.focus();
     document.execCommand(cmd, false, valueArg);
-    handleInput();
   };
 
   const insertLink = () => {
@@ -2036,15 +2040,14 @@ const RichTextEditor = ({ initialValue = "", onChange, placeholder }) => {
       <div
         ref={editorRef}
         contentEditable
-        onInput={handleInput}
         onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        onBlur={handleBlur}
         className="p-3 min-h-[200px] max-h-[400px] overflow-y-auto focus:outline-none bg-white prose prose-sm max-w-none"
         style={{ whiteSpace: 'pre-wrap' }}
       />
     </div>
   );
-};
+});
 
             // Subtab untuk Warta
             const [wartaSubTab, setWartaSubTab] = React.useState('input'); // 'input' atau 'posting'
@@ -2452,46 +2455,54 @@ const insertLinkPengumuman = () => {
 
             // Fungsi simpan warta
             const handleWartaFormSubmit = async (e) => {
-              e.preventDefault();
-              setIsSavingWarta(true);
-              let finalGambarUrl = "";
-              if (wartaGambarList && wartaGambarList.length > 0) {
-                  let base64Array = [];
-                  for (let file of wartaGambarList) {
-                      // Menggunakan kompresi agar teks Base64 tidak melebihi limit sel Google Sheets
-                      const compressedBase64 = await compressImage(file, 1200);
-                      base64Array.push(compressedBase64);
-                  }
-                  finalGambarUrl = base64Array.join('|||'); // Pakai pemisah ||| untuk multiple gambar
-              }
-            try {
-            const res = await fetch(GAS_API_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-            action: 'saveWarta',
-            password: adminToken,
-            judul: wartaJudul,
-            isi: wartaIsi,
-            gambarUrl: finalGambarUrl,
-            penulis: wartaPenulis
-            })
-            });
-            const result = await res.json();
-            if (result.success) {
-            alert("Warta berhasil disimpan!");
-            setWartaJudul('');
-            setWartaIsi('');
-            setWartaGambarList([]);
-            setWartaPenulis('');
-            if (refreshWarta) refreshWarta();
-            } else {
-            alert("Gagal menyimpan: " + (result.message || "Unknown error"));
-            }
-            } catch (err) {
-            alert("Terjadi kesalahan: " + err.message);
-            }
-            setIsSavingWarta(false);
-            };
+  e.preventDefault();
+  setIsSavingWarta(true);
+  
+  // Ambil nilai terbaru dari editor
+  let latestHtml = wartaIsi;
+  if (wartaEditorRef.current) {
+    latestHtml = wartaEditorRef.current.getContent();
+    setWartaIsi(latestHtml);
+  }
+  
+  let finalGambarUrl = "";
+  if (wartaGambarList && wartaGambarList.length > 0) {
+    let base64Array = [];
+    for (let file of wartaGambarList) {
+      const compressedBase64 = await compressImage(file, 1200);
+      base64Array.push(compressedBase64);
+    }
+    finalGambarUrl = base64Array.join('|||');
+  }
+  
+  try {
+    const res = await fetch(GAS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'saveWarta',
+        password: adminToken,
+        judul: wartaJudul,
+        isi: latestHtml,
+        gambarUrl: finalGambarUrl,
+        penulis: wartaPenulis
+      })
+    });
+    const result = await res.json();
+    if (result.success) {
+      alert("Warta berhasil disimpan!");
+      setWartaJudul('');
+      setWartaIsi('');
+      setWartaGambarList([]);
+      setWartaPenulis('');
+      if (refreshWarta) refreshWarta();
+    } else {
+      alert("Gagal menyimpan: " + (result.message || "Unknown error"));
+    }
+  } catch (err) {
+    alert("Terjadi kesalahan: " + err.message);
+  }
+  setIsSavingWarta(false);
+};
 
             // Fingsi Update dan Delete Warta
             const handleEditWarta = (warta) => {
@@ -2507,16 +2518,24 @@ const handleUpdateWarta = async (e) => {
   e.preventDefault();
   if (!editingWarta) return;
   setIsUpdatingWarta(true);
+  
+  // Ambil nilai terbaru dari editor
+  let latestHtml = editWartaIsi;
+  if (editWartaEditorRef.current) {
+    latestHtml = editWartaEditorRef.current.getContent();
+    setEditWartaIsi(latestHtml);
+  }
+  
   let finalGambarUrl = editingWarta.gambarUrl;
   if (editWartaGambarList && editWartaGambarList.length > 0) {
-      let base64Array = [];
-      for (let file of editWartaGambarList) {
-          // Menggunakan kompresi saat edit warta juga
-          const compressedBase64 = await compressImage(file, 1200);
-          base64Array.push(compressedBase64);
-      }
-      finalGambarUrl = base64Array.join('|||');
+    let base64Array = [];
+    for (let file of editWartaGambarList) {
+      const compressedBase64 = await compressImage(file, 1200);
+      base64Array.push(compressedBase64);
+    }
+    finalGambarUrl = base64Array.join('|||');
   }
+  
   try {
     const res = await fetch(GAS_API_URL, {
       method: 'POST',
@@ -2525,7 +2544,7 @@ const handleUpdateWarta = async (e) => {
         password: adminToken,
         rowIndex: editingWarta.rowIndex,
         judul: editWartaJudul,
-        isi: editWartaIsi,
+        isi: latestHtml,
         gambarUrl: finalGambarUrl,
         penulis: editWartaPenulis
       })
@@ -3137,10 +3156,11 @@ const insertEditWartaFormatting = (tag) => {
         <div className="mb-4">
   <label className="block text-sm font-medium text-navy-700 mb-1">Isi Warta</label>
   <RichTextEditor
-  initialValue={wartaIsi}
+  ref={editWartaEditorRef}
+  initialValue={editWartaIsi}
   onChange={(html) => setEditWartaIsi(html)}
   placeholder="Edit isi warta di sini..."
-    />
+/>
 </div>
         <div className="mb-5">
             <label className="block text-sm font-medium text-navy-700 mb-1">Penulis</label>
@@ -3438,10 +3458,11 @@ const insertEditWartaFormatting = (tag) => {
                     <div className="mb-5">
                         <label className="block text-sm font-medium text-navy-700 mb-1">Isi Warta</label>
                         <RichTextEditor
-                            initialValue={wartaIsi}
-                            onChange={(html) => setWartaIsi(html)}
-                            placeholder="Tulis isi warta di sini..."
-                        />
+  ref={wartaEditorRef}
+  initialValue={wartaIsi}
+  onChange={(html) => setWartaIsi(html)}
+  placeholder="Tulis isi warta di sini..."
+/>
                     </div>
                     <div className="mb-8">
                         <label className="block text-sm font-medium text-navy-700 mb-1">Unggah Gambar (Opsional)</label>
