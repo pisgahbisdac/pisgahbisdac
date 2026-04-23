@@ -4064,16 +4064,16 @@ const insertEditWartaFormatting = (tag) => {
                 <Icon name="ChevronLeft" className="w-5 h-5" />
             </button>
             <div ref={pengaturanScrollContainerRef} className="bg-white rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
-                <button onClick={() => setpengaturanSubTab('youtube')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${setpengaturanSubTab === 'youtube' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                <button onClick={() => setpengaturanSubTab('youtube')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'youtube' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                     YouTube
                 </button>
-                <button onClick={() => setpengaturanSubTab('carousel')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${setpengaturanSubTab === 'carousel' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                <button onClick={() => setpengaturanSubTab('carousel')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'carousel' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                     Carousel
                 </button>
-                <button onClick={() => setpengaturuanSubTab('pengumuman')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${setpengaturanSubTab === 'pengumuman' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                <button onClick={() => setpengaturanSubTab('pengumuman')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'pengumuman' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                 Pengumuman
                 </button>
-                <button onClick={() => setpengaturanSubTab('password')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${setpengaturanSubTab === 'password' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                <button onClick={() => setpengaturanSubTab('password')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'password' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                 Ganti Password
                 </button>
             </div>
@@ -4081,7 +4081,7 @@ const insertEditWartaFormatting = (tag) => {
                 <Icon name="ChevronRight" className="w-5 h-5" />
             </button>
                                      {/* --- FORM YOUTUBE URL --- */}
-                                     {setpengaturanSubTab === 'youtube' && (
+                                     {pengaturanSubTab === 'youtube' && (
                                     <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
@@ -4101,7 +4101,7 @@ const insertEditWartaFormatting = (tag) => {
                                     )}
 
                                      {/* --- FORM Hero-Image --- */}
-                                     {setpengaturanSubTab === 'carousel' && (
+                                     {pengaturanSubTab === 'carousel' && (
                                     <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><Icon name="Image" className="w-6 h-6" /></div>
@@ -4145,7 +4145,7 @@ const insertEditWartaFormatting = (tag) => {
                                     )}
                                     
                                     {/* --- FORM PENGUMUMAN --- */}
-                                 {setpengaturanSubTab === 'pengumuman' && (
+                                 {pengaturanSubTab === 'pengumuman' && (
                                     <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-gold-50 rounded-full flex items-center justify-center text-gold-600 shadow-inner"><Icon name="Megaphone" className="w-6 h-6" /></div>
@@ -4177,7 +4177,7 @@ const insertEditWartaFormatting = (tag) => {
                                     )}
                                     
                                     {/* --- FORM GANTI PASSWORD --- */}
-                                    {setpengaturanSubTab === 'password' && (
+                                    {pengaturanSubTab === 'password' && (
                                     <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-navy-50 rounded-full flex items-center justify-center text-navy-900 shadow-inner"><Icon name="Settings" className="w-6 h-6" /></div>
