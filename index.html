@@ -1574,12 +1574,20 @@
 
             return (
                 <div className="space-y-6 animate-fade-in">
-                <center> 
-                <button onClick={() => setShowGallery(true)} 
-                className="bg-gold-400 hover:bg-gold-500 text-navy-900 px-5 py-2 rounded-full text-sm font-bold shadow flex items-center gap-2 transition">
-                <Icon name="Image" className="w-4 h-4" /> Lihat Galeri
-                </button>
-                </center>   
+                    <div className="mt-4 glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
+                        <div className="p-5 md:p-6 bg-gradient-to-br from-white via-gold-50/40 to-white">
+                                <p class="text-xs md:text-sm font-medium text-navy-600 leading-relaxed mb-5 text-center">
+                                Banyak kenangan yang terjadi di dalam Jemaat PISGAH BISDAC.</p>
+                                <p class="text-xs md:text-sm font-medium text-navy-600 leading-relaxed mb-5 text-center">
+                                Kita bisa lihat dan simpan dari gallery ini.!</p>
+                            <button onClick={() => setShowGallery(true)} 
+                                className="flex items-center justify-center w-full glass-card hover:glass-card text-navy-800 py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 border border-navy-500 group cursor-pointer">
+                               <span className="text-[11px] md:text-sm font-bold uppercase tracking-widest group-hover:text-gold-300 transition-colors">Klik Untuk Melihat Seluruh Gallery</span>
+                                <Icon name="ChevronRight" className="w-4 h-4 ml-1.5 text-navy-500 group-hover:translate-x-1 transition-transform" />
+                            </button>
+                        </div>
+                    </div>
+                   
                     <div className="bg-white rounded-[1.5rem] p-6 shadow-sm border border-navy-100/60">
                         <h2 className="text-2xl font-bold mb-4 text-navy-900">Warta Gereja</h2>
                         {sortedWarta.length === 0 ? (
