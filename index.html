@@ -2498,9 +2498,9 @@ const [pengaturanSubTab, setPengaturanSubTab] = React.useState('pengumuman'); //
 const pengaturanScrollContainerRef = React.useRef(null);
 
 const scrollPengaturanTabs = (direction) => {
-    if (pengaturanScrollContainerRef.current) {
-        pengaturanScrollContainerRef.current.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
-    }
+  if (pengaturanScrollContainerRef.current) {
+    pengaturanScrollContainerRef.current.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
+  }
 };
 
             // Reset ke halaman 1 setiap kali data warta berubah
