@@ -30,16 +30,14 @@ const CATEGORY_MAP_REV = {
 };
 
 // =========================================================================
-// 2. ROUTING UTAMA (DIPERBARUI)
+// 2. ROUTING UTAMA
 // =========================================================================
 
 function doGet(e) {
-  // Jika ada parameter action=getData, berikan JSON
   if (e && e.parameter && e.parameter.action === 'getData') {
     return getInitialData();
   }
   
-  // Jika tidak ada parameter, tampilkan UI (index.html)
   return HtmlService.createTemplateFromFile('index')
       .evaluate()
       .setTitle('PISGAH-BISDAC')
@@ -52,10 +50,8 @@ function doPost(e) {
     const payload = JSON.parse(e.postData.contents);
     const action = payload.action;
 
-    // Verifikasi Password untuk aksi admin
     const currentPassword = getSetting('PASSWORD') || 'admin123';
     
-    // Pengecekan pengecualian aksi publik
     const publicActions = ['getPublicFolders', 'getPublicImages', 'verifyPassword', 'getData'];
     
     if (!publicActions.includes(action)) {
@@ -165,7 +161,6 @@ function saveJadwal(tanggal, tableData) {
     let currentData = sheet.getDataRange().getValues();
     let headers = currentData[0];
     
-    // Pastikan header ada
     Object.keys(taskData).forEach(t => { 
       if (!headers.includes(t)) {
         headers.push(t);
@@ -209,7 +204,9 @@ function savePejabat(dataPejabat, kategoriPejabat) {
   const rows = dataPejabat.map(p => {
     let img = p.img;
     if (img && img.startsWith('data:image')) {
-      img = uploadFileToDrive(img, "PEJABAT_" + Date.now() + ".jpg", targetFolderId);
+      // Abaikan error upload per-individu jika ada yang gagal agar yang lain selamat
+      try { img = uploadFileToDrive(img, "PEJABAT_" + Date.now() + ".jpg", targetFolderId); } 
+      catch(e) { img = ""; }
     }
     return [p.id, p.jabatan, p.nama, "'" + p.wa, img, p.kategori];
   });
@@ -239,7 +236,8 @@ function saveHeroImages(urlsJson) {
     
     const processedUrls = urls.map((url, i) => {
       if (url.startsWith('data:image')) {
-        return uploadFileToDrive(url, "HERO_" + i + "_" + Date.now() + ".webp", targetFolderId);
+        try { return uploadFileToDrive(url, "HERO_" + i + "_" + Date.now() + ".webp", targetFolderId); }
+        catch(e) { return url; }
       }
       return url;
     });
@@ -256,13 +254,31 @@ function saveWarta(payload) {
   let sheet = ss.getSheetByName(SHEET_WARTA);
   if (!sheet) sheet = ss.insertSheet(SHEET_WARTA);
   
-  let imgUrl = payload.gambarUrl;
-  if (imgUrl && imgUrl.startsWith('data:image')) {
+  let finalUrls = [];
+  
+  if (payload.gambarUrl) {
     const targetFolderId = getOrCreateNestedFolder("Warta_Images");
-    imgUrl = uploadFileToDrive(imgUrl, "WARTA_" + Date.now() + ".jpg", targetFolderId);
+    const images = payload.gambarUrl.split('|||'); // Pecah string gambar multi
+    
+    for (let i = 0; i < images.length; i++) {
+      let img = images[i].trim();
+      if (img.startsWith('data:image')) {
+        try {
+          let uploadedUrl = uploadFileToDrive(img, "WARTA_" + Date.now() + "_" + i + ".jpg", targetFolderId);
+          if (uploadedUrl) finalUrls.push(uploadedUrl);
+        } catch (e) {
+          // Tangkap error jika 1 gambar gagal agar gambar lain tetap bisa jalan
+          console.error("Gagal upload gambar warta ke-" + i, e);
+        }
+      } else if (img !== "") {
+        finalUrls.push(img); 
+      }
+    }
   }
   
-  sheet.appendRow([new Date(), payload.judul, payload.isi, imgUrl, payload.penulis]);
+  let stringUrlUntukDisimpan = finalUrls.join('|||'); // Gabung kembali untuk spreadsheet
+  
+  sheet.appendRow([new Date(), payload.judul, payload.isi, stringUrlUntukDisimpan, payload.penulis]);
   return jsonResponse({ success: true });
 }
 
@@ -270,13 +286,30 @@ function updateWarta(payload) {
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
   const row = payload.rowIndex;
   
-  let imgUrl = payload.gambarUrl;
-  if (imgUrl && imgUrl.startsWith('data:image')) {
+  let finalUrls = [];
+  
+  if (payload.gambarUrl) {
     const targetFolderId = getOrCreateNestedFolder("Warta_Images");
-    imgUrl = uploadFileToDrive(imgUrl, "WARTA_" + Date.now() + ".jpg", targetFolderId);
+    const images = payload.gambarUrl.split('|||');
+    
+    for (let i = 0; i < images.length; i++) {
+      let img = images[i].trim();
+      if (img.startsWith('data:image')) {
+        try {
+          let uploadedUrl = uploadFileToDrive(img, "WARTA_" + Date.now() + "_" + i + ".jpg", targetFolderId);
+          if (uploadedUrl) finalUrls.push(uploadedUrl);
+        } catch (e) {
+          console.error("Gagal update gambar warta ke-" + i, e);
+        }
+      } else if (img !== "") {
+        finalUrls.push(img); // Pertahankan gambar yang tidak diganti
+      }
+    }
   }
   
-  sheet.getRange(row, 2, 1, 4).setValues([[payload.judul, payload.isi, imgUrl, payload.penulis]]);
+  let stringUrlUntukDisimpan = finalUrls.join('|||');
+  
+  sheet.getRange(row, 2, 1, 4).setValues([[payload.judul, payload.isi, stringUrlUntukDisimpan, payload.penulis]]);
   return jsonResponse({ success: true });
 }
 
@@ -374,17 +407,16 @@ function getOrCreateNestedFolder(name) {
 }
 
 function uploadFileToDrive(base64, name, folderId) {
-  try {
-    const folder = DriveApp.getFolderById(folderId);
-    const split = base64.split(',');
-    const contentType = split[0].split(';')[0].replace('data:', '');
-    const blob = Utilities.newBlob(Utilities.base64Decode(split[1]), contentType, name);
-    const file = folder.createFile(blob);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    return "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1200";
-  } catch (e) { 
-    return ""; 
-  }
+  // Jika gagal mendecode base64, kita lempar (throw) error agar ditangkap blok try-catch di luarnya
+  const folder = DriveApp.getFolderById(folderId);
+  const split = base64.split(',');
+  const contentType = split[0].split(';')[0].replace('data:', '');
+  const blob = Utilities.newBlob(Utilities.base64Decode(split[1]), contentType, name);
+  const file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  
+  // Menggunakan Endpoint Download Langsung (uc?export=view) untuk menghindari gambar pecah (thumbnail)
+  return "https://drive.google.com/uc?export=view&id=" + file.getId();
 }
 
 // --- GALERI / FOLDER DRIVE ---
@@ -417,7 +449,8 @@ function getPublicImages(folderId) {
         title: f.getName(),
         type: type,
         url: f.getDownloadUrl(),
-        thumbnailUrl: "https://drive.google.com/thumbnail?id=" + f.getId() + "&sz=w600"
+        // Untuk thumbnail di galeri admin, kita tetap bisa pakai endpoint ini, atau bisa diganti uc juga.
+        thumbnailUrl: "https://drive.google.com/uc?export=view&id=" + f.getId()
       });
     }
     return jsonResponse({ success: true, media: media });
