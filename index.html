@@ -900,17 +900,6 @@
                             </div>
 
                             {/* TAB CONTENT */}
-                            {openSection === 'ss' && (
-                                <div className="p-4 md:p-6 animate-fade-in bg-white">
-                                    {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pemimpin Acara"), true)}
-                                    {renderItem("Lagu Buka", susunan.ssLaguBuka)}
-                                    {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka"))}
-                                    {renderItem("Berita Misi", getOfficer(activeSabat.sekolahSabat, "Berita Misi"))}
-                                    {renderItem("Diskusi Sekolah Sabat", "Kelas Dewasa, Kelas Pendalaman Alkitab, Kelas Anak-anak")}
-                                    {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
-                                    {renderItem("Doa Tutup", getOfficer(activeSabat.sekolahSabat, "Doa Tutup"))}
-                                </div>
-                            )}
 
                             {openSection === 'khotbah' && (
                                 <div className="p-4 md:p-6 animate-fade-in bg-white">
@@ -933,6 +922,18 @@
                                     {renderItem("Lagu Tutup", susunan.kLaguTutup)}
                                     {renderItem("Doa Tutup Berkat", getOfficer(activeSabat.khotbah, "Khotbah"))}
                                     {renderItem("Pengumuman", "Dept. Komunikasi")}
+                                </div>
+                            )}
+                            
+                            {openSection === 'ss' && (
+                                <div className="p-4 md:p-6 animate-fade-in bg-white">
+                                    {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pemimpin Acara"), true)}
+                                    {renderItem("Lagu Buka", susunan.ssLaguBuka)}
+                                    {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka"))}
+                                    {renderItem("Berita Misi", getOfficer(activeSabat.sekolahSabat, "Berita Misi"))}
+                                    {renderItem("Diskusi Sekolah Sabat", "Kelas Dewasa, Kelas Pendalaman Alkitab, Kelas Anak-anak")}
+                                    {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
+                                    {renderItem("Doa Tutup", getOfficer(activeSabat.sekolahSabat, "Doa Tutup"))}
                                 </div>
                             )}
 
@@ -4057,7 +4058,9 @@ const insertEditWartaFormatting = (tag) => {
 
                             {adminTab === 'pengaturan' && (
                                 <div className="max-w-md mx-auto animate-fade-in space-y-6">
+                                    
                                      {/* --- FORM YOUTUBE URL --- */}
+                                     {openSection === 'youtube' && (
                                     <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
@@ -4074,8 +4077,10 @@ const insertEditWartaFormatting = (tag) => {
                                             </button>
                                         </form>
                                     </div>
+                                    )}
 
                                      {/* --- FORM Hero-Image --- */}
+                                     {openSection === 'carousel' && (
                                     <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><Icon name="Image" className="w-6 h-6" /></div>
@@ -4116,8 +4121,10 @@ const insertEditWartaFormatting = (tag) => {
                                             </button>
                                         </form>
                                     </div>
+                                    )}
                                     
                                     {/* --- FORM PENGUMUMAN --- */}
+                                 {openSection === 'pengumuman' && (
                                     <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-gold-50 rounded-full flex items-center justify-center text-gold-600 shadow-inner"><Icon name="Megaphone" className="w-6 h-6" /></div>
@@ -4146,6 +4153,7 @@ const insertEditWartaFormatting = (tag) => {
                                             </button>
                                         </form>
                                     </div>
+                                    )}
                                     
                                     {/* --- FORM GANTI PASSWORD --- */}
                                     <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
