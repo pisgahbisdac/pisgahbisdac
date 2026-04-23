@@ -104,32 +104,56 @@
             scrollbar-width: none;
         }
 
-        .pengumuman-text b, .pengumuman-text strong {
-            font-weight: 800 !important;
-            color: #0b1a30;
+        /* --- TYPOGRAPHY WARTA & PENGUMUMAN --- */
+        .warta-content, .pengumuman-text {
+            line-height: 1.85; /* Jarak antar baris lebih lega dan mudah dibaca */
+            color: #314157;
+            white-space: pre-wrap; /* Memastikan setiap tombol "Enter" dari admin terbaca sebagai baris baru */
+            text-align: justify; /* Membuat teks rata kiri-kanan layaknya majalah/koran formal */
+        }
+        
+        .warta-content p, .pengumuman-text p { 
+            margin-bottom: 1.25rem; 
+            margin-top: 0;
         }
 
-        .pengumuman-text i, .pengumuman-text em {
-            font-weight: 800 !important;
-            color: #0b1a30;
+        .warta-content ul, .pengumuman-text ul { 
+            list-style-type: disc; 
+            padding-left: 1.5rem; 
+            margin-bottom: 1.25rem; 
         }
 
+        .warta-content ol, .pengumuman-text ol { 
+            list-style-type: decimal; 
+            padding-left: 1.5rem; 
+            margin-bottom: 1.25rem; 
+        }
+
+        .warta-content li, .pengumuman-text li { 
+            margin-bottom: 0.5rem; 
+        }
+
+        .pengumuman-text b, .pengumuman-text strong,
         .warta-content b, .warta-content strong {
             font-weight: 800 !important;
             color: #0b1a30;
         }
+
+        .pengumuman-text i, .pengumuman-text em,
         .warta-content i, .warta-content em {
             font-style: italic !important;
-            color: #0b1a30;
+            color: #455e80;
         }
 
-        .pengumuman-text a {
-            color: #9c851e;
+        .pengumuman-text a, .warta-content a {
+            color: #c98e21;
             text-decoration: underline;
-            font-weight: 500;
+            font-weight: 600;
+            transition: color 0.2s ease;
         }
-        .pengumuman-text a:hover {
-            color: #9c851e;
+
+        .pengumuman-text a:hover, .warta-content a:hover {
+            color: #84531d;
         }
 
         @keyframes fadeIn {
@@ -3266,34 +3290,57 @@ const insertEditWartaFormatting = (tag) => {
                             const startIdx = (wartaCurrentPage - 1) * wartaItemsPerPage;
                             const paginatedWarta = sortedWarta.slice(startIdx, startIdx + wartaItemsPerPage);
                             return (
-                                <div className="space-y-4">
+                                <div className="space-y-5">
                                     {paginatedWarta.map((warta, idx) => {
                                         const plainPreview = stripHtml(warta.isi);
-                                        const shortPreview = plainPreview.length > 100 ? plainPreview.substring(0, 100) + '...' : plainPreview;
+                                        const shortPreview = plainPreview.length > 120 ? plainPreview.substring(0, 120) + '...' : plainPreview;
+                                        
+                                        const safeUrls = parseGambarUrls(warta.gambarUrl).map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
+                                        const thumbnailImg = safeUrls.length > 0 ? safeUrls[0] : null;
+
                                         return (
-                                            <div key={idx} className="border border-navy-200 rounded-lg p-4 bg-navy-50">
-                                                <center>
-                                                    <div className="flex justify-between items-start">
-                                                        <div>
-                                                            <h4 className="font-bold text-navy-800">{warta.judul}</h4>
-                                                            <p className="text-xs text-navy-500">{warta.tanggal}</p>
+                                            <div key={idx} className="bg-white border border-navy-100/80 rounded-[1.25rem] p-4 sm:p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col sm:flex-row gap-4 sm:gap-5 relative group">
+                                                {/* Thumbnail Image */}
+                                                <div className="w-full sm:w-40 h-48 sm:h-32 flex-shrink-0 rounded-xl overflow-hidden bg-navy-50 border border-navy-100 relative">
+                                                    {thumbnailImg ? (
+                                                        <img src={thumbnailImg} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={warta.judul} referrerPolicy="no-referrer" />
+                                                    ) : (
+                                                        <div className="flex flex-col items-center justify-center h-full text-navy-300">
+                                                            <Icon name="Image" className="w-8 h-8 mb-1 opacity-50" />
+                                                            <span className="text-[9px] font-bold uppercase tracking-widest opacity-50">Tanpa Gambar</span>
                                                         </div>
-                                                        <div className="relative flex flex-col justify-between h-full">
-                                                            <button onClick={() => handleEditWarta(warta)} className="p-2 text-gold-600 hover:bg-navy-100 rounded-full transition" title="Edit Warta">
-                                                                <Icon name="Edit" className="w-4 h-4" />
-                                                            </button>
-                                                            <button onClick={() => handleDeleteWarta(warta.rowIndex, warta.judul)} className="p-2 text-navy-600 hover:bg-gold-100 rounded-full transition" title="Hapus Warta">
-                                                                <Icon name="Trash" className="w-4 h-4" />
-                                                            </button>
+                                                    )}
+                                                    {safeUrls.length > 1 && (
+                                                        <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-sm flex items-center">
+                                                            <Icon name="Image" className="w-3 h-3 mr-1" /> +{safeUrls.length - 1}
                                                         </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Detail & Konten Warta */}
+                                                <div className="flex-1 flex flex-col min-w-0">
+                                                    <h4 className="font-bold text-navy-900 text-base sm:text-lg line-clamp-2 leading-tight mb-1.5 group-hover:text-gold-600 transition-colors pr-2">{warta.judul}</h4>
+                                                    <p className="text-[10px] font-bold text-navy-500 uppercase tracking-widest mb-2 flex items-center">
+                                                        <Icon name="Calendar" className="w-3 h-3 mr-1.5 text-gold-500" /> {warta.tanggal}
+                                                    </p>
+                                                    <p className="text-xs text-navy-600 line-clamp-2 leading-relaxed mb-4 flex-1">
+                                                        {shortPreview}
+                                                    </p>
+                                                    
+                                                    {/* Action Buttons (Edit & Hapus) */}
+                                                    <div className="flex flex-wrap items-center gap-2 mt-auto pt-3 border-t border-navy-50">
+                                                        <span className="text-[10px] text-navy-400 font-bold uppercase tracking-wider flex items-center mr-auto">
+                                                            <Icon name="Edit" className="w-3 h-3 mr-1 text-gold-400" />
+                                                            {warta.penulis || 'Admin'}
+                                                        </span>
+                                                        <button onClick={() => handleEditWarta(warta)} className="px-3.5 py-1.5 bg-navy-50 hover:bg-navy-100 text-navy-700 text-xs font-bold rounded-lg transition-colors flex items-center shadow-sm">
+                                                            <Icon name="Edit" className="w-3.5 h-3.5 mr-1.5 text-gold-500" /> Edit
+                                                        </button>
+                                                        <button onClick={() => handleDeleteWarta(warta.rowIndex, warta.judul)} className="px-3.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold rounded-lg transition-colors flex items-center shadow-sm">
+                                                            <Icon name="Trash" className="w-3.5 h-3.5 mr-1.5" /> Hapus
+                                                        </button>
                                                     </div>
-                                                </center>
-                                                <div className="flex flex-col gap-3 items-center mt-3">
-    {parseGambarUrls(warta.gambarUrl).length > 0 && (
-        <img src={formatImageUrl(parseGambarUrls(warta.gambarUrl)[0])} className="h-20 w-auto object-cover rounded shadow-sm" alt="preview" referrerPolicy="no-referrer" />
-    )}
-    <p className="text-xs text-justify text-navy-700">{shortPreview}</p>
-</div>
+                                                </div>
                                             </div>
                                         );
                                     })}
