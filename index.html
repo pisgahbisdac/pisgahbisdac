@@ -152,21 +152,85 @@
             background: linear-gradient(135deg, #e09f26 0%, #eff6ff 30%, #ffffff 60%, #dfd9d3 100%);
         }
     </style>
+
+    <!-- CSS PRIORITAS: Mencegah layar hitam dan mengatur Loading Screen -->
+    <style>
+        html, body {
+            background-color: #fdf9ed !important; /* gold-50 */
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #initial-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            background-color: rgba(253, 249, 237, 0.5); /* Transparan gold-50 */
+            backdrop-filter: blur(12px); /* Efek Blur */
+            transition: opacity 0.6s ease-out, visibility 0.6s;
+        }
+
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 4px solid #e3e8f1;
+            border-top: 4px solid #e7ae30; /* gold-500 */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 18px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #5a789c;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+        .loader-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+    </style>
+        
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .welcome-box-gradient { background: linear-gradient(135deg, #e09f26 0%, #eff6ff 30%, #ffffff 60%, #dfd9d3 100%); }
+        .pengumuman-text b, .pengumuman-text strong { font-weight: 800; color: #0b1a30; }
+        .warta-content img { border-radius: 1rem; margin-top: 1rem; margin-bottom: 1rem; }
+    </style>
+    
 </head>
 
-<body class="bg-navy-50 text-navy-900 font-sans antialiased">
+<body class="bg-gold-50 text-navy-900 font-sans antialiased">  
     <div id="root">
         <!-- Preloader: Ditampilkan saat React & Babel sedang diproses, mencegah blank screen lambat -->
-        <div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center relative">
+        <div id="initial-loader">
             <div class="flex flex-col items-center justify-center mt-[-10vh]">
-                <div
-                    class="w-12 h-12 border-4 border-navy-100 border-t-gold-500 rounded-full animate-[spin_1s_linear_infinite] mb-4 shadow-sm">
-                </div>
-                <p class="text-navy-500 font-bold uppercase tracking-widest text-xs animate-pulse">Memuat Aplikasi...
-                </p>
-            </div>
-            <div class="absolute bottom-[25%] flex flex-col items-center animate-fade-in">
-                <!-- SVG Load Fallback (Optional) -->
+                <div class="spinner"></div>
+                <div class="loading-text">Welcome...</div>
             </div>
         </div>
     </div>

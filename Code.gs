@@ -30,12 +30,21 @@ const CATEGORY_MAP_REV = {
 };
 
 // =========================================================================
-// 2. ROUTING UTAMA
+// 2. ROUTING UTAMA (DIPERBARUI)
 // =========================================================================
 
 function doGet(e) {
-  if (e && e.parameter && e.parameter.action === 'getData') return getInitialData();
-  return syncSpreadsheetStructure();
+  // Jika ada parameter action=getData, berikan JSON
+  if (e && e.parameter && e.parameter.action === 'getData') {
+    return getInitialData();
+  }
+  
+  // Jika tidak ada parameter, tampilkan UI (index.html)
+  return HtmlService.createTemplateFromFile('index')
+      .evaluate()
+      .setTitle('PISGAH-BISDAC')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 function doPost(e) {
@@ -43,16 +52,20 @@ function doPost(e) {
     const payload = JSON.parse(e.postData.contents);
     const action = payload.action;
 
-    if (action === 'getPublicFolders') return getPublicFolders();
-    if (action === 'getPublicImages') return getPublicImages(payload.folderId);
-    if (action === 'verifyPassword') return verifyPassword(payload.password);
-
+    // Verifikasi Password untuk aksi admin
     const currentPassword = getSetting('PASSWORD') || 'admin123';
-    if (payload.password !== currentPassword && action !== 'changePassword') {
-      return jsonResponse({ success: false, message: 'Akses Ditolak.' });
+    
+    // Pengecekan pengecualian aksi publik
+    const publicActions = ['getPublicFolders', 'getPublicImages', 'verifyPassword', 'getData'];
+    
+    if (!publicActions.includes(action)) {
+      if (payload.password !== currentPassword) {
+        return jsonResponse({ success: false, message: 'Akses Ditolak.' });
+      }
     }
 
     switch (action) {
+      case 'verifyPassword':      return jsonResponse({ success: payload.password === currentPassword });
       case 'changePassword':     return changePassword(payload.oldPassword, payload.newPassword);
       case 'saveYoutubeUrl':     return saveSetting('YOUTUBE_URL', payload.url);
       case 'saveHeroImage':      return saveHeroImages(payload.url);
@@ -66,13 +79,17 @@ function doPost(e) {
       case 'createImageFolder':  return createImageFolder(payload.folderName);
       case 'uploadImageToDrive': return uploadImageToDrive(payload.folderId, payload.title, payload.imageBase64);
       case 'deleteImage':        return deleteImage(payload.fileId);
+      case 'getPublicFolders':   return getPublicFolders();
+      case 'getPublicImages':    return getPublicImages(payload.folderId);
       default: return jsonResponse({ success: false, message: 'Action tidak dikenali.' });
     }
-  } catch (error) { return jsonResponse({ success: false, message: error.toString() }); }
+  } catch (error) { 
+    return jsonResponse({ success: false, message: error.toString() }); 
+  }
 }
 
 // =========================================================================
-// 3. FUNGSI DATABASE JADWAL (UPDATE: PEMETAAN WAKTU UNTUK UI TERDEKAT)
+// 3. FUNGSI DATABASE JADWAL
 // =========================================================================
 
 function getJadwalDB() {
@@ -99,7 +116,6 @@ function getJadwalDB() {
         db[tanggalStr] = {
           title: isRabu ? "Ibadah Permintaan Doa (Rabu)" : "Ibadah Sabat (Sabtu)",
           time: isRabu ? "19:30 WIB - selesai" : "10:00 - 13:00 WIB",
-          // Waktu detail untuk tiap sesi (digunakan di Live/Terdekat)
           sekolahSabatTime: "11:45 - 12:40 WIB",
           khotbahTime: "10:00 - 11:45 WIB",
           petugas: [], sekolahSabat: [], khotbah: [], diakon: [], musik: [], perjamuan: [], susunan: {}
@@ -108,24 +124,17 @@ function getJadwalDB() {
 
       for (let j = 1; j < headers.length; j++) {
         const tugas = headers[j];
-        if (j === 0 || !tugas) continue; 
+        if (!tugas) continue; 
 
         let val = data[i][j];
         if (jsonKey === 'susunan') {
-          if (val === 'Ya' || val === true) val = true;
-          else if (val === 'Tidak' || val === false || val === '') val = false;
+          if (val === 'Ya' || val === true || val === 'TRUE') val = true;
+          else if (val === 'Tidak' || val === false || val === 'FALSE' || val === '') val = false;
           db[tanggalStr].susunan[tugas] = val;
         } else {
-          // Menambahkan info waktu ke setiap item petugas agar UI bisa langsung membacanya
-          let itemTime = "";
-          if (jsonKey === 'sekolahSabat') itemTime = "11:45 - 12:40 WIB";
-          else if (jsonKey === 'khotbah') itemTime = "10:00 - 11:45 WIB";
-          else if (jsonKey === 'petugas') itemTime = "19:30 WIB";
-
           db[tanggalStr][jsonKey].push({ 
             tugas: tugas, 
-            nama: String(val || ''),
-            jam: itemTime // Properti baru agar muncul di UI Terdekat
+            nama: String(val || '')
           });
         }
       }
@@ -151,9 +160,12 @@ function saveJadwal(tanggal, tableData) {
 
   for (const [sName, taskData] of Object.entries(grouped)) {
     let sheet = ss.getSheetByName(sName);
+    if (!sheet) sheet = ss.insertSheet(sName);
+    
     let currentData = sheet.getDataRange().getValues();
     let headers = currentData[0];
     
+    // Pastikan header ada
     Object.keys(taskData).forEach(t => { 
       if (!headers.includes(t)) {
         headers.push(t);
@@ -185,30 +197,34 @@ function saveJadwal(tanggal, tableData) {
 }
 
 // =========================================================================
-// 4. PEJABAT, WARTA & UTILITIES
+// 4. PEJABAT, WARTA, HERO & PENGATURAN
 // =========================================================================
 
 function savePejabat(dataPejabat, kategoriPejabat) {
-  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_PEJABAT);
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_PEJABAT);
+  if (!sheet) sheet = ss.insertSheet(SHEET_PEJABAT);
+  
   let targetFolderId = getOrCreateNestedFolder("Pejabat_Images");
   const rows = dataPejabat.map(p => {
     let img = p.img;
     if (img && img.startsWith('data:image')) {
       img = uploadFileToDrive(img, "PEJABAT_" + Date.now() + ".jpg", targetFolderId);
-    } else if (img && img.includes('drive.google.com')) {
-      img = makeSafeImageUrl(img);
     }
     return [p.id, p.jabatan, p.nama, "'" + p.wa, img, p.kategori];
   });
+  
   sheet.clear();
   sheet.appendRow(['ID', 'Jabatan', 'Nama', 'WA', 'Image_URL', 'Kategori']);
   if (rows.length > 0) sheet.getRange(2, 1, rows.length, 6).setValues(rows);
+  
   saveSettingRecord('KATEGORI_PEJABAT', JSON.stringify(kategoriPejabat));
   return jsonResponse({ success: true });
 }
 
 function getPejabatDB() {
-  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_PEJABAT);
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEET_PEJABAT);
   if (!sheet) return [];
   const data = sheet.getDataRange().getValues();
   return data.slice(1).filter(r => r[0]).map(r => ({
@@ -216,21 +232,78 @@ function getPejabatDB() {
   }));
 }
 
-function makeSafeImageUrl(url) {
-  if (!url || typeof url !== 'string' || url.includes('thumbnail')) return url;
-  let fileId = "";
-  if (url.includes('id=')) fileId = url.split('id=')[1].split('&')[0];
-  else if (url.includes('/d/')) fileId = url.split('/d/')[1].split('/')[0];
-  return fileId ? "https://drive.google.com/thumbnail?id=" + fileId + "&sz=w1200" : url;
+function saveHeroImages(urlsJson) {
+  try {
+    const urls = JSON.parse(urlsJson);
+    const targetFolderId = getOrCreateNestedFolder("Hero_Carousel");
+    
+    const processedUrls = urls.map((url, i) => {
+      if (url.startsWith('data:image')) {
+        return uploadFileToDrive(url, "HERO_" + i + "_" + Date.now() + ".webp", targetFolderId);
+      }
+      return url;
+    });
+    
+    saveSettingRecord('HERO_IMAGE_URL', JSON.stringify(processedUrls));
+    return jsonResponse({ success: true, updatedUrls: processedUrls });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
 }
 
-function syncSpreadsheetStructure() {
+function saveWarta(payload) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  [SHEET_PENGATURAN, SHEET_PEJABAT, SHEET_WARTA].forEach(name => {
-    if (!ss.getSheetByName(name)) ss.insertSheet(name);
-  });
-  return jsonResponse({ success: true, message: 'Struktur diperbarui.' });
+  let sheet = ss.getSheetByName(SHEET_WARTA);
+  if (!sheet) sheet = ss.insertSheet(SHEET_WARTA);
+  
+  let imgUrl = payload.gambarUrl;
+  if (imgUrl && imgUrl.startsWith('data:image')) {
+    const targetFolderId = getOrCreateNestedFolder("Warta_Images");
+    imgUrl = uploadFileToDrive(imgUrl, "WARTA_" + Date.now() + ".jpg", targetFolderId);
+  }
+  
+  sheet.appendRow([new Date(), payload.judul, payload.isi, imgUrl, payload.penulis]);
+  return jsonResponse({ success: true });
 }
+
+function updateWarta(payload) {
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
+  const row = payload.rowIndex;
+  
+  let imgUrl = payload.gambarUrl;
+  if (imgUrl && imgUrl.startsWith('data:image')) {
+    const targetFolderId = getOrCreateNestedFolder("Warta_Images");
+    imgUrl = uploadFileToDrive(imgUrl, "WARTA_" + Date.now() + ".jpg", targetFolderId);
+  }
+  
+  sheet.getRange(row, 2, 1, 4).setValues([[payload.judul, payload.isi, imgUrl, payload.penulis]]);
+  return jsonResponse({ success: true });
+}
+
+function deleteWarta(row) {
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
+  sheet.deleteRow(row);
+  return jsonResponse({ success: true });
+}
+
+function getDaftarWarta() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEET_WARTA);
+  if (!sheet) return [];
+  const data = sheet.getDataRange().getValues();
+  return data.slice(1).map((r, i) => ({
+    rowIndex: i + 2,
+    tanggal: r[0] ? Utilities.formatDate(new Date(r[0]), Session.getScriptTimeZone(), "dd MMM yyyy") : '',
+    judul: r[1], 
+    isi: r[2], 
+    gambarUrl: r[3], 
+    penulis: r[4]
+  })).filter(w => w.judul);
+}
+
+// =========================================================================
+// 5. SETTINGS & UTILITIES
+// =========================================================================
 
 function getInitialData() {
   return jsonResponse({
@@ -238,15 +311,16 @@ function getInitialData() {
     dataPejabat: getPejabatDB(),
     jadwalDB: getJadwalDB(),
     kategoriPejabat: getKategoriDB(),
-    youtubeUrl: getSetting('YOUTUBE_URL'),
+    youtubeUrl: getSetting('YOUTUBE_URL') || "https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g",
     heroImageUrl: getSetting('HERO_IMAGE_URL') || "[]",
-    pengumuman: getSetting('PENGUMUMAN_DATA'),
+    pengumuman: getSetting('PENGUMUMAN_DATA') || '{"header":"Pengumuman","isi":""}',
     daftarWarta: getDaftarWarta()
   });
 }
 
 function getSetting(key) {
-  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_PENGATURAN);
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_PENGATURAN);
   if (!sheet) return null;
   const data = sheet.getDataRange().getValues();
   const row = data.find(r => r[0] === key);
@@ -254,22 +328,47 @@ function getSetting(key) {
 }
 
 function saveSettingRecord(key, value) {
-  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_PENGATURAN);
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_PENGATURAN);
+  if (!sheet) sheet = ss.insertSheet(SHEET_PENGATURAN);
+  
   const data = sheet.getDataRange().getValues();
   const idx = data.findIndex(r => r[0] === key);
   if (idx !== -1) sheet.getRange(idx + 1, 2).setValue(value);
   else sheet.appendRow([key, value]);
 }
 
-function saveSetting(key, value) { saveSettingRecord(key, value); return jsonResponse({ success: true }); }
-function getKategoriDB() { let v = getSetting('KATEGORI_PEJABAT'); return v ? JSON.parse(v) : ["Gembala", "Officers", "Departemen & Pelayanan", "Lainnya"]; }
-function verifyPassword(p) { return jsonResponse({ success: p === (getSetting('PASSWORD') || 'admin123') }); }
-function changePassword(o, n) { if (o === (getSetting('PASSWORD') || 'admin123')) { saveSettingRecord('PASSWORD', n); return jsonResponse({ success: true }); } return jsonResponse({ success: false }); }
+function saveSetting(key, value) { 
+  saveSettingRecord(key, value); 
+  return jsonResponse({ success: true }); 
+}
+
+function getKategoriDB() { 
+  let v = getSetting('KATEGORI_PEJABAT'); 
+  return v ? JSON.parse(v) : ["Gembala", "Officers", "Departemen & Pelayanan", "Lainnya"]; 
+}
+
+function changePassword(o, n) { 
+  const current = getSetting('PASSWORD') || 'admin123';
+  if (o === current) { 
+    saveSettingRecord('PASSWORD', n); 
+    return jsonResponse({ success: true }); 
+  } 
+  return jsonResponse({ success: false, message: 'Password lama salah.' }); 
+}
 
 function getOrCreateNestedFolder(name) {
   const root = DriveApp.getRootFolder();
-  let master = root.getFoldersByName("Pisgah_Web").hasNext() ? root.getFoldersByName("Pisgah_Web").next() : root.createFolder("Pisgah_Web");
-  let sub = master.getFoldersByName(name).hasNext() ? master.getFoldersByName(name).next() : master.createFolder(name);
+  let master;
+  const masterItr = root.getFoldersByName("Pisgah_Web");
+  if (masterItr.hasNext()) master = masterItr.next();
+  else master = root.createFolder("Pisgah_Web");
+  
+  let sub;
+  const subItr = master.getFoldersByName(name);
+  if (subItr.hasNext()) sub = subItr.next();
+  else sub = master.createFolder(name);
+  
   sub.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   return sub.getId();
 }
@@ -278,22 +377,89 @@ function uploadFileToDrive(base64, name, folderId) {
   try {
     const folder = DriveApp.getFolderById(folderId);
     const split = base64.split(',');
-    const blob = Utilities.newBlob(Utilities.base64Decode(split[1]), split[0].split(';')[0].replace('data:', ''), name);
+    const contentType = split[0].split(';')[0].replace('data:', '');
+    const blob = Utilities.newBlob(Utilities.base64Decode(split[1]), contentType, name);
     const file = folder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     return "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1200";
-  } catch (e) { return ""; }
+  } catch (e) { 
+    return ""; 
+  }
 }
 
-function getDaftarWarta() {
-  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
-  if (!sheet) return [];
-  const data = sheet.getDataRange().getValues();
-  return data.slice(1).map((r, i) => ({
-    rowIndex: i + 2,
-    tanggal: r[0] ? Utilities.formatDate(new Date(r[0]), Session.getScriptTimeZone(), "dd MMM yyyy") : '',
-    judul: r[1], isi: r[2], gambarUrl: makeSafeImageUrl(r[3]), penulis: r[4]
-  }));
+// --- GALERI / FOLDER DRIVE ---
+function getPublicFolders() {
+  try {
+    const parentFolder = DriveApp.getFolderById(FOLDER_GALERI_ID);
+    const folders = parentFolder.getFolders();
+    const list = [];
+    while (folders.hasNext()) {
+      const f = folders.next();
+      list.push({ id: f.getId(), name: f.getName() });
+    }
+    return jsonResponse({ success: true, folders: list });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
 }
 
-function jsonResponse(d) { return ContentService.createTextOutput(JSON.stringify(d)).setMimeType(ContentService.MimeType.JSON); }
+function getPublicImages(folderId) {
+  try {
+    const folder = DriveApp.getFolderById(folderId);
+    const files = folder.getFiles();
+    const media = [];
+    while (files.hasNext()) {
+      const f = files.next();
+      const mime = f.getMimeType();
+      const type = mime.startsWith('video/') ? 'video' : 'image';
+      media.push({
+        id: f.getId(),
+        title: f.getName(),
+        type: type,
+        url: f.getDownloadUrl(),
+        thumbnailUrl: "https://drive.google.com/thumbnail?id=" + f.getId() + "&sz=w600"
+      });
+    }
+    return jsonResponse({ success: true, media: media });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
+}
+
+function createImageFolder(name) {
+  try {
+    const parent = DriveApp.getFolderById(FOLDER_GALERI_ID);
+    const newFolder = parent.createFolder(name);
+    newFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return jsonResponse({ success: true });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
+}
+
+function uploadImageToDrive(folderId, title, base64) {
+  try {
+    const folder = DriveApp.getFolderById(folderId);
+    const split = base64.split(',');
+    const contentType = split[0].split(';')[0].replace('data:', '');
+    const blob = Utilities.newBlob(Utilities.base64Decode(split[1]), contentType, title);
+    const file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return jsonResponse({ success: true, id: file.getId() });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
+}
+
+function deleteImage(fileId) {
+  try {
+    DriveApp.getFileById(fileId).setTrashed(true);
+    return jsonResponse({ success: true });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
+}
+
+function jsonResponse(d) { 
+  return ContentService.createTextOutput(JSON.stringify(d)).setMimeType(ContentService.MimeType.JSON); 
+}
