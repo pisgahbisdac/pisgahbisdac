@@ -1,0 +1,23 @@
+{
+  "name": "PISGAH BISDAC App",
+  "short_name": "PISGAH",
+  "description": "Aplikasi Web Jemaat GMAHK PISGAH BISDAC",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#0b1a30",
+  "icons": [
+    {
+      "src": "./icons/Pisgahpavicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/Pisgahpavicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
