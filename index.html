@@ -1576,6 +1576,7 @@
 
             return (
                 <div className="space-y-6">
+                    
                     {/* Modal Lightbox Gambar */}
                     {selectedImage && (
                         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 p-4 animate-fade-in" onClick={() => setSelectedImage(null)}>
@@ -3142,12 +3143,19 @@ const insertEditWartaFormatting = (tag) => {
                         </div>
 
                         <div className={`p-4 md:p-6 ${adminTab === 'jadwal' ? 'bg-navy-50/30' : 'bg-white'}`}>
-                            {/* Modal Edit Warta */}
+                            
+    {/* Modal Edit Warta */}
 {editWartaModal && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/60 px-4 backdrop-blur-md">
-    <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-lg w-full relative border border-navy-100/60">
-      <button onClick={() => setEditWartaModal(false)} className="absolute top-4 right-4 text-navy-400 hover:text-red-500 transition-colors bg-navy-50 w-8 h-8 rounded-full flex items-center justify-center font-bold pb-1">&times;</button>
-      <h3 className="text-xl font-bold mb-4">Edit Warta</h3>
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/60 px-4 backdrop-blur-md overflow-y-auto py-4">
+    <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto relative border border-navy-100/60 pb-safe pb-20 md:pb-8">
+      <button 
+  onClick={() => setEditWartaModal(false)} 
+  className="sticky top-0 float-right text-navy-400 hover:text-red-500 transition-colors bg-navy-50 w-8 h-8 rounded-full flex items-center justify-center font-bold -mt-2 -mr-2 z-20"
+>
+  ×
+</button>
+<div className="clear-both"></div>   // penting untuk mengapung setelah float
+<h3 className="text-xl font-bold mb-4">Edit Warta</h3>
       <form onSubmit={handleUpdateWarta}>
         <div className="mb-4">
           <label className="block text-sm font-medium text-navy-700 mb-1">Judul Warta</label>
@@ -3191,9 +3199,13 @@ const insertEditWartaFormatting = (tag) => {
             </div></center>
           )}
         </div>
-        <button type="submit" disabled={isUpdatingWarta} className="w-full bg-navy-800 hover:bg-navy-400 text-gold-400 font-bold py-3 px-4 rounded-lg transition-colors">
-          {isUpdatingWarta ? "Menyimpan..." : "Simpan Perubahan"}
-        </button>
+        <button 
+  type="submit" 
+  disabled={isUpdatingWarta} 
+  className="w-full bg-navy-800 hover:bg-navy-700 text-gold-400 font-bold py-3 px-4 rounded-lg transition-colors sticky bottom-4"
+>
+  {isUpdatingWarta ? "Menyimpan..." : "Simpan Perubahan"}
+</button>
       </form>
     </div>
   </div>
