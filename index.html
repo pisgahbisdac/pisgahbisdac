@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PISGAH-BISDAC</title>
+    <title>PISGAH-BISDAC App</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="./icons/Pisgahpavicon.png">
@@ -151,86 +151,33 @@
         .welcome-box-gradient {
             background: linear-gradient(135deg, #e09f26 0%, #eff6ff 30%, #ffffff 60%, #dfd9d3 100%);
         }
-    </style>
 
-    <!-- CSS PRIORITAS: Mencegah layar hitam dan mengatur Loading Screen -->
-    <style>
-        html, body {
-            background-color: #fdf9ed !important; /* gold-50 */
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
+        .glass-card {
+            background: rgba(253, 249, 237, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        #initial-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            background-color: rgba(253, 249, 237, 0.5); /* Transparan gold-50 */
-            backdrop-filter: blur(12px); /* Efek Blur */
-            transition: opacity 0.6s ease-out, visibility 0.6s;
-        }
-
-        .spinner {
-            width: 44px;
-            height: 44px;
-            border: 4px solid #e3e8f1;
-            border-top: 4px solid #e7ae30; /* gold-500 */
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        .loading-text {
-            margin-top: 18px;
-            font-family: 'Inter', sans-serif;
-            font-size: 11px;
-            font-weight: 700;
-            color: #5a789c;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
-        .loader-hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
     </style>
-        
-    <style>
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .welcome-box-gradient { background: linear-gradient(135deg, #e09f26 0%, #eff6ff 30%, #ffffff 60%, #dfd9d3 100%); }
-        .pengumuman-text b, .pengumuman-text strong { font-weight: 800; color: #0b1a30; }
-        .warta-content img { border-radius: 1rem; margin-top: 1rem; margin-bottom: 1rem; }
-    </style>
-    
+  
 </head>
 
-<body class="bg-gold-50 text-navy-900 font-sans antialiased">  
+<body class="text-navy-900 font-sans antialiased">
     <div id="root">
         <!-- Preloader: Ditampilkan saat React & Babel sedang diproses, mencegah blank screen lambat -->
-        <div id="initial-loader">
+        <div class="backdrop-blur-md min-h-screen flex flex-col items-center justify-center relative">
             <div class="flex flex-col items-center justify-center mt-[-10vh]">
-                <div class="spinner"></div>
-                <div class="loading-text">Welcome...</div>
+                <div
+                    class="w-12 h-12 border-4 border-navy-100 border-t-gold-500 rounded-full animate-[spin_1s_linear_infinite] mb-4 shadow-sm">
+                </div>
+                <p class="text-navy-500 font-bold uppercase tracking-widest text-xs animate-pulse">Welcome..
+                </p>
+            </div>
+            <div class="absolute bottom-[25%] flex flex-col items-center animate-fade-in">
+                <!-- SVG Load Fallback (Optional) -->
             </div>
         </div>
     </div>
@@ -560,13 +507,13 @@ const truncateText = (text, maxLength = 500) => {
                                 <>
                                     <button 
                                         onClick={() => setCurrentSlide((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1))} 
-                                        className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10"
+                                        className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-glass-card hover:bg-black/50 text-navy p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10"
                                     >
                                         <Icon name="ChevronLeft" className="w-5 h-5"/>
                                     </button>
                                     <button 
                                         onClick={() => setCurrentSlide((prev) => (prev + 1) % displayImages.length)} 
-                                        className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10"
+                                        className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-glass-card hover:bg-black/50 text-navy p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10"
                                     >
                                         <Icon name="ChevronRight" className="w-5 h-5"/>
                                     </button>
@@ -596,7 +543,7 @@ const truncateText = (text, maxLength = 500) => {
                             </div>
 
                             {/* Artikel Promosi Pembangunan */}
-                            <div className="mt-4 bg-white rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
+                            <div className="mt-4 glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
                                 <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-gold-400 text-white text-[9px] md:text-[10px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center z-10">
                                     <Icon name="Home" className="w-3 h-3 mr-1" /> Proyek Gereja
                                 </div>
@@ -608,9 +555,9 @@ const truncateText = (text, maxLength = 500) => {
                                         Setiap doa, dukungan, dan persembahan pembangunan Anda adalah fondasi utama dalam mewujudkan tempat ibadah yang lebih nyaman bagi jemaat dan saksi kebaikan Tuhan bagi lingkungan sekitar.
                                         <p class="text-xs md:text-sm font-medium text-navy-600 leading-relaxed mb-5 text-center">Mari ambil bagian dalam penatalayanan ini!</p>
                                     </p>
-                                    <a href="https://pembangunan.pisgahbisdac.app" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full bg-navy-700 hover:bg-navy-800 text-gold-400 py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 border border-gold-500/30 group">
-                                        <span className="text-[11px] md:text-sm font-bold uppercase tracking-widest group-hover:text-gold-300 transition-colors">Portal Pembangunan & Donasi</span>
-                                        <Icon name="ChevronRight" className="w-4 h-4 ml-1.5 text-gold-500 group-hover:translate-x-1 transition-transform" />
+                                    <a href="https://pembangunan.pisgahbisdac.app" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full glass-card hover:glass-card text-navy-800 py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 border border-navy-500 group">
+                                        <span className="text-[11px] md:text-sm font-bold uppercase tracking-widest group-hover:text-gold-300 transition-colors">Klik Untuk Melihat Progres Pembangunan</span>
+                                        <Icon name="ChevronRight" className="w-4 h-4 ml-1.5 text-navy-500 group-hover:translate-x-1 transition-transform" />
                                     </a>
                                 </div>
                             </div>
@@ -4050,7 +3997,7 @@ const insertEditWartaFormatting = (tag) => {
             // agar bisa interaktif di bawah 1 detik! Mencegah "stuck di loading page".
 
             return (
-                <div className="min-h-screen bg-gray-50 flex flex-col">
+                <div className="glass-card min-h-screen bg-gray-50 flex flex-col">
                     <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} onSuccess={(token) => { setAdminToken(token); setIsAdminLoggedIn(true); setShowLoginModal(false); setActiveTab('admin_dashboard'); }} />
 
                     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 shadow-sm">
