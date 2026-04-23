@@ -4057,29 +4057,60 @@ const insertEditWartaFormatting = (tag) => {
                             )}
 
                             {adminTab === 'pengaturan' && (
-                                <div className="max-w-md mx-auto animate-fade-in space-y-6">
-                                    {/* Subtabs seperti pada jadwal */}
-        <div className="flex items-center gap-2">
-            <button onClick={() => scrollWartaTabs('left')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kiri">
-                <Icon name="ChevronLeft" className="w-5 h-5" />
-            </button>
-            <div ref={pengaturanScrollContainerRef} className="bg-white rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
-                <button onClick={() => setpengaturanSubTab('youtube')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'youtube' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
-                    YouTube
-                </button>
-                <button onClick={() => setpengaturanSubTab('carousel')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'carousel' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
-                    Carousel
-                </button>
-                <button onClick={() => setpengaturanSubTab('pengumuman')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'pengumuman' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
-                Pengumuman
-                </button>
-                <button onClick={() => setpengaturanSubTab('password')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'password' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
-                Ganti Password
-                </button>
-            </div>
-            <button onClick={() => scrollWartaTabs('right')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kanan">
-                <Icon name="ChevronRight" className="w-5 h-5" />
-            </button>
+  <div className="max-w-md mx-auto animate-fade-in space-y-6">
+    {/* Subtabs seperti pada jadwal */}
+    <div className="flex items-center gap-2">
+      <button onClick={() => scrollPengaturanTabs('left')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kiri">
+        <Icon name="ChevronLeft" className="w-5 h-5" />
+      </button>
+      <div ref={pengaturanScrollContainerRef} className="bg-white rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
+        <button onClick={() => setPengaturanSubTab('youtube')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'youtube' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+          YouTube
+        </button>
+        <button onClick={() => setPengaturanSubTab('carousel')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'carousel' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+          Carousel
+        </button>
+        <button onClick={() => setPengaturanSubTab('pengumuman')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'pengumuman' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+          Pengumuman
+        </button>
+        <button onClick={() => setPengaturanSubTab('password')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'password' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+          Ganti Password
+        </button>
+      </div>
+      <button onClick={() => scrollPengaturanTabs('right')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kanan">
+        <Icon name="ChevronRight" className="w-5 h-5" />
+      </button>
+    </div>
+
+    {/* --- FORM YOUTUBE URL --- */}
+    {pengaturanSubTab === 'youtube' && (
+      <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+        {/* ... konten form youtube (sudah ada) ... */}
+      </div>
+    )}
+
+    {/* --- FORM Hero-Image --- */}
+    {pengaturanSubTab === 'carousel' && (
+      <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+        {/* ... konten form carousel (sudah ada) ... */}
+      </div>
+    )}
+    
+    {/* --- FORM PENGUMUMAN --- */}
+    {pengaturanSubTab === 'pengumuman' && (
+      <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+        {/* ... konten form pengumuman (sudah ada) ... */}
+      </div>
+    )}
+    
+    {/* --- FORM GANTI PASSWORD --- */}
+    {pengaturanSubTab === 'password' && (
+      <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+        {/* ... konten form password (sudah ada) ... */}
+      </div>
+    )}
+  </div>
+)}
                                      {/* --- FORM YOUTUBE URL --- */}
                                      {pengaturanSubTab === 'youtube' && (
                                     <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
