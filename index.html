@@ -1217,7 +1217,7 @@
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-stretch mb-8">
                             <div className="flex flex-col items-center p-6 bg-navy-50/50 rounded-2xl border border-navy-100/50 h-full justify-center shadow-sm">
                                 <div className="w-40 md:w-48 bg-white border border-navy-100 p-2.5 rounded-xl shadow-sm mb-4"><img src={qrisUrl} alt="QRIS GMAHK PISGAH BISDAC" className="w-full h-auto object-contain rounded-lg" crossOrigin="anonymous" /></div>
-                                <a href={qrisUrl} target="_blank" rel="noopener noreferrer" download="QRIS_GMAHK_PISGAH.jpg" className="bg-navy-900 hover:bg-navy-800 text-gold-400 px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow"><Icon name="Downloads" className="w-3.5 h-3.5" /><span>QRIS BELUM TERSEDIA</span></a>
+                                <a href={qrisUrl} target="_blank" rel="noopener noreferrer" download="QRIS_GMAHK_PISGAH.jpg" className="bg-navy-900 hover:bg-navy-800 text-gold-400 px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow"><Icon name="Download" className="w-3.5 h-3.5" /><span>QRIS BELUM TERSEDIA</span></a>
                             </div>
                             <div className="flex flex-col justify-center text-center p-6 bg-gradient-to-br from-navy-800 to-navy-900 border border-gold-300 rounded-2xl h-full shadow-sm text-gold-400">
                                 <p className="text-xs md:text-sm font-bold mb-1 tracking-wide uppercase">Atau Transfer Bank ke:</p><p className="font-extrabold text-2xl md:text-3xl tracking-widest my-2 font-mono">1090001711043</p><p className="text-xs md:text-sm font-bold opacity-90">MANDIRI </p><p className="text-xs md:text-sm font-bold opacity-90">a.n</p> <p className="text-xs md:text-sm font-bold opacity-90">GMAHK PISGAH BISDAC</p>
@@ -1985,6 +1985,72 @@
             const [wartaCurrentPage, setWartaCurrentPage] = React.useState(1);
             const wartaItemsPerPage = 3;
 
+            // RichTextEditor Component (WYSIWYG)
+const RichTextEditor = ({ value, onChange, placeholder }) => {
+  const editorRef = React.useRef(null);
+  const [isFocused, setIsFocused] = React.useState(false);
+
+  // Update editor content when value changes externally (e.g., edit data load)
+  React.useEffect(() => {
+    if (editorRef.current && editorRef.current.innerHTML !== value) {
+      editorRef.current.innerHTML = value || '';
+    }
+  }, [value]);
+
+  const handleInput = () => {
+    if (onChange) {
+      onChange(editorRef.current.innerHTML);
+    }
+  };
+
+  const execCommand = (cmd, valueArg = null) => {
+    document.execCommand(cmd, false, valueArg);
+    editorRef.current.focus();
+    handleInput();
+  };
+
+  const insertLink = () => {
+    const url = prompt('Masukkan URL tautan:', 'https://');
+    if (url) {
+      execCommand('createLink', url);
+    }
+  };
+
+  const insertBreak = () => {
+    execCommand('insertHTML', '<br>');
+  };
+
+  return (
+    <div className="border border-navy-200 rounded-lg overflow-hidden bg-white">
+      <div className="flex flex-wrap gap-1 p-2 bg-navy-50 border-b border-navy-100">
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('bold'); }} className="p-1.5 hover:bg-navy-200 rounded transition" title="Tebal"><Icon name="Bold" className="w-4 h-4"/></button>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('italic'); }} className="p-1.5 hover:bg-navy-200 rounded transition" title="Miring"><Icon name="Italic" className="w-4 h-4"/></button>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('underline'); }} className="p-1.5 hover:bg-navy-200 rounded transition" title="Garis Bawah"><Icon name="Underline" className="w-4 h-4"/></button>
+        <div className="w-px h-5 bg-navy-300 mx-1 self-center"></div>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('formatBlock', '<h3>'); }} className="p-1 hover:bg-navy-200 rounded font-black text-xs px-2" title="Heading 3">H3</button>
+        <div className="w-px h-5 bg-navy-300 mx-1 self-center"></div>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertUnorderedList'); }} className="p-1.5 hover:bg-navy-200 rounded transition" title="Daftar Bullet"><Icon name="List" className="w-4 h-4"/></button>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertOrderedList'); }} className="p-1.5 hover:bg-navy-200 rounded transition" title="Daftar Angka"><Icon name="ListOrdered" className="w-4 h-4"/></button>
+        <div className="w-px h-5 bg-navy-300 mx-1 self-center"></div>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); insertLink(); }} className="p-1.5 hover:bg-navy-200 rounded transition" title="Tautan"><Icon name="LinkIcon" className="w-4 h-4"/></button>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); insertBreak(); }} className="p-1 hover:bg-navy-200 rounded font-bold text-xs px-2" title="Baris Baru (BR)">BR</button>
+      </div>
+      <div
+        ref={editorRef}
+        contentEditable
+        onInput={handleInput}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        className="p-3 min-h-[200px] max-h-[400px] overflow-y-auto focus:outline-none bg-white prose prose-sm max-w-none"
+        style={{ whiteSpace: 'pre-wrap' }}
+      />
+      {!value && !isFocused && (
+        <div className="absolute text-gray-400 pointer-events-none p-3 mt-[-200px]">{placeholder}</div>
+      )}
+    </div>
+  );
+};
+
             // Subtab untuk Warta
             const [wartaSubTab, setWartaSubTab] = React.useState('input'); // 'input' atau 'posting'
             const wartaScrollContainerRef = React.useRef(null);
@@ -2398,7 +2464,7 @@ const insertLinkPengumuman = () => {
                   let base64Array = [];
                   for (let file of wartaGambarList) {
                       // Menggunakan kompresi agar teks Base64 tidak melebihi limit sel Google Sheets
-                      const compressedBase64 = await compressImage(file, 500);
+                      const compressedBase64 = await compressImage(file, 1200);
                       base64Array.push(compressedBase64);
                   }
                   finalGambarUrl = base64Array.join('|||'); // Pakai pemisah ||| untuk multiple gambar
@@ -2451,7 +2517,7 @@ const handleUpdateWarta = async (e) => {
       let base64Array = [];
       for (let file of editWartaGambarList) {
           // Menggunakan kompresi saat edit warta juga
-          const compressedBase64 = await compressImage(file, 500);
+          const compressedBase64 = await compressImage(file, 1200);
           base64Array.push(compressedBase64);
       }
       finalGambarUrl = base64Array.join('|||');
@@ -2613,7 +2679,7 @@ const insertEditWartaFormatting = (tag) => {
 };
 
             // Fungsi kompresi gambar otomatis sebelum diupload (Mencegah Limit Size Apps Script)
-            const compressImage = (file, maxWidth = 500) => {
+            const compressImage = (file, maxWidth = 1200) => {
                 return new Promise((resolve) => {
                     const reader = new FileReader();
                     reader.onload = (event) => {
@@ -3075,27 +3141,11 @@ const insertEditWartaFormatting = (tag) => {
         </div>
         <div className="mb-4">
   <label className="block text-sm font-medium text-navy-700 mb-1">Isi Warta</label>
-  <div className="flex flex-wrap gap-1 mb-2 bg-navy-50 p-1.5 rounded-lg border border-navy-100">
-      <button type="button" onClick={() => insertEditWartaFormatting('bold')} className="p-1.5 hover:bg-navy-200 rounded text-navy-800 transition" title="Tebal"><Icon name="Bold" className="w-4 h-4"/></button>
-      <button type="button" onClick={() => insertEditWartaFormatting('italic')} className="p-1.5 hover:bg-navy-200 rounded text-navy-800 transition" title="Miring"><Icon name="Italic" className="w-4 h-4"/></button>
-      <button type="button" onClick={() => insertEditWartaFormatting('underline')} className="p-1.5 hover:bg-navy-200 rounded text-navy-800 transition" title="Garis Bawah"><Icon name="Underline" className="w-4 h-4"/></button>
-      <div className="w-px h-5 bg-navy-200 mx-1 self-center"></div>
-      <button type="button" onClick={() => insertEditWartaFormatting('h3')} className="p-1 hover:bg-navy-200 rounded text-navy-800 transition font-black text-xs px-2" title="Judul (Heading)">H3</button>
-      <div className="w-px h-5 bg-navy-200 mx-1 self-center"></div>
-      <button type="button" onClick={() => insertEditWartaFormatting('bullet')} className="p-1.5 hover:bg-navy-200 rounded text-navy-800 transition" title="Daftar Titik"><Icon name="List" className="w-4 h-4"/></button>
-      <button type="button" onClick={() => insertEditWartaFormatting('number')} className="p-1.5 hover:bg-navy-200 rounded text-navy-800 transition" title="Daftar Angka"><Icon name="ListOrdered" className="w-4 h-4"/></button>
-      <div className="w-px h-5 bg-navy-200 mx-1 self-center"></div>
-      <button type="button" onClick={() => openLinkModal('editWarta')} className="p-1.5 hover:bg-navy-200 rounded text-navy-800 transition" title="Sisipkan Tautan"><Icon name="LinkIcon" className="w-4 h-4"/></button>
-      <button type="button" onClick={() => insertEditWartaFormatting('br')} className="p-1 hover:bg-navy-200 rounded text-navy-800 transition font-bold text-xs px-2" title="Baris Baru (Enter)">BR</button>
-  </div>
-  <textarea
-    ref={editWartaTextareaRef}
-    rows="5"
-    value={editWartaIsi}
-    onChange={e => setEditWartaIsi(e.target.value)}
-    required
-    className="w-full px-4 py-2 border border-navy-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-  ></textarea>
+  <RichTextEditor
+  value={editWartaIsi}
+  onChange={(html) => setEditWartaIsi(html)}
+  placeholder="Edit isi warta di sini..."
+    />
 </div>
         <div className="mb-5">
             <label className="block text-sm font-medium text-navy-700 mb-1">Penulis</label>
@@ -3392,20 +3442,11 @@ const insertEditWartaFormatting = (tag) => {
                     </div>
                     <div className="mb-5">
                         <label className="block text-sm font-medium text-navy-700 mb-1">Isi Warta</label>
-                        <div className="flex flex-wrap gap-1 mb-2 bg-navy-50 p-1.5 rounded-lg border border-navy-100">
-                            <button type="button" onClick={() => insertWartaFormatting('bold')} className="p-1.5 hover:bg-navy-200 rounded text-navy-800 transition" title="Tebal"><Icon name="Bold" className="w-4 h-4"/></button>
-                            <button type="button" onClick={() => insertWartaFormatting('italic')} className="p-1.5 hover:bg-navy-200 rounded text-navy-800 transition" title="Miring"><Icon name="Italic" className="w-4 h-4"/></button>
-                            <button type="button" onClick={() => insertWartaFormatting('underline')} className="p-1.5 hover:bg-navy-200 rounded text-navy-800 transition" title="Garis Bawah"><Icon name="Underline" className="w-4 h-4"/></button>
-                            <div className="w-px h-5 bg-navy-200 mx-1 self-center"></div>
-                            <button type="button" onClick={() => insertWartaFormatting('h3')} className="p-1 hover:bg-navy-200 rounded text-navy-800 transition font-black text-xs px-2" title="Judul (Heading)">H3</button>
-                            <div className="w-px h-5 bg-navy-200 mx-1 self-center"></div>
-                            <button type="button" onClick={() => insertWartaFormatting('bullet')} className="p-1.5 hover:bg-navy-200 rounded text-navy-800 transition" title="Daftar Titik"><Icon name="List" className="w-4 h-4"/></button>
-                            <button type="button" onClick={() => insertWartaFormatting('number')} className="p-1.5 hover:bg-navy-200 rounded text-navy-800 transition" title="Daftar Angka"><Icon name="ListOrdered" className="w-4 h-4"/></button>
-                            <div className="w-px h-5 bg-navy-200 mx-1 self-center"></div>
-                            <button type="button" onClick={() => openLinkModal('warta')} className="p-1.5 hover:bg-navy-200 rounded text-navy-800 transition" title="Sisipkan Tautan"><Icon name="LinkIcon" className="w-4 h-4"/></button>
-                            <button type="button" onClick={() => insertWartaFormatting('br')} className="p-1 hover:bg-navy-200 rounded text-navy-800 transition font-bold text-xs px-2" title="Baris Baru (Enter)">BR</button>
-                        </div>
-                        <textarea ref={wartaTextareaRef} rows="5" value={wartaIsi} onChange={e => setWartaIsi(e.target.value)} required className="w-full px-4 py-2 border border-navy-300 rounded-lg focus:ring-2 focus:ring-navy-500"></textarea>
+                        <RichTextEditor
+                            value={wartaIsi}
+                            onChange={(html) => setWartaIsi(html)}
+                            placeholder="Tulis isi warta di sini..."
+                        />
                     </div>
                     <div className="mb-8">
                         <label className="block text-sm font-medium text-navy-700 mb-1">Unggah Gambar (Opsional)</label>
