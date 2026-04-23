@@ -121,6 +121,27 @@ function getMd5Hash(str) {
   return hash.substring(0, 10).toUpperCase(); // Ambil 10 karakter pertama sidik jari
 }
 
+// HELPER BARU: Memproses banyak gambar sekaligus dari input Warta
+function processMultipleImages(gambarUrlStr, judul) {
+  if (!gambarUrlStr) return "";
+  let urls = gambarUrlStr.split('|||');
+  let processedUrls = [];
+
+  for (let i = 0; i < urls.length; i++) {
+    let url = urls[i].trim();
+    if (url && !url.startsWith('http') && (url.startsWith('data:image') || url.length > 500)) {
+      let hash = getMd5Hash(url);
+      let targetFolderId = getOrCreateNestedFolder("Warta_Images");
+      let safeTitle = judul ? judul.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30) : "Gambar";
+      let fileName = "Warta_" + safeTitle + "_" + (i+1) + "_" + hash + ".jpg"; // bedakan nama tiap gambar
+      let uploadedUrl = uploadFileToDrive(url, fileName, targetFolderId);
+      processedUrls.push(uploadedUrl);
+    } else {
+      processedUrls.push(url);
+    }
+  }
+  return processedUrls.join('|||');
+}
 
 // =========================================================================
 // 3. FUNGSI DATABASE (GETTER UTAMA)
@@ -164,12 +185,16 @@ function getDaftarWarta() {
   const data = sheet.getDataRange().getValues();
   const wartaList = [];
   for (let i = 1; i < data.length; i++) {
+    let rawImageStr = data[i][3] || '';
+    // Pisahkan dengan ||| untuk mengatasi lebih dari 1 gambar
+    let processedImages = rawImageStr.toString().split('|||').map(u => makeSafeImageUrl(u.trim())).filter(u => u).join('|||');
+
     wartaList.push({
       rowIndex: i + 1,
       tanggal: data[i][0] ? Utilities.formatDate(new Date(data[i][0]), Session.getScriptTimeZone(), "dd MMM yyyy") : '',
       judul: data[i][1] || '', 
       isi: data[i][2] || '', 
-      gambarUrl: makeSafeImageUrl(data[i][3] || ''), // Otomatis perbaiki link lama
+      gambarUrl: processedImages,
       penulis: data[i][4] || ''
     });
   }
@@ -201,41 +226,23 @@ function getOrCreateNestedFolder(folderName) {
 
 function saveWarta(payload) {
   let sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
-  let gambarUrl = payload.gambarUrl || "";
   
-  if (gambarUrl && !gambarUrl.startsWith('http') && (gambarUrl.startsWith('data:image') || gambarUrl.length > 500)) {
-    let hash = getMd5Hash(gambarUrl); // Buat Sidik Jari
-    let targetFolderId = getOrCreateNestedFolder("Warta_Images");
-    
-    // NAMA FILE RAPI: Mengambil judul warta (Maks 30 huruf)
-    let safeTitle = payload.judul ? payload.judul.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30) : "Gambar";
-    let fileName = "Warta_" + safeTitle + "_" + hash + ".jpg";
-    
-    gambarUrl = uploadFileToDrive(gambarUrl, fileName, targetFolderId);
-  }
+  // Gunakan helper pemroses gambar multi
+  let finalGambarUrl = processMultipleImages(payload.gambarUrl, payload.judul);
   
-  sheet.appendRow([ new Date(), payload.judul, payload.isi, gambarUrl, payload.penulis ]);
+  sheet.appendRow([ new Date(), payload.judul, payload.isi, finalGambarUrl, payload.penulis ]);
   return jsonResponse({ success: true });
 }
 
 function updateWarta(payload) {
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
-  let gambarUrl = payload.gambarUrl || "";
   
-  if (gambarUrl && !gambarUrl.startsWith('http') && (gambarUrl.startsWith('data:image') || gambarUrl.length > 500)) {
-    let hash = getMd5Hash(gambarUrl); // Buat Sidik Jari
-    let targetFolderId = getOrCreateNestedFolder("Warta_Images");
-    
-    // NAMA FILE RAPI: Mengambil judul warta
-    let safeTitle = payload.judul ? payload.judul.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30) : "Gambar";
-    let fileName = "Warta_" + safeTitle + "_" + hash + ".jpg";
-    
-    gambarUrl = uploadFileToDrive(gambarUrl, fileName, targetFolderId);
-  }
+  // Gunakan helper pemroses gambar multi
+  let finalGambarUrl = processMultipleImages(payload.gambarUrl, payload.judul);
   
   sheet.getRange(payload.rowIndex, 2).setValue(payload.judul);
   sheet.getRange(payload.rowIndex, 3).setValue(payload.isi);
-  sheet.getRange(payload.rowIndex, 4).setValue(gambarUrl);
+  sheet.getRange(payload.rowIndex, 4).setValue(finalGambarUrl);
   sheet.getRange(payload.rowIndex, 5).setValue(payload.penulis);
   return jsonResponse({ success: true });
 }
