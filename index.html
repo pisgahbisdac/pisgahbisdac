@@ -3164,9 +3164,13 @@ const insertEditWartaFormatting = (tag) => {
     <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-lg w-full max-h-[85vh] overflow-y-auto relative border border-navy-100/60" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)' }}>
       
       {/* Tombol Close (absolut, tidak mengapung) */}
-      <button onClick={() => setEditWartaModal(false)} className="absolute top-4 right-4 text-navy-400 hover:text-red-500 transition-colors bg-navy-50 w-8 h-8 rounded-full flex items-center justify-center font-bold z-20">
-        ×
-      </button>
+      <button 
+  onClick={() => setEditWartaModal(false)} 
+  className="absolute right-4 text-navy-400 hover:text-red-500 transition-colors bg-navy-50 w-8 h-8 rounded-full flex items-center justify-center font-bold z-20"
+  style={{ top: '1.75rem' }}
+>
+  ×
+</button>
 
       <h3 className="text-xl font-bold mb-4 pr-8">Edit Warta</h3>
       
@@ -4492,7 +4496,7 @@ const insertEditWartaFormatting = (tag) => {
   <button
     onClick={() => setActiveTab('hubungi')}
     className="fixed right-6 md:right-8 z-40 bg-transparent hover:bg-[#128C7E] text-gold-400 p-4 rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 flex items-center justify-center animate-fade-in border border-green-400/5"
-    style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)' }}
+    style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 7.5rem)' }}
   >
     <Icon name="Phone" className="w-6 h-6 md:w-7 md:h-7 drop-shadow-sm" />
   </button>
