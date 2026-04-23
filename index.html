@@ -80,10 +80,24 @@
             background: #94a3b8;
         }
 
-        .pb-safe {
-            padding-bottom: env(safe-area-inset-bottom);
-        }
+        /* Safe area untuk iPhone notch & home indicator */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom) !important;
+}
 
+.pt-safe {
+  padding-top: env(safe-area-inset-top) !important;
+}
+
+/* Perbaikan untuk menu navigasi bawah */
+.fixed-nav {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
+}
+
+/* Tombol floating WhatsApp */
+.float-wa {
+  bottom: calc(env(safe-area-inset-bottom) + 5rem) !important;
+}
         .prose p {
             margin-bottom: 1rem;
             line-height: 1.7;
@@ -3147,7 +3161,7 @@ const insertEditWartaFormatting = (tag) => {
     {/* Modal Edit Warta */}
 {editWartaModal && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/60 px-4 backdrop-blur-md overflow-y-auto py-4">
-    <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto relative border border-navy-100/60 pb-32 md:pb-8">
+    <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-lg w-full max-h-[85vh] overflow-y-auto relative border border-navy-100/60" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)' }}>
       
       {/* Tombol Close (absolut, tidak mengapung) */}
       <button onClick={() => setEditWartaModal(false)} className="absolute top-4 right-4 text-navy-400 hover:text-red-500 transition-colors bg-navy-50 w-8 h-8 rounded-full flex items-center justify-center font-bold z-20">
@@ -4458,8 +4472,12 @@ const insertEditWartaFormatting = (tag) => {
                         {renderContent()}
                     </main>
 
-                    <nav className="fixed bottom-5 left-1/2 -translate-x-1/2 w-[calc(100%-2.5rem)] max-w-lg bg-white/90 backdrop-blur-xl border border-navy-100/50 rounded-3xl pb-safe z-50 shadow-[0_8px_30px_rgb(11,26,48,0.08)]">
-                        <div className="flex justify-around items-center p-2">
+                    <nav className="fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg bg-white/90 backdrop-blur-xl border border-navy-100/50 rounded-3xl z-50 shadow-lg" style={{ bottom: `calc(env(safe-area-inset-bottom, 0px) + 0.75rem)` }}>
+  <div className="flex justify-around items-center p-2 pb-safe">
+    {/* ... tombol navigasi ... */}
+  </div>
+</nav>
+<div className="flex justify-around items-center p-2">
                             {tabs.map(tab => {
                                 const isActive = activeTab.startsWith(tab.id);
                                 return (
@@ -4475,15 +4493,14 @@ const insertEditWartaFormatting = (tag) => {
 
                     {/* Floating Action Button (Hubungi / WA) */}
                     {activeTab !== 'admin_dashboard' && activeTab !== 'hubungi' && (
-                        <button
-                            onClick={() => setActiveTab('hubungi')}
-                            className="fixed bottom-28 md:bottom-8 right-6 md:right-8 z-40 bg-transparent hover:bg-[#128C7E] text-gold-400 p-4 rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 flex items-center justify-center animate-fade-in border border-green-400/5"
-                            aria-label="Hubungi Kami"
-                            title="Hubungi Kami"
-                        >
-                            <Icon name="Phone" className="w-6 h-6 md:w-7 md:h-7 drop-shadow-sm" />
-                        </button>
-                    )}
+  <button
+    onClick={() => setActiveTab('hubungi')}
+    className="fixed right-6 md:right-8 z-40 bg-transparent hover:bg-[#128C7E] text-gold-400 p-4 rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 flex items-center justify-center animate-fade-in border border-green-400/5"
+    style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)' }}
+  >
+    <Icon name="Phone" className="w-6 h-6 md:w-7 md:h-7 drop-shadow-sm" />
+  </button>
+)}
                 </div>
             );
         }
