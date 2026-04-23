@@ -2495,7 +2495,7 @@ React.useEffect(() => {
 
 // Subtab untuk Pengaturan Admin
 const [pengaturanSubTab, setPengaturanSubTab] = React.useState('pengumuman'); // 'pengumuman', 'youtube_url', 'ganti_password' 
-const pengaturanScrollContainerRef = React.useRef(null);
+const [pengaturanScrollContainerRef] = React.useRef(null);
 
 const scrollPengaturanTabs = (direction) => {
   if (pengaturanScrollContainerRef.current) {
