@@ -1634,23 +1634,26 @@
                                                             <span className="text-xs text-navy-500 w-10">{imageWidth}%</span>
                                                         </div>
                                                         <center>
-                                                            <div className="relative overflow-hidden rounded-lg shadow-sm mx-auto group" style={{ width: `${imageWidth}%` }}>
-                                                                <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
+                                                            {/* TAMBAHKAN aspect-video dan bg-navy-100 di sini untuk mengunci ukuran frame */}
+                                                            <div className="relative overflow-hidden rounded-lg shadow-sm mx-auto group aspect-video bg-navy-100/50" style={{ width: `${imageWidth}%` }}>
+                                                                
+                                                                {/* TAMBAHKAN h-full agar trek mengikuti tinggi frame */}
+                                                                <div className="flex transition-transform duration-500 ease-in-out h-full" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
                                                                     {safeUrls.map((url, imgIdx) => {
                                                                         const errKey = `${rowIdx}-${imgIdx}`;
                                                                         const hasError = imageErrors[errKey];
                                                                         return (
-                                                                            <div key={imgIdx} className="w-full flex-shrink-0 relative">
+                                                                            <div key={imgIdx} className="w-full h-full flex-shrink-0 relative">
                                                                                 {!hasError ? (
                                                                                     <img
                                                                                         src={url}
-                                                                                        className="w-full h-auto object-cover"
+                                                                                        className="w-full h-full object-cover"
                                                                                         alt={`Gambar warta ${imgIdx + 1}`}
                                                                                         onError={() => handleImageError(errKey, url)}
                                                                                         referrerPolicy="no-referrer"
                                                                                     />
                                                                                 ) : (
-                                                                                    <div className="text-red-500 text-sm p-4 bg-red-50 w-full h-32 flex flex-col justify-center items-center">
+                                                                                    <div className="text-red-500 text-sm p-4 bg-red-50 w-full h-full flex flex-col justify-center items-center">
                                                                                         <span>❌ Gambar {imgIdx + 1} gagal dimuat.</span>
                                                                                         <button onClick={() => setImageErrors(prev => ({ ...prev, [errKey]: false }))} className="mt-2 text-blue-600 underline">Coba lagi</button>
                                                                                     </div>
