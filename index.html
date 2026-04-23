@@ -3147,7 +3147,7 @@ const insertEditWartaFormatting = (tag) => {
     {/* Modal Edit Warta */}
 {editWartaModal && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/60 px-4 backdrop-blur-md">
-    <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-lg w-full relative border border-navy-100/60">
+    <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-lg w-full relative border border-navy-100/60 pb-safe pb-20 md:pb-8">
       <button onClick={() => setEditWartaModal(false)} className="absolute top-4 right-4 text-navy-400 hover:text-red-500 transition-colors bg-navy-50 w-8 h-8 rounded-full flex items-center justify-center font-bold pb-1">&times;</button>
       <h3 className="text-xl font-bold mb-4">Edit Warta</h3>
       <form onSubmit={handleUpdateWarta}>
@@ -3445,7 +3445,7 @@ const insertEditWartaFormatting = (tag) => {
 
         {/* Konten Input Baru */}
         {wartaSubTab === 'input' && (
-            <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8">
+            <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8 pb-safe pb-20 md:pb-8 ">
                 <h1 className="text-xl font-bold text-navy-800 mb-4 border-b pb-2">Input Warta Baru</h1>
                 <p className="text-navy-500 mb-4">Silakan isi konten warta di bawah ini.</p>
                 <form onSubmit={handleWartaFormSubmit}>
