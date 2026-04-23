@@ -1986,34 +1986,32 @@
             const wartaItemsPerPage = 3;
 
             // RichTextEditor Component (WYSIWYG)
-const RichTextEditor = ({ value, onChange, placeholder }) => {
+const RichTextEditor = ({ initialValue = "", onChange, placeholder }) => {
   const editorRef = React.useRef(null);
   const [isFocused, setIsFocused] = React.useState(false);
 
-  // Update editor content when value changes externally (e.g., edit data load)
+  // Set konten awal hanya sekali saat mount
   React.useEffect(() => {
-    if (editorRef.current && editorRef.current.innerHTML !== value) {
-      editorRef.current.innerHTML = value || '';
+    if (editorRef.current) {
+      editorRef.current.innerHTML = initialValue;
     }
-  }, [value]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Notifikasi ke parent tanpa menyebabkan re-render yang timpa
   const handleInput = () => {
-    if (onChange) {
-      onChange(editorRef.current.innerHTML);
-    }
+    const html = editorRef.current.innerHTML;
+    if (onChange) onChange(html);
   };
 
   const execCommand = (cmd, valueArg = null) => {
-    document.execCommand(cmd, false, valueArg);
     editorRef.current.focus();
+    document.execCommand(cmd, false, valueArg);
     handleInput();
   };
 
   const insertLink = () => {
     const url = prompt('Masukkan URL tautan:', 'https://');
-    if (url) {
-      execCommand('createLink', url);
-    }
+    if (url) execCommand('createLink', url);
   };
 
   const insertBreak = () => {
@@ -2023,17 +2021,17 @@ const RichTextEditor = ({ value, onChange, placeholder }) => {
   return (
     <div className="border border-navy-200 rounded-lg overflow-hidden bg-white">
       <div className="flex flex-wrap gap-1 p-2 bg-navy-50 border-b border-navy-100">
-        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('bold'); }} className="p-1.5 hover:bg-navy-200 rounded transition" title="Tebal"><Icon name="Bold" className="w-4 h-4"/></button>
-        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('italic'); }} className="p-1.5 hover:bg-navy-200 rounded transition" title="Miring"><Icon name="Italic" className="w-4 h-4"/></button>
-        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('underline'); }} className="p-1.5 hover:bg-navy-200 rounded transition" title="Garis Bawah"><Icon name="Underline" className="w-4 h-4"/></button>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('bold'); }} className="p-1.5 hover:bg-navy-200 rounded" title="Tebal"><Icon name="Bold" className="w-4 h-4"/></button>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('italic'); }} className="p-1.5 hover:bg-navy-200 rounded" title="Miring"><Icon name="Italic" className="w-4 h-4"/></button>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('underline'); }} className="p-1.5 hover:bg-navy-200 rounded" title="Garis Bawah"><Icon name="Underline" className="w-4 h-4"/></button>
         <div className="w-px h-5 bg-navy-300 mx-1 self-center"></div>
-        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('formatBlock', '<h3>'); }} className="p-1 hover:bg-navy-200 rounded font-black text-xs px-2" title="Heading 3">H3</button>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('formatBlock', '<h3>'); }} className="p-1 hover:bg-navy-200 rounded font-black text-xs px-2">H3</button>
         <div className="w-px h-5 bg-navy-300 mx-1 self-center"></div>
-        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertUnorderedList'); }} className="p-1.5 hover:bg-navy-200 rounded transition" title="Daftar Bullet"><Icon name="List" className="w-4 h-4"/></button>
-        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertOrderedList'); }} className="p-1.5 hover:bg-navy-200 rounded transition" title="Daftar Angka"><Icon name="ListOrdered" className="w-4 h-4"/></button>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertUnorderedList'); }} className="p-1.5 hover:bg-navy-200 rounded"><Icon name="List" className="w-4 h-4"/></button>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertOrderedList'); }} className="p-1.5 hover:bg-navy-200 rounded"><Icon name="ListOrdered" className="w-4 h-4"/></button>
         <div className="w-px h-5 bg-navy-300 mx-1 self-center"></div>
-        <button type="button" onMouseDown={(e) => { e.preventDefault(); insertLink(); }} className="p-1.5 hover:bg-navy-200 rounded transition" title="Tautan"><Icon name="LinkIcon" className="w-4 h-4"/></button>
-        <button type="button" onMouseDown={(e) => { e.preventDefault(); insertBreak(); }} className="p-1 hover:bg-navy-200 rounded font-bold text-xs px-2" title="Baris Baru (BR)">BR</button>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); insertLink(); }} className="p-1.5 hover:bg-navy-200 rounded"><Icon name="LinkIcon" className="w-4 h-4"/></button>
+        <button type="button" onMouseDown={(e) => { e.preventDefault(); insertBreak(); }} className="p-1 hover:bg-navy-200 rounded font-bold text-xs px-2">BR</button>
       </div>
       <div
         ref={editorRef}
@@ -2044,9 +2042,6 @@ const RichTextEditor = ({ value, onChange, placeholder }) => {
         className="p-3 min-h-[200px] max-h-[400px] overflow-y-auto focus:outline-none bg-white prose prose-sm max-w-none"
         style={{ whiteSpace: 'pre-wrap' }}
       />
-      {!value && !isFocused && (
-        <div className="absolute text-gray-400 pointer-events-none p-3 mt-[-200px]">{placeholder}</div>
-      )}
     </div>
   );
 };
@@ -3142,7 +3137,7 @@ const insertEditWartaFormatting = (tag) => {
         <div className="mb-4">
   <label className="block text-sm font-medium text-navy-700 mb-1">Isi Warta</label>
   <RichTextEditor
-  value={editWartaIsi}
+  initialValue={wartaIsi}
   onChange={(html) => setEditWartaIsi(html)}
   placeholder="Edit isi warta di sini..."
     />
@@ -3443,7 +3438,7 @@ const insertEditWartaFormatting = (tag) => {
                     <div className="mb-5">
                         <label className="block text-sm font-medium text-navy-700 mb-1">Isi Warta</label>
                         <RichTextEditor
-                            value={wartaIsi}
+                            initialValue={wartaIsi}
                             onChange={(html) => setWartaIsi(html)}
                             placeholder="Tulis isi warta di sini..."
                         />
