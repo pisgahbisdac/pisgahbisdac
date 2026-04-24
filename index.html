@@ -375,22 +375,6 @@
             deferredPrompt = e;
         });
 
-        window.installPWA = () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the install prompt');
-            } else {
-                console.log('User dismissed the install prompt');
-            }
-            deferredPrompt = null;
-        });
-    } else {
-        setShowManualInstall(true);
-    }
-};
-
         const IosInstallModal = ({ isOpen, onClose }) => {
             if (!isOpen) return null;
             return (
@@ -4208,6 +4192,24 @@ const compressImage = (file, maxWidth = 1200) => {
             const [showLoginModal, setShowLoginModal] = React.useState(false);
             const [showIosPrompt, setShowIosPrompt] = React.useState(false);
             const [showManualInstall, setShowManualInstall] = React.useState(false);
+            
+            React.useEffect(() => {
+    window.installPWA = () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                deferredPrompt = null;
+            });
+        } else {
+            setShowManualInstall(true);
+        }
+    };
+}, []);
 
             React.useEffect(() => {
                 const handler = () => setShowIosPrompt(true);
