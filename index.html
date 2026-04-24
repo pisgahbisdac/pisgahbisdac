@@ -80,24 +80,6 @@
             background: #94a3b8;
         }
 
-        /* Safe area untuk iPhone notch & home indicator */
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom) !important;
-}
-
-.pt-safe {
-  padding-top: env(safe-area-inset-top) !important;
-}
-
-/* Perbaikan untuk menu navigasi bawah */
-.fixed-nav {
-  padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
-}
-
-/* Tombol floating WhatsApp */
-.float-wa {
-  bottom: calc(env(safe-area-inset-bottom) + 5rem) !important;
-}
         .prose p {
             margin-bottom: 1rem;
             line-height: 1.7;
@@ -536,15 +518,7 @@
 
         // --- COMPONENTS ---
         const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman }) => {
-            const [searchQuery, setSearchQuery] = React.useState('');
             const [currentSlide, setCurrentSlide] = React.useState(0);
-
-            // Listen for search events from the mobile header
-            React.useEffect(() => {
-                const handleSearch = (e) => setSearchQuery(e.detail || '');
-                window.addEventListener('homeSearch', handleSearch);
-                return () => window.removeEventListener('homeSearch', handleSearch);
-            }, []);
 
             // Auto-slide carousel effect
             React.useEffect(() => {
@@ -564,62 +538,8 @@
                 { id: 'persembahan', label: 'Persembahan & Perpuluhan', icon: 'Gift' }
             ];
 
-            const filteredItems = searchQuery.trim()
-                ? featureItems.filter(item => item.label.toLowerCase().includes(searchQuery.toLowerCase()))
-                : featureItems;
-
-            // Search petugas from jadwalDB and dataPejabat
-            const searchPetugas = () => {
-                if (!searchQuery.trim()) return [];
-                const q = searchQuery.toLowerCase();
-                const results = [];
-                const seen = new Set();
-
-                // Search in jadwalDB (upcoming schedules)
-                if (jadwalDB) {
-                    Object.entries(jadwalDB).forEach(([date, data]) => {
-                        const sections = [
-                            { key: 'petugas', label: 'Ibadah Rabu' },
-                            { key: 'sekolahSabat', label: 'Sekolah Sabat' },
-                            { key: 'khotbah', label: 'Ibadah Khotbah' },
-                            { key: 'diakon', label: 'Petugas Diakon' },
-                            { key: 'musik', label: 'Petugas Musik' },
-                            { key: 'perjamuan', label: 'Perjamuan Kudus' }
-                        ];
-                        sections.forEach(({ key, label }) => {
-                            if (data[key] && Array.isArray(data[key])) {
-                                data[key].forEach(p => {
-                                    if (p.nama && p.nama.toLowerCase().includes(q)) {
-                                        const uid = `${p.nama}-${p.tugas}-${date}`;
-                                        if (!seen.has(uid)) {
-                                            seen.add(uid);
-                                            results.push({ nama: p.nama, tugas: p.tugas, section: label, date: date });
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                    });
-                }
-
-                // Search in dataPejabat (church officials)
-                if (dataPejabat) {
-                    dataPejabat.forEach(p => {
-                        if (p.nama && p.nama.toLowerCase().includes(q)) {
-                            const uid = `pejabat-${p.id}`;
-                            if (!seen.has(uid)) {
-                                seen.add(uid);
-                                results.push({ nama: p.nama, tugas: p.jabatan, section: 'Pejabat Jemaat', date: null, img: p.img });
-                            }
-                        }
-                    });
-                }
-
-                return results;
-            };
-
-            const petugasResults = searchPetugas();
-
+            const filteredItems = featureItems;
+    
             const renderFeatureCard = (item) => {
                 const labelParts = item.label.split(' ');
                 const line1 = labelParts.length > 1 ? labelParts.slice(0, Math.ceil(labelParts.length / 2)).join(' ') : labelParts[0];
@@ -758,46 +678,9 @@
                         </div>
                     )}
 
-                    {/* Petugas Search Results */}
-                    {searchQuery.trim() && petugasResults.length > 0 && (
-                        <div className="mb-5 bg-white rounded-[1.25rem] shadow-sm border border-navy-100/60 overflow-hidden">
-                            <div className="px-4 py-3 bg-navy-50/50 border-b border-navy-100/60 flex items-center">
-                                <Icon name="Users" className="w-4 h-4 text-gold-500 mr-2" />
-                                <h3 className="font-bold text-xs text-navy-700 uppercase tracking-widest">Petugas Ditemukan ({petugasResults.length})</h3>
-                            </div>
-                            <div className="divide-y divide-navy-50 max-h-64 overflow-y-auto">
-                                {petugasResults.map((p, i) => (
-                                    <div key={i} className="flex items-center px-4 py-3 hover:bg-navy-50/30 transition-colors">
-                                        {p.img ? (
-                                            <img src={p.img} alt={p.nama} className="w-9 h-9 rounded-lg object-cover border border-navy-100 mr-3 shrink-0" />
-                                        ) : (
-                                            <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center mr-3 shrink-0">
-                                                <Icon name="Users" className="w-4 h-4 text-navy-400" />
-                                            </div>
-                                        )}
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-bold text-sm text-navy-900 truncate">{p.nama}</p>
-                                            <p className="text-[11px] text-navy-500 font-medium truncate">{p.tugas}</p>
-                                        </div>
-                                        <div className="text-right shrink-0 ml-2">
-                                            <span className="text-[9px] px-2 py-0.5 rounded-full bg-gold-50 text-gold-600 border border-gold-200 font-bold uppercase tracking-wider">{p.section}</span>
-                                            {p.date && <p className="text-[10px] text-navy-400 font-medium mt-1">{formatIndoDateShort(p.date)}</p>}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
                     {/* Feature Grid */}
                     <div className={`grid ${filteredItems.length < 3 ? 'grid-cols-2' : 'grid-cols-3'} gap-3 md:gap-5 mb-5 md:mb-8`}>
                         {filteredItems.map(item => renderFeatureCard(item))}
-                        {searchQuery.trim() && filteredItems.length === 0 && petugasResults.length === 0 && (
-                            <div className="col-span-3 text-center py-8 text-navy-400 font-medium text-sm">
-                                <Icon name="Search" className="w-8 h-8 mx-auto mb-2 text-navy-300" />
-                                Tidak ditemukan hasil"{searchQuery}"
-                            </div>
-                        )}
                     </div>
 
                     <div className="glass-card p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8">
@@ -1324,7 +1207,7 @@
                         <button onClick={() => setActiveTab('pindah_masuk')} className="w-full text-left p-5 rounded-[1.25rem] border border-navy-100/50 bg-navy-50/30 hover:bg-navy-50 transition-colors flex items-center justify-between h-full group shadow-sm"><div><h3 className="font-bold text-navy-900 group-hover:text-gold-600 transition-colors">Pindah Masuk - ACMS</h3><p className="text-xs font-medium text-navy-500 mt-1.5 leading-relaxed">Untuk anggota GMAHK yang ingin pindah ke Jemaat PISGAH BISDAC.</p></div><span className="text-gold-500 font-black text-xl ml-4 transform group-hover:translate-x-1 transition-transform">&rarr;</span></button>
                     </div>
                 </div>
-                <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60 pb-safe">
+                <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
                     <h2 className="text-[1.3rem] font-black mb-4 text-navy-900 border-b pb-3 border-navy-50">Jadwal Kegiatan & Pelayanan</h2>
                     <p className="text-sm font-medium text-navy-600 mb-6">Lihat jadwal ibadah rutin dan daftar petugas pelayanan jemaat PISGAH BISDAC.</p>
                     <button onClick={() => setActiveTab('jadwal')} className="w-full text-left p-5 rounded-[1.25rem] border border-gold-200 bg-gradient-to-br from-gold-50 to-white hover:border-gold-300 transition-colors flex items-center justify-between group shadow-sm"><div className="flex items-center"><div className="w-[3rem] h-[3rem] bg-gold-400 rounded-full flex items-center justify-center text-navy-900 mr-4 shrink-0 shadow-sm"><Icon name="Calendar" className="w-5 h-5" /></div><div><h3 className="font-bold text-navy-900">Lihat Jadwal Jemaat</h3><p className="text-xs font-medium text-navy-600 mt-1">Jadwal petugas ibadah hari Rabu dan Sabat.</p></div></div><span className="text-gold-500 font-black text-xl ml-4 transform group-hover:translate-x-1 transition-transform">&rarr;</span></button>
@@ -2022,10 +1905,6 @@
             // State Pengumuman
             const [editPengumuman, setEditPengumuman] = React.useState(pengumuman);
             const [isSavingPengumuman, setIsSavingPengumuman] = React.useState(false);
-            const textareaRef = React.useRef(null);
-            const [linkModalOpenPengumuman, setLinkModalOpenPengumuman] = React.useState(false);
-            const [linkUrlPengumuman, setLinkUrlPengumuman] = React.useState('');
-            const [linkTextPengumuman, setLinkTextPengumuman] = React.useState('');
             const pengumumanEditorRef = React.useRef(null);
             const isContentEmpty = (htmlString) => {
                     if (!htmlString) return true;
@@ -2049,9 +1928,6 @@
             const [isSavingWarta, setIsSavingWarta] = React.useState(false);
             const [wartaPenulis, setWartaPenulis] = React.useState('');
             const [editWartaPenulis, setEditWartaPenulis] = React.useState('');
-            const [wartaIsiHtml, setWartaIsiHtml] = React.useState('');
-            const wartaTextareaRef = React.useRef(null);
-            const editWartaTextareaRef = React.useRef(null);
             const [wartaCurrentPage, setWartaCurrentPage] = React.useState(1);
             const wartaItemsPerPage = 3;
             const wartaEditorRef = React.useRef(null);      // <-- tambah
@@ -2220,8 +2096,6 @@
             };
 
             // ========== GALERI / GAMBAR ==========
-            const { useState, useEffect, useRef } = React;
-            const [galeriSubTab, setGaleriSubTab] = React.useState('folder');
             const galeriScrollContainerRef = React.useRef(null);
 
             // State Galeri
@@ -2240,16 +2114,6 @@
             const [isLoadingImages, setIsLoadingImages] = useState(false);
             const [showAllFolders, setShowAllFolders] = useState(false);
 
-            const [imageTitle, setImageTitle] = useState('');
-            const [imageFile, setImageFile] = useState(null);
-            const [isUploading, setIsUploading] = useState(false);
-          
-            const scrollGaleriTabs = (direction) => {
-                if (galeriScrollContainerRef.current) {
-                    galeriScrollContainerRef.current.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
-                }
-            };
-
             // Fungsi menghitung total ukuran dalam MB
 const getTotalSizeMB = (files) => {
   let totalBytes = 0;
@@ -2260,15 +2124,7 @@ const getTotalSizeMB = (files) => {
 };
 
             //Fungsi upload multiple
-            const getTotalFileSizeMB = (files) => {
-  let totalBytes = 0;
-  for (let i = 0; i < files.length; i++) {
-    totalBytes += files[i].size;
-  }
-  return totalBytes / (1024 * 1024);
-};
-
-const handleUploadMultiple = async () => {
+            const handleUploadMultiple = async () => {
   if (!selectedFolder) {
     alert('Pilih folder terlebih dahulu');
     return;
@@ -2393,33 +2249,6 @@ const loadImages = async () => {
   setIsLoadingImages(false);
 };
 
-const handleUploadImage = async () => {
-    if (!imageTitle.trim()) return alert('Judul gambar harus diisi');
-    if (!imageFile) return alert('Pilih file gambar');
-    setIsUploading(true);
-    const reader = new FileReader();
-    reader.readAsDataURL(imageFile);
-    reader.onload = async () => {
-        const res = await fetch(GAS_API_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'uploadImageToDrive',
-                password: adminToken,
-                folderId: selectedFolder,
-                title: imageTitle,
-                imageBase64: reader.result
-            })
-        });
-        const data = await res.json();
-        if (data.success) {
-            alert('Upload berhasil!');
-            setImageTitle(''); setImageFile(null); setImagePreview('');
-            loadImages();
-        } else alert('Upload gagal: ' + data.message);
-        setIsUploading(false);
-    };
-};
-
 const handleCreateFolder = async () => {
   if (!newFolderName.trim()) return alert('Nama folder tidak boleh kosong');
   setIsCreatingFolder(true);
@@ -2511,69 +2340,7 @@ const scrollPengaturanTabs = (direction) => {
             setWartaCurrentPage(1);
             }, [daftarWarta]);
 
-            const [linkModalOpen, setLinkModalOpen] = React.useState(false);
-            const [linkUrl, setLinkUrl] = React.useState('');
-            const [linkText, setLinkText] = React.useState('');
-            const [currentLinkEditor, setCurrentLinkEditor] = React.useState(null); // 'warta' atau 'editWarta'
-
-            // Fungsi menangani pembuatan link warta
-            const openLinkModal = (editorType) => {
-    const textarea = editorType === 'warta' ? wartaTextareaRef.current : editWartaTextareaRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end);
-    if (!selectedText) {
-        alert("Pilih teks terlebih dahulu untuk dijadikan link.");
-        return;
-    }
-    setLinkText(selectedText);
-    setLinkUrl('');
-    setCurrentLinkEditor(editorType);
-    setLinkModalOpen(true);
-};
-
-const insertLink = () => {
-    if (!linkUrl) {
-        alert("URL tidak boleh kosong.");
-        return;
-    }
-    let url = linkUrl;
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        url = 'https://' + url;
-    }
-    const tag = `<a href="${url}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
-    
-    if (currentLinkEditor === 'warta') {
-        const textarea = wartaTextareaRef.current;
-        if (!textarea) return;
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const newText = wartaIsi.substring(0, start) + tag + wartaIsi.substring(end);
-        setWartaIsi(newText);
-        setTimeout(() => {
-            textarea.focus();
-            textarea.setSelectionRange(start + tag.length, start + tag.length);
-        }, 0);
-    } else if (currentLinkEditor === 'editWarta') {
-        const textarea = editWartaTextareaRef.current;
-        if (!textarea) return;
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const newText = editWartaIsi.substring(0, start) + tag + editWartaIsi.substring(end);
-        setEditWartaIsi(newText);
-        setTimeout(() => {
-            textarea.focus();
-            textarea.setSelectionRange(start + tag.length, start + tag.length);
-        }, 0);
-    }
-    setLinkModalOpen(false);
-    setLinkUrl('');
-    setLinkText('');
-    setCurrentLinkEditor(null);
-};
-
-// Di dalam komponen Home
+            // Di dalam komponen Home
 const isPengumumanEmpty = (pengumuman) => {
     if (!pengumuman || !pengumuman.isi) return true;
     const tempDiv = document.createElement('div');
@@ -2590,48 +2357,7 @@ const isPengumumanEmpty = (pengumuman) => {
     </div>
 )}
 
-// Fungsi menangani pembuatan link Pengumuman
-const openLinkModalPengumuman = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = editPengumuman.isi.substring(start, end);
-    if (!selectedText) {
-        alert("Pilih teks terlebih dahulu untuk dijadikan link.");
-        return;
-    }
-    setLinkTextPengumuman(selectedText);
-    setLinkUrlPengumuman('');
-    setLinkModalOpenPengumuman(true);
-};
-
-const insertLinkPengumuman = () => {
-    if (!linkUrlPengumuman) {
-        alert("URL tidak boleh kosong.");
-        return;
-    }
-    let url = linkUrlPengumuman;
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        url = 'https://' + url;
-    }
-    const tag = `<a href="${url}" target="_blank" rel="noopener noreferrer">${linkTextPengumuman}</a>`;
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const newText = editPengumuman.isi.substring(0, start) + tag + editPengumuman.isi.substring(end);
-    setEditPengumuman({ ...editPengumuman, isi: newText });
-    setTimeout(() => {
-        textarea.focus();
-        textarea.setSelectionRange(start + tag.length, start + tag.length);
-    }, 0);
-    setLinkModalOpenPengumuman(false);
-    setLinkUrlPengumuman('');
-    setLinkTextPengumuman('');
-};
-
-            // Fungsi simpan warta
+// Fungsi simpan warta
             const handleWartaFormSubmit = async (e) => {
   e.preventDefault();
   setIsSavingWarta(true);
@@ -2765,112 +2491,7 @@ const handleDeleteWarta = async (rowIndex, judul) => {
   }
 };
 
-console.log("Data yang dikirim:", { judul: wartaJudul, isi: wartaIsi, penulis: wartaPenulis });
-
-            // Fungsi untuk menyisipkan tag HTML BOLD Pengumuman
-            const insertFormatting = (tag) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = editPengumuman.isi;
-    const selectedText = text.substring(start, end);
-    let newText = text;
-    if (tag === 'bold') {
-        newText = text.substring(0, start) + '<strong>' + selectedText + '</strong>' + text.substring(end);
-    } else if (tag === 'italic') {
-        newText = text.substring(0, start) + '<em>' + selectedText + '</em>' + text.substring(end);
-    }
-    setEditPengumuman({ ...editPengumuman, isi: newText });
-    setTimeout(() => {
-        textarea.focus();
-        textarea.setSelectionRange(start + (tag === 'bold' ? 8 : 5), end + (tag === 'bold' ? 8 : 5));
-    }, 0);
-};
-
-            // Fungsi untuk insert formatting pada warta baru
-const insertWartaFormatting = (tag) => {
-  const textarea = wartaTextareaRef.current;
-  if (!textarea) return;
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const text = wartaIsi;
-  const selectedText = text.substring(start, end);
-  let newText = text;
-  let offset = 0;
-
-  if (tag === 'bold') {
-    newText = text.substring(0, start) + '<strong>' + selectedText + '</strong>' + text.substring(end);
-    offset = 8;
-  } else if (tag === 'italic') {
-    newText = text.substring(0, start) + '<em>' + selectedText + '</em>' + text.substring(end);
-    offset = 4;
-  } else if (tag === 'underline') {
-    newText = text.substring(0, start) + '<u>' + selectedText + '</u>' + text.substring(end);
-    offset = 3;
-  } else if (tag === 'h3') {
-    newText = text.substring(0, start) + '<h3>' + selectedText + '</h3>\n' + text.substring(end);
-    offset = 4;
-  } else if (tag === 'bullet') {
-    newText = text.substring(0, start) + '<ul>\n<li>' + selectedText + '</li>\n</ul>\n' + text.substring(end);
-    offset = 9;
-  } else if (tag === 'number') {
-    newText = text.substring(0, start) + '<ol>\n<li>' + selectedText + '</li>\n</ol>\n' + text.substring(end);
-    offset = 9;
-  } else if (tag === 'br') {
-    newText = text.substring(0, start) + '<br/>\n' + selectedText + text.substring(end);
-    offset = 6;
-  }
-
-  setWartaIsi(newText);
-  setTimeout(() => {
-    textarea.focus();
-    textarea.setSelectionRange(start + offset, end + offset);
-  }, 0);
-};
-
-// Fungsi untuk insert formatting pada edit warta
-const insertEditWartaFormatting = (tag) => {
-  const textarea = editWartaTextareaRef.current;
-  if (!textarea) return;
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const text = editWartaIsi;
-  const selectedText = text.substring(start, end);
-  let newText = text;
-  let offset = 0;
-
-  if (tag === 'bold') {
-    newText = text.substring(0, start) + '<strong>' + selectedText + '</strong>' + text.substring(end);
-    offset = 8;
-  } else if (tag === 'italic') {
-    newText = text.substring(0, start) + '<em>' + selectedText + '</em>' + text.substring(end);
-    offset = 4;
-  } else if (tag === 'underline') {
-    newText = text.substring(0, start) + '<u>' + selectedText + '</u>' + text.substring(end);
-    offset = 3;
-  } else if (tag === 'h3') {
-    newText = text.substring(0, start) + '<h3>' + selectedText + '</h3>\n' + text.substring(end);
-    offset = 4;
-  } else if (tag === 'bullet') {
-    newText = text.substring(0, start) + '<ul>\n<li>' + selectedText + '</li>\n</ul>\n' + text.substring(end);
-    offset = 9;
-  } else if (tag === 'number') {
-    newText = text.substring(0, start) + '<ol>\n<li>' + selectedText + '</li>\n</ol>\n' + text.substring(end);
-    offset = 9;
-  } else if (tag === 'br') {
-    newText = text.substring(0, start) + '<br/>\n' + selectedText + text.substring(end);
-    offset = 6;
-  }
-
-  setEditWartaIsi(newText);
-  setTimeout(() => {
-    textarea.focus();
-    textarea.setSelectionRange(start + offset, end + offset);
-  }, 0);
-};
-
-            // Fungsi kompresi gambar otomatis sebelum diupload (Mencegah Limit Size Apps Script)
+// Fungsi kompresi gambar otomatis sebelum diupload (Mencegah Limit Size Apps Script)
             const compressImage = (file, maxWidth = 1200) => {
                 return new Promise((resolve) => {
                     const reader = new FileReader();
@@ -2988,8 +2609,7 @@ const insertEditWartaFormatting = (tag) => {
                 { id: 'perjamuan', label: 'Perjamuan Kudus' }
             ];
 
-            const currentSubTabLabel = subTabs.find(t => t.id === subTab)?.label || '';
-            const columns = subTab === 'susunanAcara' ? ["Status Pengisian"] : getActiveArray(isRabu ? initialJadwalRabu : initialJadwalSabat, subTab).map(p => p.tugas);
+const columns = subTab === 'susunanAcara' ? ["Status Pengisian"] : getActiveArray(isRabu ? initialJadwalRabu : initialJadwalSabat, subTab).map(p => p.tugas);
 
             const handleEditClick = (date) => {
                 setEditingDate(date);
@@ -3405,51 +3025,6 @@ const insertEditWartaFormatting = (tag) => {
   </div>
 )}
 
-{/* Modal Input URL untuk Link */}
-{linkModalOpen && (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/60 px-4 backdrop-blur-md">
-        <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-md w-full relative border border-navy-100/60">
-            <button onClick={() => setLinkModalOpen(false)} className="absolute top-4 right-4 text-navy-400 hover:text-red-500 transition-colors bg-navy-50 w-8 h-8 rounded-full flex items-center justify-center font-bold pb-1">&times;</button>
-            <h3 className="text-xl font-bold mb-4 text-navy-900">Masukkan URL Link</h3>
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Teks yang akan di-link</label>
-                <input type="text" value={linkText} disabled className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100" />
-            </div>
-            <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">URL Tujuan</label>
-                <input type="url" value={linkUrl} onChange={e => setLinkUrl(e.target.value)} placeholder="https://..." className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" autoFocus />
-            </div>
-            <div className="flex justify-end gap-3">
-                <button onClick={() => setLinkModalOpen(false)} className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition">Batal</button>
-                <button onClick={insertLink} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">Sisipkan Link</button>
-            </div>
-        </div>
-    </div>
-)}
-
-
-{/* Modal Input URL untuk Link Pengumuman */}
-{linkModalOpenPengumuman && (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/60 px-4 backdrop-blur-md">
-        <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-md w-full relative border border-navy-100/60">
-            <button onClick={() => setLinkModalOpenPengumuman(false)} className="absolute top-4 right-4 text-navy-400 hover:text-red-500 transition-colors bg-navy-50 w-8 h-8 rounded-full flex items-center justify-center font-bold pb-1">&times;</button>
-            <h3 className="text-xl font-bold mb-4 text-navy-900">Masukkan URL Link</h3>
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Teks yang akan di-link</label>
-                <input type="text" value={linkTextPengumuman} disabled className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100" />
-            </div>
-            <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">URL Tujuan</label>
-                <input type="url" value={linkUrlPengumuman} onChange={e => setLinkUrlPengumuman(e.target.value)} placeholder="https://..." className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" autoFocus />
-            </div>
-            <div className="flex justify-end gap-3">
-                <button onClick={() => setLinkModalOpenPengumuman(false)} className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition">Batal</button>
-                <button onClick={insertLinkPengumuman} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">Sisipkan Link</button>
-            </div>
-        </div>
-    </div>
-)}
-
                             {adminTab === 'jadwal' && (
                                 <div className="animate-fade-in space-y-4">
                                     <div className="flex items-center gap-2">
@@ -3649,7 +3224,7 @@ const insertEditWartaFormatting = (tag) => {
 
         {/* Konten Input Baru */}
         {wartaSubTab === 'input' && (
-            <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8 pb-safe pb-20 md:pb-8 ">
+            <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8 pb-20 md:pb-8 ">
                 <h1 className="text-xl font-bold text-navy-800 mb-4 border-b pb-2">Input Warta Baru</h1>
                 <p className="text-navy-500 mb-4">Silakan isi konten warta di bawah ini.</p>
                 <form onSubmit={handleWartaFormSubmit}>
