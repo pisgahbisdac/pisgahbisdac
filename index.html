@@ -418,14 +418,15 @@
                     </div>
                 ) : isAndroid ? (
                     <div className="space-y-3 text-sm">
-                        <p>1. Tekan ikon <b> titik tiga </b> <Icon name="Titik" className="w-4 h-4 inline" /> di pojok kanan atas.</p>
+                        <p>1. Tekan ikon <b> titik tiga </b> <Icon name="Titik" className="w-4 h-4 inline" /> di pojok kanan bawah.</p>
                         <p>2. Pilih <b className="text-gold-600">"Instal Aplikasi"</b> atau <b>"Tambahkan ke Layar Utama"</b>.</p>
                         <p>3. Ikuti petunjuk selanjutnya.</p>
                     </div>
                 ) : (
                     <div className="space-y-3 text-sm">
-                        <p>Buka menu browser (biasanya ikon tiga titik atau tiga garis) lalu pilih</p>
-                        <p><b className="text-gold-600">"Instal Aplikasi"</b> atau <b>"Pasang Aplikasi"</b>.</p>
+                        <p>1. Tekan ikon <b>Bagikan</b> <Icon name="Share" className="w-4 h-4 inline" /> di browser Safari.</p>
+                        <p>2. Gulir ke bawah dan pilih <b className="text-gold-600">"Tambahkan ke Layar Utama"</b>.</p>
+                        <p>3. Klik <b>"Tambah"</b>.</p>
                     </div>
                 )}
                 <button onClick={onClose} className="mt-6 w-full bg-navy-900 text-gold-400 py-2.5 rounded-xl font-bold">Tutup</button>
@@ -4192,7 +4193,7 @@ const compressImage = (file, maxWidth = 1200) => {
             const [showLoginModal, setShowLoginModal] = React.useState(false);
             const [showIosPrompt, setShowIosPrompt] = React.useState(false);
             const [showManualInstall, setShowManualInstall] = React.useState(false);
-            
+
             React.useEffect(() => {
     window.installPWA = () => {
         if (deferredPrompt) {
