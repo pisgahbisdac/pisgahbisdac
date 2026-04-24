@@ -865,8 +865,8 @@
             );
 
             const susunanTabs = [
-                { id: 'ss', label: 'Sekolah Sabat', icon: 'BookOpen', activeColor: 'text-navy-900' },
                 { id: 'khotbah', label: 'Khotbah / Umum', icon: 'List', activeColor: 'text-navy-900' },
+                { id: 'ss', label: 'Sekolah Sabat', icon: 'BookOpen', activeColor: 'text-navy-900' },
                 { id: 'diakon', label: 'Diakon & Diakones', icon: 'Users', activeColor: 'text-navy-900' },
                 { id: 'musik', label: 'Pelayanan Musik', icon: 'Music', activeColor: 'text-navy-900' }
             ];
@@ -2032,6 +2032,7 @@
             const [linkModalOpenPengumuman, setLinkModalOpenPengumuman] = React.useState(false);
             const [linkUrlPengumuman, setLinkUrlPengumuman] = React.useState('');
             const [linkTextPengumuman, setLinkTextPengumuman] = React.useState('');
+            const pengumumanEditorRef = React.useRef(null);
 
             // State Warta (form)
             const [editingWarta, setEditingWarta] = React.useState(null); // { rowIndex, judul, isi, gambarUrl }
@@ -2495,12 +2496,13 @@ React.useEffect(() => {
 
 // Subtab untuk Pengaturan Admin
 const [pengaturanSubTab, setPengaturanSubTab] = React.useState('pengumuman'); // 'pengumuman', 'youtube_url', 'ganti_password' 
+
 const pengaturanScrollContainerRef = React.useRef(null);
 
 const scrollPengaturanTabs = (direction) => {
-  if (pengaturanScrollContainerRef.current) {
-    pengaturanScrollContainerRef.current.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
-  }
+    if (pengaturanScrollContainerRef.current) {
+        pengaturanScrollContainerRef.current.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
+    }
 };
 
             // Reset ke halaman 1 setiap kali data warta berubah
@@ -3595,7 +3597,7 @@ const insertEditWartaFormatting = (tag) => {
                                 </div>
                             )}
 
-                            {adminTab === 'warta' && (
+    {adminTab === 'warta' && (
     <div className="space-y-4 animate-fade-in">
         {/* Subtabs seperti pada jadwal */}
         <div className="flex items-center gap-2">
@@ -3610,7 +3612,7 @@ const insertEditWartaFormatting = (tag) => {
                     Posting
                 </button>
                 <button onClick={() => setWartaSubTab('galeri')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${wartaSubTab === 'galeri' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
-                Galeri
+                    Galeri
                 </button>
             </div>
             <button onClick={() => scrollWartaTabs('right')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kanan">
@@ -4057,157 +4059,158 @@ const insertEditWartaFormatting = (tag) => {
                             )}
 
                             {adminTab === 'pengaturan' && (
-  <div className="max-w-md mx-auto animate-fade-in space-y-6">
-    {/* Subtabs seperti pada jadwal */}
-    <div className="flex items-center gap-2">
-      <button onClick={() => scrollPengaturanTabs('left')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kiri">
-        <Icon name="ChevronLeft" className="w-5 h-5" />
-      </button>
-      <div ref={pengaturanScrollContainerRef} className="bg-white rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
-        <button onClick={() => setPengaturanSubTab('youtube')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'youtube' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
-          YouTube
-        </button>
-        <button onClick={() => setPengaturanSubTab('carousel')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'carousel' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
-          Carousel
-        </button>
-        <button onClick={() => setPengaturanSubTab('pengumuman')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'pengumuman' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
-          Pengumuman
-        </button>
-        <button onClick={() => setPengaturanSubTab('password')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'password' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
-          Ganti Password
-        </button>
-      </div>
-      <button onClick={() => scrollPengaturanTabs('right')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kanan">
-        <Icon name="ChevronRight" className="w-5 h-5" />
-      </button>
-    </div>
-
-    {/* --- FORM YOUTUBE URL --- */}
-    {pengaturanSubTab === 'youtube' && (
-      <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-          <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
-          <div><h3 className="font-black text-navy-900 text-lg tracking-tight">URL YouTube Embed</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Live Streaming Acara</p></div>
-        </div>
-        <form onSubmit={handleSaveYoutubeUrl} className="space-y-5">
-          <div>
-            <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Video Embed</label>
-            <textarea value={editYoutubeUrl} onChange={e => setEditYoutubeUrl(e.target.value)} required rows="3" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono font-medium shadow-sm leading-relaxed"></textarea>
-            <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Pastikan URL diawali dengan <br /><span className="text-gold-600">https://www.youtube.com/embed/</span>... atau <br /><span className="text-gold-600">https://www.youtube-nocookie.com/embed/</span>...</p>
-          </div>
-          <button type="submit" disabled={isSavingUrl} className={`w-full ${isSavingUrl ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center`}>
-            {isSavingUrl ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan URL Baru'}
-          </button>
-        </form>
-      </div>
-    )}
-
-    {/* --- FORM Hero-Image --- */}
-    {pengaturanSubTab === 'carousel' && (
-      <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-          <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><Icon name="Image" className="w-6 h-6" /></div>
-          <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Hero Image Banner</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Gambar Carousel Homepage</p></div>
-        </div>
-        <div className="mb-5 space-y-4">
-          {editHeroImages.map((img, idx) => (
-            <div key={idx} className="relative w-full overflow-hidden rounded-xl border border-navy-100 shadow-sm" style={{ aspectRatio: '16/8.5' }}>
-              <img src={img} alt={`Hero Preview ${idx + 1}`} className="w-full h-full object-cover bg-navy-50" />
-              <div className="absolute top-0 left-0 bg-black/60 text-white px-3 py-1 rounded-br-lg text-xs font-bold shadow-sm backdrop-blur-sm">
-                Slide {idx + 1} {img.startsWith('data:image') && <span className="text-gold-400 ml-1 font-black tracking-widest">(BARU)</span>}
-              </div>
-              <button 
-                type="button" 
-                onClick={() => handleRemoveHeroImage(idx)} 
-                className="absolute top-2 right-2 bg-red-500/90 text-white p-2.5 rounded-full hover:bg-red-600 shadow-md transition-colors backdrop-blur-md"
-                title="Hapus gambar ini"
-              >
-                <Icon name="Trash" className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
-        </div>
-        <form onSubmit={handleSaveHeroImage} className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3 items-stretch">
-            <label className="flex-1 flex items-center justify-center bg-navy-50 border-2 border-dashed border-navy-200 rounded-xl py-3 px-4 cursor-pointer hover:border-gold-400 hover:bg-gold-50 transition-all group">
-              <Icon name="Upload" className="w-5 h-5 mr-2 text-navy-400 group-hover:text-gold-500 transition-colors" />
-              <span className="text-sm font-bold text-navy-500 group-hover:text-gold-600 transition-colors">Upload Baru...</span>
-              <input type="file" accept="image/*" className="hidden" onChange={handleHeroFileUpload} />
-            </label>
-            <button type="button" onClick={handleAddHeroUrl} className="flex-1 bg-white border border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
-              <Icon name="PlusCircle" className="w-4 h-4 mr-2" />
-              Tambah via URL
+                                <div className="max-w-md mx-auto animate-fade-in space-y-6">
+        {/* Subtabs seperti pada jadwal */}
+        <div className="flex items-center gap-2">
+            <button onClick={() => scrollPengaturanTabs('left')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kiri">
+                <Icon name="ChevronLeft" className="w-5 h-5" />
             </button>
-          </div>
-          <button type="submit" disabled={isSavingHero} className={`w-full ${isSavingHero ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
-            {isSavingHero ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Perubahan Carousel'}
-          </button>
-        </form>
-      </div>
-    )}
-
-    {/* --- FORM PENGUMUMAN --- */}
-    {pengaturanSubTab === 'pengumuman' && (
-      <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-          <div className="w-12 h-12 bg-gold-50 rounded-full flex items-center justify-center text-gold-600 shadow-inner"><Icon name="Megaphone" className="w-6 h-6" /></div>
-          <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Pengumuman Jemaat</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Tampil di Halaman Depan</p></div>
-        </div>
-        <form onSubmit={handleSavePengumuman} className="space-y-5">
-          <div>
-            <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Judul Pengumuman</label>
-            <input type="text" value={editPengumuman.header} onChange={e => setEditPengumuman({...editPengumuman, header: e.target.value})} placeholder="Misal: Pengumuman Penting" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-4" />
-            
-            <div className="flex justify-between items-end mb-2">
-              <label className="block text-xs font-bold text-navy-700 uppercase tracking-widest">Isi Pengumuman</label>
-              <div className="flex space-x-2">
-                <button type="button" onClick={() => insertFormatting('bold')} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded font-bold text-sm shadow-sm transition-colors" title="Beri efek tebal pada teks yang dipilih">B</button>
-                <button type="button" onClick={() => insertFormatting('italic')} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded italic text-sm">I</button>
-                <button type="button" onClick={openLinkModalPengumuman} className="px-3 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded text-sm">
-                  🔗 Link
+            <div ref={pengaturanScrollContainerRef} className="bg-white rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
+                <button onClick={() => setPengaturanSubTab('youtube')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'youtube' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                Youtube
                 </button>
-              </div>
+                <button onClick={() => setPengaturanSubTab('carousel')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'carousel' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                Carousel
+                </button>
+                <button onClick={() => setPengaturanSubTab('pengumuman')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'pengumuman' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                Pengumuman
+                </button>
+                <button onClick={() => setPengaturanSubTab('password')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'password' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                Password
+                </button>
             </div>
-            <textarea ref={textareaRef} value={editPengumuman.isi} onChange={e => setEditPengumuman({...editPengumuman, isi: e.target.value})} rows="5" placeholder="Kosongkan isi untuk menyembunyikan kotak pengumuman..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm leading-relaxed whitespace-pre-wrap"></textarea>
-            <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Blok teks pada kotak lalu tekan tombol B untuk menambahkan format tebal, tombol I untuk menambahkan format italic dan tombol link untuk menambahkan hyperlink. Hapus semua isi teks untuk menyembunyikan pengumuman dari layar utama.</p>
-          </div>
-          <button type="submit" disabled={isSavingPengumuman} className={`w-full ${isSavingPengumuman ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center`}>
-            {isSavingPengumuman ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Pengumuman'}
-          </button>
-        </form>
-      </div>
-    )}
+            <button onClick={() => scrollPengaturanTabs('right')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kanan">
+                <Icon name="ChevronRight" className="w-5 h-5" />
+            </button>
+            </div>
 
-    {/* --- FORM GANTI PASSWORD --- */}
-    {pengaturanSubTab === 'password' && (
-      <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-          <div className="w-12 h-12 bg-navy-50 rounded-full flex items-center justify-center text-navy-900 shadow-inner"><Icon name="Settings" className="w-6 h-6" /></div>
-          <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Ganti Password Admin</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Keamanan Otentikasi</p></div>
-        </div>
-        <form onSubmit={handleGantiPassword} className="space-y-5">
-          <div>
-            <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Password Lama</label>
-            <div className="relative">
-              <input type={showOldPass ? "text" : "password"} value={oldPassword} onChange={e => setOldPassword(e.target.value)} required className="w-full p-3.5 pr-10 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-bold shadow-sm" />
-              <button type="button" onClick={() => setShowOldPass(!showOldPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-navy-400 hover:text-gold-500 transition-colors focus:outline-none"><Icon name={showOldPass ? "EyeOff" : "Eye"} className="w-5 h-5" /></button>
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Password Baru</label>
-            <div className="relative">
-              <input type={showNewPass ? "text" : "password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength="6" className="w-full p-3.5 pr-10 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-bold shadow-sm" />
-              <button type="button" onClick={() => setShowNewPass(!showNewPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-navy-400 hover:text-gold-500 transition-colors focus:outline-none"><Icon name={showNewPass ? "EyeOff" : "Eye"} className="w-5 h-5" /></button>
-            </div>
-          </div>
-          <button type="submit" disabled={isChangingPass} className={`w-full ${isChangingPass ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex items-center justify-center`}>
-            {isChangingPass ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Memproses...</> : 'Simpan Password Baru'}
-          </button>
-        </form>
-      </div>
-    )}
-  </div>
-)}
+                                     {/* --- FORM YOUTUBE URL --- */}
+                                     {pengaturanSubTab === 'youtube' && (
+                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                                        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                                            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
+                                            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">URL YouTube Embed</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Live Streaming Acara</p></div>
+                                        </div>
+                                        <form onSubmit={handleSaveYoutubeUrl} className="space-y-5">
+                                            <div>
+                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Video Embed</label>
+                                                <textarea value={editYoutubeUrl} onChange={e => setEditYoutubeUrl(e.target.value)} required rows="3" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono font-medium shadow-sm leading-relaxed"></textarea>
+                                                <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Pastikan URL diawali dengan <br /><span className="text-gold-600">https://www.youtube.com/embed/</span>... atau <br /><span className="text-gold-600">https://www.youtube-nocookie.com/embed/</span>...</p>
+                                            </div>
+                                            <button type="submit" disabled={isSavingUrl} className={`w-full ${isSavingUrl ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center`}>
+                                                {isSavingUrl ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan URL Baru'}
+                                            </button>
+                                        </form>
+                                    </div>
+                                    )}
+
+                                     {/* --- FORM Hero-Image --- */}
+                                     {pengaturanSubTab === 'carousel' && (
+                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                                        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                                            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><Icon name="Image" className="w-6 h-6" /></div>
+                                            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Hero Image Banner</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Gambar Carousel Homepage</p></div>
+                                        </div>
+                                        <div className="mb-5 space-y-4">
+                                            {editHeroImages.map((img, idx) => (
+                                                <div key={idx} className="relative w-full overflow-hidden rounded-xl border border-navy-100 shadow-sm" style={{ aspectRatio: '16/8.5' }}>
+                                                    <img src={img} alt={`Hero Preview ${idx + 1}`} className="w-full h-full object-cover bg-navy-50" />
+                                                    <div className="absolute top-0 left-0 bg-black/60 text-white px-3 py-1 rounded-br-lg text-xs font-bold shadow-sm backdrop-blur-sm">
+                                                        Slide {idx + 1} {img.startsWith('data:image') && <span className="text-gold-400 ml-1 font-black tracking-widest">(BARU)</span>}
+                                                    </div>
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => handleRemoveHeroImage(idx)} 
+                                                        className="absolute top-2 right-2 bg-red-500/90 text-white p-2.5 rounded-full hover:bg-red-600 shadow-md transition-colors backdrop-blur-md"
+                                                        title="Hapus gambar ini"
+                                                    >
+                                                        <Icon name="Trash" className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <form onSubmit={handleSaveHeroImage} className="space-y-4">
+                                            <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+                                                <label className="flex-1 flex items-center justify-center bg-navy-50 border-2 border-dashed border-navy-200 rounded-xl py-3 px-4 cursor-pointer hover:border-gold-400 hover:bg-gold-50 transition-all group">
+                                                    <Icon name="Upload" className="w-5 h-5 mr-2 text-navy-400 group-hover:text-gold-500 transition-colors" />
+                                                    <span className="text-sm font-bold text-navy-500 group-hover:text-gold-600 transition-colors">Upload Baru...</span>
+                                                    <input type="file" accept="image/*" className="hidden" onChange={handleHeroFileUpload} />
+                                                </label>
+                                                <button type="button" onClick={handleAddHeroUrl} className="flex-1 bg-white border border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
+                                                    <Icon name="PlusCircle" className="w-4 h-4 mr-2" />
+                                                    Tambah via URL
+                                                </button>
+                                            </div>
+                                            <button type="submit" disabled={isSavingHero} className={`w-full ${isSavingHero ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
+                                                {isSavingHero ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Perubahan Carousel'}
+                                            </button>
+                                        </form>
+                                    </div>
+                                    )}
+                                    
+                                    {/* --- FORM PENGUMUMAN --- */}
+                                 {pengaturanSubTab === 'pengumuman' && (
+                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                                        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                                            <div className="w-12 h-12 bg-gold-50 rounded-full flex items-center justify-center text-gold-600 shadow-inner"><Icon name="Megaphone" className="w-6 h-6" /></div>
+                                            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Pengumuman Jemaat</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Tampil di Halaman Depan</p></div>
+                                        </div>
+                                        <form onSubmit={handleSavePengumuman} className="space-y-5">
+                                            <div>
+                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Judul Pengumuman</label>
+                                                <input type="text" value={editPengumuman.header} onChange={e => setEditPengumuman({...editPengumuman, header: e.target.value})} placeholder="Misal: Pengumuman Penting" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-4" />
+                                                
+                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Isi Pengumuman</label>
+<RichTextEditor
+    ref={pengumumanEditorRef}
+    initialValue={editPengumuman.isi}
+    onChange={(html) => setEditPengumuman({...editPengumuman, isi: html})}
+    placeholder="Kosongkan isi untuk menyembunyikan kotak pengumuman..."
+/>
+                                        <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100 uppercase text-center">Hapus semua isi teks untuk menyembunyikan pengumuman dari layar utama.</p>
+                                            </div>
+                                            <button type="submit" disabled={isSavingPengumuman} className={`w-full ${isSavingPengumuman ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center`}>
+                                                {isSavingPengumuman ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Pengumuman'}
+                                            </button>
+                                        </form>
+                                    </div>
+                                    )}
+                                    
+                                    {/* --- FORM GANTI PASSWORD --- */}
+                                    {pengaturanSubTab === 'password' && (
+                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                                        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                                            <div className="w-12 h-12 bg-navy-50 rounded-full flex items-center justify-center text-navy-900 shadow-inner"><Icon name="Settings" className="w-6 h-6" /></div>
+                                            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Ganti Password Admin</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1 mt-1">Keamanan Otentikasi</p></div>
+                                        </div>
+                                        <form onSubmit={handleGantiPassword} className="space-y-5">
+                                            <div>
+                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Password Lama</label>
+                                                <div className="relative">
+                                                    <input type={showOldPass ? "text" : "password"} value={oldPassword} onChange={e => setOldPassword(e.target.value)} required className="w-full p-3.5 pr-10 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-bold shadow-sm" />
+                                                    <button type="button" onClick={() => setShowOldPass(!showOldPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-navy-400 hover:text-gold-500 transition-colors focus:outline-none"><Icon name={showOldPass ? "EyeOff" : "Eye"} className="w-5 h-5" /></button>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Password Baru</label>
+                                                <div className="relative">
+                                                    <input type={showNewPass ? "text" : "password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength="6" className="w-full p-3.5 pr-10 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-bold shadow-sm" />
+                                                    <button type="button" onClick={() => setShowNewPass(!showNewPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-navy-400 hover:text-gold-500 transition-colors focus:outline-none"><Icon name={showNewPass ? "EyeOff" : "Eye"} className="w-5 h-5" /></button>
+                                                </div>
+                                            </div>
+                                            <button type="submit" disabled={isChangingPass} className={`w-full ${isChangingPass ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex items-center justify-center`}>
+                                                {isChangingPass ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Memproses...</> : 'Simpan Password Baru'}
+                                            </button>
+                                        </form>
+                                    </div>
+                                )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
         // --- COMPONENT: SEARCH ---
         const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs }) => {
