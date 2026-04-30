@@ -37,57 +37,23 @@
 
     <style>
         /* ANIMASI BACKGROUND DINAMIS */
-        body {
-            margin: 0;
-            background: linear-gradient(-45deg, #0B192C, #0f2027, #162b48, #0B192C);
-            background-size: 400% 400%;
-            animation: gradientBG 20s ease infinite;
-            color: #1e293b;
-        }
+        body { margin: 0; background: linear-gradient(-45deg, #0B192C, #0f2027, #162b48, #0B192C); background-size: 400% 400%; animation: gradientBG 20s ease infinite; color: #1e293b; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* ORB MELAYANG (Floating Orbs) */
+        /* ORB MELAYANG */
         .orb { position: fixed; border-radius: 50%; filter: blur(80px); z-index: -1; animation: float 15s infinite ease-in-out alternate; }
         .orb-1 { width: 300px; height: 300px; background: rgba(255, 193, 7, 0.15); top: -50px; left: -50px; animation-delay: 0s; }
         .orb-2 { width: 400px; height: 400px; background: rgba(59, 130, 246, 0.15); bottom: -100px; right: -100px; animation-delay: -5s; }
         .orb-3 { width: 250px; height: 250px; background: rgba(255, 255, 255, 0.05); top: 40%; left: 50%; animation-delay: -10s; }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(50px, 30px) scale(1.1); }
-            100% { transform: translate(-30px, 50px) scale(0.9); }
-        }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(50px, 30px) scale(1.1); } 100% { transform: translate(-30px, 50px) scale(0.9); } }
 
         /* GLASSMORPHISM UI */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: var(--shadow-glass);
-        }
-        .glass-dark {
-            background: rgba(11, 25, 44, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+        .glass-panel { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: var(--shadow-glass); }
+        .glass-dark { background: rgba(11, 25, 44, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
 
-        /* UTILITIES */
-        .text-gradient {
-            background: linear-gradient(to right, #FFC107, #ffe58f);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .text-gradient { background: linear-gradient(to right, #FFC107, #ffe58f); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .progress-gradient { background: linear-gradient(90deg, #FFC107 0%, #ff8f00 100%); }
         
-        /* HOVER EFFECTS FOR DESKTOP ONLY */
         @media (min-width: 1024px) {
             .hover-lift { transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease; }
             .hover-lift:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.2); z-index: 10;}
@@ -101,12 +67,8 @@
 </head>
 <body class="font-sans antialiased overflow-x-hidden selection:bg-gold selection:text-navy">
     
-    <!-- Elemen Latar Belakang Melayang -->
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
+    <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
 
-    <!-- NAVBAR EKSKLUSIF (Glassmorphism) -->
     <nav class="fixed top-0 w-full z-50 glass-dark border-b-0 transition-all duration-300">
         <div class="container mx-auto px-4 py-3 md:py-4 flex justify-between items-center gap-4">
             <div class="flex items-center gap-3 md:gap-4">
@@ -114,9 +76,7 @@
                     <i class="fa-solid fa-place-of-worship text-navy text-lg md:text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl md:text-2xl font-serif font-bold tracking-wide text-white leading-tight">
-                        Pembangunan<span class="text-gold">.</span>
-                    </h1>
+                    <h1 class="text-xl md:text-2xl font-serif font-bold tracking-wide text-white leading-tight">Pembangunan<span class="text-gold">.</span></h1>
                     <p class="text-[10px] md:text-xs text-gray-300 tracking-widest uppercase hidden sm:block">Sistem Informasi Donasi</p>
                 </div>
             </div>
@@ -129,9 +89,7 @@
 
     <main class="container mx-auto px-4 pt-28 pb-16 max-w-7xl relative z-10">
         
-        <!-- HERO SECTION (Pendanaan) -->
         <section data-aos="zoom-in-up" data-aos-duration="1000" class="glass-dark rounded-3xl p-6 md:p-14 mb-10 md:mb-16 shadow-2xl relative overflow-hidden border-t border-l border-white/20">
-            <!-- Dekorasi Garis Halus Dalam Kartu -->
             <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] z-0"></div>
             
             <div class="relative z-10 text-center max-w-4xl mx-auto">
@@ -139,7 +97,6 @@
                 <h2 id="judul-web" class="text-3xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-10 leading-tight drop-shadow-lg">Memuat Data...</h2>
                 
                 <div class="bg-navy-dark/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 md:p-10 mb-8 shadow-inner">
-                    <!-- Target & Terkumpul Flex (Mobile Stack, Desktop Row) -->
                     <div class="flex flex-col md:flex-row justify-between items-center md:items-end mb-6 gap-6 md:gap-2 text-center md:text-left">
                         <div class="w-full md:w-auto">
                             <p class="text-gray-400 text-sm md:text-base font-medium mb-1 uppercase tracking-wider">Dana Terkumpul</p>
@@ -152,10 +109,8 @@
                         </div>
                     </div>
                     
-                    <!-- Progress Bar -->
                     <div class="relative w-full bg-black/40 rounded-full h-5 md:h-6 shadow-inner overflow-hidden border border-white/5">
                         <div id="progress-bar" class="progress-gradient h-full rounded-full transition-all duration-1500 relative shadow-glow" style="width: 0%">
-                            <!-- Animasi kilap -->
                             <div class="absolute top-0 left-0 w-full h-full overflow-hidden rounded-full">
                                 <div class="w-[200%] h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent)] animate-[shimmer_2s_infinite] -translate-x-full"></div>
                             </div>
@@ -168,97 +123,58 @@
                     </div>
                 </div>
 
-                <!-- Info Rekening -->
-                <div class="inline-flex flex-col sm:flex-row items-center justify-center gap-4 bg-white/95 backdrop-blur-md px-6 py-5 rounded-2xl shadow-xl border-b-4 border-gold transition-transform hover:scale-105 duration-300 w-full md:w-auto mx-auto cursor-pointer" onclick="copyRekening()" title="Klik untuk menyalin nomor rekening">
-                    <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-2xl flex-shrink-0 shadow-inner">
-                        <i class="fa-solid fa-building-columns"></i>
-                    </div>
-                    <div class="text-center sm:text-left">
-                        <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-widest mb-1 flex items-center justify-center sm:justify-start gap-2">
-                            Rekening Donasi <i class="fa-regular fa-copy text-gray-400"></i>
-                        </p>
-                        <p id="rekening-val" class="text-lg md:text-2xl font-bold text-navy tracking-tight">Loading...</p>
-                    </div>
+                <!-- INFO REKENING BARU (DIPISAH) -->
+                <div class="inline-flex flex-col items-center justify-center gap-2 bg-white/95 backdrop-blur-md px-8 py-6 rounded-3xl shadow-xl border-b-4 border-gold transition-transform hover:scale-105 duration-300 w-full md:w-auto mx-auto cursor-pointer" onclick="copyRekening()" title="Klik untuk menyalin nomor rekening">
+                    <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-building-columns text-blue-600"></i> Transfer Donasi Ke
+                    </p>
+                    <p id="bank-val" class="text-lg md:text-xl font-bold text-navy mt-1">Loading...</p>
+                    <p id="norek-val" class="text-3xl md:text-4xl font-extrabold text-gradient tracking-widest flex items-center gap-3">
+                        0000000000 <i class="fa-regular fa-copy text-lg text-gray-400 hover:text-gold transition"></i>
+                    </p>
+                    <p class="text-sm md:text-base text-gray-600 font-medium mt-1">a.n. <span id="atasnama-val" class="font-bold text-navy">Loading...</span></p>
                 </div>
             </div>
         </section>
 
-        <!-- KONTEN UTAMA SPLIT (Desktop Kiri-Kanan, Mobile Atas-Bawah) -->
         <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
             
-            <!-- KOLOM KIRI: FORM KONFIRMASI (Sticky di Desktop) -->
             <div class="w-full lg:w-1/3" data-aos="fade-up" data-aos-delay="100">
                 <div class="glass-panel rounded-3xl p-6 md:p-8 sticky top-32">
                     <div class="flex items-center gap-4 mb-8 pb-4 border-b border-gray-200/50">
-                        <div class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold shadow-inner">
-                            <i class="fa-solid fa-hand-holding-heart text-lg"></i>
-                        </div>
+                        <div class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold shadow-inner"><i class="fa-solid fa-hand-holding-heart text-lg"></i></div>
                         <h3 class="text-2xl md:text-3xl font-serif font-bold text-navy">Konfirmasi</h3>
                     </div>
                     
                     <form id="form-konfirmasi" onsubmit="handleKonfirmasi(event)" class="space-y-6">
-                        <div class="group">
-                            <label class="block text-xs font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1">Nama Lengkap</label>
-                            <div class="relative">
-                                <i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors"></i>
-                                <input type="text" id="k-nama" required class="input-elegant w-full pl-11 pr-4 py-3.5 rounded-xl text-sm font-medium">
-                            </div>
-                        </div>
-                        <div class="group">
-                            <label class="block text-xs font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1">Jumlah Donasi</label>
-                            <div class="relative">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold group-focus-within:text-navy transition-colors">Rp</span>
-                                <input type="number" id="k-jumlah" required class="input-elegant w-full pl-12 pr-4 py-3.5 rounded-xl text-sm font-medium">
-                            </div>
-                        </div>
-                        <div class="group">
-                            <label class="block text-xs font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1">Pesan (Opsional)</label>
-                            <div class="relative">
-                                <i class="fa-regular fa-comment absolute left-4 top-4 text-gray-400 group-focus-within:text-navy transition-colors"></i>
-                                <textarea id="k-ket" rows="3" class="input-elegant w-full pl-11 pr-4 py-3.5 rounded-xl text-sm font-medium resize-none"></textarea>
-                            </div>
-                        </div>
-                        <button type="submit" id="btn-konfirmasi" class="group relative w-full overflow-hidden rounded-xl bg-navy text-white font-bold py-4 mt-4 shadow-lg hover:shadow-2xl transition-all duration-300 transform active:scale-95">
-                            <div class="absolute inset-0 bg-gradient-to-r from-navy-light to-navy transition-transform duration-300 group-hover:scale-105"></div>
-                            <span class="relative flex items-center justify-center gap-2">
-                                <span>Kirim Konfirmasi</span>
-                                <i class="fa-solid fa-paper-plane text-gold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
-                            </span>
-                        </button>
+                        <div class="group"><label class="block text-xs font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1">Nama Lengkap</label><div class="relative"><i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors"></i><input type="text" id="k-nama" required class="input-elegant w-full pl-11 pr-4 py-3.5 rounded-xl text-sm font-medium"></div></div>
+                        <div class="group"><label class="block text-xs font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1">Jumlah Donasi</label><div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold group-focus-within:text-navy transition-colors">Rp</span><input type="number" id="k-jumlah" required class="input-elegant w-full pl-12 pr-4 py-3.5 rounded-xl text-sm font-medium"></div></div>
+                        <div class="group"><label class="block text-xs font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1">Pesan (Opsional)</label><div class="relative"><i class="fa-regular fa-comment absolute left-4 top-4 text-gray-400 group-focus-within:text-navy transition-colors"></i><textarea id="k-ket" rows="3" class="input-elegant w-full pl-11 pr-4 py-3.5 rounded-xl text-sm font-medium resize-none"></textarea></div></div>
+                        <button type="submit" id="btn-konfirmasi" class="group relative w-full overflow-hidden rounded-xl bg-navy text-white font-bold py-4 mt-4 shadow-lg hover:shadow-2xl transition-all duration-300 transform active:scale-95"><div class="absolute inset-0 bg-gradient-to-r from-navy-light to-navy transition-transform duration-300 group-hover:scale-105"></div><span class="relative flex items-center justify-center gap-2"><span>Kirim Konfirmasi</span><i class="fa-solid fa-paper-plane text-gold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i></span></button>
                     </form>
                 </div>
             </div>
 
-            <!-- KOLOM KANAN: GALERI & BERITA -->
             <div class="w-full lg:w-2/3 space-y-16 mt-8 lg:mt-0">
-                
-                <!-- GALERI -->
                 <section data-aos="fade-up" data-aos-delay="200">
                     <div class="flex items-center gap-4 mb-8">
                         <h3 class="text-3xl md:text-4xl font-serif font-bold text-white drop-shadow-md">Galeri Pembangunan</h3>
                         <div class="h-[2px] bg-gradient-to-r from-gold to-transparent flex-1 rounded-full opacity-70"></div>
                     </div>
-                    <!-- Grid Responsive: 1 kolom di HP, 2 kolom di Desktop -->
-                    <div id="portfolio-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                        <!-- Di-inject JS -->
-                    </div>
+                    <div id="portfolio-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8"></div>
                 </section>
 
-                <!-- BERITA -->
                 <section data-aos="fade-up" data-aos-delay="300">
                     <div class="flex items-center gap-4 mb-8">
                         <h3 class="text-3xl md:text-4xl font-serif font-bold text-white drop-shadow-md">Berita & Update</h3>
                         <div class="h-[2px] bg-gradient-to-r from-white/50 to-transparent flex-1 rounded-full"></div>
                     </div>
-                    <div id="artikel-container" class="space-y-6">
-                        <!-- Di-inject JS -->
-                    </div>
+                    <div id="artikel-container" class="space-y-6"></div>
                 </section>
             </div>
         </div>
     </main>
 
-    <!-- FOOTER -->
     <footer class="glass-dark border-t border-white/10 text-white/60 py-8 text-center text-xs md:text-sm mt-10 relative z-10">
         <div class="container mx-auto px-4 flex flex-col items-center justify-center gap-2">
             <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gold mb-2"><i class="fa-solid fa-church"></i></div>
@@ -267,7 +183,7 @@
         </div>
     </footer>
 
-    <!-- ADMIN MODAL -->
+    <!-- ADMIN MODAL UTAMA -->
     <div id="admin-modal" class="fixed inset-0 bg-navy/90 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-xl transition-opacity duration-300 opacity-0 pointer-events-none">
         <div class="bg-white/95 rounded-[2rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col transform scale-95 transition-transform duration-300" id="admin-modal-content">
             <div class="px-6 md:px-8 py-5 md:py-6 border-b border-gray-200 flex justify-between items-center bg-gray-50/50">
@@ -275,81 +191,79 @@
                     <div class="w-10 h-10 rounded-full bg-navy text-white flex items-center justify-center shadow-md"><i class="fa-solid fa-lock"></i></div>
                     <h2 class="text-xl md:text-2xl font-serif font-bold text-navy">Admin Panel</h2>
                 </div>
-                <button onclick="toggleAdmin()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-600 transition-colors">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
+                <button onclick="toggleAdmin()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-600 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             
             <div class="p-6 md:p-8 overflow-y-auto flex-1 bg-white">
-                <!-- LOGIN SECTION -->
                 <div id="admin-login-section" class="max-w-sm mx-auto py-10 md:py-16">
-                    <div class="text-center mb-10">
-                        <h3 class="font-serif font-bold text-3xl text-navy">Otorisasi Akses</h3>
-                        <p class="text-gray-500 text-sm mt-2">Silakan masukkan data LOG-IN Anda.</p>
-                    </div>
+                    <div class="text-center mb-10"><h3 class="font-serif font-bold text-3xl text-navy">Otorisasi Akses</h3><p class="text-gray-500 text-sm mt-2">Silakan masukkan data LOG-IN Anda.</p></div>
                     <div class="space-y-5">
-                        <div class="relative">
-                            <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" id="admin-user" placeholder="Username" class="input-elegant w-full pl-12 pr-4 py-4 rounded-xl text-sm md:text-base">
-                        </div>
-                        <div class="relative">
-                            <i class="fa-solid fa-key absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input type="password" id="admin-pass" placeholder="Password" class="input-elegant w-full pl-12 pr-4 py-4 rounded-xl text-sm md:text-base">
-                        </div>
+                        <div class="relative"><i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="admin-user" placeholder="Username" class="input-elegant w-full pl-12 pr-4 py-4 rounded-xl text-sm md:text-base"></div>
+                        <div class="relative"><i class="fa-solid fa-key absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="password" id="admin-pass" placeholder="Password" class="input-elegant w-full pl-12 pr-4 py-4 rounded-xl text-sm md:text-base"></div>
                         <button onclick="loginAdmin()" id="btn-login" class="w-full bg-navy text-white py-4 rounded-xl font-bold hover:bg-navy-light transition shadow-lg mt-4 text-base">LOGIN</button>
                     </div>
                 </div>
                 
-                <!-- DASHBOARD SECTION -->
                 <div id="admin-dashboard-section" class="hidden space-y-8">
-                    <!-- UPDATE INFO UTAMA -->
+                    <!-- INFO UTAMA -->
                     <div class="bg-slate-50 p-6 md:p-8 rounded-3xl border border-slate-200">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-pen-to-square"></i></div>
-                            <h4 class="font-bold text-navy text-lg md:text-xl">Update Info Utama</h4>
-                        </div>
+                        <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-pen-to-square"></i></div><h4 class="font-bold text-navy text-lg md:text-xl">Update Info Utama</h4></div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                             <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Judul Website</label><input type="text" id="edit-judul" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
-                            <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Info Rekening</label><input type="text" id="edit-rekening" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
                             <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Target Dana (Angka)</label><input type="number" id="edit-target" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
                             <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Terkumpul (Angka)</label><input type="number" id="edit-terkumpul" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
+                            
+                            <!-- BANK SPLIT -->
+                            <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Nama Bank</label><input type="text" id="edit-bank" placeholder="Cth: BCA" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
+                            <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">No Rekening</label><input type="text" id="edit-norek" placeholder="Cth: 1234567890" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
+                            <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Atas Nama Rekening</label><input type="text" id="edit-atasnama" placeholder="Cth: Panitia Pembangunan" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
                         </div>
-                        <button onclick="updateInfo()" id="btn-update-info" class="mt-8 bg-gold text-navy font-bold px-6 py-4 rounded-xl hover:bg-yellow-400 w-full shadow-md transition flex justify-center items-center gap-2">
-                            <i class="fa-solid fa-floppy-disk"></i> SIMPAN PERUBAHAN
-                        </button>
+                        <button onclick="updateInfo()" id="btn-update-info" class="mt-8 bg-gold text-navy font-bold px-6 py-4 rounded-xl hover:bg-yellow-400 w-full shadow-md transition flex justify-center items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> SIMPAN PERUBAHAN</button>
                     </div>
 
-                    <!-- TAMBAH GALERI & BERITA (GRID DESKTOP) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- TAMBAH GALERI & BERITA -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex flex-col">
-                            <div class="flex items-center gap-3 mb-6">
-                                <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center"><i class="fa-solid fa-image"></i></div>
-                                <h4 class="font-bold text-navy text-lg">Tambah Galeri</h4>
-                            </div>
+                            <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center"><i class="fa-solid fa-image"></i></div><h4 class="font-bold text-navy text-lg">Tambah Galeri</h4></div>
                             <div class="space-y-4 mb-6 flex-1">
-                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Judul Foto</label><input type="text" id="add-porto-title" placeholder="Cth: Pengecoran Lantai 2" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
-                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Link Gambar</label><input type="text" id="add-porto-image" placeholder="https://..." class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
+                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Judul Foto</label><input type="text" id="add-porto-title" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
+                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Link Gambar</label><input type="text" id="add-porto-image" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
+                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Narasi / Keterangan</label><textarea id="add-porto-desc" rows="3" class="input-elegant w-full px-4 py-3 rounded-xl text-sm resize-none" placeholder="Tulis cerita di balik foto..."></textarea></div>
                             </div>
-                            <button onclick="tambahPorto()" id="btn-add-porto" class="bg-navy text-white font-bold px-6 py-3.5 rounded-xl hover:bg-navy-light w-full shadow-md transition flex justify-center items-center gap-2 mt-auto">
-                                <i class="fa-solid fa-plus"></i> UNGGAH
-                            </button>
+                            <button onclick="tambahPorto()" id="btn-add-porto" class="bg-navy text-white font-bold px-6 py-3.5 rounded-xl hover:bg-navy-light w-full shadow-md transition flex justify-center items-center gap-2 mt-auto"><i class="fa-solid fa-plus"></i> UNGGAH</button>
                         </div>
 
                         <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex flex-col">
-                            <div class="flex items-center gap-3 mb-6">
-                                <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i class="fa-solid fa-newspaper"></i></div>
-                                <h4 class="font-bold text-navy text-lg">Tambah Berita</h4>
-                            </div>
+                            <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i class="fa-solid fa-newspaper"></i></div><h4 class="font-bold text-navy text-lg">Tambah Berita</h4></div>
                             <div class="space-y-4 mb-6 flex-1">
-                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Judul Berita</label><input type="text" id="add-art-title" placeholder="Judul..." class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
-                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Isi Berita</label><textarea id="add-art-content" rows="4" placeholder="Tulis rincian berita..." class="input-elegant w-full px-4 py-3 rounded-xl text-sm resize-none"></textarea></div>
+                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Judul Berita</label><input type="text" id="add-art-title" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
+                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Isi Berita</label><textarea id="add-art-content" rows="6" class="input-elegant w-full px-4 py-3 rounded-xl text-sm resize-none"></textarea></div>
                             </div>
-                            <button onclick="tambahArt()" id="btn-add-art" class="bg-navy text-white font-bold px-6 py-3.5 rounded-xl hover:bg-navy-light w-full shadow-md transition flex justify-center items-center gap-2 mt-auto">
-                                <i class="fa-solid fa-plus"></i> UNGGAH
-                            </button>
+                            <button onclick="tambahArt()" id="btn-add-art" class="bg-navy text-white font-bold px-6 py-3.5 rounded-xl hover:bg-navy-light w-full shadow-md transition flex justify-center items-center gap-2 mt-auto"><i class="fa-solid fa-plus"></i> UNGGAH</button>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT DATA KHUSUS (Berita / Galeri) -->
+    <div id="edit-modal" class="fixed inset-0 bg-navy/80 hidden z-[110] flex items-center justify-center p-4 backdrop-blur-md transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg overflow-hidden flex flex-col transform scale-95 transition-transform duration-300" id="edit-modal-content">
+            <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h2 class="text-xl font-serif font-bold text-navy" id="edit-modal-title">Edit Data</h2>
+                <button onclick="closeEditModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 hover:bg-red-100 hover:text-red-600 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6">
+                <input type="hidden" id="edit-id">
+                <input type="hidden" id="edit-type">
+                
+                <div class="space-y-4">
+                    <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Judul</label><input type="text" id="edit-item-title" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
+                    <div id="edit-image-container" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Link Gambar</label><input type="text" id="edit-item-image" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2" id="label-content">Isi / Narasi</label><textarea id="edit-item-content" rows="5" class="input-elegant w-full px-4 py-3 rounded-xl text-sm resize-none"></textarea></div>
+                </div>
+                <button onclick="submitEdit()" id="btn-submit-edit" class="w-full bg-gold text-navy font-bold py-4 mt-6 rounded-xl hover:bg-yellow-400 shadow-md transition flex justify-center items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> SIMPAN PERUBAHAN</button>
             </div>
         </div>
     </div>
@@ -371,15 +285,14 @@
                 try {
                     const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
                     return await res.json();
-                } catch (e) {
-                    return { error: e.message };
-                }
+                } catch (e) { return { error: e.message }; }
             },
             get: async () => {
                 if (!SCRIPT_URL.startsWith('http')) {
                     return {
-                        judul: "Pembangunan Gereja Pisgah", target: 500000000, terkumpul: 325500000, rekening: "BCA 1234567890 a.n. Panitia Pembangunan",
-                        portfolio: [ { id: '1', title: 'Pengecoran Fondasi Utama', image: 'https://images.unsplash.com/photo-1541888081688-6c84c1fbb462?auto=format&fit=crop&q=80&w=600' } ],
+                        judul: "Pembangunan Gereja Pisgah", target: 500000000, terkumpul: 325500000, 
+                        bank: "BCA", norek: "1234567890", atasnama: "Panitia Pembangunan Pisgah",
+                        portfolio: [ { id: '1', title: 'Pengecoran Fondasi Utama', desc: 'Gotong royong jemaat pada hari sabtu untuk melakukan tahap pengecoran awal.', image: 'https://images.unsplash.com/photo-1541888081688-6c84c1fbb462?auto=format&fit=crop&q=80&w=600' } ],
                         artikel: [ { id: '1', title: 'Puji Tuhan, Tahap Struktur Selesai 70%', content: 'Terima kasih kepada seluruh jemaat dan donatur...' } ]
                     };
                 }
@@ -390,11 +303,8 @@
         const formatRp = (num) => "Rp " + parseInt(num || 0).toLocaleString('id-ID');
 
         function copyRekening() {
-            const rek = document.getElementById('rekening-val').innerText;
-            if(rek !== 'Loading...') {
-                navigator.clipboard.writeText(rek);
-                alert('Nomor rekening berhasil disalin: ' + rek);
-            }
+            const rek = document.getElementById('norek-val').innerText.trim();
+            if(rek !== '0000000000') { navigator.clipboard.writeText(rek); alert('Nomor rekening disalin: ' + rek); }
         }
 
         async function refreshAllData() {
@@ -405,7 +315,11 @@
             document.getElementById('judul-web').innerText = data.judul || 'Pembangunan';
             document.getElementById('target-val').innerText = formatRp(data.target);
             document.getElementById('terkumpul-val').innerText = formatRp(data.terkumpul);
-            document.getElementById('rekening-val').innerText = data.rekening || '-';
+            
+            // Info Bank Terpisah
+            document.getElementById('bank-val').innerText = data.bank || '-';
+            document.getElementById('norek-val').innerHTML = `${data.norek || '0000000000'} <i class="fa-regular fa-copy text-lg text-gray-400 hover:text-gold transition"></i>`;
+            document.getElementById('atasnama-val').innerText = data.atasnama || '-';
             
             let target = parseInt(data.target) || 1;
             let terkumpul = parseInt(data.terkumpul) || 0;
@@ -416,42 +330,48 @@
                 document.getElementById('progress-text').innerText = percent + '% Tercapai';
             }, 300);
 
+            // Set Admin Inputs
             document.getElementById('edit-judul').value = data.judul;
-            document.getElementById('edit-rekening').value = data.rekening;
             document.getElementById('edit-target').value = data.target;
             document.getElementById('edit-terkumpul').value = data.terkumpul;
+            document.getElementById('edit-bank').value = data.bank;
+            document.getElementById('edit-norek').value = data.norek;
+            document.getElementById('edit-atasnama').value = data.atasnama;
 
+            // Galeri dengan Narasi
             const portoCont = document.getElementById('portfolio-container');
             if(data.portfolio && data.portfolio.length > 0) {
                 portoCont.innerHTML = data.portfolio.map(p => `
-                    <div class="hover-lift glass-panel rounded-3xl overflow-hidden relative group">
+                    <div class="hover-lift glass-panel rounded-3xl overflow-hidden relative group flex flex-col h-full">
                         <div class="aspect-[4/3] overflow-hidden bg-gray-100 p-1 rounded-t-3xl">
-                            <img src="${p.image}" onerror="this.src='https://via.placeholder.com/400?text=Image+Not+Found'" alt="${p.title}" class="w-full h-full object-cover rounded-t-[1.3rem] transition-transform duration-700 group-hover:scale-110">
+                            <img src="${p.image}" onerror="this.src='https://via.placeholder.com/400?text=Image+Not+Found'" class="w-full h-full object-cover rounded-t-[1.3rem] transition-transform duration-700 group-hover:scale-110">
                         </div>
-                        <div class="p-5 border-t border-gray-100">
-                            <h4 class="font-serif font-bold text-navy text-lg text-center leading-tight">${p.title}</h4>
+                        <div class="p-5 border-t border-gray-100 flex-1 flex flex-col">
+                            <h4 class="font-serif font-bold text-navy text-lg leading-tight mb-2">${p.title}</h4>
+                            <p class="text-gray-500 text-sm leading-relaxed whitespace-pre-line flex-1">${p.desc || ''}</p>
                         </div>
                         ${isAdminMode ? `
                         <div class="absolute top-3 right-3 flex gap-2">
+                            <button onclick="openEditPorto('${p.id}')" class="w-9 h-9 rounded-full bg-blue-500/90 backdrop-blur-sm text-white flex items-center justify-center hover:bg-blue-600 shadow-lg transition-colors"><i class="fa-solid fa-pen"></i></button>
                             <button onclick="hapusPorto('${p.id}')" class="w-9 h-9 rounded-full bg-red-500/90 backdrop-blur-sm text-white flex items-center justify-center hover:bg-red-600 shadow-lg transition-colors"><i class="fa-solid fa-trash-can"></i></button>
                         </div>` : ''}
                     </div>
                 `).join('');
             } else { portoCont.innerHTML = `<p class="col-span-full text-white/50 italic text-center">Belum ada foto galeri.</p>`; }
 
+            // Berita
             const artCont = document.getElementById('artikel-container');
             if(data.artikel && data.artikel.length > 0) {
                 artCont.innerHTML = data.artikel.map(a => `
                     <div class="hover-lift glass-panel rounded-3xl p-6 md:p-8 flex flex-col sm:flex-row gap-5 lg:gap-8">
                         <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="bg-gold/20 text-gold-dark text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Update Terbaru</span>
-                            </div>
+                            <div class="flex items-center gap-2 mb-3"><span class="bg-gold/20 text-gold-dark text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Update Terbaru</span></div>
                             <h4 class="font-serif font-bold text-xl md:text-2xl text-navy mb-3 leading-snug group-hover:text-gold-dark transition-colors">${a.title}</h4>
                             <p class="text-gray-600 text-sm md:text-base leading-relaxed whitespace-pre-line">${a.content || ''}</p>
                         </div>
                         ${isAdminMode ? `
                         <div class="flex sm:flex-col justify-end sm:justify-start gap-2 pt-4 sm:pt-0 sm:border-l sm:pl-6 border-gray-200">
+                            <button onclick="openEditArt('${a.id}')" class="text-xs font-bold text-blue-500 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition shadow-sm"><i class="fa-solid fa-pen mr-1"></i> EDIT</button>
                             <button onclick="hapusArt('${a.id}')" class="text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-xl transition shadow-sm"><i class="fa-solid fa-trash mr-1"></i> HAPUS</button>
                         </div>` : ''}
                     </div>
@@ -461,23 +381,15 @@
 
         async function handleKonfirmasi(e) {
             e.preventDefault();
-            const btn = document.getElementById('btn-konfirmasi');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...'; 
-            btn.disabled = true;
-
-            await api.req({ action: 'submitKonfirmasi', payload: {
-                nama: document.getElementById('k-nama').value, jumlah: document.getElementById('k-jumlah').value, keterangan: document.getElementById('k-ket').value
-            }});
-            
+            const btn = document.getElementById('btn-konfirmasi'); const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...'; btn.disabled = true;
+            await api.req({ action: 'submitKonfirmasi', payload: { nama: document.getElementById('k-nama').value, jumlah: document.getElementById('k-jumlah').value, keterangan: document.getElementById('k-ket').value }});
             alert("Terima kasih! Bukti konfirmasi donasi berhasil dikirim."); 
-            document.getElementById('form-konfirmasi').reset();
-            btn.innerHTML = originalText; btn.disabled = false;
+            document.getElementById('form-konfirmasi').reset(); btn.innerHTML = orig; btn.disabled = false;
         }
 
         function toggleAdmin() {
-            const modal = document.getElementById('admin-modal');
-            const content = document.getElementById('admin-modal-content');
+            const modal = document.getElementById('admin-modal'), content = document.getElementById('admin-modal-content');
             if(modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
                 setTimeout(() => { modal.classList.remove('opacity-0', 'pointer-events-none'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
@@ -488,44 +400,101 @@
         }
 
         async function loginAdmin() {
-            const btn = document.getElementById('btn-login');
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MEMVERIFIKASI...';
+            const btn = document.getElementById('btn-login'); btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MEMVERIFIKASI...';
             const res = await api.req({ action: 'verifyAdmin', username: document.getElementById('admin-user').value, password: document.getElementById('admin-pass').value });
-            if(res.success) {
-                isAdminMode = true; document.getElementById('admin-login-section').classList.add('hidden'); document.getElementById('admin-dashboard-section').classList.remove('hidden'); refreshAllData();
-            } else { alert("Kredensial tidak valid!"); }
+            if(res.success) { isAdminMode = true; document.getElementById('admin-login-section').classList.add('hidden'); document.getElementById('admin-dashboard-section').classList.remove('hidden'); refreshAllData(); } 
+            else { alert("Kredensial tidak valid!"); }
             btn.innerHTML = 'LOGIN';
         }
 
         async function updateInfo() {
-            const btn = document.getElementById('btn-update-info');
-            const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENYIMPAN...';
-            await api.req({ action: 'updateInfoWebsite', target: document.getElementById('edit-target').value, terkumpul: document.getElementById('edit-terkumpul').value, rekening: document.getElementById('edit-rekening').value, judul: document.getElementById('edit-judul').value });
+            const btn = document.getElementById('btn-update-info'); const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENYIMPAN...';
+            await api.req({ 
+                action: 'updateInfoWebsite', target: document.getElementById('edit-target').value, terkumpul: document.getElementById('edit-terkumpul').value, 
+                bank: document.getElementById('edit-bank').value, norek: document.getElementById('edit-norek').value, 
+                atasnama: document.getElementById('edit-atasnama').value, judul: document.getElementById('edit-judul').value 
+            });
             alert("Berhasil diperbarui!"); btn.innerHTML = orig; refreshAllData();
         }
 
         async function tambahPorto() {
-            const title = document.getElementById('add-porto-title').value, image = document.getElementById('add-porto-image').value;
+            const title = document.getElementById('add-porto-title').value, image = document.getElementById('add-porto-image').value, desc = document.getElementById('add-porto-desc').value;
             if(!title || !image) return alert('Mohon isi Judul Foto dan Link Gambar!');
-            const btn = document.getElementById('btn-add-porto'), orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENGUNGGAH...'; btn.disabled = true;
-            const res = await api.req({ action: 'tambahPortofolio', title: title, image: image });
-            if(res && res.success) { alert('Galeri berhasil ditambahkan!'); document.getElementById('add-porto-title').value = ''; document.getElementById('add-porto-image').value = ''; refreshAllData(); } 
-            else if (res && res.error) { alert('Server Error: ' + res.error); } else { alert('Gagal menyinkronkan data.'); }
+            const btn = document.getElementById('btn-add-porto'); const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENGUNGGAH...'; btn.disabled = true;
+            const res = await api.req({ action: 'tambahPortofolio', title: title, image: image, desc: desc });
+            if(res && res.success) { alert('Galeri berhasil ditambahkan!'); document.getElementById('add-porto-title').value = ''; document.getElementById('add-porto-image').value = ''; document.getElementById('add-porto-desc').value = ''; refreshAllData(); } 
+            else { alert('Server Error: ' + (res.error || 'Gagal menyinkronkan data.')); }
             btn.innerHTML = orig; btn.disabled = false;
         }
 
         async function tambahArt() {
             const title = document.getElementById('add-art-title').value, content = document.getElementById('add-art-content').value;
             if(!title || !content) return alert('Mohon isi Judul dan Konten!');
-            const btn = document.getElementById('btn-add-art'), orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENGUNGGAH...'; btn.disabled = true;
+            const btn = document.getElementById('btn-add-art'); const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENGUNGGAH...'; btn.disabled = true;
             const res = await api.req({ action: 'tambahArtikel', title: title, content: content });
             if(res && res.success) { alert('Berita berhasil ditambahkan!'); document.getElementById('add-art-title').value = ''; document.getElementById('add-art-content').value = ''; refreshAllData(); } 
-            else if (res && res.error) { alert('Server Error: ' + res.error); } else { alert('Gagal menyinkronkan data.'); }
+            else { alert('Server Error: ' + (res.error || 'Gagal menyinkronkan data.')); }
             btn.innerHTML = orig; btn.disabled = false;
         }
 
         async function hapusPorto(id) { if(confirm('Hapus foto dari galeri?')) { await api.req({ action: 'hapusPortofolio', id: id }); refreshAllData(); } }
         async function hapusArt(id) { if(confirm('Hapus berita ini?')) { await api.req({ action: 'hapusArtikel', id: id }); refreshAllData(); } }
+
+        // FUNGSI EDIT MODAL
+        function closeEditModal() {
+            const modal = document.getElementById('edit-modal'), content = document.getElementById('edit-modal-content');
+            modal.classList.add('opacity-0', 'pointer-events-none'); content.classList.remove('scale-100'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        function openEditPorto(id) {
+            const item = globalData.portfolio.find(p => p.id === id); if(!item) return;
+            document.getElementById('edit-modal-title').innerText = "Edit Galeri";
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('edit-type').value = "porto";
+            document.getElementById('edit-item-title').value = item.title;
+            document.getElementById('edit-image-container').classList.remove('hidden');
+            document.getElementById('edit-item-image').value = item.image;
+            document.getElementById('label-content').innerText = "Narasi / Keterangan";
+            document.getElementById('edit-item-content').value = item.desc || '';
+            
+            const modal = document.getElementById('edit-modal'), content = document.getElementById('edit-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0', 'pointer-events-none'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
+        }
+
+        function openEditArt(id) {
+            const item = globalData.artikel.find(p => p.id === id); if(!item) return;
+            document.getElementById('edit-modal-title').innerText = "Edit Berita";
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('edit-type').value = "art";
+            document.getElementById('edit-item-title').value = item.title;
+            document.getElementById('edit-image-container').classList.add('hidden');
+            document.getElementById('label-content').innerText = "Isi Berita";
+            document.getElementById('edit-item-content').value = item.content || '';
+            
+            const modal = document.getElementById('edit-modal'), content = document.getElementById('edit-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0', 'pointer-events-none'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
+        }
+
+        async function submitEdit() {
+            const id = document.getElementById('edit-id').value, type = document.getElementById('edit-type').value;
+            const title = document.getElementById('edit-item-title').value, content = document.getElementById('edit-item-content').value;
+            const image = document.getElementById('edit-item-image').value;
+            
+            const btn = document.getElementById('btn-submit-edit'); const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENYIMPAN...'; btn.disabled = true;
+
+            let res;
+            if(type === 'porto') { res = await api.req({ action: 'editPortofolio', id: id, title: title, image: image, desc: content }); } 
+            else { res = await api.req({ action: 'editArtikel', id: id, title: title, content: content }); }
+
+            if(res && res.success) { alert('Perubahan berhasil disimpan!'); closeEditModal(); refreshAllData(); } 
+            else { alert('Server Error: ' + (res.error || 'Gagal mengubah data.')); }
+            
+            btn.innerHTML = orig; btn.disabled = false;
+        }
 
         window.onload = refreshAllData;
     </script>
