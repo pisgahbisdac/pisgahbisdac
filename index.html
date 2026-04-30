@@ -78,9 +78,13 @@
         .input-elegant:focus { background-color: #ffffff; border-color: #0B192C; box-shadow: 0 0 0 4px rgba(11, 25, 44, 0.1); outline: none; }
         
         @keyframes shimmer { 100% { transform: translateX(100%); } }
+        
+        /* WA PULSE */
+        @keyframes wa-pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+        .animate-wa-pulse { animation: wa-pulse 2s infinite; }
     </style>
 </head>
-<body class="font-sans antialiased overflow-x-hidden selection:bg-gold selection:text-navy">
+<body class="font-sans antialiased overflow-x-hidden selection:bg-gold selection:text-navy relative">
     
     <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
 
@@ -221,6 +225,25 @@
         </div>
     </footer>
 
+    <!-- FLOATING WHATSAPP BUTTON (Tampil Global) -->
+    <div id="floating-wa-container" class="fixed bottom-6 right-6 z-[90] flex flex-col items-end hidden">
+        <!-- Popup Chat List -->
+        <div id="wa-popup" class="bg-white/95 backdrop-blur-md border border-gray-200 rounded-3xl shadow-2xl p-4 md:p-5 mb-4 w-[280px] md:w-[320px] transition-all duration-300 origin-bottom-right scale-0 opacity-0 pointer-events-none">
+            <div class="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
+                <h4 class="font-black text-navy text-lg flex items-center gap-2"><i class="fa-brands fa-whatsapp text-green-500 text-xl"></i> Hubungi Panitia</h4>
+                <button onclick="toggleWaPopup()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-red-100 hover:text-red-500 hover:rotate-90 transition-all"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="wa-list-content" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+                <!-- Data List WA Di-inject JS -->
+            </div>
+        </div>
+        
+        <!-- Tombol Icon Utama -->
+        <button onclick="toggleWaPopup()" class="w-14 h-14 md:w-16 md:h-16 bg-green-500 text-white rounded-full flex items-center justify-center text-3xl md:text-4xl animate-wa-pulse hover:scale-110 hover:bg-green-600 transition-all z-[90] shadow-xl border-2 border-white">
+            <i class="fa-brands fa-whatsapp"></i>
+        </button>
+    </div>
+
     <!-- VIEW MODAL (UNTUK MEMBACA BERITA / MELIHAT GALERI LEBIH JELAS) -->
     <div id="view-modal" class="fixed inset-0 bg-navy/95 hidden z-[120] flex items-center justify-center p-4 backdrop-blur-xl transition-opacity duration-300 opacity-0 pointer-events-none">
         <div class="bg-white rounded-3xl md:rounded-[2.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300 relative" id="view-modal-content">
@@ -244,7 +267,6 @@
 
     <!-- ADMIN MODAL UTAMA -->
     <div id="admin-modal" class="fixed inset-0 bg-navy/90 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-xl transition-opacity duration-300 opacity-0 pointer-events-none">
-        <!-- Struktur Admin Modal Tetap Sama -->
         <div class="bg-white/95 rounded-3xl md:rounded-[2.5rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col transform scale-95 transition-transform duration-300" id="admin-modal-content">
             <div class="px-5 md:px-10 py-5 md:py-8 border-b border-gray-200 flex justify-between items-center bg-gray-50/50">
                 <div class="flex items-center gap-3 md:gap-4">
@@ -317,6 +339,7 @@
                             <div class="space-y-4 md:space-y-5 mb-6 md:mb-8 flex-1">
                                 <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Nama Lengkap</label><input type="text" id="add-panitia-nama" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-bold"></div>
                                 <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Jabatan</label><input type="text" id="add-panitia-jabatan" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-bold"></div>
+                                <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">No Handphone / WA (Opsional)</label><input type="text" id="add-panitia-nowa" placeholder="Cth: 08123456789" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-bold"></div>
                                 <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Upload Foto (Opsional)</label><input type="file" accept="image/*" id="add-panitia-image" class="input-elegant w-full px-3 md:px-4 py-2 md:py-3 rounded-xl text-xs md:text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] md:file:text-xs file:font-black file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer"></div>
                             </div>
                             <button onclick="tambahPanitia()" id="btn-add-panitia" class="bg-navy text-white font-black px-5 md:px-6 py-3 md:py-4 rounded-xl hover:bg-navy-light w-full shadow-lg transition flex justify-center items-center gap-2 mt-auto text-base md:text-lg"><i class="fa-solid fa-upload"></i> UNGGAH PANITIA</button>
@@ -339,6 +362,7 @@
                 <div class="space-y-4 md:space-y-5">
                     <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide" id="label-title">Judul / Nama</label><input type="text" id="edit-item-title" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div>
                     <div id="edit-jabatan-container" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Jabatan</label><input type="text" id="edit-item-jabatan" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div>
+                    <div id="edit-nowa-container" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">No Handphone / WA</label><input type="text" id="edit-item-nowa" placeholder="Cth: 08123456789" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div>
                     <div id="edit-image-container" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Ganti Gambar (Maks 5MB)</label><input type="file" accept="image/*" id="edit-item-image" class="input-elegant w-full px-3 md:px-4 py-2 md:py-3 rounded-xl text-xs md:text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] md:file:text-xs file:font-black file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer"></div>
                     <div id="edit-content-container"><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide" id="label-content">Isi / Narasi</label><textarea id="edit-item-content" rows="5" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-medium resize-none"></textarea></div>
                 </div>
@@ -374,12 +398,11 @@
                     return {
                         judul: "Pembangunan Gereja Pisgah", target: 500000000, terkumpul: 325500000, bank: "BCA", norek: "1234567890", atasnama: "Panitia Pembangunan Pisgah",
                         portfolio: [ 
-                            { id: '1', title: 'Pengecoran Fondasi', desc: 'Gotong royong jemaat melakukan pengecoran tahap awal.', image: 'https://images.unsplash.com/photo-1541888081688-6c84c1fbb462?auto=format&fit=crop&q=80&w=600' },
-                            { id: '2', title: 'Pemasangan Rangka Atap', desc: 'Pemasangan baja ringan dan persiapan atap utama.', image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600' }
+                            { id: '1', title: 'Pengecoran Fondasi', desc: 'Gotong royong jemaat.', image: 'https://images.unsplash.com/photo-1541888081688-6c84c1fbb462?auto=format&fit=crop&q=80&w=600' }
                         ],
                         artikel: [ { id: '1', title: 'Tahap Struktur Selesai', content: 'Terima kasih jemaat...' } ],
                         panitia: [ 
-                            { id: '1', nama: 'Budi Santoso', jabatan: 'Ketua Panitia', image: '' }
+                            { id: '1', nama: 'Budi Santoso', jabatan: 'Ketua Panitia', image: '', nowa: '08123456789' }
                         ]
                     };
                 }
@@ -484,6 +507,25 @@
             }
         }
 
+        // --- SISTEM TOGGLE FLOATING WA ---
+        function toggleWaPopup() {
+            const popup = document.getElementById('wa-popup');
+            if (popup.classList.contains('scale-0')) {
+                popup.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
+                popup.classList.add('scale-100', 'opacity-100');
+            } else {
+                popup.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
+                popup.classList.remove('scale-100', 'opacity-100');
+            }
+        }
+
+        function formatWaNumber(nowa) {
+            if(!nowa) return '';
+            let formatted = nowa.replace(/[^0-9]/g, '');
+            if(formatted.startsWith('0')) formatted = '62' + formatted.substring(1);
+            return formatted;
+        }
+
         async function refreshAllData() {
             const data = await api.get();
             if(!data) { document.getElementById('judul-web').innerText = "Gagal memuat data."; return; }
@@ -521,16 +563,10 @@
                     const isEven = index % 2 === 0;
                     return `
                     <div class="flex flex-col md:flex-row items-center justify-between w-full mb-12 md:mb-20 relative group cursor-pointer" onclick="openViewPorto('${p.id}')">
-                        
-                        <!-- Titik Tengah Timeline (Desktop & Tablet) -->
                         <div class="hidden sm:flex absolute left-[20px] md:left-1/2 top-1/2 -translate-y-1/2 md:-translate-x-1/2 w-5 h-5 rounded-full bg-gold border-[4px] border-navy z-10 shadow-glow transition-transform duration-500 group-hover:scale-150 group-hover:bg-white"></div>
-
-                        <!-- Gambar Hexagon -->
                         <div class="w-full md:w-5/12 flex justify-center ${isEven ? 'md:justify-end md:order-1' : 'md:justify-start md:order-3'} z-10 pl-10 sm:pl-16 md:pl-0 relative mb-6 md:mb-0">
                             <div class="animate-hex-glow transition-all duration-500 group-hover:-translate-y-2">
-                                <!-- Outer Hexagon (Border Gold) -->
                                 <div class="relative w-[200px] h-[230px] sm:w-[280px] sm:h-[320px] lg:w-[350px] lg:h-[400px] hex-shape bg-gradient-to-br from-yellow-300 via-gold to-yellow-600 p-1.5 sm:p-[6px] transition-all duration-500">
-                                    <!-- Inner Hexagon (Image Container) -->
                                     <div class="relative w-full h-full hex-shape bg-navy overflow-hidden">
                                         <img src="${p.image}" onerror="this.src='https://via.placeholder.com/400?text=Sedang+Memuat...'" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125 opacity-90 group-hover:opacity-100">
                                         <div class="absolute inset-0 bg-navy/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center backdrop-blur-[2px]">
@@ -542,13 +578,9 @@
                             </div>
                         </div>
 
-                        <!-- Detail Teks Card (Roadmap) -->
                         <div class="w-full md:w-5/12 z-10 pl-10 sm:pl-16 md:pl-0 ${isEven ? 'md:order-3' : 'md:order-1'} relative">
                             <div class="glass-panel box-glow p-6 md:p-8 rounded-3xl md:rounded-[2rem] relative overflow-hidden text-left ${!isEven ? 'md:text-right' : ''}">
-                                
-                                <!-- Bayangan Nomor Besar -->
                                 <div class="absolute top-4 ${isEven ? 'right-6 md:right-8' : 'right-6 md:left-8'} text-6xl md:text-8xl font-black text-gray-400/20 z-0 select-none transition-transform duration-700 group-hover:scale-110 group-hover:text-gold/20 leading-none">0${index + 1}</div>
-                                
                                 <div class="relative z-10">
                                     <span class="inline-block py-1 px-3 rounded-full bg-gold/20 text-gold-dark text-[10px] font-black tracking-widest uppercase mb-3 border border-gold/30"><i class="fa-solid fa-flag-checkered mr-1"></i>Tahap ${index + 1}</span>
                                     <h4 class="font-serif font-black text-navy text-xl md:text-3xl leading-tight mb-3 line-clamp-2">${p.title}</h4>
@@ -556,8 +588,6 @@
                                     <span class="text-gold-dark text-xs md:text-sm font-black mt-4 inline-block group-hover:translate-x-2 ${!isEven ? 'md:group-hover:-translate-x-2' : ''} transition-transform tracking-wide"><i class="fa-solid fa-arrow-right-long mr-2 ${!isEven ? 'md:rotate-180 md:ml-2 md:mr-0' : ''}"></i>SELENGKAPNYA</span>
                                 </div>
                             </div>
-                            
-                            <!-- Tombol Admin (Edit/Hapus) -->
                             ${isAdminMode ? `
                             <div class="absolute -bottom-4 md:-bottom-5 ${isEven ? 'left-16 md:left-8' : 'left-16 md:right-8 md:left-auto'} flex gap-2 z-30">
                                 <button onclick="event.stopPropagation(); openEditPorto('${p.id}')" class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-xl transition-colors hover:scale-110"><i class="fa-solid fa-pen text-sm"></i></button>
@@ -573,7 +603,6 @@
             const artCont = document.getElementById('artikel-container');
             if(data.artikel && data.artikel.length > 0) {
                 artCont.innerHTML = data.artikel.map(a => `
-                    <!-- Kotak Berita -->
                     <div class="box-glow glass-panel rounded-3xl p-5 sm:p-8 md:p-10 flex flex-col sm:flex-row gap-5 md:gap-10 cursor-pointer group" onclick="openViewArt('${a.id}')">
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-3 md:mb-4"><span class="bg-gold/20 text-gold-dark text-[10px] md:text-xs font-black px-3 md:px-4 py-1.5 md:py-2 rounded-lg uppercase tracking-widest">Update Terbaru</span></div>
@@ -590,25 +619,62 @@
                 `).join('');
             } else { artCont.innerHTML = `<p class="text-white/50 font-medium italic text-center text-lg md:text-xl">Belum ada berita update.</p>`; }
 
-            // RENDER PANITIA
+            // RENDER PANITIA & DAFTAR FLOATING WA
             const panitiaCont = document.getElementById('panitia-container');
+            const waListCont = document.getElementById('wa-list-content');
+            let waListHtml = '';
+            let waAvailable = false;
+
             if(data.panitia && data.panitia.length > 0) {
-                panitiaCont.innerHTML = data.panitia.map(p => `
-                    <!-- Kotak Panitia -->
+                panitiaCont.innerHTML = data.panitia.map(p => {
+                    const formattedWa = formatWaNumber(p.nowa);
+                    if(formattedWa) waAvailable = true;
+
+                    // Mengumpulkan Data untuk Popup Floating WA
+                    if(formattedWa) {
+                        waListHtml += `
+                            <a href="https://wa.me/${formattedWa}?text=Halo%20Bapak/Ibu%20${encodeURIComponent(p.nama)},%20saya%20ingin%20bertanya%20seputar%20donasi/pembangunan..." target="_blank" class="flex items-center gap-3 p-3 bg-gray-50 hover:bg-green-50 rounded-xl transition-colors group">
+                                <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+                                    ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-user text-xl text-gray-400 mt-2 ml-2.5"></i>`}
+                                </div>
+                                <div class="flex-1 overflow-hidden">
+                                    <h5 class="text-sm font-black text-navy truncate group-hover:text-green-700 transition-colors">${p.nama}</h5>
+                                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider truncate">${p.jabatan}</p>
+                                </div>
+                                <i class="fa-brands fa-whatsapp text-green-500 text-xl group-hover:scale-125 transition-transform"></i>
+                            </a>
+                        `;
+                    }
+
+                    return `
                     <div class="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.5rem)] glass-panel box-glow rounded-3xl p-4 md:p-8 flex flex-col items-center text-center relative group">
                         <div class="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full mb-3 md:mb-6 bg-gray-100 border-[4px] md:border-[5px] border-white/40 shadow-xl overflow-hidden flex items-center justify-center mx-auto transition-transform duration-500 group-hover:scale-110">
                             ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<i class="fa-solid fa-user text-3xl md:text-5xl text-gray-400"></i>`}
                         </div>
                         <h5 class="font-serif font-black text-navy text-lg sm:text-2xl md:text-3xl leading-tight mb-1 md:mb-2 group-hover:text-gold-dark transition-colors">${p.nama}</h5>
                         <p class="text-gold-dark font-black text-[10px] sm:text-sm md:text-base uppercase tracking-widest leading-snug">${p.jabatan}</p>
+                        ${formattedWa ? `<a href="https://wa.me/${formattedWa}" target="_blank" class="mt-3 px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-bold hover:bg-green-500 hover:text-white transition-colors"><i class="fa-brands fa-whatsapp mr-1"></i> Hubungi</a>` : ''}
                         ${isAdminMode ? `
                         <div class="absolute top-2 right-2 md:top-3 md:right-3 flex flex-col gap-2 md:gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <button onclick="openEditPanitia('${p.id}')" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-lg"><i class="fa-solid fa-pen text-xs md:text-sm"></i></button>
                             <button onclick="hapusPanitia('${p.id}')" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-lg"><i class="fa-solid fa-trash-can text-xs md:text-sm"></i></button>
                         </div>` : ''}
                     </div>
-                `).join('');
-            } else { panitiaCont.innerHTML = `<p class="w-full text-white/50 font-medium italic text-center text-lg md:text-xl">Belum ada data kepanitiaan.</p>`; }
+                    `;
+                }).join('');
+
+                // Tampilkan Floating WA HANYA JIKA ada setidaknya 1 panitia yang punya No WA
+                if (waAvailable) {
+                    document.getElementById('floating-wa-container').classList.remove('hidden');
+                    waListCont.innerHTML = waListHtml;
+                } else {
+                    document.getElementById('floating-wa-container').classList.add('hidden');
+                }
+
+            } else { 
+                panitiaCont.innerHTML = `<p class="w-full text-white/50 font-medium italic text-center text-lg md:text-xl">Belum ada data kepanitiaan.</p>`; 
+                document.getElementById('floating-wa-container').classList.add('hidden');
+            }
         }
 
         async function handleKonfirmasi(e) {
@@ -725,6 +791,7 @@
         async function tambahPanitia() {
             const nama = document.getElementById('add-panitia-nama').value;
             const jabatan = document.getElementById('add-panitia-jabatan').value;
+            const nowa = document.getElementById('add-panitia-nowa').value;
             const fileInput = document.getElementById('add-panitia-image');
             if(!nama || !jabatan) return alert('Mohon isi Nama dan Jabatan!');
             let fileData = null;
@@ -733,9 +800,16 @@
                 fileData = await getBase64(fileInput.files[0]);
             }
             const btn = document.getElementById('btn-add-panitia'); const orig = btn.innerHTML; 
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENGUNGGAH FILE...'; btn.disabled = true;
-            const res = await api.req({ action: 'tambahPanitia', nama: nama, jabatan: jabatan, imageData: fileData });
-            if(res && res.success) { alert('Panitia berhasil ditambahkan!'); document.getElementById('add-panitia-nama').value = ''; document.getElementById('add-panitia-jabatan').value = ''; document.getElementById('add-panitia-image').value = ''; refreshAllData(); } 
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENGUNGGAH...'; btn.disabled = true;
+            const res = await api.req({ action: 'tambahPanitia', nama: nama, jabatan: jabatan, nowa: nowa, imageData: fileData });
+            if(res && res.success) { 
+                alert('Panitia berhasil ditambahkan!'); 
+                document.getElementById('add-panitia-nama').value = ''; 
+                document.getElementById('add-panitia-jabatan').value = ''; 
+                document.getElementById('add-panitia-nowa').value = ''; 
+                document.getElementById('add-panitia-image').value = ''; 
+                refreshAllData(); 
+            } 
             else { alert('Server Error: ' + (res.error || 'Gagal menyinkronkan data.')); }
             btn.innerHTML = orig; btn.disabled = false;
         }
@@ -756,6 +830,7 @@
             document.getElementById('edit-modal-title').innerText = "Edit Galeri"; document.getElementById('edit-id').value = item.id; document.getElementById('edit-type').value = "porto";
             document.getElementById('label-title').innerText = "Judul Foto"; document.getElementById('edit-item-title').value = item.title;
             document.getElementById('edit-jabatan-container').classList.add('hidden');
+            document.getElementById('edit-nowa-container').classList.add('hidden');
             document.getElementById('edit-image-container').classList.remove('hidden'); document.getElementById('edit-existing-image').value = item.image || ''; 
             document.getElementById('edit-content-container').classList.remove('hidden'); document.getElementById('label-content').innerText = "Narasi / Keterangan"; document.getElementById('edit-item-content').value = item.desc || '';
             showEditModal();
@@ -765,7 +840,9 @@
             const item = globalData.artikel.find(p => p.id === id); if(!item) return;
             document.getElementById('edit-modal-title').innerText = "Edit Berita"; document.getElementById('edit-id').value = item.id; document.getElementById('edit-type').value = "art";
             document.getElementById('label-title').innerText = "Judul Berita"; document.getElementById('edit-item-title').value = item.title;
-            document.getElementById('edit-jabatan-container').classList.add('hidden'); document.getElementById('edit-image-container').classList.add('hidden');
+            document.getElementById('edit-jabatan-container').classList.add('hidden'); 
+            document.getElementById('edit-nowa-container').classList.add('hidden');
+            document.getElementById('edit-image-container').classList.add('hidden');
             document.getElementById('edit-content-container').classList.remove('hidden'); document.getElementById('label-content').innerText = "Isi Berita"; document.getElementById('edit-item-content').value = item.content || '';
             showEditModal();
         }
@@ -775,6 +852,7 @@
             document.getElementById('edit-modal-title').innerText = "Edit Panitia"; document.getElementById('edit-id').value = item.id; document.getElementById('edit-type').value = "panitia";
             document.getElementById('label-title').innerText = "Nama Lengkap"; document.getElementById('edit-item-title').value = item.nama;
             document.getElementById('edit-jabatan-container').classList.remove('hidden'); document.getElementById('edit-item-jabatan').value = item.jabatan;
+            document.getElementById('edit-nowa-container').classList.remove('hidden'); document.getElementById('edit-item-nowa').value = item.nowa || '';
             document.getElementById('edit-image-container').classList.remove('hidden'); document.getElementById('edit-existing-image').value = item.image || ''; 
             document.getElementById('edit-content-container').classList.add('hidden');
             showEditModal();
@@ -790,6 +868,7 @@
             const id = document.getElementById('edit-id').value, type = document.getElementById('edit-type').value;
             const title = document.getElementById('edit-item-title').value, content = document.getElementById('edit-item-content').value;
             const jabatan = document.getElementById('edit-item-jabatan').value;
+            const nowa = document.getElementById('edit-item-nowa').value;
             const fileInput = document.getElementById('edit-item-image');
             let fileData = null;
             if(fileInput && fileInput.files.length > 0) {
@@ -803,7 +882,7 @@
             let res;
             if(type === 'porto') { res = await api.req({ action: 'editPortofolio', id: id, title: title, imageData: fileData, existingImage: existingImage, desc: content }); } 
             else if(type === 'art') { res = await api.req({ action: 'editArtikel', id: id, title: title, content: content }); } 
-            else if(type === 'panitia') { res = await api.req({ action: 'editPanitia', id: id, nama: title, jabatan: jabatan, imageData: fileData, existingImage: existingImage }); }
+            else if(type === 'panitia') { res = await api.req({ action: 'editPanitia', id: id, nama: title, jabatan: jabatan, nowa: nowa, imageData: fileData, existingImage: existingImage }); }
 
             if(res && res.success) { alert('Perubahan berhasil disimpan!'); closeEditModal(); refreshAllData(); } 
             else { alert('Server Error: ' + (res.error || 'Gagal mengubah data.')); }

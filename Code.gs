@@ -1,7 +1,7 @@
 /**
  * BACKEND GOOGLE APPS SCRIPT (GAS)
  * Sistem Informasi Pembangunan & Donasi
- * Update: Thumbnail API (=w1000) & Auto-Permission
+ * Update: Thumbnail API (=w1000) & Auto-Permission & Panitia WA Number
  */
 
 // ==========================================
@@ -42,12 +42,12 @@ function doPost(e) {
       // Fitur Tambah Data
       case 'tambahPortofolio': result = tambahPortofolio(req.title, req.desc, req.imageData); break;
       case 'tambahArtikel': result = tambahArtikel(req.title, req.content); break;
-      case 'tambahPanitia': result = tambahPanitia(req.nama, req.jabatan, req.imageData); break;
+      case 'tambahPanitia': result = tambahPanitia(req.nama, req.jabatan, req.imageData, req.nowa); break;
 
       // Fitur Edit Data
       case 'editPortofolio': result = editPortofolio(req.id, req.title, req.desc, req.imageData, req.existingImage); break;
       case 'editArtikel': result = editArtikel(req.id, req.title, req.content); break;
-      case 'editPanitia': result = editPanitia(req.id, req.nama, req.jabatan, req.imageData, req.existingImage); break;
+      case 'editPanitia': result = editPanitia(req.id, req.nama, req.jabatan, req.imageData, req.existingImage, req.nowa); break;
 
       // Fitur Hapus Data
       case 'hapusPortofolio': result = { success: hapusData('Portfolio', req.id) }; break;
@@ -70,10 +70,8 @@ function doPost(e) {
 // ==========================================
 function formatDriveUrl(url) {
   if (!url || typeof url !== 'string') return "";
-  // Jika URL bukan dari Google Drive (misal link Unsplash/placeholder), biarkan saja
   if (!url.includes("drive.google.com") && !url.includes("googleusercontent.com")) return url;
   
-  // Ekstrak ID File Google Drive (biasanya 33 karakter)
   const match = url.match(/[-\w]{25,}/);
   if (match) {
     return "https://drive.google.com/thumbnail?id=" + match[0] + "&sz=w1000";
@@ -105,7 +103,8 @@ function getInitialData() {
     for (let i = 1; i < rows.length; i++) {
       if (sheetName === 'Portfolio') data.push({ id: rows[i][0], title: rows[i][1], desc: rows[i][2], image: formatDriveUrl(rows[i][3]) });
       if (sheetName === 'Artikel') data.push({ id: rows[i][0], title: rows[i][1], content: rows[i][2] });
-      if (sheetName === 'Panitia') data.push({ id: rows[i][0], nama: rows[i][1], jabatan: rows[i][2], image: formatDriveUrl(rows[i][3]) });
+      // Menambahkan rows[i][4] untuk menyimpan No WA Panitia
+      if (sheetName === 'Panitia') data.push({ id: rows[i][0], nama: rows[i][1], jabatan: rows[i][2], image: formatDriveUrl(rows[i][3]), nowa: rows[i][4] });
     }
     return data;
   };
@@ -128,14 +127,11 @@ function uploadImageToDrive(fileObj) {
     const bytes = Utilities.base64Decode(fileObj.base64);
     const blob = Utilities.newBlob(bytes, contentType, new Date().getTime() + '_' + fileObj.name);
     
-    // Buat file
     const file = folder.createFile(blob);
     
     // Otomatis ubah permission file menjadi Publik (Viewer)
-    // Ini mencegah error "Tanpa Bukti" meskipun folder belum di-share
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     
-    // Kembalikan URL dalam bentuk thumbnail w1000 agar bisa tampil di tag <img>
     return "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1000";
   } catch (f) {
     return "";
@@ -168,7 +164,6 @@ function getKonfirmasiData() {
   let data = [];
   
   for (let i = 1; i < rows.length; i++) { 
-    // Lewati baris kosong
     if (!rows[i][1] && !rows[i][2]) continue;
     
     data.push({
@@ -177,7 +172,7 @@ function getKonfirmasiData() {
       nama: rows[i][1],
       jumlah: rows[i][2],
       ket: rows[i][3],
-      bukti: formatDriveUrl(rows[i][4]), // Format ulang URL lama
+      bukti: formatDriveUrl(rows[i][4]), 
       status: rows[i][5] || 'Pending'
     });
   }
@@ -265,7 +260,7 @@ function tambahArtikel(title, content) {
   return { success: true };
 }
 
-function tambahPanitia(nama, jabatan, imageData) {
+function tambahPanitia(nama, jabatan, imageData, nowa) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName('Panitia');
   if(!sheet) return { success: false, error: "Sheet Panitia tidak ditemukan" };
@@ -274,7 +269,8 @@ function tambahPanitia(nama, jabatan, imageData) {
   if (imageData && imageData.base64) imageUrl = uploadImageToDrive(imageData);
   
   const id = Utilities.getUuid();
-  sheet.appendRow([id, nama, jabatan, imageUrl]);
+  // Menyimpan No WA ke Kolom E (Kelima)
+  sheet.appendRow([id, nama, jabatan, imageUrl, nowa || ""]);
   return { success: true };
 }
 
@@ -315,7 +311,7 @@ function editArtikel(id, title, content) {
   return { success: false, error: "ID tidak ditemukan" };
 }
 
-function editPanitia(id, nama, jabatan, imageData, existingImage) {
+function editPanitia(id, nama, jabatan, imageData, existingImage, nowa) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName('Panitia');
   const rows = sheet.getDataRange().getValues();
@@ -328,6 +324,8 @@ function editPanitia(id, nama, jabatan, imageData, existingImage) {
       sheet.getRange(i + 1, 2).setValue(nama);
       sheet.getRange(i + 1, 3).setValue(jabatan);
       sheet.getRange(i + 1, 4).setValue(finalImage);
+      // Mengubah nilai No WA di Kolom E (Kelima)
+      sheet.getRange(i + 1, 5).setValue(nowa || "");
       return { success: true };
     }
   }
