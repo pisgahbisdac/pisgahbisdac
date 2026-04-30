@@ -1,6 +1,7 @@
 /**
  * BACKEND GOOGLE APPS SCRIPT (GAS)
  * Sistem Informasi Pembangunan & Donasi
+ * Update: Thumbnail API (=w1000) & Auto-Permission
  */
 
 // ==========================================
@@ -65,19 +66,27 @@ function doPost(e) {
 }
 
 // ==========================================
-// 2. FUNGSI PENGAMBILAN DATA (READ)
+// 2. FUNGSI PENYELAMAT URL GAMBAR (Auto-Format ke =w1000)
+// ==========================================
+function formatDriveUrl(url) {
+  if (!url || typeof url !== 'string') return "";
+  // Jika URL bukan dari Google Drive (misal link Unsplash/placeholder), biarkan saja
+  if (!url.includes("drive.google.com") && !url.includes("googleusercontent.com")) return url;
+  
+  // Ekstrak ID File Google Drive (biasanya 33 karakter)
+  const match = url.match(/[-\w]{25,}/);
+  if (match) {
+    return "https://drive.google.com/thumbnail?id=" + match[0] + "&sz=w1000";
+  }
+  return url;
+}
+
+// ==========================================
+// 3. FUNGSI PENGAMBILAN DATA (READ)
 // ==========================================
 function getInitialData() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const infoSheet = ss.getSheetByName('Info');
-  
-  // Panduan Posisi Data pada Sheet "Info"
-  // B1 = Judul Website
-  // B2 = Target Dana
-  // B3 = Terkumpul
-  // B4 = Nama Bank
-  // B5 = No Rekening
-  // B6 = Atas Nama
   
   const info = {
     judul: infoSheet.getRange('B1').getValue() || '',
@@ -93,10 +102,10 @@ function getInitialData() {
     if (!sheet) return [];
     const rows = sheet.getDataRange().getValues();
     const data = [];
-    for (let i = 1; i < rows.length; i++) { // Dimulai dari 1 untuk melewati baris Header
-      if (sheetName === 'Portfolio') data.push({ id: rows[i][0], title: rows[i][1], desc: rows[i][2], image: rows[i][3] });
+    for (let i = 1; i < rows.length; i++) {
+      if (sheetName === 'Portfolio') data.push({ id: rows[i][0], title: rows[i][1], desc: rows[i][2], image: formatDriveUrl(rows[i][3]) });
       if (sheetName === 'Artikel') data.push({ id: rows[i][0], title: rows[i][1], content: rows[i][2] });
-      if (sheetName === 'Panitia') data.push({ id: rows[i][0], nama: rows[i][1], jabatan: rows[i][2], image: rows[i][3] });
+      if (sheetName === 'Panitia') data.push({ id: rows[i][0], nama: rows[i][1], jabatan: rows[i][2], image: formatDriveUrl(rows[i][3]) });
     }
     return data;
   };
@@ -110,7 +119,31 @@ function getInitialData() {
 }
 
 // ==========================================
-// 3. SISTEM KONFIRMASI & VALIDASI DONASI
+// 4. FUNGSI UPLOAD GAMBAR KE GOOGLE DRIVE
+// ==========================================
+function uploadImageToDrive(fileObj) {
+  try {
+    const folder = DriveApp.getFolderById(FOLDER_ID);
+    const contentType = fileObj.mimeType;
+    const bytes = Utilities.base64Decode(fileObj.base64);
+    const blob = Utilities.newBlob(bytes, contentType, new Date().getTime() + '_' + fileObj.name);
+    
+    // Buat file
+    const file = folder.createFile(blob);
+    
+    // Otomatis ubah permission file menjadi Publik (Viewer)
+    // Ini mencegah error "Tanpa Bukti" meskipun folder belum di-share
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    // Kembalikan URL dalam bentuk thumbnail w1000 agar bisa tampil di tag <img>
+    return "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1000";
+  } catch (f) {
+    return "";
+  }
+}
+
+// ==========================================
+// 5. SISTEM KONFIRMASI & VALIDASI DONASI
 // ==========================================
 function submitKonfirmasi(payload) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -122,7 +155,6 @@ function submitKonfirmasi(payload) {
     buktiUrl = uploadImageToDrive(payload.bukti);
   }
   
-  // Header Asumsi: [Date, Nama, Jumlah, Keterangan, Bukti, Status]
   sheet.appendRow([new Date(), payload.nama, payload.jumlah, payload.keterangan, buktiUrl, "Pending"]);
   return { success: true };
 }
@@ -135,18 +167,17 @@ function getKonfirmasiData() {
   const rows = sheet.getDataRange().getValues();
   let data = [];
   
-  // Mengambil data dari baris ke-2 (Baris 1 adalah Header)
   for (let i = 1; i < rows.length; i++) { 
-    // MENCEGAH BARIS KOSONG: Lewati baris jika tidak ada nama pengirimnya
+    // Lewati baris kosong
     if (!rows[i][1] && !rows[i][2]) continue;
     
     data.push({
-      rowIdx: i + 1, // Nomor baris aktual di spreadsheet
+      rowIdx: i + 1,
       date: rows[i][0],
       nama: rows[i][1],
       jumlah: rows[i][2],
       ket: rows[i][3],
-      bukti: rows[i][4],
+      bukti: formatDriveUrl(rows[i][4]), // Format ulang URL lama
       status: rows[i][5] || 'Pending'
     });
   }
@@ -158,16 +189,13 @@ function confirmDonasi(rowIdx, jumlah) {
   const konfSheet = ss.getSheetByName('Konfirmasi');
   if (!konfSheet) return { success: false, error: 'Sheet Konfirmasi tidak ditemukan' };
   
-  // Cek agar tidak terjadi double-konfirmasi
   const currentStatus = konfSheet.getRange(rowIdx, 6).getValue();
   if (currentStatus === 'Confirmed') {
     return { success: false, error: 'Donasi ini sudah dikonfirmasi sebelumnya' };
   }
   
-  // 1. Ubah status menjadi Confirmed
   konfSheet.getRange(rowIdx, 6).setValue('Confirmed');
   
-  // 2. Tambahkan Nominal secara otomatis ke 'Dana Terkumpul' (Sel B3)
   try {
     const infoSheet = ss.getSheetByName('Info');
     if (infoSheet) {
@@ -185,13 +213,12 @@ function confirmDonasi(rowIdx, jumlah) {
 }
 
 // ==========================================
-// 4. PENGATURAN INFO UTAMA & ADMIN
+// 6. PENGATURAN INFO UTAMA & ADMIN
 // ==========================================
 function verifyAdmin(username, password) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheetInfo = ss.getSheetByName('Info');
   
-  // Asumsi di Sheet 'Info': B7 = Username Admin, B8 = Password Admin
   const validUser = sheetInfo.getRange('B7').getValue();
   const validPass = sheetInfo.getRange('B8').getValue();
   
@@ -213,25 +240,7 @@ function updateInfoWebsite(target, terkumpul, bank, norek, atasnama, judul) {
 }
 
 // ==========================================
-// 5. FUNGSI UPLOAD GAMBAR KE GOOGLE DRIVE
-// ==========================================
-function uploadImageToDrive(fileObj) {
-  try {
-    const folder = DriveApp.getFolderById(FOLDER_ID);
-    const contentType = fileObj.mimeType;
-    const bytes = Utilities.base64Decode(fileObj.base64);
-    const blob = Utilities.newBlob(bytes, contentType, new Date().getTime() + '_' + fileObj.name);
-    const file = folder.createFile(blob);
-    
-    // Pastikan folder di-set ke "Viewer: Anyone with the link"
-    return "https://drive.google.com/uc?export=view&id=" + file.getId();
-  } catch (f) {
-    return "";
-  }
-}
-
-// ==========================================
-// 6. FUNGSI TAMBAH DATA (CREATE)
+// 7. FUNGSI TAMBAH DATA (CREATE)
 // ==========================================
 function tambahPortofolio(title, desc, imageData) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -270,7 +279,7 @@ function tambahPanitia(nama, jabatan, imageData) {
 }
 
 // ==========================================
-// 7. FUNGSI EDIT DATA (UPDATE)
+// 8. FUNGSI EDIT DATA (UPDATE)
 // ==========================================
 function editPortofolio(id, title, desc, imageData, existingImage) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -326,7 +335,7 @@ function editPanitia(id, nama, jabatan, imageData, existingImage) {
 }
 
 // ==========================================
-// 8. FUNGSI HAPUS DATA (DELETE)
+// 9. FUNGSI HAPUS DATA (DELETE)
 // ==========================================
 function hapusData(sheetName, id) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
