@@ -545,19 +545,16 @@
             // RENDER GALERI
             const portoCont = document.getElementById('portfolio-container');
             if(data.portfolio && data.portfolio.length > 0) {
-                portoCont.innerHTML = '<div class="absolute left-[20px] md:left-1/2 top-4 bottom-4 w-1.5 bg-white/10 md:-translate-x-1/2 rounded-full hidden sm:block pointer-events-none"></div>' + 
+                portoCont.innerHTML = '<div class="absolute left-[20px] md:left-1/2 top-4 bottom-4 w-1.5 bg-white/10 md:-translate-x-1/2 rounded-full hidden sm:block"></div>' + 
                 data.portfolio.map((p, index) => {
                     const isEven = index % 2 === 0;
                     return `
-                    <div class="flex flex-col md:flex-row items-center justify-between w-full mb-12 md:mb-20 relative group">
+                    <div class="flex flex-col md:flex-row items-center justify-between w-full mb-12 md:mb-20 relative group cursor-pointer" onclick="openViewPorto('${p.id}')" role="button" tabindex="0" title="Klik untuk lihat detail">
                         
-                        <!-- NATIVE BUTTON OVERLAY 100% AREA: FIX UNTUK IPHONE -->
-                        <button type="button" class="absolute inset-0 w-full h-full z-[30] opacity-0 cursor-pointer outline-none" onclick="openViewPorto('${p.id}')" title="Lihat detail"></button>
-
-                        <div class="hidden sm:flex absolute left-[20px] md:left-1/2 top-1/2 -translate-y-1/2 md:-translate-x-1/2 w-5 h-5 rounded-full bg-gold border-[4px] border-navy z-10 shadow-glow transition-transform duration-500 lg:group-hover:scale-150 lg:group-hover:bg-white pointer-events-none"></div>
+                        <div class="hidden sm:flex absolute left-[20px] md:left-1/2 top-1/2 -translate-y-1/2 md:-translate-x-1/2 w-5 h-5 rounded-full bg-gold border-[4px] border-navy z-10 shadow-glow transition-transform duration-500 lg:group-hover:scale-150 lg:group-hover:bg-white"></div>
                         
                         <!-- Bagian Gambar -->
-                        <div class="w-full md:w-5/12 flex justify-center ${isEven ? 'md:justify-end md:order-1' : 'md:justify-start md:order-3'} z-10 pl-0 sm:pl-16 md:pl-0 relative mb-6 md:mb-0 pointer-events-none">
+                        <div class="w-full md:w-5/12 flex justify-center ${isEven ? 'md:justify-end md:order-1' : 'md:justify-start md:order-3'} z-10 pl-0 sm:pl-16 md:pl-0 relative mb-6 md:mb-0">
                             <div class="animate-hex-glow transition-all duration-500 lg:group-hover:-translate-y-2">
                                 <div class="relative w-[200px] h-[230px] sm:w-[280px] sm:h-[320px] lg:w-[350px] lg:h-[400px] hex-shape bg-gradient-to-br from-yellow-300 via-gold to-yellow-600 p-1.5 sm:p-[6px] transition-all duration-500">
                                     <div class="relative w-full h-full hex-shape bg-navy overflow-hidden">
@@ -572,22 +569,27 @@
                         </div>
 
                         <!-- Bagian Teks -->
-                        <div class="w-full md:w-5/12 z-10 pl-0 sm:pl-16 md:pl-0 ${isEven ? 'md:order-3' : 'md:order-1'} relative pointer-events-none">
+                        <div class="w-full md:w-5/12 z-10 pl-0 sm:pl-16 md:pl-0 ${isEven ? 'md:order-3' : 'md:order-1'} relative">
                             <div class="glass-panel box-glow p-6 md:p-8 rounded-3xl md:rounded-[2rem] relative overflow-hidden text-left ${!isEven ? 'md:text-right' : ''}">
                                 <div class="absolute top-4 ${isEven ? 'right-6 md:right-8' : 'right-6 md:left-8'} text-6xl md:text-8xl font-black text-gray-400/20 z-0 select-none transition-transform duration-700 lg:group-hover:scale-110 lg:group-hover:text-gold/20 leading-none">0${index + 1}</div>
                                 <div class="relative z-10">
                                     <span class="inline-block py-1 px-3 rounded-full bg-gold/20 text-gold-dark text-[10px] font-black tracking-widest uppercase mb-3 border border-gold/30"><i class="fa-solid fa-flag-checkered mr-1"></i>Tahap ${index + 1}</span>
                                     <h4 class="font-serif font-black text-navy text-xl md:text-3xl leading-tight mb-3 line-clamp-2">${p.title}</h4>
                                     <p class="text-gray-600 text-sm md:text-base font-medium leading-relaxed whitespace-pre-line line-clamp-3">${p.desc || ''}</p>
-                                    <span class="text-gold-dark text-xs md:text-sm font-black mt-4 inline-block lg:group-hover:translate-x-2 ${!isEven ? 'md:lg:group-hover:-translate-x-2' : ''} transition-transform tracking-wide"><i class="fa-solid fa-arrow-right-long mr-2 ${!isEven ? 'md:rotate-180 md:ml-2 md:mr-0' : ''}"></i>SELENGKAPNYA</span>
+                                    
+                                    <div class="inline-flex items-center text-gold-dark text-xs md:text-sm font-black mt-4 lg:group-hover:translate-x-2 ${!isEven ? 'md:lg:group-hover:-translate-x-2' : ''} transition-transform tracking-wide bg-transparent w-auto">
+                                        ${!isEven ? '<i class="fa-solid fa-arrow-left-long mr-2 hidden md:inline-block"></i>' : ''}
+                                        <span>SELENGKAPNYA</span>
+                                        ${isEven ? '<i class="fa-solid fa-arrow-right-long ml-2"></i>' : '<i class="fa-solid fa-arrow-right-long ml-2 md:hidden"></i>'}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
                         ${isAdminMode ? `
                         <div class="absolute -bottom-4 md:-bottom-5 left-1/2 -translate-x-1/2 md:translate-x-0 ${isEven ? 'md:left-8' : 'md:right-8 md:left-auto'} flex gap-2 z-[40]">
-                            <button onclick="event.stopPropagation(); openEditPorto('${p.id}')" class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-xl transition-colors lg:hover:scale-110 relative z-50 cursor-pointer"><i class="fa-solid fa-pen text-sm pointer-events-none"></i></button>
-                            <button onclick="event.stopPropagation(); hapusPorto('${p.id}')" class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-xl transition-colors lg:hover:scale-110 relative z-50 cursor-pointer"><i class="fa-solid fa-trash-can text-sm pointer-events-none"></i></button>
+                            <button onclick="event.stopPropagation(); openEditPorto('${p.id}')" class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-xl transition-colors lg:hover:scale-110 relative z-50 cursor-pointer"><i class="fa-solid fa-pen text-sm"></i></button>
+                            <button onclick="event.stopPropagation(); hapusPorto('${p.id}')" class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-xl transition-colors lg:hover:scale-110 relative z-50 cursor-pointer"><i class="fa-solid fa-trash-can text-sm"></i></button>
                         </div>` : ''}
                     </div>
                     `;
@@ -598,22 +600,22 @@
             const artCont = document.getElementById('artikel-container');
             if(data.artikel && data.artikel.length > 0) {
                 artCont.innerHTML = data.artikel.map(a => `
-                    <div class="box-glow glass-panel rounded-3xl p-5 sm:p-8 md:p-10 flex flex-col sm:flex-row gap-5 md:gap-10 group relative">
+                    <div class="box-glow glass-panel rounded-3xl p-5 sm:p-8 md:p-10 flex flex-col sm:flex-row gap-5 md:gap-10 group relative cursor-pointer" onclick="openViewArt('${a.id}')" role="button" tabindex="0" title="Baca artikel">
                         
-                        <!-- NATIVE BUTTON OVERLAY 100% AREA: FIX UNTUK IPHONE -->
-                        <button type="button" class="absolute inset-0 w-full h-full z-[30] opacity-0 cursor-pointer outline-none rounded-3xl" onclick="openViewArt('${a.id}')" title="Baca artikel"></button>
-                        
-                        <div class="flex-1 pointer-events-none">
+                        <div class="flex-1 w-full">
                             <div class="flex items-center gap-2 mb-3 md:mb-4"><span class="bg-gold/20 text-gold-dark text-[10px] md:text-xs font-black px-3 md:px-4 py-1.5 md:py-2 rounded-lg uppercase tracking-widest">Update Terbaru</span></div>
                             <h4 class="font-serif font-black text-2xl md:text-4xl text-navy mb-3 md:mb-5 leading-snug lg:group-hover:text-gold-dark transition-colors">${a.title}</h4>
                             <p class="text-gray-600 text-sm md:text-xl font-medium leading-relaxed whitespace-pre-line line-clamp-3">${a.content || ''}</p>
-                            <span class="text-gold-dark text-xs md:text-base font-black mt-4 md:mt-6 inline-block lg:group-hover:translate-x-2 transition-transform tracking-wide">BACA SELENGKAPNYA <i class="fa-solid fa-arrow-right ml-1 md:ml-2"></i></span>
+                            
+                            <div class="inline-flex items-center text-gold-dark text-xs md:text-base font-black mt-4 md:mt-6 lg:group-hover:translate-x-2 transition-transform tracking-wide bg-transparent w-auto">
+                                <span>BACA SELENGKAPNYA</span> <i class="fa-solid fa-arrow-right ml-2"></i>
+                            </div>
                         </div>
                         
                         ${isAdminMode ? `
                         <div class="flex sm:flex-col justify-end sm:justify-start gap-3 md:gap-4 pt-5 sm:pt-0 sm:border-l sm:pl-8 border-gray-200 z-[40] relative">
-                            <button onclick="event.stopPropagation(); openEditArt('${a.id}')" class="text-sm md:text-base font-black text-blue-600 bg-blue-50 hover:bg-blue-100 px-4 md:px-6 py-3 md:py-4 rounded-xl transition shadow-md flex items-center gap-2 md:gap-3 cursor-pointer relative z-50"><i class="fa-solid fa-pen pointer-events-none"></i> EDIT</button>
-                            <button onclick="event.stopPropagation(); hapusArt('${a.id}')" class="text-sm md:text-base font-black text-red-600 bg-red-50 hover:bg-red-100 px-4 md:px-6 py-3 md:py-4 rounded-xl transition shadow-md flex items-center gap-2 md:gap-3 cursor-pointer relative z-50"><i class="fa-solid fa-trash pointer-events-none"></i> HAPUS</button>
+                            <button onclick="event.stopPropagation(); openEditArt('${a.id}')" class="text-sm md:text-base font-black text-blue-600 bg-blue-50 hover:bg-blue-100 px-4 md:px-6 py-3 md:py-4 rounded-xl transition shadow-md flex items-center gap-2 md:gap-3 cursor-pointer relative z-50"><i class="fa-solid fa-pen"></i> EDIT</button>
+                            <button onclick="event.stopPropagation(); hapusArt('${a.id}')" class="text-sm md:text-base font-black text-red-600 bg-red-50 hover:bg-red-100 px-4 md:px-6 py-3 md:py-4 rounded-xl transition shadow-md flex items-center gap-2 md:gap-3 cursor-pointer relative z-50"><i class="fa-solid fa-trash"></i> HAPUS</button>
                         </div>` : ''}
                     </div>
                 `).join('');
