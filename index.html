@@ -81,8 +81,8 @@
                 </div>
             </div>
             
-            <!-- TOMBOL ADMIN DENGAN INDIKATOR LOGIN -->
-            <button id="btn-admin-nav" onclick="toggleAdmin()" class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-full transition-all border border-white/10 backdrop-blur-sm">
+            <!-- TOMBOL ADMIN NAVIGASI -->
+            <button id="btn-admin-nav" onclick="openAdminPanel()" class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-full transition-all border border-white/10 backdrop-blur-sm shadow-md">
                 <i id="icon-admin-nav" class="fa-solid fa-user-shield text-gold group-hover:scale-110 transition-transform text-sm"></i>
                 <span id="text-admin-nav" class="text-sm font-medium tracking-wide text-white">Admin</span>
             </button>
@@ -174,7 +174,7 @@
                 <p class="text-gray-300 text-sm md:text-base max-w-2xl">Orang-orang berdedikasi yang mengawal jalannya pembangunan rumah ibadah ini dengan penuh integritas.</p>
             </div>
             
-            <div id="panitia-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+            <div id="panitia-container" class="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 max-w-6xl mx-auto">
                 <!-- Data di-inject JS -->
             </div>
         </section>
@@ -197,7 +197,13 @@
                     <div class="w-10 h-10 rounded-full bg-navy text-white flex items-center justify-center shadow-md"><i class="fa-solid fa-lock"></i></div>
                     <h2 class="text-xl md:text-2xl font-serif font-bold text-navy">Admin Panel</h2>
                 </div>
-                <button onclick="closeAdminModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-600 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <div class="flex items-center gap-3 md:gap-4">
+                    <!-- TOMBOL LOGOUT BARU DIPINDAHKAN KE SINI -->
+                    <button id="btn-logout" onclick="logoutAdmin()" class="hidden bg-red-50 text-red-600 hover:bg-red-100 font-bold px-4 md:px-5 py-2.5 rounded-xl transition text-xs md:text-sm flex items-center gap-2 shadow-sm border border-red-100">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Logout</span>
+                    </button>
+                    <button onclick="closeAdminModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all shadow-sm"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
             </div>
             
             <div class="p-6 md:p-8 overflow-y-auto flex-1 bg-white">
@@ -351,20 +357,16 @@
         }
 
         function updateAdminUI() {
-            const btn = document.getElementById('btn-admin-nav');
             const icon = document.getElementById('icon-admin-nav');
             const text = document.getElementById('text-admin-nav');
             
             if(isAdminMode) {
-                icon.className = "fa-solid fa-right-from-bracket text-red-500 group-hover:scale-110 transition-transform text-sm";
-                text.innerText = "Logout Admin";
-                btn.classList.add('bg-red-500/10', 'border-red-500/30', 'hover:bg-red-500/20');
-                btn.classList.remove('bg-white/10', 'border-white/10', 'hover:bg-white/20');
+                // Saat login, Navbar menjadi tombol Dashboard (Bukan Logout)
+                icon.className = "fa-solid fa-table-columns text-gold group-hover:scale-110 transition-transform text-sm";
+                text.innerText = "Dashboard";
             } else {
                 icon.className = "fa-solid fa-user-shield text-gold group-hover:scale-110 transition-transform text-sm";
                 text.innerText = "Admin";
-                btn.classList.remove('bg-red-500/10', 'border-red-500/30', 'hover:bg-red-500/20');
-                btn.classList.add('bg-white/10', 'border-white/10', 'hover:bg-white/20');
             }
         }
 
@@ -438,12 +440,12 @@
             const panitiaCont = document.getElementById('panitia-container');
             if(data.panitia && data.panitia.length > 0) {
                 panitiaCont.innerHTML = data.panitia.map(p => `
-                    <div class="glass-panel hover-lift rounded-3xl p-5 md:p-6 flex flex-col items-center text-center relative group">
-                        <div class="w-24 h-24 md:w-28 md:h-28 rounded-full mb-4 bg-gray-100 border-4 border-white/30 shadow-lg overflow-hidden flex items-center justify-center">
-                            ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<i class="fa-solid fa-user text-3xl text-gray-400"></i>`}
+                    <div class="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.5rem)] glass-panel hover-lift rounded-3xl p-4 sm:p-5 md:p-6 flex flex-col items-center text-center relative group">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full mb-3 md:mb-4 bg-gray-100 border-4 border-white/30 shadow-lg overflow-hidden flex items-center justify-center mx-auto">
+                            ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<i class="fa-solid fa-user text-2xl md:text-3xl text-gray-400"></i>`}
                         </div>
-                        <h5 class="font-serif font-bold text-navy text-lg md:text-xl leading-tight mb-1">${p.nama}</h5>
-                        <p class="text-gold-dark font-bold text-sm uppercase tracking-wider">${p.jabatan}</p>
+                        <h5 class="font-serif font-bold text-navy text-base sm:text-lg md:text-xl leading-tight mb-1">${p.nama}</h5>
+                        <p class="text-gold-dark font-bold text-[10px] sm:text-xs md:text-sm uppercase tracking-wider leading-snug">${p.jabatan}</p>
                         ${isAdminMode ? `
                         <div class="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <button onclick="openEditPanitia('${p.id}')" class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-md"><i class="fa-solid fa-pen text-xs"></i></button>
@@ -451,7 +453,7 @@
                         </div>` : ''}
                     </div>
                 `).join('');
-            } else { panitiaCont.innerHTML = `<p class="col-span-full text-white/50 italic text-center text-lg">Belum ada data kepanitiaan.</p>`; }
+            } else { panitiaCont.innerHTML = `<p class="w-full text-white/50 italic text-center text-lg">Belum ada data kepanitiaan.</p>`; }
         }
 
         async function handleKonfirmasi(e) {
@@ -463,16 +465,8 @@
             document.getElementById('form-konfirmasi').reset(); btn.innerHTML = orig; btn.disabled = false;
         }
 
-        function toggleAdmin() {
-            if(isAdminMode) {
-                if(confirm("Anda yakin ingin keluar dari mode Admin?")) {
-                    isAdminMode = false;
-                    updateAdminUI();
-                    refreshAllData(); // Refresh to hide edit buttons
-                }
-                return;
-            }
-
+        // FUNGSI UNTUK MEMBUKA ADMIN PANEL (Bukan Toggle Lagi)
+        function openAdminPanel() {
             const modal = document.getElementById('admin-modal'), content = document.getElementById('admin-modal-content');
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.remove('opacity-0', 'pointer-events-none'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
@@ -484,15 +478,39 @@
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
+        // FUNGSI LOGOUT YANG BENAR (Mereset Status dan Form)
+        function logoutAdmin() {
+            if(confirm("Anda yakin ingin keluar dari mode Admin?")) {
+                isAdminMode = false;
+                updateAdminUI(); // Mengubah text navbar kembali menjadi "Admin"
+                
+                // Menyembunyikan tombol logout di header
+                document.getElementById('btn-logout').classList.add('hidden');
+                
+                // Mereset dan memunculkan kembali Form Login
+                document.getElementById('admin-user').value = '';
+                document.getElementById('admin-pass').value = '';
+                document.getElementById('admin-dashboard-section').classList.add('hidden');
+                document.getElementById('admin-login-section').classList.remove('hidden');
+                
+                closeAdminModal();
+                refreshAllData(); // Refresh untuk menyembunyikan tombol Edit & Hapus di halaman depan
+            }
+        }
+
         async function loginAdmin() {
             const btn = document.getElementById('btn-login'); btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MEMVERIFIKASI...';
             const res = await api.req({ action: 'verifyAdmin', username: document.getElementById('admin-user').value, password: document.getElementById('admin-pass').value });
             if(res.success) { 
                 isAdminMode = true; 
                 updateAdminUI();
+                
+                // Memunculkan tombol logout & Mengubah tampilan modal ke Dashboard
+                document.getElementById('btn-logout').classList.remove('hidden'); 
                 document.getElementById('admin-login-section').classList.add('hidden'); 
                 document.getElementById('admin-dashboard-section').classList.remove('hidden'); 
-                refreshAllData(); 
+                
+                refreshAllData(); // Refresh untuk memunculkan tombol edit/hapus
             } 
             else { alert("Kredensial tidak valid!"); }
             btn.innerHTML = 'LOGIN';
