@@ -54,11 +54,11 @@
         @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.5); } 70% { box-shadow: 0 0 0 20px rgba(255, 193, 7, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); } }
         .animate-pulse-glow { animation: pulse-glow 2.5s infinite; }
 
-        /* HEX GLOW ANIMATION (BARU) */
+        /* HEX GLOW ANIMATION */
         @keyframes hex-glow { 0% { filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.4)); } 100% { filter: drop-shadow(0 0 25px rgba(255, 193, 7, 0.9)); } }
         .animate-hex-glow { animation: hex-glow 2s infinite alternate ease-in-out; }
 
-        /* KOTAK GLOW (BERLAKU UNTUK SEMUA KOTAK) */
+        /* KOTAK GLOW (TIDAK BERGERAK DI HP, HANYA GLOW) */
         .box-glow { box-shadow: 0 0 35px rgba(255, 193, 7, 0.35) !important; border: 1px solid rgba(255, 193, 7, 0.5) !important; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @media (min-width: 1024px) {
             .box-glow:hover { box-shadow: 0 15px 40px rgba(255, 193, 7, 0.7) !important; transform: translateY(-8px) scale(1.02); z-index: 10; }
@@ -71,11 +71,6 @@
         .text-gradient { background: linear-gradient(to right, #FFC107, #ffed4a); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .progress-gradient { background: linear-gradient(90deg, #FFC107 0%, #ff8f00 100%); }
         
-        @media (min-width: 1024px) {
-            .hover-lift { transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s ease; }
-            .hover-lift:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.2); z-index: 10;}
-        }
-
         .input-elegant { background-color: rgba(255,255,255,0.7); border: 1px solid #e2e8f0; transition: all 0.3s ease; }
         .input-elegant:focus { background-color: #ffffff; border-color: #0B192C; box-shadow: 0 0 0 4px rgba(11, 25, 44, 0.1); outline: none; }
         
@@ -93,7 +88,7 @@
     <nav class="fixed top-0 w-full z-50 glass-dark border-b-0 transition-all duration-300">
         <div class="container mx-auto px-4 py-3 md:py-4 flex justify-between items-center gap-4">
             <div class="flex items-center gap-3 md:gap-4 group cursor-pointer">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-gold to-yellow-600 flex items-center justify-center shadow-glow animate-pulse-glow transition-transform group-hover:scale-110">
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-gold to-yellow-600 flex items-center justify-center shadow-glow animate-pulse-glow transition-transform lg:group-hover:scale-110">
                     <i class="fa-solid fa-church text-navy text-lg md:text-xl"></i>
                 </div>
                 <div>
@@ -103,7 +98,7 @@
             </div>
             
             <button id="btn-admin-nav" onclick="openAdminPanel()" class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 md:px-5 py-2 md:py-2.5 rounded-full transition-all duration-300 border border-white/10 backdrop-blur-sm shadow-md hover:shadow-glow">
-                <i id="icon-admin-nav" class="fa-solid fa-user-shield text-gold group-hover:scale-125 transition-transform duration-300 text-sm md:text-base"></i>
+                <i id="icon-admin-nav" class="fa-solid fa-user-shield text-gold lg:group-hover:scale-125 transition-transform duration-300 text-sm md:text-base"></i>
                 <span id="text-admin-nav" class="text-xs md:text-sm font-bold tracking-wide text-white">Admin</span>
             </button>
         </div>
@@ -143,9 +138,9 @@
 
                 <!-- Kotak Info Transfer -->
                 <div class="flex flex-col items-center justify-center gap-2 md:gap-4 bg-white/95 backdrop-blur-md px-4 py-6 sm:px-8 md:px-14 md:py-10 rounded-3xl md:rounded-[2rem] w-full mx-auto cursor-pointer overflow-hidden group box-glow" onclick="copyRekening()" title="Klik untuk menyalin nomor rekening">
-                    <p class="text-xs sm:text-sm md:text-lg text-gray-500 font-bold uppercase tracking-widest flex items-center justify-center gap-2"><i class="fa-solid fa-building-columns text-blue-600 text-lg md:text-2xl group-hover:rotate-12 transition-transform"></i> Transfer Donasi Ke</p>
+                    <p class="text-xs sm:text-sm md:text-lg text-gray-500 font-bold uppercase tracking-widest flex items-center justify-center gap-2"><i class="fa-solid fa-building-columns text-blue-600 text-lg md:text-2xl lg:group-hover:rotate-12 transition-transform"></i> Transfer Donasi Ke</p>
                     <p id="bank-val" class="text-xl sm:text-3xl md:text-5xl font-black text-navy mt-1 uppercase truncate w-full text-center">Loading...</p>
-                    <p id="norek-val" class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gradient tracking-widest flex flex-wrap items-center justify-center gap-2 md:gap-5 my-1 md:my-3 break-all text-center leading-tight w-full">0000000000 <i class="fa-regular fa-copy text-xl md:text-4xl text-navy group-hover:text-gold transition flex-shrink-0 group-hover:scale-110"></i></p>
+                    <p id="norek-val" class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gradient tracking-widest flex flex-wrap items-center justify-center gap-2 md:gap-5 my-1 md:my-3 break-all text-center leading-tight w-full">0000000000 <i class="fa-regular fa-copy text-xl md:text-4xl text-navy lg:group-hover:text-gold transition flex-shrink-0 lg:group-hover:scale-110"></i></p>
                     <p class="text-sm sm:text-lg md:text-xl text-gray-600 font-bold truncate w-full text-center">a.n. <span id="atasnama-val" class="font-black text-navy text-base sm:text-xl md:text-3xl uppercase">Loading...</span></p>
                 </div>
             </div>
@@ -163,19 +158,19 @@
                     </div>
                     
                     <form id="form-konfirmasi" onsubmit="handleKonfirmasi(event)" class="space-y-5 md:space-y-6">
-                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Nama Lengkap</label><div class="relative"><i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10 pointer-events-none"></i><input type="text" id="k-nama" required class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold relative z-0"></div></div>
-                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Jumlah Donasi</label><div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold group-focus-within:text-navy transition-colors text-base md:text-lg z-10 pointer-events-none">Rp</span><input type="number" id="k-jumlah" required class="input-elegant w-full pl-12 md:pl-14 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold relative z-0"></div></div>
+                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Nama Lengkap</label><div class="relative"><i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10 pointer-events-none"></i><input type="text" id="k-nama" required class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div></div>
+                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Jumlah Donasi</label><div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold group-focus-within:text-navy transition-colors text-base md:text-lg z-10 pointer-events-none">Rp</span><input type="number" id="k-jumlah" required class="input-elegant w-full pl-12 md:pl-14 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div></div>
                         
                         <div class="group">
                             <label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Bukti Transfer (Maks 5MB)</label>
                             <div class="relative">
                                 <i class="fa-solid fa-receipt absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10 pointer-events-none"></i>
-                                <input type="file" accept="image/*" id="k-bukti" required class="input-elegant w-full pl-12 md:pl-14 pr-4 py-2 md:py-3 rounded-xl text-xs md:text-sm font-bold file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] md:file:text-xs file:font-black file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer relative z-0">
+                                <input type="file" accept="image/*" id="k-bukti" required class="input-elegant w-full pl-12 md:pl-14 pr-4 py-2 md:py-3 rounded-xl text-xs md:text-sm font-bold file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] md:file:text-xs file:font-black file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer">
                             </div>
                         </div>
 
-                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Pesan (Opsional)</label><div class="relative"><i class="fa-regular fa-comment absolute left-4 top-4 md:top-5 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10 pointer-events-none"></i><textarea id="k-ket" rows="3" class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold resize-none relative z-0"></textarea></div></div>
-                        <button type="submit" id="btn-konfirmasi" class="group relative w-full overflow-hidden rounded-xl bg-navy text-white font-black py-4 md:py-5 mt-4 md:mt-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform active:scale-95 text-lg md:text-xl tracking-wide"><div class="absolute inset-0 bg-gradient-to-r from-navy-light to-navy transition-transform duration-300 group-hover:scale-105"></div><span class="relative flex items-center justify-center gap-3"><span>Kirim Konfirmasi</span><i class="fa-solid fa-paper-plane text-gold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i></span></button>
+                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Pesan (Opsional)</label><div class="relative"><i class="fa-regular fa-comment absolute left-4 top-4 md:top-5 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10 pointer-events-none"></i><textarea id="k-ket" rows="3" class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold resize-none"></textarea></div></div>
+                        <button type="submit" id="btn-konfirmasi" class="group relative w-full overflow-hidden rounded-xl bg-navy text-white font-black py-4 md:py-5 mt-4 md:mt-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform active:scale-95 text-lg md:text-xl tracking-wide"><div class="absolute inset-0 bg-gradient-to-r from-navy-light to-navy transition-transform duration-300 lg:group-hover:scale-105"></div><span class="relative flex items-center justify-center gap-3"><span>Kirim Konfirmasi</span><i class="fa-solid fa-paper-plane text-gold lg:group-hover:translate-x-1 lg:group-hover:-translate-y-1 transition-transform"></i></span></button>
                     </form>
                 </div>
             </div>
@@ -221,7 +216,7 @@
 
     <footer class="glass-dark border-t border-white/10 text-white/60 py-10 md:py-12 text-center text-xs md:text-base mt-10 relative z-10">
         <div class="container mx-auto px-4 flex flex-col items-center justify-center gap-3 md:gap-4">
-            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 flex items-center justify-center text-gold mb-2 transition-transform hover:scale-110 hover:shadow-glow cursor-pointer"><i class="fa-solid fa-church text-xl md:text-2xl"></i></div>
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 flex items-center justify-center text-gold mb-2 transition-transform lg:hover:scale-110 hover:shadow-glow cursor-pointer"><i class="fa-solid fa-church text-xl md:text-2xl"></i></div>
             <p class="text-sm md:text-lg">&copy; 2026 Sistem Informasi Pembangunan</p>
             <p class="font-black text-white/80 tracking-widest text-lg md:text-2xl hover:text-white transition-colors cursor-pointer">PISGAH BISDAC</p>
         </div>
@@ -233,7 +228,7 @@
         <div id="wa-popup" class="bg-white/95 backdrop-blur-md border border-gray-200 rounded-3xl shadow-2xl p-4 md:p-5 mb-4 w-[280px] md:w-[320px] transition-all duration-300 origin-bottom-right scale-0 opacity-0 pointer-events-none">
             <div class="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
                 <h4 class="font-black text-navy text-lg flex items-center gap-2"><i class="fa-brands fa-whatsapp text-green-500 text-xl"></i> Hubungi Panitia</h4>
-                <button onclick="toggleWaPopup()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-red-100 hover:text-red-500 hover:rotate-90 transition-all"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="toggleWaPopup()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-red-100 hover:text-red-500 lg:hover:rotate-90 transition-all"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div id="wa-list-content" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
                 <!-- Data List WA Di-inject JS -->
@@ -241,7 +236,7 @@
         </div>
         
         <!-- Tombol Icon Utama -->
-        <button onclick="toggleWaPopup()" class="w-14 h-14 md:w-16 md:h-16 bg-green-500 text-white rounded-full flex items-center justify-center text-3xl md:text-4xl animate-wa-pulse hover:scale-110 hover:bg-green-600 transition-all z-[90] shadow-xl border-2 border-white">
+        <button onclick="toggleWaPopup()" class="w-14 h-14 md:w-16 md:h-16 bg-green-500 text-white rounded-full flex items-center justify-center text-3xl md:text-4xl animate-wa-pulse lg:hover:scale-110 hover:bg-green-600 transition-all z-[90] shadow-xl border-2 border-white">
             <i class="fa-brands fa-whatsapp"></i>
         </button>
     </div>
@@ -249,7 +244,7 @@
     <!-- VIEW MODAL (UNTUK MEMBACA BERITA / MELIHAT GALERI LEBIH JELAS) -->
     <div id="view-modal" class="fixed inset-0 bg-navy/95 hidden z-[120] flex items-center justify-center p-4 backdrop-blur-xl transition-opacity duration-300 opacity-0 pointer-events-none">
         <div class="bg-white rounded-3xl md:rounded-[2.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300 relative" id="view-modal-content">
-            <button onclick="closeViewModal()" class="absolute top-3 right-3 md:top-4 md:right-4 z-30 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-red-500 hover:rotate-90 transition-all backdrop-blur-md shadow-lg border border-white/20"><i class="fa-solid fa-xmark text-xl md:text-2xl"></i></button>
+            <button onclick="closeViewModal()" class="absolute top-3 right-3 md:top-4 md:right-4 z-30 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-red-500 lg:hover:rotate-90 transition-all backdrop-blur-md shadow-lg border border-white/20"><i class="fa-solid fa-xmark text-xl md:text-2xl"></i></button>
             
             <div class="overflow-y-auto flex-1 w-full bg-gray-50/50">
                 <div id="view-modal-image-wrapper" class="w-full bg-navy/5 flex justify-center hidden">
@@ -279,7 +274,7 @@
                     <button id="btn-logout" onclick="logoutAdmin()" class="hidden bg-red-50 text-red-600 hover:bg-red-100 font-bold px-4 md:px-6 py-2 md:py-3 rounded-xl transition text-xs md:text-base flex items-center gap-2 shadow-sm border border-red-100">
                         <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Logout</span>
                     </button>
-                    <button onclick="closeAdminModal()" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all shadow-sm hover:rotate-90"><i class="fa-solid fa-xmark text-xl md:text-2xl"></i></button>
+                    <button onclick="closeAdminModal()" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all shadow-sm lg:hover:rotate-90"><i class="fa-solid fa-xmark text-xl md:text-2xl"></i></button>
                 </div>
             </div>
             
@@ -408,7 +403,6 @@
                         ]
                     };
                 }
-                // TAMBAHAN: '?t=' + timestamp untuk mencegah Google Script mengembalikan Cache data lama
                 try { const res = await fetch(SCRIPT_URL + "?t=" + new Date().getTime()); return await res.json(); } catch (e) { return null; }
             }
         };
@@ -453,15 +447,14 @@
             const icon = document.getElementById('icon-admin-nav');
             const text = document.getElementById('text-admin-nav');
             if(isAdminMode) {
-                icon.className = "fa-solid fa-table-columns text-gold group-hover:scale-125 transition-transform duration-300 text-sm md:text-base";
+                icon.className = "fa-solid fa-table-columns text-gold lg:group-hover:scale-125 transition-transform duration-300 text-sm md:text-base";
                 text.innerText = "Dashboard";
             } else {
-                icon.className = "fa-solid fa-user-shield text-gold group-hover:scale-125 transition-transform duration-300 text-sm md:text-base";
+                icon.className = "fa-solid fa-user-shield text-gold lg:group-hover:scale-125 transition-transform duration-300 text-sm md:text-base";
                 text.innerText = "Admin";
             }
         }
 
-        // --- SISTEM VALIDASI KONFIRMASI ADMIN ---
         async function loadKonfirmasiAdmin() {
             const container = document.getElementById('admin-konfirmasi-list');
             container.innerHTML = '<p class="text-gray-500 text-center py-6 italic font-medium"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Memuat data konfirmasi...</p>';
@@ -510,7 +503,6 @@
             }
         }
 
-        // --- SISTEM TOGGLE FLOATING WA ---
         function toggleWaPopup() {
             const popup = document.getElementById('wa-popup');
             if (popup.classList.contains('scale-0')) {
@@ -525,7 +517,6 @@
         function formatWaNumber(nowa) {
             if(!nowa) return '';
             let formatted = String(nowa).replace(/[^0-9]/g, '');
-            // Memastikan nomor WA diawali dengan 62 (Kode Negara Indonesia)
             if(formatted.startsWith('0')) formatted = '62' + formatted.substring(1);
             else if(!formatted.startsWith('62') && formatted.length > 0) formatted = '62' + formatted;
             return formatted;
@@ -541,7 +532,7 @@
             document.getElementById('terkumpul-val').innerText = formatRp(data.terkumpul);
             
             document.getElementById('bank-val').innerText = data.bank || '-';
-            document.getElementById('norek-val').innerHTML = `${data.norek || '0000000000'} <i class="fa-regular fa-copy text-xl md:text-4xl text-navy group-hover:text-gold transition flex-shrink-0 group-hover:scale-110"></i>`;
+            document.getElementById('norek-val').innerHTML = `${data.norek || '0000000000'} <i class="fa-regular fa-copy text-xl md:text-4xl text-navy lg:group-hover:text-gold transition flex-shrink-0 lg:group-hover:scale-110"></i>`;
             document.getElementById('atasnama-val').innerText = data.atasnama || '-';
             
             let target = parseInt(data.target) || 1;
@@ -560,7 +551,7 @@
             document.getElementById('edit-norek').value = data.norek;
             document.getElementById('edit-atasnama').value = data.atasnama;
 
-            // RENDER GALERI - ROADMAP HEXAGONAL TAHAP PEMBANGUNAN
+            // RENDER GALERI
             const portoCont = document.getElementById('portfolio-container');
             if(data.portfolio && data.portfolio.length > 0) {
                 portoCont.innerHTML = '<div class="absolute left-[20px] md:left-1/2 top-4 bottom-4 w-1.5 bg-white/10 md:-translate-x-1/2 rounded-full hidden sm:block"></div>' + 
@@ -568,14 +559,14 @@
                     const isEven = index % 2 === 0;
                     return `
                     <div class="flex flex-col md:flex-row items-center justify-between w-full mb-12 md:mb-20 relative group cursor-pointer" onclick="openViewPorto('${p.id}')">
-                        <div class="hidden sm:flex absolute left-[20px] md:left-1/2 top-1/2 -translate-y-1/2 md:-translate-x-1/2 w-5 h-5 rounded-full bg-gold border-[4px] border-navy z-10 shadow-glow transition-transform duration-500 group-hover:scale-150 group-hover:bg-white"></div>
+                        <div class="hidden sm:flex absolute left-[20px] md:left-1/2 top-1/2 -translate-y-1/2 md:-translate-x-1/2 w-5 h-5 rounded-full bg-gold border-[4px] border-navy z-10 shadow-glow transition-transform duration-500 lg:group-hover:scale-150 lg:group-hover:bg-white"></div>
                         <div class="w-full md:w-5/12 flex justify-center ${isEven ? 'md:justify-end md:order-1' : 'md:justify-start md:order-3'} z-10 pl-0 sm:pl-16 md:pl-0 relative mb-6 md:mb-0">
-                            <div class="animate-hex-glow transition-all duration-500 group-hover:-translate-y-2">
+                            <div class="animate-hex-glow transition-all duration-500 lg:group-hover:-translate-y-2">
                                 <div class="relative w-[200px] h-[230px] sm:w-[280px] sm:h-[320px] lg:w-[350px] lg:h-[400px] hex-shape bg-gradient-to-br from-yellow-300 via-gold to-yellow-600 p-1.5 sm:p-[6px] transition-all duration-500">
                                     <div class="relative w-full h-full hex-shape bg-navy overflow-hidden">
-                                        <img src="${p.image}" onerror="this.src='https://via.placeholder.com/400?text=Sedang+Memuat...'" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125 opacity-90 group-hover:opacity-100">
+                                        <img src="${p.image}" onerror="this.src='https://via.placeholder.com/400?text=Sedang+Memuat...'" class="w-full h-full object-cover transition-transform duration-700 lg:group-hover:scale-125 opacity-90 group-hover:opacity-100">
                                         <div class="absolute inset-0 bg-navy/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center backdrop-blur-[2px]">
-                                            <i class="fa-solid fa-expand text-gold text-4xl md:text-6xl mb-2 drop-shadow-md transition-transform duration-300 group-hover:scale-110"></i>
+                                            <i class="fa-solid fa-expand text-gold text-4xl md:text-6xl mb-2 drop-shadow-md transition-transform duration-300 lg:group-hover:scale-110"></i>
                                             <span class="text-gold font-bold tracking-widest text-xs md:text-sm uppercase">Perbesar</span>
                                         </div>
                                     </div>
@@ -585,18 +576,18 @@
 
                         <div class="w-full md:w-5/12 z-10 pl-0 sm:pl-16 md:pl-0 ${isEven ? 'md:order-3' : 'md:order-1'} relative">
                             <div class="glass-panel box-glow p-6 md:p-8 rounded-3xl md:rounded-[2rem] relative overflow-hidden text-left ${!isEven ? 'md:text-right' : ''}">
-                                <div class="absolute top-4 ${isEven ? 'right-6 md:right-8' : 'right-6 md:left-8'} text-6xl md:text-8xl font-black text-gray-400/20 z-0 select-none transition-transform duration-700 group-hover:scale-110 group-hover:text-gold/20 leading-none">0${index + 1}</div>
+                                <div class="absolute top-4 ${isEven ? 'right-6 md:right-8' : 'right-6 md:left-8'} text-6xl md:text-8xl font-black text-gray-400/20 z-0 select-none transition-transform duration-700 lg:group-hover:scale-110 group-hover:text-gold/20 leading-none">0${index + 1}</div>
                                 <div class="relative z-10">
                                     <span class="inline-block py-1 px-3 rounded-full bg-gold/20 text-gold-dark text-[10px] font-black tracking-widest uppercase mb-3 border border-gold/30"><i class="fa-solid fa-flag-checkered mr-1"></i>Tahap ${index + 1}</span>
                                     <h4 class="font-serif font-black text-navy text-xl md:text-3xl leading-tight mb-3 line-clamp-2">${p.title}</h4>
                                     <p class="text-gray-600 text-sm md:text-base font-medium leading-relaxed whitespace-pre-line line-clamp-3">${p.desc || ''}</p>
-                                    <span class="text-gold-dark text-xs md:text-sm font-black mt-4 inline-block group-hover:translate-x-2 ${!isEven ? 'md:group-hover:-translate-x-2' : ''} transition-transform tracking-wide"><i class="fa-solid fa-arrow-right-long mr-2 ${!isEven ? 'md:rotate-180 md:ml-2 md:mr-0' : ''}"></i>SELENGKAPNYA</span>
+                                    <span class="text-gold-dark text-xs md:text-sm font-black mt-4 inline-block lg:group-hover:translate-x-2 ${!isEven ? 'md:lg:group-hover:-translate-x-2' : ''} transition-transform tracking-wide"><i class="fa-solid fa-arrow-right-long mr-2 ${!isEven ? 'md:rotate-180 md:ml-2 md:mr-0' : ''}"></i>SELENGKAPNYA</span>
                                 </div>
                             </div>
                             ${isAdminMode ? `
                             <div class="absolute -bottom-4 md:-bottom-5 left-1/2 -translate-x-1/2 md:translate-x-0 ${isEven ? 'md:left-8' : 'md:right-8 md:left-auto'} flex gap-2 z-30">
-                                <button onclick="event.stopPropagation(); openEditPorto('${p.id}')" class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-xl transition-colors hover:scale-110"><i class="fa-solid fa-pen text-sm"></i></button>
-                                <button onclick="event.stopPropagation(); hapusPorto('${p.id}')" class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-xl transition-colors hover:scale-110"><i class="fa-solid fa-trash-can text-sm"></i></button>
+                                <button onclick="event.stopPropagation(); openEditPorto('${p.id}')" class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-xl transition-colors lg:hover:scale-110"><i class="fa-solid fa-pen text-sm"></i></button>
+                                <button onclick="event.stopPropagation(); hapusPorto('${p.id}')" class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-xl transition-colors lg:hover:scale-110"><i class="fa-solid fa-trash-can text-sm"></i></button>
                             </div>` : ''}
                         </div>
                     </div>
@@ -613,7 +604,7 @@
                             <div class="flex items-center gap-2 mb-3 md:mb-4"><span class="bg-gold/20 text-gold-dark text-[10px] md:text-xs font-black px-3 md:px-4 py-1.5 md:py-2 rounded-lg uppercase tracking-widest">Update Terbaru</span></div>
                             <h4 class="font-serif font-black text-2xl md:text-4xl text-navy mb-3 md:mb-5 leading-snug group-hover:text-gold-dark transition-colors">${a.title}</h4>
                             <p class="text-gray-600 text-sm md:text-xl font-medium leading-relaxed whitespace-pre-line line-clamp-3">${a.content || ''}</p>
-                            <span class="text-gold-dark text-xs md:text-base font-black mt-4 md:mt-6 inline-block group-hover:translate-x-2 transition-transform tracking-wide">BACA SELENGKAPNYA <i class="fa-solid fa-arrow-right ml-1 md:ml-2"></i></span>
+                            <span class="text-gold-dark text-xs md:text-base font-black mt-4 md:mt-6 inline-block lg:group-hover:translate-x-2 transition-transform tracking-wide">BACA SELENGKAPNYA <i class="fa-solid fa-arrow-right ml-1 md:ml-2"></i></span>
                         </div>
                         ${isAdminMode ? `
                         <div class="flex sm:flex-col justify-end sm:justify-start gap-3 md:gap-4 pt-5 sm:pt-0 sm:border-l sm:pl-8 border-gray-200 z-20">
@@ -635,7 +626,6 @@
                     const formattedWa = formatWaNumber(p.nowa);
                     if(formattedWa) waAvailable = true;
 
-                    // Mengumpulkan Data untuk Popup Floating WA
                     if(formattedWa) {
                         waListHtml += `
                             <a href="https://wa.me/${formattedWa}?text=Halo%20Bapak/Ibu%20${encodeURIComponent(p.nama)},%20saya%20ingin%20bertanya%20seputar%20donasi/pembangunan..." target="_blank" class="flex items-center gap-3 p-3 bg-gray-50 hover:bg-green-50 rounded-xl transition-colors group">
@@ -646,28 +636,27 @@
                                     <h5 class="text-sm font-black text-navy truncate group-hover:text-green-700 transition-colors">${p.nama}</h5>
                                     <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider truncate">${p.jabatan}</p>
                                 </div>
-                                <i class="fa-brands fa-whatsapp text-green-500 text-xl group-hover:scale-125 transition-transform"></i>
+                                <i class="fa-brands fa-whatsapp text-green-500 text-xl lg:group-hover:scale-125 transition-transform"></i>
                             </a>
                         `;
                     }
 
                     return `
                     <div class="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.5rem)] glass-panel box-glow rounded-3xl p-4 md:p-8 flex flex-col items-center text-center relative group">
-                        <div class="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full mb-3 md:mb-6 bg-gray-100 border-[4px] md:border-[5px] border-white/40 shadow-xl overflow-hidden flex items-center justify-center mx-auto transition-transform duration-500 group-hover:scale-110">
+                        <div class="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full mb-3 md:mb-6 bg-gray-100 border-[4px] md:border-[5px] border-white/40 shadow-xl overflow-hidden flex items-center justify-center mx-auto transition-transform duration-500 lg:group-hover:scale-110">
                             ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<i class="fa-solid fa-user text-3xl md:text-5xl text-gray-400"></i>`}
                         </div>
                         <h5 class="font-serif font-black text-navy text-lg sm:text-2xl md:text-3xl leading-tight mb-1 md:mb-2 group-hover:text-gold-dark transition-colors">${p.nama}</h5>
                         <p class="text-gold-dark font-black text-[10px] sm:text-sm md:text-base uppercase tracking-widest leading-snug">${p.jabatan}</p>
                         ${isAdminMode ? `
                         <div class="absolute top-2 right-2 md:top-3 md:right-3 flex flex-col gap-2 md:gap-3 z-20">
-                            <button onclick="openEditPanitia('${p.id}')" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-xl transition-transform hover:scale-110"><i class="fa-solid fa-pen text-xs md:text-sm"></i></button>
-                            <button onclick="hapusPanitia('${p.id}')" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-xl transition-transform hover:scale-110"><i class="fa-solid fa-trash-can text-xs md:text-sm"></i></button>
+                            <button onclick="openEditPanitia('${p.id}')" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-xl transition-transform lg:hover:scale-110"><i class="fa-solid fa-pen text-xs md:text-sm"></i></button>
+                            <button onclick="hapusPanitia('${p.id}')" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-xl transition-transform lg:hover:scale-110"><i class="fa-solid fa-trash-can text-xs md:text-sm"></i></button>
                         </div>` : ''}
                     </div>
                     `;
                 }).join('');
 
-                // Tampilkan Floating WA HANYA JIKA ada setidaknya 1 panitia yang punya No WA
                 if (waAvailable) {
                     document.getElementById('floating-wa-container').classList.remove('hidden');
                     waListCont.innerHTML = waListHtml;
