@@ -47,6 +47,17 @@
         .orb-3 { width: 250px; height: 250px; background: rgba(255, 255, 255, 0.05); top: 40%; left: 50%; animation-delay: -10s; }
         @keyframes float { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(50px, 30px) scale(1.1); } 100% { transform: translate(-30px, 50px) scale(0.9); } }
 
+        /* SHAPE HEXAGON */
+        .hex-shape { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+        
+        /* PULSE GLOW ANIMATION */
+        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.5); } 70% { box-shadow: 0 0 0 20px rgba(255, 193, 7, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); } }
+        .animate-pulse-glow { animation: pulse-glow 2.5s infinite; }
+
+        /* HEX GLOW ANIMATION (BARU) */
+        @keyframes hex-glow { 0% { filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.4)); } 100% { filter: drop-shadow(0 0 25px rgba(255, 193, 7, 0.9)); } }
+        .animate-hex-glow { animation: hex-glow 2s infinite alternate ease-in-out; }
+
         /* GLASSMORPHISM UI */
         .glass-panel { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: var(--shadow-glass); }
         .glass-dark { background: rgba(11, 25, 44, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
@@ -55,7 +66,7 @@
         .progress-gradient { background: linear-gradient(90deg, #FFC107 0%, #ff8f00 100%); }
         
         @media (min-width: 1024px) {
-            .hover-lift { transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease; }
+            .hover-lift { transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s ease; }
             .hover-lift:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.2); z-index: 10;}
         }
 
@@ -71,8 +82,8 @@
 
     <nav class="fixed top-0 w-full z-50 glass-dark border-b-0 transition-all duration-300">
         <div class="container mx-auto px-4 py-3 md:py-4 flex justify-between items-center gap-4">
-            <div class="flex items-center gap-3 md:gap-4">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-gold to-yellow-600 flex items-center justify-center shadow-glow">
+            <div class="flex items-center gap-3 md:gap-4 group cursor-pointer">
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-gold to-yellow-600 flex items-center justify-center shadow-glow animate-pulse-glow transition-transform group-hover:scale-110">
                     <i class="fa-solid fa-church text-navy text-lg md:text-xl"></i>
                 </div>
                 <div>
@@ -81,8 +92,8 @@
                 </div>
             </div>
             
-            <button id="btn-admin-nav" onclick="openAdminPanel()" class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 md:px-5 py-2 md:py-2.5 rounded-full transition-all border border-white/10 backdrop-blur-sm shadow-md">
-                <i id="icon-admin-nav" class="fa-solid fa-user-shield text-gold group-hover:scale-110 transition-transform text-sm md:text-base"></i>
+            <button id="btn-admin-nav" onclick="openAdminPanel()" class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 md:px-5 py-2 md:py-2.5 rounded-full transition-all duration-300 border border-white/10 backdrop-blur-sm shadow-md hover:shadow-glow">
+                <i id="icon-admin-nav" class="fa-solid fa-user-shield text-gold group-hover:scale-125 transition-transform duration-300 text-sm md:text-base"></i>
                 <span id="text-admin-nav" class="text-xs md:text-sm font-bold tracking-wide text-white">Admin</span>
             </button>
         </div>
@@ -91,24 +102,24 @@
     <main class="container mx-auto px-4 pt-28 md:pt-32 pb-16 max-w-7xl relative z-10">
         
         <!-- HERO SECTION -->
-        <section data-aos="zoom-in-up" data-aos-duration="1000" class="glass-dark rounded-3xl md:rounded-[2.5rem] p-5 sm:p-10 md:p-14 mb-10 md:mb-16 shadow-2xl relative overflow-hidden border-t border-l border-white/20">
+        <section data-aos="zoom-in-up" data-aos-duration="1200" class="glass-dark rounded-3xl md:rounded-[2.5rem] p-5 sm:p-10 md:p-14 mb-10 md:mb-16 shadow-2xl relative overflow-hidden border-t border-l border-white/20">
             <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] z-0"></div>
             
             <div class="relative z-10 text-center max-w-5xl mx-auto">
                 <span class="inline-block py-1.5 px-4 rounded-full bg-gold/15 text-gold text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase mb-4 md:mb-6 border border-gold/30 shadow-glow backdrop-blur-md">Program Donasi</span>
-                <h2 id="judul-web" class="text-3xl sm:text-5xl md:text-6xl font-serif font-black text-white mb-8 md:mb-12 leading-tight drop-shadow-lg break-words">Memuat Data...</h2>
+                <h2 id="judul-web" class="text-3xl sm:text-5xl md:text-6xl font-serif font-black text-white mb-8 md:mb-12 leading-tight drop-shadow-lg break-words transition-all duration-500">Memuat Data...</h2>
                 
-                <div class="bg-navy-dark/40 backdrop-blur-xl border border-white/10 rounded-3xl md:rounded-[2rem] p-5 sm:p-8 md:p-12 mb-8 md:mb-10 shadow-inner flex flex-col items-center w-full overflow-hidden">
+                <div class="bg-navy-dark/40 backdrop-blur-xl border border-white/10 rounded-3xl md:rounded-[2rem] p-5 sm:p-8 md:p-12 mb-8 md:mb-10 shadow-inner flex flex-col items-center w-full overflow-hidden hover:bg-navy-dark/60 transition-colors duration-500">
                     <div class="w-full flex flex-col md:flex-row justify-between items-center mb-6 md:mb-10 gap-4 md:gap-4 text-center md:text-left">
                         <div class="w-full md:w-auto order-1 md:order-none overflow-hidden">
-                            <p class="text-gray-300 text-xs sm:text-sm md:text-base font-bold mb-1 md:mb-2 uppercase tracking-widest">Dana Terkumpul</p>
-                            <p id="terkumpul-val" class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gradient tracking-tighter drop-shadow-md truncate md:overflow-visible">Rp 0</p>
+                            <p class="text-gray-300 text-xs sm:text-sm md:text-base font-bold mb-1 md:mb-2 uppercase tracking-widest"><i class="fa-solid fa-chart-pie text-gold mr-2"></i>Dana Terkumpul</p>
+                            <p id="terkumpul-val" class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gradient tracking-tighter drop-shadow-md truncate md:overflow-visible transition-all duration-1000">Rp 0</p>
                         </div>
                         <div class="hidden md:block w-1 h-16 md:h-20 bg-white/10 mx-4 lg:mx-6 order-none rounded-full"></div>
                         <div class="w-full h-[1px] bg-white/10 md:hidden order-2 opacity-50 rounded-full my-2"></div>
                         <div class="w-full md:w-auto md:text-right order-3 md:order-none overflow-hidden">
-                            <p class="text-gray-400 text-[10px] sm:text-xs md:text-sm font-bold mb-1 md:mb-2 uppercase tracking-widest">Target Pendanaan</p>
-                            <p id="target-val" class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tighter drop-shadow-md truncate md:overflow-visible">Rp 0</p>
+                            <p class="text-gray-400 text-[10px] sm:text-xs md:text-sm font-bold mb-1 md:mb-2 uppercase tracking-widest"><i class="fa-solid fa-bullseye text-gold mr-2"></i>Target Pendanaan</p>
+                            <p id="target-val" class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tighter drop-shadow-md truncate md:overflow-visible transition-all duration-1000">Rp 0</p>
                         </div>
                     </div>
                     <div class="relative w-full bg-black/50 rounded-full h-5 md:h-8 lg:h-10 shadow-inner overflow-hidden border border-white/10 mb-4 md:mb-6">
@@ -116,13 +127,13 @@
                             <div class="absolute top-0 left-0 w-full h-full overflow-hidden rounded-full"><div class="w-[200%] h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent)] animate-[shimmer_2s_infinite] -translate-x-full"></div></div>
                         </div>
                     </div>
-                    <div class="text-center w-full"><span id="progress-text" class="text-gold font-black text-xl sm:text-2xl md:text-4xl drop-shadow-glow tracking-wide">0% Tercapai</span></div>
+                    <div class="text-center w-full"><span id="progress-text" class="text-gold font-black text-xl sm:text-2xl md:text-4xl drop-shadow-glow tracking-wide transition-all duration-1000">0% Tercapai</span></div>
                 </div>
 
-                <div class="flex flex-col items-center justify-center gap-2 md:gap-4 bg-white/95 backdrop-blur-md px-4 py-6 sm:px-8 md:px-14 md:py-10 rounded-3xl md:rounded-[2rem] shadow-xl border-b-[4px] md:border-b-[6px] border-gold transition-transform hover:scale-105 duration-300 w-full mx-auto cursor-pointer overflow-hidden" onclick="copyRekening()" title="Klik untuk menyalin nomor rekening">
-                    <p class="text-xs sm:text-sm md:text-lg text-gray-500 font-bold uppercase tracking-widest flex items-center justify-center gap-2"><i class="fa-solid fa-building-columns text-blue-600 text-lg md:text-2xl"></i> Transfer Donasi Ke</p>
+                <div class="flex flex-col items-center justify-center gap-2 md:gap-4 bg-white/95 backdrop-blur-md px-4 py-6 sm:px-8 md:px-14 md:py-10 rounded-3xl md:rounded-[2rem] shadow-xl border-b-[4px] md:border-b-[6px] border-gold transition-all duration-500 hover:scale-105 hover:shadow-glow w-full mx-auto cursor-pointer overflow-hidden group" onclick="copyRekening()" title="Klik untuk menyalin nomor rekening">
+                    <p class="text-xs sm:text-sm md:text-lg text-gray-500 font-bold uppercase tracking-widest flex items-center justify-center gap-2"><i class="fa-solid fa-building-columns text-blue-600 text-lg md:text-2xl group-hover:rotate-12 transition-transform"></i> Transfer Donasi Ke</p>
                     <p id="bank-val" class="text-xl sm:text-3xl md:text-5xl font-black text-navy mt-1 uppercase truncate w-full text-center">Loading...</p>
-                    <p id="norek-val" class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gradient tracking-widest flex flex-wrap items-center justify-center gap-2 md:gap-5 my-1 md:my-3 break-all text-center leading-tight w-full">0000000000 <i class="fa-regular fa-copy text-xl md:text-4xl text-navy hover:text-gold transition flex-shrink-0"></i></p>
+                    <p id="norek-val" class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gradient tracking-widest flex flex-wrap items-center justify-center gap-2 md:gap-5 my-1 md:my-3 break-all text-center leading-tight w-full">0000000000 <i class="fa-regular fa-copy text-xl md:text-4xl text-navy group-hover:text-gold transition flex-shrink-0 group-hover:scale-110"></i></p>
                     <p class="text-sm sm:text-lg md:text-xl text-gray-600 font-bold truncate w-full text-center">a.n. <span id="atasnama-val" class="font-black text-navy text-base sm:text-xl md:text-3xl uppercase">Loading...</span></p>
                 </div>
             </div>
@@ -131,44 +142,49 @@
         <!-- KONTEN TENGAH: FORM & GALERI/BERITA -->
         <div class="flex flex-col lg:flex-row gap-8 lg:gap-14">
             
-            <div class="w-full lg:w-1/3" data-aos="fade-up" data-aos-delay="100">
-                <div class="glass-panel rounded-3xl md:rounded-[2rem] p-6 md:p-8 sticky top-32">
+            <div class="w-full lg:w-1/3" data-aos="fade-right" data-aos-delay="200">
+                <div class="glass-panel rounded-3xl md:rounded-[2rem] p-6 md:p-8 sticky top-32 hover-lift">
                     <div class="flex items-center gap-4 mb-6 md:mb-8 pb-4 border-b border-gray-200/50">
                         <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gold/20 flex items-center justify-center text-gold shadow-inner"><i class="fa-solid fa-hand-holding-heart text-xl md:text-2xl"></i></div>
                         <h3 class="text-2xl md:text-3xl font-serif font-black text-navy">Konfirmasi</h3>
                     </div>
                     
                     <form id="form-konfirmasi" onsubmit="handleKonfirmasi(event)" class="space-y-5 md:space-y-6">
-                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1">Nama Lengkap</label><div class="relative"><i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl"></i><input type="text" id="k-nama" required class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div></div>
-                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1">Jumlah Donasi</label><div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold group-focus-within:text-navy transition-colors text-base md:text-lg">Rp</span><input type="number" id="k-jumlah" required class="input-elegant w-full pl-12 md:pl-14 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div></div>
+                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Nama Lengkap</label><div class="relative"><i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10"></i><input type="text" id="k-nama" required class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold relative z-0"></div></div>
+                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Jumlah Donasi</label><div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold group-focus-within:text-navy transition-colors text-base md:text-lg z-10">Rp</span><input type="number" id="k-jumlah" required class="input-elegant w-full pl-12 md:pl-14 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold relative z-0"></div></div>
                         
-                        <!-- Kolom Upload Bukti Transfer Baru -->
                         <div class="group">
-                            <label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1">Bukti Transfer (Maks 5MB)</label>
+                            <label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Bukti Transfer (Maks 5MB)</label>
                             <div class="relative">
-                                <i class="fa-solid fa-receipt absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl"></i>
-                                <input type="file" accept="image/*" id="k-bukti" required class="input-elegant w-full pl-12 md:pl-14 pr-4 py-2 md:py-3 rounded-xl text-xs md:text-sm font-bold file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] md:file:text-xs file:font-black file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer">
+                                <i class="fa-solid fa-receipt absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10"></i>
+                                <input type="file" accept="image/*" id="k-bukti" required class="input-elegant w-full pl-12 md:pl-14 pr-4 py-2 md:py-3 rounded-xl text-xs md:text-sm font-bold file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] md:file:text-xs file:font-black file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer relative z-0">
                             </div>
                         </div>
 
-                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1">Pesan (Opsional)</label><div class="relative"><i class="fa-regular fa-comment absolute left-4 top-4 md:top-5 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl"></i><textarea id="k-ket" rows="3" class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold resize-none"></textarea></div></div>
+                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Pesan (Opsional)</label><div class="relative"><i class="fa-regular fa-comment absolute left-4 top-4 md:top-5 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10"></i><textarea id="k-ket" rows="3" class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold resize-none relative z-0"></textarea></div></div>
                         <button type="submit" id="btn-konfirmasi" class="group relative w-full overflow-hidden rounded-xl bg-navy text-white font-black py-4 md:py-5 mt-4 md:mt-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform active:scale-95 text-lg md:text-xl tracking-wide"><div class="absolute inset-0 bg-gradient-to-r from-navy-light to-navy transition-transform duration-300 group-hover:scale-105"></div><span class="relative flex items-center justify-center gap-3"><span>Kirim Konfirmasi</span><i class="fa-solid fa-paper-plane text-gold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i></span></button>
                     </form>
                 </div>
             </div>
 
-            <div class="w-full lg:w-2/3 space-y-12 md:space-y-16 mt-8 lg:mt-0">
-                <section data-aos="fade-up" data-aos-delay="200">
-                    <div class="flex items-center gap-4 mb-6 md:mb-8">
-                        <h3 class="text-2xl sm:text-3xl md:text-5xl font-serif font-black text-white drop-shadow-md">Galeri Pembangunan</h3>
+            <div class="w-full lg:w-2/3 space-y-16 md:space-y-24 mt-8 lg:mt-0">
+                
+                <!-- ROADMAP GALERI SECTION -->
+                <section data-aos="fade-up" data-aos-delay="300">
+                    <div class="flex items-center gap-4 mb-10 md:mb-16">
+                        <h3 class="text-2xl sm:text-3xl md:text-5xl font-serif font-black text-white drop-shadow-md flex items-center gap-3"><i class="fa-solid fa-route text-gold"></i> Roadmap Pembangunan</h3>
                         <div class="h-1 bg-gradient-to-r from-gold to-transparent flex-1 rounded-full opacity-70"></div>
                     </div>
-                    <div id="portfolio-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10"></div>
+                    
+                    <!-- Container Roadmap Hexagon -->
+                    <div id="portfolio-container" class="relative w-full pb-10">
+                        <!-- Data Di-inject JS -->
+                    </div>
                 </section>
 
-                <section data-aos="fade-up" data-aos-delay="300">
-                    <div class="flex items-center gap-4 mb-6 md:mb-8">
-                        <h3 class="text-2xl sm:text-3xl md:text-5xl font-serif font-black text-white drop-shadow-md">Berita & Update</h3>
+                <section data-aos="fade-up" data-aos-delay="400">
+                    <div class="flex items-center gap-4 mb-6 md:mb-10">
+                        <h3 class="text-2xl sm:text-3xl md:text-5xl font-serif font-black text-white drop-shadow-md flex items-center gap-3"><i class="fa-regular fa-newspaper text-gold"></i> Berita & Update</h3>
                         <div class="h-1 bg-gradient-to-r from-white/50 to-transparent flex-1 rounded-full"></div>
                     </div>
                     <div id="artikel-container" class="space-y-6 md:space-y-8"></div>
@@ -177,8 +193,8 @@
         </div>
 
         <!-- SUSUNAN PANITIA -->
-        <section data-aos="fade-up" data-aos-delay="400" class="mt-20 md:mt-28 pt-10 md:pt-12 border-t border-white/10">
-            <div class="flex flex-col items-center mb-10 md:mb-12 text-center">
+        <section data-aos="fade-up" data-aos-delay="500" class="mt-20 md:mt-28 pt-10 md:pt-16 border-t border-white/10">
+            <div class="flex flex-col items-center mb-10 md:mb-16 text-center">
                 <h3 class="text-3xl sm:text-4xl md:text-6xl font-serif font-black text-white drop-shadow-md mb-3 md:mb-4">Susunan Panitia</h3>
                 <p class="text-gray-300 text-sm md:text-xl max-w-3xl font-medium leading-relaxed px-4">Orang-orang berdedikasi yang mengawal jalannya pembangunan rumah ibadah ini dengan penuh integritas.</p>
             </div>
@@ -192,19 +208,21 @@
 
     <footer class="glass-dark border-t border-white/10 text-white/60 py-10 md:py-12 text-center text-xs md:text-base mt-10 relative z-10">
         <div class="container mx-auto px-4 flex flex-col items-center justify-center gap-3 md:gap-4">
-            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 flex items-center justify-center text-gold mb-2"><i class="fa-solid fa-church text-xl md:text-2xl"></i></div>
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 flex items-center justify-center text-gold mb-2 transition-transform hover:scale-110 hover:shadow-glow cursor-pointer"><i class="fa-solid fa-church text-xl md:text-2xl"></i></div>
             <p class="text-sm md:text-lg">&copy; 2026 Sistem Informasi Pembangunan</p>
-            <p class="font-black text-white/80 tracking-widest text-lg md:text-2xl">PISGAH BISDAC</p>
+            <p class="font-black text-white/80 tracking-widest text-lg md:text-2xl hover:text-white transition-colors cursor-pointer">PISGAH BISDAC</p>
         </div>
     </footer>
 
     <!-- VIEW MODAL (UNTUK MEMBACA BERITA / MELIHAT GALERI LEBIH JELAS) -->
     <div id="view-modal" class="fixed inset-0 bg-navy/95 hidden z-[120] flex items-center justify-center p-4 backdrop-blur-xl transition-opacity duration-300 opacity-0 pointer-events-none">
         <div class="bg-white rounded-3xl md:rounded-[2.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300 relative" id="view-modal-content">
-            <button onclick="closeViewModal()" class="absolute top-3 right-3 md:top-4 md:right-4 z-30 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-red-500 transition-colors backdrop-blur-md shadow-lg border border-white/20"><i class="fa-solid fa-xmark text-xl md:text-2xl"></i></button>
+            <button onclick="closeViewModal()" class="absolute top-3 right-3 md:top-4 md:right-4 z-30 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-red-500 hover:rotate-90 transition-all backdrop-blur-md shadow-lg border border-white/20"><i class="fa-solid fa-xmark text-xl md:text-2xl"></i></button>
             
             <div class="overflow-y-auto flex-1 w-full bg-gray-50/50">
-                <img id="view-modal-image" src="" class="w-full h-auto max-h-[50vh] md:max-h-[60vh] object-cover hidden shadow-sm">
+                <div id="view-modal-image-wrapper" class="w-full bg-navy/5 flex justify-center hidden">
+                    <img id="view-modal-image" src="" class="w-full h-auto max-h-[50vh] md:max-h-[60vh] object-cover shadow-sm">
+                </div>
                 <div class="p-6 md:p-14 bg-white relative">
                     <div id="view-modal-tag" class="flex items-center gap-2 mb-4 md:mb-5 hidden">
                         <span class="bg-gold/20 text-gold-dark text-xs md:text-sm font-black px-3 md:px-4 py-1.5 md:py-2 rounded-lg uppercase tracking-wider"><i class="fa-solid fa-newspaper mr-1"></i> Update Berita</span>
@@ -219,6 +237,7 @@
 
     <!-- ADMIN MODAL UTAMA -->
     <div id="admin-modal" class="fixed inset-0 bg-navy/90 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-xl transition-opacity duration-300 opacity-0 pointer-events-none">
+        <!-- Struktur Admin Modal Tetap Sama -->
         <div class="bg-white/95 rounded-3xl md:rounded-[2.5rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col transform scale-95 transition-transform duration-300" id="admin-modal-content">
             <div class="px-5 md:px-10 py-5 md:py-8 border-b border-gray-200 flex justify-between items-center bg-gray-50/50">
                 <div class="flex items-center gap-3 md:gap-4">
@@ -229,7 +248,7 @@
                     <button id="btn-logout" onclick="logoutAdmin()" class="hidden bg-red-50 text-red-600 hover:bg-red-100 font-bold px-4 md:px-6 py-2 md:py-3 rounded-xl transition text-xs md:text-base flex items-center gap-2 shadow-sm border border-red-100">
                         <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Logout</span>
                     </button>
-                    <button onclick="closeAdminModal()" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all shadow-sm"><i class="fa-solid fa-xmark text-xl md:text-2xl"></i></button>
+                    <button onclick="closeAdminModal()" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all shadow-sm hover:rotate-90"><i class="fa-solid fa-xmark text-xl md:text-2xl"></i></button>
                 </div>
             </div>
             
@@ -347,7 +366,10 @@
                 if (!SCRIPT_URL.startsWith('http')) {
                     return {
                         judul: "Pembangunan Gereja Pisgah", target: 500000000, terkumpul: 325500000, bank: "BCA", norek: "1234567890", atasnama: "Panitia Pembangunan Pisgah",
-                        portfolio: [ { id: '1', title: 'Pengecoran Fondasi', desc: 'Gotong royong jemaat.', image: 'https://images.unsplash.com/photo-1541888081688-6c84c1fbb462?auto=format&fit=crop&q=80&w=600' } ],
+                        portfolio: [ 
+                            { id: '1', title: 'Pengecoran Fondasi', desc: 'Gotong royong jemaat melakukan pengecoran tahap awal.', image: 'https://images.unsplash.com/photo-1541888081688-6c84c1fbb462?auto=format&fit=crop&q=80&w=600' },
+                            { id: '2', title: 'Pemasangan Rangka Atap', desc: 'Pemasangan baja ringan dan persiapan atap utama.', image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600' }
+                        ],
                         artikel: [ { id: '1', title: 'Tahap Struktur Selesai', content: 'Terima kasih jemaat...' } ],
                         panitia: [ 
                             { id: '1', nama: 'Budi Santoso', jabatan: 'Ketua Panitia', image: '' }
@@ -398,10 +420,10 @@
             const icon = document.getElementById('icon-admin-nav');
             const text = document.getElementById('text-admin-nav');
             if(isAdminMode) {
-                icon.className = "fa-solid fa-table-columns text-gold group-hover:scale-110 transition-transform text-sm md:text-base";
+                icon.className = "fa-solid fa-table-columns text-gold group-hover:scale-125 transition-transform duration-300 text-sm md:text-base";
                 text.innerText = "Dashboard";
             } else {
-                icon.className = "fa-solid fa-user-shield text-gold group-hover:scale-110 transition-transform text-sm md:text-base";
+                icon.className = "fa-solid fa-user-shield text-gold group-hover:scale-125 transition-transform duration-300 text-sm md:text-base";
                 text.innerText = "Admin";
             }
         }
@@ -433,7 +455,6 @@
                     container.innerHTML = '<p class="text-gray-500 text-center py-6 font-medium italic">Belum ada data konfirmasi transfer.</p>';
                 }
             } else {
-                // Menampilkan error secara visual jika Google Script gagal
                 container.innerHTML = `<p class="text-red-600 text-center py-6 font-bold bg-red-50 rounded-xl border border-red-200">Gagal Memuat Data!<br><span class="text-sm font-normal text-red-500 mt-2 block">Pesan Error: ${res.error || 'Action tidak dikenal. Pastikan Anda telah melakukan Deploy New Version di Google Apps Script!'}</span></p>`;
             }
         }
@@ -448,8 +469,8 @@
             const res = await api.req({ action: 'confirmDonasi', rowIdx: rowIdx, jumlah: jumlah });
             if (res && res.success) {
                 alert('Donasi berhasil dikonfirmasi dan ditambahkan ke saldo utama!');
-                loadKonfirmasiAdmin(); // Refresh list admin
-                refreshAllData(); // Refresh tampilan saldo di web
+                loadKonfirmasiAdmin(); 
+                refreshAllData(); 
             } else {
                 alert('Gagal: ' + (res.error || 'Server error'));
                 btn.innerHTML = origText; btn.disabled = false;
@@ -466,7 +487,7 @@
             document.getElementById('terkumpul-val').innerText = formatRp(data.terkumpul);
             
             document.getElementById('bank-val').innerText = data.bank || '-';
-            document.getElementById('norek-val').innerHTML = `${data.norek || '0000000000'} <i class="fa-regular fa-copy text-xl md:text-4xl text-navy hover:text-gold transition flex-shrink-0"></i>`;
+            document.getElementById('norek-val').innerHTML = `${data.norek || '0000000000'} <i class="fa-regular fa-copy text-xl md:text-4xl text-navy group-hover:text-gold transition flex-shrink-0 group-hover:scale-110"></i>`;
             document.getElementById('atasnama-val').innerText = data.atasnama || '-';
             
             let target = parseInt(data.target) || 1;
@@ -485,30 +506,61 @@
             document.getElementById('edit-norek').value = data.norek;
             document.getElementById('edit-atasnama').value = data.atasnama;
 
-            // RENDER GALERI (Dengan Teks SELENGKAPNYA)
+            // RENDER GALERI - ROADMAP HEXAGONAL TAHAP PEMBANGUNAN
             const portoCont = document.getElementById('portfolio-container');
             if(data.portfolio && data.portfolio.length > 0) {
-                portoCont.innerHTML = data.portfolio.map(p => `
-                    <div class="hover-lift glass-panel rounded-3xl overflow-hidden relative group flex flex-col h-full cursor-pointer" onclick="openViewPorto('${p.id}')">
-                        <div class="aspect-[4/3] overflow-hidden bg-gray-100 p-1.5 rounded-t-3xl relative group/img">
-                            <img src="${p.image}" onerror="this.src='https://via.placeholder.com/400?text=Sedang+Memuat...'" class="w-full h-full object-cover rounded-t-[1.3rem] transition-transform duration-700 group-hover:scale-110">
-                            <div class="absolute inset-0 bg-navy/40 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 rounded-t-[1.3rem] flex items-center justify-center backdrop-blur-[2px]">
-                                <i class="fa-solid fa-expand text-white text-4xl md:text-5xl drop-shadow-xl"></i>
+                portoCont.innerHTML = '<div class="absolute left-[20px] md:left-1/2 top-4 bottom-4 w-1.5 bg-white/10 md:-translate-x-1/2 rounded-full hidden sm:block"></div>' + 
+                data.portfolio.map((p, index) => {
+                    const isEven = index % 2 === 0;
+                    return `
+                    <div class="flex flex-col md:flex-row items-center justify-between w-full mb-12 md:mb-20 relative group cursor-pointer" onclick="openViewPorto('${p.id}')">
+                        
+                        <!-- Titik Tengah Timeline (Desktop & Tablet) -->
+                        <div class="hidden sm:flex absolute left-[20px] md:left-1/2 top-1/2 -translate-y-1/2 md:-translate-x-1/2 w-5 h-5 rounded-full bg-gold border-[4px] border-navy z-10 shadow-glow transition-transform duration-500 group-hover:scale-150 group-hover:bg-white"></div>
+
+                        <!-- Gambar Hexagon -->
+                        <div class="w-full md:w-5/12 flex justify-center ${isEven ? 'md:justify-end md:order-1' : 'md:justify-start md:order-3'} z-10 pl-10 sm:pl-16 md:pl-0 relative mb-6 md:mb-0">
+                            <div class="animate-hex-glow transition-all duration-500 group-hover:-translate-y-2">
+                                <!-- Outer Hexagon (Border Gold) -->
+                                <div class="relative w-40 h-48 sm:w-56 sm:h-64 hex-shape bg-gradient-to-br from-yellow-300 via-gold to-yellow-600 p-1 sm:p-[6px] transition-all duration-500">
+                                    <!-- Inner Hexagon (Image Container) -->
+                                    <div class="relative w-full h-full hex-shape bg-navy overflow-hidden">
+                                        <img src="${p.image}" onerror="this.src='https://via.placeholder.com/400?text=Sedang+Memuat...'" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125 opacity-90 group-hover:opacity-100">
+                                        <div class="absolute inset-0 bg-navy/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center backdrop-blur-[2px]">
+                                            <i class="fa-solid fa-expand text-gold text-3xl md:text-5xl mb-2 drop-shadow-md transition-transform duration-300 group-hover:scale-110"></i>
+                                            <span class="text-gold font-bold tracking-widest text-[10px] md:text-xs uppercase">Perbesar</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="p-5 md:p-8 border-t border-gray-100 flex-1 flex flex-col">
-                            <h4 class="font-serif font-black text-navy text-xl md:text-3xl leading-tight mb-3 md:mb-4 line-clamp-2">${p.title}</h4>
-                            <p class="text-gray-600 text-sm md:text-xl font-medium leading-relaxed whitespace-pre-line flex-1 line-clamp-3">${p.desc || ''}</p>
-                            <span class="text-gold-dark text-xs md:text-base font-black mt-4 md:mt-5 block group-hover:translate-x-1 transition-transform tracking-wide"><i class="fa-solid fa-magnifying-glass-plus mr-1 md:mr-2"></i> SELENGKAPNYA</span>
+
+                        <!-- Detail Teks Card -->
+                        <div class="w-full md:w-5/12 z-10 pl-10 sm:pl-16 md:pl-0 ${isEven ? 'md:order-3' : 'md:order-1'} relative">
+                            <div class="glass-panel p-6 md:p-8 rounded-3xl md:rounded-[2rem] group-hover:border-gold/50 transition-all duration-500 group-hover:shadow-glow group-hover:-translate-y-2 relative overflow-hidden text-left ${!isEven ? 'md:text-right' : ''}">
+                                
+                                <!-- Bayangan Nomor Besar -->
+                                <div class="absolute -top-4 ${isEven ? '-right-4 md:-right-6' : '-right-4 md:-left-6'} text-6xl md:text-8xl font-black text-gray-400/20 z-0 select-none transition-transform duration-700 group-hover:scale-110 group-hover:text-gold/20">0${index + 1}</div>
+                                
+                                <div class="relative z-10">
+                                    <span class="inline-block py-1 px-3 rounded-full bg-gold/20 text-gold-dark text-[10px] font-black tracking-widest uppercase mb-3 border border-gold/30"><i class="fa-solid fa-flag-checkered mr-1"></i>Tahap ${index + 1}</span>
+                                    <h4 class="font-serif font-black text-navy text-xl md:text-3xl leading-tight mb-3 line-clamp-2">${p.title}</h4>
+                                    <p class="text-gray-600 text-sm md:text-base font-medium leading-relaxed whitespace-pre-line line-clamp-3">${p.desc || ''}</p>
+                                    <span class="text-gold-dark text-xs md:text-sm font-black mt-4 inline-block group-hover:translate-x-2 ${!isEven ? 'md:group-hover:-translate-x-2' : ''} transition-transform tracking-wide"><i class="fa-solid fa-arrow-right-long mr-2 ${!isEven ? 'md:rotate-180 md:ml-2 md:mr-0' : ''}"></i>SELENGKAPNYA</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Tombol Admin (Edit/Hapus) -->
+                            ${isAdminMode ? `
+                            <div class="absolute -bottom-4 md:-bottom-5 ${isEven ? 'left-16 md:left-8' : 'left-16 md:right-8 md:left-auto'} flex gap-2 z-30">
+                                <button onclick="event.stopPropagation(); openEditPorto('${p.id}')" class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-xl transition-colors hover:scale-110"><i class="fa-solid fa-pen text-sm"></i></button>
+                                <button onclick="event.stopPropagation(); hapusPorto('${p.id}')" class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-xl transition-colors hover:scale-110"><i class="fa-solid fa-trash-can text-sm"></i></button>
+                            </div>` : ''}
                         </div>
-                        ${isAdminMode ? `
-                        <div class="absolute top-4 right-4 md:top-5 md:right-5 flex gap-2 md:gap-3 z-20">
-                            <button onclick="event.stopPropagation(); openEditPorto('${p.id}')" class="w-10 h-10 md:w-14 md:h-14 rounded-full bg-blue-500/90 backdrop-blur-sm text-white flex items-center justify-center hover:bg-blue-600 shadow-xl transition-colors"><i class="fa-solid fa-pen text-sm md:text-xl"></i></button>
-                            <button onclick="event.stopPropagation(); hapusPorto('${p.id}')" class="w-10 h-10 md:w-14 md:h-14 rounded-full bg-red-500/90 backdrop-blur-sm text-white flex items-center justify-center hover:bg-red-600 shadow-xl transition-colors"><i class="fa-solid fa-trash-can text-sm md:text-xl"></i></button>
-                        </div>` : ''}
                     </div>
-                `).join('');
-            } else { portoCont.innerHTML = `<p class="col-span-full text-white/50 font-medium italic text-center text-lg md:text-xl">Belum ada foto galeri.</p>`; }
+                    `;
+                }).join('');
+            } else { portoCont.innerHTML = `<p class="col-span-full text-white/50 font-medium italic text-center text-lg md:text-xl">Belum ada tahapan pembangunan.</p>`; }
 
             // RENDER BERITA
             const artCont = document.getElementById('artikel-container');
@@ -535,10 +587,10 @@
             if(data.panitia && data.panitia.length > 0) {
                 panitiaCont.innerHTML = data.panitia.map(p => `
                     <div class="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.5rem)] glass-panel hover-lift rounded-3xl p-4 md:p-8 flex flex-col items-center text-center relative group">
-                        <div class="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full mb-3 md:mb-6 bg-gray-100 border-[4px] md:border-[5px] border-white/40 shadow-xl overflow-hidden flex items-center justify-center mx-auto">
+                        <div class="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full mb-3 md:mb-6 bg-gray-100 border-[4px] md:border-[5px] border-white/40 shadow-xl overflow-hidden flex items-center justify-center mx-auto transition-transform duration-500 group-hover:scale-110">
                             ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<i class="fa-solid fa-user text-3xl md:text-5xl text-gray-400"></i>`}
                         </div>
-                        <h5 class="font-serif font-black text-navy text-lg sm:text-2xl md:text-3xl leading-tight mb-1 md:mb-2">${p.nama}</h5>
+                        <h5 class="font-serif font-black text-navy text-lg sm:text-2xl md:text-3xl leading-tight mb-1 md:mb-2 group-hover:text-gold-dark transition-colors">${p.nama}</h5>
                         <p class="text-gold-dark font-black text-[10px] sm:text-sm md:text-base uppercase tracking-widest leading-snug">${p.jabatan}</p>
                         ${isAdminMode ? `
                         <div class="absolute top-2 right-2 md:top-3 md:right-3 flex flex-col gap-2 md:gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -753,7 +805,7 @@
         function openViewPorto(id) {
             const item = globalData.portfolio.find(p => p.id === id); if(!item) return;
             document.getElementById('view-modal-image').src = item.image;
-            document.getElementById('view-modal-image').classList.remove('hidden');
+            document.getElementById('view-modal-image-wrapper').classList.remove('hidden');
             document.getElementById('view-modal-tag').classList.add('hidden');
             document.getElementById('view-modal-title').innerText = item.title;
             document.getElementById('view-modal-desc').innerText = item.desc || '';
@@ -762,7 +814,7 @@
 
         function openViewArt(id) {
             const item = globalData.artikel.find(p => p.id === id); if(!item) return;
-            document.getElementById('view-modal-image').classList.add('hidden');
+            document.getElementById('view-modal-image-wrapper').classList.add('hidden');
             document.getElementById('view-modal-image').src = ''; 
             document.getElementById('view-modal-tag').classList.remove('hidden');
             document.getElementById('view-modal-title').innerText = item.title;
