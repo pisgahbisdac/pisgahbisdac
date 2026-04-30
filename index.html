@@ -339,7 +339,7 @@
                             <div class="space-y-4 md:space-y-5 mb-6 md:mb-8 flex-1">
                                 <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Nama Lengkap</label><input type="text" id="add-panitia-nama" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-bold"></div>
                                 <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Jabatan</label><input type="text" id="add-panitia-jabatan" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-bold"></div>
-                                <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">No Handphone / WA (Opsional)</label><input type="text" id="add-panitia-nowa" placeholder="Cth: 08123456789" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-bold"></div>
+                                <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">No Handphone / WA (Opsional)</label><input type="text" id="add-panitia-nowa" placeholder="Cth: 628123456789" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-bold"></div>
                                 <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Upload Foto (Opsional)</label><input type="file" accept="image/*" id="add-panitia-image" class="input-elegant w-full px-3 md:px-4 py-2 md:py-3 rounded-xl text-xs md:text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] md:file:text-xs file:font-black file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer"></div>
                             </div>
                             <button onclick="tambahPanitia()" id="btn-add-panitia" class="bg-navy text-white font-black px-5 md:px-6 py-3 md:py-4 rounded-xl hover:bg-navy-light w-full shadow-lg transition flex justify-center items-center gap-2 mt-auto text-base md:text-lg"><i class="fa-solid fa-upload"></i> UNGGAH PANITIA</button>
@@ -362,7 +362,7 @@
                 <div class="space-y-4 md:space-y-5">
                     <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide" id="label-title">Judul / Nama</label><input type="text" id="edit-item-title" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div>
                     <div id="edit-jabatan-container" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Jabatan</label><input type="text" id="edit-item-jabatan" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div>
-                    <div id="edit-nowa-container" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">No Handphone / WA</label><input type="text" id="edit-item-nowa" placeholder="Cth: 08123456789" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div>
+                    <div id="edit-nowa-container" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">No Handphone / WA</label><input type="text" id="edit-item-nowa" placeholder="Cth: 628123456789" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div>
                     <div id="edit-image-container" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Ganti Gambar (Maks 5MB)</label><input type="file" accept="image/*" id="edit-item-image" class="input-elegant w-full px-3 md:px-4 py-2 md:py-3 rounded-xl text-xs md:text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] md:file:text-xs file:font-black file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer"></div>
                     <div id="edit-content-container"><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide" id="label-content">Isi / Narasi</label><textarea id="edit-item-content" rows="5" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-medium resize-none"></textarea></div>
                 </div>
@@ -402,11 +402,12 @@
                         ],
                         artikel: [ { id: '1', title: 'Tahap Struktur Selesai', content: 'Terima kasih jemaat...' } ],
                         panitia: [ 
-                            { id: '1', nama: 'Budi Santoso', jabatan: 'Ketua Panitia', image: '', nowa: '08123456789' }
+                            { id: '1', nama: 'Budi Santoso', jabatan: 'Ketua Panitia', image: '', nowa: '628123456789' }
                         ]
                     };
                 }
-                try { const res = await fetch(SCRIPT_URL); return await res.json(); } catch (e) { return null; }
+                // TAMBAHAN: '?t=' + timestamp untuk mencegah Google Script mengembalikan Cache data lama
+                try { const res = await fetch(SCRIPT_URL + "?t=" + new Date().getTime()); return await res.json(); } catch (e) { return null; }
             }
         };
 
@@ -521,8 +522,10 @@
 
         function formatWaNumber(nowa) {
             if(!nowa) return '';
-            let formatted = nowa.replace(/[^0-9]/g, '');
+            let formatted = String(nowa).replace(/[^0-9]/g, '');
+            // Memastikan nomor WA diawali dengan 62 (Kode Negara Indonesia)
             if(formatted.startsWith('0')) formatted = '62' + formatted.substring(1);
+            else if(!formatted.startsWith('62') && formatted.length > 0) formatted = '62' + formatted;
             return formatted;
         }
 
@@ -655,9 +658,9 @@
                         <p class="text-gold-dark font-black text-[10px] sm:text-sm md:text-base uppercase tracking-widest leading-snug">${p.jabatan}</p>
                         ${formattedWa ? `<a href="https://wa.me/${formattedWa}" target="_blank" class="mt-3 px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-bold hover:bg-green-500 hover:text-white transition-colors"><i class="fa-brands fa-whatsapp mr-1"></i> Hubungi</a>` : ''}
                         ${isAdminMode ? `
-                        <div class="absolute top-2 right-2 md:top-3 md:right-3 flex flex-col gap-2 md:gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <button onclick="openEditPanitia('${p.id}')" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-lg"><i class="fa-solid fa-pen text-xs md:text-sm"></i></button>
-                            <button onclick="hapusPanitia('${p.id}')" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-lg"><i class="fa-solid fa-trash-can text-xs md:text-sm"></i></button>
+                        <div class="absolute top-2 right-2 md:top-3 md:right-3 flex flex-col gap-2 md:gap-3 z-20">
+                            <button onclick="openEditPanitia('${p.id}')" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-xl transition-transform hover:scale-110"><i class="fa-solid fa-pen text-xs md:text-sm"></i></button>
+                            <button onclick="hapusPanitia('${p.id}')" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-xl transition-transform hover:scale-110"><i class="fa-solid fa-trash-can text-xs md:text-sm"></i></button>
                         </div>` : ''}
                     </div>
                     `;
