@@ -1,103 +1,86 @@
 /**
  * BACKEND GOOGLE APPS SCRIPT (GAS)
- * Versi: 2.7 (Penambahan Fitur Tambah Galeri & Berita)
+ * Versi: 2.8 (Debug Nama Sheet & Penambahan Data)
  */
 
 const SPREADSHEET_ID = '1Z34p14RRS4NCSlD66NOz4l5QTmnKvckUl5-vKFbPyFQ'; 
-const FOLDER_ID = '1XuGZzprXsY63lTeXv_M4JuRw3WUGRKnn';
 
-// METHOD GET (Digunakan saat pertama kali load web untuk ambil data)
+// METHOD GET
 function doGet(e) {
   try {
     const data = getInitialData();
-    return ContentService.createTextOutput(JSON.stringify(data))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ error: err.message }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ error: err.message })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
-// METHOD POST (Menangani request dari Web)
+// METHOD POST
 function doPost(e) {
   try {
     const req = JSON.parse(e.postData.contents);
     let result = {};
 
     switch(req.action) {
-      case 'submitKonfirmasi': 
-        result = submitKonfirmasi(req.payload); 
-        break;
-      case 'verifyAdmin': 
-        result = verifyAdmin(req.username, req.password); 
-        break;
-      case 'updateInfoWebsite': 
-        result = { success: updateInfoWebsite(req.target, req.terkumpul, req.rekening, req.judul) }; 
-        break;
-      case 'tambahArtikel': 
-        result = { success: tambahArtikel(req.title, req.content) }; 
-        break;
-      case 'tambahPortofolio': 
-        result = { success: tambahPortofolio(req.title, req.image) }; 
-        break;
-      case 'hapusArtikel': 
-        result = { success: hapusArtikel(req.id) }; 
-        break;
-      case 'hapusPortofolio': 
-        result = { success: hapusPortofolio(req.id) }; 
-        break;
-      default: 
-        result = { error: "Action tidak ditemukan" };
+      case 'submitKonfirmasi': result = submitKonfirmasi(req.payload); break;
+      case 'verifyAdmin': result = verifyAdmin(req.username, req.password); break;
+      case 'updateInfoWebsite': result = { success: updateInfoWebsite(req.target, req.terkumpul, req.rekening, req.judul) }; break;
+      case 'tambahArtikel': result = tambahArtikel(req.title, req.content); break;
+      case 'tambahPortofolio': result = tambahPortofolio(req.title, req.image); break;
+      case 'hapusArtikel': result = { success: hapusArtikel(req.id) }; break;
+      case 'hapusPortofolio': result = { success: hapusPortofolio(req.id) }; break;
+      default: result = { error: "Action tidak ditemukan" };
     }
 
-    return ContentService.createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ error: err.message }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ error: err.message })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
 // ==========================================
-// KUMPULAN FUNGSI EKSEKUSI
+// FUNGSI EKSEKUSI
 // ==========================================
 
 function getInitialData() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   
-  // Baca Data Global (Info)
   const sheetInfo = ss.getSheetByName('Info');
+  if (!sheetInfo) throw new Error("Sheet 'Info' tidak ditemukan!");
+  
   const target = sheetInfo.getRange('B1').getValue();
   const terkumpul = sheetInfo.getRange('B2').getValue();
   const rekening = sheetInfo.getRange('B3').getValue();
   const judul = sheetInfo.getRange('B4').getValue();
   
-  // Baca Data Artikel
   const sheetArtikel = ss.getSheetByName('Artikel');
   let dataArtikel = [];
   if (sheetArtikel) {
       const rowsArt = sheetArtikel.getDataRange().getValues();
       for (let i = 1; i < rowsArt.length; i++) {
-        dataArtikel.push({
-            id: rowsArt[i][0],
-            title: rowsArt[i][1],
-            content: rowsArt[i][2],
-            image: rowsArt[i][3] // Sesuaikan index jika kolom gambar beda
-        });
+        if(rowsArt[i][0]) { // Hanya ambil jika ID ada
+          dataArtikel.push({
+              id: rowsArt[i][0],
+              title: rowsArt[i][1],
+              content: rowsArt[i][2],
+              image: rowsArt[i][3]
+          });
+        }
       }
   }
 
-  // Baca Data Portfolio (Galeri)
   const sheetPorto = ss.getSheetByName('Portfolio');
   let dataPorto = [];
   if (sheetPorto) {
       const rowsPorto = sheetPorto.getDataRange().getValues();
       for (let i = 1; i < rowsPorto.length; i++) {
-        dataPorto.push({
-            id: rowsPorto[i][0],
-            title: rowsPorto[i][1],
-            image: rowsPorto[i][2] // Sesuaikan index jika kolom beda
-        });
+        if(rowsPorto[i][0]) { // Hanya ambil jika ID ada
+          dataPorto.push({
+              id: rowsPorto[i][0],
+              title: rowsPorto[i][1],
+              image: rowsPorto[i][2]
+          });
+        }
       }
   }
 
@@ -107,7 +90,7 @@ function getInitialData() {
 function submitKonfirmasi(payload) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName('Konfirmasi');
-  if(!sheet) return { success: false, error: "Sheet Konfirmasi tidak ditemukan di Spreadsheet" };
+  if(!sheet) return { success: false, error: "Sheet 'Konfirmasi' tidak ditemukan" };
   
   sheet.appendRow([new Date(), payload.nama, payload.jumlah, payload.keterangan]);
   return { success: true };
@@ -116,7 +99,6 @@ function submitKonfirmasi(payload) {
 function updateInfoWebsite(target, terkumpul, rekening, judul) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName('Info');
-  
   sheet.getRange('B1').setValue(target);
   sheet.getRange('B2').setValue(terkumpul);
   sheet.getRange('B3').setValue(rekening);
@@ -124,52 +106,49 @@ function updateInfoWebsite(target, terkumpul, rekening, judul) {
   return true;
 }
 
-// FUNGSI BARU: Tambah Berita
+// FUNGSI: Tambah Berita (Artikel)
 function tambahArtikel(title, content) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  // PERHATIKAN: Mencari nama tab 'Artikel' persis.
   const sheet = ss.getSheetByName('Artikel');
-  if(!sheet) return false;
   
-  // Buat ID unik acak menggunakan Timestamp
+  if(!sheet) {
+    return { success: false, error: "GAGAL: Tab bernama 'Artikel' tidak ada di Spreadsheet Anda." };
+  }
+  
   const uniqueId = 'ART-' + new Date().getTime();
-  
-  // Memasukkan [ID, Judul, Konten, (Kolom kosong jika tidak pakai gambar)]
   sheet.appendRow([uniqueId, title, content, '']); 
-  return true;
+  return { success: true };
 }
 
-// FUNGSI BARU: Tambah Galeri/Portfolio
+// FUNGSI: Tambah Galeri (Portfolio)
 function tambahPortofolio(title, image) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  // PERHATIKAN: Mencari nama tab 'Portfolio' persis.
   const sheet = ss.getSheetByName('Portfolio');
-  if(!sheet) return false;
+  
+  if(!sheet) {
+    return { success: false, error: "GAGAL: Tab bernama 'Portfolio' tidak ada di Spreadsheet Anda." };
+  }
   
   const uniqueId = 'PRT-' + new Date().getTime();
-  
-  // Memasukkan [ID, Judul, Link Gambar]
   sheet.appendRow([uniqueId, title, image]); 
-  return true;
+  return { success: true };
 }
 
 function verifyAdmin(username, password) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheetInfo = ss.getSheetByName('Info');
-  
   const validUser = sheetInfo.getRange('B5').getValue();
   const validPass = sheetInfo.getRange('B6').getValue();
-  
-  if (username == validUser && password == validPass) {
-    return { success: true };
-  } else {
-    return { success: false };
-  }
+  return (username == validUser && password == validPass) ? { success: true } : { success: false };
 }
 
 function hapusArtikel(id) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName('Artikel');
+  if(!sheet) return false;
   const rows = sheet.getDataRange().getValues();
-  
   for (let i = 1; i < rows.length; i++) {
     if (rows[i][0] == id) {
       sheet.deleteRow(i + 1);
@@ -182,8 +161,8 @@ function hapusArtikel(id) {
 function hapusPortofolio(id) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName('Portfolio');
+  if(!sheet) return false;
   const rows = sheet.getDataRange().getValues();
-  
   for (let i = 1; i < rows.length; i++) {
     if (rows[i][0] == id) {
       sheet.deleteRow(i + 1);
