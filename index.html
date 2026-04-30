@@ -60,7 +60,9 @@
 
         /* KOTAK GLOW (BERLAKU UNTUK SEMUA KOTAK) */
         .box-glow { box-shadow: 0 0 35px rgba(255, 193, 7, 0.35) !important; border: 1px solid rgba(255, 193, 7, 0.5) !important; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .box-glow:hover { box-shadow: 0 15px 40px rgba(255, 193, 7, 0.7) !important; transform: translateY(-8px) scale(1.02); z-index: 10; }
+        @media (min-width: 1024px) {
+            .box-glow:hover { box-shadow: 0 15px 40px rgba(255, 193, 7, 0.7) !important; transform: translateY(-8px) scale(1.02); z-index: 10; }
+        }
 
         /* GLASSMORPHISM UI */
         .glass-panel { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: var(--shadow-glass); }
@@ -161,18 +163,18 @@
                     </div>
                     
                     <form id="form-konfirmasi" onsubmit="handleKonfirmasi(event)" class="space-y-5 md:space-y-6">
-                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Nama Lengkap</label><div class="relative"><i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10"></i><input type="text" id="k-nama" required class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold relative z-0"></div></div>
-                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Jumlah Donasi</label><div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold group-focus-within:text-navy transition-colors text-base md:text-lg z-10">Rp</span><input type="number" id="k-jumlah" required class="input-elegant w-full pl-12 md:pl-14 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold relative z-0"></div></div>
+                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Nama Lengkap</label><div class="relative"><i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10 pointer-events-none"></i><input type="text" id="k-nama" required class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold relative z-0"></div></div>
+                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Jumlah Donasi</label><div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold group-focus-within:text-navy transition-colors text-base md:text-lg z-10 pointer-events-none">Rp</span><input type="number" id="k-jumlah" required class="input-elegant w-full pl-12 md:pl-14 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold relative z-0"></div></div>
                         
                         <div class="group">
                             <label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Bukti Transfer (Maks 5MB)</label>
                             <div class="relative">
-                                <i class="fa-solid fa-receipt absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10"></i>
+                                <i class="fa-solid fa-receipt absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10 pointer-events-none"></i>
                                 <input type="file" accept="image/*" id="k-bukti" required class="input-elegant w-full pl-12 md:pl-14 pr-4 py-2 md:py-3 rounded-xl text-xs md:text-sm font-bold file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] md:file:text-xs file:font-black file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer relative z-0">
                             </div>
                         </div>
 
-                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Pesan (Opsional)</label><div class="relative"><i class="fa-regular fa-comment absolute left-4 top-4 md:top-5 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10"></i><textarea id="k-ket" rows="3" class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold resize-none relative z-0"></textarea></div></div>
+                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Pesan (Opsional)</label><div class="relative"><i class="fa-regular fa-comment absolute left-4 top-4 md:top-5 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-10 pointer-events-none"></i><textarea id="k-ket" rows="3" class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold resize-none relative z-0"></textarea></div></div>
                         <button type="submit" id="btn-konfirmasi" class="group relative w-full overflow-hidden rounded-xl bg-navy text-white font-black py-4 md:py-5 mt-4 md:mt-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform active:scale-95 text-lg md:text-xl tracking-wide"><div class="absolute inset-0 bg-gradient-to-r from-navy-light to-navy transition-transform duration-300 group-hover:scale-105"></div><span class="relative flex items-center justify-center gap-3"><span>Kirim Konfirmasi</span><i class="fa-solid fa-paper-plane text-gold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i></span></button>
                     </form>
                 </div>
@@ -285,8 +287,8 @@
                 <div id="admin-login-section" class="max-w-md mx-auto py-10 md:py-20">
                     <div class="text-center mb-8 md:mb-12"><h3 class="font-serif font-black text-3xl md:text-4xl text-navy">Otorisasi Akses</h3><p class="text-gray-500 text-sm md:text-lg mt-2 md:mt-3">Silakan masukkan data LOG-IN Anda.</p></div>
                     <div class="space-y-4 md:space-y-6">
-                        <div class="relative"><i class="fa-solid fa-user absolute left-4 md:left-5 top-1/2 -translate-y-1/2 text-gray-400 text-lg md:text-xl"></i><input type="text" id="admin-user" placeholder="Username" class="input-elegant w-full pl-12 md:pl-14 pr-4 md:pr-5 py-4 md:py-5 rounded-xl text-base md:text-lg font-bold"></div>
-                        <div class="relative"><i class="fa-solid fa-key absolute left-4 md:left-5 top-1/2 -translate-y-1/2 text-gray-400 text-lg md:text-xl"></i><input type="password" id="admin-pass" placeholder="Password" class="input-elegant w-full pl-12 md:pl-14 pr-4 md:pr-5 py-4 md:py-5 rounded-xl text-base md:text-lg font-bold"></div>
+                        <div class="relative"><i class="fa-solid fa-user absolute left-4 md:left-5 top-1/2 -translate-y-1/2 text-gray-400 text-lg md:text-xl pointer-events-none"></i><input type="text" id="admin-user" placeholder="Username" class="input-elegant w-full pl-12 md:pl-14 pr-4 md:pr-5 py-4 md:py-5 rounded-xl text-base md:text-lg font-bold"></div>
+                        <div class="relative"><i class="fa-solid fa-key absolute left-4 md:left-5 top-1/2 -translate-y-1/2 text-gray-400 text-lg md:text-xl pointer-events-none"></i><input type="password" id="admin-pass" placeholder="Password" class="input-elegant w-full pl-12 md:pl-14 pr-4 md:pr-5 py-4 md:py-5 rounded-xl text-base md:text-lg font-bold"></div>
                         <button onclick="loginAdmin()" id="btn-login" class="w-full bg-navy text-white py-4 md:py-5 rounded-xl font-black hover:bg-navy-light transition shadow-xl mt-6 md:mt-8 text-lg md:text-xl tracking-wide">LOGIN SEKARANG</button>
                     </div>
                 </div>
@@ -567,7 +569,7 @@
                     return `
                     <div class="flex flex-col md:flex-row items-center justify-between w-full mb-12 md:mb-20 relative group cursor-pointer" onclick="openViewPorto('${p.id}')">
                         <div class="hidden sm:flex absolute left-[20px] md:left-1/2 top-1/2 -translate-y-1/2 md:-translate-x-1/2 w-5 h-5 rounded-full bg-gold border-[4px] border-navy z-10 shadow-glow transition-transform duration-500 group-hover:scale-150 group-hover:bg-white"></div>
-                        <div class="w-full md:w-5/12 flex justify-center ${isEven ? 'md:justify-end md:order-1' : 'md:justify-start md:order-3'} z-10 pl-10 sm:pl-16 md:pl-0 relative mb-6 md:mb-0">
+                        <div class="w-full md:w-5/12 flex justify-center ${isEven ? 'md:justify-end md:order-1' : 'md:justify-start md:order-3'} z-10 pl-0 sm:pl-16 md:pl-0 relative mb-6 md:mb-0">
                             <div class="animate-hex-glow transition-all duration-500 group-hover:-translate-y-2">
                                 <div class="relative w-[200px] h-[230px] sm:w-[280px] sm:h-[320px] lg:w-[350px] lg:h-[400px] hex-shape bg-gradient-to-br from-yellow-300 via-gold to-yellow-600 p-1.5 sm:p-[6px] transition-all duration-500">
                                     <div class="relative w-full h-full hex-shape bg-navy overflow-hidden">
@@ -581,7 +583,7 @@
                             </div>
                         </div>
 
-                        <div class="w-full md:w-5/12 z-10 pl-10 sm:pl-16 md:pl-0 ${isEven ? 'md:order-3' : 'md:order-1'} relative">
+                        <div class="w-full md:w-5/12 z-10 pl-0 sm:pl-16 md:pl-0 ${isEven ? 'md:order-3' : 'md:order-1'} relative">
                             <div class="glass-panel box-glow p-6 md:p-8 rounded-3xl md:rounded-[2rem] relative overflow-hidden text-left ${!isEven ? 'md:text-right' : ''}">
                                 <div class="absolute top-4 ${isEven ? 'right-6 md:right-8' : 'right-6 md:left-8'} text-6xl md:text-8xl font-black text-gray-400/20 z-0 select-none transition-transform duration-700 group-hover:scale-110 group-hover:text-gold/20 leading-none">0${index + 1}</div>
                                 <div class="relative z-10">
@@ -592,7 +594,7 @@
                                 </div>
                             </div>
                             ${isAdminMode ? `
-                            <div class="absolute -bottom-4 md:-bottom-5 ${isEven ? 'left-16 md:left-8' : 'left-16 md:right-8 md:left-auto'} flex gap-2 z-30">
+                            <div class="absolute -bottom-4 md:-bottom-5 left-1/2 -translate-x-1/2 md:translate-x-0 ${isEven ? 'md:left-8' : 'md:right-8 md:left-auto'} flex gap-2 z-30">
                                 <button onclick="event.stopPropagation(); openEditPorto('${p.id}')" class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-xl transition-colors hover:scale-110"><i class="fa-solid fa-pen text-sm"></i></button>
                                 <button onclick="event.stopPropagation(); hapusPorto('${p.id}')" class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-xl transition-colors hover:scale-110"><i class="fa-solid fa-trash-can text-sm"></i></button>
                             </div>` : ''}
