@@ -59,7 +59,6 @@
             .hover-lift:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.2); z-index: 10;}
         }
 
-        /* Perbesaran input di mobile */
         .input-elegant { background-color: rgba(255,255,255,0.7); border: 1px solid #e2e8f0; transition: all 0.3s ease; }
         .input-elegant:focus { background-color: #ffffff; border-color: #0B192C; box-shadow: 0 0 0 4px rgba(11, 25, 44, 0.1); outline: none; }
         
@@ -81,80 +80,56 @@
                     <p class="text-[10px] md:text-xs text-gray-300 tracking-widest uppercase hidden sm:block">Sistem Informasi Donasi</p>
                 </div>
             </div>
-            <button onclick="toggleAdmin()" class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-full transition-all border border-white/10 backdrop-blur-sm">
-                <i class="fa-solid fa-user-shield text-gold group-hover:scale-110 transition-transform text-sm"></i>
-                <span class="text-sm font-medium tracking-wide text-white">Admin</span>
+            
+            <!-- TOMBOL ADMIN DENGAN INDIKATOR LOGIN -->
+            <button id="btn-admin-nav" onclick="toggleAdmin()" class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-full transition-all border border-white/10 backdrop-blur-sm">
+                <i id="icon-admin-nav" class="fa-solid fa-user-shield text-gold group-hover:scale-110 transition-transform text-sm"></i>
+                <span id="text-admin-nav" class="text-sm font-medium tracking-wide text-white">Admin</span>
             </button>
         </div>
     </nav>
 
     <main class="container mx-auto px-4 pt-28 pb-16 max-w-7xl relative z-10">
         
-        <!-- HERO SECTION (Tampilan Mobile & Desktop Disempurnakan) -->
-        <section data-aos="zoom-in-up" data-aos-duration="1000" class="glass-dark rounded-[2rem] p-6 sm:p-10 md:p-14 mb-10 md:mb-16 shadow-2xl relative overflow-hidden border-t border-l border-white/20">
+        <!-- HERO SECTION -->
+        <section data-aos="zoom-in-up" data-aos-duration="1000" class="glass-dark rounded-3xl p-5 sm:p-10 md:p-14 mb-10 md:mb-16 shadow-2xl relative overflow-hidden border-t border-l border-white/20">
             <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] z-0"></div>
             
             <div class="relative z-10 text-center max-w-4xl mx-auto">
-                <span class="inline-block py-2 px-5 rounded-full bg-gold/10 text-gold text-xs font-bold tracking-[0.2em] uppercase mb-4 border border-gold/20 shadow-glow backdrop-blur-md">Program Donasi</span>
-                <h2 id="judul-web" class="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-10 leading-tight drop-shadow-lg">Memuat Data...</h2>
+                <span class="inline-block py-1.5 px-4 rounded-full bg-gold/10 text-gold text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase mb-4 border border-gold/20 shadow-glow backdrop-blur-md">Program Donasi</span>
+                <h2 id="judul-web" class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-8 md:mb-10 leading-tight drop-shadow-lg px-2">Memuat Data...</h2>
                 
-                <!-- KARTU DANA TERKUMPUL & TARGET -->
-                <div class="bg-navy-dark/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 sm:p-8 md:p-10 mb-10 shadow-inner flex flex-col items-center">
-                    
-                    <!-- Tata Letak Fleksibel (Kolom di Mobile, Baris di Desktop) -->
-                    <div class="w-full flex flex-col md:flex-row justify-between items-center mb-8 gap-6 md:gap-2 text-center md:text-left">
-                        
-                        <!-- 1. Dana Terkumpul (Lebih Besar) -->
+                <div class="bg-navy-dark/40 backdrop-blur-xl border border-white/10 rounded-3xl p-5 sm:p-8 md:p-10 mb-8 shadow-inner flex flex-col items-center">
+                    <div class="w-full flex flex-col md:flex-row justify-between items-center mb-6 md:mb-8 gap-5 md:gap-2 text-center md:text-left">
                         <div class="w-full md:w-auto order-1 md:order-none">
-                            <p class="text-gray-300 text-sm md:text-base font-medium mb-2 uppercase tracking-wider">Dana Terkumpul</p>
-                            <p id="terkumpul-val" class="text-5xl sm:text-6xl font-extrabold text-gradient tracking-tight drop-shadow-md">Rp 0</p>
+                            <p class="text-gray-300 text-xs sm:text-sm md:text-base font-medium mb-1 md:mb-2 uppercase tracking-wider">Dana Terkumpul</p>
+                            <p id="terkumpul-val" class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-gradient tracking-tight drop-shadow-md">Rp 0</p>
                         </div>
-
-                        <!-- Separator Desktop -->
                         <div class="hidden md:block w-px h-16 bg-white/10 mx-4 order-none"></div>
-
-                        <!-- Separator Mobile -->
-                        <div class="w-3/4 h-px bg-white/10 md:hidden order-2 mx-auto"></div>
-
-                        <!-- 2. Target Pendanaan -->
-                        <div class="w-full md:w-auto md:text-right order-3 md:order-none">
-                            <p class="text-gray-400 text-xs md:text-sm font-medium mb-2 uppercase tracking-wider">Target Pendanaan</p>
-                            <p id="target-val" class="text-3xl sm:text-4xl font-bold text-white tracking-tight drop-shadow-md">Rp 0</p>
+                        <div class="w-full h-px bg-white/10 md:hidden order-2 opacity-50"></div>
+                        <div class="w-full md:w-auto md:text-right order-3 md:order-none pt-2 md:pt-0">
+                            <p class="text-gray-400 text-[10px] sm:text-xs md:text-sm font-medium mb-1 md:mb-2 uppercase tracking-wider">Target Pendanaan</p>
+                            <p id="target-val" class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white tracking-tight drop-shadow-md">Rp 0</p>
                         </div>
                     </div>
-                    
-                    <!-- 3. Progress Bar -->
-                    <div class="relative w-full bg-black/50 rounded-full h-6 md:h-8 shadow-inner overflow-hidden border border-white/10 mb-5">
+                    <div class="relative w-full bg-black/50 rounded-full h-5 md:h-8 shadow-inner overflow-hidden border border-white/10 mb-4 md:mb-5">
                         <div id="progress-bar" class="progress-gradient h-full rounded-full transition-all duration-1500 relative shadow-glow" style="width: 0%">
-                            <div class="absolute top-0 left-0 w-full h-full overflow-hidden rounded-full">
-                                <div class="w-[200%] h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent)] animate-[shimmer_2s_infinite] -translate-x-full"></div>
-                            </div>
+                            <div class="absolute top-0 left-0 w-full h-full overflow-hidden rounded-full"><div class="w-[200%] h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent)] animate-[shimmer_2s_infinite] -translate-x-full"></div></div>
                         </div>
                     </div>
-
-                    <!-- 4. Persentase (Di bawah progress bar) -->
-                    <div class="text-center w-full">
-                        <span id="progress-text" class="text-gold font-extrabold text-xl md:text-2xl drop-shadow-glow tracking-wide">0% Tercapai</span>
-                    </div>
+                    <div class="text-center w-full"><span id="progress-text" class="text-gold font-extrabold text-lg sm:text-xl md:text-2xl drop-shadow-glow tracking-wide">0% Tercapai</span></div>
                 </div>
 
-                <!-- INFO REKENING BARU (Lebih Besar di Mobile) -->
-                <div class="flex flex-col items-center justify-center gap-3 bg-white/95 backdrop-blur-md px-6 py-8 md:px-12 md:py-8 rounded-3xl shadow-xl border-b-4 border-gold transition-transform hover:scale-105 duration-300 w-full mx-auto cursor-pointer" onclick="copyRekening()" title="Klik untuk menyalin nomor rekening">
-                    <p class="text-sm md:text-base text-gray-500 font-bold uppercase tracking-widest flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-building-columns text-blue-600 text-xl"></i> Transfer Donasi Ke
-                    </p>
-                    <p id="bank-val" class="text-2xl md:text-3xl font-extrabold text-navy mt-1">Loading...</p>
-                    
-                    <!-- Nomor rekening dibuat sangat besar dan rapi -->
-                    <p id="norek-val" class="text-4xl sm:text-5xl font-black text-gradient tracking-widest flex items-center justify-center gap-4 my-2 break-words text-center leading-none">
-                        0000000000 <i class="fa-regular fa-copy text-2xl text-gray-400 hover:text-gold transition flex-shrink-0"></i>
-                    </p>
-                    
-                    <p class="text-base md:text-lg text-gray-600 font-medium">a.n. <span id="atasnama-val" class="font-bold text-navy text-xl">Loading...</span></p>
+                <div class="flex flex-col items-center justify-center gap-2 md:gap-3 bg-white/95 backdrop-blur-md px-4 py-6 sm:px-6 md:px-12 md:py-8 rounded-3xl shadow-xl border-b-4 border-gold transition-transform hover:scale-105 duration-300 w-full mx-auto cursor-pointer" onclick="copyRekening()" title="Klik untuk menyalin nomor rekening">
+                    <p class="text-xs sm:text-sm md:text-base text-gray-500 font-bold uppercase tracking-widest flex items-center justify-center gap-2"><i class="fa-solid fa-building-columns text-blue-600 text-lg md:text-xl"></i> Transfer Donasi Ke</p>
+                    <p id="bank-val" class="text-xl sm:text-2xl md:text-3xl font-extrabold text-navy mt-1">Loading...</p>
+                    <p id="norek-val" class="text-2xl sm:text-4xl md:text-5xl font-black text-gradient tracking-widest flex flex-wrap items-center justify-center gap-2 md:gap-4 my-1 md:my-2 break-all text-center leading-tight">0000000000 <i class="fa-regular fa-copy text-xl md:text-2xl text-gray-400 hover:text-gold transition flex-shrink-0"></i></p>
+                    <p class="text-sm sm:text-base md:text-lg text-gray-600 font-medium">a.n. <span id="atasnama-val" class="font-bold text-navy text-base md:text-xl">Loading...</span></p>
                 </div>
             </div>
         </section>
 
+        <!-- KONTEN TENGAH: FORM & GALERI/BERITA -->
         <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
             
             <div class="w-full lg:w-1/3" data-aos="fade-up" data-aos-delay="100">
@@ -191,6 +166,19 @@
                 </section>
             </div>
         </div>
+
+        <!-- SUSUNAN PANITIA -->
+        <section data-aos="fade-up" data-aos-delay="400" class="mt-24 pt-10 border-t border-white/10">
+            <div class="flex flex-col items-center mb-10 text-center">
+                <h3 class="text-3xl sm:text-4xl font-serif font-bold text-white drop-shadow-md mb-3">Susunan Panitia</h3>
+                <p class="text-gray-300 text-sm md:text-base max-w-2xl">Orang-orang berdedikasi yang mengawal jalannya pembangunan rumah ibadah ini dengan penuh integritas.</p>
+            </div>
+            
+            <div id="panitia-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+                <!-- Data di-inject JS -->
+            </div>
+        </section>
+
     </main>
 
     <footer class="glass-dark border-t border-white/10 text-white/60 py-10 text-center text-sm md:text-base mt-10 relative z-10">
@@ -203,13 +191,13 @@
 
     <!-- ADMIN MODAL UTAMA -->
     <div id="admin-modal" class="fixed inset-0 bg-navy/90 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-xl transition-opacity duration-300 opacity-0 pointer-events-none">
-        <div class="bg-white/95 rounded-[2rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col transform scale-95 transition-transform duration-300" id="admin-modal-content">
+        <div class="bg-white/95 rounded-[2rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col transform scale-95 transition-transform duration-300" id="admin-modal-content">
             <div class="px-6 md:px-8 py-5 md:py-6 border-b border-gray-200 flex justify-between items-center bg-gray-50/50">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-navy text-white flex items-center justify-center shadow-md"><i class="fa-solid fa-lock"></i></div>
                     <h2 class="text-xl md:text-2xl font-serif font-bold text-navy">Admin Panel</h2>
                 </div>
-                <button onclick="toggleAdmin()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-600 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <button onclick="closeAdminModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-600 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             
             <div class="p-6 md:p-8 overflow-y-auto flex-1 bg-white">
@@ -231,7 +219,6 @@
                             <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Target Dana (Angka)</label><input type="number" id="edit-target" class="input-elegant w-full px-4 py-4 rounded-xl text-base"></div>
                             <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Terkumpul (Angka)</label><input type="number" id="edit-terkumpul" class="input-elegant w-full px-4 py-4 rounded-xl text-base"></div>
                             
-                            <!-- BANK SPLIT -->
                             <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Nama Bank</label><input type="text" id="edit-bank" placeholder="Cth: BCA" class="input-elegant w-full px-4 py-4 rounded-xl text-base"></div>
                             <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">No Rekening</label><input type="text" id="edit-norek" placeholder="Cth: 1234567890" class="input-elegant w-full px-4 py-4 rounded-xl text-base"></div>
                             <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Atas Nama Rekening</label><input type="text" id="edit-atasnama" placeholder="Cth: Panitia Pembangunan" class="input-elegant w-full px-4 py-4 rounded-xl text-base"></div>
@@ -239,25 +226,41 @@
                         <button onclick="updateInfo()" id="btn-update-info" class="mt-8 bg-gold text-navy font-bold px-6 py-4 rounded-xl hover:bg-yellow-400 w-full shadow-md transition flex justify-center items-center gap-2 text-lg"><i class="fa-solid fa-floppy-disk"></i> SIMPAN PERUBAHAN</button>
                     </div>
 
-                    <!-- TAMBAH GALERI & BERITA -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- TAMBAH GALERI, BERITA & PANITIA -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex flex-col">
-                            <div class="flex items-center gap-3 mb-6"><div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xl"><i class="fa-solid fa-image"></i></div><h4 class="font-bold text-navy text-xl">Tambah Galeri</h4></div>
+                            <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-lg"><i class="fa-solid fa-image"></i></div><h4 class="font-bold text-navy text-lg">Tambah Galeri</h4></div>
                             <div class="space-y-4 mb-6 flex-1">
-                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Judul Foto</label><input type="text" id="add-porto-title" class="input-elegant w-full px-4 py-4 rounded-xl text-base"></div>
-                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Link Gambar</label><input type="text" id="add-porto-image" class="input-elegant w-full px-4 py-4 rounded-xl text-base"></div>
-                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Narasi / Keterangan</label><textarea id="add-porto-desc" rows="3" class="input-elegant w-full px-4 py-4 rounded-xl text-base resize-none" placeholder="Tulis cerita di balik foto..."></textarea></div>
+                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Judul Foto</label><input type="text" id="add-porto-title" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 uppercase block mb-2">Upload Gambar (< 5MB)</label>
+                                    <input type="file" accept="image/*" id="add-porto-image" class="input-elegant w-full px-3 py-2 rounded-xl text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer">
+                                </div>
+                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Narasi / Keterangan</label><textarea id="add-porto-desc" rows="3" class="input-elegant w-full px-4 py-3 rounded-xl text-sm resize-none" placeholder="Tulis cerita di balik foto..."></textarea></div>
                             </div>
-                            <button onclick="tambahPorto()" id="btn-add-porto" class="bg-navy text-white font-bold px-6 py-4 rounded-xl hover:bg-navy-light w-full shadow-md transition flex justify-center items-center gap-2 mt-auto text-lg"><i class="fa-solid fa-plus"></i> UNGGAH</button>
+                            <button onclick="tambahPorto()" id="btn-add-porto" class="bg-navy text-white font-bold px-6 py-3 rounded-xl hover:bg-navy-light w-full shadow-md transition flex justify-center items-center gap-2 mt-auto text-sm"><i class="fa-solid fa-upload"></i> UNGGAH GALERI</button>
                         </div>
 
                         <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex flex-col">
-                            <div class="flex items-center gap-3 mb-6"><div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xl"><i class="fa-solid fa-newspaper"></i></div><h4 class="font-bold text-navy text-xl">Tambah Berita</h4></div>
+                            <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-lg"><i class="fa-solid fa-newspaper"></i></div><h4 class="font-bold text-navy text-lg">Tambah Berita</h4></div>
                             <div class="space-y-4 mb-6 flex-1">
-                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Judul Berita</label><input type="text" id="add-art-title" class="input-elegant w-full px-4 py-4 rounded-xl text-base"></div>
-                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Isi Berita</label><textarea id="add-art-content" rows="6" class="input-elegant w-full px-4 py-4 rounded-xl text-base resize-none"></textarea></div>
+                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Judul Berita</label><input type="text" id="add-art-title" class="input-elegant w-full px-4 py-3 rounded-xl text-sm"></div>
+                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Isi Berita</label><textarea id="add-art-content" rows="6" class="input-elegant w-full px-4 py-3 rounded-xl text-sm resize-none"></textarea></div>
                             </div>
-                            <button onclick="tambahArt()" id="btn-add-art" class="bg-navy text-white font-bold px-6 py-4 rounded-xl hover:bg-navy-light w-full shadow-md transition flex justify-center items-center gap-2 mt-auto text-lg"><i class="fa-solid fa-plus"></i> UNGGAH</button>
+                            <button onclick="tambahArt()" id="btn-add-art" class="bg-navy text-white font-bold px-6 py-3 rounded-xl hover:bg-navy-light w-full shadow-md transition flex justify-center items-center gap-2 mt-auto text-sm"><i class="fa-solid fa-plus"></i> UNGGAH BERITA</button>
+                        </div>
+
+                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex flex-col">
+                            <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-lg"><i class="fa-solid fa-users"></i></div><h4 class="font-bold text-navy text-lg">Tambah Panitia</h4></div>
+                            <div class="space-y-4 mb-6 flex-1">
+                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Nama Lengkap</label><input type="text" id="add-panitia-nama" class="input-elegant w-full px-4 py-3 rounded-xl text-sm" placeholder="Cth: Budi Santoso"></div>
+                                <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Jabatan</label><input type="text" id="add-panitia-jabatan" class="input-elegant w-full px-4 py-3 rounded-xl text-sm" placeholder="Cth: Ketua Panitia"></div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 uppercase block mb-2">Upload Foto (Opsional)</label>
+                                    <input type="file" accept="image/*" id="add-panitia-image" class="input-elegant w-full px-3 py-2 rounded-xl text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer">
+                                </div>
+                            </div>
+                            <button onclick="tambahPanitia()" id="btn-add-panitia" class="bg-navy text-white font-bold px-6 py-3 rounded-xl hover:bg-navy-light w-full shadow-md transition flex justify-center items-center gap-2 mt-auto text-sm"><i class="fa-solid fa-upload"></i> UNGGAH PANITIA</button>
                         </div>
                     </div>
                 </div>
@@ -275,11 +278,19 @@
             <div class="p-6 md:p-8">
                 <input type="hidden" id="edit-id">
                 <input type="hidden" id="edit-type">
+                <input type="hidden" id="edit-existing-image">
                 
                 <div class="space-y-4">
-                    <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Judul</label><input type="text" id="edit-item-title" class="input-elegant w-full px-4 py-4 rounded-xl text-base"></div>
-                    <div id="edit-image-container" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Link Gambar</label><input type="text" id="edit-item-image" class="input-elegant w-full px-4 py-4 rounded-xl text-base"></div>
-                    <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2" id="label-content">Isi / Narasi</label><textarea id="edit-item-content" rows="5" class="input-elegant w-full px-4 py-4 rounded-xl text-base resize-none"></textarea></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2" id="label-title">Judul / Nama</label><input type="text" id="edit-item-title" class="input-elegant w-full px-4 py-4 rounded-xl text-base"></div>
+                    
+                    <div id="edit-jabatan-container" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase block mb-2">Jabatan</label><input type="text" id="edit-item-jabatan" class="input-elegant w-full px-4 py-4 rounded-xl text-base"></div>
+                    
+                    <div id="edit-image-container" class="hidden">
+                        <label class="text-xs font-bold text-gray-500 uppercase block mb-2">Ganti Gambar (Maks 5MB)</label>
+                        <input type="file" accept="image/*" id="edit-item-image" class="input-elegant w-full px-3 py-3 rounded-xl text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer">
+                    </div>
+                    
+                    <div id="edit-content-container"><label class="text-xs font-bold text-gray-500 uppercase block mb-2" id="label-content">Isi / Narasi</label><textarea id="edit-item-content" rows="5" class="input-elegant w-full px-4 py-4 rounded-xl text-base resize-none"></textarea></div>
                 </div>
                 <button onclick="submitEdit()" id="btn-submit-edit" class="w-full bg-gold text-navy font-bold py-4 mt-6 rounded-xl hover:bg-yellow-400 shadow-md transition flex justify-center items-center gap-2 text-lg"><i class="fa-solid fa-floppy-disk"></i> SIMPAN PERUBAHAN</button>
             </div>
@@ -293,6 +304,7 @@
         
         let isAdminMode = false;
         let globalData = null;
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB LIMIT
 
         const api = {
             req: async (payload) => {
@@ -308,10 +320,10 @@
             get: async () => {
                 if (!SCRIPT_URL.startsWith('http')) {
                     return {
-                        judul: "Pembangunan Gereja Pisgah", target: 500000000, terkumpul: 325500000, 
-                        bank: "BCA", norek: "1234567890", atasnama: "Panitia Pembangunan Pisgah",
-                        portfolio: [ { id: '1', title: 'Pengecoran Fondasi Utama', desc: 'Gotong royong jemaat pada hari sabtu untuk melakukan tahap pengecoran awal.', image: 'https://images.unsplash.com/photo-1541888081688-6c84c1fbb462?auto=format&fit=crop&q=80&w=600' } ],
-                        artikel: [ { id: '1', title: 'Puji Tuhan, Tahap Struktur Selesai 70%', content: 'Terima kasih kepada seluruh jemaat dan donatur yang selalu mendampingi...' } ]
+                        judul: "Pembangunan Gereja Pisgah", target: 500000000, terkumpul: 325500000, bank: "BCA", norek: "1234567890", atasnama: "Panitia Pembangunan Pisgah",
+                        portfolio: [ { id: '1', title: 'Pengecoran Fondasi', desc: 'Gotong royong jemaat.', image: 'https://images.unsplash.com/photo-1541888081688-6c84c1fbb462?auto=format&fit=crop&q=80&w=600' } ],
+                        artikel: [ { id: '1', title: 'Tahap Struktur Selesai', content: 'Terima kasih jemaat...' } ],
+                        panitia: [ { id: '1', nama: 'Budi Santoso', jabatan: 'Ketua Panitia', image: '' } ]
                     };
                 }
                 try { const res = await fetch(SCRIPT_URL); return await res.json(); } catch (e) { return null; }
@@ -320,9 +332,40 @@
 
         const formatRp = (num) => "Rp " + parseInt(num || 0).toLocaleString('id-ID');
 
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve({
+                    base64: reader.result.split(',')[1],
+                    mimeType: file.type,
+                    name: file.name
+                });
+                reader.onerror = error => reject(error);
+            });
+        }
+
         function copyRekening() {
             const rek = document.getElementById('norek-val').innerText.trim();
             if(rek !== '0000000000') { navigator.clipboard.writeText(rek); alert('Nomor rekening disalin: ' + rek); }
+        }
+
+        function updateAdminUI() {
+            const btn = document.getElementById('btn-admin-nav');
+            const icon = document.getElementById('icon-admin-nav');
+            const text = document.getElementById('text-admin-nav');
+            
+            if(isAdminMode) {
+                icon.className = "fa-solid fa-right-from-bracket text-red-500 group-hover:scale-110 transition-transform text-sm";
+                text.innerText = "Logout Admin";
+                btn.classList.add('bg-red-500/10', 'border-red-500/30', 'hover:bg-red-500/20');
+                btn.classList.remove('bg-white/10', 'border-white/10', 'hover:bg-white/20');
+            } else {
+                icon.className = "fa-solid fa-user-shield text-gold group-hover:scale-110 transition-transform text-sm";
+                text.innerText = "Admin";
+                btn.classList.remove('bg-red-500/10', 'border-red-500/30', 'hover:bg-red-500/20');
+                btn.classList.add('bg-white/10', 'border-white/10', 'hover:bg-white/20');
+            }
         }
 
         async function refreshAllData() {
@@ -335,8 +378,7 @@
             document.getElementById('terkumpul-val').innerText = formatRp(data.terkumpul);
             
             document.getElementById('bank-val').innerText = data.bank || '-';
-            // InnerHTML dengan font styling terpisah untuk copy icon
-            document.getElementById('norek-val').innerHTML = `${data.norek || '0000000000'} <i class="fa-regular fa-copy text-2xl text-gray-400 hover:text-gold transition flex-shrink-0"></i>`;
+            document.getElementById('norek-val').innerHTML = `${data.norek || '0000000000'} <i class="fa-regular fa-copy text-xl md:text-2xl text-gray-400 hover:text-gold transition flex-shrink-0"></i>`;
             document.getElementById('atasnama-val').innerText = data.atasnama || '-';
             
             let target = parseInt(data.target) || 1;
@@ -359,8 +401,8 @@
             if(data.portfolio && data.portfolio.length > 0) {
                 portoCont.innerHTML = data.portfolio.map(p => `
                     <div class="hover-lift glass-panel rounded-3xl overflow-hidden relative group flex flex-col h-full">
-                        <div class="aspect-[4/3] overflow-hidden bg-gray-100 p-1 rounded-t-3xl">
-                            <img src="${p.image}" onerror="this.src='https://via.placeholder.com/400?text=Image+Not+Found'" class="w-full h-full object-cover rounded-t-[1.3rem] transition-transform duration-700 group-hover:scale-110">
+                        <div class="aspect-[4/3] overflow-hidden bg-gray-100 p-1 rounded-t-3xl relative">
+                            <img src="${p.image}" onerror="this.src='https://via.placeholder.com/400?text=Sedang+Memuat...'" class="w-full h-full object-cover rounded-t-[1.3rem] transition-transform duration-700 group-hover:scale-110">
                         </div>
                         <div class="p-6 border-t border-gray-100 flex-1 flex flex-col">
                             <h4 class="font-serif font-bold text-navy text-xl md:text-2xl leading-tight mb-3">${p.title}</h4>
@@ -392,6 +434,24 @@
                     </div>
                 `).join('');
             } else { artCont.innerHTML = `<p class="text-white/50 italic text-center text-lg">Belum ada berita update.</p>`; }
+
+            const panitiaCont = document.getElementById('panitia-container');
+            if(data.panitia && data.panitia.length > 0) {
+                panitiaCont.innerHTML = data.panitia.map(p => `
+                    <div class="glass-panel hover-lift rounded-3xl p-5 md:p-6 flex flex-col items-center text-center relative group">
+                        <div class="w-24 h-24 md:w-28 md:h-28 rounded-full mb-4 bg-gray-100 border-4 border-white/30 shadow-lg overflow-hidden flex items-center justify-center">
+                            ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<i class="fa-solid fa-user text-3xl text-gray-400"></i>`}
+                        </div>
+                        <h5 class="font-serif font-bold text-navy text-lg md:text-xl leading-tight mb-1">${p.nama}</h5>
+                        <p class="text-gold-dark font-bold text-sm uppercase tracking-wider">${p.jabatan}</p>
+                        ${isAdminMode ? `
+                        <div class="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <button onclick="openEditPanitia('${p.id}')" class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-md"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button onclick="hapusPanitia('${p.id}')" class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-md"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                        </div>` : ''}
+                    </div>
+                `).join('');
+            } else { panitiaCont.innerHTML = `<p class="col-span-full text-white/50 italic text-center text-lg">Belum ada data kepanitiaan.</p>`; }
         }
 
         async function handleKonfirmasi(e) {
@@ -404,20 +464,36 @@
         }
 
         function toggleAdmin() {
-            const modal = document.getElementById('admin-modal'), content = document.getElementById('admin-modal-content');
-            if(modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                setTimeout(() => { modal.classList.remove('opacity-0', 'pointer-events-none'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
-            } else {
-                modal.classList.add('opacity-0', 'pointer-events-none'); content.classList.remove('scale-100'); content.classList.add('scale-95');
-                setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            if(isAdminMode) {
+                if(confirm("Anda yakin ingin keluar dari mode Admin?")) {
+                    isAdminMode = false;
+                    updateAdminUI();
+                    refreshAllData(); // Refresh to hide edit buttons
+                }
+                return;
             }
+
+            const modal = document.getElementById('admin-modal'), content = document.getElementById('admin-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0', 'pointer-events-none'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
+        }
+
+        function closeAdminModal() {
+            const modal = document.getElementById('admin-modal'), content = document.getElementById('admin-modal-content');
+            modal.classList.add('opacity-0', 'pointer-events-none'); content.classList.remove('scale-100'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
         async function loginAdmin() {
             const btn = document.getElementById('btn-login'); btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MEMVERIFIKASI...';
             const res = await api.req({ action: 'verifyAdmin', username: document.getElementById('admin-user').value, password: document.getElementById('admin-pass').value });
-            if(res.success) { isAdminMode = true; document.getElementById('admin-login-section').classList.add('hidden'); document.getElementById('admin-dashboard-section').classList.remove('hidden'); refreshAllData(); } 
+            if(res.success) { 
+                isAdminMode = true; 
+                updateAdminUI();
+                document.getElementById('admin-login-section').classList.add('hidden'); 
+                document.getElementById('admin-dashboard-section').classList.remove('hidden'); 
+                refreshAllData(); 
+            } 
             else { alert("Kredensial tidak valid!"); }
             btn.innerHTML = 'LOGIN';
         }
@@ -433,60 +509,118 @@
         }
 
         async function tambahPorto() {
-            const title = document.getElementById('add-porto-title').value, image = document.getElementById('add-porto-image').value, desc = document.getElementById('add-porto-desc').value;
-            if(!title || !image) return alert('Mohon isi Judul Foto dan Link Gambar!');
-            const btn = document.getElementById('btn-add-porto'); const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENGUNGGAH...'; btn.disabled = true;
-            const res = await api.req({ action: 'tambahPortofolio', title: title, image: image, desc: desc });
-            if(res && res.success) { alert('Galeri berhasil ditambahkan!'); document.getElementById('add-porto-title').value = ''; document.getElementById('add-porto-image').value = ''; document.getElementById('add-porto-desc').value = ''; refreshAllData(); } 
-            else { alert('Server Error: ' + (res.error || 'Gagal menyinkronkan data.')); }
+            const title = document.getElementById('add-porto-title').value;
+            const fileInput = document.getElementById('add-porto-image');
+            const desc = document.getElementById('add-porto-desc').value;
+            
+            if(!title || fileInput.files.length === 0) return alert('Mohon isi Judul Foto dan Pilih Gambar untuk diupload!');
+            if(fileInput.files[0].size > MAX_FILE_SIZE) return alert('Gagal: Ukuran gambar melebihi batas maksimal 5MB!');
+            
+            const btn = document.getElementById('btn-add-porto'); const orig = btn.innerHTML; 
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENGUNGGAH FILE...'; btn.disabled = true;
+
+            const fileData = await getBase64(fileInput.files[0]);
+
+            const res = await api.req({ action: 'tambahPortofolio', title: title, imageData: fileData, desc: desc });
+            if(res && res.success) { 
+                alert('Galeri berhasil ditambahkan!'); 
+                document.getElementById('add-porto-title').value = ''; 
+                document.getElementById('add-porto-image').value = ''; 
+                document.getElementById('add-porto-desc').value = ''; 
+                refreshAllData(); 
+            } else { alert('Server Error: ' + (res.error || 'Gagal menyinkronkan data.')); }
             btn.innerHTML = orig; btn.disabled = false;
         }
 
         async function tambahArt() {
             const title = document.getElementById('add-art-title').value, content = document.getElementById('add-art-content').value;
             if(!title || !content) return alert('Mohon isi Judul dan Konten!');
-            const btn = document.getElementById('btn-add-art'); const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENGUNGGAH...'; btn.disabled = true;
+            const btn = document.getElementById('btn-add-art'); const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MEMPROSES...'; btn.disabled = true;
             const res = await api.req({ action: 'tambahArtikel', title: title, content: content });
             if(res && res.success) { alert('Berita berhasil ditambahkan!'); document.getElementById('add-art-title').value = ''; document.getElementById('add-art-content').value = ''; refreshAllData(); } 
             else { alert('Server Error: ' + (res.error || 'Gagal menyinkronkan data.')); }
             btn.innerHTML = orig; btn.disabled = false;
         }
 
+        async function tambahPanitia() {
+            const nama = document.getElementById('add-panitia-nama').value;
+            const jabatan = document.getElementById('add-panitia-jabatan').value;
+            const fileInput = document.getElementById('add-panitia-image');
+            
+            if(!nama || !jabatan) return alert('Mohon isi Nama dan Jabatan!');
+            
+            let fileData = null;
+            if(fileInput.files.length > 0) {
+                if(fileInput.files[0].size > MAX_FILE_SIZE) return alert('Gagal: Ukuran foto melebihi batas maksimal 5MB!');
+                fileData = await getBase64(fileInput.files[0]);
+            }
+            
+            const btn = document.getElementById('btn-add-panitia'); const orig = btn.innerHTML; 
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENGUNGGAH FILE...'; btn.disabled = true;
+
+            const res = await api.req({ action: 'tambahPanitia', nama: nama, jabatan: jabatan, imageData: fileData });
+            if(res && res.success) { 
+                alert('Panitia berhasil ditambahkan!'); 
+                document.getElementById('add-panitia-nama').value = ''; 
+                document.getElementById('add-panitia-jabatan').value = ''; 
+                document.getElementById('add-panitia-image').value = ''; 
+                refreshAllData(); 
+            } else { alert('Server Error: ' + (res.error || 'Gagal menyinkronkan data.')); }
+            btn.innerHTML = orig; btn.disabled = false;
+        }
+
         async function hapusPorto(id) { if(confirm('Hapus foto dari galeri?')) { await api.req({ action: 'hapusPortofolio', id: id }); refreshAllData(); } }
         async function hapusArt(id) { if(confirm('Hapus berita ini?')) { await api.req({ action: 'hapusArtikel', id: id }); refreshAllData(); } }
+        async function hapusPanitia(id) { if(confirm('Hapus panitia ini?')) { await api.req({ action: 'hapusPanitia', id: id }); refreshAllData(); } }
 
         function closeEditModal() {
             const modal = document.getElementById('edit-modal'), content = document.getElementById('edit-modal-content');
             modal.classList.add('opacity-0', 'pointer-events-none'); content.classList.remove('scale-100'); content.classList.add('scale-95');
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            document.getElementById('edit-item-image').value = ''; 
         }
 
         function openEditPorto(id) {
             const item = globalData.portfolio.find(p => p.id === id); if(!item) return;
-            document.getElementById('edit-modal-title').innerText = "Edit Galeri";
-            document.getElementById('edit-id').value = item.id;
-            document.getElementById('edit-type').value = "porto";
-            document.getElementById('edit-item-title').value = item.title;
-            document.getElementById('edit-image-container').classList.remove('hidden');
-            document.getElementById('edit-item-image').value = item.image;
-            document.getElementById('label-content').innerText = "Narasi / Keterangan";
-            document.getElementById('edit-item-content').value = item.desc || '';
+            document.getElementById('edit-modal-title').innerText = "Edit Galeri"; document.getElementById('edit-id').value = item.id; document.getElementById('edit-type').value = "porto";
+            document.getElementById('label-title').innerText = "Judul Foto"; document.getElementById('edit-item-title').value = item.title;
+            document.getElementById('edit-jabatan-container').classList.add('hidden');
             
-            const modal = document.getElementById('edit-modal'), content = document.getElementById('edit-modal-content');
-            modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.remove('opacity-0', 'pointer-events-none'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
+            document.getElementById('edit-image-container').classList.remove('hidden'); 
+            document.getElementById('edit-existing-image').value = item.image || ''; 
+            
+            document.getElementById('edit-content-container').classList.remove('hidden');
+            document.getElementById('label-content').innerText = "Narasi / Keterangan"; document.getElementById('edit-item-content').value = item.desc || '';
+            
+            showEditModal();
         }
 
         function openEditArt(id) {
             const item = globalData.artikel.find(p => p.id === id); if(!item) return;
-            document.getElementById('edit-modal-title').innerText = "Edit Berita";
-            document.getElementById('edit-id').value = item.id;
-            document.getElementById('edit-type').value = "art";
-            document.getElementById('edit-item-title').value = item.title;
+            document.getElementById('edit-modal-title').innerText = "Edit Berita"; document.getElementById('edit-id').value = item.id; document.getElementById('edit-type').value = "art";
+            document.getElementById('label-title').innerText = "Judul Berita"; document.getElementById('edit-item-title').value = item.title;
+            document.getElementById('edit-jabatan-container').classList.add('hidden');
             document.getElementById('edit-image-container').classList.add('hidden');
-            document.getElementById('label-content').innerText = "Isi Berita";
-            document.getElementById('edit-item-content').value = item.content || '';
+            document.getElementById('edit-content-container').classList.remove('hidden');
+            document.getElementById('label-content').innerText = "Isi Berita"; document.getElementById('edit-item-content').value = item.content || '';
             
+            showEditModal();
+        }
+
+        function openEditPanitia(id) {
+            const item = globalData.panitia.find(p => p.id === id); if(!item) return;
+            document.getElementById('edit-modal-title').innerText = "Edit Panitia"; document.getElementById('edit-id').value = item.id; document.getElementById('edit-type').value = "panitia";
+            document.getElementById('label-title').innerText = "Nama Lengkap"; document.getElementById('edit-item-title').value = item.nama;
+            document.getElementById('edit-jabatan-container').classList.remove('hidden'); document.getElementById('edit-item-jabatan').value = item.jabatan;
+            
+            document.getElementById('edit-image-container').classList.remove('hidden'); 
+            document.getElementById('edit-existing-image').value = item.image || ''; 
+            
+            document.getElementById('edit-content-container').classList.add('hidden');
+            showEditModal();
+        }
+
+        function showEditModal() {
             const modal = document.getElementById('edit-modal'), content = document.getElementById('edit-modal-content');
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.remove('opacity-0', 'pointer-events-none'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
@@ -495,14 +629,27 @@
         async function submitEdit() {
             const id = document.getElementById('edit-id').value, type = document.getElementById('edit-type').value;
             const title = document.getElementById('edit-item-title').value, content = document.getElementById('edit-item-content').value;
-            const image = document.getElementById('edit-item-image').value;
+            const jabatan = document.getElementById('edit-item-jabatan').value;
+            
+            const fileInput = document.getElementById('edit-item-image');
+            let fileData = null;
+            if(fileInput && fileInput.files.length > 0) {
+                if(fileInput.files[0].size > MAX_FILE_SIZE) return alert('Gagal: Ukuran file foto melebihi batas maksimal 5MB!');
+                fileData = await getBase64(fileInput.files[0]);
+            }
+            const existingImage = document.getElementById('edit-existing-image').value;
             
             const btn = document.getElementById('btn-submit-edit'); const orig = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> MENYIMPAN...'; btn.disabled = true;
 
             let res;
-            if(type === 'porto') { res = await api.req({ action: 'editPortofolio', id: id, title: title, image: image, desc: content }); } 
-            else { res = await api.req({ action: 'editArtikel', id: id, title: title, content: content }); }
+            if(type === 'porto') { 
+                res = await api.req({ action: 'editPortofolio', id: id, title: title, imageData: fileData, existingImage: existingImage, desc: content }); 
+            } else if(type === 'art') { 
+                res = await api.req({ action: 'editArtikel', id: id, title: title, content: content }); 
+            } else if(type === 'panitia') { 
+                res = await api.req({ action: 'editPanitia', id: id, nama: title, jabatan: jabatan, imageData: fileData, existingImage: existingImage }); 
+            }
 
             if(res && res.success) { alert('Perubahan berhasil disimpan!'); closeEditModal(); refreshAllData(); } 
             else { alert('Server Error: ' + (res.error || 'Gagal mengubah data.')); }
