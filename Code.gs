@@ -66,6 +66,7 @@ function doPost(e) {
     switch (action) {
       case 'changePassword':     return changePassword(payload.oldPassword, payload.newPassword);
       case 'saveYoutubeUrl':     return saveSetting('YOUTUBE_URL', payload.url);
+      case 'saveLiveUrl':        return saveSetting('LIVE_URL', payload.url);
       case 'saveHeroImage':      return saveHeroImages(payload.url);
       case 'savePengumuman':     return saveSetting('PENGUMUMAN_DATA', payload.pengumuman);
       case 'saveKontakGereja':   return saveSetting('KONTAK_GEREJA', payload.kontakGereja);
@@ -170,6 +171,7 @@ function getInitialData() {
     jadwalDB: getJadwalDB(),
     kategoriPejabat: getKategoriDB(),
     youtubeUrl: getSetting('YOUTUBE_URL') || "https://www.youtube.com/embed/EAO55pnNsgs",
+    liveUrl: getSetting('LIVE_URL') || "https://www.youtube.com/embed/live_stream?channel=UCaTPS74NOHACRYU0zInVZ4g",
     heroImageUrl: JSON.stringify(heroImages),
     pengumuman: getSetting('PENGUMUMAN_DATA') || JSON.stringify({ header: "Pengumuman", isi: "" }),
     kontakGereja: getSetting('KONTAK_GEREJA'),
