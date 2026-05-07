@@ -1050,7 +1050,8 @@
                 { id: 'sekolah_sabat', title: 'Sekolah Sabat', desc: 'Akses pelajaran harian Sekolah Sabat secara online untuk pedalaman rohani Anda.', img: 'https://images.spr.so/cdn-cgi/imagedelivery/j42No7y-dcokJuNgXeA0ig/ecfa0085-8c09-46ef-97df-6be05cd44019/1000129545/w=800,quality=80,fit=scale-down', color: 'blue', isExternal: true, link: 'https://sabbath-school.adventech.io/in' },
                 { id: 'alkitab', title: 'Alkitab', desc: 'Alkitab adalah firman Allah yang diilhamkan, satu-satunya aturan iman dan praktik.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg', color: 'orange' },
                 { id: '28dasar', title: '28 Dasar Kepercayaan', desc: 'Gereja Advent memegang keyakinan dasar tertentu sebagai ajaran Kitab Suci.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjc1L2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9mcEUxNzQ5NDcxNDI3NTExLmpwZw/w:1920,q:75/hope-images/67054013a60919c92d92c959/fpE1749471427511.jpg', color: 'green' },
-                { id: 'egw', title: 'Ellen G. White', desc: 'Mengenal tulisan-tulisan yang diilhami untuk menuntun gereja pada akhir zaman.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg', color: 'purple' }
+                { id: 'egw', title: 'Ellen G. White', desc: 'Mengenal tulisan-tulisan yang diilhami untuk menuntun gereja pada akhir zaman.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg', color: 'purple' },
+                { id: 'perpustakaan', title: 'Buku-Buku', desc: 'Baca dan Download Buku.', img: 'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg', color: 'purple' }
             ];
 
             return (
@@ -1157,6 +1158,17 @@
                                 </div>
                             ))}
                         </div>
+                        <br/>
+                        <div className="flex flex-wrap justify-center gap-4">
+    <a
+        href="https://drive.google.com/drive/folders/1d_smrJAY13h5x85A2Y_bAIIXg9sR012r"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="bg-gold-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-navy-800 hover:text-white transition-all duration-300"
+    >
+        Download 28 Doktrin Gereja ADVENT
+    </a>
+    </div>
                         <ContactGembala dataPejabat={dataPejabat} />
                     </div>
                 </div>
@@ -1179,6 +1191,57 @@
                             <p className="text-sm font-medium text-navy-100 leading-relaxed">Ellen G. White adalah salah satu penulis wanita yang karyanya paling banyak diterjemahkan dalam sejarah kesusastraan dunia, dengan fokus utama pada pendidikan, kesehatan, dan kehidupan rohani.</p>
                         </div>
                         <ContactGembala dataPejabat={dataPejabat} />
+                    </div>
+                </div>
+            </div>
+        );
+
+        const Detailperpustakaan = ({ setActiveTab, dataPejabat }) => (
+            <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
+                <div className="prose max-w-none">
+                    <h1 className="text-[2rem] font-extrabold text-navy-900 mb-6 border-b pb-4 border-navy-50">Download Dan Baca Buku</h1>
+                    <img src="https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg" alt="Read" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
+                    <div className="space-y-4 text-navy-600 font-medium">
+                        <p>Salah satu cara dalam mengatahui dan dekat dengan Tuhan adalah dengan membaca.</p>
+                        <h3 className="text-navy-900 font-bold text-xl pt-2">Menunjuk ke Alkitab</h3>
+                        <p>Mari lihat kebutuhan anda, dan silahkan Download melalui Link dibawah ini.</p>
+                    <div className="flex flex-wrap justify-center gap-4">
+                        <a href="https://drive.google.com/drive/folders/1EP9dOY3Azcm2K21kKiOiVvAOhIZrUJqv?usp=drive_link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-gold-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-navy-800 hover:text-white transition-all duration-300"
+                            >
+                            Lagu Sion Lengkap MP3
+                        </a>
+                        <a href="https://drive.google.com/drive/folders/0B69W7zsbdDmVflRoZUF4cDA1U1RWeVMwN1dYQmZNaE1Bbm5qQmc4NkVXU1hBUlpNVVpwem8?resourcekey=0-mDboNMKK-a6RJA4ClzRDWw&usp=drive_link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-gold-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-navy-800 hover:text-white transition-all duration-300"
+                            >
+                            Buku-Buku Rohani
+                        </a>
+                        <a href="https://drive.google.com/drive/folders/1d_smrJAY13h5x85A2Y_bAIIXg9sR012r"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-gold-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-navy-800 hover:text-white transition-all duration-300"
+                            >
+                            28 Doktrin
+                        </a>
+                        <a href="https://drive.google.com/drive/folders/1FxfoHGqVxW22_xTlz3BMhi9nfkOuDjUm?usp=drive_link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-gold-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-navy-800 hover:text-white transition-all duration-300"
+                            >
+                            Panduan Pelayan Jemaat
+                        </a>
+                        <a href="https://drive.google.com/drive/folders/1aQh9EpelV1wych30tXbFIHtqahANsXM4?usp=drive_link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-gold-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-navy-800 hover:text-white transition-all duration-300"
+                            >
+                            Materi Kelas Kepahaman
+                        </a>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -4563,6 +4626,7 @@ const compressImage = (file, maxWidth = 1200) => {
                     case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'belajar_egw': return <DetailEGW setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
+                    case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'warta':  return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta}  />;
                     case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} youtubeUrl={youtubeUrl} />;
                     case 'jadwal': return <Jadwal activeRabu={jadwalKhususRabu} activeSabat={jadwalKhususSabat} rabuYMD={displayRabuYMD} sabatYMD={displaySabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} />;
