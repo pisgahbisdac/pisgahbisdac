@@ -68,15 +68,17 @@ function doPost(e) {
       case 'saveYoutubeUrl':     return saveSetting('YOUTUBE_URL', payload.url);
       case 'saveHeroImage':      return saveHeroImages(payload.url);
       case 'savePengumuman':     return saveSetting('PENGUMUMAN_DATA', payload.pengumuman);
+      case 'saveKontakGereja':   return saveSetting('KONTAK_GEREJA', payload.kontakGereja);
       
       // -- Manajemen Konten --
       case 'saveJadwal':         return saveJadwal(payload.tanggal, payload.tableData);
       case 'savePejabat':        return savePejabat(payload.data, payload.kategoriPejabat);
       
       // -- Warta --
-      case 'saveWarta':          return saveWarta(payload);
-      case 'updateWarta':        return updateWarta(payload);
+      case 'createWarta':        return saveWarta(payload.data ? JSON.parse(payload.data) : payload);
+      case 'updateWarta':        return updateWarta(payload.data ? JSON.parse(payload.data) : payload);
       case 'deleteWarta':        return deleteWarta(payload.rowIndex);
+      case 'uploadChunk':        return handleUploadChunk(payload);
       
       // -- Galeri --
       case 'listImageFolders':   return getPublicFolders();
@@ -167,9 +169,10 @@ function getInitialData() {
     dataPejabat: getPejabatDB(),
     jadwalDB: getJadwalDB(),
     kategoriPejabat: getKategoriDB(),
-    youtubeUrl: getSetting('YOUTUBE_URL') || "https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g",
+    youtubeUrl: getSetting('YOUTUBE_URL') || "https://www.youtube.com/embed/EAO55pnNsgs",
     heroImageUrl: JSON.stringify(heroImages),
     pengumuman: getSetting('PENGUMUMAN_DATA') || JSON.stringify({ header: "Pengumuman", isi: "" }),
+    kontakGereja: getSetting('KONTAK_GEREJA'),
     daftarWarta: getDaftarWarta()
   });
 }
@@ -631,4 +634,61 @@ function deleteImage(fileId) {
 
 function jsonResponse(data) {
   return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// =========================================================================
+// 8. FUNGSI UPLOAD GAMBAR CHUNKED (Untuk Gambar Warta/Form yang Besar)
+// =========================================================================
+
+function handleUploadChunk(payload) {
+  try {
+    const chunk = payload.chunk;
+    const filename = payload.filename;
+    const isFirst = payload.isFirst;
+    const isLast = payload.isLast;
+    let fileId = payload.fileId;
+    
+    // Buat folder sementara untuk menyimpan pecahan gambar Base64
+    let tempFolderId = getOrCreateNestedFolder("Temp_Uploads");
+    let folder = DriveApp.getFolderById(tempFolderId);
+
+    let tempFile;
+    if (isFirst) {
+      // Buat file .txt sementara
+      tempFile = folder.createFile("temp_" + filename + ".txt", chunk);
+      fileId = tempFile.getId();
+    } else {
+      // Tambahkan string potongan ke file .txt sementara
+      tempFile = DriveApp.getFileById(fileId);
+      let currentContent = tempFile.getBlob().getDataAsString();
+      tempFile.setContent(currentContent + chunk);
+    }
+
+    if (isLast) {
+      // Jika ini chunk terakhir, baca seluruh string Base64 dan jadikan gambar
+      let fullBase64 = tempFile.getBlob().getDataAsString();
+      let byteCharacters = Utilities.base64Decode(fullBase64);
+      
+      let wartaFolderId = getOrCreateNestedFolder("Warta_Images");
+      let wartaFolder = DriveApp.getFolderById(wartaFolderId);
+      
+      let type = 'image/jpeg';
+      if (filename.toLowerCase().endsWith('.png')) type = 'image/png';
+      else if (filename.toLowerCase().endsWith('.webp')) type = 'image/webp';
+      
+      let blob = Utilities.newBlob(byteCharacters, type, filename);
+      let finalFile = wartaFolder.createFile(blob);
+      finalFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      
+      // Hapus file text sementara agar Google Drive tidak penuh
+      tempFile.setTrashed(true);
+      
+      return jsonResponse({ success: true, fileId: finalFile.getId() });
+    } else {
+      // Jika belum selesai, kembalikan fileId text sementaranya untuk diteruskan
+      return jsonResponse({ success: true, fileId: fileId });
+    }
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
 }
