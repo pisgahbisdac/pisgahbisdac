@@ -58,7 +58,7 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- HAPUS SCRIPT LUCIDE KARENA ANDA SUDAH MEMILIKI KOMPONEN ICON CUSTOM (Mengurangi beban download) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
         crossorigin="anonymous"></script>
 
@@ -691,11 +691,20 @@
         };
 
         // --- COMPONENTS ---
-        const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman }) => {
+        const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta }) => {
             const [currentSlide, setCurrentSlide] = React.useState(0);
 
             // Safeguard untuk berjaga-jaga jika array gambar kosong (Dipindahkan ke atas)
             const displayImages = heroImages && heroImages.length > 0 ? heroImages : ["./pisgahgedung.png"];
+
+            // --- FILTER WARTA TERBARU UNTUK HOME ---
+            const sortedWartaHome = React.useMemo(() => {
+                return [...(daftarWarta || [])].sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+            }, [daftarWarta]);
+
+            const wartaTerbaru = sortedWartaHome.length > 0 ? sortedWartaHome[0] : null;
+            const wartaLama = sortedWartaHome.length > 1 ? sortedWartaHome.slice(1, 6) : []; // Ambil 5 warta lama untuk carousel baris bawah
+            // ---------------------------------------
 
             // Auto-slide carousel effect (DIPERBAIKI)
             React.useEffect(() => {
@@ -770,29 +779,26 @@
             return (
                 <div className="animate-fade-in relative z-10">
                     {/* Hero Image + Overlapping Welcome Box */}
-                    <div className="w-[100vw] relative left-1/2 -translate-x-1/2 -mt-4 md:-mt-8 mb-6 md:mb-10 group">
-                        {/* Menambahkan efek rounded di sudut bawah (rounded-b) dan bayangan (shadow-2xl) */}
-                        <div className="w-full h-[250px] sm:h-[350px] md:h-[450px] lg:h-[500px] overflow-hidden relative z-0 bg-navy-900 rounded-b-[2rem] md:rounded-b-[3.5rem] shadow-2xl border-b border-navy-100/10">
+                    <div className="w-full relative mb-6 md:mb-10 group mt-0">
+                        {/* Dibuat tidak full width (menyesuaikan padding layar) dengan border-radius di semua sisi */}
+                        <div className="w-full h-[220px] sm:h-[280px] md:h-[320px] lg:h-[360px] overflow-hidden relative z-0 bg-navy-900 rounded-[1.5rem] md:rounded-[2rem] shadow-xl border border-navy-100/20">
                             <div 
                                 className="w-full h-full flex transition-transform duration-700 ease-in-out" 
                                 style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                             >
                                 {displayImages.map((img, idx) => (
                                     <div key={idx} className="w-full h-full flex-shrink-0 relative">
-                                        {/* Background Blur (Khusus mengisi ruang kosong saat di Mobile) */}
+                                        {/* Background Blur (Mengisi ruang kosong agar gambar proporsional) */}
                                         <div 
-                                            className="absolute inset-0 bg-cover bg-center opacity-40 blur-md scale-110 md:hidden z-0" 
+                                            className="absolute inset-0 bg-cover bg-center opacity-40 blur-md scale-110 z-0" 
                                             style={{ backgroundImage: `url(${img})` }}
                                         ></div>
 
-                                        {/* 🖼️ Gambar Utama: 
-                                            - object-contain: untuk mobile (menyesuaikan, tidak terpotong)
-                                            - md:object-cover: untuk desktop (memenuhi seluruh bingkai)
-                                        */}
+                                        {/* 🖼️ Gambar Utama: object-contain di semua ukuran layar */}
                                         <img
                                             src={img}
                                             alt={`Hero Banner ${idx + 1}`}
-                                            className="w-full h-full object-contain md:object-cover object-center relative z-10"
+                                            className="w-full h-full object-contain object-center relative z-10"
                                         />
                                         
                                         {/* Overlay Gelap Tipis agar Teks Welcome Box Tetap Terbaca */}
@@ -832,7 +838,7 @@
                             )}
                         </div>
                         {/* Welcome Box - overlapping hero */}
-                        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 -mt-6 md:-mt-8">
+                        <div className="relative z-10 px-4 md:px-10 -mt-6 md:-mt-8">
                             <div className="welcome-box-gradient rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-blue-100/80 px-5 py-3.5 md:px-8 md:py-4 flex items-center justify-center backdrop-blur-sm">
                                 <h2 className="text-[0.95rem] md:text-lg font-bold text-navy-900 flex items-center flex-wrap justify-center gap-x-2">
                                     <span className="text-navy-700"> Selamat Datang di</span>
@@ -922,6 +928,94 @@
         </div>
     </div>
 </div>
+
+                    {/* --- WARTA TERBARU HOME --- */}
+                    {wartaTerbaru && (
+                        <div className="glass-card p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8 animate-fade-in">
+                            <div className="flex items-center justify-between mb-4 border-b border-navy-50 pb-3">
+                                <h2 className="text-[1.15rem] font-bold text-navy-900 flex items-center">
+                                    <Icon name="BookOpen" className="w-[1.15rem] h-[1.15rem] mr-2 text-gold-500" /> Warta Terbaru
+                                </h2>
+                                <button onClick={() => { setSelectedWarta(null); setActiveTab('warta'); }} className="text-[10px] md:text-xs font-bold text-gold-600 hover:text-navy-900 transition-colors uppercase tracking-widest flex items-center">
+                                    Lihat Semua <Icon name="ChevronRight" className="w-3.5 h-3.5 ml-1" />
+                                </button>
+                            </div>
+
+                            {/* Main Warta (Paling Baru) */}
+                            <div 
+                                onClick={() => { setSelectedWarta(wartaTerbaru); setActiveTab('warta'); }}
+                                className="group cursor-pointer bg-white rounded-2xl border border-navy-100/50 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row mb-5"
+                            >
+                                {/* Thumbnail Utama */}
+                                <div className="w-full md:w-2/5 aspect-video md:aspect-auto md:h-auto bg-navy-50 relative overflow-hidden shrink-0">
+                                    {(() => {
+                                        const rawUrls = parseGambarUrls(wartaTerbaru.gambarUrl);
+                                        const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
+                                        const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
+                                        if (thumb) {
+                                            return <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Thumbnail" referrerPolicy="no-referrer" />;
+                                        }
+                                        return (
+                                            <div className="flex flex-col items-center justify-center h-full text-navy-300">
+                                                <Icon name="Image" className="w-8 h-8 mb-1 opacity-50" />
+                                                <span className="text-[9px] font-bold uppercase tracking-widest opacity-50">Tanpa Gambar</span>
+                                            </div>
+                                        );
+                                    })()}
+                                    <div className="absolute top-3 left-3 bg-gold-500 text-white text-[10px] font-black px-2.5 py-1 rounded shadow-sm tracking-wider">
+                                        TERBARU
+                                    </div>
+                                </div>
+                                {/* Teks Utama */}
+                                <div className="p-4 md:p-5 flex-1 flex flex-col justify-center">
+                                    <h3 className="font-bold text-navy-900 text-base md:text-lg leading-tight mb-2 group-hover:text-gold-600 transition-colors line-clamp-2">
+                                        {wartaTerbaru.judul}
+                                    </h3>
+                                    <div className="text-[10px] font-bold text-navy-500 uppercase tracking-widest mb-2 flex items-center">
+                                        <Icon name="Calendar" className="w-3.5 h-3.5 mr-1 text-gold-500" /> {wartaTerbaru.tanggal}
+                                    </div>
+                                    <p className="text-xs text-navy-600 font-medium line-clamp-2 leading-relaxed">
+                                        {truncateText(stripHtml(wartaTerbaru.isi), 120)}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Warta Sebelumnya (Thumbnail Kecil Satu Baris) */}
+                            {wartaLama.length > 0 && (
+                                <div className="flex overflow-x-auto gap-3 pb-2 hide-scrollbar snap-x">
+                                    {wartaLama.map((warta, idx) => {
+                                        const rawUrls = parseGambarUrls(warta.gambarUrl);
+                                        const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
+                                        const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
+
+                                        return (
+                                            <div 
+                                                key={idx} 
+                                                onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }}
+                                                className="snap-start shrink-0 w-[140px] md:w-[180px] group cursor-pointer"
+                                            >
+                                                <div className="aspect-video rounded-xl bg-navy-50 overflow-hidden border border-navy-100/80 mb-2 relative">
+                                                    {thumb ? (
+                                                        <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Thumb" referrerPolicy="no-referrer" />
+                                                    ) : (
+                                                        <div className="flex items-center justify-center h-full text-navy-300 bg-white">
+                                                            <Icon name="Image" className="w-6 h-6 opacity-50" />
+                                                        </div>
+                                                    )}
+                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                                                </div>
+                                                <h4 className="font-bold text-[11px] md:text-xs text-navy-800 line-clamp-2 leading-tight group-hover:text-gold-600 transition-colors">
+                                                    {warta.judul}
+                                                </h4>
+                                                <span className="text-[9px] text-navy-400 font-bold block mt-1">{warta.tanggal}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    {/* ------------------------------- */}
 
                     <div className="flex flex-col items-center justify-center mb-5 md:mb-8 bg-white p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 text-center">
                         <div className="w-16 h-16 mb-4 flex items-center justify-center overflow-hidden rounded-2xl shadow-inner border border-navy-100 bg-white p-2">
@@ -1051,7 +1145,7 @@
                 { id: 'alkitab', title: 'Alkitab', desc: 'Alkitab adalah firman Allah yang diilhamkan, satu-satunya aturan iman dan praktik.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg', color: 'orange' },
                 { id: '28dasar', title: '28 Dasar Kepercayaan', desc: 'Gereja Advent memegang keyakinan dasar tertentu sebagai ajaran Kitab Suci.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjc1L2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9mcEUxNzQ5NDcxNDI3NTExLmpwZw/w:1920,q:75/hope-images/67054013a60919c92d92c959/fpE1749471427511.jpg', color: 'green' },
                 { id: 'egw', title: 'Ellen G. White', desc: 'Mengenal tulisan-tulisan yang diilhami untuk menuntun gereja pada akhir zaman.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg', color: 'purple' },
-                { id: 'perpustakaan', title: 'Buku-Buku', desc: 'Baca dan Download Buku.', img: 'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg', color: 'purple' }
+                { id: 'perpustakaan', title: 'Buku-Buku', desc: 'Baca dan Download Buku', img: 'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg', color: 'purple' }
             ];
 
             return (
@@ -1060,7 +1154,7 @@
                         {items.map((item) => (
                             <div key={item.id} className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                                 <div className="h-[13rem] overflow-hidden relative">
-                                    <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                                    <img src={item.img} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/20 to-transparent"></div>
                                     <h3 className="absolute bottom-5 left-5 text-white font-black tracking-wide text-xl">{item.title}</h3>
                                 </div>
@@ -1108,7 +1202,7 @@
             <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
                 <div className="prose max-w-none">
                     <h1 className="text-[2rem] font-extrabold text-navy-900 mb-6 border-b pb-4 border-navy-50">Doktrin Alkitab</h1>
-                    <img src="https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg" alt="Bible Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
+                    <img src="https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg" loading="lazy" alt="Bible Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
                     <p className="text-lg text-navy-800 font-medium italic mb-6 leading-relaxed">"Segala tulisan yang diilhamkan Allah memang bermanfaat untuk mengajar, untuk menyatakan kesalahan, untuk memperbaiki kelakuan dan untuk mendidik orang dalam kebenaran." (2 Timotius 3:16)</p>
                     <div className="space-y-4 text-navy-600 font-medium">
                         <p>Kitab Suci, yang terdiri dari Perjanjian Lama dan Perjanjian Baru, adalah Firman Allah yang tertulis, diberikan melalui ilham ilahi. Penulis yang diilhami berbicara dan menulis saat mereka digerakkan oleh Roh Kudus.</p>
@@ -1138,7 +1232,7 @@
                 <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
                     <div className="prose max-w-none">
                         <h1 className="text-[2rem] font-extrabold text-navy-900 mb-6 border-b pb-4 border-navy-50">28 Dasar Kepercayaan</h1>
-                        <img src="https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjc1L2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9mcEUxNzQ5NDcxNDI3NTExLmpwZw/w:1920,q:75/hope-images/67054013a60919c92d92c959/fpE1749471427511.jpg" alt="28 Doctrine Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
+                        <img src="https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjc1L2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9mcEUxNzQ5NDcxNDI3NTExLmpwZw/w:1920,q:75/hope-images/67054013a60919c92d92c959/fpE1749471427511.jpg" loading="lazy" alt="28 Doctrine Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
                         <p className="mb-8 text-navy-600 font-medium text-lg leading-relaxed">Gereja Masehi Advent Hari Ketujuh menerima Alkitab sebagai satu-satunya kredo mereka dan memegang keyakinan dasar tertentu sebagai ajaran Kitab Suci.</p>
                         <div className="space-y-4 not-prose">
                             {doktrinData.map((section, idx) => (
@@ -1179,7 +1273,7 @@
             <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
                 <div className="prose max-w-none">
                     <h1 className="text-[2rem] font-extrabold text-navy-900 mb-6 border-b pb-4 border-navy-50">Karunia Nubuat: Ellen G. White</h1>
-                    <img src="https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg" alt="EGW Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
+                    <img src="https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg" loading="lazy" alt="EGW Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
                     <div className="space-y-4 text-navy-600 font-medium">
                         <p>Salah satu karunia Roh Kudus adalah nubuat. Karunia ini adalah tanda pengenal gereja yang sisa dan itu diwujudkan dalam pelayanan Ellen G. White.</p>
                         <h3 className="text-navy-900 font-bold text-xl pt-2">Peran dalam Gereja</h3>
@@ -1200,7 +1294,7 @@
             <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
                 <div className="prose max-w-none">
                     <h1 className="text-[2rem] font-extrabold text-navy-900 mb-6 border-b pb-4 border-navy-50">Download Dan Baca Buku</h1>
-                    <img src="https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg" alt="Read" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
+                    <img src="https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg" loading="lazy" alt="Read" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
                     <div className="space-y-4 text-navy-600 font-medium">
                         <p>Salah satu cara dalam mengatahui dan dekat dengan Tuhan adalah dengan membaca.</p>
                         <h3 className="text-navy-900 font-bold text-xl pt-2">Menunjuk ke Alkitab</h3>
@@ -1532,7 +1626,8 @@
 
             // Ekstrak koordinat/query Google Maps fallback jika mapUrl ada
             const mapsQuery = kontakGereja?.alamat ? encodeURIComponent(kontakGereja.alamat) : "GMAHK";
-            const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+            // Memprioritaskan link maps kustom dari admin, jika tidak ada, buat link pencarian otomatis
+            const mapsLink = kontakGereja?.mapsAppUrl ? kontakGereja.mapsAppUrl : `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
 
             return (
                 <div className="space-y-6 animate-fade-in relative z-10">
@@ -1916,12 +2011,11 @@
             );
         };
         // ========== WARTA PAGE DENGAN THUMBNAIL & MODAL (6 per halaman) ==========
-        const WartaPage = ({ daftarWarta, setActiveTab }) => {
+        const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta }) => {
             const [showGallery, setShowGallery] = React.useState(false);
             const [currentPage, setCurrentPage] = React.useState(1);
             
             // State untuk fitur Modal (Pop-up Detail Warta)
-            const [selectedWarta, setSelectedWarta] = React.useState(null);
             const [modalSlide, setModalSlide] = React.useState(0);
             const [imageErrors, setImageErrors] = React.useState({});
 
@@ -4027,7 +4121,7 @@ const compressImage = (file, maxWidth = 1200) => {
                             )}
 
                             {adminTab === 'pengaturan' && (
-                                <div className="max-w-md mx-auto animate-fade-in space-y-6">
+                                <div className="animate-fade-in space-y-6">
         {/* Subtabs seperti pada jadwal */}
         <div className="flex items-center gap-2">
             <button onClick={() => scrollPengaturanTabs('left')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kiri">
@@ -4057,7 +4151,7 @@ const compressImage = (file, maxWidth = 1200) => {
 
                                      {/* --- FORM YOUTUBE URL --- */}
                                      {pengaturanSubTab === 'youtube' && (
-                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                                    <div className="max-w-2xl mx-auto bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
                                             <div><h3 className="font-black text-navy-900 text-lg tracking-tight">URL YouTube Embed</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Live Streaming Acara</p></div>
@@ -4077,7 +4171,7 @@ const compressImage = (file, maxWidth = 1200) => {
 
                                      {/* --- FORM Hero-Image --- */}
                                      {pengaturanSubTab === 'carousel' && (
-                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                                    <div className="max-w-2xl mx-auto bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><Icon name="Image" className="w-6 h-6" /></div>
                                             <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Hero Image Banner</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Gambar Carousel Homepage</p></div>
@@ -4121,7 +4215,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                     
                                     {/* --- FORM PENGUMUMAN --- */}
                                  {pengaturanSubTab === 'pengumuman' && (
-                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                                    <div className="max-w-2xl mx-auto bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-gold-50 rounded-full flex items-center justify-center text-gold-600 shadow-inner"><Icon name="Megaphone" className="w-6 h-6" /></div>
                                             <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Pengumuman Jemaat</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Tampil di Halaman Depan</p></div>
@@ -4149,7 +4243,7 @@ const compressImage = (file, maxWidth = 1200) => {
 
                                     {/* --- FORM LOKASI & PETA --- */}
                                     {pengaturanSubTab === 'kontak' && (
-                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm animate-fade-in">
+                                    <div className="max-w-2xl mx-auto bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm animate-fade-in">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 shadow-inner"><Icon name="Map" className="w-6 h-6" /></div>
                                             <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Lokasi Gereja</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Alamat dan Google Maps</p></div>
@@ -4159,10 +4253,13 @@ const compressImage = (file, maxWidth = 1200) => {
                                                 <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Alamat Lengkap</label>
                                                 <textarea value={editKontakGereja.alamat} onChange={e => setEditKontakGereja({...editKontakGereja, alamat: e.target.value})} required rows="3" placeholder="Jl. Raya Contoh No. 123, Kelurahan, Kecamatan..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-4"></textarea>
 
-                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Peta (Google Maps Embed)</label>
+                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Buka di Aplikasi Maps (Direct Link)</label>
+                                                <input type="url" value={editKontakGereja.mapsAppUrl || ''} onChange={e => setEditKontakGereja({...editKontakGereja, mapsAppUrl: e.target.value})} placeholder="https://maps.app.goo.gl/..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-4" />
+
+                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Peta (Google Maps Embed / iframe)</label>
                                                 <textarea value={editKontakGereja.mapUrl} onChange={e => setEditKontakGereja({...editKontakGereja, mapUrl: e.target.value})} required rows="3" placeholder="https://www.google.com/maps/embed?pb=..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono shadow-sm"></textarea>
                                                 <p className="text-[10px] text-navy-500 mt-2 font-medium leading-relaxed bg-navy-50 p-3 rounded-xl border border-navy-100 shadow-inner">
-                                                    <b>Cara mendapatkan link Peta:</b><br />1. Cari gereja Anda di Google Maps (via Browser PC).<br />2. Klik tombol <b>Bagikan (Share)</b> &gt; pilih tab <b>Sematkan Peta (Embed a map)</b>.<br />3. Salin URL/Tautan yang ada di dalam tanda kutip <span className="text-gold-600 font-mono font-bold">src="..."</span> dan tempelkan pada kolom di atas.
+                                                    <b>Cara mendapatkan link Peta Embed:</b><br />1. Cari gereja Anda di Google Maps (via Browser PC).<br />2. Klik tombol <b>Bagikan (Share)</b> &gt; pilih tab <b>Sematkan Peta (Embed a map)</b>.<br />3. Salin URL/Tautan yang ada di dalam tanda kutip <span className="text-gold-600 font-mono font-bold">src="..."</span> dan tempelkan pada kolom di atas.
                                                 </p>
                                             </div>
                                             <button type="submit" disabled={isSavingKontak} className={`w-full ${isSavingKontak ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
@@ -4174,7 +4271,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                     
                                     {/* --- FORM GANTI PASSWORD --- */}
                                     {pengaturanSubTab === 'password' && (
-                                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                                    <div className="max-w-2xl mx-auto bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-navy-50 rounded-full flex items-center justify-center text-navy-900 shadow-inner"><Icon name="Settings" className="w-6 h-6" /></div>
                                             <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Ganti Password Admin</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1 mt-1">Keamanan Otentikasi</p></div>
@@ -4356,6 +4453,7 @@ const compressImage = (file, maxWidth = 1200) => {
         const App = () => {
             const [isAppLoading, setIsAppLoading] = React.useState(true);
             const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+            const [selectedWartaDetail, setSelectedWartaDetail] = React.useState(null);
 
             // --- HISTORY API (TOMBOL BACK ANDROID: LOGIKA "UP") ---
             const getInitialTab = () => {
@@ -4366,6 +4464,7 @@ const compressImage = (file, maxWidth = 1200) => {
 
             const setActiveTab = React.useCallback((tabId) => {
                 setRawActiveTab(tabId);
+                if (tabId !== 'warta') setSelectedWartaDetail(null);
                 // Mengganti hash di URL tanpa menambah tumpukan riwayat (history stack tetap stabil)
                 window.history.replaceState(window.history.state, '', `#${tabId}`);
             }, []);
@@ -4501,7 +4600,7 @@ const compressImage = (file, maxWidth = 1200) => {
             const jadwalKhususSabat = jadwalDB[displaySabatYMD] || initialJadwalSabat;
             // ----------------------------------------------------------------------
 
-            // MENGAMBIL DATA DARI REST API GOOGLE APPS SCRIPT
+            // MENGAMBIL DATA DARI REST API GOOGLE APPS SCRIPT DENGAN CACHING
             React.useEffect(() => {
                 if (!GAS_API_URL) {
                     console.warn("GAS_API_URL belum diisi. Menggunakan data default sementara.");
@@ -4509,70 +4608,101 @@ const compressImage = (file, maxWidth = 1200) => {
                     return;
                 }
 
+                // --- 🚀 FITUR CACHING: Cek memori lokal dulu ---
+                // Jika sudah pernah buka web ini, tampilkan data lama LANGSUNG TANPA LOADING
+                const cachedDataStr = localStorage.getItem('pisgah_data_cache');
+                let hasCache = false;
+                if (cachedDataStr) {
+                    try {
+                        const cached = JSON.parse(cachedDataStr);
+                        if (cached.dataPejabat) setDataPejabat(cached.dataPejabat);
+                        if (cached.jadwalDB) setJadwalDB(cached.jadwalDB);
+                        if (cached.youtubeUrl) setYoutubeUrl(cached.youtubeUrl);
+                        if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
+                        if (cached.heroImages) setHeroImages(cached.heroImages);
+                        if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
+                        if (cached.pengumumanObj) setPengumuman(cached.pengumumanObj);
+                        if (cached.kontakGerejaObj) setKontakGereja(cached.kontakGerejaObj);
+                        
+                        setIsAppLoading(false); // 🔥 MATIKAN LOADING SCREEN SECARA INSTAN!
+                        hasCache = true;
+                    } catch (e) {
+                        console.warn("Gagal membaca cache");
+                    }
+                }
+
+                // --- FETCH DATA BARU DARI SERVER DI LATAR BELAKANG ---
                 fetch(`${GAS_API_URL}?action=getData`)
                     .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Jaringan bermasalah atau API tidak ditemukan');
-                        }
+                        if (!response.ok) throw new Error('Jaringan bermasalah atau API tidak ditemukan');
                         return response.json();
                     })
                     .then(data => {
+                        let newHeroImages = ["./carousel/hero-default.png"];
+                        let newPengumumanObj = { header: "Pengumuman Jemaat", isi: "" };
+                        let newKontakGerejaObj = defaultKontak;
+
                         if (data.dataPejabat) setDataPejabat(data.dataPejabat);
                         if (data.jadwalDB) setJadwalDB(data.jadwalDB);
                         if (data.youtubeUrl) setYoutubeUrl(data.youtubeUrl);
                         if (data.kategoriPejabat) setKategoriPejabat(data.kategoriPejabat);
                         
-                        // Parse JSON String to Object untuk Kontak & Peta
+                        // Parse Kontak
                         if (data.kontakGereja) {
                             try {
                                 const parsedKontak = JSON.parse(data.kontakGereja);
                                 if (parsedKontak && typeof parsedKontak === 'object') {
-                                    setKontakGereja(parsedKontak);
+                                    newKontakGerejaObj = parsedKontak;
+                                    setKontakGereja(newKontakGerejaObj);
                                 }
-                            } catch(e) {
-                                console.warn("Format kontakGereja salah, menggunakan default");
-                            }
+                            } catch(e) {}
                         }
 
-                        // Parse JSON String to Array untuk Hero Banner (Carousel)
+                        // Parse Hero Image
                         if (data.heroImageUrl) {
                             try {
                                 const parsed = JSON.parse(data.heroImageUrl);
-                                if (Array.isArray(parsed)) {
-                                    setHeroImages(parsed);
-                                } else {
-                                    setHeroImages([data.heroImageUrl]); // Fallback versi lawas
-                                }
-                            } catch(e) {
-                                setHeroImages([data.heroImageUrl]); // Fallback versi lawas (string biasa)
-                            }
+                                if (Array.isArray(parsed)) newHeroImages = parsed;
+                                else newHeroImages = [data.heroImageUrl];
+                            } catch(e) { newHeroImages = [data.heroImageUrl]; }
+                            setHeroImages(newHeroImages);
                         }
 
                         if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
 
-                        // Menangani Pengumuman agar kompatibel dengan data lama (String biasa) dan JSON object baru
+                        // Parse Pengumuman
                         if (data.pengumuman !== undefined) {
                             try {
                                 const parsed = JSON.parse(data.pengumuman);
                                 if (parsed && typeof parsed === 'object') {
-                                    setPengumuman({ 
-                                        header: parsed.header || "Pengumuman Jemaat", 
-                                        isi: decodeHTML(parsed.isi || "") 
-                                    });
+                                    newPengumumanObj = { header: parsed.header || "Pengumuman Jemaat", isi: decodeHTML(parsed.isi || "") };
                                 } else {
-                                    setPengumuman({ header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) });
+                                    newPengumumanObj = { header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) };
                                 }
                             } catch (e) {
-                                // Jika gagal di-parse, artinya datanya masih berupa string murni dari versi sebelumnya
-                                setPengumuman({ header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) });
+                                newPengumumanObj = { header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) };
                             }
+                            setPengumuman(newPengumumanObj);
                         }
-                        setIsAppLoading(false);
-                    })
 
+                        // 🔥 SIMPAN KE LOKAL (CACHE) UNTUK LOADING INSTAN SELANJUTNYA
+                        localStorage.setItem('pisgah_data_cache', JSON.stringify({
+                            dataPejabat: data.dataPejabat,
+                            jadwalDB: data.jadwalDB,
+                            youtubeUrl: data.youtubeUrl,
+                            kategoriPejabat: data.kategoriPejabat,
+                            heroImages: newHeroImages,
+                            daftarWarta: data.daftarWarta,
+                            pengumumanObj: newPengumumanObj,
+                            kontakGerejaObj: newKontakGerejaObj
+                        }));
+
+                        // Jika sebelumnya tidak ada cache (user pertama kali buka web), baru matikan loading sekarang
+                        if (!hasCache) setIsAppLoading(false);
+                    })
                     .catch(error => {
                         console.error('Error fetching data, menggunakan data default:', error);
-                        setIsAppLoading(false);
+                        if (!hasCache) setIsAppLoading(false);
                     });
             }, []);
 
@@ -4621,13 +4751,13 @@ const compressImage = (file, maxWidth = 1200) => {
 
             const renderContent = () => {
                 switch (activeTab) {
-                    case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman}/>;
+                    case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} />;
                     case 'belajar': return <Belajar setActiveTab={setActiveTab} />;
                     case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'belajar_egw': return <DetailEGW setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
-                    case 'warta':  return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta}  />;
+                    case 'warta':  return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta} selectedWarta={selectedWartaDetail} setSelectedWarta={setSelectedWartaDetail} />;
                     case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} youtubeUrl={youtubeUrl} />;
                     case 'jadwal': return <Jadwal activeRabu={jadwalKhususRabu} activeSabat={jadwalKhususSabat} rabuYMD={displayRabuYMD} sabatYMD={displaySabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} />;
                     case 'persembahan': return <Persembahan dataPejabat={dataPejabat} />;
@@ -4637,10 +4767,10 @@ const compressImage = (file, maxWidth = 1200) => {
                     case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
                     case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
                     case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-                    case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} />;
+                    case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} />;
                     case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} />;
                     default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta}
-                            refreshWarta={refreshWarta}/>;
+                            refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} />;
                 }
             };
 
