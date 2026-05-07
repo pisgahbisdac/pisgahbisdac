@@ -256,6 +256,117 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
+        /* --- TEMA ELEGANT NAVY & GOLD (DARK MODE) --- */
+        :root {
+            color-scheme: dark;
+        }
+        
+        body, .bg-gray-50 {
+            background-color: #0b1a30 !important; /* Background utama Navy Gelap */
+            color: #f4f6f9 !important; /* Teks default terang */
+        }
+        
+        /* Panel & Card Dasar menjadi Dark Navy elegan (Termasuk efek Hover) */
+        .bg-white, [class*="hover:bg-white"]:hover, [class*="hover:bg-gray-50"]:hover {
+            background-color: #112240 !important; 
+            border-color: #1e365d !important; 
+        }
+        
+        /* Inversi Teks Gelap menjadi Terang (Termasuk efek Hover) */
+        .text-navy-900, [class*="hover:text-navy-900"]:hover, 
+        .text-navy-800, [class*="hover:text-navy-800"]:hover, 
+        .text-navy-700, [class*="hover:text-navy-700"]:hover { color: #f4f6f9 !important; }
+        
+        .text-navy-600, [class*="hover:text-navy-600"]:hover, 
+        .text-navy-500, [class*="hover:text-navy-500"]:hover { color: #cbd4e1 !important; }
+        
+        .text-navy-400, [class*="hover:text-navy-400"]:hover { color: #7c97b5 !important; }
+        
+        /* Penyesuaian Border dan Highlight Tipis */
+        .border-navy-50, .border-navy-100, .border-navy-200, .border-navy-300 { border-color: #1e365d !important; }
+        
+        /* Background Hover Universal untuk Menu, Tabel, dan Tombol Navigasi */
+        .bg-navy-50, [class*="hover:bg-navy-50"]:hover { background-color: #162a4a !important; }
+        .bg-navy-100, [class*="hover:bg-navy-100"]:hover { background-color: #1e365d !important; }
+        
+        /* Aksen Gold / Transparan untuk Highlight (Warna Kuning Emas) */
+        .bg-gold-50, [class*="hover:bg-gold-50"]:hover, 
+        .bg-gold-100, [class*="hover:bg-gold-100"]:hover, 
+        .from-gold-50, .bg-gold-50\/50, .bg-gold-400\/10 {
+            background: rgba(231, 174, 48, 0.1) !important;
+            color: #e7ae30 !important;
+            border-color: rgba(231, 174, 48, 0.3) !important;
+        }
+
+        /* Mengamankan Hover untuk Background Warna Lain (Merah, Hijau, Ungu, dll) di tabel jadwal */
+        [class*="hover:bg-red-50"]:hover, [class*="hover:bg-green-50"]:hover, [class*="hover:bg-purple-50"]:hover {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        
+        /* Tombol Utama (Awalnya Navy Gelap, sekarang jadi Emas Elegan) */
+        .bg-navy-900, .bg-navy-800 {
+            background-color: #e7ae30 !important;
+            color: #0b1a30 !important;
+            border: none !important;
+        }
+        .bg-navy-900:hover, .bg-navy-800:hover {
+            background-color: #c98e21 !important;
+        }
+        /* Memastikan teks/icon dalam tombol emas tetap gelap */
+        .bg-navy-900 .text-gold-400, .bg-navy-800 .text-gold-400, .bg-navy-900 .text-white, .bg-navy-800 .text-white {
+            color: #0b1a30 !important; 
+        }
+        
+        /* Header & Navigasi Mobile (Glassmorphism Gelap) */
+        .bg-white\/80, .bg-white\/90, .bg-white\/70 {
+            background-color: rgba(11, 26, 48, 0.85) !important;
+            border-color: #1e365d !important;
+        }
+        
+        /* Konten Spesifik Editor & Teks Panjang */
+        .warta-content, .pengumuman-text, .prose p, .prose li { color: #cbd4e1 !important; }
+        .warta-content h3, .pengumuman-text h3, .prose h1, .prose h2, .prose h3 {
+            color: #e7ae30 !important;
+            border-bottom-color: #1e365d !important;
+        }
+        .warta-content b, .warta-content strong, .pengumuman-text b, .pengumuman-text strong {
+            color: #f4f6f9 !important;
+        }
+        
+        /* Kartu Spesial (Welcome & Pembangunan) */
+        .welcome-box-gradient {
+            background: linear-gradient(135deg, rgba(231, 174, 48, 0.15) 0%, rgba(11, 26, 48, 0.95) 100%) !important;
+            border: 1px solid rgba(231, 174, 48, 0.3) !important;
+        }
+        .glass-card {
+            background: rgba(17, 34, 64, 0.8) !important;
+            border: 1px solid rgba(231, 174, 48, 0.2) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+        }
+        
+        /* Form & Input Fields */
+        input, select, textarea, div[contentEditable] {
+            background-color: #0b1a30 !important;
+            color: #f4f6f9 !important;
+            border-color: #1e365d !important;
+        }
+        input:focus, select:focus, textarea:focus, div[contentEditable]:focus {
+            border-color: #e7ae30 !important;
+            background-color: #112240 !important;
+            outline: none !important;
+        }
+        
+        /* Modal Overlay Background */
+        .bg-navy-900\/60, .bg-navy-900\/80 {
+            background-color: rgba(5, 12, 23, 0.85) !important;
+        }
+
+        /* Latar ikon berwarna merah/biru/hijau agar tidak terlalu mencolok di dark mode */
+        .bg-red-50, .bg-green-50, .bg-blue-50, .bg-purple-50, .bg-amber-50 {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
     </style>
   
 </head>
@@ -672,10 +783,10 @@
 
                             {/* Artikel Promosi Pembangunan */}
                             <div className="mt-4 glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
-                                <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-gold-400 text-white text-[9px] md:text-[10px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center z-10">
+                                <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-navy-400 text-white text-[9px] md:text-[10px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center z-10">
                                     <Icon name="Home" className="w-3 h-3 mr-1" /> Proyek Gereja
                                 </div>
-                                <div className="p-5 md:p-6 bg-gradient-to-br from-white via-gold-50/40 to-white">
+                                <div className="p-5 md:p-6 bg-gradient-to-br from-navy-800 via-gold-50/40 to-gold-400">
                                     <h3 className="text-[1.1rem] md:text-xl font-black text-navy-900 leading-tight mb-2">
                                         Bersama Membangun Rumah Tuhan
                                     </h3>
@@ -693,8 +804,10 @@
                     </div>
 
                     {!isPengumumanReallyEmpty() && (
-                        <div className="bg-gradient-to-r from-gold-50 to-gold-100 p-5 md:p-6 rounded-[1.5rem] shadow-sm border border-gold-200 hover:shadow-md transition-shadow relative overflow-hidden mb-6 md:mb-8">
-                            <div className="absolute top-0 right-0 bg-gold-500 text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center"><Icon name="Info" className="w-3 h-3 mr-1" /> Info</div>
+                        <div className="bg-gradient-to-r from-gold-50 to-white-100 p-5 md:p-6 rounded-[1.5rem] shadow-sm border border-gold-200 hover:shadow-md transition-shadow relative overflow-hidden mb-6 md:mb-8">
+                            <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-navy-400 text-white text-[9px] md:text-[10px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center z-10">
+                                <Icon name="Info" className="w-3 h-3 mr-1" /> Info
+                            </div>
                             <h2 className="text-[1.15rem] font-bold mb-4 text-navy-900 flex items-center">
                                 <Icon name="Megaphone" className="w-[1.5rem] h-[1.5rem] mr-2 text-gold-500" /> PENGUMUMAN JEMAAT
                             </h2>
@@ -1633,9 +1746,12 @@
                 setCurrentPage(1);
             }, [daftarWarta]);
 
-            // Reset slide carousel ketika membuka warta baru
+            // Reset slide carousel & scroll ke atas ketika membuka warta baru
             React.useEffect(() => {
                 setModalSlide(0);
+                if (selectedWarta) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
             }, [selectedWarta]);
 
             const handleImageError = (key) => {
@@ -1679,80 +1795,69 @@
                 );
             }
 
-            return (
-                <div className="space-y-6 animate-fade-in relative">
-                    {/* --- MODAL DETAIL WARTA --- */}
-                    {selectedWarta && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/80 px-4 py-6 backdrop-blur-sm">
-                            <div className="bg-white rounded-[1.5rem] shadow-2xl w-full max-w-2xl max-h-full flex flex-col relative animate-fade-in overflow-hidden border border-navy-100/60">
-                                {/* Header Modal */}
-                                <div className="flex justify-between items-center p-4 md:p-6 border-b border-navy-50 shrink-0 bg-white z-10">
-                                    <div>
-                                        <h2 className="text-lg md:text-xl font-black text-navy-900 leading-tight pr-8">{selectedWarta.judul}</h2>
-                                        <div className="flex items-center mt-1.5 text-xs text-navy-500 font-medium">
-                                            <Icon name="Calendar" className="w-3.5 h-3.5 mr-1" /> {selectedWarta.tanggal}
-                                            <span className="mx-2">•</span>
-                                            <Icon name="Edit" className="w-3.5 h-3.5 mr-1" /> {selectedWarta.penulis || 'Admin'}
-                                        </div>
-                                    </div>
-                                    <button onClick={() => setSelectedWarta(null)} className="absolute top-4 right-4 md:top-6 md:right-6 bg-navy-50 text-navy-400 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors">
-                                        <Icon name="X" className="w-5 h-5" />
-                                    </button>
-                                </div>
+            // TAMPILAN FULL LAYAR UNTUK DETAIL WARTA
+            if (selectedWarta) {
+                const rawUrls = parseGambarUrls(selectedWarta.gambarUrl);
+                const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
 
-                                {/* Body Modal (Scrollable) */}
-                                <div className="overflow-y-auto p-4 md:p-6 custom-scrollbar pb-10">
-                                    {/* Carousel Gambar Detail */}
-                                    {(() => {
-                                        const rawUrls = parseGambarUrls(selectedWarta.gambarUrl);
-                                        const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
-                                        
-                                        if (safeUrls.length === 0) return null;
+                return (
+                    <div className="space-y-6 animate-fade-in pb-10">
+                        <div className="flex justify-between items-center bg-white p-4 rounded-[1.5rem] shadow-sm border border-navy-100">
+                            <h2 className="text-lg md:text-xl font-bold text-navy-800 ml-2 line-clamp-1 flex-1 pr-4">Detail Warta</h2>
+                            <button onClick={() => setSelectedWarta(null)} className="bg-navy-50 hover:bg-navy-100 text-navy-600 px-4 py-2 rounded-xl font-bold transition flex items-center shrink-0">
+                                <Icon name="ArrowLeft" className="w-4 h-4 mr-2" /> Kembali
+                            </button>
+                        </div>
 
-                                        return (
-                                            <div className="relative w-full rounded-xl overflow-hidden bg-navy-50 aspect-video mb-6 group border border-navy-100">
-                                                <div className="flex transition-transform duration-500 ease-out h-full" style={{ transform: `translateX(-${modalSlide * 100}%)` }}>
-                                                    {safeUrls.map((url, idx) => (
-                                                        <div key={idx} className="w-full h-full flex-shrink-0">
-                                                            {!imageErrors[`modal-${idx}`] ? (
-                                                                <img src={url} className="w-full h-full object-contain bg-black/5" alt={`Gambar ${idx + 1}`} onError={() => handleImageError(`modal-${idx}`)} referrerPolicy="no-referrer" />
-                                                            ) : (
-                                                                <div className="w-full h-full flex items-center justify-center text-red-400 bg-red-50"><span className="text-sm font-medium">Gambar gagal dimuat</span></div>
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                
-                                                {/* Kontrol Navigasi Carousel */}
-                                                {safeUrls.length > 1 && (
-                                                    <>
-                                                        <button onClick={() => setModalSlide(p => (p === 0 ? safeUrls.length - 1 : p - 1))} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-navy-900 p-2 rounded-full shadow backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"><Icon name="ChevronLeft" className="w-5 h-5" /></button>
-                                                        <button onClick={() => setModalSlide(p => (p + 1) % safeUrls.length)} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-navy-900 p-2 rounded-full shadow backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"><Icon name="ChevronRight" className="w-5 h-5" /></button>
-                                                        <div className="absolute bottom-3 left-0 w-full flex justify-center gap-1.5">
-                                                            {safeUrls.map((_, idx) => (
-                                                                <button key={idx} onClick={() => setModalSlide(idx)} className={`h-1.5 rounded-full transition-all ${modalSlide === idx ? 'bg-gold-500 w-5' : 'bg-white/70 w-2 hover:bg-white'}`} />
-                                                            ))}
-                                                        </div>
-                                                        <div className="absolute top-3 right-3 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded backdrop-blur-sm">
-                                                            {modalSlide + 1} / {safeUrls.length}
-                                                        </div>
-                                                    </>
+                        <div className="bg-white rounded-[1.5rem] p-5 md:p-8 shadow-sm border border-navy-100/60">
+                            <h1 className="text-2xl md:text-3xl font-black text-navy-900 leading-tight mb-4">{selectedWarta.judul}</h1>
+                            <div className="flex flex-wrap items-center text-sm text-navy-500 font-medium mb-6 pb-6 border-b border-navy-50">
+                                <span className="flex items-center mr-4 mb-2 md:mb-0"><Icon name="Calendar" className="w-4 h-4 mr-1.5 text-gold-500" /> {selectedWarta.tanggal}</span>
+                                <span className="flex items-center"><Icon name="Edit" className="w-4 h-4 mr-1.5 text-gold-500" /> {selectedWarta.penulis || 'Admin'}</span>
+                            </div>
+
+                            {safeUrls.length > 0 && (
+                                <div className="relative w-full rounded-xl overflow-hidden bg-navy-50 aspect-video mb-8 border border-navy-100 group">
+                                    <div className="flex transition-transform duration-500 ease-out h-full" style={{ transform: `translateX(-${modalSlide * 100}%)` }}>
+                                        {safeUrls.map((url, idx) => (
+                                            <div key={idx} className="w-full h-full flex-shrink-0">
+                                                {!imageErrors[`detail-${idx}`] ? (
+                                                    <img src={url} className="w-full h-full object-contain bg-black/5" alt={`Gambar ${idx + 1}`} onError={() => handleImageError(`detail-${idx}`)} referrerPolicy="no-referrer" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-red-400 bg-red-50"><span className="text-sm font-medium">Gambar gagal dimuat</span></div>
                                                 )}
                                             </div>
-                                        );
-                                    })()}
+                                        ))}
+                                    </div>
 
-                                    {/* Teks Isi Warta */}
-                                    <div className="prose max-w-none text-sm md:text-base text-navy-800 leading-relaxed warta-content" dangerouslySetInnerHTML={{ __html: selectedWarta.isi }}></div>
+                                    {safeUrls.length > 1 && (
+                                        <>
+                                            <button onClick={() => setModalSlide(p => (p === 0 ? safeUrls.length - 1 : p - 1))} className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-navy-900 p-2.5 rounded-full shadow backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"><Icon name="ChevronLeft" className="w-5 h-5" /></button>
+                                            <button onClick={() => setModalSlide(p => (p + 1) % safeUrls.length)} className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-navy-900 p-2.5 rounded-full shadow backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"><Icon name="ChevronRight" className="w-5 h-5" /></button>
+                                            <div className="absolute bottom-4 left-0 w-full flex justify-center gap-2">
+                                                {safeUrls.map((_, idx) => (
+                                                    <button key={idx} onClick={() => setModalSlide(idx)} className={`h-1.5 rounded-full transition-all ${modalSlide === idx ? 'bg-gold-500 w-6' : 'bg-white/70 w-2 hover:bg-white'}`} />
+                                                ))}
+                                            </div>
+                                            <div className="absolute top-4 right-4 bg-black/60 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg backdrop-blur-sm">
+                                                {modalSlide + 1} / {safeUrls.length}
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
-                            </div>
-                        </div>
-                    )}
-                    {/* --- AKHIR MODAL DETAIL WARTA --- */}
+                            )}
 
+                            <div className="prose max-w-none text-base md:text-lg text-navy-800 leading-relaxed warta-content" dangerouslySetInnerHTML={{ __html: selectedWarta.isi }}></div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="space-y-6 animate-fade-in relative">
                     {/* Banner Ajakan Galeri */}
                     <div className="glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
-                        <div className="p-5 md:p-6 bg-gradient-to-br from-white via-gold-50/40 to-white flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="p-5 md:p-6 bg-gradient-to-br from-navy-800 via-gold-50/40 to-gold-400 flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div className="text-center sm:text-left flex-1">
                                 <h3 className="font-black text-navy-900 text-lg mb-1">Galeri Dokumentasi</h3>
                                 <p className="text-xs md:text-sm font-medium text-navy-600 leading-relaxed">
@@ -4267,7 +4372,7 @@ const compressImage = (file, maxWidth = 1200) => {
                     <ManualInstallModal isOpen={showManualInstall} onClose={() => setShowManualInstall(false)} />
 
                     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 shadow-sm">
-                        <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3 gap-3">
+                        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 gap-3">
                             <div className="flex items-center gap-2 md:gap-3 flex-1 justify-start">
                                 {activeTab !== 'home' && (
                                     <button onClick={() => window.history.back()} className="w-10 h-10 flex items-center justify-center shrink-0 text-navy-600 hover:text-gold-500 transition-all border border-transparent bg-navy-50/50 hover:bg-navy-100 rounded-full">
@@ -4281,6 +4386,19 @@ const compressImage = (file, maxWidth = 1200) => {
                             </div>
 
                             <div className="flex justify-end items-center gap-2 shrink-0">
+                                {/* Navigasi Desktop (Disembunyikan di Mobile) */}
+                                <div className="hidden md:flex items-center gap-1 mr-2 bg-navy-50/30 p-1 rounded-2xl border border-navy-50">
+                                    {tabs.map(tab => {
+                                        const isActive = activeTab.startsWith(tab.id);
+                                        return (
+                                            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all text-sm font-bold ${isActive ? 'bg-white text-navy-900 shadow-sm border border-navy-100/50' : 'text-navy-500 hover:text-navy-700 hover:bg-navy-50'}`}>
+                                                <Icon name={tab.icon} className={`w-4 h-4 ${isActive ? 'text-gold-500' : ''}`} />
+                                                <span>{tab.label}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
                                 {activeTab !== 'search' && (
                                     <button onClick={() => setActiveTab('search')} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-600 hover:text-gold-500 hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm" title="Pencarian">
                                         <Icon name="Search" className="w-4 h-4" />
@@ -4301,24 +4419,54 @@ const compressImage = (file, maxWidth = 1200) => {
                     </header>
 
                     
-                    <main className="flex-1 max-w-5xl mx-auto w-full p-4 md:p-8 pb-32 md:pb-32">
+                    <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8 pb-32 md:pb-32">
                         {renderContent()}
                     </main>
 
-                    <nav className="fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg bg-white/90 backdrop-blur-xl border border-navy-100/50 rounded-3xl z-50 shadow-lg" style={{ bottom: `calc(env(safe-area-inset-bottom, 0px) + 0.75rem)` }}>
-  <div className="flex justify-around items-center p-2">
-    {tabs.map(tab => {
-      const isActive = activeTab.startsWith(tab.id);
-      return (
-        <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`relative flex flex-col items-center flex-1 py-[10px] px-1 transition-all duration-300 rounded-[1.25rem] ${isActive ? 'text-navy-900 bg-gold-400/10' : 'text-navy-400 hover:text-navy-600'}`}>
-          <Icon name={tab.icon} className={`w-[1.4rem] h-[1.4rem] mb-1.5 transition-all duration-300 ${isActive ? 'text-gold-500 stroke-[2.5px] -translate-y-0.5' : 'stroke-[2px]'}`} />
-          <span className={`text-[10px] font-bold tracking-wide transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-70'}`}>{tab.label}</span>
-          {isActive && <div className="absolute -bottom-0 w-1 h-1 rounded-full bg-gold-500"></div>}
-        </button>
-      );
-    })}
-  </div>
-</nav>
+                    {/* Navigasi Mobile (Disembunyikan di Desktop dengan md:hidden) */}
+                    <nav className="md:hidden fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg bg-white/90 backdrop-blur-xl border border-navy-100/50 rounded-3xl z-50 shadow-lg" style={{ bottom: `calc(env(safe-area-inset-bottom, 0px) + 0.75rem)` }}>
+                        <div className="flex justify-around items-end p-2 relative">
+                            {/* Kita hanya memanggil 5 menu utama agar Home tepat berada di tengah */}
+                            {['belajar', 'warta', 'home', 'jadwal', 'live'].map(tabId => {
+                                const tab = tabs.find(t => t.id === tabId);
+                                if (!tab) return null;
+                                const isActive = activeTab.startsWith(tab.id);
+                                const isHome = tab.id === 'home';
+
+                                return (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`relative flex flex-col items-center justify-end flex-1 pb-1 pt-2 transition-all duration-300 ${isActive ? 'text-gold-500' : 'text-navy-400 hover:text-navy-500'}`}
+                                        // Efek glow emas bersinar ketika aktif
+                                        style={isActive && !isHome ? { filter: 'drop-shadow(0 0 6px rgba(231,174,48,0.8))' } : {}}
+                                    >
+                                        {isHome ? (
+                                            <div className="flex flex-col items-center w-full">
+                                                {/* Lingkaran Home Menonjol dengan Efek Glass Glow */}
+                                                <div 
+                                                    className={`absolute -top-6 left-1/2 -translate-x-1/2 flex items-center justify-center w-[3.5rem] h-[3.5rem] rounded-full transition-all duration-500 z-10 backdrop-blur-md ${isActive ? 'bg-gold-500/20 border border-gold-400/50 text-gold-500 shadow-[0_0_15px_rgba(231,174,48,0.4)] scale-110' : 'bg-navy-800/40 border border-white/10 text-gold-400/80 hover:bg-navy-700/50 hover:scale-105 shadow-lg'}`}
+                                                >
+                                                    <Icon name={tab.icon} className={`w-6 h-6 transition-all duration-300 ${isActive ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
+                                                </div>
+                                                <span className={`text-[10px] font-bold tracking-wide transition-all duration-300 mt-6 ${isActive ? 'opacity-100 text-gold-500' : 'opacity-70 text-navy-400'}`} style={isActive ? { textShadow: '0 0 8px rgba(231,174,48,0.8)' } : {}}>
+                                                    {tab.label}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {/* Menu biasa */}
+                                                <Icon name={tab.icon} className={`w-[1.4rem] h-[1.4rem] mb-1.5 transition-all duration-300 ${isActive ? 'stroke-[2.5px] -translate-y-1 scale-110' : 'stroke-[2px]'}`} />
+                                                <span className={`text-[10px] font-bold tracking-wide transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
+                                                    {tab.label}
+                                                </span>
+                                            </>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </nav>
 
                     {/* Floating Action Button (Hubungi / WA) */}
                     {activeTab !== 'admin_dashboard' && activeTab !== 'hubungi' && (
