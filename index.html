@@ -1442,7 +1442,7 @@
             </div>
         );
 
-        const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, perjamuanYMD, activePerjamuan, youtubeUrl }) => {
+        const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, perjamuanYMD, activePerjamuan, liveUrl }) => {
             const today = new Date();
             const todayDay = today.getDay();
 
@@ -1461,7 +1461,7 @@
                 <div className="space-y-6 md:space-y-8 animate-fade-in">
                     <div className="bg-navy-900 rounded-[1.5rem] overflow-hidden shadow-lg p-2.5">
                         <div className="relative w-full rounded-xl overflow-hidden" style={{ paddingTop: '56.25%' }}>
-                            <iframe className="absolute top-0 left-0 w-full h-full" src={youtubeUrl} title="YouTube Live Stream" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                            <iframe className="absolute top-0 left-0 w-full h-full" src={liveUrl} title="YouTube Live Stream" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
                         </div>
                         <div className="pt-4 pb-2 px-2 text-white flex justify-center w-full">
                             <div className="font-bold text-sm tracking-widest flex items-center bg-gold-400/20 px-5 py-2.5 rounded-full border border-gold-400/30 text-gold-400 uppercase"><span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse mr-2.5"></span> Live </div>
@@ -2290,7 +2290,7 @@
         // --- KOMPONEN AdminDashboard yang DIPERBAIKI (dengan fitur warta) ---
         const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken, 
             youtubeUrl, setYoutubeUrl, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages, 
-            pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja }) => {
+            pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl }) => {
             const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan
             const [viewMonth, setViewMonth] = React.useState(new Date().getMonth());
             const [viewYear, setViewYear] = React.useState(new Date().getFullYear());
@@ -2310,6 +2310,10 @@
             // State URL YouTube
             const [editYoutubeUrl, setEditYoutubeUrl] = React.useState(youtubeUrl);
             const [isSavingUrl, setIsSavingUrl] = React.useState(false);
+
+            // State untuk Live URL
+            const [editLiveUrl, setEditLiveUrl] = React.useState(liveUrl);
+            const [isSavingLiveUrl, setIsSavingLiveUrl] = React.useState(false);
 
             // State Hero Image Array (Carousel)
             const [editHeroImages, setEditHeroImages] = React.useState(heroImages);
@@ -3216,6 +3220,28 @@ const compressImage = (file, maxWidth = 1200) => {
                 }
                 setIsSavingUrl(false);
             };
+
+            // SIMPAN LIVE YOUTUBE URL
+            const handleSaveLiveUrl = async (e) => {
+    e.preventDefault();
+    setIsSavingLiveUrl(true);
+    try {
+        const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'saveLiveUrl', password: adminToken, url: editLiveUrl })
+        });
+        const result = await res.json();
+        if (result.success) {
+            alert("URL Live Streaming berhasil diperbarui!");
+            setLiveUrl(editLiveUrl);
+        } else {
+            alert("Gagal: " + (result.message || "Akses ditolak."));
+        }
+    } catch (err) {
+        alert("Gagal terhubung ke server.");
+    }
+    setIsSavingLiveUrl(false);
+};
 
             // SIMPAN PENGUMUMAN
             const isContentEmpty = (htmlString) => {
@@ -4131,6 +4157,9 @@ const compressImage = (file, maxWidth = 1200) => {
                 <button onClick={() => setPengaturanSubTab('youtube')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'youtube' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                 Youtube
                 </button>
+                <button onClick={() => setPengaturanSubTab('live')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'live' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                Live
+                </button>
                 <button onClick={() => setPengaturanSubTab('carousel')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'carousel' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                 Carousel
                 </button>
@@ -4168,6 +4197,22 @@ const compressImage = (file, maxWidth = 1200) => {
                                         </form>
                                     </div>
                                     )}
+
+                                    {/* --- FORM LIVE YOUTUBE URL --- */}
+                                    {pengaturanSubTab === 'live' && (
+    <div className="max-w-2xl mx-auto bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
+            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">URL Live Streaming</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Halaman Live Gereja</p></div>
+        </div>
+        <form onSubmit={handleSaveLiveUrl}>
+            <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Live (Embed)</label>
+            <textarea value={editLiveUrl} onChange={e => setEditLiveUrl(e.target.value)} required rows="3" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono font-medium shadow-sm leading-relaxed"></textarea>
+            <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Salin URL dari "Sematkan" di YouTube. Contoh: https://www.youtube.com/embed/live_stream?channel=...</p>
+            <button type="submit" disabled={isSavingLiveUrl} className="w-full bg-navy-900 hover:bg-navy-800 text-gold-400 font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center">Simpan URL Live</button>
+        </form>
+    </div>
+)}
 
                                      {/* --- FORM Hero-Image --- */}
                                      {pengaturanSubTab === 'carousel' && (
@@ -4512,7 +4557,8 @@ const compressImage = (file, maxWidth = 1200) => {
             const [jadwalDB, setJadwalDB] = React.useState({});
             const [dataPejabat, setDataPejabat] = React.useState(initialDataPejabat);
             const [kategoriPejabat, setKategoriPejabat] = React.useState(["Kepemimpinan", "Keuangan", "Departemen & Pelayanan", "Lainnya"]);
-            const [youtubeUrl, setYoutubeUrl] = React.useState("");
+            const [youtubeUrl, setYoutubeUrl] = React.useState(""); // untuk video terbaru
+            const [liveUrl, setLiveUrl] = React.useState("https://www.youtube.com/embed/live_stream?channel=UCaTPS74NOHACRYU0zInVZ4g");
             const [heroImages, setHeroImages] = React.useState(["./carousel/hero-default.png"]);
 
             // Default State Kontak Gereja & Peta
@@ -4645,6 +4691,7 @@ const compressImage = (file, maxWidth = 1200) => {
                         if (data.dataPejabat) setDataPejabat(data.dataPejabat);
                         if (data.jadwalDB) setJadwalDB(data.jadwalDB);
                         if (data.youtubeUrl) setYoutubeUrl(data.youtubeUrl);
+                        if (data.liveUrl) setLiveUrl(data.liveUrl);
                         if (data.kategoriPejabat) setKategoriPejabat(data.kategoriPejabat);
                         
                         // Parse Kontak
@@ -4758,7 +4805,7 @@ const compressImage = (file, maxWidth = 1200) => {
                     case 'belajar_egw': return <DetailEGW setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'warta':  return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta} selectedWarta={selectedWartaDetail} setSelectedWarta={setSelectedWartaDetail} />;
-                    case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} youtubeUrl={youtubeUrl} />;
+                    case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} liveUrl={liveUrl} />;
                     case 'jadwal': return <Jadwal activeRabu={jadwalKhususRabu} activeSabat={jadwalKhususSabat} rabuYMD={displayRabuYMD} sabatYMD={displaySabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} />;
                     case 'persembahan': return <Persembahan dataPejabat={dataPejabat} />;
                     case 'keanggotaan': return <Keanggotaan setActiveTab={setActiveTab} />;
@@ -4767,7 +4814,7 @@ const compressImage = (file, maxWidth = 1200) => {
                     case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
                     case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
                     case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-                    case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} />;
+                    case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} />;
                     case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} />;
                     default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta}
                             refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} />;
