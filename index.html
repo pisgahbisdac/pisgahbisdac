@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Presensi Gereja - Google Sheets</title>
+    <title>Sistem Presensi Gereja - Multi Sheet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -24,135 +24,158 @@
 
     <!-- Header -->
     <header class="bg-blue-900 text-white p-6 shadow-md">
-        <div class="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
-                <i class="fas fa-file-excel text-green-400 text-3xl"></i>
+                <i class="fas fa-church text-amber-400 text-3xl"></i>
                 <div>
-                    <h1 class="text-xl font-bold uppercase tracking-tight">Sinkronisasi Google Sheets</h1>
-                    <p class="text-xs text-blue-200">ID: 1-fWE3bjOlTU...zc</p>
+                    <h1 class="text-xl font-bold uppercase tracking-tight">Presensi Jemaat</h1>
+                    <p class="text-xs text-blue-200 tracking-wide">Pemisahan Sheet Otomatis</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <!-- Tombol Buka Spreadsheet Langsung -->
                 <a href="https://docs.google.com/spreadsheets/d/1-fWE3bjOlTU9VFITCgI6smG8d__vxjWpVMN35ODb-zc/edit" 
                    target="_blank" 
-                   class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all shadow-lg border border-green-500">
-                    <i class="fas fa-external-link-alt text-[10px]"></i>
-                    Buka Spreadsheet
+                   class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all shadow-lg">
+                    <i class="fas fa-table"></i> Cek Spreadsheet
                 </a>
-                <div class="bg-blue-800 px-4 py-2 rounded-lg text-sm flex items-center gap-2 border border-blue-700">
+                <div class="bg-blue-800 px-4 py-2 rounded-lg text-[10px] flex items-center gap-2 border border-blue-700">
                     <span id="statusDot" class="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></span>
-                    <span id="statusText">Menghubungkan...</span>
+                    <span id="statusText" class="uppercase font-bold">Menghubungkan...</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto p-4 md:p-8">
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <main class="max-w-6xl mx-auto p-4 md:p-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- Kolom Input Anggota -->
-            <div class="md:col-span-1 space-y-6">
+            <!-- Panel Kiri -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Manajemen Jemaat -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h2 class="text-gray-800 font-bold mb-4 flex items-center gap-2">
-                        <i class="fas fa-user-plus text-blue-600"></i>
-                        Anggota Baru
+                    <h2 id="formTitle" class="text-gray-800 font-bold mb-4 flex items-center gap-2 text-sm uppercase">
+                        <i class="fas fa-user-tag text-blue-600"></i>
+                        Database Nama
                     </h2>
-                    <form id="addMemberForm" class="space-y-4">
+                    <form id="memberForm" class="space-y-4">
+                        <input type="hidden" id="editMemberId">
                         <div>
-                            <label class="text-[10px] font-bold text-gray-400 uppercase">Nama Jemaat</label>
-                            <input type="text" id="inputName" required placeholder="Contoh: Budi Santoso"
-                                class="w-full mt-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                            <input type="text" id="inputName" required placeholder="Nama Lengkap"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm">
                         </div>
-                        <button type="submit" id="addBtn"
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all flex justify-center items-center gap-2">
-                            <i class="fas fa-save"></i> Simpan Nama
-                        </button>
+                        <div class="flex gap-2">
+                            <button type="submit" id="submitBtn"
+                                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all flex justify-center items-center gap-2 text-sm">
+                                <i class="fas fa-save"></i> <span id="submitBtnText">Simpan</span>
+                            </button>
+                            <button type="button" id="cancelEditBtn" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-600 font-bold px-4 rounded-xl">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     </form>
                 </div>
 
-                <div class="bg-amber-50 border border-amber-100 p-4 rounded-xl text-[11px] text-amber-700">
-                    <p class="font-bold mb-1"><i class="fas fa-info-circle mr-1"></i> Informasi:</p>
-                    Klik tombol hijau di atas untuk melihat riwayat kehadiran yang sudah terkirim ke Google Sheets.
+                <!-- Pilihan Tujuan Sheet -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500">
+                    <h2 class="text-gray-800 font-bold mb-4 flex items-center gap-2 text-sm uppercase">
+                        <i class="fas fa-layer-group text-orange-500"></i>
+                        Pilih Sheet Tujuan
+                    </h2>
+                    <div class="space-y-2">
+                        <label class="flex items-center p-3 rounded-xl border border-gray-100 cursor-pointer hover:bg-orange-50 transition-all group">
+                            <input type="radio" name="kegiatan" value="Sekolah Sabat" checked class="w-4 h-4 text-orange-600 focus:ring-orange-500">
+                            <div class="ml-3">
+                                <p class="text-sm font-bold text-gray-700">Sekolah Sabat</p>
+                                <p class="text-[10px] text-gray-400">Masuk ke tab: Sekolah Sabat</p>
+                            </div>
+                        </label>
+                        <label class="flex items-center p-3 rounded-xl border border-gray-100 cursor-pointer hover:bg-orange-50 transition-all">
+                            <input type="radio" name="kegiatan" value="Khotbah" class="w-4 h-4 text-orange-600 focus:ring-orange-500">
+                            <div class="ml-3">
+                                <p class="text-sm font-bold text-gray-700">Khotbah</p>
+                                <p class="text-[10px] text-gray-400">Masuk ke tab: Khotbah</p>
+                            </div>
+                        </label>
+                    </div>
                 </div>
             </div>
 
-            <!-- Kolom Daftar & Absensi -->
-            <div class="md:col-span-2">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="p-6 border-b border-gray-50 flex justify-between items-center">
-                        <h2 class="font-black text-gray-800 uppercase tracking-tighter">Daftar Hadir Sabtu</h2>
-                        <span id="countDisplay" class="bg-blue-50 text-blue-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">0 Anggota</span>
+            <!-- Panel Kanan -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-full min-h-[500px]">
+                    <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                        <div>
+                            <h2 class="font-black text-gray-800 uppercase tracking-tighter">Absensi Jemaat</h2>
+                            <p id="currentDateDisplay" class="text-[10px] text-gray-400 font-bold uppercase"></p>
+                        </div>
+                        <span id="countDisplay" class="bg-blue-100 text-blue-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase">0 Jemaat</span>
                     </div>
 
-                    <div id="memberList" class="divide-y divide-gray-50 max-h-[500px] overflow-y-auto">
+                    <div id="memberList" class="divide-y divide-gray-50 flex-1 overflow-y-auto">
                         <div class="p-12 text-center text-gray-400 italic text-sm">
                             <div class="loading-spinner mx-auto mb-2"></div>
-                            Memuat data anggota...
+                            Memuat daftar...
                         </div>
                     </div>
 
-                    <div class="p-6 bg-gray-50 border-t flex justify-end">
-                        <button id="syncAllBtn" class="bg-green-600 hover:bg-green-700 text-white font-black py-3 px-8 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-green-100 transition-all flex items-center gap-2">
-                            <i class="fas fa-sync"></i> Kirim Ke Google Sheets
+                    <div class="p-6 bg-white border-t border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div class="text-[10px] text-gray-400 text-center md:text-left">
+                            <span class="font-bold text-blue-600">Tip:</span> Pastikan nama tab di Spreadsheet Anda bernama <br> "Sekolah Sabat" dan "Khotbah".
+                        </div>
+                        <button id="syncAllBtn" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-black py-4 px-12 rounded-2xl text-xs uppercase tracking-widest shadow-xl shadow-green-100 transition-all flex items-center justify-center gap-3">
+                            <i class="fas fa-cloud-upload-alt"></i> Kirim Data
                         </button>
                     </div>
                 </div>
             </div>
 
         </div>
-
     </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // Firebase Config
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'gereja-gsheets-v2';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'gereja-manajemen-v3';
 
-        // URL Google Apps Script Anda
+        // URL Web App dari Deployment Apps Script Terbaru
         const scriptURL = "https://script.google.com/macros/s/AKfycbw-A-0Dsw5tCC8Jb_Ufq3Fc0OsO7mLyUv1lOdLfJCcHH_V2-A50I-u56XaGWkadc9c-og/exec";
 
         let members = [];
         let currentUser = null;
 
-        // Inisialisasi Autentikasi
+        const formatHariTanggal = (date) => {
+            return date.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        };
+        document.getElementById('currentDateDisplay').textContent = formatHariTanggal(new Date());
+
         const initAuth = async () => {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Auth error:", error);
-                document.getElementById('statusText').textContent = "Gagal Terhubung";
-                document.getElementById('statusDot').className = "w-2 h-2 bg-red-500 rounded-full";
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
             }
         };
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                document.getElementById('statusText').textContent = "Mode Cloud Aktif";
-                document.getElementById('statusDot').className = "w-2 h-2 bg-green-400 rounded-full animate-pulse";
+                document.getElementById('statusText').textContent = "Sinkron Aktif";
+                document.getElementById('statusDot').className = "w-2 h-2 bg-green-400 rounded-full";
                 listenData();
             }
         });
 
         function listenData() {
-            if (!currentUser) return;
-            const membersRef = collection(db, 'artifacts', appId, 'public', 'data', 'members');
-            onSnapshot(membersRef, (snap) => {
+            const ref = collection(db, 'artifacts', appId, 'public', 'data', 'members');
+            onSnapshot(ref, (snap) => {
                 members = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                members.sort((a, b) => (a.name > b.name) ? 1 : -1);
+                members.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
                 render();
             });
         }
@@ -161,86 +184,103 @@
             const listEl = document.getElementById('memberList');
             const countEl = document.getElementById('countDisplay');
             if (members.length === 0) {
-                listEl.innerHTML = `<div class="p-12 text-center text-gray-300 italic text-sm">Belum ada nama terdaftar...</div>`;
-                countEl.textContent = "0 Anggota";
+                listEl.innerHTML = `<div class="p-12 text-center text-gray-300 italic text-sm">Belum ada nama di database.</div>`;
+                countEl.textContent = "0 Jemaat";
                 return;
             }
-            countEl.textContent = `${members.length} Anggota`;
+            countEl.textContent = `${members.length} Jemaat`;
             listEl.innerHTML = members.map(m => `
-                <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition-all fade-in">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">
-                            ${(m.name || 'U').charAt(0).toUpperCase()}
+                <div class="p-4 flex items-center justify-between hover:bg-blue-50/30 transition-all fade-in border-b border-gray-50 last:border-0">
+                    <div class="flex items-center gap-4 group">
+                        <div class="w-9 h-9 bg-white border border-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-xs shadow-sm">
+                            ${(m.name || '?').charAt(0).toUpperCase()}
                         </div>
-                        <span class="font-bold text-gray-700">${m.name}</span>
+                        <div>
+                            <div class="font-bold text-gray-700 text-sm">${m.name}</div>
+                            <div class="flex gap-4 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="window.editMember('${m.id}', '${m.name}')" class="text-[10px] font-bold text-blue-500">EDIT</button>
+                                <button onclick="window.deleteMember('${m.id}')" class="text-[10px] font-bold text-red-400">HAPUS</button>
+                            </div>
+                        </div>
                     </div>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" data-name="${m.name}" class="w-6 h-6 rounded border-gray-300 text-blue-600 checkbox-hadir">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase">Hadir</span>
-                    </label>
+                    <input type="checkbox" data-name="${m.name}" class="w-6 h-6 rounded-md border-gray-300 text-blue-600 checkbox-hadir">
                 </div>
             `).join('');
         }
 
-        document.getElementById('addMemberForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('inputName');
-            const btn = document.getElementById('addBtn');
-            const name = input.value.trim();
-            if (name && currentUser) {
-                btn.disabled = true;
-                btn.innerHTML = `<div class="loading-spinner"></div>`;
-                try {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'members'), {
-                        name: name,
-                        createdAt: serverTimestamp()
-                    });
-                    input.value = '';
-                } catch (err) { alert("Error menyimpan nama."); }
-                finally { btn.disabled = false; btn.innerHTML = `<i class="fas fa-save"></i> Simpan Nama`; }
-            }
-        });
+        // Database Ops
+        window.editMember = (id, name) => {
+            document.getElementById('editMemberId').value = id;
+            document.getElementById('inputName').value = name;
+            document.getElementById('formTitle').innerText = 'Edit Jemaat';
+            document.getElementById('submitBtnText').textContent = 'Update';
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+        };
 
-        document.getElementById('syncAllBtn').addEventListener('click', async () => {
+        const resetForm = () => {
+            document.getElementById('editMemberId').value = '';
+            document.getElementById('inputName').value = '';
+            document.getElementById('formTitle').innerText = 'Database Nama';
+            document.getElementById('submitBtnText').textContent = 'Simpan';
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+        };
+
+        document.getElementById('memberForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editMemberId').value;
+            const name = document.getElementById('inputName').value.trim();
+            if (!name || !currentUser) return;
+            try {
+                if (id) {
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', id), { name: name });
+                } else {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'members'), { name: name, createdAt: serverTimestamp() });
+                }
+                resetForm();
+            } catch (err) { alert("Gagal menyimpan."); }
+        };
+
+        window.deleteMember = async (id) => {
+            if (confirm("Hapus jemaat?")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', id));
+        };
+
+        // Kirim Multi-Sheet
+        document.getElementById('syncAllBtn').onclick = async () => {
             const btn = document.getElementById('syncAllBtn');
             const checkboxes = document.querySelectorAll('.checkbox-hadir:checked');
-            
+            const kegiatan = document.querySelector('input[name="kegiatan"]:checked').value;
+            const tgl = formatHariTanggal(new Date());
+
             if (checkboxes.length === 0) {
-                alert("Pilih minimal satu jemaat yang hadir.");
+                alert("Pilih jemaat yang hadir.");
                 return;
             }
 
             btn.disabled = true;
-            btn.innerHTML = `<div class="loading-spinner"></div> Mengirim...`;
+            btn.innerHTML = `<div class="loading-spinner"></div> Memproses...`;
 
             try {
                 for (const check of checkboxes) {
-                    const nama = check.dataset.name;
                     const params = new URLSearchParams();
-                    params.append('nama', nama);
-                    params.append('kegiatan', "Hadir Sekolah Sabat");
+                    params.append('nama', check.dataset.name);
+                    params.append('kegiatan', kegiatan);
+                    params.append('waktu', tgl);
 
                     await fetch(scriptURL, {
                         method: 'POST',
                         mode: 'no-cors',
-                        cache: 'no-cache',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: params.toString()
                     });
                 }
-                
-                alert("Puji Tuhan! Data kehadiran berhasil dikirim ke Google Sheets.");
+                alert(`Puji Tuhan! Data berhasil masuk ke sheet: ${kegiatan}`);
                 document.querySelectorAll('.checkbox-hadir').forEach(c => c.checked = false);
-            } catch (e) {
-                console.error("Fetch Error:", e);
-                alert("Terjadi kesalahan saat menghubungi server Google.");
-            } finally {
+            } catch (e) { alert("Error menghubungi Google Sheets."); }
+            finally {
                 btn.disabled = false;
-                btn.innerHTML = `<i class="fas fa-sync"></i> Kirim Ke Google Sheets`;
+                btn.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> Kirim Data`;
             }
-        });
+        };
 
         initAuth();
     </script>
