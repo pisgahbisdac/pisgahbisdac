@@ -1,145 +1,119 @@
-var sheetId = "1-fWE3bjOlTU9VFITCgI6smG8d__vxjWpVMN35ODb-zc"; // ID Spreadsheet Anda
-
-function doGet(e) {
-  var ss = SpreadsheetApp.openById(sheetId);
-  
-  if (e.parameter.action === "verifyPin") {
-    var sheet = ss.getSheetByName("Pengaturan");
-    
-    // Jika tab Pengaturan belum ada, buat otomatis
-    if (!sheet) {
-      sheet = ss.insertSheet("Pengaturan");
-      sheet.appendRow(["Nama Akun / Kelas", "PIN AKSES", "HAK AKSES"]);
-      sheet.appendRow(["Admin Utama", "1234", "Admin"]);
-      sheet.appendRow(["Sekretaris Dewasa", "1234", "Dewasa"]);
-      sheet.appendRow(["Sekretaris Anak", "1234", "Anak"]);
-      sheet.appendRow(["Sekretaris Khotbah", "1234", "Khotbah"]); // PENAMBAHAN AKUN KHOTBAH
-      sheet.getRange("A1:C1").setFontWeight("bold").setBackground("#D4AF37");
-      sheet.setColumnWidth(1, 200);
-      sheet.setColumnWidth(2, 150);
-      sheet.setColumnWidth(3, 150);
-    }
-    
-    var data = sheet.getDataRange().getValues();
-    var inputPin = e.parameter.pin.toString();
-    var isValid = false;
-    var accountName = "";
-    var accessLevel = "Admin";
-    
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][1].toString() === inputPin) {
-        isValid = true;
-        accountName = data[i][0];
-        if (data[i].length > 2 && data[i][2]) {
-            accessLevel = data[i][2].toString();
-        } else {
-            var accLower = accountName.toLowerCase();
-            if (accLower.indexOf("anak") !== -1) accessLevel = "Anak";
-            else if (accLower.indexOf("dewasa") !== -1) accessLevel = "Dewasa";
-            else if (accLower.indexOf("khotbah") !== -1) accessLevel = "Khotbah"; // DETEKSI KHOTBAH
-        }
-        break;
-      }
-    }
-    
-    var result = { valid: isValid, account: accountName, accessLevel: accessLevel };
-    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
 function doPost(e) {
-  var lock = LockService.getScriptLock();
-  lock.waitLock(30000); 
-  
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
   try {
-    var ss = SpreadsheetApp.openById(sheetId);
-    var action = e.parameter.action;
-    var waktu = e.parameter.waktu;
-    
-    if (action === "keterlibatan") {
-      var sheetName = "Keterlibatan Kelas";
-      var sheet = ss.getSheetByName(sheetName);
-      
+    const action = e.parameter.action;
+
+    // =====================================================
+    // SIMPAN PERMOHONAN DOA
+    // =====================================================
+    if (action === "doa") {
+
+      let sheet = ss.getSheetByName("Permohonan Doa");
+
+      // Jika sheet belum ada → buat otomatis
       if (!sheet) {
-        sheet = ss.insertSheet(sheetName);
+        sheet = ss.insertSheet("Permohonan Doa");
+
         sheet.appendRow([
-          "Tanggal", "1. Tepat Waktu SS", "2. Baca Alkitab", "3. Renungan Pagi", 
-          "4. Belajar SS", "5. Hadir Rabu Malam", "6. Jangkauan Keluar", 
-          "7. Perlawatan (Nurturing)", "8. Doa 777/Subuh", "9. Kelompok Kecil", "10. Membagikan Buku/Risalah"
+          "Waktu",
+          "Nama",
+          "No HP",
+          "Isi Permohonan"
         ]);
-        sheet.getRange("A1:K1").setFontWeight("bold").setBackground("#D4AF37");
-        sheet.setFrozenRows(1);
+
+        sheet.getRange(1, 1, 1, 4).setFontWeight("bold");
       }
-      
+
+      const nama = e.parameter.nama || "-";
+      const hp = e.parameter.hp || "-";
+      const pesan = e.parameter.pesan || "-";
+      const waktu = e.parameter.waktu || new Date();
+
       sheet.appendRow([
-        waktu, e.parameter.k1, e.parameter.k2, e.parameter.k3, e.parameter.k4, e.parameter.k5,
-        e.parameter.k6, e.parameter.k7, e.parameter.k8, e.parameter.k9, e.parameter.k10
+        waktu,
+        nama,
+        hp,
+        pesan
       ]);
-      return ContentService.createTextOutput("Sukses Keterlibatan").setMimeType(ContentService.MimeType.TEXT);
-    }
-    
-    // ALUR 2: ABSENSI
-    var nama = e.parameter.nama;
-    var kegiatan = e.parameter.kegiatan;
-    var kategori = e.parameter.kategori || "-";
-    var subkelas = e.parameter.subkelas || "-";
-    var jabatan = e.parameter.jabatan || "-";
-    var status = e.parameter.status || "Hadir"; 
-    
-    var sheetAbsensi = ss.getSheetByName(kegiatan);
-    if (!sheetAbsensi) {
-      sheetAbsensi = ss.insertSheet(kegiatan);
-      sheetAbsensi.appendRow(["Kategori", "Sub Kelas", "Jabatan", "Nama Jemaat"]);
-      sheetAbsensi.getRange("A1:D1").setFontWeight("bold").setBackground("#0A192F").setFontColor("#FFFFFF");
-      sheetAbsensi.setFrozenRows(1);
-      sheetAbsensi.setFrozenColumns(4);
+
+      return ContentService
+        .createTextOutput(JSON.stringify({
+          success: true,
+          type: "doa",
+          message: "Permohonan doa berhasil disimpan"
+        }))
+        .setMimeType(ContentService.MimeType.JSON);
     }
 
-    if (nama) {
-      var lastCol = sheetAbsensi.getLastColumn();
-      if (lastCol < 4) lastCol = 4;
-      
-      var headers = sheetAbsensi.getRange(1, 1, 1, lastCol).getValues()[0];
-      var colIndex = headers.indexOf(waktu) + 1; 
-      
-      if (colIndex === 0) {
-        colIndex = lastCol + 1;
-        sheetAbsensi.getRange(1, colIndex).setValue(waktu)
-                    .setFontWeight("bold")
-                    .setBackground("#D4AF37")
-                    .setFontColor("#000000");
+    // =====================================================
+    // SIMPAN ABSENSI
+    // =====================================================
+    if (action === "absensi") {
+
+      let sheet = ss.getSheetByName("Absensi");
+
+      // Jika sheet belum ada → buat otomatis
+      if (!sheet) {
+        sheet = ss.insertSheet("Absensi");
+
+        sheet.appendRow([
+          "Waktu",
+          "Nama",
+          "Kategori",
+          "Subkelas",
+          "Jabatan",
+          "Kegiatan",
+          "Status"
+        ]);
+
+        sheet.getRange(1, 1, 1, 7).setFontWeight("bold");
       }
 
-      var lastRow = sheetAbsensi.getLastRow();
-      var rowIndex = -1;
-      
-      if (lastRow > 1) {
-        var names = sheetAbsensi.getRange(2, 4, lastRow - 1, 1).getValues();
-        for (var i = 0; i < names.length; i++) {
-          if (names[i][0] === nama) {
-            rowIndex = i + 2; 
-            break;
-          }
-        }
-      }
-      
-      if (rowIndex === -1) {
-        rowIndex = lastRow + 1;
-        sheetAbsensi.getRange(rowIndex, 1).setValue(kategori);
-        sheetAbsensi.getRange(rowIndex, 2).setValue(subkelas);
-        sheetAbsensi.getRange(rowIndex, 3).setValue(jabatan);
-        sheetAbsensi.getRange(rowIndex, 4).setValue(nama);
-      }
+      const waktu = e.parameter.waktu || "-";
+      const nama = e.parameter.nama || "-";
+      const kategori = e.parameter.kategori || "-";
+      const subkelas = e.parameter.subkelas || "-";
+      const jabatan = e.parameter.jabatan || "-";
+      const kegiatan = e.parameter.kegiatan || "-";
+      const status = e.parameter.status || "-";
 
-      sheetAbsensi.getRange(rowIndex, colIndex).setValue(status);
-      return ContentService.createTextOutput("Sukses Absensi").setMimeType(ContentService.MimeType.TEXT);
+      sheet.appendRow([
+        waktu,
+        nama,
+        kategori,
+        subkelas,
+        jabatan,
+        kegiatan,
+        status
+      ]);
+
+      return ContentService
+        .createTextOutput(JSON.stringify({
+          success: true,
+          type: "absensi",
+          message: "Absensi berhasil disimpan"
+        }))
+        .setMimeType(ContentService.MimeType.JSON);
     }
-    
-    return ContentService.createTextOutput("Gagal: Data tidak lengkap").setMimeType(ContentService.MimeType.TEXT);
-    
-  } catch(error) {
-    return ContentService.createTextOutput("Error: " + error.toString()).setMimeType(ContentService.MimeType.TEXT);
-  } finally {
-    lock.releaseLock();
+
+    // =====================================================
+    // ACTION TIDAK DIKENALI
+    // =====================================================
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: false,
+        message: "Action tidak dikenali"
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: false,
+        error: error.toString()
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
