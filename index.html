@@ -6,7 +6,6 @@
     <title>Presensi - PISGAH Batam SDA Church</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Tambahkan library plugin angka untuk Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script>
         tailwind.config = {
@@ -25,18 +24,28 @@
     <style>
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Animasi Melayang untuk Logo Background */
+        @keyframes floatLogo {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.15; filter: drop-shadow(0 0 10px rgba(212,175,55,0.2)); }
+            50% { transform: translateY(-15px) rotate(3deg); opacity: 0.35; filter: drop-shadow(0 0 25px rgba(212,175,55,0.6)); }
+            100% { transform: translateY(0px) rotate(0deg); opacity: 0.15; filter: drop-shadow(0 0 10px rgba(212,175,55,0.2)); }
+        }
+        .animate-float-logo { animation: floatLogo 7s ease-in-out infinite; }
+
         .animate-fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-fade-in-down { animation: fadeInDown 0.3s ease-out forwards; }
+        
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.4); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.8); }
         
         .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 20px; height: 20px; animation: spin 1s linear infinite; }
         .spinner-dark { border: 3px solid rgba(10, 25, 47, 0.3); border-radius: 50%; border-top: 3px solid #0A192F; width: 20px; height: 20px; animation: spin 1s linear infinite; margin: auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* --- ANIMASI JAM HTC (FLIP CLOCK) --- */
+        /* --- ANIMASI JAM HTC --- */
         @keyframes flipBlock {
             0% { transform: rotateX(90deg); filter: brightness(1.5); }
             100% { transform: rotateX(0deg); filter: brightness(1); }
@@ -46,14 +55,103 @@
             transform-origin: top;
             backface-visibility: hidden;
         }
-        /* ----------------------------------- */
 
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; }
+        input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.8; filter: invert(0.2) sepia(1) saturate(5) hue-rotate(5deg); transition: 0.2s; }
         input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+        /* ========================================================= */
+        /* TEMA GLASSMORPHISM (NAVY/GOLD ELEGANT)                    */
+        /* ========================================================= */
+        body {
+            background-color: #0A192F;
+            /* Background gambar abstrak dark navy & gold */
+            background-image: url('https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=2500&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #1e293b;
+        }
+        /* Lapisan Overlay Biru Dongker dengan efek blur */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 25, 47, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: -1;
+        }
+
+        /* Kotak Kaca Transparan Terang */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Kotak Kaca Transparan Gelap (Navy) */
+        .glass-card-dark {
+            background: rgba(10, 25, 47, 0.55);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Input Kaca */
+        .glass-input {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            color: #0A192F;
+            transition: all 0.3s ease;
+        }
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: #D4AF37;
+            box-shadow: 0 0 0 4px rgba(212,175,55,0.2);
+            outline: none;
+        }
+
+        /* Elemen Daftar / Baris Kaca */
+        .glass-item {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        .glass-item:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: #D4AF37;
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.15);
+        }
+
+        /* Panel Pembatas Kaca */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        /* Tombol Emas Kaca */
+        .glass-btn-gold {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.85), rgba(184, 150, 45, 0.85));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+            color: #0A192F;
+            transition: all 0.3s ease;
+        }
+        .glass-btn-gold:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 1), rgba(184, 150, 45, 1));
+            box-shadow: 0 6px 25px rgba(212, 175, 55, 0.5);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
-<body class="bg-[#F8FAFC] min-h-screen font-sans text-gray-800 selection:bg-gold selection:text-navy">
+<body class="min-h-screen font-sans selection:bg-gold selection:text-navy">
 
     <!-- Toast Notification -->
     <div id="toast-container" class="fixed top-6 right-6 z-[100] hidden">
@@ -68,108 +166,110 @@
 
     <!-- Confirmation Modal -->
     <div id="modal-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] hidden items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-fade-in-up">
+        <div class="glass-card rounded-2xl p-6 max-w-sm w-full animate-fade-in-up">
             <h3 id="modal-title" class="text-xl font-bold mb-2 text-navy">Konfirmasi</h3>
             <p id="modal-message" class="text-gray-600 mb-6 text-sm leading-relaxed">Apakah Anda yakin?</p>
             <div class="flex gap-3 justify-end">
-                <button onclick="closeModal()" class="px-5 py-2.5 rounded-xl font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors">Batal</button>
-                <button id="modal-confirm-btn" class="px-5 py-2.5 rounded-xl font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-lg shadow-red-200">Ya, Hapus</button>
+                <button onclick="closeModal()" class="px-5 py-2.5 rounded-xl font-semibold text-gray-700 bg-white/50 hover:bg-white border border-white transition-colors">Batal</button>
+                <button id="modal-confirm-btn" class="px-5 py-2.5 rounded-xl font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30">Ya, Hapus</button>
             </div>
         </div>
     </div>
 
     <!-- Admin Login Modal -->
-    <div id="login-overlay" class="fixed inset-0 bg-navy/95 backdrop-blur-md z-[70] hidden items-center justify-center p-4 transition-opacity">
-        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-fade-in-up text-center border-t-4 border-gold relative overflow-hidden">
-            <div class="w-20 h-20 bg-navy rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner p-3">
+    <div id="login-overlay" class="fixed inset-0 bg-navy/80 backdrop-blur-md z-[70] hidden items-center justify-center p-4 transition-opacity">
+        <div class="glass-card rounded-3xl p-8 max-w-sm w-full animate-fade-in-up text-center border-t-4 border-gold relative overflow-hidden">
+            <div class="w-20 h-20 glass-card-dark rounded-full flex items-center justify-center mx-auto mb-4 p-3 border border-white/20">
                 <img src="PisgahWhite.png" alt="Pisgah Logo" class="w-full h-full object-contain drop-shadow-md">
             </div>
             <h3 class="text-2xl font-black mb-2 text-navy">Akses Sekretaris</h3>
-            <p class="text-gray-500 mb-6 text-sm">Masukkan PIN rahasia kelas Anda.</p>
-            <input type="password" id="admin-pin" placeholder="••••" class="w-full text-center text-3xl tracking-[1em] px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition-all mb-6 font-mono" />
+            <p class="text-gray-600 mb-6 text-sm">Masukkan kode keamanan Anda.</p>
+            <input type="password" id="admin-pin" placeholder="********" class="w-full text-center text-2xl tracking-[0.5em] px-4 py-4 glass-input rounded-xl mb-6 font-mono" />
             <div class="flex gap-3">
-                <button onclick="closeLogin()" class="flex-1 py-3.5 rounded-xl font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors">BATAL</button>
-                <button id="btn-login" onclick="verifyLogin()" class="flex-1 py-3.5 rounded-xl font-bold text-navy bg-gold hover:opacity-90 transition-opacity shadow-lg shadow-gold/30">MASUK</button>
+                <button onclick="closeLogin()" class="flex-1 py-3.5 rounded-xl font-bold text-gray-700 bg-white/50 hover:bg-white border border-white transition-colors">BATAL</button>
+                <button id="btn-login" onclick="verifyLogin()" class="flex-1 py-3.5 rounded-xl font-bold glass-btn-gold">MASUK</button>
             </div>
         </div>
     </div>
 
     <!-- Navigation Header -->
-    <header class="px-6 py-4 shadow-lg bg-navy sticky top-0 z-40 border-b border-white/10">
+    <header class="px-6 py-4 glass-card-dark sticky top-0 z-40 border-b border-white/10">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-4">
                 <img src="PisgahWhite.png" alt="Pisgah Logo" class="h-12 w-auto object-contain drop-shadow-lg" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRDhCMzQ1IiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xOCAyMlYxM2wtNi00LTYgNHY5Ii8+PHBhdGggZD0iTTEyIDJ2NyIvPjxwYXRoIGQ9Ik05IDVoNiIvPjxwYXRoIGQ9Ik0xMiAyMnYtNWEyIDIgMCAwIDEgNCAwdjUiLz48L3N2Zz4='">
                 <div>
-                    <h1 class="text-xl md:text-2xl font-black tracking-tight text-gold leading-none">PISGAH BISDAC</h1>
-                    <p class="text-[10px] md:text-xs text-blue-100 font-semibold mt-1 uppercase tracking-wide">Batam International Seventh-Day Adventist Church</p>
+                    <h1 class="text-xl md:text-2xl font-black tracking-tight text-gold leading-none drop-shadow-md">PISGAH BISDAC</h1>
+                    <p class="text-[10px] md:text-xs text-blue-100 font-semibold mt-1 uppercase tracking-wide opacity-90">Batam International Seventh-Day Adventist Church</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2 bg-black/30 p-1.5 rounded-2xl">
-                <button onclick="showHomeView()" id="nav-home" class="px-5 py-2 rounded-xl text-sm font-bold transition-all bg-gold text-navy shadow-md">🏠 BERANDA</button>
-                <button onclick="openLogin()" id="nav-admin" class="px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/70 hover:text-white hover:bg-white/10">🔒 ADMIN</button>
+            <div class="flex items-center gap-2 bg-black/40 p-1.5 rounded-2xl border border-white/10 backdrop-blur-md">
+                <button onclick="showHomeView()" id="nav-home" class="px-5 py-2 rounded-xl text-sm font-bold glass-btn-gold shadow-lg shadow-gold/20">🏠 BERANDA</button>
+                <button onclick="openLogin()" id="nav-admin" class="px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/80 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10">🔒 ADMIN</button>
             </div>
         </div>
     </header>
 
     <!-- VIEW: HOME -->
     <main id="view-home" class="max-w-7xl mx-auto p-4 md:p-8 animate-fade-in-up block">
-        <div class="bg-gradient-to-br from-navy to-navy-light rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden mb-8 group">
-            <img src="PisgahWhite.png" alt="Background Logo" class="absolute -right-10 -top-10 w-96 h-96 object-contain opacity-10 group-hover:scale-110 transition-transform duration-700 pointer-events-none" onerror="this.style.display='none'">
-            <h2 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight">Selamat Datang,<br><span class="text-gold">PISGAH BISDAC</span><br><span class="text-lg md:text-2xl text-blue-100 font-bold block mt-2">Batam International Seventh-Day Adventist Church</span></h2>
-            <p class="text-blue-100/80 max-w-xl text-sm md:text-base leading-relaxed relative z-10">Platform digital pemantauan kehadiran jemaat dan tingkat keterlibatan secara real-time.</p>
+        <!-- Kotak Selamat Datang (Efek Mengambang Logo diterapkan disini) -->
+        <div class="glass-card-dark rounded-3xl p-8 md:p-12 relative overflow-hidden mb-8">
+            <img src="PisgahWhite.png" alt="Background Logo" class="absolute -right-10 -top-10 w-96 h-96 object-contain pointer-events-none animate-float-logo" onerror="this.style.display='none'">
+            <h2 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight drop-shadow-lg relative z-10">Selamat Datang,<br><span class="text-gold">PISGAH BISDAC</span><br><span class="text-lg md:text-2xl text-blue-100 font-bold block mt-2 opacity-90">Batam International Seventh-Day Adventist Church</span></h2>
+            <p class="text-blue-100/90 max-w-xl text-sm md:text-base leading-relaxed relative z-10">Platform digital pemantauan kehadiran jemaat dan tingkat keterlibatan secara real-time.</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div class="lg:col-span-4 space-y-6">
-                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-5">
-                    <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <!-- WIDGET: Total Database (Glass Dark) -->
+                <div class="glass-card-dark p-6 rounded-3xl flex items-center gap-5 border border-white/10 shadow-xl">
+                    <div class="w-14 h-14 rounded-2xl bg-gold/20 text-gold flex items-center justify-center shrink-0 border border-gold/30 shadow-inner">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </div>
                     <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Jemaat Database</p>
-                        <h3 class="text-3xl font-black text-navy mt-1" id="dash-total-jemaat">0</h3>
+                        <p class="text-xs font-bold text-blue-200 uppercase tracking-wider opacity-80">Total Jemaat Database</p>
+                        <h3 class="text-3xl font-black text-white mt-1 drop-shadow-md" id="dash-total-jemaat">0</h3>
                     </div>
                 </div>
                 
-                <!-- WIDGET JAM HTC & KALENDER -->
-                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden flex flex-col justify-center">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-gold/10 rounded-bl-full -z-0"></div>
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider relative z-10 mb-2">Waktu & Tanggal (Live)</p>
+                <!-- WIDGET: JAM HTC & KALENDER (Glass Dark) -->
+                <div class="glass-card-dark p-6 rounded-3xl relative overflow-hidden flex flex-col justify-center border border-white/10 shadow-xl">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gold/20 rounded-bl-full blur-xl -z-0"></div>
+                    <p class="text-xs font-bold text-blue-200 uppercase tracking-wider relative z-10 mb-2 opacity-80">Waktu & Tanggal (Live)</p>
                     
                     <div class="flex items-center gap-1.5 mb-3 relative z-10" style="perspective: 200px;">
-                        <div id="clock-hours" class="bg-gradient-to-b from-navy to-navy-light text-white rounded-xl px-3 py-2 text-4xl font-black shadow-[inset_0_-2px_0_rgba(255,255,255,0.2),0_4px_6px_rgba(0,0,0,0.3)] flex items-center justify-center min-w-[65px]">00</div>
-                        <div class="text-navy font-black text-3xl animate-pulse pb-1">:</div>
-                        <div id="clock-minutes" class="bg-gradient-to-b from-navy to-navy-light text-white rounded-xl px-3 py-2 text-4xl font-black shadow-[inset_0_-2px_0_rgba(255,255,255,0.2),0_4px_6px_rgba(0,0,0,0.3)] flex items-center justify-center min-w-[65px]">00</div>
-                        <div class="text-gray-300 font-black text-3xl animate-pulse pb-1">:</div>
-                        <div id="clock-seconds" class="bg-gray-100 text-gray-600 rounded-lg px-2 py-2 text-2xl font-black shadow-inner flex items-center justify-center min-w-[50px] border border-gray-200">00</div>
+                        <div id="clock-hours" class="bg-white/10 text-white rounded-xl px-3 py-2 text-4xl font-black flex items-center justify-center min-w-[65px] border border-white/20 shadow-inner backdrop-blur-md">00</div>
+                        <div class="text-gold font-black text-3xl animate-pulse pb-1 drop-shadow-sm">:</div>
+                        <div id="clock-minutes" class="bg-white/10 text-white rounded-xl px-3 py-2 text-4xl font-black flex items-center justify-center min-w-[65px] border border-white/20 shadow-inner backdrop-blur-md">00</div>
+                        <div class="text-gold font-black text-3xl animate-pulse pb-1 drop-shadow-sm">:</div>
+                        <div id="clock-seconds" class="bg-white/20 text-white rounded-lg px-2 py-2 text-2xl font-black flex items-center justify-center min-w-[50px] border border-white/30 backdrop-blur-md">00</div>
                     </div>
                     
-                    <p class="text-sm font-black text-navy relative z-10" id="dash-tanggal-lengkap">-</p>
-                    <p class="text-[10px] text-gold font-bold mt-1 relative z-10 uppercase tracking-widest" id="dash-kegiatan-hari-ini">-</p>
+                    <p class="text-sm font-black text-white relative z-10 drop-shadow-md" id="dash-tanggal-lengkap">-</p>
+                    <p class="text-[10px] text-gold font-bold mt-1 relative z-10 uppercase tracking-widest drop-shadow-sm" id="dash-kegiatan-hari-ini">-</p>
                     
                     <span id="dash-hari-ini" class="hidden"></span>
                 </div>
             </div>
             
             <div class="lg:col-span-8 space-y-6">
-                <!-- CHART 1: TREN BAR CHART (PERBANDINGAN MINGGUAN) -->
-                <div class="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-bl-full -z-0"></div>
-                    <h3 class="text-sm font-black text-navy mb-1 uppercase tracking-widest relative z-10 flex items-center gap-2">📈 Tren Kehadiran</h3>
-                    <p class="text-[10px] text-gray-500 mb-4 relative z-10">Perbandingan Minggu Lalu vs Minggu Ini</p>
+                <!-- CHART 1: TREN BAR CHART (Glass Dark) -->
+                <div class="glass-card-dark p-6 md:p-8 rounded-3xl relative overflow-hidden border border-white/10 shadow-xl">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gold/10 rounded-bl-full blur-xl -z-0"></div>
+                    <h3 class="text-sm font-black text-white mb-1 uppercase tracking-widest relative z-10 flex items-center gap-2 drop-shadow-md">📈 Tren Kehadiran</h3>
+                    <p class="text-[10px] text-blue-200/80 mb-4 relative z-10">Perbandingan Minggu Lalu vs Minggu Ini</p>
                     <div class="w-full h-56 relative z-10"><canvas id="trendChart"></canvas></div>
                 </div>
 
-                <!-- CHART 2 & 3: PIE / DOUGHNUT -->
+                <!-- CHART 2 & 3: PIE / DOUGHNUT (Glass Dark) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-                        <h3 class="text-sm font-black text-navy mb-1 uppercase tracking-widest">👥 Komposisi Jemaat</h3>
-                        <p class="text-[10px] text-gray-500 mb-4">Total terdaftar di database</p>
+                    <div class="glass-card-dark p-6 rounded-3xl border border-white/10 shadow-xl">
+                        <h3 class="text-sm font-black text-white mb-1 uppercase tracking-widest drop-shadow-md">👥 Komposisi Jemaat</h3>
+                        <p class="text-[10px] text-blue-200/80 mb-4">Total terdaftar di database</p>
                         <div class="w-full h-48 relative z-10"><canvas id="komposisiChart"></canvas></div>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-                        <h3 class="text-sm font-black text-navy mb-1 uppercase tracking-widest">📊 Status Terakhir</h3>
-                        <p class="text-[10px] text-gray-500 mb-4">Sesi kehadiran yang paling baru</p>
+                    <div class="glass-card-dark p-6 rounded-3xl border border-white/10 shadow-xl">
+                        <h3 class="text-sm font-black text-white mb-1 uppercase tracking-widest drop-shadow-md">📊 Status Terakhir</h3>
+                        <p class="text-[10px] text-blue-200/80 mb-4">Sesi kehadiran yang paling baru</p>
                         <div class="w-full h-48 relative z-10"><canvas id="statusChart"></canvas></div>
                     </div>
                 </div>
@@ -179,15 +279,16 @@
 
     <!-- VIEW: ADMIN / SEKRETARIS -->
     <main id="view-admin" class="max-w-7xl mx-auto p-4 md:p-8 hidden">
-        <div class="flex items-center justify-between mb-6 bg-blue-50 px-6 py-4 rounded-2xl border border-blue-100 shadow-sm">
+        <div class="flex items-center justify-between mb-6 glass-card px-6 py-4 rounded-2xl">
             <div>
-                <p class="text-xs font-bold text-blue-500 uppercase tracking-wider">Login Aktif</p>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Login Aktif</p>
                 <div class="flex items-center gap-2 mt-1">
                     <h2 class="text-lg font-black text-navy" id="active-account-name">Admin</h2>
-                    <span id="active-access-badge" class="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-navy text-white"></span>
+                    <span id="active-access-badge" class="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-navy text-white shadow-sm"></span>
                 </div>
             </div>
-            <button onclick="showHomeView()" class="px-4 py-2 bg-white text-red-500 text-sm font-bold rounded-xl shadow-sm border border-red-100 hover:bg-red-50 transition-colors">KELUAR</button>
+            <!-- Tombol Keluar dengan fungsi logout() baru -->
+            <button onclick="logout()" class="px-4 py-2 bg-red-500/10 text-red-600 border border-red-500/30 text-sm font-bold rounded-xl shadow-sm hover:bg-red-500/20 transition-colors backdrop-blur-md">KELUAR</button>
         </div>
 
         <!-- ======================================================= -->
@@ -196,104 +297,104 @@
         <div id="layout-sekretaris" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
             <!-- LEFT PANEL: Kalender & Kegiatan -->
             <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-24 h-fit">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-navy"></div>
-                    <h2 class="font-bold mb-3 flex items-center gap-2 text-sm uppercase tracking-wider text-gray-800">📅 Tanggal Kalender</h2>
-                    <input type="date" id="input-tanggal" onchange="changeDate(this.value)" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-bold text-navy uppercase" />
+                <div class="glass-card p-6 rounded-3xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-navy"></div>
+                    <h2 class="font-bold mb-3 flex items-center gap-2 text-sm uppercase tracking-wider text-navy">📅 Tanggal Kalender</h2>
+                    <input type="date" id="input-tanggal" onchange="changeDate(this.value)" class="w-full px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy uppercase" />
                 </div>
 
-                <div id="activity-selector-container" class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 relative overflow-hidden transition-opacity">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-gold"></div>
-                    <h2 class="font-bold mb-5 flex items-center gap-2 text-sm uppercase tracking-wider text-gray-800">Pilih Kegiatan</h2>
+                <div id="activity-selector-container" class="glass-card p-6 rounded-3xl relative overflow-hidden transition-opacity">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-gold"></div>
+                    <h2 class="font-bold mb-5 flex items-center gap-2 text-sm uppercase tracking-wider text-navy">Pilih Kegiatan</h2>
                     <div class="grid grid-cols-1 gap-3" id="activity-options"></div>
                 </div>
             </div>
 
             <!-- RIGHT PANEL: Lembar Absensi -->
             <div class="lg:col-span-8 flex flex-col relative min-h-[600px]">
-                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col h-full flex-1 relative overflow-hidden">
-                    <div class="flex border-b border-gray-200 bg-navy-light text-white font-bold text-sm" id="tab-container">
+                <div class="glass-card rounded-3xl flex flex-col h-full flex-1 relative overflow-hidden">
+                    <div class="flex border-b border-white/40 glass-card-dark text-white font-bold text-sm" id="tab-container">
                         <button onclick="switchTab('absensi')" id="tab-absensi" class="flex-1 py-5 text-center border-b-4 border-gold text-gold transition-colors">📋 ABSENSI JEMAAT</button>
-                        <button onclick="switchTab('keterlibatan')" id="tab-keterlibatan" class="flex-1 py-5 text-center border-b-4 border-transparent text-gray-400 hover:text-white transition-colors">📊 KETERLIBATAN KELAS</button>
+                        <button onclick="switchTab('keterlibatan')" id="tab-keterlibatan" class="flex-1 py-5 text-center border-b-4 border-transparent text-gray-300 hover:text-white transition-colors">📊 KETERLIBATAN KELAS</button>
                     </div>
 
                     <!-- Panel Absensi -->
                     <div id="panel-absensi" class="flex flex-col h-full overflow-hidden">
-                        <div class="p-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white border-b border-gray-100 relative z-10">
+                        <div class="p-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 glass-panel relative z-10">
                             <div>
-                                <p id="tanggal-hari-ini" class="text-xs font-bold text-navy uppercase tracking-wider"></p>
-                                <p id="badge-kegiatan" class="text-[10px] font-black text-white bg-gold px-2 py-0.5 rounded uppercase mt-1 inline-block"></p>
+                                <p id="tanggal-hari-ini" class="text-xs font-bold text-navy uppercase tracking-wider drop-shadow-sm"></p>
+                                <p id="badge-kegiatan" class="text-[10px] font-black text-navy bg-gold px-2 py-0.5 rounded uppercase mt-1 inline-block shadow-sm"></p>
                             </div>
                             <div class="relative w-full sm:w-auto flex flex-col sm:flex-row gap-2">
-                                <select id="filter-subclass" onchange="renderList()" class="hidden pl-3 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-xl text-navy focus:outline-none focus:border-gold transition-all text-sm font-bold w-full sm:w-40">
+                                <select id="filter-subclass" onchange="renderList()" class="hidden pl-3 pr-8 py-2 glass-input rounded-xl text-navy text-sm font-bold w-full sm:w-40 cursor-pointer">
                                     <option value="All">Semua Kelas</option>
                                 </select>
                                 <div class="relative w-full sm:w-56">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">🔍</div>
-                                    <input type="text" id="search-input" placeholder="Cari untuk diabsen..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-navy placeholder-gray-400 focus:outline-none focus:border-gold transition-all text-sm font-medium" />
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">🔍</div>
+                                    <input type="text" id="search-input" placeholder="Cari untuk diabsen..." class="w-full pl-9 pr-4 py-2 glass-input rounded-xl text-navy placeholder-gray-500 text-sm font-medium" />
                                 </div>
                             </div>
                         </div>
 
-                        <div class="px-6 py-3 border-b border-gray-100 flex justify-between items-center text-sm bg-gray-50 shadow-inner z-10">
-                            <span class="font-bold text-gray-600">Terdaftar: <span id="total-db">0</span> | Diabsen: <span id="total-selected" class="text-navy">0</span></span>
-                            <button onclick="markAllHadir()" class="text-xs font-bold px-4 py-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-200 transition-colors shadow-sm">SET SEMUA HADIR</button>
+                        <div class="px-6 py-3 glass-panel border-b border-white/40 flex justify-between items-center text-sm z-10">
+                            <span class="font-bold text-gray-700">Terdaftar: <span id="total-db">0</span> | Diabsen: <span id="total-selected" class="text-navy">0</span></span>
+                            <button onclick="markAllHadir()" class="text-xs font-bold px-4 py-2 rounded-lg bg-green-500/20 text-green-800 border border-green-500/30 hover:bg-green-500/30 transition-colors shadow-sm">SET SEMUA HADIR</button>
                         </div>
 
-                        <div id="members-list" class="flex-1 overflow-y-auto px-4 py-2 custom-scrollbar space-y-2 pb-6">
+                        <div id="members-list" class="flex-1 overflow-y-auto px-4 py-3 custom-scrollbar space-y-2 pb-6">
                             <!-- JS Injected List -->
                         </div>
                         
-                        <div id="tamu-container" class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between shadow-inner">
+                        <div id="tamu-container" class="px-6 py-4 glass-panel border-t border-white/40 flex items-center justify-between">
                             <div>
                                 <span class="font-black text-navy text-sm uppercase">Jumlah Tamu</span>
-                                <p class="text-[10px] text-gray-500">Pendatang di luar database jemaat</p>
+                                <p class="text-[10px] text-gray-600">Pendatang di luar database jemaat</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <input type="number" id="input-tamu" min="0" placeholder="0" oninput="updateSubmitButton()" class="w-20 px-3 py-2 text-center font-bold text-xl bg-white border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition-all shadow-sm text-navy">
-                                <span class="text-xs font-bold text-gray-400">Orang</span>
+                                <input type="number" id="input-tamu" min="0" placeholder="0" oninput="updateSubmitButton()" class="w-20 px-3 py-2 text-center font-bold text-xl glass-input rounded-xl shadow-sm text-navy">
+                                <span class="text-xs font-bold text-gray-600">Orang</span>
                             </div>
                         </div>
 
-                        <div class="p-6 border-t border-gray-100 bg-white shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] z-20 sticky bottom-0">
-                            <div class="flex flex-wrap justify-between items-center mb-4 px-3 py-2.5 text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wide bg-gray-50 rounded-xl border border-gray-200">
+                        <div class="p-6 glass-panel border-t border-white/50 z-20 sticky bottom-0 rounded-b-3xl">
+                            <div class="flex flex-wrap justify-between items-center mb-4 px-3 py-2.5 text-[10px] sm:text-xs font-bold text-gray-600 uppercase tracking-wide glass-input rounded-xl">
                                 <div class="flex gap-4">
-                                    <span>Hadir: <span id="sum-hadir" class="text-green-600 text-sm ml-1">0</span> <span class="lowercase text-[9px] font-medium">(Anggota)</span></span>
+                                    <span>Hadir: <span id="sum-hadir" class="text-green-700 text-sm ml-1">0</span> <span class="lowercase text-[9px] font-medium">(Anggota)</span></span>
                                     <span>Tamu: <span id="sum-tamu" class="text-navy text-sm ml-1">0</span></span>
                                 </div>
                                 <div class="flex gap-4 mt-2 sm:mt-0">
-                                    <span>Sakit: <span id="sum-sakit" class="text-yellow-600 text-sm ml-1">0</span></span>
+                                    <span>Sakit: <span id="sum-sakit" class="text-yellow-700 text-sm ml-1">0</span></span>
                                     <span>Alpa: <span id="sum-alpa" class="text-red-600 text-sm ml-1">0</span></span>
                                 </div>
                             </div>
-                            <button id="btn-submit-absensi" onclick="submitAbsensi()" disabled class="w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all opacity-50 cursor-not-allowed bg-[#E2E8F0] text-[#94A3B8]">
-                                KIRIM <span id="submit-count">0</span> DATA ABSENSI ↗
+                            <button id="btn-submit-absensi" onclick="submitAbsensi()" disabled class="w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all opacity-50 cursor-not-allowed bg-white/40 text-gray-500 border border-white/30">
+                                KIRIM <span id="submit-count" class="bg-navy text-white px-2 py-0.5 rounded-md text-[10px]">0</span> DATA ABSENSI ↗
                             </button>
                         </div>
                     </div>
 
                     <!-- Panel Keterlibatan -->
                     <div id="panel-keterlibatan" class="flex flex-col h-full overflow-hidden hidden">
-                        <div class="p-6 bg-gray-50 border-b border-gray-200 shadow-sm z-10">
-                            <h2 class="font-black text-navy text-lg">KETERLIBATAN ANGGOTA DEWASA</h2>
-                            <p class="text-xs text-gray-500 mt-1">Masukkan <span class="font-bold text-red-500">Jumlah Orang (Angka)</span> yang melakukan kegiatan di bawah ini:</p>
+                        <div class="p-6 glass-panel border-b border-white/40 z-10">
+                            <h2 class="font-black text-navy text-lg drop-shadow-sm">KETERLIBATAN ANGGOTA DEWASA</h2>
+                            <p class="text-xs text-gray-700 mt-1">Masukkan <span class="font-bold text-red-600">Jumlah Orang (Angka)</span> yang melakukan kegiatan di bawah ini:</p>
                         </div>
                         <div class="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
                             <form id="form-keterlibatan" class="space-y-3"></form>
                         </div>
-                        <div class="p-6 border-t border-gray-100 bg-white shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] z-20 sticky bottom-0">
-                            <button id="btn-submit-keterlibatan" onclick="submitKeterlibatan()" class="w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 bg-navy text-gold">
+                        <div class="p-6 glass-panel border-t border-white/50 z-20 sticky bottom-0 rounded-b-3xl">
+                            <button id="btn-submit-keterlibatan" onclick="submitKeterlibatan()" class="w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all glass-btn-gold">
                                 KIRIM DATA KETERLIBATAN ↗
                             </button>
                         </div>
                     </div>
 
                     <!-- Panel Warning -->
-                    <div id="panel-warning" class="flex flex-col items-center justify-center h-full hidden bg-gray-50">
-                        <div class="text-center p-8 bg-white rounded-3xl border border-gray-200 shadow-sm max-w-sm mx-4">
-                            <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">📅</div>
+                    <div id="panel-warning" class="flex flex-col items-center justify-center h-full hidden glass-panel rounded-b-3xl">
+                        <div class="text-center p-8 glass-card rounded-3xl max-w-sm mx-4">
+                            <div class="w-20 h-20 bg-red-500/10 text-red-600 border border-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">📅</div>
                             <h3 class="text-xl font-black text-navy mb-2" id="warning-title">Bukan Jadwal Kehadiran</h3>
-                            <p class="text-sm text-gray-500" id="warning-desc">Pengisian absen hanya tersedia untuk tanggal yang jatuh di hari <strong class="text-navy">Rabu</strong> atau <strong class="text-navy">Sabtu</strong>.</p>
+                            <p class="text-sm text-gray-600" id="warning-desc">Pengisian absen hanya tersedia untuk tanggal yang jatuh di hari <strong class="text-navy">Rabu</strong> atau <strong class="text-navy">Sabtu</strong>.</p>
                         </div>
                     </div>
                 </div>
@@ -307,67 +408,68 @@
             <!-- LEFT PANEL: Form Setup -->
             <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-24 h-fit">
                 
-                <!-- KELOLA SUB KELAS (BARU - TERKUNCI) -->
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <div class="flex items-center justify-between mb-4">
+                <!-- KELOLA SUB KELAS -->
+                <div class="glass-card p-6 rounded-3xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-gold"></div>
+                    <div class="flex items-center justify-between mb-4 relative z-10">
                         <h2 class="font-black flex items-center gap-3 text-sm uppercase tracking-wider text-navy">
-                            <span class="p-2 rounded-lg bg-gold/20 shadow-sm border border-gold/30 text-gold">🏷️</span>
+                            <span class="p-2 rounded-lg bg-gold/30 border border-gold/40 text-navy drop-shadow-sm">🏷️</span>
                             <span>Kelola Sub Kelas</span>
                         </h2>
-                        <button id="btn-toggle-subclass-edit" onclick="toggleSubClassEdit()" class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-200 transition-colors shadow-sm">EDIT</button>
+                        <button id="btn-toggle-subclass-edit" onclick="toggleSubClassEdit()" class="px-3 py-1.5 bg-white/50 border border-white/60 text-navy rounded-lg text-xs font-bold hover:bg-white transition-colors shadow-sm">EDIT</button>
                     </div>
                     
-                    <div id="subclass-edit-controls" class="flex gap-2 mb-3 hidden">
-                        <input type="text" id="input-new-subclass" placeholder="Ketik sub kelas baru..." class="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-bold text-navy shadow-sm focus:bg-white" />
-                        <button onclick="addSubClass()" class="px-5 py-2 bg-navy text-gold font-bold rounded-xl text-xs hover:opacity-90 transition-all shadow-md">TAMBAH</button>
+                    <div id="subclass-edit-controls" class="flex gap-2 mb-3 hidden relative z-10">
+                        <input type="text" id="input-new-subclass" placeholder="Ketik sub kelas baru..." class="flex-1 px-4 py-2 glass-input rounded-xl text-sm font-bold text-navy" />
+                        <button onclick="addSubClass()" class="px-5 py-2 glass-btn-gold font-bold rounded-xl text-xs">TAMBAH</button>
                     </div>
                     
-                    <div id="subclass-manage-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1">
-                        <!-- Daftar Sub Kelas masuk ke sini (via JS) -->
+                    <div id="subclass-manage-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1 relative z-10">
+                        <!-- JS Injected -->
                     </div>
                 </div>
 
                 <!-- SETUP DATA JEMAAT BARU -->
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <h2 class="font-black flex items-center gap-3 text-sm uppercase tracking-wider text-navy mb-6">
-                        <span class="p-2 rounded-lg bg-blue-50 shadow-sm border border-gray-100 text-blue-800">⚙️</span>
+                <div class="glass-card p-6 rounded-3xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-navy"></div>
+                    <h2 class="font-black flex items-center gap-3 text-sm uppercase tracking-wider text-navy mb-6 relative z-10">
+                        <span class="p-2 rounded-lg bg-navy/10 border border-navy/20 text-navy">⚙️</span>
                         <span id="form-title">Setup Data Jemaat Baru</span>
                     </h2>
                     
-                    <form id="member-form" class="space-y-5">
+                    <form id="member-form" class="space-y-5 relative z-10">
                         <input type="hidden" id="member-id">
                         
                         <div>
-                            <label class="text-[10px] font-bold text-gray-400 uppercase">Kategori Utama</label>
-                            <select id="member-category" onchange="updateRoleOptions()" class="w-full mt-1.5 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none text-sm font-bold text-navy shadow-sm transition-all">
+                            <label class="text-[10px] font-bold text-gray-600 uppercase drop-shadow-sm">Kategori Utama</label>
+                            <select id="member-category" onchange="updateRoleOptions()" class="w-full mt-1.5 px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy cursor-pointer">
                                 <option value="Dewasa">Dewasa</option>
                                 <option value="Anak-anak">Anak-anak</option>
                             </select>
                         </div>
                         
                         <div>
-                            <label class="text-[10px] font-bold text-gray-400 uppercase">Sub Kelas</label>
-                            <!-- Diubah dari <input> menjadi <select> -->
-                            <select id="member-subclass" class="w-full mt-1.5 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-bold text-navy shadow-sm cursor-pointer">
-                                <!-- Option diisi otomatis dari JS -->
+                            <label class="text-[10px] font-bold text-gray-600 uppercase drop-shadow-sm">Sub Kelas</label>
+                            <select id="member-subclass" class="w-full mt-1.5 px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy cursor-pointer">
+                                <!-- JS Injected -->
                             </select>
                         </div>
 
-                        <div class="pt-2 border-t border-gray-100">
-                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-3 block">Jabatan / Role (Bisa pilih lebih dari 1)</label>
+                        <div class="pt-3 border-t border-white/40">
+                            <label class="text-[10px] font-bold text-gray-600 uppercase mb-3 block drop-shadow-sm">Jabatan / Role (Bisa pilih lebih dari 1)</label>
                             <div id="member-role-container" class="flex flex-wrap gap-2">
-                                <!-- Terisi otomatis oleh JS -->
+                                <!-- JS Injected -->
                             </div>
                         </div>
 
-                        <div class="pt-2 border-t border-gray-100">
-                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Nama Lengkap Jemaat</label>
-                            <input type="text" id="member-name" placeholder="Ketik nama lengkap..." class="w-full mt-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-bold text-navy shadow-sm focus:bg-white" />
+                        <div class="pt-3 border-t border-white/40">
+                            <label class="text-[10px] font-bold text-gray-600 uppercase mb-1 block drop-shadow-sm">Nama Lengkap Jemaat</label>
+                            <input type="text" id="member-name" placeholder="Ketik nama lengkap..." class="w-full mt-1 px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy" />
                         </div>
 
                         <div class="flex flex-col gap-2 pt-2">
-                            <button type="submit" id="btn-save" class="w-full px-6 py-4 font-black rounded-xl transition-all shadow-md hover:shadow-lg text-sm hover:opacity-90 bg-navy text-gold uppercase tracking-wider">SIMPAN JEMAAT</button>
-                            <button type="button" id="btn-cancel" onclick="resetForm()" class="hidden w-full px-6 py-4 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-xl transition-colors text-sm uppercase">BATAL EDIT</button>
+                            <button type="submit" id="btn-save" class="w-full px-6 py-4 font-black rounded-xl text-sm glass-btn-gold uppercase tracking-wider">SIMPAN JEMAAT</button>
+                            <button type="button" id="btn-cancel" onclick="resetForm()" class="hidden w-full px-6 py-4 bg-white/40 hover:bg-white/60 border border-white/50 text-gray-700 font-bold rounded-xl transition-colors text-sm uppercase shadow-sm">BATAL EDIT</button>
                         </div>
                     </form>
                 </div>
@@ -375,28 +477,26 @@
 
             <!-- RIGHT PANEL: Daftar Database -->
             <div class="lg:col-span-8 flex flex-col relative min-h-[600px]">
-                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col h-full flex-1 overflow-hidden">
-                    <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                        <h2 class="font-black text-navy text-lg tracking-wide">DATABASE KESELURUHAN</h2>
-                        <span class="text-[11px] uppercase font-bold bg-navy text-gold px-3 py-1.5 rounded-lg">Total: <span id="admin-total-db">0</span></span>
+                <div class="glass-card rounded-3xl flex flex-col h-full flex-1 overflow-hidden">
+                    <div class="p-6 glass-panel border-b border-white/40 flex justify-between items-center">
+                        <h2 class="font-black text-navy text-lg tracking-wide drop-shadow-sm">DATABASE KESELURUHAN</h2>
+                        <span class="text-[11px] uppercase font-bold glass-card-dark border-none text-gold px-3 py-1.5 rounded-lg shadow-sm">Total: <span id="admin-total-db">0</span></span>
                     </div>
                     
-                    <!-- Pencarian Database -->
-                    <div class="p-4 border-b border-gray-100 flex gap-2 bg-white z-10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
+                    <div class="p-4 glass-panel border-b border-white/40 flex gap-2 z-10">
                         <div class="relative flex-1">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">🔍</div>
-                            <input type="text" id="manage-search" oninput="renderManageList()" placeholder="Cari nama jemaat di database..." class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-medium shadow-inner" />
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">🔍</div>
+                            <input type="text" id="manage-search" oninput="renderManageList()" placeholder="Cari nama jemaat di database..." class="w-full pl-10 pr-4 py-3 glass-input rounded-xl text-sm font-medium" />
                         </div>
-                        <select id="manage-filter" onchange="renderManageList()" class="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none font-bold text-sm text-navy shadow-inner cursor-pointer">
+                        <select id="manage-filter" onchange="renderManageList()" class="px-4 py-3 glass-input rounded-xl font-bold text-sm text-navy cursor-pointer">
                             <option value="All">Semua Kategori</option>
                             <option value="Dewasa">Dewasa</option>
                             <option value="Anak-anak">Anak-anak</option>
                         </select>
                     </div>
 
-                    <!-- Daftar Database -->
                     <div id="manage-list-container" class="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-2 pb-8">
-                        <!-- Manage list goes here -->
+                        <!-- JS Injected -->
                     </div>
                 </div>
             </div>
@@ -404,7 +504,7 @@
     </main>
 
     <script>
-        // --- MIGRASI & INISIALISASI DATA LOCAL ---
+        // --- DATA LOCAL ---
         let rawData = JSON.parse(localStorage.getItem('navy_members')) || [];
         let membersData = rawData.map(m => {
             let rawRole = m.role || 'Anggota Jemaat';
@@ -415,18 +515,15 @@
                 id: m.id,
                 name: m.name,
                 category: m.category || 'Dewasa',
-                subClass: m.subClass || '', // Fallback kosong, bukan lagi 'Umum'
+                subClass: m.subClass || '',
                 role: rawRole
             };
         });
         
         let appStats = JSON.parse(localStorage.getItem('navy_stats')) || { labels: [], hadir: [], sakit: [], alpa: [] };
-        
-        // --- DATA SUB KELAS GLOBAL ---
         let subClassesData = JSON.parse(localStorage.getItem('navy_subclasses')) || [];
-        let isSubClassEditMode = false; // State pengunci mode Edit
+        let isSubClassEditMode = false;
         
-        // Mencegah data lama (yang diketik manual sebelumnya) hilang dari pilihan
         let isSubClassMigrated = false;
         membersData.forEach(m => {
             if (m.subClass && !subClassesData.includes(m.subClass)) {
@@ -453,14 +550,13 @@
         let isSubmitting = false;
         let activeTab = 'absensi';
         let selectedDate = new Date(); 
-        
+        let currentAccessLevel = ''; 
+
         let trendChartInstance = null; 
         let komposisiChartInstance = null;
         let statusChartInstance = null;
-        
-        let currentAccessLevel = 'Admin'; 
 
-        // PASTE LINK GOOGLE SCRIPT ANDA DISINI
+        // PASTE LINK GOOGLE SCRIPT
         const scriptURL = "https://script.google.com/macros/s/AKfycbw-A-0Dsw5tCC8Jb_Ufq3Fc0OsO7mLyUv1lOdLfJCcHH_V2-A50I-u56XaGWkadc9c-og/exec";
 
         const kegiatanList = [
@@ -473,7 +569,16 @@
 
         Chart.register(ChartDataLabels);
 
-        // --- FUNGSI RENDER SUB KELAS (BARU) ---
+        // --- SISTEM LOGOUT BARU ---
+        window.logout = () => {
+            currentAccessLevel = '';
+            document.getElementById('active-account-name').textContent = '';
+            document.getElementById('active-access-badge').textContent = '';
+            showHomeView();
+            showToast("Berhasil Keluar", "Anda telah keluar dari sesi Admin/Sekretaris.", "success");
+        };
+
+        // --- RENDER SUB KELAS ---
         window.toggleSubClassEdit = () => {
             isSubClassEditMode = !isSubClassEditMode;
             const controls = document.getElementById('subclass-edit-controls');
@@ -482,11 +587,11 @@
             if (isSubClassEditMode) {
                 controls.classList.remove('hidden');
                 btn.textContent = 'SELESAI';
-                btn.className = 'px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-bold hover:bg-green-200 transition-colors shadow-sm';
+                btn.className = 'px-3 py-1.5 bg-green-500/20 border border-green-500/40 text-green-800 rounded-lg text-xs font-bold hover:bg-green-500/30 transition-colors shadow-sm';
             } else {
                 controls.classList.add('hidden');
                 btn.textContent = 'EDIT';
-                btn.className = 'px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-200 transition-colors shadow-sm';
+                btn.className = 'px-3 py-1.5 bg-white/50 border border-white/60 text-navy rounded-lg text-xs font-bold hover:bg-white transition-colors shadow-sm';
             }
             renderSubClassUI(); 
         };
@@ -496,12 +601,12 @@
             if (manageContainer) {
                 manageContainer.innerHTML = '';
                 if (subClassesData.length === 0) {
-                    manageContainer.innerHTML = '<p class="text-[10px] text-gray-400 italic mt-1 w-full">Belum ada sub kelas. Silakan klik EDIT untuk menambah.</p>';
+                    manageContainer.innerHTML = '<p class="text-[10px] text-gray-500 italic mt-1 w-full drop-shadow-sm">Belum ada sub kelas. Klik EDIT untuk menambah.</p>';
                 }
                 subClassesData.forEach(sc => {
                     manageContainer.innerHTML += `
-                        <div class="flex items-center gap-1 bg-white border border-gold text-navy px-3 py-1.5 rounded-lg shadow-sm">
-                            <span class="text-[11px] font-bold uppercase tracking-wider">${sc}</span>
+                        <div class="flex items-center gap-1 glass-item !bg-white/80 px-3 py-1.5 rounded-lg shadow-sm">
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-navy">${sc}</span>
                             ${isSubClassEditMode ? `<button type="button" onclick="deleteSubClass('${sc}')" class="text-red-500 hover:text-red-700 ml-2 font-black text-xs transition-colors">✕</button>` : ''}
                         </div>
                     `;
@@ -511,17 +616,12 @@
             const formSelect = document.getElementById('member-subclass');
             if (formSelect) {
                 const currentVal = formSelect.value;
-                // Selalu render pilihan "Placeholder" sebagai default agar Admin wajib klik dan pilih
                 formSelect.innerHTML = '<option value="" disabled selected>-- Pilih Sub Kelas --</option>';
                 subClassesData.forEach(sc => {
                     formSelect.innerHTML += `<option value="${sc}">${sc}</option>`;
                 });
-                
-                if (subClassesData.includes(currentVal)) {
-                    formSelect.value = currentVal;
-                } else {
-                    formSelect.value = ""; // Paksa kosong jika kelasnya tidak ada
-                }
+                if (subClassesData.includes(currentVal)) { formSelect.value = currentVal; } 
+                else { formSelect.value = ""; }
             }
         }
 
@@ -529,13 +629,9 @@
             const input = document.getElementById('input-new-subclass');
             const val = input.value.trim();
             if (!val) { showToast("Kosong", "Ketik nama sub kelas terlebih dahulu.", "error"); return; }
-            
-            // Cek duplikat (Case-insensitive)
             if (subClassesData.some(sc => sc.toLowerCase() === val.toLowerCase())) {
-                showToast("Gagal", "Sub kelas sudah ada di dalam daftar!", "error");
-                return;
+                showToast("Gagal", "Sub kelas sudah ada di dalam daftar!", "error"); return;
             }
-            
             subClassesData.push(val);
             localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
             renderSubClassUI();
@@ -544,19 +640,15 @@
         };
 
         window.deleteSubClass = (val) => {
-            // Umum sekarang sudah bebas dihapus, tidak dikunci lagi
             const isUsed = membersData.some(m => m.subClass === val);
             if (isUsed) {
-                showToast("Gagal Dihapus", `Sub kelas '${val}' sedang digunakan oleh jemaat di Database!`, "error");
-                return;
+                showToast("Gagal Dihapus", `Sub kelas '${val}' sedang digunakan oleh jemaat di Database!`, "error"); return;
             }
-
             subClassesData = subClassesData.filter(sc => sc !== val);
             localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
             renderSubClassUI();
             showToast("Dihapus", `Sub kelas '${val}' telah dibuang.`, "success");
         };
-        // ------------------------------------
 
         function renderKeterlibatanForm() {
             const form = document.getElementById('form-keterlibatan');
@@ -565,19 +657,23 @@
             kegiatanList.forEach((teks, index) => {
                 const num = index + 1;
                 form.innerHTML += `
-                    <div class="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl shadow-sm gap-4 hover:border-gold transition-colors">
+                    <div class="flex items-center justify-between p-4 rounded-2xl glass-item gap-4">
                         <div class="flex items-start gap-3 flex-1">
-                            <span class="font-black text-gold text-lg mt-0.5">${num}.</span>
-                            <label class="text-sm font-semibold text-gray-700 leading-snug">${teks}</label>
+                            <span class="font-black text-gold text-lg mt-0.5 drop-shadow-sm">${num}.</span>
+                            <label class="text-sm font-bold text-navy leading-snug drop-shadow-sm">${teks}</label>
                         </div>
                         <input type="number" id="ket_${num}" min="0" placeholder="0" 
-                            class="w-16 sm:w-20 px-2 py-2 text-center font-bold text-lg bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-gold focus:bg-white outline-none transition-all">
+                            class="w-16 sm:w-20 px-2 py-2 text-center font-black text-lg glass-input rounded-xl shadow-inner text-navy">
                     </div>
                 `;
             });
         }
 
         function initChart() {
+            // Pengaturan Font dan Warna Global Chart.js agar elegan di atas latar gelap
+            Chart.defaults.color = '#e2e8f0'; 
+            Chart.defaults.font.family = "'Inter', 'Helvetica', 'Arial', sans-serif";
+            
             const ctxTrend = document.getElementById('trendChart');
             if(ctxTrend) {
                 const labels = ['Rabu (Doa)', 'Dewasa', 'Anak-anak', 'Khotbah'];
@@ -600,21 +696,21 @@
                     data: {
                         labels: labels,
                         datasets: [
-                            { label: 'Minggu Lalu', data: dataLalu, backgroundColor: '#CBD5E1', borderRadius: 4 },
+                            { label: 'Minggu Lalu', data: dataLalu, backgroundColor: 'rgba(255, 255, 255, 0.3)', borderRadius: 4 },
                             { label: 'Minggu Ini', data: dataIni, backgroundColor: '#D4AF37', borderRadius: 4 }
                         ]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false, 
-                        animation: { 
-                            duration: 2000, easing: 'easeOutElastic',
-                            delay: (context) => context.type === 'data' && context.mode === 'default' ? context.dataIndex * 150 + context.datasetIndex * 100 : 0
-                        },
+                        animation: { duration: 2000, easing: 'easeOutElastic' },
                         plugins: { 
                             legend: { position: 'bottom', labels: { usePointStyle: true, font: { weight: 'bold' } } },
                             datalabels: { display: false } 
                         },
-                        scales: { y: { beginAtZero: true, grid: { borderDash: [5, 5] }, ticks: { precision: 0 } }, x: { grid: { display: false } } }
+                        scales: { 
+                            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)', borderDash: [5, 5] }, ticks: { precision: 0 } }, 
+                            x: { grid: { display: false } } 
+                        }
                     }
                 });
             }
@@ -629,7 +725,7 @@
                     type: 'doughnut',
                     data: {
                         labels: ['Dewasa', 'Anak-anak'],
-                        datasets: [{ data: [dCount, aCount], backgroundColor: ['#0A192F', '#D4AF37'], borderWidth: 0, hoverOffset: 10 }]
+                        datasets: [{ data: [dCount, aCount], backgroundColor: ['#1e293b', '#D4AF37'], borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)', hoverOffset: 10 }]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false,
@@ -658,8 +754,8 @@
                         labels: (appStats.hadir.length && (lastHadir>0 || lastSakit>0 || lastAlpa>0)) ? ['Hadir', 'Sakit', 'Alpa'] : ['Belum Ada Data'],
                         datasets: [{
                             data: (appStats.hadir.length && (lastHadir>0 || lastSakit>0 || lastAlpa>0)) ? [lastHadir, lastSakit, lastAlpa] : [1],
-                            backgroundColor: (appStats.hadir.length && (lastHadir>0 || lastSakit>0 || lastAlpa>0)) ? ['#22c55e', '#eab308', '#ef4444'] : ['#E2E8F0'],
-                            borderWidth: 2, borderColor: '#ffffff', hoverOffset: 10
+                            backgroundColor: (appStats.hadir.length && (lastHadir>0 || lastSakit>0 || lastAlpa>0)) ? ['#22c55e', '#eab308', '#ef4444'] : ['rgba(255,255,255,0.2)'],
+                            borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)', hoverOffset: 10
                         }]
                     },
                     options: {
@@ -712,44 +808,21 @@
             let hasAccess = false;
             activityOptions.innerHTML = '';
 
-            if (dayOfWeek === 6) { // SABTU
-                if (currentAccessLevel === 'Dewasa') {
-                    activityOptions.innerHTML += `
-                        <label class="activity-label flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all border-gold bg-[#FFFDF5]" onclick="selectActivity('Sekolah Sabat Dewasa', this)">
-                            <div><p class="activity-title font-bold text-navy">Sekolah Sabat (Dewasa)</p></div>
-                            <div class="activity-radio w-6 h-6 rounded-full border-2 flex items-center justify-center border-gold bg-gold"><span class="w-2.5 h-2.5 bg-white rounded-full"></span></div>
-                        </label>
-                    `;
-                    hasAccess = true;
-                }
-                if (currentAccessLevel === 'Anak') {
-                    activityOptions.innerHTML += `
-                        <label class="activity-label flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all border-gray-100 bg-white hover:border-gray-200" onclick="selectActivity('Sekolah Sabat Anak', this)">
-                            <div><p class="activity-title font-bold text-gray-600">Sekolah Sabat (Anak)</p></div>
-                            <div class="activity-radio w-6 h-6 rounded-full border-2 flex items-center justify-center border-gray-300"></div>
-                        </label>
-                    `;
-                    hasAccess = true;
-                }
-                if (currentAccessLevel === 'Khotbah') {
-                    activityOptions.innerHTML += `
-                        <label class="activity-label flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all border-gray-100 bg-white hover:border-gray-200" onclick="selectActivity('Khotbah', this)">
-                            <div><p class="activity-title font-bold text-gray-600">Khotbah / Ibadah Raya</p></div>
-                            <div class="activity-radio w-6 h-6 rounded-full border-2 flex items-center justify-center border-gray-300"></div>
-                        </label>
-                    `;
-                    hasAccess = true;
-                }
-            } else if (dayOfWeek === 3) { // RABU
-                if (currentAccessLevel === 'Dewasa') {
-                    activityOptions.innerHTML = `
-                        <label class="activity-label flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all border-gold bg-[#FFFDF5]" onclick="selectActivity('Permintaan Doa', this)">
-                            <div><p class="activity-title font-bold text-navy">Permintaan Doa</p></div>
-                            <div class="activity-radio w-6 h-6 rounded-full border-2 flex items-center justify-center border-gold bg-gold"><span class="w-2.5 h-2.5 bg-white rounded-full"></span></div>
-                        </label>
-                    `;
-                    hasAccess = true;
-                }
+            const createOption = (title, internalVal) => {
+                return `
+                    <label class="activity-label flex items-center justify-between p-4 rounded-xl cursor-pointer glass-item" onclick="selectActivity('${internalVal}', this)">
+                        <div><p class="activity-title font-bold text-navy">${title}</p></div>
+                        <div class="activity-radio w-6 h-6 rounded-full border border-navy/20 flex items-center justify-center bg-white/50"></div>
+                    </label>
+                `;
+            };
+
+            if (dayOfWeek === 6) { 
+                if (currentAccessLevel === 'Dewasa') { activityOptions.innerHTML += createOption('Sekolah Sabat (Dewasa)', 'Sekolah Sabat Dewasa'); hasAccess = true; }
+                if (currentAccessLevel === 'Anak') { activityOptions.innerHTML += createOption('Sekolah Sabat (Anak)', 'Sekolah Sabat Anak'); hasAccess = true; }
+                if (currentAccessLevel === 'Khotbah') { activityOptions.innerHTML += createOption('Khotbah / Ibadah Raya', 'Khotbah'); hasAccess = true; }
+            } else if (dayOfWeek === 3) { 
+                if (currentAccessLevel === 'Dewasa') { activityOptions.innerHTML += createOption('Permintaan Doa', 'Permintaan Doa'); hasAccess = true; }
             }
 
             if (hasAccess) {
@@ -812,22 +885,20 @@
             
             if(element) {
                 document.querySelectorAll('.activity-label').forEach(el => {
-                    el.className = "activity-label flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all border-gray-100 bg-white hover:border-gray-200";
-                    el.querySelector('.activity-title').className = "activity-title font-bold text-gray-600";
-                    el.querySelector('.activity-radio').className = "activity-radio w-6 h-6 rounded-full border-2 flex items-center justify-center border-gray-300";
+                    el.className = "activity-label flex items-center justify-between p-4 rounded-xl cursor-pointer glass-item";
+                    el.querySelector('.activity-title').className = "activity-title font-bold text-navy";
+                    el.querySelector('.activity-radio').className = "activity-radio w-6 h-6 rounded-full border border-navy/20 flex items-center justify-center bg-white/50";
                     el.querySelector('.activity-radio').innerHTML = "";
                 });
-                element.className = "activity-label flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all border-gold bg-[#FFFDF5]";
-                element.querySelector('.activity-title').className = "activity-title font-bold text-navy";
-                element.querySelector('.activity-radio').className = "activity-radio w-6 h-6 rounded-full border-2 flex items-center justify-center border-gold bg-gold";
+                element.className = "activity-label flex items-center justify-between p-4 rounded-xl cursor-pointer glass-item !bg-white/95 !border-gold shadow-md";
+                element.querySelector('.activity-radio').className = "activity-radio w-6 h-6 rounded-full border-none flex items-center justify-center bg-gold shadow-sm";
                 element.querySelector('.activity-radio').innerHTML = '<span class="w-2.5 h-2.5 bg-white rounded-full"></span>';
             }
 
             const tabKeterlibatanBtn = document.getElementById('tab-keterlibatan');
             if (tabKeterlibatanBtn) {
-                if (activity === 'Sekolah Sabat Dewasa') {
-                    tabKeterlibatanBtn.style.display = 'block';
-                } else {
+                if (activity === 'Sekolah Sabat Dewasa') { tabKeterlibatanBtn.style.display = 'block'; } 
+                else {
                     tabKeterlibatanBtn.style.display = 'none';
                     if (activeTab === 'keterlibatan') switchTab('absensi'); 
                 }
@@ -836,21 +907,25 @@
             renderList();
         }
 
+        // --- SISTEM JABATAN BARU (TIDAK TERBATAS KATEGORI) ---
         window.updateRoleOptions = () => {
-            const cat = document.getElementById('member-category').value;
             const container = document.getElementById('member-role-container');
             container.innerHTML = '';
             
-            let roles = [];
-            if (cat === 'Dewasa') {
-                roles = ['Anggota Jemaat', 'Anggota Sekolah Sabat Dewasa', 'Guru Sekolah Sabat Dewasa', 'Pemimpin', 'Koordinator', 'Sekretaris'];
-            } else if (cat === 'Anak-anak') {
-                roles = ['Anggota Anak', 'Guru Anak-anak', 'Anggota Jemaat'];
-            }
+            // Seluruh jabatan dimunculkan sehingga bebas dipilih Admin
+            const roles = [
+                'Anggota Jemaat', 
+                'Anggota Anak', 
+                'Guru Sekolah Sabat Dewasa', 
+                'Guru Anak-anak', 
+                'Pemimpin', 
+                'Koordinator', 
+                'Sekretaris'
+            ];
 
             roles.forEach(role => {
                 container.innerHTML += `
-                    <label class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors shadow-sm">
+                    <label class="flex items-center gap-2 px-3 py-2 glass-item rounded-lg cursor-pointer shadow-sm">
                         <input type="checkbox" value="${role}" class="role-checkbox w-4 h-4 text-gold focus:ring-gold border-gray-300 rounded">
                         <span class="text-[11px] font-bold text-navy uppercase">${role}</span>
                     </label>
@@ -862,11 +937,10 @@
             document.getElementById('view-home').classList.remove('hidden');
             document.getElementById('view-home').classList.add('block');
             document.getElementById('view-admin').classList.add('hidden');
-            document.getElementById('nav-home').className = "px-5 py-2 rounded-xl text-sm font-bold transition-all bg-gold text-navy shadow-md";
-            document.getElementById('nav-admin').className = "px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/70 hover:text-white hover:bg-white/10";
+            document.getElementById('nav-home').className = "px-5 py-2 rounded-xl text-sm font-bold glass-btn-gold shadow-lg shadow-gold/20";
+            document.getElementById('nav-admin').className = "px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/80 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10";
             const totalJemaatEl = document.getElementById('dash-total-jemaat');
             if (totalJemaatEl) totalJemaatEl.textContent = membersData.length;
-            currentAccessLevel = 'Admin';
             initChart(); 
         }
 
@@ -883,7 +957,7 @@
             const pin = pinInput.value;
             const btn = document.getElementById('btn-login');
 
-            if (!pin) { showToast("Masukkan PIN!", "Peringatan", "error"); return; }
+            if (!pin) { showToast("Masukkan Kode!", "Peringatan", "error"); return; }
 
             const originalText = btn.innerHTML;
             btn.innerHTML = '<div class="spinner-dark"></div>';
@@ -908,12 +982,7 @@
                     
                     const badge = document.getElementById('active-access-badge');
                     badge.textContent = `Akses: ${currentAccessLevel}`;
-                    if(currentAccessLevel === 'Admin') badge.className = "px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-navy text-white";
-                    else if(currentAccessLevel === 'Dewasa') badge.className = "px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-blue-100 text-blue-700 border border-blue-200";
-                    else if(currentAccessLevel === 'Anak') badge.className = "px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-green-100 text-green-700 border border-green-200";
-                    else if(currentAccessLevel === 'Khotbah') badge.className = "px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-purple-100 text-purple-700 border border-purple-200";
-
-                    // PEMISAHAN LOGIKA TAMPILAN ADMIN vs SEKRETARIS
+                    
                     if (currentAccessLevel === 'Admin') {
                         document.getElementById('layout-admin').classList.remove('hidden');
                         document.getElementById('layout-sekretaris').classList.add('hidden');
@@ -929,13 +998,13 @@
                     document.getElementById('view-home').classList.add('hidden');
                     document.getElementById('view-home').classList.remove('block');
                     document.getElementById('view-admin').classList.remove('hidden');
-                    document.getElementById('nav-home').className = "px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/70 hover:text-white hover:bg-white/10";
-                    document.getElementById('nav-admin').className = "px-5 py-2 rounded-xl text-sm font-bold transition-all bg-gold text-navy shadow-md";
+                    document.getElementById('nav-home').className = "px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/80 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10";
+                    document.getElementById('nav-admin').className = "px-5 py-2 rounded-xl text-sm font-bold glass-btn-gold shadow-lg shadow-gold/20";
                     
                     showToast("Berhasil Masuk", `Selamat bertugas, ${data.account}!`, "success");
                     pinInput.value = ''; 
                 } else {
-                    showToast("PIN Tidak Valid!", "Pastikan PIN kelas Anda benar.", "error");
+                    showToast("Kode Tidak Valid!", "Pastikan kode keamanan Anda benar.", "error");
                     pinInput.value = ''; pinInput.focus();
                 }
             } catch (err) {
@@ -989,7 +1058,7 @@
             } else if (currentActivity === 'Sekolah Sabat Anak') {
                 filteredMembers = filteredMembers.filter(m => m.category === 'Anak-anak');
             } else if (currentActivity === 'Khotbah') {
-                filteredMembers = filteredMembers.filter(m => m.role.includes('Anggota Jemaat'));
+                filteredMembers = filteredMembers.filter(m => m.role.includes('Anggota Jemaat') || m.role.includes('Anggota Anak'));
             }
             
             if (subClassFilter !== 'All' && (currentActivity === 'Sekolah Sabat Dewasa' || currentActivity === 'Sekolah Sabat Anak')) {
@@ -1002,7 +1071,7 @@
             if(totalDbEl) totalDbEl.textContent = filteredMembers.length;
             
             if (filteredMembers.length === 0) {
-                container.innerHTML = `<div class="p-10 text-center text-gray-400 italic font-medium">Tidak ada jemaat di kegiatan/kelas ini.</div>`;
+                container.innerHTML = `<div class="p-10 text-center text-gray-500 italic font-medium drop-shadow-sm">Tidak ada jemaat di kegiatan/kelas ini.</div>`;
                 updateSubmitButton();
                 return;
             }
@@ -1011,38 +1080,38 @@
             filteredMembers.forEach((m) => {
                 const status = attendanceData[m.id] || null;
                 const firstChar = (m.name || '?').charAt(0).toUpperCase();
-                const subClassBadge = m.subClass ? `<span class="text-[9px] uppercase font-black tracking-wider text-gold bg-gold/10 px-1.5 py-0.5 rounded border border-gold/30">${m.subClass}</span>` : '';
+                const subClassBadge = m.subClass ? `<span class="text-[9px] uppercase font-black tracking-wider text-navy bg-gold px-1.5 py-0.5 rounded shadow-sm">${m.subClass}</span>` : '';
                 
                 let roleBadges = m.role.split(',').map(r => r.trim()).map(r => {
-                    let roleColor = "bg-gray-100 text-gray-600 border border-gray-200";
-                    if(r === 'Koordinator' || r === 'Sekretaris') roleColor = "bg-blue-100 text-blue-700 border border-blue-200";
-                    if(r === 'Guru Sekolah Sabat Dewasa' || r === 'Guru Anak-anak') roleColor = "bg-green-100 text-green-700 border border-green-200";
-                    if(r === 'Pemimpin') roleColor = "bg-purple-100 text-purple-700 border border-purple-200";
+                    let roleColor = "bg-white/40 border border-white/50 text-gray-700";
+                    if(r === 'Koordinator' || r === 'Sekretaris') roleColor = "bg-blue-500/10 text-blue-800 border border-blue-500/20";
+                    if(r === 'Guru Sekolah Sabat Dewasa' || r === 'Guru Anak-anak') roleColor = "bg-green-500/10 text-green-800 border border-green-500/20";
+                    if(r === 'Pemimpin') roleColor = "bg-purple-500/10 text-purple-800 border border-purple-500/20";
                     return `<span class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded ${roleColor}">${r}</span>`;
                 }).join('');
 
                 const div = document.createElement('div');
-                div.className = "group flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 rounded-2xl transition-all border border-gray-100 bg-white hover:border-gold hover:shadow-md gap-4";
+                div.className = "group flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 rounded-2xl glass-item gap-4";
                 
                 div.innerHTML = `
                     <div class="flex items-center gap-4 w-full sm:w-auto">
-                        <div class="w-10 h-10 rounded-full bg-navy text-gold flex items-center justify-center font-bold shadow-sm shrink-0">
+                        <div class="w-10 h-10 rounded-full bg-navy text-gold flex items-center justify-center font-bold shadow-sm shrink-0 border border-white/20">
                             ${firstChar}
                         </div>
                         <div>
-                            <div class="font-bold text-[15px] text-gray-800 leading-tight">${m.name}</div>
+                            <div class="font-bold text-[15px] text-navy leading-tight drop-shadow-sm">${m.name}</div>
                             <div class="flex items-center gap-1 mt-1 flex-wrap">
-                                <span class="text-[9px] uppercase font-black tracking-wider text-gray-400 mr-1">${m.category}</span>
+                                <span class="text-[9px] uppercase font-black tracking-wider text-gray-500 mr-1">${m.category}</span>
                                 ${subClassBadge}
                                 ${roleBadges}
                             </div>
                         </div>
                     </div>
                     
-                    <div class="flex bg-gray-50 p-1.5 rounded-xl w-full sm:w-auto justify-between sm:justify-end gap-1 border border-gray-100 shrink-0">
-                        <button type="button" onclick="setStatus('${m.id}', 'Hadir')" class="w-16 sm:w-20 px-2 py-2 rounded-lg text-xs font-bold transition-all ${status === 'Hadir' ? 'bg-green-500 text-white shadow-md' : 'text-gray-500 hover:bg-gray-200'}">Hadir</button>
-                        <button type="button" onclick="setStatus('${m.id}', 'Sakit')" class="w-16 sm:w-20 px-2 py-2 rounded-lg text-xs font-bold transition-all ${status === 'Sakit' ? 'bg-yellow-500 text-white shadow-md' : 'text-gray-500 hover:bg-gray-200'}">Sakit</button>
-                        <button type="button" onclick="setStatus('${m.id}', 'Alpa')" class="w-16 sm:w-20 px-2 py-2 rounded-lg text-xs font-bold transition-all ${status === 'Alpa' ? 'bg-red-500 text-white shadow-md' : 'text-gray-500 hover:bg-gray-200'}">Alpa</button>
+                    <div class="flex bg-white/30 p-1.5 rounded-xl w-full sm:w-auto justify-between sm:justify-end gap-1 border border-white/40 shrink-0">
+                        <button type="button" onclick="setStatus('${m.id}', 'Hadir')" class="w-16 sm:w-20 px-2 py-2 rounded-lg text-xs font-bold transition-all ${status === 'Hadir' ? 'bg-green-500 text-white shadow-md' : 'text-gray-600 hover:bg-white/60'}">Hadir</button>
+                        <button type="button" onclick="setStatus('${m.id}', 'Sakit')" class="w-16 sm:w-20 px-2 py-2 rounded-lg text-xs font-bold transition-all ${status === 'Sakit' ? 'bg-yellow-500 text-white shadow-md' : 'text-gray-600 hover:bg-white/60'}">Sakit</button>
+                        <button type="button" onclick="setStatus('${m.id}', 'Alpa')" class="w-16 sm:w-20 px-2 py-2 rounded-lg text-xs font-bold transition-all ${status === 'Alpa' ? 'bg-red-500 text-white shadow-md' : 'text-gray-600 hover:bg-white/60'}">Alpa</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -1065,7 +1134,7 @@
             let filtered = membersData;
             if (currentActivity === 'Sekolah Sabat Dewasa') filtered = filtered.filter(m => m.category === 'Dewasa');
             else if (currentActivity === 'Sekolah Sabat Anak') filtered = filtered.filter(m => m.category === 'Anak-anak');
-            else if (currentActivity === 'Khotbah') filtered = filtered.filter(m => m.role.includes('Anggota Jemaat'));
+            else if (currentActivity === 'Khotbah') filtered = filtered.filter(m => m.role.includes('Anggota Jemaat') || m.role.includes('Anggota Anak'));
             
             if (subClassFilter !== 'All' && (currentActivity === 'Sekolah Sabat Dewasa' || currentActivity === 'Sekolah Sabat Anak')) {
                 filtered = filtered.filter(m => m.subClass === subClassFilter);
@@ -1106,15 +1175,15 @@
             if (isSubmitting) {
                 btn.disabled = true;
                 btn.innerHTML = '<div class="spinner"></div> MENGIRIM DATA...';
-                btn.className = "w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all opacity-50 cursor-not-allowed bg-navy text-gold";
+                btn.className = "w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all opacity-70 cursor-not-allowed glass-card-dark text-gold";
             } else {
                 btn.disabled = totalSet === 0;
-                btn.innerHTML = `KIRIM <span id="submit-count" class="bg-white/20 px-2 py-0.5 rounded-md text-white">${totalSet}</span> DATA ABSENSI ↗`;
+                btn.innerHTML = `KIRIM <span id="submit-count" class="bg-navy text-white px-2 py-0.5 rounded-md text-[10px] shadow-inner">${totalSet}</span> DATA ABSENSI ↗`;
                 
                 if (totalSet > 0) {
-                    btn.className = "w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 bg-navy text-gold";
+                    btn.className = "w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 glass-btn-gold";
                 } else {
-                    btn.className = "w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all opacity-50 cursor-not-allowed bg-[#E2E8F0] text-[#94A3B8]";
+                    btn.className = "w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all opacity-50 cursor-not-allowed bg-white/40 text-gray-600 border border-white/30";
                 }
             }
         }
@@ -1261,25 +1330,25 @@
             container.innerHTML = '';
             
             if(filtered.length === 0) {
-                 container.innerHTML = `<p class="text-center text-gray-400 mt-8">Data tidak ditemukan di database.</p>`;
+                 container.innerHTML = `<p class="text-center text-gray-500 mt-8 drop-shadow-sm">Data tidak ditemukan di database.</p>`;
                  return;
             }
             
             filtered.forEach(m => {
                 const div = document.createElement('div');
-                div.className = "flex items-center justify-between bg-white p-4 border border-gray-200 rounded-2xl shadow-sm hover:border-gold hover:shadow-md transition-all";
+                div.className = "flex items-center justify-between p-4 rounded-2xl glass-item";
                 
                 const roleDisplay = m.role.split(',').map(r=>r.trim()).join(', ');
                 const subClassDisplay = m.subClass ? ` [${m.subClass}]` : '';
                 
                 div.innerHTML = `
                     <div class="flex-1 pr-2">
-                        <span class="font-bold text-navy text-[15px] block">${m.name}</span>
-                        <span class="text-[10px] text-gray-500 uppercase font-semibold mt-1 block">${m.category}${subClassDisplay} • ${roleDisplay}</span>
+                        <span class="font-bold text-navy text-[15px] block drop-shadow-sm">${m.name}</span>
+                        <span class="text-[10px] text-gray-600 uppercase font-semibold mt-1 block">${m.category}${subClassDisplay} • ${roleDisplay}</span>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="editMember('${m.id}', '${m.name.replace(/'/g, "\\'")}', '${m.category}', '${m.role}', '${(m.subClass || '').replace(/'/g, "\\'")}')" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-xs font-bold hover:bg-blue-100 hover:text-blue-700 transition-colors">EDIT</button>
-                        <button onclick="confirmDelete('${m.id}', '${m.name.replace(/'/g, "\\'")}')" class="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-xs font-bold hover:bg-red-100 hover:text-red-700 transition-colors">HAPUS</button>
+                        <button onclick="editMember('${m.id}', '${m.name.replace(/'/g, "\\'")}', '${m.category}', '${m.role}', '${(m.subClass || '').replace(/'/g, "\\'")}')" class="px-4 py-2 bg-blue-500/20 text-blue-800 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-500/30 transition-colors">EDIT</button>
+                        <button onclick="confirmDelete('${m.id}', '${m.name.replace(/'/g, "\\'")}')" class="px-4 py-2 bg-red-500/20 text-red-800 border border-red-500/30 rounded-xl text-xs font-bold hover:bg-red-500/30 transition-colors">HAPUS</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -1406,10 +1475,10 @@
                 document.getElementById('toast-title').textContent = title;
                 document.getElementById('toast-message').textContent = message;
                 if (type === 'success') {
-                    content.className = "px-6 py-4 rounded-xl shadow-2xl font-semibold flex items-center gap-3 text-sm border-l-4 bg-white text-green-700 border-green-500";
+                    content.className = "px-6 py-4 rounded-xl shadow-2xl font-semibold flex items-center gap-3 text-sm border-l-4 glass-card text-green-800 border-green-500";
                     icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
                 } else {
-                    content.className = "px-6 py-4 rounded-xl shadow-2xl font-semibold flex items-center gap-3 text-sm border-l-4 bg-red-50 text-red-700 border-red-500";
+                    content.className = "px-6 py-4 rounded-xl shadow-2xl font-semibold flex items-center gap-3 text-sm border-l-4 glass-card text-red-800 border-red-500";
                     icon.innerHTML = '⚠️';
                 }
                 toast.style.display = 'block';
