@@ -250,13 +250,21 @@
             border-color: rgba(212,175,55,.45);
             box-shadow: 0 12px 30px rgba(0,0,0,.10), 0 0 0 1px rgba(212,175,55,.12);
         }
+        /* Untuk dropdown pindah kelas */
+        .move-class-select {
+            font-size: 11px;
+            padding: 6px 8px;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body class="min-h-screen font-sans selection:bg-gold selection:text-navy">
 
     <!-- Global Floating Logo Kiri Bawah (Watermark) -->
     <div class="fixed -bottom-20 -left-20 md:-bottom-32 md:-left-32 w-[25rem] h-[25rem] md:w-[40rem] md:h-[40rem] pointer-events-none z-0 opacity-40">
-        <img src="PisgahWhite.png" alt="Watermark Kiri Bawah" class="w-full h-full object-contain animate-float-logo" style="animation-delay: -3s;" onerror="this.style.display='none'">
+        <img src="./PisgahColor.png" alt="Watermark Kiri Bawah" class="w-full h-full object-contain animate-float-logo" style="animation-delay: -3s;" onerror="this.style.display='none'">
     </div>
 
     <!-- Toast Notification -->
@@ -278,6 +286,18 @@
             <div class="flex gap-3 justify-end">
                 <button onclick="closeModal()" class="px-5 py-2.5 rounded-xl font-semibold text-gray-700 bg-white/50 hover:bg-white border border-white transition-colors">Batal</button>
                 <button id="modal-confirm-btn" class="px-5 py-2.5 rounded-xl font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Edit Nama Sub Kelas -->
+    <div id="edit-subclass-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[95] hidden items-center justify-center p-4">
+        <div class="glass-card rounded-2xl p-6 max-w-sm w-full">
+            <h3 class="text-xl font-bold mb-2 text-navy">Edit Nama Sub Kelas</h3>
+            <input type="text" id="edit-subclass-input" class="w-full elegant-input mb-4" placeholder="Nama baru">
+            <div class="flex gap-3 justify-end">
+                <button onclick="closeEditSubclassModal()" class="px-4 py-2 rounded-lg bg-gray-200">Batal</button>
+                <button id="confirm-edit-subclass" class="px-4 py-2 rounded-lg glass-btn-gold">Simpan</button>
             </div>
         </div>
     </div>
@@ -525,13 +545,10 @@
         </div>
 
         <!-- 2. LAYOUT ADMIN -->
-        <!-- Proporsi Grid Diperbarui: lg:col-span-4 (Kiri) dan lg:col-span-8 (Kanan) -->
         <div id="layout-admin" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden items-start">
-            
             <!-- PANEL KIRI: SETUP FORM -->
             <div class="lg:col-span-4 lg:order-1 space-y-6 lg:sticky lg:top-24 h-fit">
-                
-                <!-- Kelola Sub Kelas -->
+                <!-- Kelola Sub Kelas (dengan fitur edit nama & ganti PIN) -->
                 <div class="glass-card p-5 rounded-3xl relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-gold"></div>
                     <div class="flex items-center justify-between mb-4 relative z-10">
@@ -545,10 +562,10 @@
                         <input type="text" id="input-new-subclass" placeholder="Ketik sub kelas baru..." class="flex-1 elegant-input" />
                         <button onclick="addSubClass()" class="px-5 py-2 glass-btn-gold font-bold rounded-xl text-xs">TAMBAH</button>
                     </div>
-                    <div id="subclass-manage-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1 relative z-10"></div>
+                    <div id="subclass-manage-list" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar p-1 relative z-10"></div>
                 </div>
 
-                <!-- Kelola Jabatan -->
+                <!-- Kelola Jabatan (sama) -->
                 <div class="glass-card p-5 rounded-3xl relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
                     <div class="flex items-center justify-between mb-4 relative z-10">
@@ -661,7 +678,7 @@
                             <div class="family-grid mt-2">
                                 <div class="form-group">
                                     <label>Kategori</label>
-                                    <select id="member-category" onchange="updateRoleOptions()" class="elegant-select cursor-pointer">
+                                    <select id="member-category" onchange="updateSubclassDropdown()" class="elegant-select cursor-pointer">
                                         <option value="Dewasa">Dewasa</option>
                                         <option value="Anak-anak">Anak-anak</option>
                                     </select>
@@ -690,7 +707,7 @@
                 </div>
             </div>
 
-            <!-- PANEL KANAN: DATABASE KESELURUHAN -->
+            <!-- PANEL KANAN: DATABASE KESELURUHAN dengan fitur pindah kelas -->
             <div class="lg:col-span-8 lg:order-2 flex flex-col relative min-h-[600px]">
                 <div class="glass-card rounded-[32px] flex flex-col h-full flex-1 overflow-hidden shadow-2xl border border-white/40">
                     <div class="p-6 glass-panel border-b border-white/40 flex justify-between items-center">
@@ -715,7 +732,7 @@
                         </select>
                     </div>
 
-                    <!-- Tempat Inject Daftar Jemaat (Class ganda dihapus) -->
+                    <!-- Tempat Inject Daftar Jemaat -->
                     <div id="manage-list-container" class="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar space-y-3 pb-8 min-h-[500px]">
                         <!-- JS Injected -->
                     </div>
@@ -752,6 +769,9 @@
         let appStats = JSON.parse(localStorage.getItem('navy_stats')) || { labels: [], hadir: [], sakit: [], alpa: [] };
         let subClassesData = JSON.parse(localStorage.getItem('navy_subclasses')) || [];
         let isSubClassEditMode = false;
+        
+        // Data PIN untuk sub kelas (akun)
+        let subclassAccounts = JSON.parse(localStorage.getItem('navy_subclass_accounts')) || {};
 
         let rolesData = JSON.parse(localStorage.getItem('navy_roles')) || [
             'Anggota Jemaat', 'Anggota SS Anak', 'Guru SS Anak', 'Anggota SS Dewasa', 'Guru SS Dewasa', 
@@ -817,80 +837,183 @@
 
         Chart.register(ChartDataLabels);
 
-        // --- SISTEM PERMOHONAN DOA ---
-        window.submitDoa = async (e) => {
-            e.preventDefault();
-            const nama = document.getElementById('doa-nama').value.trim();
-            const hp = document.getElementById('doa-hp').value.trim();
-            const pesan = document.getElementById('doa-pesan').value.trim();
-            const btn = document.getElementById('btn-submit-doa');
-
-            if (!hp.startsWith('+')) {
-                showToast("Format Tidak Sesuai", "Nomor HP wajib diawali simbol '+' dan kode negara.", "error");
-                document.getElementById('doa-hp').focus();
+        // ========== FUNGSI UNTUK EDIT NAMA SUB KELAS ==========
+        let editingSubclassName = null;
+        function openEditSubclassModal(oldName) {
+            editingSubclassName = oldName;
+            document.getElementById('edit-subclass-input').value = oldName;
+            document.getElementById('edit-subclass-modal').style.display = 'flex';
+        }
+        function closeEditSubclassModal() {
+            document.getElementById('edit-subclass-modal').style.display = 'none';
+            editingSubclassName = null;
+        }
+        function saveSubclassEdit() {
+            const newName = document.getElementById('edit-subclass-input').value.trim();
+            if (!newName || newName === editingSubclassName) {
+                closeEditSubclassModal();
                 return;
             }
+            // Update semua anggota yang memiliki sub kelas lama
+            let updated = false;
+            membersData.forEach(m => {
+                if (m.subClass === editingSubclassName) {
+                    m.subClass = newName;
+                    updated = true;
+                }
+            });
+            // Update daftar sub kelas
+            const index = subClassesData.indexOf(editingSubclassName);
+            if (index !== -1) subClassesData[index] = newName;
+            // Update akun sub kelas (jika ada)
+            if (subclassAccounts[editingSubclassName]) {
+                subclassAccounts[newName] = subclassAccounts[editingSubclassName];
+                delete subclassAccounts[editingSubclassName];
+                localStorage.setItem('navy_subclass_accounts', JSON.stringify(subclassAccounts));
+            }
+            localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
+            saveToLocal();
+            renderSubClassUI();
+            renderManageList();
+            showToast("Sub Kelas Diubah", `"${editingSubclassName}" → "${newName}"`, "success");
+            closeEditSubclassModal();
+        }
+        document.getElementById('confirm-edit-subclass').onclick = saveSubclassEdit;
 
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<div class="spinner"></div> MENGIRIM...';
-            btn.disabled = true;
+        // ========== FUNGSI UNTUK PIN SUB KELAS ==========
+        function regeneratePin(subclassName) {
+            let newPin = Math.floor(100000 + Math.random() * 900000).toString();
+            subclassAccounts[subclassName] = { pin: newPin, category: getCategoryFromSubClass(subclassName) };
+            localStorage.setItem('navy_subclass_accounts', JSON.stringify(subclassAccounts));
+            showToast("PIN Diubah", `${subclassName} → PIN baru: ${newPin}`, "success");
+            renderSubClassUI();
+        }
+        function getCategoryFromSubClass(subclassName) {
+            // Tentukan kategori berdasarkan sub kelas (default Dewasa)
+            // Karena kita hanya punya kategori Dewasa/Anak-anak, kita bisa cek dari anggota
+            let memberSample = membersData.find(m => m.subClass === subclassName);
+            if (memberSample) return memberSample.category;
+            // fallback
+            return 'Dewasa';
+        }
 
+        // ========== FUNGSI PINDAH KELAS ANGGOTA ==========
+        async function moveMemberToClass(memberId, newSubClass) {
+            const member = membersData.find(m => m.id === memberId);
+            if (!member) return;
+            if (member.subClass === newSubClass) return;
+            const oldClass = member.subClass;
+            member.subClass = newSubClass;
+            saveToLocal();
+            renderManageList(); // refresh daftar admin
+            // Jika sedang di panel absensi, refresh juga
+            if (document.getElementById('view-admin').classList.contains('hidden') === false && currentAccessLevel !== 'Admin') {
+                renderList();
+            }
+            showToast("Pindah Kelas", `${member.name} pindah dari ${oldClass} ke ${newSubClass}`, "success");
+            // Opsional: sinkronkan ke spreadsheet
             try {
                 const params = new URLSearchParams();
-                params.append('action', 'doa'); 
-                params.append('nama', nama);
-                params.append('hp', hp);
-                params.append('pesan', pesan);
-                const waktuKirim = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                params.append('waktu', waktuKirim);
-
+                params.append('action', 'updateMemberClass');
+                params.append('id', member.id);
+                params.append('subkelas', newSubClass);
                 await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: params });
+            } catch(e) { console.warn("Gagal sync ke spreadsheet"); }
+        }
+
+        // ========== FUNGSI ADMIN MANAGE DATABASE (dengan dropdown pindah kelas) ==========
+        window.renderManageList = () => {
+            const container = document.getElementById('manage-list-container');
+            const search = document.getElementById('manage-search').value.toLowerCase();
+            const filterCat = document.getElementById('manage-filter').value;
+            const totalEl = document.getElementById('admin-total-db');
+            
+            let filtered = membersData;
+            if (filterCat !== 'All') filtered = filtered.filter(m => m.category === filterCat);
+            filtered = filtered.filter(m => m.name.toLowerCase().includes(search));
+            
+            if (totalEl) totalEl.textContent = filtered.length;
+            container.innerHTML = '';
+            
+            if(filtered.length === 0) {
+                 container.innerHTML = `<p class="text-center text-gray-500 mt-8 drop-shadow-sm font-medium">Data tidak ditemukan di database.</p>`;
+                 return;
+            }
+            
+            filtered.forEach(m => {
+                const catColor = m.category === 'Dewasa' ? 'bg-navy/10 text-navy border-navy/20' : 'bg-orange-500/10 text-orange-800 border-orange-500/20';
+                const subClassBadge = m.subClass ? `<span class="bg-gold/20 text-yellow-900 border border-gold/30 px-2.5 py-1 rounded-md text-[10px] font-black uppercase shadow-sm">${m.subClass}</span>` : `<span class="bg-gray-200 text-gray-500 px-2 py-1 rounded-md text-[10px]">Tanpa Kelas</span>`;
+                const roleBadges = m.role.split(',').map(r => `<span class="bg-white/80 text-gray-700 border border-gray-200 px-2 py-1 rounded-md text-[9px] font-bold uppercase shadow-sm">${r.trim()}</span>`).join('');
                 
-                showToast("Berhasil Terkirim!", "Permohonan doa Anda telah kami terima.", "success");
-                document.getElementById('form-doa').reset();
-            } catch (err) {
-                showToast("Pengiriman Gagal", "Koneksi terputus. Silakan coba beberapa saat lagi.", "error");
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        };
-
-        window.logout = () => {
-            currentAccessLevel = '';
-            document.getElementById('active-account-name').textContent = '';
-            document.getElementById('active-access-badge').textContent = '';
-            showHomeView();
-            showToast("Berhasil Keluar", "Anda telah keluar dari sesi Admin/Sekretaris.", "success");
-        };
-
-        window.toggleSubClassEdit = () => {
-            isSubClassEditMode = !isSubClassEditMode;
-            const controls = document.getElementById('subclass-edit-controls');
-            const btn = document.getElementById('btn-toggle-subclass-edit');
-
-            if (isSubClassEditMode) {
-                controls.classList.remove('hidden');
-                btn.textContent = 'SELESAI';
-                btn.className = 'px-3 py-1.5 bg-green-500/20 border border-green-500/40 text-green-800 rounded-lg text-xs font-bold hover:bg-green-500/30 transition-colors shadow-sm';
-            } else {
-                controls.classList.add('hidden');
-                btn.textContent = 'EDIT';
-                btn.className = 'px-3 py-1.5 bg-white/50 border border-white/60 text-navy rounded-lg text-xs font-bold hover:bg-white transition-colors shadow-sm';
-            }
-            renderSubClassUI(); 
-        };
-
+                // Dropdown untuk pindah kelas (hanya sub kelas yang sesuai dengan kategori anggota)
+                let availableSubClasses = subClassesData.filter(sc => {
+                    // Validasi sederhana: kita bisa lihat contoh anggota lain atau asumsikan semua sub kelas bisa untuk kategori tersebut
+                    // Untuk keamanan, kita cek apakah ada anggota dengan kategori sama dan sub kelas itu, atau biarkan semua
+                    // Tapi lebih baik filter berdasarkan kategori yang sama
+                    let sample = membersData.find(mem => mem.category === m.category && mem.subClass === sc);
+                    return sample !== undefined || sc === m.subClass;
+                });
+                if (availableSubClasses.length === 0) availableSubClasses = subClassesData; // fallback
+                
+                const selectHtml = `
+                    <select class="move-class-select text-xs" data-memberid="${m.id}" onchange="moveMemberToClass('${m.id}', this.value)">
+                        ${availableSubClasses.map(sc => `<option value="${sc}" ${m.subClass === sc ? 'selected' : ''}>${sc}</option>`).join('')}
+                    </select>
+                `;
+                
+                const div = document.createElement('div');
+                div.className = "flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 md:p-5 rounded-2xl glass-item gap-4 transition-all hover:shadow-lg border border-white/60 bg-white/40";
+                div.innerHTML = `
+                    <div class="flex items-center gap-4 w-full sm:w-auto">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-navy to-navy-light text-gold flex items-center justify-center font-black text-xl shadow-md shrink-0 border border-gold/30">
+                            ${(m.name || '?').charAt(0).toUpperCase()}
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-black text-navy text-base md:text-lg drop-shadow-sm leading-tight">${m.name}</h3>
+                            <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                                <span class="border px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm ${catColor}">${m.category}</span>
+                                ${subClassBadge}
+                                ${roleBadges}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/50">
+                        <div class="flex items-center gap-1 bg-white/50 rounded-xl px-2 py-1">
+                            <span class="text-[10px] font-bold">Pindah ke:</span>
+                            ${selectHtml}
+                        </div>
+                        <button onclick="editMember('${m.id}', '${m.name.replace(/'/g, "\\'")}', '${m.category}', '${m.role}', '${(m.subClass || '').replace(/'/g, "\\'")}')" class="px-4 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-800 border border-blue-500/30 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                            EDIT
+                        </button>
+                        <button onclick="confirmDelete('${m.id}', '${m.name.replace(/'/g, "\\'")}')" class="px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-800 border border-red-500/30 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                            HAPUS
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        // ========== RENDER SUB KELAS (dengan tombol edit & ganti PIN) ==========
         function renderSubClassUI() {
             const manageContainer = document.getElementById('subclass-manage-list');
             if (manageContainer) {
                 manageContainer.innerHTML = '';
                 if (subClassesData.length === 0) manageContainer.innerHTML = '<p class="text-[10px] text-gray-500 italic mt-1 w-full drop-shadow-sm">Belum ada sub kelas.</p>';
                 subClassesData.forEach(sc => {
+                    const hasAccount = subclassAccounts[sc] ? true : false;
                     manageContainer.innerHTML += `
                         <div class="flex items-center gap-1 glass-item !bg-white/80 px-3 py-1.5 rounded-lg shadow-sm border border-gray-200">
                             <span class="text-[11px] font-bold uppercase tracking-wider text-navy">${sc}</span>
-                            ${isSubClassEditMode ? `<button type="button" onclick="deleteSubClass('${sc}')" class="text-red-500 hover:text-red-700 ml-2 font-black text-xs transition-colors">✕</button>` : ''}
+                            ${isSubClassEditMode ? `
+                                <button type="button" onclick="openEditSubclassModal('${sc}')" class="text-blue-500 hover:text-blue-700 ml-1 font-black text-xs transition-colors" title="Edit Nama">✎</button>
+                                <button type="button" onclick="regeneratePin('${sc}')" class="text-gold hover:text-yellow-700 ml-1 font-black text-xs transition-colors" title="Ganti PIN">🔑</button>
+                                <button type="button" onclick="deleteSubClass('${sc}')" class="text-red-500 hover:text-red-700 ml-1 font-black text-xs transition-colors">✕</button>
+                            ` : ''}
+                            ${!isSubClassEditMode && !hasAccount ? `<button onclick="regeneratePin('${sc}')" class="ml-2 text-[10px] font-bold bg-gold/20 px-2 py-0.5 rounded">Buat Akun</button>` : ''}
+                            ${!isSubClassEditMode && hasAccount ? `<span class="ml-2 text-[9px] text-green-600">✓ PIN tersedia</span>` : ''}
                         </div>
                     `;
                 });
@@ -927,6 +1050,22 @@
             renderSubClassUI();
         };
 
+         window.toggleSubClassEdit = () => {
+            isSubClassEditMode = !isSubClassEditMode;
+            const controls = document.getElementById('subclass-edit-controls');
+            const btn = document.getElementById('btn-toggle-subclass-edit');
+            if (isSubClassEditMode) {
+                controls.classList.remove('hidden');
+                btn.textContent = 'SELESAI';
+                btn.className = 'px-3 py-1.5 bg-green-500/20 border border-green-500/40 text-green-800 rounded-lg text-xs font-bold hover:bg-green-500/30 transition-colors shadow-sm';
+            } else {
+                controls.classList.add('hidden');
+                btn.textContent = 'EDIT';
+                btn.className = 'px-3 py-1.5 bg-white/50 border border-white/60 text-navy rounded-lg text-xs font-bold hover:bg-white transition-colors shadow-sm';
+            }
+            renderSubClassUI(); 
+        };
+        
         window.toggleRoleEdit = () => {
             isRoleEditMode = !isRoleEditMode;
             const controls = document.getElementById('role-edit-controls');
