@@ -1,5 +1,13 @@
 var sheetId = "1-fWE3bjOlTU9VFITCgI6smG8d__vxjWpVMN35ODb-zc"; // ID Spreadsheet Anda
 
+function normalizeText(text) {
+
+  return String(text)
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+}
+
 function doGet(e) {
   var ss = SpreadsheetApp.openById(sheetId);
   
@@ -48,6 +56,13 @@ function doGet(e) {
 }
 
 function doPost(e) {
+  if (!e || !e.parameter) {
+
+  return ContentService
+    .createTextOutput("Error: Request kosong")
+    .setMimeType(ContentService.MimeType.TEXT);
+}
+
   var lock = LockService.getScriptLock();
   lock.waitLock(30000); 
   
@@ -60,6 +75,7 @@ function doPost(e) {
 // SIMPAN DATABASE ANGGOTA JEMAAT
 // =====================================================
 if (action === "saveMember") {
+
   var nama = e.parameter.nama || "-";
   var kategori = e.parameter.kategori || "-";
   var subkelas = e.parameter.subkelas || "-";
@@ -67,8 +83,9 @@ if (action === "saveMember") {
 
   var memberSheet = ss.getSheetByName("Database Jemaat");
 
-  // Buat sheet otomatis jika belum ada
+  // Buat sheet otomatis
   if (!memberSheet) {
+
     memberSheet = ss.insertSheet("Database Jemaat");
 
     memberSheet.appendRow([
@@ -77,7 +94,7 @@ if (action === "saveMember") {
       "Kategori",
       "Sub Kelas",
       "Jabatan",
-      "Tanggal Dibuat"
+      "Terakhir Update"
     ]);
 
     memberSheet
@@ -87,34 +104,53 @@ if (action === "saveMember") {
       .setFontColor("#FFFFFF");
 
     memberSheet.setFrozenRows(1);
+    memberSheet.autoResizeColumns(1, 6);
   }
 
-  // Cegah duplikat berdasarkan nama
   var data = memberSheet.getDataRange().getValues();
+
   var existingRow = -1;
 
   for (var i = 1; i < data.length; i++) {
-    if (data[i][1].toString().trim().toLowerCase() === nama.trim().toLowerCase()) {
+
+    if (
+      normalizeText(data[i][1]) ===
+      normalizeText(nama)
+    ) {
+
       existingRow = i + 1;
       break;
     }
   }
 
-  // Update jika sudah ada
+  // UPDATE
   if (existingRow !== -1) {
+
     memberSheet.getRange(existingRow, 3).setValue(kategori);
     memberSheet.getRange(existingRow, 4).setValue(subkelas);
     memberSheet.getRange(existingRow, 5).setValue(jabatan);
+    memberSheet.getRange(existingRow, 6).setValue(Utilities.formatDate(
+  new Date(),
+  Session.getScriptTimeZone(),
+  "dd/MM/yyyy HH:mm:ss"
+));
+
   }
-  // Tambah baru jika belum ada
+
+  // INSERT BARU
   else {
+
     memberSheet.appendRow([
       Date.now(),
       nama,
       kategori,
       subkelas,
       jabatan,
-      new Date()
+      Utilities.formatDate(
+  new Date(),
+  Session.getScriptTimeZone(),
+  "dd/MM/yyyy HH:mm:ss"
+)
     ]);
   }
 
@@ -159,7 +195,11 @@ if (action === "doa") {
   var pesan = e.parameter.pesan || "-";
 
   sheetDoa.appendRow([
-    waktu,
+    Utilities.formatDate(
+  new Date(),
+  Session.getScriptTimeZone(),
+  "dd/MM/yyyy HH:mm:ss"
+),
     nama,
     hp,
     pesan
@@ -197,7 +237,15 @@ if (action === "doa") {
     
     // ALUR 2: ABSENSI
     var nama = e.parameter.nama;
-    var kegiatan = e.parameter.kegiatan;
+    var kegiatan = (e.parameter.kegiatan || "")
+  .toString()
+  .substring(0, 95);
+
+    if (!kegiatan) {
+  return ContentService
+    .createTextOutput("Error: Nama kegiatan kosong")
+    .setMimeType(ContentService.MimeType.TEXT);
+}
     var kategori = e.parameter.kategori || "-";
     var subkelas = e.parameter.subkelas || "-";
     var jabatan = e.parameter.jabatan || "-";
@@ -217,11 +265,23 @@ if (action === "doa") {
       if (lastCol < 4) lastCol = 4;
       
       var headers = sheetAbsensi.getRange(1, 1, 1, lastCol).getValues()[0];
-      var colIndex = headers.indexOf(waktu) + 1; 
+      var tanggalHeader = Utilities.formatDate(
+  new Date(),
+  Session.getScriptTimeZone(),
+  "dd/MM/yyyy"
+);
+
+var colIndex = headers.indexOf(tanggalHeader) + 1;
       
       if (colIndex === 0) {
         colIndex = lastCol + 1;
-        sheetAbsensi.getRange(1, colIndex).setValue(waktu)
+        sheetAbsensi.getRange(1, colIndex).setValue(
+  Utilities.formatDate(
+    new Date(),
+    Session.getScriptTimeZone(),
+    "dd/MM/yyyy"
+  )
+)
                     .setFontWeight("bold")
                     .setBackground("#D4AF37")
                     .setFontColor("#000000");
@@ -233,7 +293,10 @@ if (action === "doa") {
       if (lastRow > 1) {
         var names = sheetAbsensi.getRange(2, 4, lastRow - 1, 1).getValues();
         for (var i = 0; i < names.length; i++) {
-          if (names[i][0] === nama) {
+          if (
+  normalizeText(names[i][0]) ===
+  normalizeText(nama)
+) {
             rowIndex = i + 2; 
             break;
           }

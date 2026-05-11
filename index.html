@@ -1633,6 +1633,29 @@
 
     let roleJoined = checkedBoxes.map(cb => cb.value).join(', ');
 
+    // Cek duplicate nama
+const duplicateMember = membersData.find(m => {
+
+    // abaikan data yang sedang diedit
+    if (id && m.id === id) return false;
+
+    return (
+        (m.name || '').trim().toLowerCase() ===
+        name.trim().toLowerCase()
+    );
+});
+
+if (duplicateMember) {
+
+    showToast(
+        "Duplikat Terdeteksi",
+        "Nama jemaat sudah ada di database",
+        "error"
+    );
+
+    return;
+}
+
     if (id) {
 
         const index = membersData.findIndex(m => m.id === id);
@@ -1808,9 +1831,26 @@
     let successCount = 0;
     let failedCount = 0;
 
-    for (let i = 0; i < membersData.length; i++) {
+    const sentNames = new Set();
+
+for (let i = 0; i < membersData.length; i++) {
 
         const member = membersData[i];
+
+        const normalizedName =
+    (member.name || '').trim().toLowerCase();
+
+if (sentNames.has(normalizedName)) {
+
+    console.log(
+        'Duplicate dilewati:',
+        member.name
+    );
+
+    continue;
+}
+
+sentNames.add(normalizedName);
 
         try {
 
