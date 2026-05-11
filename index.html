@@ -460,6 +460,27 @@
                     </div>
                 </div>
 
+                <!-- KELOLA JABATAN (BARU) -->
+                <div class="glass-card p-6 rounded-3xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
+                    <div class="flex items-center justify-between mb-4 relative z-10">
+                        <h2 class="font-black flex items-center gap-3 text-sm uppercase tracking-wider text-navy">
+                            <span class="p-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-navy drop-shadow-sm">🎖️</span>
+                            <span>Kelola Jabatan</span>
+                        </h2>
+                        <button id="btn-toggle-role-edit" onclick="toggleRoleEdit()" class="px-3 py-1.5 bg-white/50 border border-white/60 text-navy rounded-lg text-xs font-bold hover:bg-white transition-colors shadow-sm">EDIT</button>
+                    </div>
+                    
+                    <div id="role-edit-controls" class="flex gap-2 mb-3 hidden relative z-10">
+                        <input type="text" id="input-new-role" placeholder="Ketik jabatan baru..." class="flex-1 px-4 py-2 glass-input rounded-xl text-sm font-bold text-navy" />
+                        <button onclick="addRole()" class="px-5 py-2 glass-btn-gold font-bold rounded-xl text-xs">TAMBAH</button>
+                    </div>
+                    
+                    <div id="role-manage-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1 relative z-10">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+
                 <!-- SETUP DATA JEMAAT BARU -->
                 <div class="glass-card p-6 rounded-3xl relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-navy"></div>
@@ -554,6 +575,13 @@
         let appStats = JSON.parse(localStorage.getItem('navy_stats')) || { labels: [], hadir: [], sakit: [], alpa: [] };
         let subClassesData = JSON.parse(localStorage.getItem('navy_subclasses')) || [];
         let isSubClassEditMode = false;
+
+        // --- INISIALISASI DATA JABATAN GLOBAL ---
+        let rolesData = JSON.parse(localStorage.getItem('navy_roles')) || [
+            'Anggota Jemaat', 'Anggota Anak', 'Guru Sekolah Sabat Dewasa', 
+            'Guru Anak-anak', 'Pemimpin', 'Koordinator', 'Sekretaris'
+        ];
+        let isRoleEditMode = false;
         
         let isSubClassMigrated = false;
         membersData.forEach(m => {
@@ -563,6 +591,21 @@
             }
         });
         if (isSubClassMigrated) localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
+
+        // Migrasi Jabatan yang mungkin sudah ada di database jemaat agar tidak hilang
+        let isRoleMigrated = false;
+        membersData.forEach(m => {
+            if (m.role) {
+                let rolesArr = m.role.split(',').map(r => r.trim());
+                rolesArr.forEach(r => {
+                    if (r && !rolesData.includes(r)) {
+                        rolesData.push(r);
+                        isRoleMigrated = true;
+                    }
+                });
+            }
+        });
+        if (isRoleMigrated) localStorage.setItem('navy_roles', JSON.stringify(rolesData));
 
         function getWeekIdentifier(dateObj) {
             const d = new Date(dateObj || new Date());
@@ -719,6 +762,68 @@
             localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
             renderSubClassUI();
             showToast("Dihapus", `Sub kelas '${val}' telah dibuang.`, "success");
+        };
+
+        // --- RENDER JABATAN (BARU) ---
+        window.toggleRoleEdit = () => {
+            isRoleEditMode = !isRoleEditMode;
+            const controls = document.getElementById('role-edit-controls');
+            const btn = document.getElementById('btn-toggle-role-edit');
+
+            if (isRoleEditMode) {
+                controls.classList.remove('hidden');
+                btn.textContent = 'SELESAI';
+                btn.className = 'px-3 py-1.5 bg-green-500/20 border border-green-500/40 text-green-800 rounded-lg text-xs font-bold hover:bg-green-500/30 transition-colors shadow-sm';
+            } else {
+                controls.classList.add('hidden');
+                btn.textContent = 'EDIT';
+                btn.className = 'px-3 py-1.5 bg-white/50 border border-white/60 text-navy rounded-lg text-xs font-bold hover:bg-white transition-colors shadow-sm';
+            }
+            renderRoleUI(); 
+        };
+
+        function renderRoleUI() {
+            const manageContainer = document.getElementById('role-manage-list');
+            if (manageContainer) {
+                manageContainer.innerHTML = '';
+                if (rolesData.length === 0) {
+                    manageContainer.innerHTML = '<p class="text-[10px] text-gray-500 italic mt-1 w-full drop-shadow-sm">Belum ada jabatan. Klik EDIT untuk menambah.</p>';
+                }
+                rolesData.forEach(r => {
+                    manageContainer.innerHTML += `
+                        <div class="flex items-center gap-1 glass-item !bg-white/80 px-3 py-1.5 rounded-lg shadow-sm">
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-navy">${r}</span>
+                            ${isRoleEditMode ? `<button type="button" onclick="deleteRole('${r}')" class="text-red-500 hover:text-red-700 ml-2 font-black text-xs transition-colors">✕</button>` : ''}
+                        </div>
+                    `;
+                });
+            }
+            updateRoleOptions(); // Perbarui pilihan di form setup otomatis
+        }
+
+        window.addRole = () => {
+            const input = document.getElementById('input-new-role');
+            const val = input.value.trim();
+            if (!val) { showToast("Kosong", "Ketik nama jabatan terlebih dahulu.", "error"); return; }
+            if (rolesData.some(r => r.toLowerCase() === val.toLowerCase())) {
+                showToast("Gagal", "Jabatan sudah ada di dalam daftar!", "error"); return;
+            }
+            rolesData.push(val);
+            localStorage.setItem('navy_roles', JSON.stringify(rolesData));
+            renderRoleUI();
+            input.value = '';
+            showToast("Berhasil", `Jabatan '${val}' ditambahkan.`, "success");
+        };
+
+        window.deleteRole = (val) => {
+            const isUsed = membersData.some(m => m.role.split(',').map(r => r.trim()).includes(val));
+            if (isUsed) {
+                showToast("Gagal Dihapus", `Jabatan '${val}' sedang digunakan oleh jemaat di Database!`, "error"); return;
+            }
+            rolesData = rolesData.filter(r => r !== val);
+            localStorage.setItem('navy_roles', JSON.stringify(rolesData));
+            renderRoleUI();
+            showToast("Dihapus", `Jabatan '${val}' telah dibuang.`, "success");
         };
 
         function renderKeterlibatanForm() {
@@ -978,21 +1083,19 @@
             renderList();
         }
 
-        // --- SISTEM JABATAN BARU (TIDAK TERBATAS KATEGORI) ---
+        // --- SISTEM JABATAN DINAMIS ---
         window.updateRoleOptions = () => {
             const container = document.getElementById('member-role-container');
+            if (!container) return;
             container.innerHTML = '';
             
-            // Seluruh jabatan dimunculkan sehingga bebas dipilih Admin
-            const roles = [
-                'Anggota Jemaat', 
-                'Anggota Anak', 
-                'Guru Sekolah Sabat Dewasa', 
-                'Guru Anak-anak', 
-                'Pemimpin', 
-                'Koordinator', 
-                'Sekretaris'
-            ];
+            // Mengambil dari master data jabatan yang dikelola Admin
+            const roles = rolesData;
+
+            if (roles.length === 0) {
+                 container.innerHTML = '<p class="text-[10px] text-red-500 font-bold w-full drop-shadow-sm">Belum ada daftar jabatan. Tambahkan di Kelola Jabatan terlebih dahulu.</p>';
+                 return;
+            }
 
             roles.forEach(role => {
                 container.innerHTML += `
@@ -1614,6 +1717,7 @@
         }
         
         renderSubClassUI(); 
+        renderRoleUI(); // Inisialisasi daftar jabatan saat web dimuat
         updateRoleOptions();
         updateDateUI(); 
         applyDayLogic();
