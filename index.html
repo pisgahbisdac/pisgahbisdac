@@ -6,6 +6,8 @@
     <title>Presensi - PISGAH Batam SDA Church</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Tambahkan library plugin angka untuk Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -33,6 +35,19 @@
         .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 20px; height: 20px; animation: spin 1s linear infinite; }
         .spinner-dark { border: 3px solid rgba(10, 25, 47, 0.3); border-radius: 50%; border-top: 3px solid #0A192F; width: 20px; height: 20px; animation: spin 1s linear infinite; margin: auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* --- ANIMASI JAM HTC (FLIP CLOCK) --- */
+        @keyframes flipBlock {
+            0% { transform: rotateX(90deg); filter: brightness(1.5); }
+            100% { transform: rotateX(0deg); filter: brightness(1); }
+        }
+        .flip-animate {
+            animation: flipBlock 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-origin: top;
+            backface-visibility: hidden;
+        }
+        /* ----------------------------------- */
+
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; }
         input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
@@ -63,33 +78,6 @@
         </div>
     </div>
 
-    <!-- Management Jemaat Modal -->
-    <div id="manage-modal-overlay" class="fixed inset-0 bg-navy/80 backdrop-blur-sm z-[80] hidden items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-2xl shadow-2xl animate-fade-in-up flex flex-col h-[80vh]">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-3xl">
-                <div>
-                    <h3 class="text-xl font-black text-navy">Manajemen Data Jemaat</h3>
-                    <p class="text-xs text-gray-500 mt-1">Pilih jemaat untuk diubah atau dihapus.</p>
-                </div>
-                <button onclick="closeManageModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 hover:bg-red-100 hover:text-red-600 transition-colors font-bold">&times;</button>
-            </div>
-            <div class="p-4 border-b border-gray-100 flex gap-2">
-                <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">🔍</div>
-                    <input type="text" id="manage-search" oninput="renderManageList()" placeholder="Cari nama jemaat..." class="w-full pl-9 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-medium" />
-                </div>
-                <select id="manage-filter" onchange="renderManageList()" class="px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-gold outline-none font-bold text-sm text-navy disabled:opacity-50 disabled:bg-gray-100">
-                    <option value="All">Semua Kategori</option>
-                    <option value="Dewasa">Dewasa</option>
-                    <option value="Anak-anak">Anak-anak</option>
-                </select>
-            </div>
-            <div id="manage-list-container" class="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-2">
-                <!-- Manage list goes here -->
-            </div>
-        </div>
-    </div>
-
     <!-- Admin Login Modal -->
     <div id="login-overlay" class="fixed inset-0 bg-navy/95 backdrop-blur-md z-[70] hidden items-center justify-center p-4 transition-opacity">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-fade-in-up text-center border-t-4 border-gold relative overflow-hidden">
@@ -112,8 +100,8 @@
             <div class="flex items-center gap-4">
                 <img src="PisgahWhite.png" alt="Pisgah Logo" class="h-12 w-auto object-contain drop-shadow-lg" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRDhCMzQ1IiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xOCAyMlYxM2wtNi00LTYgNHY5Ii8+PHBhdGggZD0iTTEyIDJ2NyIvPjxwYXRoIGQ9Ik05IDVoNiIvPjxwYXRoIGQ9Ik0xMiAyMnYtNWEyIDIgMCAwIDEgNCAwdjUiLz48L3N2Zz4='">
                 <div>
-                    <h1 class="text-xl md:text-2xl font-black tracking-tight text-gold leading-none">PISGAH BATAM</h1>
-                    <p class="text-[10px] md:text-xs text-blue-100 font-semibold mt-1 uppercase tracking-wide">International Seventh-Day Adventist Church</p>
+                    <h1 class="text-xl md:text-2xl font-black tracking-tight text-gold leading-none">PISGAH BISDAC</h1>
+                    <p class="text-[10px] md:text-xs text-blue-100 font-semibold mt-1 uppercase tracking-wide">Batam International Seventh-Day Adventist Church</p>
                 </div>
             </div>
             <div class="flex items-center gap-2 bg-black/30 p-1.5 rounded-2xl">
@@ -127,7 +115,7 @@
     <main id="view-home" class="max-w-7xl mx-auto p-4 md:p-8 animate-fade-in-up block">
         <div class="bg-gradient-to-br from-navy to-navy-light rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden mb-8 group">
             <img src="PisgahWhite.png" alt="Background Logo" class="absolute -right-10 -top-10 w-96 h-96 object-contain opacity-10 group-hover:scale-110 transition-transform duration-700 pointer-events-none" onerror="this.style.display='none'">
-            <h2 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight">Selamat Datang,<br><span class="text-gold">PISGAH Batam</span><br><span class="text-lg md:text-2xl text-blue-100 font-bold block mt-2">International Seventh-Day Adventist Church</span></h2>
+            <h2 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight">Selamat Datang,<br><span class="text-gold">PISGAH BISDAC</span><br><span class="text-lg md:text-2xl text-blue-100 font-bold block mt-2">Batam International Seventh-Day Adventist Church</span></h2>
             <p class="text-blue-100/80 max-w-xl text-sm md:text-base leading-relaxed relative z-10">Platform digital pemantauan kehadiran jemaat dan tingkat keterlibatan secara real-time.</p>
         </div>
 
@@ -142,31 +130,54 @@
                         <h3 class="text-3xl font-black text-navy mt-1" id="dash-total-jemaat">0</h3>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-5">
-                    <div class="w-14 h-14 rounded-2xl bg-[#FFFDF5] text-gold flex items-center justify-center shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                
+                <!-- WIDGET JAM HTC & KALENDER -->
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden flex flex-col justify-center">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gold/10 rounded-bl-full -z-0"></div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider relative z-10 mb-2">Waktu & Tanggal (Live)</p>
+                    
+                    <div class="flex items-center gap-1.5 mb-3 relative z-10" style="perspective: 200px;">
+                        <div id="clock-hours" class="bg-gradient-to-b from-navy to-navy-light text-white rounded-xl px-3 py-2 text-4xl font-black shadow-[inset_0_-2px_0_rgba(255,255,255,0.2),0_4px_6px_rgba(0,0,0,0.3)] flex items-center justify-center min-w-[65px]">00</div>
+                        <div class="text-navy font-black text-3xl animate-pulse pb-1">:</div>
+                        <div id="clock-minutes" class="bg-gradient-to-b from-navy to-navy-light text-white rounded-xl px-3 py-2 text-4xl font-black shadow-[inset_0_-2px_0_rgba(255,255,255,0.2),0_4px_6px_rgba(0,0,0,0.3)] flex items-center justify-center min-w-[65px]">00</div>
+                        <div class="text-gray-300 font-black text-3xl animate-pulse pb-1">:</div>
+                        <div id="clock-seconds" class="bg-gray-100 text-gray-600 rounded-lg px-2 py-2 text-2xl font-black shadow-inner flex items-center justify-center min-w-[50px] border border-gray-200">00</div>
                     </div>
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Kalender Hari Ini</p>
-                        <h3 class="text-lg font-black text-navy mt-1 uppercase" id="dash-hari-ini">-</h3>
-                        <p class="text-xs text-gold font-bold mt-1" id="dash-kegiatan-hari-ini">-</p>
-                    </div>
+                    
+                    <p class="text-sm font-black text-navy relative z-10" id="dash-tanggal-lengkap">-</p>
+                    <p class="text-[10px] text-gold font-bold mt-1 relative z-10 uppercase tracking-widest" id="dash-kegiatan-hari-ini">-</p>
+                    
+                    <span id="dash-hari-ini" class="hidden"></span>
                 </div>
             </div>
-            <div class="lg:col-span-8">
-                <div class="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm h-full flex flex-col relative overflow-hidden">
+            
+            <div class="lg:col-span-8 space-y-6">
+                <!-- CHART 1: TREN BAR CHART (PERBANDINGAN MINGGUAN) -->
+                <div class="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-bl-full -z-0"></div>
-                    <h3 class="text-lg font-black text-navy mb-1 uppercase tracking-widest relative z-10 flex items-center gap-2">📊 Grafik Kehadiran Jemaat</h3>
-                    <p class="text-xs text-gray-500 mb-6 relative z-10">Data riwayat 7 jadwal kegiatan terakhir</p>
-                    <div class="flex-1 w-full h-64 relative z-10">
-                        <canvas id="attendanceChart"></canvas>
+                    <h3 class="text-sm font-black text-navy mb-1 uppercase tracking-widest relative z-10 flex items-center gap-2">📈 Tren Kehadiran</h3>
+                    <p class="text-[10px] text-gray-500 mb-4 relative z-10">Perbandingan Minggu Lalu vs Minggu Ini</p>
+                    <div class="w-full h-56 relative z-10"><canvas id="trendChart"></canvas></div>
+                </div>
+
+                <!-- CHART 2 & 3: PIE / DOUGHNUT -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                        <h3 class="text-sm font-black text-navy mb-1 uppercase tracking-widest">👥 Komposisi Jemaat</h3>
+                        <p class="text-[10px] text-gray-500 mb-4">Total terdaftar di database</p>
+                        <div class="w-full h-48 relative z-10"><canvas id="komposisiChart"></canvas></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                        <h3 class="text-sm font-black text-navy mb-1 uppercase tracking-widest">📊 Status Terakhir</h3>
+                        <p class="text-[10px] text-gray-500 mb-4">Sesi kehadiran yang paling baru</p>
+                        <div class="w-full h-48 relative z-10"><canvas id="statusChart"></canvas></div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- VIEW: ADMIN -->
+    <!-- VIEW: ADMIN / SEKRETARIS -->
     <main id="view-admin" class="max-w-7xl mx-auto p-4 md:p-8 hidden">
         <div class="flex items-center justify-between mb-6 bg-blue-50 px-6 py-4 rounded-2xl border border-blue-100 shadow-sm">
             <div>
@@ -179,63 +190,18 @@
             <button onclick="showHomeView()" class="px-4 py-2 bg-white text-red-500 text-sm font-bold rounded-xl shadow-sm border border-red-100 hover:bg-red-50 transition-colors">KELUAR</button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- LEFT PANEL -->
+        <!-- ======================================================= -->
+        <!-- 1. LAYOUT SEKRETARIS (HANYA UNTUK ABSENSI & KETERLIBATAN) -->
+        <!-- ======================================================= -->
+        <div id="layout-sekretaris" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
+            <!-- LEFT PANEL: Kalender & Kegiatan -->
             <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-24 h-fit">
-                <!-- Date Picker -->
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1 h-full bg-navy"></div>
                     <h2 class="font-bold mb-3 flex items-center gap-2 text-sm uppercase tracking-wider text-gray-800">📅 Tanggal Kalender</h2>
                     <input type="date" id="input-tanggal" onchange="changeDate(this.value)" class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-bold text-navy uppercase" />
                 </div>
 
-                <!-- Form Tambah Jemaat -->
-                <div id="form-tambah-container" class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <h2 class="font-bold mb-5 flex items-center gap-3 text-sm uppercase tracking-wider text-navy">
-                        <span class="p-2 rounded-lg bg-blue-50 text-blue-800">👤</span>
-                        <span id="form-title">Tambah Data Jemaat</span>
-                    </h2>
-                    <form id="member-form" class="space-y-4">
-                        <input type="hidden" id="member-id">
-                        
-                        <div class="space-y-3">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase">Kategori Utama</label>
-                                    <select id="member-category" onchange="updateRoleOptions()" class="w-full mt-1 px-3 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-gold outline-none text-sm font-bold text-navy cursor-pointer disabled:opacity-50 disabled:bg-gray-100">
-                                        <option value="Dewasa">Dewasa</option>
-                                        <option value="Anak-anak">Anak-anak</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase">Sub Kelas</label>
-                                    <input type="text" id="member-subclass" placeholder="Cth: Kelas 1, Remaja.." class="w-full mt-1 px-3 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-gold focus:bg-white outline-none transition-all text-sm font-bold text-navy" />
-                                </div>
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Jabatan (Bisa pilih lebih dari 1)</label>
-                                <div id="member-role-container" class="flex flex-wrap gap-2">
-                                    <!-- Terisi otomatis oleh JS -->
-                                </div>
-                            </div>
-                        </div>
-
-                        <input type="text" id="member-name" required placeholder="Ketik nama lengkap..." class="w-full px-5 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-gold focus:bg-white outline-none transition-all text-sm font-medium" />
-                        
-                        <div class="flex gap-2">
-                            <button type="submit" id="btn-save" class="flex-1 font-bold py-3.5 rounded-xl transition-all shadow-md text-sm hover:opacity-90 bg-navy text-gold">+ TAMBAH</button>
-                            <button type="button" id="btn-cancel" onclick="resetForm()" class="hidden px-5 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-xl transition-colors text-sm">BATAL</button>
-                        </div>
-                    </form>
-                    
-                    <div class="mt-4 pt-4 border-t border-gray-100">
-                        <button type="button" onclick="openManageModal()" class="w-full py-3 rounded-xl border-2 border-dashed border-gray-300 text-gray-500 font-bold text-sm hover:border-gold hover:text-navy hover:bg-gold/5 transition-all flex items-center justify-center gap-2">
-                            <span>✏️</span> KELOLA / EDIT JEMAAT
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Activity Selector -->
                 <div id="activity-selector-container" class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 relative overflow-hidden transition-opacity">
                     <div class="absolute top-0 left-0 w-1 h-full bg-gold"></div>
                     <h2 class="font-bold mb-5 flex items-center gap-2 text-sm uppercase tracking-wider text-gray-800">Pilih Kegiatan</h2>
@@ -243,44 +209,41 @@
                 </div>
             </div>
 
-            <!-- RIGHT PANEL -->
+            <!-- RIGHT PANEL: Lembar Absensi -->
             <div class="lg:col-span-8 flex flex-col relative min-h-[600px]">
-                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col h-full flex-1 relative">
-                    
-                    <!-- Tabs Navigation -->
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col h-full flex-1 relative overflow-hidden">
                     <div class="flex border-b border-gray-200 bg-navy-light text-white font-bold text-sm" id="tab-container">
                         <button onclick="switchTab('absensi')" id="tab-absensi" class="flex-1 py-5 text-center border-b-4 border-gold text-gold transition-colors">📋 ABSENSI JEMAAT</button>
                         <button onclick="switchTab('keterlibatan')" id="tab-keterlibatan" class="flex-1 py-5 text-center border-b-4 border-transparent text-gray-400 hover:text-white transition-colors">📊 KETERLIBATAN KELAS</button>
                     </div>
 
-                    <!-- TAB 1: ABSENSI -->
+                    <!-- Panel Absensi -->
                     <div id="panel-absensi" class="flex flex-col h-full overflow-hidden">
-                        <div class="p-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50 border-b border-gray-200">
+                        <div class="p-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white border-b border-gray-100 relative z-10">
                             <div>
                                 <p id="tanggal-hari-ini" class="text-xs font-bold text-navy uppercase tracking-wider"></p>
                                 <p id="badge-kegiatan" class="text-[10px] font-black text-white bg-gold px-2 py-0.5 rounded uppercase mt-1 inline-block"></p>
                             </div>
                             <div class="relative w-full sm:w-auto flex flex-col sm:flex-row gap-2">
-                                <select id="filter-subclass" onchange="renderList()" class="hidden pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-xl text-navy focus:outline-none focus:border-gold transition-all text-sm font-bold w-full sm:w-40">
+                                <select id="filter-subclass" onchange="renderList()" class="hidden pl-3 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-xl text-navy focus:outline-none focus:border-gold transition-all text-sm font-bold w-full sm:w-40">
                                     <option value="All">Semua Kelas</option>
                                 </select>
                                 <div class="relative w-full sm:w-56">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">🔍</div>
-                                    <input type="text" id="search-input" placeholder="Cari nama..." class="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-navy placeholder-gray-400 focus:outline-none focus:border-gold transition-all text-sm font-medium" />
+                                    <input type="text" id="search-input" placeholder="Cari untuk diabsen..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-navy placeholder-gray-400 focus:outline-none focus:border-gold transition-all text-sm font-medium" />
                                 </div>
                             </div>
                         </div>
 
-                        <div class="px-6 py-3 border-b border-gray-100 flex justify-between items-center text-sm">
+                        <div class="px-6 py-3 border-b border-gray-100 flex justify-between items-center text-sm bg-gray-50 shadow-inner z-10">
                             <span class="font-bold text-gray-600">Terdaftar: <span id="total-db">0</span> | Diabsen: <span id="total-selected" class="text-navy">0</span></span>
                             <button onclick="markAllHadir()" class="text-xs font-bold px-4 py-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-200 transition-colors shadow-sm">SET SEMUA HADIR</button>
                         </div>
 
-                        <div id="members-list" class="flex-1 px-4 py-2 space-y-2 pb-6">
+                        <div id="members-list" class="flex-1 overflow-y-auto px-4 py-2 custom-scrollbar space-y-2 pb-6">
                             <!-- JS Injected List -->
                         </div>
                         
-                        <!-- Kolom Tamu (Selalu Muncul di Tab Absensi) -->
                         <div id="tamu-container" class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between shadow-inner">
                             <div>
                                 <span class="font-black text-navy text-sm uppercase">Jumlah Tamu</span>
@@ -292,9 +255,7 @@
                             </div>
                         </div>
 
-                        <div class="p-6 border-t border-gray-100 bg-white shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] z-20 sticky bottom-0 rounded-b-3xl">
-                            
-                            <!-- RINGKASAN (SUMMARY) LANGSUNG DI BAGIAN AKHIR -->
+                        <div class="p-6 border-t border-gray-100 bg-white shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] z-20 sticky bottom-0">
                             <div class="flex flex-wrap justify-between items-center mb-4 px-3 py-2.5 text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wide bg-gray-50 rounded-xl border border-gray-200">
                                 <div class="flex gap-4">
                                     <span>Hadir: <span id="sum-hadir" class="text-green-600 text-sm ml-1">0</span> <span class="lowercase text-[9px] font-medium">(Anggota)</span></span>
@@ -305,41 +266,115 @@
                                     <span>Alpa: <span id="sum-alpa" class="text-red-600 text-sm ml-1">0</span></span>
                                 </div>
                             </div>
-                            
                             <button id="btn-submit-absensi" onclick="submitAbsensi()" disabled class="w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all opacity-50 cursor-not-allowed bg-[#E2E8F0] text-[#94A3B8]">
                                 KIRIM <span id="submit-count">0</span> DATA ABSENSI ↗
                             </button>
                         </div>
                     </div>
 
-                    <!-- TAB 2: KETERLIBATAN -->
+                    <!-- Panel Keterlibatan -->
                     <div id="panel-keterlibatan" class="flex flex-col h-full overflow-hidden hidden">
                         <div class="p-6 bg-gray-50 border-b border-gray-200 shadow-sm z-10">
                             <h2 class="font-black text-navy text-lg">KETERLIBATAN ANGGOTA DEWASA</h2>
                             <p class="text-xs text-gray-500 mt-1">Masukkan <span class="font-bold text-red-500">Jumlah Orang (Angka)</span> yang melakukan kegiatan di bawah ini:</p>
                         </div>
-                        <div class="flex-1 px-4 py-4">
+                        <div class="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
                             <form id="form-keterlibatan" class="space-y-3"></form>
                         </div>
-                        <div class="p-6 border-t border-gray-100 bg-white shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] z-20 sticky bottom-0 rounded-b-3xl">
+                        <div class="p-6 border-t border-gray-100 bg-white shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] z-20 sticky bottom-0">
                             <button id="btn-submit-keterlibatan" onclick="submitKeterlibatan()" class="w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 bg-navy text-gold">
                                 KIRIM DATA KETERLIBATAN ↗
                             </button>
                         </div>
                     </div>
 
-                    <!-- TAB 3: WARNING -->
+                    <!-- Panel Warning -->
                     <div id="panel-warning" class="flex flex-col items-center justify-center h-full hidden bg-gray-50">
                         <div class="text-center p-8 bg-white rounded-3xl border border-gray-200 shadow-sm max-w-sm mx-4">
                             <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">📅</div>
-                            <h3 class="text-xl font-black text-navy mb-2" id="warning-title">Bukan Jadwal Presensi</h3>
+                            <h3 class="text-xl font-black text-navy mb-2" id="warning-title">Bukan Jadwal Kehadiran</h3>
                             <p class="text-sm text-gray-500" id="warning-desc">Pengisian absen hanya tersedia untuk tanggal yang jatuh di hari <strong class="text-navy">Rabu</strong> atau <strong class="text-navy">Sabtu</strong>.</p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- ======================================================= -->
+        <!-- 2. LAYOUT ADMIN (HANYA UNTUK SETUP DATABASE) -->
+        <!-- ======================================================= -->
+        <div id="layout-admin" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
+            <!-- LEFT PANEL: Form Setup -->
+            <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-24 h-fit">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <h2 class="font-black flex items-center gap-3 text-sm uppercase tracking-wider text-navy mb-6">
+                        <span class="p-2 rounded-lg bg-blue-50 shadow-sm border border-gray-100 text-blue-800">⚙️</span>
+                        <span id="form-title">Setup Data Jemaat Baru</span>
+                    </h2>
+                    
+                    <form id="member-form" class="space-y-5">
+                        <input type="hidden" id="member-id">
+                        
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Kategori Utama</label>
+                            <select id="member-category" onchange="updateRoleOptions()" class="w-full mt-1.5 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none text-sm font-bold text-navy shadow-sm transition-all">
+                                <option value="Dewasa">Dewasa</option>
+                                <option value="Anak-anak">Anak-anak</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Sub Kelas</label>
+                            <input type="text" id="member-subclass" placeholder="Cth: Kelas 1, Remaja.." class="w-full mt-1.5 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-bold text-navy shadow-sm focus:bg-white" />
+                        </div>
+
+                        <div class="pt-2 border-t border-gray-100">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-3 block">Jabatan / Role (Bisa pilih lebih dari 1)</label>
+                            <div id="member-role-container" class="flex flex-wrap gap-2">
+                                <!-- Terisi otomatis oleh JS -->
+                            </div>
+                        </div>
+
+                        <div class="pt-2 border-t border-gray-100">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Nama Lengkap Jemaat</label>
+                            <input type="text" id="member-name" required placeholder="Ketik nama lengkap..." class="w-full mt-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-bold text-navy shadow-sm focus:bg-white" />
+                        </div>
+
+                        <div class="flex flex-col gap-2 pt-2">
+                            <button type="submit" id="btn-save" class="w-full px-6 py-4 font-black rounded-xl transition-all shadow-md hover:shadow-lg text-sm hover:opacity-90 bg-navy text-gold uppercase tracking-wider">SIMPAN JEMAAT</button>
+                            <button type="button" id="btn-cancel" onclick="resetForm()" class="hidden w-full px-6 py-4 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-xl transition-colors text-sm uppercase">BATAL EDIT</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
+            <!-- RIGHT PANEL: Daftar Database -->
+            <div class="lg:col-span-8 flex flex-col relative min-h-[600px]">
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col h-full flex-1 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                        <h2 class="font-black text-navy text-lg tracking-wide">DATABASE KESELURUHAN</h2>
+                        <span class="text-[11px] uppercase font-bold bg-navy text-gold px-3 py-1.5 rounded-lg">Total: <span id="admin-total-db">0</span></span>
+                    </div>
+                    
+                    <!-- Pencarian Database -->
+                    <div class="p-4 border-b border-gray-100 flex gap-2 bg-white z-10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">🔍</div>
+                            <input type="text" id="manage-search" oninput="renderManageList()" placeholder="Cari nama jemaat di database..." class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-medium shadow-inner" />
+                        </div>
+                        <select id="manage-filter" onchange="renderManageList()" class="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none font-bold text-sm text-navy shadow-inner cursor-pointer">
+                            <option value="All">Semua Kategori</option>
+                            <option value="Dewasa">Dewasa</option>
+                            <option value="Anak-anak">Anak-anak</option>
+                        </select>
+                    </div>
+
+                    <!-- Daftar Database -->
+                    <div id="manage-list-container" class="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-2 pb-8">
+                        <!-- Manage list goes here -->
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -361,12 +396,28 @@
         });
         
         let appStats = JSON.parse(localStorage.getItem('navy_stats')) || { labels: [], hadir: [], sakit: [], alpa: [] };
+        
+        function getWeekIdentifier(dateObj) {
+            const d = new Date(dateObj || new Date());
+            d.setDate(d.getDate() - d.getDay()); 
+            return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+        }
+        
+        let appStatsV2 = JSON.parse(localStorage.getItem('navy_stats_v2')) || {
+            weekId: getWeekIdentifier(new Date()),
+            mingguIni: { 'Permintaan Doa': 0, 'Sekolah Sabat Dewasa': 0, 'Sekolah Sabat Anak': 0, 'Khotbah': 0 },
+            mingguLalu: { 'Permintaan Doa': 0, 'Sekolah Sabat Dewasa': 0, 'Sekolah Sabat Anak': 0, 'Khotbah': 0 }
+        };
+
         let attendanceData = {}; 
         let currentActivity = '';
         let isSubmitting = false;
         let activeTab = 'absensi';
         let selectedDate = new Date(); 
-        let chartInstance = null; 
+        
+        let trendChartInstance = null; 
+        let komposisiChartInstance = null;
+        let statusChartInstance = null;
         
         let currentAccessLevel = 'Admin'; 
 
@@ -381,31 +432,125 @@
             "Terlibat kegiatan Kelompok Kecil", "Membagikan risalah, buku rohani, kursus Alkitab"
         ];
 
-        function initChart() {
-            const ctx = document.getElementById('attendanceChart');
-            if(!ctx) return;
-            let cLabels = appStats.labels.length ? appStats.labels : ['Belum Ada Data'];
-            let cHadir = appStats.hadir.length ? appStats.hadir : [0];
-            let cSakit = appStats.sakit.length ? appStats.sakit : [0];
-            let cAlpa = appStats.alpa.length ? appStats.alpa : [0];
+        Chart.register(ChartDataLabels);
 
-            if(chartInstance) chartInstance.destroy(); 
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: cLabels,
-                    datasets: [
-                        { label: 'Hadir (+Tamu)', data: cHadir, backgroundColor: '#22c55e', borderRadius: 4 },
-                        { label: 'Sakit', data: cSakit, backgroundColor: '#eab308', borderRadius: 4 },
-                        { label: 'Alpa', data: cAlpa, backgroundColor: '#ef4444', borderRadius: 4 }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false, animation: { duration: 1500, easing: 'easeOutBounce' },
-                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { weight: 'bold' } } } },
-                    scales: { y: { beginAtZero: true, grid: { borderDash: [5, 5] }, ticks: { precision: 0 } }, x: { grid: { display: false } } }
-                }
+        function renderKeterlibatanForm() {
+            const form = document.getElementById('form-keterlibatan');
+            if(!form) return;
+            form.innerHTML = '';
+            kegiatanList.forEach((teks, index) => {
+                const num = index + 1;
+                form.innerHTML += `
+                    <div class="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl shadow-sm gap-4 hover:border-gold transition-colors">
+                        <div class="flex items-start gap-3 flex-1">
+                            <span class="font-black text-gold text-lg mt-0.5">${num}.</span>
+                            <label class="text-sm font-semibold text-gray-700 leading-snug">${teks}</label>
+                        </div>
+                        <input type="number" id="ket_${num}" min="0" placeholder="0" 
+                            class="w-16 sm:w-20 px-2 py-2 text-center font-bold text-lg bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-gold focus:bg-white outline-none transition-all">
+                    </div>
+                `;
             });
+        }
+
+        function initChart() {
+            const ctxTrend = document.getElementById('trendChart');
+            if(ctxTrend) {
+                const labels = ['Rabu (Doa)', 'Dewasa', 'Anak-anak', 'Khotbah'];
+                const dataLalu = [
+                    appStatsV2.mingguLalu['Permintaan Doa'] || 0,
+                    appStatsV2.mingguLalu['Sekolah Sabat Dewasa'] || 0,
+                    appStatsV2.mingguLalu['Sekolah Sabat Anak'] || 0,
+                    appStatsV2.mingguLalu['Khotbah'] || 0
+                ];
+                const dataIni = [
+                    appStatsV2.mingguIni['Permintaan Doa'] || 0,
+                    appStatsV2.mingguIni['Sekolah Sabat Dewasa'] || 0,
+                    appStatsV2.mingguIni['Sekolah Sabat Anak'] || 0,
+                    appStatsV2.mingguIni['Khotbah'] || 0
+                ];
+
+                if(trendChartInstance) trendChartInstance.destroy(); 
+                trendChartInstance = new Chart(ctxTrend, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Minggu Lalu', data: dataLalu, backgroundColor: '#CBD5E1', borderRadius: 4 },
+                            { label: 'Minggu Ini', data: dataIni, backgroundColor: '#D4AF37', borderRadius: 4 }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, 
+                        animation: { 
+                            duration: 2000, easing: 'easeOutElastic',
+                            delay: (context) => context.type === 'data' && context.mode === 'default' ? context.dataIndex * 150 + context.datasetIndex * 100 : 0
+                        },
+                        plugins: { 
+                            legend: { position: 'bottom', labels: { usePointStyle: true, font: { weight: 'bold' } } },
+                            datalabels: { display: false } 
+                        },
+                        scales: { y: { beginAtZero: true, grid: { borderDash: [5, 5] }, ticks: { precision: 0 } }, x: { grid: { display: false } } }
+                    }
+                });
+            }
+
+            const ctxKomp = document.getElementById('komposisiChart');
+            if(ctxKomp) {
+                let dCount = membersData.filter(m => m.category === 'Dewasa').length;
+                let aCount = membersData.filter(m => m.category === 'Anak-anak').length;
+
+                if(komposisiChartInstance) komposisiChartInstance.destroy();
+                komposisiChartInstance = new Chart(ctxKomp, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Dewasa', 'Anak-anak'],
+                        datasets: [{ data: [dCount, aCount], backgroundColor: ['#0A192F', '#D4AF37'], borderWidth: 0, hoverOffset: 10 }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        animation: { animateScale: true, animateRotate: true, duration: 2000, easing: 'easeOutBounce' },
+                        plugins: { 
+                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
+                            datalabels: { color: '#ffffff', font: { weight: 'bold', size: 16 }, formatter: (value) => value > 0 ? value : '' }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+
+            const ctxStatus = document.getElementById('statusChart');
+            if(ctxStatus) {
+                let lastHadir = appStats.hadir.length ? appStats.hadir[appStats.hadir.length - 1] : 0;
+                let lastSakit = appStats.sakit.length ? appStats.sakit[appStats.sakit.length - 1] : 0;
+                let lastAlpa = appStats.alpa.length ? appStats.alpa[appStats.alpa.length - 1] : 0;
+                
+                if (lastHadir === 0 && lastSakit === 0 && lastAlpa === 0) lastHadir = 1; 
+
+                if(statusChartInstance) statusChartInstance.destroy();
+                statusChartInstance = new Chart(ctxStatus, {
+                    type: 'pie',
+                    data: {
+                        labels: (appStats.hadir.length && (lastHadir>0 || lastSakit>0 || lastAlpa>0)) ? ['Hadir', 'Sakit', 'Alpa'] : ['Belum Ada Data'],
+                        datasets: [{
+                            data: (appStats.hadir.length && (lastHadir>0 || lastSakit>0 || lastAlpa>0)) ? [lastHadir, lastSakit, lastAlpa] : [1],
+                            backgroundColor: (appStats.hadir.length && (lastHadir>0 || lastSakit>0 || lastAlpa>0)) ? ['#22c55e', '#eab308', '#ef4444'] : ['#E2E8F0'],
+                            borderWidth: 2, borderColor: '#ffffff', hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        animation: { animateScale: true, animateRotate: true, duration: 2000, easing: 'easeOutBounce' },
+                        plugins: { 
+                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
+                            datalabels: {
+                                color: '#ffffff', font: { weight: 'bold', size: 16 },
+                                formatter: (value, context) => context.chart.data.labels[0] === 'Belum Ada Data' ? '' : (value > 0 ? value : '') 
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         function updateDateUI() {
@@ -425,11 +570,14 @@
             if (!val) return;
             selectedDate = new Date(val);
             updateDateUI();
+            if (currentAccessLevel === 'Admin') return; // Admin bypass logic tanggal
             applyDayLogic();
             if(selectedDate.getDay() === 3 || selectedDate.getDay() === 6) switchTab('absensi'); 
         }
 
         function applyDayLogic() {
+            if (currentAccessLevel === 'Admin') return; // Layout Admin sudah dipisah
+
             const dayOfWeek = selectedDate.getDay(); 
             const optionsContainer = document.getElementById('activity-selector-container');
             const dashKegiatan = document.getElementById('dash-kegiatan-hari-ini');
@@ -441,7 +589,7 @@
             activityOptions.innerHTML = '';
 
             if (dayOfWeek === 6) { // SABTU
-                if (currentAccessLevel === 'Admin' || currentAccessLevel === 'Dewasa') {
+                if (currentAccessLevel === 'Dewasa') {
                     activityOptions.innerHTML += `
                         <label class="activity-label flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all border-gold bg-[#FFFDF5]" onclick="selectActivity('Sekolah Sabat Dewasa', this)">
                             <div><p class="activity-title font-bold text-navy">Sekolah Sabat (Dewasa)</p></div>
@@ -450,7 +598,7 @@
                     `;
                     hasAccess = true;
                 }
-                if (currentAccessLevel === 'Admin' || currentAccessLevel === 'Anak') {
+                if (currentAccessLevel === 'Anak') {
                     activityOptions.innerHTML += `
                         <label class="activity-label flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all border-gray-100 bg-white hover:border-gray-200" onclick="selectActivity('Sekolah Sabat Anak', this)">
                             <div><p class="activity-title font-bold text-gray-600">Sekolah Sabat (Anak)</p></div>
@@ -459,9 +607,7 @@
                     `;
                     hasAccess = true;
                 }
-
-                // MENU KHOTBAH HANYA UNTUK ADMIN DAN SEKRETARIS KHOTBAH
-                if (currentAccessLevel === 'Admin' || currentAccessLevel === 'Khotbah') {
+                if (currentAccessLevel === 'Khotbah') {
                     activityOptions.innerHTML += `
                         <label class="activity-label flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all border-gray-100 bg-white hover:border-gray-200" onclick="selectActivity('Khotbah', this)">
                             <div><p class="activity-title font-bold text-gray-600">Khotbah / Ibadah Raya</p></div>
@@ -470,47 +616,39 @@
                     `;
                     hasAccess = true;
                 }
-
-                if (hasAccess) {
-                    dashKegiatan.textContent = "Jadwal Sabat Tersedia";
-                    optionsContainer.style.display = 'block';
-                    tabContainer.style.display = 'flex';
-                    panelWarning.classList.add('hidden');
-                    
-                    if(activityOptions.firstElementChild) {
-                        const firstTitle = activityOptions.firstElementChild.querySelector('.activity-title').textContent;
-                        const mapTitleToActivity = {
-                            "Sekolah Sabat (Dewasa)": "Sekolah Sabat Dewasa",
-                            "Sekolah Sabat (Anak)": "Sekolah Sabat Anak",
-                            "Khotbah / Ibadah Raya": "Khotbah"
-                        };
-                        selectActivity(mapTitleToActivity[firstTitle], activityOptions.firstElementChild);
-                    }
-                }
-
             } else if (dayOfWeek === 3) { // RABU
-                if (currentAccessLevel === 'Admin' || currentAccessLevel === 'Dewasa') {
+                if (currentAccessLevel === 'Dewasa') {
                     activityOptions.innerHTML = `
                         <label class="activity-label flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all border-gold bg-[#FFFDF5]" onclick="selectActivity('Permintaan Doa', this)">
                             <div><p class="activity-title font-bold text-navy">Permintaan Doa</p></div>
                             <div class="activity-radio w-6 h-6 rounded-full border-2 flex items-center justify-center border-gold bg-gold"><span class="w-2.5 h-2.5 bg-white rounded-full"></span></div>
                         </label>
                     `;
-                    dashKegiatan.textContent = "Permintaan Doa";
-                    optionsContainer.style.display = 'block';
-                    tabContainer.style.display = 'flex';
-                    panelWarning.classList.add('hidden');
-                    selectActivity('Permintaan Doa', activityOptions.firstElementChild);
                     hasAccess = true;
                 }
             }
 
-            if (!hasAccess) {
-                if (dashKegiatan) dashKegiatan.textContent = currentAccessLevel === 'Anak' ? "Tidak Ada Jadwal" : "Hanya jadwal Rabu & Sabtu";
+            if (hasAccess) {
+                dashKegiatan.textContent = "Jadwal Kehadiran Tersedia";
+                optionsContainer.style.display = 'block';
+                tabContainer.style.display = 'flex';
+                panelWarning.classList.add('hidden');
                 
-                document.getElementById('warning-title').textContent = "Bukan Jadwal Presensi";
-                document.getElementById('warning-desc').textContent = "Tidak ada jadwal absen yang tersedia untuk divisi/hari ini.";
-
+                if(activityOptions.firstElementChild) {
+                    const firstTitle = activityOptions.firstElementChild.querySelector('.activity-title').textContent;
+                    const mapTitleToActivity = {
+                        "Sekolah Sabat (Dewasa)": "Sekolah Sabat Dewasa",
+                        "Sekolah Sabat (Anak)": "Sekolah Sabat Anak",
+                        "Khotbah / Ibadah Raya": "Khotbah",
+                        "Permintaan Doa": "Permintaan Doa"
+                    };
+                    selectActivity(mapTitleToActivity[firstTitle], activityOptions.firstElementChild);
+                }
+            } else {
+                if (dashKegiatan) dashKegiatan.textContent = "Tidak Ada Jadwal";
+                document.getElementById('warning-title').textContent = "Bukan Jadwal Kehadiran";
+                document.getElementById('warning-desc').textContent = "Tidak ada jadwal absen yang tersedia untuk kelas Anda hari ini.";
+                
                 if (optionsContainer) optionsContainer.style.display = 'none';
                 if (tabContainer) tabContainer.style.display = 'none';
                 if (panelWarning) panelWarning.classList.remove('hidden');
@@ -536,15 +674,10 @@
                 
                 let prevVal = select.value;
                 select.innerHTML = '<option value="All">Semua Kelas</option>';
-                subclasses.forEach(sc => {
-                    select.innerHTML += `<option value="${sc}">${sc}</option>`;
-                });
-                
-                if(subclasses.includes(prevVal)) select.value = prevVal;
-                else select.value = 'All';
+                subclasses.forEach(sc => { select.innerHTML += `<option value="${sc}">${sc}</option>`; });
+                if(subclasses.includes(prevVal)) select.value = prevVal; else select.value = 'All';
             } else {
-                select.classList.add('hidden');
-                select.value = 'All';
+                select.classList.add('hidden'); select.value = 'All';
             }
         }
 
@@ -572,10 +705,9 @@
                     tabKeterlibatanBtn.style.display = 'block';
                 } else {
                     tabKeterlibatanBtn.style.display = 'none';
-                    switchTab('absensi'); 
+                    if (activeTab === 'keterlibatan') switchTab('absensi'); 
                 }
             }
-            
             updateSubclassFilterUI();
             renderList();
         }
@@ -594,9 +726,9 @@
 
             roles.forEach(role => {
                 container.innerHTML += `
-                    <label class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors shadow-sm">
+                    <label class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors shadow-sm">
                         <input type="checkbox" value="${role}" class="role-checkbox w-4 h-4 text-gold focus:ring-gold border-gray-300 rounded">
-                        <span class="text-xs font-bold text-navy">${role}</span>
+                        <span class="text-[11px] font-bold text-navy uppercase">${role}</span>
                     </label>
                 `;
             });
@@ -657,6 +789,19 @@
                     else if(currentAccessLevel === 'Anak') badge.className = "px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-green-100 text-green-700 border border-green-200";
                     else if(currentAccessLevel === 'Khotbah') badge.className = "px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-purple-100 text-purple-700 border border-purple-200";
 
+                    // PEMISAHAN LOGIKA TAMPILAN ADMIN vs SEKRETARIS
+                    if (currentAccessLevel === 'Admin') {
+                        document.getElementById('layout-admin').classList.remove('hidden');
+                        document.getElementById('layout-sekretaris').classList.add('hidden');
+                        renderManageList();
+                        resetForm();
+                    } else {
+                        document.getElementById('layout-admin').classList.add('hidden');
+                        document.getElementById('layout-sekretaris').classList.remove('hidden');
+                        applyDayLogic();
+                        switchTab('absensi');
+                    }
+
                     document.getElementById('view-home').classList.add('hidden');
                     document.getElementById('view-home').classList.remove('block');
                     document.getElementById('view-admin').classList.remove('hidden');
@@ -665,9 +810,6 @@
                     
                     showToast("Berhasil Masuk", `Selamat bertugas, ${data.account}!`, "success");
                     pinInput.value = ''; 
-                    
-                    resetForm();
-                    applyDayLogic();
                 } else {
                     showToast("PIN Tidak Valid!", "Pastikan PIN kelas Anda benar.", "error");
                     pinInput.value = ''; pinInput.focus();
@@ -682,26 +824,21 @@
         document.getElementById('admin-pin').addEventListener('keypress', function (e) { if (e.key === 'Enter') verifyLogin(); });
 
         function switchTab(tab) {
+            if (currentAccessLevel === 'Admin') return; // Admin bypass tab logic
+            
             const dayOfWeek = selectedDate.getDay();
-            if (dayOfWeek !== 3 && dayOfWeek !== 6) return; 
+            const isNoSchedule = dayOfWeek !== 3 && dayOfWeek !== 6;
+            if (isNoSchedule) return;
 
             activeTab = tab;
-            const tabAbsensi = document.getElementById('tab-absensi');
-            const tabKeterlibatan = document.getElementById('tab-keterlibatan');
-            const pAbsensi = document.getElementById('panel-absensi');
-            const pKeterlibatan = document.getElementById('panel-keterlibatan');
-
-            if (tab === 'absensi') {
-                if(tabAbsensi) tabAbsensi.className = "flex-1 py-5 text-center border-b-4 border-gold text-gold transition-colors";
-                if(tabKeterlibatan) tabKeterlibatan.className = "flex-1 py-5 text-center border-b-4 border-transparent text-gray-400 hover:text-white transition-colors";
-                if(pAbsensi) pAbsensi.classList.remove('hidden');
-                if(pKeterlibatan) pKeterlibatan.classList.add('hidden');
-            } else {
-                if(tabKeterlibatan) tabKeterlibatan.className = "flex-1 py-5 text-center border-b-4 border-gold text-gold transition-colors";
-                if(tabAbsensi) tabAbsensi.className = "flex-1 py-5 text-center border-b-4 border-transparent text-gray-400 hover:text-white transition-colors";
-                if(pKeterlibatan) pKeterlibatan.classList.remove('hidden');
-                if(pAbsensi) pAbsensi.classList.add('hidden');
-            }
+            const tabs = ['absensi', 'keterlibatan'];
+            
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const panel = document.getElementById(`panel-${t}`);
+                if (btn) btn.className = `flex-1 py-5 text-center border-b-4 transition-colors ${t === tab ? 'border-gold text-gold' : 'border-transparent text-gray-400 hover:text-white'}`;
+                if (panel) panel.classList.toggle('hidden', t !== tab);
+            });
         }
 
         function saveToLocal() {
@@ -709,6 +846,8 @@
             const totalJemaatEl = document.getElementById('dash-total-jemaat');
             if(totalJemaatEl) totalJemaatEl.textContent = membersData.length;
             updateSubclassFilterUI();
+            initChart(); 
+            if (currentAccessLevel === 'Admin') renderManageList();
         }
 
         function renderList() {
@@ -786,25 +925,6 @@
             });
 
             updateSubmitButton();
-        }
-
-        function renderKeterlibatanForm() {
-            const form = document.getElementById('form-keterlibatan');
-            if(!form) return;
-            form.innerHTML = '';
-            kegiatanList.forEach((teks, index) => {
-                const num = index + 1;
-                form.innerHTML += `
-                    <div class="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl shadow-sm gap-4 hover:border-gold transition-colors">
-                        <div class="flex items-start gap-3 flex-1">
-                            <span class="font-black text-gold text-lg mt-0.5">${num}.</span>
-                            <label class="text-sm font-semibold text-gray-700 leading-snug">${teks}</label>
-                        </div>
-                        <input type="number" id="ket_${num}" min="0" placeholder="0" 
-                            class="w-16 sm:w-20 px-2 py-2 text-center font-bold text-lg bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-gold focus:bg-white outline-none transition-all">
-                    </div>
-                `;
-            });
         }
 
         window.setStatus = (id, status) => {
@@ -927,6 +1047,19 @@
                     successCount++;
                 }
                 
+                const currentWeekId = getWeekIdentifier(selectedDate);
+                
+                if (appStatsV2.weekId !== currentWeekId) {
+                    appStatsV2.mingguLalu = { ...appStatsV2.mingguIni };
+                    appStatsV2.mingguIni = { 'Permintaan Doa': 0, 'Sekolah Sabat Dewasa': 0, 'Sekolah Sabat Anak': 0, 'Khotbah': 0 };
+                    appStatsV2.weekId = currentWeekId;
+                }
+                
+                if (currentActivity in appStatsV2.mingguIni) {
+                    appStatsV2.mingguIni[currentActivity] = statHadirAnggota + tamuCount;
+                    localStorage.setItem('navy_stats_v2', JSON.stringify(appStatsV2));
+                }
+
                 const shortDate = selectedDate.toLocaleDateString('id-ID', {day: '2-digit', month: 'short'});
                 appStats.labels.push(`${shortDate} (${currentActivity.split(' ')[0]})`);
                 appStats.hadir.push(statHadirAnggota + tamuCount);
@@ -944,6 +1077,7 @@
                 attendanceData = {}; 
                 if(inputTamu) inputTamu.value = ""; 
                 renderList();
+                initChart(); 
             } catch (err) {
                 showToast("Terjadi Kendala", "Koneksi terputus saat mengirim data.", "error");
             } finally {
@@ -989,56 +1123,39 @@
             }
         };
 
-        window.openManageModal = () => {
-            document.getElementById('manage-modal-overlay').style.display = 'flex';
-            document.getElementById('manage-search').value = "";
-            
-            const filterSelect = document.getElementById('manage-filter');
-            if (currentAccessLevel === 'Anak') {
-                filterSelect.value = "Anak-anak";
-                filterSelect.disabled = true;
-            } else if (currentAccessLevel === 'Dewasa') {
-                filterSelect.value = "Dewasa";
-                filterSelect.disabled = true;
-            } else {
-                filterSelect.value = "All";
-                filterSelect.disabled = false;
-            }
-            
-            renderManageList();
-        }
-        window.closeManageModal = () => { document.getElementById('manage-modal-overlay').style.display = 'none'; }
-
         window.renderManageList = () => {
             const container = document.getElementById('manage-list-container');
             const search = document.getElementById('manage-search').value.toLowerCase();
             const filterCat = document.getElementById('manage-filter').value;
+            const totalEl = document.getElementById('admin-total-db');
             
             let filtered = membersData;
             if (filterCat !== 'All') filtered = filtered.filter(m => m.category === filterCat);
             filtered = filtered.filter(m => m.name.toLowerCase().includes(search));
             
+            if (totalEl) totalEl.textContent = filtered.length;
             container.innerHTML = '';
+            
             if(filtered.length === 0) {
-                 container.innerHTML = `<p class="text-center text-gray-400 mt-4">Data tidak ditemukan.</p>`;
+                 container.innerHTML = `<p class="text-center text-gray-400 mt-8">Data tidak ditemukan di database.</p>`;
                  return;
             }
             
             filtered.forEach(m => {
                 const div = document.createElement('div');
-                div.className = "flex items-center justify-between bg-white p-3 border border-gray-200 rounded-xl hover:border-gold transition-colors";
+                div.className = "flex items-center justify-between bg-white p-4 border border-gray-200 rounded-2xl shadow-sm hover:border-gold hover:shadow-md transition-all";
                 
                 const roleDisplay = m.role.split(',').map(r=>r.trim()).join(', ');
                 const subClassDisplay = m.subClass && m.subClass !== 'Umum' ? ` [${m.subClass}]` : '';
                 
                 div.innerHTML = `
                     <div class="flex-1 pr-2">
-                        <span class="font-bold text-navy text-sm block">${m.name}</span>
-                        <span class="text-[10px] text-gray-500 uppercase">${m.category}${subClassDisplay} • ${roleDisplay}</span>
+                        <span class="font-bold text-navy text-[15px] block">${m.name}</span>
+                        <span class="text-[10px] text-gray-500 uppercase font-semibold mt-1 block">${m.category}${subClassDisplay} • ${roleDisplay}</span>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="editMember('${m.id}', '${m.name.replace(/'/g, "\\'")}', '${m.category}', '${m.role}', '${(m.subClass || 'Umum').replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors">EDIT</button>
-                        <button onclick="confirmDelete('${m.id}', '${m.name.replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors">HAPUS</button>
+                        <button onclick="editMember('${m.id}', '${m.name.replace(/'/g, "\\'")}', '${m.category}', '${m.role}', '${(m.subClass || 'Umum').replace(/'/g, "\\'")}')" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-xs font-bold hover:bg-blue-100 hover:text-blue-700 transition-colors">EDIT</button>
+                        <button onclick="confirmDelete('${m.id}', '${m.name.replace(/'/g, "\\'")}')" class="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-xs font-bold hover:bg-red-100 hover:text-red-700 transition-colors">HAPUS</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -1046,14 +1163,11 @@
         }
 
         window.editMember = (id, name, cat, roleStr, subClass) => {
-            closeManageModal();
             document.getElementById('member-id').value = id;
             document.getElementById('member-name').value = name;
             
             const catSelect = document.getElementById('member-category');
             catSelect.value = cat;
-            if (currentAccessLevel !== 'Admin' && currentAccessLevel !== 'Khotbah') catSelect.disabled = true;
-            else catSelect.disabled = false;
             
             document.getElementById('member-subclass').value = subClass && subClass !== 'Umum' ? subClass : '';
             
@@ -1067,12 +1181,14 @@
             document.getElementById('btn-save').textContent = "SIMPAN PERUBAHAN";
             document.getElementById('btn-cancel').classList.remove('hidden');
             document.getElementById('form-title').textContent = "Edit Data Jemaat";
-            document.getElementById('member-name').focus();
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => document.getElementById('member-name').focus(), 300);
         };
 
         let deleteTarget = null;
         window.confirmDelete = (id, name) => {
-            closeManageModal(); deleteTarget = id;
+            deleteTarget = id;
             document.getElementById('modal-message').textContent = `Menghapus ${name} akan menghilangkannya dari database lokal Anda.`;
             document.getElementById('modal-overlay').style.display = 'flex';
         };
@@ -1081,9 +1197,10 @@
             if (!deleteTarget) return;
             membersData = membersData.filter(m => m.id !== deleteTarget);
             delete attendanceData[deleteTarget]; 
-            saveToLocal(); renderList();
+            saveToLocal(); 
+            renderList();
             showToast("Dihapus", "Jemaat berhasil dihapus.", "success");
-            closeModal(); setTimeout(openManageModal, 300);
+            closeModal(); 
         };
 
         document.getElementById('member-form').onsubmit = (e) => {
@@ -1093,9 +1210,6 @@
             let subClassInput = document.getElementById('member-subclass').value.trim();
             
             let cat = document.getElementById('member-category').value;
-            if (currentAccessLevel === 'Anak') cat = 'Anak-anak';
-            else if (currentAccessLevel === 'Dewasa') cat = 'Dewasa';
-            
             const checkedBoxes = Array.from(document.querySelectorAll('.role-checkbox:checked'));
             let roleJoined = checkedBoxes.map(cb => cb.value).join(', ');
             
@@ -1115,12 +1229,13 @@
                 showToast("Berhasil", "Perubahan data jemaat disimpan", "success");
             } else {
                 membersData.push({ id: Date.now().toString(), name: name, category: cat, subClass: subClassInput || 'Umum', role: roleJoined });
-                showToast("Berhasil", "Jemaat baru ditambahkan", "success");
+                showToast("Berhasil", "Jemaat baru ditambahkan ke database", "success");
             }
             
             saveToLocal();
             membersData.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-            renderList(); resetForm();
+            renderList(); 
+            resetForm();
         };
 
         window.resetForm = () => {
@@ -1129,28 +1244,22 @@
             document.getElementById('member-subclass').value = "";
             
             const catSelect = document.getElementById('member-category');
-            if (currentAccessLevel === 'Anak') {
-                catSelect.value = "Anak-anak";
-                catSelect.disabled = true;
-            } else if (currentAccessLevel === 'Dewasa') {
-                catSelect.value = "Dewasa";
-                catSelect.disabled = true;
-            } else {
-                catSelect.value = "Dewasa"; // Khotbah & Admin bebas
-                catSelect.disabled = false;
-            }
+            catSelect.value = "Dewasa"; 
             
             updateRoleOptions();
             
-            let defaultRole = catSelect.value === 'Dewasa' ? 'Anggota Jemaat' : 'Anggota Anak';
+            let defaultRole = 'Anggota Jemaat';
             const defaultCheck = document.querySelector(`.role-checkbox[value="${defaultRole}"]`);
             if (defaultCheck) defaultCheck.checked = true;
 
-            document.getElementById('btn-save').textContent = "+ TAMBAH NAMA";
+            document.getElementById('btn-save').textContent = "SIMPAN JEMAAT";
             document.getElementById('btn-cancel').classList.add('hidden');
-            document.getElementById('form-title').textContent = "Tambah Data Jemaat";
+            document.getElementById('form-title').textContent = "Setup Data Jemaat Baru";
         };
 
+        const searchInput = document.getElementById('search-input');
+        if(searchInput) searchInput.addEventListener('input', renderList);
+        
         function showToast(title, message, type = 'success') {
             const toast = document.getElementById('toast-container');
             const content = document.getElementById('toast-content');
@@ -1173,9 +1282,45 @@
                 setTimeout(() => { toast.style.display = 'none'; }, 4000);
             }
         }
-
-        const searchInput = document.getElementById('search-input');
-        if(searchInput) searchInput.addEventListener('input', renderList);
+        
+        // --- LIVE CLOCK LOGIC ---
+        function startLiveClock() {
+            function updateClock() {
+                const now = new Date();
+                const h = String(now.getHours()).padStart(2, '0');
+                const m = String(now.getMinutes()).padStart(2, '0');
+                const s = String(now.getSeconds()).padStart(2, '0');
+                
+                const elH = document.getElementById('clock-hours');
+                const elM = document.getElementById('clock-minutes');
+                const elS = document.getElementById('clock-seconds');
+                
+                if (elH && elH.textContent !== h) {
+                    elH.textContent = h;
+                    elH.classList.remove('flip-animate');
+                    void elH.offsetWidth; 
+                    elH.classList.add('flip-animate');
+                }
+                if (elM && elM.textContent !== m) {
+                    elM.textContent = m;
+                    elM.classList.remove('flip-animate');
+                    void elM.offsetWidth;
+                    elM.classList.add('flip-animate');
+                }
+                if (elS && elS.textContent !== s) {
+                    elS.textContent = s;
+                }
+                
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const fullDate = now.toLocaleDateString('id-ID', options);
+                const dateEl = document.getElementById('dash-tanggal-lengkap');
+                if (dateEl && dateEl.textContent !== fullDate) {
+                    dateEl.textContent = fullDate;
+                }
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+        }
         
         updateRoleOptions();
         updateDateUI(); 
@@ -1184,7 +1329,8 @@
         renderKeterlibatanForm();
         renderList();
         showHomeView(); 
-
+        startLiveClock(); 
+        
     </script>
 </body>
 </html>
