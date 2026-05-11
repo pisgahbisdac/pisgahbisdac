@@ -1,7 +1,6 @@
 var sheetId = "1-fWE3bjOlTU9VFITCgI6smG8d__vxjWpVMN35ODb-zc"; // ID Spreadsheet Anda
 
 function normalizeText(text) {
-
   return String(text)
     .trim()
     .replace(/\s+/g, " ")
@@ -21,7 +20,7 @@ function doGet(e) {
       sheet.appendRow(["Admin Utama", "1234", "Admin"]);
       sheet.appendRow(["Sekretaris Dewasa", "5555", "Dewasa"]);
       sheet.appendRow(["Sekretaris Anak", "8888", "Anak"]);
-      sheet.appendRow(["Sekretaris Khotbah", "9999", "Khotbah"]); // PENAMBAHAN AKUN KHOTBAH
+      sheet.appendRow(["Sekretaris Khotbah", "9999", "Khotbah"]);
       sheet.getRange("A1:C1").setFontWeight("bold").setBackground("#D4AF37");
       sheet.setColumnWidth(1, 200);
       sheet.setColumnWidth(2, 150);
@@ -44,7 +43,7 @@ function doGet(e) {
             var accLower = accountName.toLowerCase();
             if (accLower.indexOf("anak") !== -1) accessLevel = "Anak";
             else if (accLower.indexOf("dewasa") !== -1) accessLevel = "Dewasa";
-            else if (accLower.indexOf("khotbah") !== -1) accessLevel = "Khotbah"; // DETEKSI KHOTBAH
+            else if (accLower.indexOf("khotbah") !== -1) accessLevel = "Khotbah";
         }
         break;
       }
@@ -57,11 +56,10 @@ function doGet(e) {
 
 function doPost(e) {
   if (!e || !e.parameter) {
-
-  return ContentService
-    .createTextOutput("Error: Request kosong")
-    .setMimeType(ContentService.MimeType.TEXT);
-}
+    return ContentService
+      .createTextOutput("Error: Request kosong")
+      .setMimeType(ContentService.MimeType.TEXT);
+  }
 
   var lock = LockService.getScriptLock();
   lock.waitLock(30000); 
@@ -71,148 +69,119 @@ function doPost(e) {
     var action = e.parameter.action;
     var waktu = e.parameter.waktu;
 
-// =====================================================
-// SIMPAN DATABASE ANGGOTA JEMAAT
-// =====================================================
-if (action === "saveMember") {
+    // =====================================================
+    // SIMPAN DATABASE ANGGOTA JEMAAT
+    // =====================================================
+    if (action === "saveMember") {
+      var nama = e.parameter.nama || "-";
+      var kategori = e.parameter.kategori || "-";
+      var subkelas = e.parameter.subkelas || "-";
+      var jabatan = e.parameter.jabatan || "-";
+      
+      // Ambil Data Keluarga / Detail Tambahan
+      var jk = e.parameter.jk || "-";
+      var tgl_lahir = e.parameter.tgl_lahir || "-";
+      var status_nikah = e.parameter.status_nikah || "-";
+      var nama_pasangan = e.parameter.nama_pasangan || "-";
+      var tgl_nikah = e.parameter.tgl_nikah || "-";
+      var relasi = e.parameter.relasi || "-";
+      var nama_ayah = e.parameter.nama_ayah || "-";
+      var nama_ibu = e.parameter.nama_ibu || "-";
 
-  var nama = e.parameter.nama || "-";
-  var kategori = e.parameter.kategori || "-";
-  var subkelas = e.parameter.subkelas || "-";
-  var jabatan = e.parameter.jabatan || "-";
+      var memberSheet = ss.getSheetByName("Database Jemaat");
 
-  var memberSheet = ss.getSheetByName("Database Jemaat");
+      // Buat sheet otomatis jika tidak ada
+      if (!memberSheet) {
+        memberSheet = ss.insertSheet("Database Jemaat");
+        memberSheet.appendRow([
+          "ID", "Nama Jemaat", "Kategori", "Sub Kelas", "Jabatan", "Terakhir Update",
+          "Jenis Kelamin", "Tanggal Lahir", "Status Pernikahan", "Nama Pasangan",
+          "Tanggal Pernikahan", "Relasi Keluarga", "Nama Ayah", "Nama Ibu"
+        ]);
+        memberSheet.getRange("A1:N1").setFontWeight("bold").setBackground("#0A192F").setFontColor("#FFFFFF");
+        memberSheet.setFrozenRows(1);
+        memberSheet.autoResizeColumns(1, 14);
+      } else {
+        // Cek jika kolom lama dan perlu update header untuk menampung field baru
+        var headers = memberSheet.getRange(1, 1, 1, memberSheet.getLastColumn()).getValues()[0];
+        if (headers.length <= 6) {
+            memberSheet.getRange(1, 7, 1, 8).setValues([[
+              "Jenis Kelamin", "Tanggal Lahir", "Status Pernikahan", "Nama Pasangan",
+              "Tanggal Pernikahan", "Relasi Keluarga", "Nama Ayah", "Nama Ibu"
+            ]]).setFontWeight("bold").setBackground("#0A192F").setFontColor("#FFFFFF");
+        }
+      }
 
-  // Buat sheet otomatis
-  if (!memberSheet) {
+      var data = memberSheet.getDataRange().getValues();
+      var existingRow = -1;
 
-    memberSheet = ss.insertSheet("Database Jemaat");
+      for (var i = 1; i < data.length; i++) {
+        if (normalizeText(data[i][1]) === normalizeText(nama)) {
+          existingRow = i + 1;
+          break;
+        }
+      }
 
-    memberSheet.appendRow([
-      "ID",
-      "Nama Jemaat",
-      "Kategori",
-      "Sub Kelas",
-      "Jabatan",
-      "Terakhir Update"
-    ]);
+      var timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
 
-    memberSheet
-      .getRange("A1:F1")
-      .setFontWeight("bold")
-      .setBackground("#0A192F")
-      .setFontColor("#FFFFFF");
+      // UPDATE DATA YANG ADA
+      if (existingRow !== -1) {
+        memberSheet.getRange(existingRow, 3).setValue(kategori);
+        memberSheet.getRange(existingRow, 4).setValue(subkelas);
+        memberSheet.getRange(existingRow, 5).setValue(jabatan);
+        memberSheet.getRange(existingRow, 6).setValue(timestamp);
+        memberSheet.getRange(existingRow, 7).setValue(jk);
+        memberSheet.getRange(existingRow, 8).setValue(tgl_lahir);
+        memberSheet.getRange(existingRow, 9).setValue(status_nikah);
+        memberSheet.getRange(existingRow, 10).setValue(nama_pasangan);
+        memberSheet.getRange(existingRow, 11).setValue(tgl_nikah);
+        memberSheet.getRange(existingRow, 12).setValue(relasi);
+        memberSheet.getRange(existingRow, 13).setValue(nama_ayah);
+        memberSheet.getRange(existingRow, 14).setValue(nama_ibu);
+      } 
+      // INSERT BARU
+      else {
+        memberSheet.appendRow([
+          Date.now(), nama, kategori, subkelas, jabatan, timestamp,
+          jk, tgl_lahir, status_nikah, nama_pasangan, tgl_nikah, relasi, nama_ayah, nama_ibu
+        ]);
+      }
 
-    memberSheet.setFrozenRows(1);
-    memberSheet.autoResizeColumns(1, 6);
-  }
-
-  var data = memberSheet.getDataRange().getValues();
-
-  var existingRow = -1;
-
-  for (var i = 1; i < data.length; i++) {
-
-    if (
-      normalizeText(data[i][1]) ===
-      normalizeText(nama)
-    ) {
-
-      existingRow = i + 1;
-      break;
+      return ContentService.createTextOutput("Sukses Simpan Anggota").setMimeType(ContentService.MimeType.TEXT);
     }
-  }
 
-  // UPDATE
-  if (existingRow !== -1) {
+    // =====================================================
+    // PERMOHONAN DOA
+    // =====================================================
+    if (action === "doa") {
+      var sheetDoa = ss.getSheetByName("Permohonan Doa");
 
-    memberSheet.getRange(existingRow, 3).setValue(kategori);
-    memberSheet.getRange(existingRow, 4).setValue(subkelas);
-    memberSheet.getRange(existingRow, 5).setValue(jabatan);
-    memberSheet.getRange(existingRow, 6).setValue(Utilities.formatDate(
-  new Date(),
-  Session.getScriptTimeZone(),
-  "dd/MM/yyyy HH:mm:ss"
-));
+      if (!sheetDoa) {
+        sheetDoa = ss.insertSheet("Permohonan Doa");
+        sheetDoa.appendRow(["Waktu", "Nama", "No HP", "Isi Permohonan"]);
+        sheetDoa.getRange("A1:D1").setFontWeight("bold").setBackground("#D4AF37");
+        sheetDoa.setFrozenRows(1);
+        sheetDoa.setColumnWidth(1, 180);
+        sheetDoa.setColumnWidth(2, 220);
+        sheetDoa.setColumnWidth(3, 180);
+        sheetDoa.setColumnWidth(4, 500);
+      }
 
-  }
+      var nama = e.parameter.nama || "-";
+      var hp = e.parameter.hp || "-";
+      var pesan = e.parameter.pesan || "-";
 
-  // INSERT BARU
-  else {
+      sheetDoa.appendRow([
+        Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss"),
+        nama, hp, pesan
+      ]);
 
-    memberSheet.appendRow([
-      Date.now(),
-      nama,
-      kategori,
-      subkelas,
-      jabatan,
-      Utilities.formatDate(
-  new Date(),
-  Session.getScriptTimeZone(),
-  "dd/MM/yyyy HH:mm:ss"
-)
-    ]);
-  }
+      return ContentService.createTextOutput(JSON.stringify({ success: true, message: "Permohonan doa berhasil disimpan" })).setMimeType(ContentService.MimeType.JSON);
+    }
 
-  return ContentService
-    .createTextOutput("Sukses Simpan Anggota")
-    .setMimeType(ContentService.MimeType.TEXT);
-}
-
-// =====================================================
-// PERMOHONAN DOA
-// =====================================================
-if (action === "doa") {
-
-  var sheetDoa = ss.getSheetByName("Permohonan Doa");
-
-  // Jika sheet belum ada
-  if (!sheetDoa) {
-
-    sheetDoa = ss.insertSheet("Permohonan Doa");
-
-    sheetDoa.appendRow([
-      "Waktu",
-      "Nama",
-      "No HP",
-      "Isi Permohonan"
-    ]);
-
-    sheetDoa.getRange("A1:D1")
-      .setFontWeight("bold")
-      .setBackground("#D4AF37");
-
-    sheetDoa.setFrozenRows(1);
-
-    sheetDoa.setColumnWidth(1, 180);
-    sheetDoa.setColumnWidth(2, 220);
-    sheetDoa.setColumnWidth(3, 180);
-    sheetDoa.setColumnWidth(4, 500);
-  }
-
-  var nama = e.parameter.nama || "-";
-  var hp = e.parameter.hp || "-";
-  var pesan = e.parameter.pesan || "-";
-
-  sheetDoa.appendRow([
-    Utilities.formatDate(
-  new Date(),
-  Session.getScriptTimeZone(),
-  "dd/MM/yyyy HH:mm:ss"
-),
-    nama,
-    hp,
-    pesan
-  ]);
-
-  return ContentService
-    .createTextOutput(JSON.stringify({
-      success: true,
-      message: "Permohonan doa berhasil disimpan"
-    }))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
+    // =====================================================
+    // KETERLIBATAN KELAS
+    // =====================================================
     if (action === "keterlibatan") {
       var sheetName = "Keterlibatan Kelas";
       var sheet = ss.getSheetByName(sheetName);
@@ -235,17 +204,16 @@ if (action === "doa") {
       return ContentService.createTextOutput("Sukses Keterlibatan").setMimeType(ContentService.MimeType.TEXT);
     }
     
+    // =====================================================
     // ALUR 2: ABSENSI
+    // =====================================================
     var nama = e.parameter.nama;
-    var kegiatan = (e.parameter.kegiatan || "")
-  .toString()
-  .substring(0, 95);
+    var kegiatan = (e.parameter.kegiatan || "").toString().substring(0, 95);
 
     if (!kegiatan) {
-  return ContentService
-    .createTextOutput("Error: Nama kegiatan kosong")
-    .setMimeType(ContentService.MimeType.TEXT);
-}
+      return ContentService.createTextOutput("Error: Nama kegiatan kosong").setMimeType(ContentService.MimeType.TEXT);
+    }
+    
     var kategori = e.parameter.kategori || "-";
     var subkelas = e.parameter.subkelas || "-";
     var jabatan = e.parameter.jabatan || "-";
@@ -265,23 +233,13 @@ if (action === "doa") {
       if (lastCol < 4) lastCol = 4;
       
       var headers = sheetAbsensi.getRange(1, 1, 1, lastCol).getValues()[0];
-      var tanggalHeader = Utilities.formatDate(
-  new Date(),
-  Session.getScriptTimeZone(),
-  "dd/MM/yyyy"
-);
-
-var colIndex = headers.indexOf(tanggalHeader) + 1;
+      var tanggalHeader = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy");
+      var colIndex = headers.indexOf(tanggalHeader) + 1;
       
       if (colIndex === 0) {
         colIndex = lastCol + 1;
-        sheetAbsensi.getRange(1, colIndex).setValue(
-  Utilities.formatDate(
-    new Date(),
-    Session.getScriptTimeZone(),
-    "dd/MM/yyyy"
-  )
-)
+        sheetAbsensi.getRange(1, colIndex)
+                    .setValue(Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy"))
                     .setFontWeight("bold")
                     .setBackground("#D4AF37")
                     .setFontColor("#000000");
@@ -293,10 +251,7 @@ var colIndex = headers.indexOf(tanggalHeader) + 1;
       if (lastRow > 1) {
         var names = sheetAbsensi.getRange(2, 4, lastRow - 1, 1).getValues();
         for (var i = 0; i < names.length; i++) {
-          if (
-  normalizeText(names[i][0]) ===
-  normalizeText(nama)
-) {
+          if (normalizeText(names[i][0]) === normalizeText(nama)) {
             rowIndex = i + 2; 
             break;
           }
