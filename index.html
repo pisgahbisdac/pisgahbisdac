@@ -1589,55 +1589,101 @@
             closeModal(); 
         };
 
-        document.getElementById('member-form').onsubmit = (e) => {
-            e.preventDefault();
-            const id = document.getElementById('member-id').value;
-            const name = document.getElementById('member-name').value.trim();
-            let subClassInput = document.getElementById('member-subclass').value;
-            let cat = document.getElementById('member-category').value;
-            const checkedBoxes = Array.from(document.querySelectorAll('.role-checkbox:checked'));
-            
-            if (!name) {
-                showToast("Validasi Gagal", "Nama lengkap jemaat wajib diisi!", "error");
-                document.getElementById('member-name').focus();
-                return;
-            }
-            if (!cat) {
-                showToast("Validasi Gagal", "Kategori utama wajib dipilih!", "error");
-                document.getElementById('member-category').focus();
-                return;
-            }
-            if (!subClassInput) {
-                showToast("Validasi Gagal", "Silakan pilih Sub Kelas!", "error");
-                document.getElementById('member-subclass').focus();
-                return;
-            }
-            if (checkedBoxes.length === 0) {
-                showToast("Validasi Gagal", "Minimal 1 Jabatan/Role wajib dipilih!", "error");
-                return;
-            }
+        document.getElementById('member-form').onsubmit = async (e) => {
+    e.preventDefault();
 
-            let roleJoined = checkedBoxes.map(cb => cb.value).join(', ');
+    const id = document.getElementById('member-id').value;
+    const name = document.getElementById('member-name').value.trim();
+    let subClassInput = document.getElementById('member-subclass').value;
+    let cat = document.getElementById('member-category').value;
 
-            if (id) {
-                const index = membersData.findIndex(m => m.id === id);
-                if (index !== -1) {
-                    membersData[index].name = name;
-                    membersData[index].category = cat;
-                    membersData[index].subClass = subClassInput;
-                    membersData[index].role = roleJoined;
-                }
-                showToast("Berhasil", "Perubahan data jemaat disimpan", "success");
-            } else {
-                membersData.push({ id: Date.now().toString(), name: name, category: cat, subClass: subClassInput, role: roleJoined });
-                showToast("Berhasil", "Jemaat baru ditambahkan ke database", "success");
-            }
-            
-            saveToLocal();
-            membersData.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-            renderList(); 
-            resetForm();
-        };
+    const checkedBoxes = Array.from(
+        document.querySelectorAll('.role-checkbox:checked')
+    );
+
+    if (!name) {
+        showToast("Validasi Gagal", "Nama lengkap jemaat wajib diisi!", "error");
+        document.getElementById('member-name').focus();
+        return;
+    }
+
+    if (!cat) {
+        showToast("Validasi Gagal", "Kategori utama wajib dipilih!", "error");
+        document.getElementById('member-category').focus();
+        return;
+    }
+
+    if (!subClassInput) {
+        showToast("Validasi Gagal", "Silakan pilih Sub Kelas!", "error");
+        document.getElementById('member-subclass').focus();
+        return;
+    }
+
+    if (checkedBoxes.length === 0) {
+        showToast("Validasi Gagal", "Minimal 1 Jabatan/Role wajib dipilih!", "error");
+        return;
+    }
+
+    let roleJoined = checkedBoxes.map(cb => cb.value).join(', ');
+
+    if (id) {
+
+        const index = membersData.findIndex(m => m.id === id);
+
+        if (index !== -1) {
+            membersData[index].name = name;
+            membersData[index].category = cat;
+            membersData[index].subClass = subClassInput;
+            membersData[index].role = roleJoined;
+        }
+
+        showToast("Berhasil", "Perubahan data jemaat disimpan", "success");
+
+    } else {
+
+        membersData.push({
+            id: Date.now().toString(),
+            name: name,
+            category: cat,
+            subClass: subClassInput,
+            role: roleJoined
+        });
+
+        try {
+
+            const params = new URLSearchParams();
+
+            params.append('action', 'saveMember');
+            params.append('nama', name);
+            params.append('kategori', cat);
+            params.append('subkelas', subClassInput);
+            params.append('jabatan', roleJoined);
+
+            await fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: params
+            });
+
+        } catch (err) {
+
+            console.error('Gagal simpan ke Spreadsheet:', err);
+
+        }
+
+        showToast("Berhasil", "Jemaat baru ditambahkan ke database", "success");
+    }
+
+    saveToLocal();
+
+    membersData.sort((a, b) =>
+        (a.name || "").localeCompare(b.name || "")
+    );
+
+    renderList();
+
+    resetForm();
+};
 
         window.resetForm = () => {
             document.getElementById('member-id').value = "";

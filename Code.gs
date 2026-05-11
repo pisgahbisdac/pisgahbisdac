@@ -55,7 +55,73 @@ function doPost(e) {
     var ss = SpreadsheetApp.openById(sheetId);
     var action = e.parameter.action;
     var waktu = e.parameter.waktu;
-    var waktu = e.parameter.waktu;
+
+// =====================================================
+// SIMPAN DATABASE ANGGOTA JEMAAT
+// =====================================================
+if (action === "saveMember") {
+  var nama = e.parameter.nama || "-";
+  var kategori = e.parameter.kategori || "-";
+  var subkelas = e.parameter.subkelas || "-";
+  var jabatan = e.parameter.jabatan || "-";
+
+  var memberSheet = ss.getSheetByName("Database Jemaat");
+
+  // Buat sheet otomatis jika belum ada
+  if (!memberSheet) {
+    memberSheet = ss.insertSheet("Database Jemaat");
+
+    memberSheet.appendRow([
+      "ID",
+      "Nama Jemaat",
+      "Kategori",
+      "Sub Kelas",
+      "Jabatan",
+      "Tanggal Dibuat"
+    ]);
+
+    memberSheet
+      .getRange("A1:F1")
+      .setFontWeight("bold")
+      .setBackground("#0A192F")
+      .setFontColor("#FFFFFF");
+
+    memberSheet.setFrozenRows(1);
+  }
+
+  // Cegah duplikat berdasarkan nama
+  var data = memberSheet.getDataRange().getValues();
+  var existingRow = -1;
+
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][1].toString().trim().toLowerCase() === nama.trim().toLowerCase()) {
+      existingRow = i + 1;
+      break;
+    }
+  }
+
+  // Update jika sudah ada
+  if (existingRow !== -1) {
+    memberSheet.getRange(existingRow, 3).setValue(kategori);
+    memberSheet.getRange(existingRow, 4).setValue(subkelas);
+    memberSheet.getRange(existingRow, 5).setValue(jabatan);
+  }
+  // Tambah baru jika belum ada
+  else {
+    memberSheet.appendRow([
+      Date.now(),
+      nama,
+      kategori,
+      subkelas,
+      jabatan,
+      new Date()
+    ]);
+  }
+
+  return ContentService
+    .createTextOutput("Sukses Simpan Anggota")
+    .setMimeType(ContentService.MimeType.TEXT);
+}
 
 // =====================================================
 // PERMOHONAN DOA
