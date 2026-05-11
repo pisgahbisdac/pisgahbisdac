@@ -11,9 +11,9 @@ function doGet(e) {
       sheet = ss.insertSheet("Pengaturan");
       sheet.appendRow(["Nama Akun / Kelas", "PIN AKSES", "HAK AKSES"]);
       sheet.appendRow(["Admin Utama", "1234", "Admin"]);
-      sheet.appendRow(["Sekretaris Dewasa", "5555", "Dewasa"]);
-      sheet.appendRow(["Sekretaris Anak", "8888", "Anak"]);
-      sheet.appendRow(["Sekretaris Khotbah", "9999", "Khotbah"]); // PENAMBAHAN AKUN KHOTBAH
+      sheet.appendRow(["Sekretaris Dewasa", "1234", "Dewasa"]);
+      sheet.appendRow(["Sekretaris Anak", "1234", "Anak"]);
+      sheet.appendRow(["Sekretaris Khotbah", "1234", "Khotbah"]); // PENAMBAHAN AKUN KHOTBAH
       sheet.getRange("A1:C1").setFontWeight("bold").setBackground("#D4AF37");
       sheet.setColumnWidth(1, 200);
       sheet.setColumnWidth(2, 150);
