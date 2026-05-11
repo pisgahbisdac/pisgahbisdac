@@ -306,6 +306,23 @@
         <div id="layout-admin" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
             <!-- LEFT PANEL: Form Setup -->
             <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-24 h-fit">
+                
+                <!-- KELOLA SUB KELAS (BARU) -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <h2 class="font-black flex items-center gap-3 text-sm uppercase tracking-wider text-navy mb-4">
+                        <span class="p-2 rounded-lg bg-gold/20 shadow-sm border border-gold/30 text-gold">🏷️</span>
+                        <span>Kelola Sub Kelas</span>
+                    </h2>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="input-new-subclass" placeholder="Ketik sub kelas baru..." class="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-bold text-navy shadow-sm focus:bg-white" />
+                        <button onclick="addSubClass()" class="px-5 py-2 bg-navy text-gold font-bold rounded-xl text-xs hover:opacity-90 transition-all shadow-md">TAMBAH</button>
+                    </div>
+                    <div id="subclass-manage-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1">
+                        <!-- Daftar Sub Kelas masuk ke sini (via JS) -->
+                    </div>
+                </div>
+
+                <!-- SETUP DATA JEMAAT BARU -->
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
                     <h2 class="font-black flex items-center gap-3 text-sm uppercase tracking-wider text-navy mb-6">
                         <span class="p-2 rounded-lg bg-blue-50 shadow-sm border border-gray-100 text-blue-800">⚙️</span>
@@ -325,7 +342,10 @@
                         
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase">Sub Kelas</label>
-                            <input type="text" id="member-subclass" placeholder="Cth: Kelas 1, Remaja.." class="w-full mt-1.5 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-bold text-navy shadow-sm focus:bg-white" />
+                            <!-- Diubah dari <input> menjadi <select> -->
+                            <select id="member-subclass" class="w-full mt-1.5 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-bold text-navy shadow-sm cursor-pointer">
+                                <!-- Option diisi otomatis dari JS -->
+                            </select>
                         </div>
 
                         <div class="pt-2 border-t border-gray-100">
@@ -397,6 +417,19 @@
         
         let appStats = JSON.parse(localStorage.getItem('navy_stats')) || { labels: [], hadir: [], sakit: [], alpa: [] };
         
+        // --- DATA SUB KELAS GLOBAL ---
+        let subClassesData = JSON.parse(localStorage.getItem('navy_subclasses')) || ['Umum'];
+        
+        // Mencegah data lama (yang diketik manual) hilang dari pilihan
+        let isSubClassMigrated = false;
+        membersData.forEach(m => {
+            if (m.subClass && !subClassesData.includes(m.subClass)) {
+                subClassesData.push(m.subClass);
+                isSubClassMigrated = true;
+            }
+        });
+        if (isSubClassMigrated) localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
+
         function getWeekIdentifier(dateObj) {
             const d = new Date(dateObj || new Date());
             d.setDate(d.getDate() - d.getDay()); 
@@ -433,6 +466,69 @@
         ];
 
         Chart.register(ChartDataLabels);
+
+        // --- FUNGSI RENDER SUB KELAS (BARU) ---
+        function renderSubClassUI() {
+            const manageContainer = document.getElementById('subclass-manage-list');
+            if (manageContainer) {
+                manageContainer.innerHTML = '';
+                subClassesData.forEach(sc => {
+                    const isUmum = sc === 'Umum';
+                    manageContainer.innerHTML += `
+                        <div class="flex items-center gap-1 bg-white border ${isUmum ? 'border-gray-200 text-gray-500' : 'border-gold text-navy'} px-3 py-1.5 rounded-lg shadow-sm">
+                            <span class="text-[11px] font-bold uppercase tracking-wider">${sc}</span>
+                            ${!isUmum ? `<button type="button" onclick="deleteSubClass('${sc}')" class="text-red-500 hover:text-red-700 ml-2 font-black text-xs transition-colors">✕</button>` : ''}
+                        </div>
+                    `;
+                });
+            }
+
+            const formSelect = document.getElementById('member-subclass');
+            if (formSelect) {
+                const currentVal = formSelect.value;
+                formSelect.innerHTML = '';
+                subClassesData.forEach(sc => {
+                    formSelect.innerHTML += `<option value="${sc}">${sc}</option>`;
+                });
+                if (subClassesData.includes(currentVal)) {
+                    formSelect.value = currentVal;
+                }
+            }
+        }
+
+        window.addSubClass = () => {
+            const input = document.getElementById('input-new-subclass');
+            const val = input.value.trim();
+            if (!val) { showToast("Kosong", "Ketik nama sub kelas terlebih dahulu.", "error"); return; }
+            
+            // Cek duplikat (Case-insensitive)
+            if (subClassesData.some(sc => sc.toLowerCase() === val.toLowerCase())) {
+                showToast("Gagal", "Sub kelas sudah ada di dalam daftar!", "error");
+                return;
+            }
+            
+            subClassesData.push(val);
+            localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
+            renderSubClassUI();
+            input.value = '';
+            showToast("Berhasil", `Sub kelas '${val}' ditambahkan.`, "success");
+        };
+
+        window.deleteSubClass = (val) => {
+            if (val === 'Umum') return; // 'Umum' tidak boleh dihapus
+            
+            const isUsed = membersData.some(m => m.subClass === val);
+            if (isUsed) {
+                showToast("Gagal Dihapus", `Sub kelas '${val}' sedang digunakan oleh jemaat di Database!`, "error");
+                return;
+            }
+
+            subClassesData = subClassesData.filter(sc => sc !== val);
+            localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
+            renderSubClassUI();
+            showToast("Dihapus", `Sub kelas '${val}' telah dibuang.`, "success");
+        };
+        // ------------------------------------
 
         function renderKeterlibatanForm() {
             const form = document.getElementById('form-keterlibatan');
@@ -1207,7 +1303,7 @@
             e.preventDefault();
             const id = document.getElementById('member-id').value;
             const name = document.getElementById('member-name').value.trim();
-            let subClassInput = document.getElementById('member-subclass').value.trim();
+            let subClassInput = document.getElementById('member-subclass').value;
             let cat = document.getElementById('member-category').value;
             const checkedBoxes = Array.from(document.querySelectorAll('.role-checkbox:checked'));
             
@@ -1223,7 +1319,7 @@
                 return;
             }
             if (!subClassInput) {
-                showToast("Validasi Gagal", "Sub Kelas wajib diisi! (Ketik 'Umum' jika tidak ada)", "error");
+                showToast("Validasi Gagal", "Silakan pilih Sub Kelas!", "error");
                 document.getElementById('member-subclass').focus();
                 return;
             }
@@ -1258,17 +1354,15 @@
         window.resetForm = () => {
             document.getElementById('member-id').value = "";
             document.getElementById('member-name').value = "";
-            document.getElementById('member-subclass').value = "";
             
             const catSelect = document.getElementById('member-category');
             catSelect.value = "Dewasa"; 
             
-            updateRoleOptions();
+            // Set subclass kembali ke awal
+            const subClassSelect = document.getElementById('member-subclass');
+            if (subClassSelect) subClassSelect.value = subClassesData.includes('Umum') ? 'Umum' : subClassesData[0];
             
-            // Auto-check dihilangkan agar Admin wajib mencentang secara sadar
-            // let defaultRole = 'Anggota Jemaat';
-            // const defaultCheck = document.querySelector(`.role-checkbox[value="${defaultRole}"]`);
-            // if (defaultCheck) defaultCheck.checked = true;
+            updateRoleOptions();
 
             document.getElementById('btn-save').textContent = "SIMPAN JEMAAT";
             document.getElementById('btn-cancel').classList.add('hidden');
@@ -1340,6 +1434,7 @@
             updateClock();
         }
         
+        renderSubClassUI(); // Inisialisasi Sub Kelas saat web pertama dimuat
         updateRoleOptions();
         updateDateUI(); 
         applyDayLogic();
