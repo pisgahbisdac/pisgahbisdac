@@ -527,6 +527,13 @@
                         <div class="flex flex-col gap-2 pt-2">
                             <button type="submit" id="btn-save" class="w-full px-6 py-4 font-black rounded-xl text-sm glass-btn-gold uppercase tracking-wider">SIMPAN JEMAAT</button>
                             <button type="button" id="btn-cancel" onclick="resetForm()" class="hidden w-full px-6 py-4 bg-white/40 hover:bg-white/60 border border-white/50 text-gray-700 font-bold rounded-xl transition-colors text-sm uppercase shadow-sm">BATAL EDIT</button>
+                            <button 
+    type="button"
+    onclick="syncAllMembers()"
+    class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
+>
+    Sinkron Semua Data
+</button>
                         </div>
                     </form>
                 </div>
@@ -1777,7 +1784,92 @@
         renderList();
         showHomeView(); 
         startLiveClock(); 
-        
+    
+        async function syncAllMembers() {
+
+    if (membersData.length === 0) {
+
+        showToast(
+            "Info",
+            "Tidak ada data jemaat",
+            "error"
+        );
+
+        return;
+    }
+
+    const syncBtn = document.getElementById('sync-btn');
+
+    if (syncBtn) {
+        syncBtn.disabled = true;
+        syncBtn.innerText = 'Memulai Sinkronisasi...';
+    }
+
+    let successCount = 0;
+    let failedCount = 0;
+
+    for (let i = 0; i < membersData.length; i++) {
+
+        const member = membersData[i];
+
+        try {
+
+            if (syncBtn) {
+                syncBtn.innerText =
+                    `Sync ${i + 1}/${membersData.length} : ${member.name}`;
+            }
+
+            showToast(
+                "Sinkronisasi",
+                `Mengirim ${member.name}`,
+                "success"
+            );
+
+            const params = new URLSearchParams();
+
+            params.append('action', 'saveMember');
+            params.append('nama', member.name || '');
+            params.append('kategori', member.category || '');
+            params.append('subkelas', member.subClass || '');
+            params.append('jabatan', member.role || '');
+
+            await fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: params
+            });
+
+            successCount++;
+
+            // Delay supaya Apps Script stabil
+            await new Promise(resolve =>
+                setTimeout(resolve, 500)
+            );
+
+        } catch (err) {
+
+            failedCount++;
+
+            console.error(
+                'Gagal sync:',
+                member.name,
+                err
+            );
+        }
+    }
+
+    if (syncBtn) {
+        syncBtn.disabled = false;
+        syncBtn.innerText = 'Sinkron Semua Data';
+    }
+
+    showToast(
+        "Sinkronisasi Selesai",
+        `${successCount} berhasil, ${failedCount} gagal`,
+        "success"
+    );
+}
+
     </script>
 </body>
 </html>
