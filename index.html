@@ -27,6 +27,70 @@
         }
     </script>
     <style>
+        /* ===============================
+           PERBAIKAN CSS ROOT
+           =============================== */
+        .elegant-text {
+            color: rgba(255,255,255,0.88);
+            letter-spacing: .4px;
+        }
+
+        /* INPUT / SELECT / TEXTAREA GLOBAL */
+        .elegant-input,
+        .elegant-select,
+        .elegant-textarea,
+        #family-extra-fields input,
+        #family-extra-fields select {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(10,25,47,0.1);
+            background: rgba(255,255,255,0.85);
+            color: #0A192F;
+            font-weight: 600;
+            outline: none;
+            transition: all .25s ease;
+            backdrop-filter: blur(10px);
+            font-size: 14px;
+        }
+
+        .elegant-input::placeholder,
+        .elegant-textarea::placeholder,
+        #family-extra-fields input::placeholder {
+            color: rgba(10,25,47,0.4);
+        }
+
+        .elegant-input:focus,
+        .elegant-select:focus,
+        .elegant-textarea:focus,
+        #family-extra-fields input:focus,
+        #family-extra-fields select:focus {
+            border-color: rgba(212,175,55,.8);
+            background: #ffffff;
+            color: #0A192F;
+            transform: translateY(-1px);
+            box-shadow:
+                0 0 0 3px rgba(212,175,55,.15),
+                0 12px 30px rgba(0,0,0,.15);
+        }
+
+        /* GRID KELUARGA */
+        .family-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+        @media(max-width:768px) {
+            .family-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ANIMATION */
+        @keyframes glassFade {
+            from { opacity: 0; transform: translateY(12px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -50,6 +114,7 @@
         .spinner-dark { border: 3px solid rgba(10, 25, 47, 0.3); border-radius: 50%; border-top: 3px solid #0A192F; width: 20px; height: 20px; animation: spin 1s linear infinite; margin: auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
+        
         /* --- ANIMASI JAM HTC --- */
         @keyframes flipBlock {
             0% { transform: rotateX(90deg); filter: brightness(1.5); }
@@ -70,14 +135,12 @@
         /* ========================================================= */
         body {
             background-color: #0A192F;
-            /* Background gambar abstrak dark navy & gold */
             background-image: url('https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=2500&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             color: #1e293b;
         }
-        /* Lapisan Overlay Biru Dongker dengan efek blur */
         body::before {
             content: '';
             position: fixed;
@@ -88,7 +151,6 @@
             z-index: -1;
         }
 
-        /* Kotak Kaca Transparan Terang */
         .glass-card {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
@@ -97,7 +159,6 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
 
-        /* Kotak Kaca Transparan Gelap (Navy) */
         .glass-card-dark {
             background: rgba(10, 25, 47, 0.55);
             backdrop-filter: blur(25px);
@@ -106,21 +167,6 @@
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
         }
 
-        /* Input Kaca */
-        .glass-input {
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            color: #0A192F;
-            transition: all 0.3s ease;
-        }
-        .glass-input:focus {
-            background: rgba(255, 255, 255, 0.95);
-            border-color: #D4AF37;
-            box-shadow: 0 0 0 4px rgba(212,175,55,0.2);
-            outline: none;
-        }
-
-        /* Elemen Daftar / Baris Kaca */
         .glass-item {
             background: rgba(255, 255, 255, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.5);
@@ -132,14 +178,12 @@
             box-shadow: 0 5px 20px rgba(212, 175, 55, 0.15);
         }
 
-        /* Panel Pembatas Kaca */
         .glass-panel {
             background: rgba(255, 255, 255, 0.3);
             border-top: 1px solid rgba(255, 255, 255, 0.4);
             border-bottom: 1px solid rgba(255, 255, 255, 0.4);
         }
 
-        /* Tombol Emas Kaca */
         .glass-btn-gold {
             background: linear-gradient(135deg, rgba(212, 175, 55, 0.85), rgba(184, 150, 45, 0.85));
             backdrop-filter: blur(10px);
@@ -153,6 +197,58 @@
             background: linear-gradient(135deg, rgba(212, 175, 55, 1), rgba(184, 150, 45, 1));
             box-shadow: 0 6px 25px rgba(212, 175, 55, 0.5);
             transform: translateY(-2px);
+        }
+
+        /* ELEGANT ADMIN FORM UI */
+        .admin-section-title {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: rgba(10,25,47,.7);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-section-title::before {
+            content: '';
+            width: 28px;
+            height: 2px;
+            border-radius: 20px;
+            background: linear-gradient(to right, #D4AF37, transparent);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: #475569;
+            padding-left: 4px;
+        }
+
+        .form-card {
+            background: rgba(255,255,255,0.4);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 20px;
+            padding: 16px;
+            transition: all .3s ease;
+        }
+
+        .database-item:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,.95);
+            border-color: rgba(212,175,55,.45);
+            box-shadow: 0 12px 30px rgba(0,0,0,.10), 0 0 0 1px rgba(212,175,55,.12);
         }
     </style>
 </head>
@@ -194,7 +290,7 @@
             </div>
             <h3 class="text-2xl font-black mb-2 text-navy">Akses Sekretaris</h3>
             <p class="text-gray-600 mb-6 text-sm">Masukkan kode keamanan Anda.</p>
-            <input type="password" id="admin-pin" placeholder="********" class="w-full text-center text-2xl tracking-[0.5em] px-4 py-4 glass-input rounded-xl mb-6 font-mono" />
+            <input type="password" id="admin-pin" placeholder="********" class="w-full text-center text-2xl tracking-[0.5em] px-4 py-4 elegant-input mb-6 font-mono" />
             <div class="flex gap-3">
                 <button onclick="closeLogin()" class="flex-1 py-3.5 rounded-xl font-bold text-gray-700 bg-white/50 hover:bg-white border border-white transition-colors">BATAL</button>
                 <button id="btn-login" onclick="verifyLogin()" class="flex-1 py-3.5 rounded-xl font-bold glass-btn-gold">MASUK</button>
@@ -221,7 +317,7 @@
 
     <!-- VIEW: HOME -->
     <main id="view-home" class="max-w-7xl mx-auto p-4 md:p-8 animate-fade-in-up block">
-        <!-- Kotak Selamat Datang (Efek Mengambang Logo diterapkan disini) -->
+        <!-- Kotak Selamat Datang -->
         <div class="glass-card-dark rounded-3xl p-8 md:p-12 relative overflow-hidden mb-8">
             <img src="PisgahWhite.png" alt="Background Logo" class="absolute -right-10 -top-10 w-96 h-96 object-contain pointer-events-none animate-float-logo" onerror="this.style.display='none'">
             <h2 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight drop-shadow-lg relative z-10">Selamat Datang,<br><span class="text-gold">PISGAH BISDAC</span><br><span class="text-lg md:text-2xl text-blue-100 font-bold block mt-2 opacity-90">Batam International Seventh-Day Adventist Church</span></h2>
@@ -230,7 +326,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div class="lg:col-span-4 space-y-6">
-                <!-- WIDGET: Total Database (Glass Dark) -->
+                <!-- WIDGET: Total Database -->
                 <div class="glass-card-dark p-6 rounded-3xl flex items-center gap-5 border border-white/10 shadow-xl">
                     <div class="w-14 h-14 rounded-2xl bg-gold/20 text-gold flex items-center justify-center shrink-0 border border-gold/30 shadow-inner">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -241,7 +337,7 @@
                     </div>
                 </div>
                 
-                <!-- WIDGET: JAM HTC & KALENDER (Glass Dark) -->
+                <!-- WIDGET: JAM HTC & KALENDER -->
                 <div class="glass-card-dark p-6 rounded-3xl relative overflow-hidden flex flex-col justify-center border border-white/10 shadow-xl">
                     <div class="absolute top-0 right-0 w-24 h-24 bg-gold/20 rounded-bl-full blur-xl -z-0"></div>
                     <p class="text-xs font-bold text-blue-200 uppercase tracking-wider relative z-10 mb-2 opacity-80">Waktu & Tanggal (Live)</p>
@@ -256,11 +352,10 @@
                     
                     <p class="text-sm font-black text-white relative z-10 drop-shadow-md" id="dash-tanggal-lengkap">-</p>
                     <p class="text-[10px] text-gold font-bold mt-1 relative z-10 uppercase tracking-widest drop-shadow-sm" id="dash-kegiatan-hari-ini">-</p>
-                    
                     <span id="dash-hari-ini" class="hidden"></span>
                 </div>
 
-                <!-- WIDGET: PERMOHONAN DOA (Glass Dark) -->
+                <!-- WIDGET: PERMOHONAN DOA -->
                 <div class="glass-card-dark p-6 rounded-3xl relative overflow-hidden border border-white/10 shadow-xl">
                     <div class="absolute top-0 left-0 w-24 h-24 bg-blue-500/20 rounded-br-full blur-xl -z-0"></div>
                     <h3 class="text-sm font-black text-white mb-1 uppercase tracking-widest relative z-10 flex items-center gap-2 drop-shadow-md">🙏 Permohonan Doa</h3>
@@ -269,16 +364,16 @@
                     <form id="form-doa" onsubmit="submitDoa(event)" class="space-y-4 relative z-10">
                         <div>
                             <label class="block text-xs font-bold text-white mb-1.5 ml-1 drop-shadow-md">Nama Lengkap</label>
-                            <input type="text" id="doa-nama" required placeholder="Contoh: John Doe" class="w-full px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy placeholder-gray-500" />
+                            <input type="text" id="doa-nama" required placeholder="Contoh: John Doe" class="w-full px-4 py-3 elegant-input text-sm font-bold text-navy placeholder-gray-500" />
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-white mb-1.5 ml-1 drop-shadow-md">No. Handphone (Wajib pakai +)</label>
-                            <input type="tel" id="doa-hp" required placeholder="Contoh: +62812... atau +65..." pattern="^\+.*" title="Nomor harus diawali dengan lambang + dan kode negara" class="w-full px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy placeholder-gray-500" />
+                            <label class="block text-xs font-bold text-white mb-1.5 ml-1 drop-shadow-md">No. Handphone</label>
+                            <input type="tel" id="doa-hp" required placeholder="Contoh: +62812..." pattern="^\+.*" title="Nomor harus diawali dengan lambang + dan kode negara" class="w-full px-4 py-3 elegant-input text-sm font-bold text-navy placeholder-gray-500" />
                             <p class="text-[9px] text-gold-light mt-1.5 ml-1 drop-shadow-sm font-medium">Wajib pakai simbol + dan kode negara.</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-white mb-1.5 ml-1 drop-shadow-md">Isi Permohonan Doa</label>
-                            <textarea id="doa-pesan" required rows="3" placeholder="Tuliskan pergumulan Anda di sini..." class="w-full px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy placeholder-gray-500 resize-none custom-scrollbar"></textarea>
+                            <textarea id="doa-pesan" required rows="3" placeholder="Tuliskan pergumulan Anda di sini..." class="w-full px-4 py-3 elegant-input text-sm font-bold text-navy placeholder-gray-500 resize-none custom-scrollbar"></textarea>
                         </div>
                         <button type="submit" id="btn-submit-doa" class="w-full py-3.5 rounded-xl font-black text-xs tracking-widest uppercase flex items-center justify-center gap-2 glass-btn-gold mt-2 shadow-lg shadow-gold/20">
                             KIRIM PERMOHONAN ↗
@@ -288,7 +383,7 @@
             </div>
             
             <div class="lg:col-span-8 space-y-6">
-                <!-- CHART 1: TREN BAR CHART (Glass Dark) -->
+                <!-- CHART 1: TREN BAR CHART -->
                 <div class="glass-card-dark p-6 md:p-8 rounded-3xl relative overflow-hidden border border-white/10 shadow-xl">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-gold/10 rounded-bl-full blur-xl -z-0"></div>
                     <h3 class="text-sm font-black text-white mb-1 uppercase tracking-widest relative z-10 flex items-center gap-2 drop-shadow-md">📈 Tren Kehadiran</h3>
@@ -296,7 +391,7 @@
                     <div class="w-full h-56 relative z-10"><canvas id="trendChart"></canvas></div>
                 </div>
 
-                <!-- CHART 2 & 3: PIE / DOUGHNUT (Glass Dark) -->
+                <!-- CHART 2 & 3: PIE / DOUGHNUT -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="glass-card-dark p-6 rounded-3xl border border-white/10 shadow-xl">
                         <h3 class="text-sm font-black text-white mb-1 uppercase tracking-widest drop-shadow-md">👥 Komposisi Jemaat</h3>
@@ -314,7 +409,7 @@
     </main>
 
     <!-- VIEW: ADMIN / SEKRETARIS -->
-    <main id="view-admin" class="max-w-7xl mx-auto p-4 md:p-8 hidden">
+    <main id="view-admin" class="w-full max-w-[1600px] mx-auto p-4 md:p-8 hidden">
         <div class="flex items-center justify-between mb-6 glass-card px-6 py-4 rounded-2xl">
             <div>
                 <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Login Aktif</p>
@@ -323,20 +418,17 @@
                     <span id="active-access-badge" class="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-navy text-white shadow-sm"></span>
                 </div>
             </div>
-            <!-- Tombol Keluar dengan fungsi logout() baru -->
             <button onclick="logout()" class="px-4 py-2 bg-red-500/10 text-red-600 border border-red-500/30 text-sm font-bold rounded-xl shadow-sm hover:bg-red-500/20 transition-colors backdrop-blur-md">KELUAR</button>
         </div>
 
-        <!-- ======================================================= -->
-        <!-- 1. LAYOUT SEKRETARIS (HANYA UNTUK ABSENSI & KETERLIBATAN) -->
-        <!-- ======================================================= -->
+        <!-- 1. LAYOUT SEKRETARIS -->
         <div id="layout-sekretaris" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
-            <!-- LEFT PANEL: Kalender & Kegiatan -->
+            <!-- Panel Kiri -->
             <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-24 h-fit">
                 <div class="glass-card p-6 rounded-3xl relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-navy"></div>
                     <h2 class="font-bold mb-3 flex items-center gap-2 text-sm uppercase tracking-wider text-navy">📅 Tanggal Kalender</h2>
-                    <input type="date" id="input-tanggal" onchange="changeDate(this.value)" class="w-full px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy uppercase" />
+                    <input type="date" id="input-tanggal" onchange="changeDate(this.value)" class="w-full px-4 py-3 elegant-input text-sm font-bold text-navy uppercase" />
                 </div>
 
                 <div id="activity-selector-container" class="glass-card p-6 rounded-3xl relative overflow-hidden transition-opacity">
@@ -346,7 +438,7 @@
                 </div>
             </div>
 
-            <!-- RIGHT PANEL: Lembar Absensi -->
+            <!-- Panel Kanan -->
             <div class="lg:col-span-8 flex flex-col relative min-h-[600px]">
                 <div class="glass-card rounded-3xl flex flex-col h-full flex-1 relative overflow-hidden">
                     <div class="flex border-b border-white/40 glass-card-dark text-white font-bold text-sm" id="tab-container">
@@ -354,7 +446,6 @@
                         <button onclick="switchTab('keterlibatan')" id="tab-keterlibatan" class="flex-1 py-5 text-center border-b-4 border-transparent text-gray-300 hover:text-white transition-colors">📊 KETERLIBATAN KELAS</button>
                     </div>
 
-                    <!-- Panel Absensi -->
                     <div id="panel-absensi" class="flex flex-col h-full overflow-hidden">
                         <div class="p-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 glass-panel relative z-10">
                             <div>
@@ -362,12 +453,12 @@
                                 <p id="badge-kegiatan" class="text-[10px] font-black text-navy bg-gold px-2 py-0.5 rounded uppercase mt-1 inline-block shadow-sm"></p>
                             </div>
                             <div class="relative w-full sm:w-auto flex flex-col sm:flex-row gap-2">
-                                <select id="filter-subclass" onchange="renderList()" class="hidden pl-3 pr-8 py-2 glass-input rounded-xl text-navy text-sm font-bold w-full sm:w-40 cursor-pointer">
+                                <select id="filter-subclass" onchange="renderList()" class="hidden pl-3 pr-8 py-2 elegant-input text-navy text-sm font-bold w-full sm:w-40 cursor-pointer">
                                     <option value="All">Semua Kelas</option>
                                 </select>
                                 <div class="relative w-full sm:w-56">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">🔍</div>
-                                    <input type="text" id="search-input" placeholder="Cari untuk diabsen..." class="w-full pl-9 pr-4 py-2 glass-input rounded-xl text-navy placeholder-gray-500 text-sm font-medium" />
+                                    <input type="text" id="search-input" placeholder="Cari untuk diabsen..." class="w-full pl-9 pr-4 py-2 elegant-input text-navy placeholder-gray-500 text-sm font-medium" />
                                 </div>
                             </div>
                         </div>
@@ -377,23 +468,21 @@
                             <button onclick="markAllHadir()" class="text-xs font-bold px-4 py-2 rounded-lg bg-green-500/20 text-green-800 border border-green-500/30 hover:bg-green-500/30 transition-colors shadow-sm">SET SEMUA HADIR</button>
                         </div>
 
-                        <div id="members-list" class="flex-1 overflow-y-auto px-4 py-3 custom-scrollbar space-y-2 pb-6">
-                            <!-- JS Injected List -->
-                        </div>
+                        <div id="members-list" class="flex-1 overflow-y-auto px-4 py-3 custom-scrollbar space-y-2 pb-6"></div>
                         
                         <div id="tamu-container" class="px-6 py-4 glass-panel border-t border-white/40 flex items-center justify-between">
                             <div>
                                 <span class="font-black text-navy text-sm uppercase">Jumlah Tamu</span>
-                                <p class="text-[10px] text-gray-600">Pendatang di luar database jemaat</p>
+                                <p class="text-[10px] text-gray-600">Pendatang di luar database</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <input type="number" id="input-tamu" min="0" placeholder="0" oninput="updateSubmitButton()" class="w-20 px-3 py-2 text-center font-bold text-xl glass-input rounded-xl shadow-sm text-navy">
+                                <input type="number" id="input-tamu" min="0" placeholder="0" oninput="updateSubmitButton()" class="w-20 px-3 py-2 text-center font-bold text-xl elegant-input shadow-sm text-navy">
                                 <span class="text-xs font-bold text-gray-600">Orang</span>
                             </div>
                         </div>
 
                         <div class="p-6 glass-panel border-t border-white/50 z-20 sticky bottom-0 rounded-b-3xl">
-                            <div class="flex flex-wrap justify-between items-center mb-4 px-3 py-2.5 text-[10px] sm:text-xs font-bold text-gray-600 uppercase tracking-wide glass-input rounded-xl">
+                            <div class="flex flex-wrap justify-between items-center mb-4 px-3 py-2.5 text-[10px] sm:text-xs font-bold text-gray-600 uppercase tracking-wide elegant-input rounded-xl">
                                 <div class="flex gap-4">
                                     <span>Hadir: <span id="sum-hadir" class="text-green-700 text-sm ml-1">0</span> <span class="lowercase text-[9px] font-medium">(Anggota)</span></span>
                                     <span>Tamu: <span id="sum-tamu" class="text-navy text-sm ml-1">0</span></span>
@@ -409,11 +498,10 @@
                         </div>
                     </div>
 
-                    <!-- Panel Keterlibatan -->
                     <div id="panel-keterlibatan" class="flex flex-col h-full overflow-hidden hidden">
                         <div class="p-6 glass-panel border-b border-white/40 z-10">
                             <h2 class="font-black text-navy text-lg drop-shadow-sm">KETERLIBATAN ANGGOTA DEWASA</h2>
-                            <p class="text-xs text-gray-700 mt-1">Masukkan <span class="font-bold text-red-600">Jumlah Orang (Angka)</span> yang melakukan kegiatan di bawah ini:</p>
+                            <p class="text-xs text-gray-700 mt-1">Masukkan <span class="font-bold text-red-600">Jumlah Orang</span> yang melakukan kegiatan di bawah ini:</p>
                         </div>
                         <div class="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
                             <form id="form-keterlibatan" class="space-y-3"></form>
@@ -425,7 +513,6 @@
                         </div>
                     </div>
 
-                    <!-- Panel Warning -->
                     <div id="panel-warning" class="flex flex-col items-center justify-center h-full hidden glass-panel rounded-b-3xl">
                         <div class="text-center p-8 glass-card rounded-3xl max-w-sm mx-4">
                             <div class="w-20 h-20 bg-red-500/10 text-red-600 border border-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">📅</div>
@@ -437,15 +524,15 @@
             </div>
         </div>
 
-        <!-- ======================================================= -->
-        <!-- 2. LAYOUT ADMIN (HANYA UNTUK SETUP DATABASE) -->
-        <!-- ======================================================= -->
-        <div id="layout-admin" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
-            <!-- LEFT PANEL: Form Setup -->
-            <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-24 h-fit">
+        <!-- 2. LAYOUT ADMIN -->
+        <!-- Proporsi Grid Diperbarui: lg:col-span-4 (Kiri) dan lg:col-span-8 (Kanan) -->
+        <div id="layout-admin" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden items-start">
+            
+            <!-- PANEL KIRI: SETUP FORM -->
+            <div class="lg:col-span-4 lg:order-1 space-y-6 lg:sticky lg:top-24 h-fit">
                 
-                <!-- KELOLA SUB KELAS -->
-                <div class="glass-card p-6 rounded-3xl relative overflow-hidden">
+                <!-- Kelola Sub Kelas -->
+                <div class="glass-card p-5 rounded-3xl relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-gold"></div>
                     <div class="flex items-center justify-between mb-4 relative z-10">
                         <h2 class="font-black flex items-center gap-3 text-sm uppercase tracking-wider text-navy">
@@ -454,19 +541,15 @@
                         </h2>
                         <button id="btn-toggle-subclass-edit" onclick="toggleSubClassEdit()" class="px-3 py-1.5 bg-white/50 border border-white/60 text-navy rounded-lg text-xs font-bold hover:bg-white transition-colors shadow-sm">EDIT</button>
                     </div>
-                    
                     <div id="subclass-edit-controls" class="flex gap-2 mb-3 hidden relative z-10">
-                        <input type="text" id="input-new-subclass" placeholder="Ketik sub kelas baru..." class="flex-1 px-4 py-2 glass-input rounded-xl text-sm font-bold text-navy" />
+                        <input type="text" id="input-new-subclass" placeholder="Ketik sub kelas baru..." class="flex-1 elegant-input" />
                         <button onclick="addSubClass()" class="px-5 py-2 glass-btn-gold font-bold rounded-xl text-xs">TAMBAH</button>
                     </div>
-                    
-                    <div id="subclass-manage-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1 relative z-10">
-                        <!-- JS Injected -->
-                    </div>
+                    <div id="subclass-manage-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1 relative z-10"></div>
                 </div>
 
-                <!-- KELOLA JABATAN (BARU) -->
-                <div class="glass-card p-6 rounded-3xl relative overflow-hidden">
+                <!-- Kelola Jabatan -->
+                <div class="glass-card p-5 rounded-3xl relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
                     <div class="flex items-center justify-between mb-4 relative z-10">
                         <h2 class="font-black flex items-center gap-3 text-sm uppercase tracking-wider text-navy">
@@ -475,18 +558,14 @@
                         </h2>
                         <button id="btn-toggle-role-edit" onclick="toggleRoleEdit()" class="px-3 py-1.5 bg-white/50 border border-white/60 text-navy rounded-lg text-xs font-bold hover:bg-white transition-colors shadow-sm">EDIT</button>
                     </div>
-                    
                     <div id="role-edit-controls" class="flex gap-2 mb-3 hidden relative z-10">
-                        <input type="text" id="input-new-role" placeholder="Ketik jabatan baru..." class="flex-1 px-4 py-2 glass-input rounded-xl text-sm font-bold text-navy" />
+                        <input type="text" id="input-new-role" placeholder="Ketik jabatan baru..." class="flex-1 elegant-input" />
                         <button onclick="addRole()" class="px-5 py-2 glass-btn-gold font-bold rounded-xl text-xs">TAMBAH</button>
                     </div>
-                    
-                    <div id="role-manage-list" class="flex flex-wrap gap-2 p-1 relative z-10">
-                        <!-- JS Injected -->
-                    </div>
+                    <div id="role-manage-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1 relative z-10"></div>
                 </div>
 
-                <!-- SETUP DATA JEMAAT BARU -->
+                <!-- Setup Data Jemaat -->
                 <div class="glass-card p-6 rounded-3xl relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-navy"></div>
                     <h2 class="font-black flex items-center gap-3 text-sm uppercase tracking-wider text-navy mb-6 relative z-10">
@@ -496,70 +575,148 @@
                     
                     <form id="member-form" class="space-y-5 relative z-10">
                         <input type="hidden" id="member-id">
-                        
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-600 uppercase drop-shadow-sm">Kategori Utama</label>
-                            <select id="member-category" onchange="updateRoleOptions()" class="w-full mt-1.5 px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy cursor-pointer">
-                                <option value="Dewasa">Dewasa</option>
-                                <option value="Anak-anak">Anak-anak</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-600 uppercase drop-shadow-sm">Sub Kelas</label>
-                            <select id="member-subclass" class="w-full mt-1.5 px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy cursor-pointer">
-                                <!-- JS Injected -->
-                            </select>
-                        </div>
 
-                        <div class="pt-3 border-t border-white/40">
-                            <label class="text-[10px] font-bold text-gray-600 uppercase mb-3 block drop-shadow-sm">Jabatan / Role (Bisa pilih lebih dari 1)</label>
-                            <div id="member-role-container" class="flex flex-wrap gap-2">
-                                <!-- JS Injected -->
+                        <!-- Detail Pribadi & Keluarga -->
+                        <div id="family-extra-fields" class="form-card" style="display:none;">
+                            <div class="admin-section-title">Detail Pribadi</div>
+                            <div class="family-grid mb-4">
+                                <div class="form-group">
+                                    <label>Jenis Kelamin</label>
+                                    <select id="member-gender" class="elegant-select">
+                                        <option value="">Pilih</option>
+                                        <option value="Laki-laki">Laki-laki</option>
+                                        <option value="Perempuan">Perempuan</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tanggal Lahir</label>
+                                    <input type="date" id="member-birth" class="elegant-input">
+                                </div>
+                            </div>
+
+                            <div class="admin-section-title">Keluarga & Pernikahan</div>
+                            <div class="family-grid">
+                                <div class="form-group">
+                                    <label>Status Pernikahan</label>
+                                    <select id="member-marital" class="elegant-select">
+                                        <option value="">Pilih</option>
+                                        <option value="Belum Menikah">Belum Menikah</option>
+                                        <option value="Menikah">Menikah</option>
+                                        <option value="Janda/Duda">Janda/Duda</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Relasi Dalam Keluarga</label>
+                                    <select id="member-family-role" class="elegant-select">
+                                        <option value="">Pilih</option>
+                                        <option value="Kepala Keluarga">Kepala Keluarga</option>
+                                        <option value="Istri">Istri</option>
+                                        <option value="Anak">Anak</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="marriage-fields" style="display:none;" class="mt-4 pt-4 border-t border-white/50">
+                                <div class="family-grid">
+                                    <div class="form-group">
+                                        <label>Pasangan (Pilih dari list)</label>
+                                        <select id="member-spouse-select" class="elegant-select">
+                                            <option value="">-- Pilih Anggota --</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Atau Tulis Manual</label>
+                                        <input type="text" id="member-spouse" placeholder="Nama pasangan" class="elegant-input">
+                                    </div>
+                                    <div class="form-group" style="grid-column: span 2;">
+                                        <label>Tanggal Pernikahan</label>
+                                        <input type="date" id="member-wedding" class="elegant-input">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="parent-fields" style="display:none;" class="mt-4 pt-4 border-t border-white/50">
+                                <div class="family-grid">
+                                    <div class="form-group">
+                                        <label>Nama Ayah</label>
+                                        <input type="text" id="member-father" placeholder="Nama ayah" class="elegant-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Nama Ibu</label>
+                                        <input type="text" id="member-mother" placeholder="Nama ibu" class="elegant-input">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="pt-3 border-t border-white/40">
-                            <label class="text-[10px] font-bold text-gray-600 uppercase mb-1 block drop-shadow-sm">Nama Lengkap Jemaat</label>
-                            <input type="text" id="member-name" placeholder="Ketik nama lengkap..." class="w-full mt-1 px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy" />
+                        <!-- Data Gereja -->
+                        <div class="form-card">
+                            <div class="admin-section-title">Data Keanggotaan Gereja</div>
+                            
+                            <div class="form-group">
+                                <label>Nama Lengkap</label>
+                                <input type="text" id="member-name" placeholder="Ketik nama lengkap..." class="elegant-input" />
+                            </div>
+
+                            <div class="family-grid mt-2">
+                                <div class="form-group">
+                                    <label>Kategori</label>
+                                    <select id="member-category" onchange="updateRoleOptions()" class="elegant-select cursor-pointer">
+                                        <option value="Dewasa">Dewasa</option>
+                                        <option value="Anak-anak">Anak-anak</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Sub Kelas</label>
+                                    <select id="member-subclass" class="elegant-select cursor-pointer"></select>
+                                </div>
+                            </div>
+
+                            <div class="form-group mt-2">
+                                <label>Jabatan (Bisa pilih lebih dari 1)</label>
+                                <div id="member-role-container" class="flex flex-wrap gap-2 mt-1"></div>
+                            </div>
                         </div>
 
                         <div class="flex flex-col gap-2 pt-2">
                             <button type="submit" id="btn-save" class="w-full px-6 py-4 font-black rounded-xl text-sm glass-btn-gold uppercase tracking-wider">SIMPAN JEMAAT</button>
                             <button type="button" id="btn-cancel" onclick="resetForm()" class="hidden w-full px-6 py-4 bg-white/40 hover:bg-white/60 border border-white/50 text-gray-700 font-bold rounded-xl transition-colors text-sm uppercase shadow-sm">BATAL EDIT</button>
-                            <button 
-    type="button"
-    onclick="syncAllMembers()"
-    class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
->
-    Sinkron Semua Data
-</button>
+                            <button type="button" onclick="syncAllMembers()" class="px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-sm flex items-center justify-center gap-2 mt-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21v-5h5"/></svg>
+                                Sinkron Semua Data
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <!-- RIGHT PANEL: Daftar Database -->
-            <div class="lg:col-span-8 flex flex-col relative min-h-[600px]">
-                <div class="glass-card rounded-3xl flex flex-col h-full flex-1 overflow-hidden">
+            <!-- PANEL KANAN: DATABASE KESELURUHAN -->
+            <div class="lg:col-span-8 lg:order-2 flex flex-col relative min-h-[600px]">
+                <div class="glass-card rounded-[32px] flex flex-col h-full flex-1 overflow-hidden shadow-2xl border border-white/40">
                     <div class="p-6 glass-panel border-b border-white/40 flex justify-between items-center">
-                        <h2 class="font-black text-navy text-lg tracking-wide drop-shadow-sm">DATABASE KESELURUHAN</h2>
+                        <h2 class="font-black text-navy text-lg tracking-wide drop-shadow-sm flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>
+                            DATABASE KESELURUHAN
+                        </h2>
                         <span class="text-[11px] uppercase font-bold glass-card-dark border-none text-gold px-3 py-1.5 rounded-lg shadow-sm">Total: <span id="admin-total-db">0</span></span>
                     </div>
                     
-                    <div class="p-4 glass-panel border-b border-white/40 flex gap-2 z-10">
+                    <div class="p-4 md:px-6 glass-panel border-b border-white/40 flex flex-col sm:flex-row gap-3 z-10">
                         <div class="relative flex-1">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">🔍</div>
-                            <input type="text" id="manage-search" oninput="renderManageList()" placeholder="Cari nama jemaat di database..." class="w-full pl-10 pr-4 py-3 glass-input rounded-xl text-sm font-medium" />
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            </div>
+                            <input type="text" id="manage-search" oninput="renderManageList()" placeholder="Cari nama jemaat..." class="w-full pl-10 pr-4 py-3 elegant-input text-sm font-medium" />
                         </div>
-                        <select id="manage-filter" onchange="renderManageList()" class="px-4 py-3 glass-input rounded-xl font-bold text-sm text-navy cursor-pointer">
+                        <select id="manage-filter" onchange="renderManageList()" class="px-4 py-3 elegant-input text-sm text-navy cursor-pointer sm:w-48">
                             <option value="All">Semua Kategori</option>
                             <option value="Dewasa">Dewasa</option>
                             <option value="Anak-anak">Anak-anak</option>
                         </select>
                     </div>
 
-                    <div id="manage-list-container" class="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-2 pb-8">
+                    <!-- Tempat Inject Daftar Jemaat (Class ganda dihapus) -->
+                    <div id="manage-list-container" class="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar space-y-3 pb-8 min-h-[500px]">
                         <!-- JS Injected -->
                     </div>
                 </div>
@@ -588,7 +745,6 @@
         let subClassesData = JSON.parse(localStorage.getItem('navy_subclasses')) || [];
         let isSubClassEditMode = false;
 
-        // --- INISIALISASI DATA JABATAN GLOBAL ---
         let rolesData = JSON.parse(localStorage.getItem('navy_roles')) || [
             'Anggota Jemaat', 'Anggota SS Anak', 'Guru SS Anak', 'Anggota SS Dewasa', 'Guru SS Dewasa', 
             'Pemimpin', 'Koordinator', 'Sekretaris'
@@ -604,7 +760,6 @@
         });
         if (isSubClassMigrated) localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
 
-        // Migrasi Jabatan yang mungkin sudah ada di database jemaat agar tidak hilang
         let isRoleMigrated = false;
         membersData.forEach(m => {
             if (m.role) {
@@ -642,7 +797,6 @@
         let komposisiChartInstance = null;
         let statusChartInstance = null;
 
-        // PASTE LINK GOOGLE SCRIPT
         const scriptURL = "https://script.google.com/macros/s/AKfycbw-A-0Dsw5tCC8Jb_Ufq3Fc0OsO7mLyUv1lOdLfJCcHH_V2-A50I-u56XaGWkadc9c-og/exec";
 
         const kegiatanList = [
@@ -664,7 +818,7 @@
             const btn = document.getElementById('btn-submit-doa');
 
             if (!hp.startsWith('+')) {
-                showToast("Format Tidak Sesuai", "Nomor HP wajib diawali simbol '+' dan kode negara (misal: +62...).", "error");
+                showToast("Format Tidak Sesuai", "Nomor HP wajib diawali simbol '+' dan kode negara.", "error");
                 document.getElementById('doa-hp').focus();
                 return;
             }
@@ -679,7 +833,6 @@
                 params.append('nama', nama);
                 params.append('hp', hp);
                 params.append('pesan', pesan);
-                // Menambahkan waktu secara lengkap dengan jam
                 const waktuKirim = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                 params.append('waktu', waktuKirim);
 
@@ -695,7 +848,6 @@
             }
         };
 
-        // --- SISTEM LOGOUT BARU ---
         window.logout = () => {
             currentAccessLevel = '';
             document.getElementById('active-account-name').textContent = '';
@@ -704,7 +856,6 @@
             showToast("Berhasil Keluar", "Anda telah keluar dari sesi Admin/Sekretaris.", "success");
         };
 
-        // --- RENDER SUB KELAS ---
         window.toggleSubClassEdit = () => {
             isSubClassEditMode = !isSubClassEditMode;
             const controls = document.getElementById('subclass-edit-controls');
@@ -726,12 +877,10 @@
             const manageContainer = document.getElementById('subclass-manage-list');
             if (manageContainer) {
                 manageContainer.innerHTML = '';
-                if (subClassesData.length === 0) {
-                    manageContainer.innerHTML = '<p class="text-[10px] text-gray-500 italic mt-1 w-full drop-shadow-sm">Belum ada sub kelas. Klik EDIT untuk menambah.</p>';
-                }
+                if (subClassesData.length === 0) manageContainer.innerHTML = '<p class="text-[10px] text-gray-500 italic mt-1 w-full drop-shadow-sm">Belum ada sub kelas.</p>';
                 subClassesData.forEach(sc => {
                     manageContainer.innerHTML += `
-                        <div class="flex items-center gap-1 glass-item !bg-white/80 px-3 py-1.5 rounded-lg shadow-sm">
+                        <div class="flex items-center gap-1 glass-item !bg-white/80 px-3 py-1.5 rounded-lg shadow-sm border border-gray-200">
                             <span class="text-[11px] font-bold uppercase tracking-wider text-navy">${sc}</span>
                             ${isSubClassEditMode ? `<button type="button" onclick="deleteSubClass('${sc}')" class="text-red-500 hover:text-red-700 ml-2 font-black text-xs transition-colors">✕</button>` : ''}
                         </div>
@@ -754,29 +903,22 @@
         window.addSubClass = () => {
             const input = document.getElementById('input-new-subclass');
             const val = input.value.trim();
-            if (!val) { showToast("Kosong", "Ketik nama sub kelas terlebih dahulu.", "error"); return; }
-            if (subClassesData.some(sc => sc.toLowerCase() === val.toLowerCase())) {
-                showToast("Gagal", "Sub kelas sudah ada di dalam daftar!", "error"); return;
-            }
+            if (!val) return;
+            if (subClassesData.some(sc => sc.toLowerCase() === val.toLowerCase())) return;
             subClassesData.push(val);
             localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
             renderSubClassUI();
             input.value = '';
-            showToast("Berhasil", `Sub kelas '${val}' ditambahkan.`, "success");
         };
 
         window.deleteSubClass = (val) => {
             const isUsed = membersData.some(m => m.subClass === val);
-            if (isUsed) {
-                showToast("Gagal Dihapus", `Sub kelas '${val}' sedang digunakan oleh jemaat di Database!`, "error"); return;
-            }
+            if (isUsed) { showToast("Gagal Dihapus", `Sub kelas sedang digunakan!`, "error"); return; }
             subClassesData = subClassesData.filter(sc => sc !== val);
             localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
             renderSubClassUI();
-            showToast("Dihapus", `Sub kelas '${val}' telah dibuang.`, "success");
         };
 
-        // --- RENDER JABATAN (BARU) ---
         window.toggleRoleEdit = () => {
             isRoleEditMode = !isRoleEditMode;
             const controls = document.getElementById('role-edit-controls');
@@ -785,11 +927,11 @@
             if (isRoleEditMode) {
                 controls.classList.remove('hidden');
                 btn.textContent = 'SELESAI';
-                btn.className = 'px-3 py-1.5 bg-green-500/20 border border-green-500/40 text-green-800 rounded-lg text-xs font-bold hover:bg-green-500/30 transition-colors shadow-sm';
+                btn.className = 'px-3 py-1.5 bg-green-500/20 border border-green-500/40 text-green-800 rounded-lg text-xs font-bold transition-colors shadow-sm';
             } else {
                 controls.classList.add('hidden');
                 btn.textContent = 'EDIT';
-                btn.className = 'px-3 py-1.5 bg-white/50 border border-white/60 text-navy rounded-lg text-xs font-bold hover:bg-white transition-colors shadow-sm';
+                btn.className = 'px-3 py-1.5 bg-white/50 border border-white/60 text-navy rounded-lg text-xs font-bold transition-colors shadow-sm';
             }
             renderRoleUI(); 
         };
@@ -798,44 +940,35 @@
             const manageContainer = document.getElementById('role-manage-list');
             if (manageContainer) {
                 manageContainer.innerHTML = '';
-                if (rolesData.length === 0) {
-                    manageContainer.innerHTML = '<p class="text-[10px] text-gray-500 italic mt-1 w-full drop-shadow-sm">Belum ada jabatan. Klik EDIT untuk menambah.</p>';
-                }
+                if (rolesData.length === 0) manageContainer.innerHTML = '<p class="text-[10px] text-gray-500 italic mt-1 w-full drop-shadow-sm">Belum ada jabatan.</p>';
                 rolesData.forEach(r => {
                     manageContainer.innerHTML += `
-                        <div class="flex items-center gap-1 glass-item !bg-white/80 px-3 py-1.5 rounded-lg shadow-sm">
+                        <div class="flex items-center gap-1 glass-item !bg-white/80 px-3 py-1.5 rounded-lg shadow-sm border border-gray-200">
                             <span class="text-[11px] font-bold uppercase tracking-wider text-navy">${r}</span>
                             ${isRoleEditMode ? `<button type="button" onclick="deleteRole('${r}')" class="text-red-500 hover:text-red-700 ml-2 font-black text-xs transition-colors">✕</button>` : ''}
                         </div>
                     `;
                 });
             }
-            updateRoleOptions(); // Perbarui pilihan di form setup otomatis
+            updateRoleOptions(); 
         }
 
         window.addRole = () => {
             const input = document.getElementById('input-new-role');
             const val = input.value.trim();
-            if (!val) { showToast("Kosong", "Ketik nama jabatan terlebih dahulu.", "error"); return; }
-            if (rolesData.some(r => r.toLowerCase() === val.toLowerCase())) {
-                showToast("Gagal", "Jabatan sudah ada di dalam daftar!", "error"); return;
-            }
+            if (!val || rolesData.some(r => r.toLowerCase() === val.toLowerCase())) return;
             rolesData.push(val);
             localStorage.setItem('navy_roles', JSON.stringify(rolesData));
             renderRoleUI();
             input.value = '';
-            showToast("Berhasil", `Jabatan '${val}' ditambahkan.`, "success");
         };
 
         window.deleteRole = (val) => {
             const isUsed = membersData.some(m => m.role.split(',').map(r => r.trim()).includes(val));
-            if (isUsed) {
-                showToast("Gagal Dihapus", `Jabatan '${val}' sedang digunakan oleh jemaat di Database!`, "error"); return;
-            }
+            if (isUsed) { showToast("Gagal Dihapus", `Jabatan sedang digunakan!`, "error"); return; }
             rolesData = rolesData.filter(r => r !== val);
             localStorage.setItem('navy_roles', JSON.stringify(rolesData));
             renderRoleUI();
-            showToast("Dihapus", `Jabatan '${val}' telah dibuang.`, "success");
         };
 
         function renderKeterlibatanForm() {
@@ -851,14 +984,13 @@
                             <label class="text-sm font-bold text-navy leading-snug drop-shadow-sm">${teks}</label>
                         </div>
                         <input type="number" id="ket_${num}" min="0" placeholder="0" 
-                            class="w-16 sm:w-20 px-2 py-2 text-center font-black text-lg glass-input rounded-xl shadow-inner text-navy">
+                            class="w-16 sm:w-20 px-2 py-2 text-center font-black text-lg elegant-input rounded-xl shadow-inner text-navy">
                     </div>
                 `;
             });
         }
 
         function initChart() {
-            // Pengaturan Font dan Warna Global Chart.js agar elegan di atas latar gelap
             Chart.defaults.color = '#e2e8f0'; 
             Chart.defaults.font.family = "'Inter', 'Helvetica', 'Arial', sans-serif";
             
@@ -888,18 +1020,7 @@
                             { label: 'Minggu Ini', data: dataIni, backgroundColor: '#D4AF37', borderRadius: 4 }
                         ]
                     },
-                    options: {
-                        responsive: true, maintainAspectRatio: false, 
-                        animation: { duration: 2000, easing: 'easeOutElastic' },
-                        plugins: { 
-                            legend: { position: 'bottom', labels: { usePointStyle: true, font: { weight: 'bold' } } },
-                            datalabels: { display: false } 
-                        },
-                        scales: { 
-                            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)', borderDash: [5, 5] }, ticks: { precision: 0 } }, 
-                            x: { grid: { display: false } } 
-                        }
-                    }
+                    options: { responsive: true, maintainAspectRatio: false, animation: { duration: 2000 }, plugins: { legend: { position: 'bottom' }, datalabels: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
                 });
             }
 
@@ -911,19 +1032,8 @@
                 if(komposisiChartInstance) komposisiChartInstance.destroy();
                 komposisiChartInstance = new Chart(ctxKomp, {
                     type: 'doughnut',
-                    data: {
-                        labels: ['Dewasa', 'Anak-anak'],
-                        datasets: [{ data: [dCount, aCount], backgroundColor: ['#1e293b', '#D4AF37'], borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)', hoverOffset: 10 }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        animation: { animateScale: true, animateRotate: true, duration: 2000, easing: 'easeOutBounce' },
-                        plugins: { 
-                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
-                            datalabels: { color: '#ffffff', font: { weight: 'bold', size: 16 }, formatter: (value) => value > 0 ? value : '' }
-                        },
-                        cutout: '65%'
-                    }
+                    data: { labels: ['Dewasa', 'Anak-anak'], datasets: [{ data: [dCount, aCount], backgroundColor: ['#1e293b', '#D4AF37'], borderWidth: 2, hoverOffset: 10 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, datalabels: { color: '#ffffff', font: { weight: 'bold', size: 16 } } }, cutout: '65%' }
                 });
             }
 
@@ -932,31 +1042,13 @@
                 let lastHadir = appStats.hadir.length ? appStats.hadir[appStats.hadir.length - 1] : 0;
                 let lastSakit = appStats.sakit.length ? appStats.sakit[appStats.sakit.length - 1] : 0;
                 let lastAlpa = appStats.alpa.length ? appStats.alpa[appStats.alpa.length - 1] : 0;
-                
                 if (lastHadir === 0 && lastSakit === 0 && lastAlpa === 0) lastHadir = 1; 
 
                 if(statusChartInstance) statusChartInstance.destroy();
                 statusChartInstance = new Chart(ctxStatus, {
                     type: 'pie',
-                    data: {
-                        labels: (appStats.hadir.length && (lastHadir>0 || lastSakit>0 || lastAlpa>0)) ? ['Hadir', 'Sakit', 'Alpa'] : ['Belum Ada Data'],
-                        datasets: [{
-                            data: (appStats.hadir.length && (lastHadir>0 || lastSakit>0 || lastAlpa>0)) ? [lastHadir, lastSakit, lastAlpa] : [1],
-                            backgroundColor: (appStats.hadir.length && (lastHadir>0 || lastSakit>0 || lastAlpa>0)) ? ['#22c55e', '#eab308', '#ef4444'] : ['rgba(255,255,255,0.2)'],
-                            borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)', hoverOffset: 10
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        animation: { animateScale: true, animateRotate: true, duration: 2000, easing: 'easeOutBounce' },
-                        plugins: { 
-                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
-                            datalabels: {
-                                color: '#ffffff', font: { weight: 'bold', size: 16 },
-                                formatter: (value, context) => context.chart.data.labels[0] === 'Belum Ada Data' ? '' : (value > 0 ? value : '') 
-                            }
-                        }
-                    }
+                    data: { labels: (appStats.hadir.length) ? ['Hadir', 'Sakit', 'Alpa'] : ['Belum Ada Data'], datasets: [{ data: (appStats.hadir.length) ? [lastHadir, lastSakit, lastAlpa] : [1], backgroundColor: (appStats.hadir.length) ? ['#22c55e', '#eab308', '#ef4444'] : ['rgba(255,255,255,0.2)'], borderWidth: 2 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, datalabels: { color: '#ffffff', font: { weight: 'bold' }, formatter: (value, context) => context.chart.data.labels[0] === 'Belum Ada Data' ? '' : (value > 0 ? value : '') } } }
                 });
             }
         }
@@ -988,22 +1080,17 @@
 
             const dayOfWeek = selectedDate.getDay(); 
             const optionsContainer = document.getElementById('activity-selector-container');
-            const dashKegiatan = document.getElementById('dash-kegiatan-hari-ini');
-            const panelWarning = document.getElementById('panel-warning');
-            const tabContainer = document.getElementById('tab-container');
             const activityOptions = document.getElementById('activity-options');
-
+            const dashKegiatan = document.getElementById('dash-kegiatan-hari-ini');
             let hasAccess = false;
             activityOptions.innerHTML = '';
 
-            const createOption = (title, internalVal) => {
-                return `
-                    <label class="activity-label flex items-center justify-between p-4 rounded-xl cursor-pointer glass-item" onclick="selectActivity('${internalVal}', this)">
-                        <div><p class="activity-title font-bold text-navy">${title}</p></div>
-                        <div class="activity-radio w-6 h-6 rounded-full border border-navy/20 flex items-center justify-center bg-white/50"></div>
-                    </label>
-                `;
-            };
+            const createOption = (title, internalVal) => `
+                <label class="activity-label flex items-center justify-between p-4 rounded-xl cursor-pointer glass-item" onclick="selectActivity('${internalVal}', this)">
+                    <div><p class="activity-title font-bold text-navy">${title}</p></div>
+                    <div class="activity-radio w-6 h-6 rounded-full border border-navy/20 flex items-center justify-center bg-white/50"></div>
+                </label>
+            `;
 
             if (dayOfWeek === 6) { 
                 if (currentAccessLevel === 'Dewasa') { activityOptions.innerHTML += createOption('Sekolah Sabat (Dewasa)', 'Sekolah Sabat Dewasa'); hasAccess = true; }
@@ -1014,34 +1101,23 @@
             }
 
             if (hasAccess) {
-                dashKegiatan.textContent = "Jadwal Kehadiran Tersedia";
+                dashKegiatan.textContent = "Jadwal Tersedia";
                 optionsContainer.style.display = 'block';
-                tabContainer.style.display = 'flex';
-                panelWarning.classList.add('hidden');
+                document.getElementById('tab-container').style.display = 'flex';
+                document.getElementById('panel-warning').classList.add('hidden');
                 
                 if(activityOptions.firstElementChild) {
                     const firstTitle = activityOptions.firstElementChild.querySelector('.activity-title').textContent;
-                    const mapTitleToActivity = {
-                        "Sekolah Sabat (Dewasa)": "Sekolah Sabat Dewasa",
-                        "Sekolah Sabat (Anak)": "Sekolah Sabat Anak",
-                        "Khotbah / Ibadah Raya": "Khotbah",
-                        "Permintaan Doa": "Permintaan Doa"
-                    };
-                    selectActivity(mapTitleToActivity[firstTitle], activityOptions.firstElementChild);
+                    const mapTitle = { "Sekolah Sabat (Dewasa)": "Sekolah Sabat Dewasa", "Sekolah Sabat (Anak)": "Sekolah Sabat Anak", "Khotbah / Ibadah Raya": "Khotbah", "Permintaan Doa": "Permintaan Doa" };
+                    selectActivity(mapTitle[firstTitle], activityOptions.firstElementChild);
                 }
             } else {
-                if (dashKegiatan) dashKegiatan.textContent = "Tidak Ada Jadwal";
-                document.getElementById('warning-title').textContent = "Bukan Jadwal Kehadiran";
-                document.getElementById('warning-desc').textContent = "Tidak ada jadwal absen yang tersedia untuk kelas Anda hari ini.";
-                
-                if (optionsContainer) optionsContainer.style.display = 'none';
-                if (tabContainer) tabContainer.style.display = 'none';
-                if (panelWarning) panelWarning.classList.remove('hidden');
-                
-                const pAbsensi = document.getElementById('panel-absensi');
-                const pKeterlibatan = document.getElementById('panel-keterlibatan');
-                if(pAbsensi) pAbsensi.classList.add('hidden');
-                if(pKeterlibatan) pKeterlibatan.classList.add('hidden');
+                dashKegiatan.textContent = "Tidak Ada Jadwal";
+                optionsContainer.style.display = 'none';
+                document.getElementById('tab-container').style.display = 'none';
+                document.getElementById('panel-warning').classList.remove('hidden');
+                document.getElementById('panel-absensi').classList.add('hidden');
+                document.getElementById('panel-keterlibatan').classList.add('hidden');
             }
         }
 
@@ -1056,7 +1132,6 @@
             if (filterCat) {
                 select.classList.remove('hidden');
                 let subclasses = [...new Set(membersData.filter(m => m.category === filterCat && m.subClass).map(m => m.subClass))];
-                
                 let prevVal = select.value;
                 select.innerHTML = '<option value="All">Semua Kelas</option>';
                 subclasses.forEach(sc => { select.innerHTML += `<option value="${sc}">${sc}</option>`; });
@@ -1074,9 +1149,8 @@
             if(element) {
                 document.querySelectorAll('.activity-label').forEach(el => {
                     el.className = "activity-label flex items-center justify-between p-4 rounded-xl cursor-pointer glass-item";
-                    el.querySelector('.activity-title').className = "activity-title font-bold text-navy";
-                    el.querySelector('.activity-radio').className = "activity-radio w-6 h-6 rounded-full border border-navy/20 flex items-center justify-center bg-white/50";
                     el.querySelector('.activity-radio').innerHTML = "";
+                    el.querySelector('.activity-radio').className = "activity-radio w-6 h-6 rounded-full border border-navy/20 flex items-center justify-center bg-white/50";
                 });
                 element.className = "activity-label flex items-center justify-between p-4 rounded-xl cursor-pointer glass-item !bg-white/95 !border-gold shadow-md";
                 element.querySelector('.activity-radio').className = "activity-radio w-6 h-6 rounded-full border-none flex items-center justify-center bg-gold shadow-sm";
@@ -1085,33 +1159,26 @@
 
             const tabKeterlibatanBtn = document.getElementById('tab-keterlibatan');
             if (tabKeterlibatanBtn) {
-                if (activity === 'Sekolah Sabat Dewasa') { tabKeterlibatanBtn.style.display = 'block'; } 
-                else {
-                    tabKeterlibatanBtn.style.display = 'none';
-                    if (activeTab === 'keterlibatan') switchTab('absensi'); 
-                }
+                tabKeterlibatanBtn.style.display = (activity === 'Sekolah Sabat Dewasa') ? 'block' : 'none';
+                if (activity !== 'Sekolah Sabat Dewasa' && activeTab === 'keterlibatan') switchTab('absensi'); 
             }
             updateSubclassFilterUI();
             renderList();
         }
 
-        // --- SISTEM JABATAN DINAMIS ---
         window.updateRoleOptions = () => {
             const container = document.getElementById('member-role-container');
             if (!container) return;
             container.innerHTML = '';
             
-            // Mengambil dari master data jabatan yang dikelola Admin
-            const roles = rolesData;
-
-            if (roles.length === 0) {
-                 container.innerHTML = '<p class="text-[10px] text-red-500 font-bold w-full drop-shadow-sm">Belum ada daftar jabatan. Tambahkan di Kelola Jabatan terlebih dahulu.</p>';
+            if (rolesData.length === 0) {
+                 container.innerHTML = '<p class="text-[10px] text-red-500 font-bold w-full drop-shadow-sm">Belum ada daftar jabatan.</p>';
                  return;
             }
 
-            roles.forEach(role => {
+            rolesData.forEach(role => {
                 container.innerHTML += `
-                    <label class="flex items-center gap-2 px-3 py-2 glass-item rounded-lg cursor-pointer shadow-sm">
+                    <label class="flex items-center gap-2 px-3 py-2 glass-item rounded-lg cursor-pointer shadow-sm border border-gray-200 hover:border-gold/50">
                         <input type="checkbox" value="${role}" class="role-checkbox w-4 h-4 text-gold focus:ring-gold border-gray-300 rounded">
                         <span class="text-[11px] font-bold text-navy uppercase">${role}</span>
                     </label>
@@ -1121,49 +1188,37 @@
 
         function showHomeView() {
             document.getElementById('view-home').classList.remove('hidden');
-            document.getElementById('view-home').classList.add('block');
             document.getElementById('view-admin').classList.add('hidden');
             document.getElementById('nav-home').className = "px-5 py-2 rounded-xl text-sm font-bold glass-btn-gold shadow-lg shadow-gold/20";
-            document.getElementById('nav-admin').className = "px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/80 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10";
-            const totalJemaatEl = document.getElementById('dash-total-jemaat');
-            if (totalJemaatEl) totalJemaatEl.textContent = membersData.length;
+            document.getElementById('nav-admin').className = "px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/80 hover:text-white bg-white/10 border border-white/10";
+            document.getElementById('dash-total-jemaat').textContent = membersData.length;
             initChart(); 
         }
 
         window.showAdminView = () => {
             document.getElementById('view-home').classList.add('hidden');
-            document.getElementById('view-home').classList.remove('block');
             document.getElementById('view-admin').classList.remove('hidden');
-            document.getElementById('nav-home').className = "px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/80 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10";
+            document.getElementById('nav-home').className = "px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/80 hover:text-white bg-white/10 border border-white/10";
             document.getElementById('nav-admin').className = "px-5 py-2 rounded-xl text-sm font-bold glass-btn-gold shadow-lg shadow-gold/20";
         };
 
         window.navAdminClicked = () => {
-            if (currentAccessLevel && currentAccessLevel !== '') {
-                // Jika sudah login, langsung buka panel admin
-                showAdminView();
-            } else {
-                // Jika belum, buka modal PIN
-                openLogin();
-            }
+            if (currentAccessLevel && currentAccessLevel !== '') showAdminView();
+            else openLogin();
         };
 
         function openLogin() {
             document.getElementById('login-overlay').style.display = 'flex';
-            document.getElementById('admin-pin').value = '';
             setTimeout(() => document.getElementById('admin-pin').focus(), 100);
         }
 
         function closeLogin() { document.getElementById('login-overlay').style.display = 'none'; }
 
         async function verifyLogin() {
-            const pinInput = document.getElementById('admin-pin');
-            const pin = pinInput.value;
+            const pin = document.getElementById('admin-pin').value;
             const btn = document.getElementById('btn-login');
 
             if (!pin) { showToast("Masukkan Kode!", "Peringatan", "error"); return; }
-
-            const originalText = btn.innerHTML;
             btn.innerHTML = '<div class="spinner-dark"></div>';
             btn.disabled = true;
 
@@ -1174,7 +1229,6 @@
                 if (data.valid) {
                     closeLogin();
                     document.getElementById('active-account-name').textContent = data.account;
-                    
                     currentAccessLevel = data.accessLevel;
                     if (!currentAccessLevel) {
                         const accName = (data.account || "").toLowerCase();
@@ -1184,8 +1238,7 @@
                         else currentAccessLevel = 'Admin';
                     }
                     
-                    const badge = document.getElementById('active-access-badge');
-                    badge.textContent = `Akses: ${currentAccessLevel}`;
+                    document.getElementById('active-access-badge').textContent = `Akses: ${currentAccessLevel}`;
                     
                     if (currentAccessLevel === 'Admin') {
                         document.getElementById('layout-admin').classList.remove('hidden');
@@ -1200,17 +1253,16 @@
                     }
 
                     showAdminView();
-                    
                     showToast("Berhasil Masuk", `Selamat bertugas, ${data.account}!`, "success");
-                    pinInput.value = ''; 
+                    document.getElementById('admin-pin').value = ''; 
                 } else {
                     showToast("Kode Tidak Valid!", "Pastikan kode keamanan Anda benar.", "error");
-                    pinInput.value = ''; pinInput.focus();
+                    document.getElementById('admin-pin').value = ''; 
                 }
             } catch (err) {
                 showToast("Koneksi Gagal", "Periksa internet dan pastikan script sudah di-deploy.", "error");
             } finally {
-                btn.innerHTML = originalText; btn.disabled = false;
+                btn.innerHTML = 'MASUK'; btn.disabled = false;
             }
         }
 
@@ -1218,15 +1270,11 @@
 
         function switchTab(tab) {
             if (currentAccessLevel === 'Admin') return; 
-            
             const dayOfWeek = selectedDate.getDay();
-            const isNoSchedule = dayOfWeek !== 3 && dayOfWeek !== 6;
-            if (isNoSchedule) return;
+            if (dayOfWeek !== 3 && dayOfWeek !== 6) return;
 
             activeTab = tab;
-            const tabs = ['absensi', 'keterlibatan'];
-            
-            tabs.forEach(t => {
+            ['absensi', 'keterlibatan'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 const panel = document.getElementById(`panel-${t}`);
                 if (btn) btn.className = `flex-1 py-5 text-center border-b-4 transition-colors ${t === tab ? 'border-gold text-gold' : 'border-transparent text-gray-400 hover:text-white'}`;
@@ -1236,8 +1284,7 @@
 
         function saveToLocal() {
             localStorage.setItem('navy_members', JSON.stringify(membersData));
-            const totalJemaatEl = document.getElementById('dash-total-jemaat');
-            if(totalJemaatEl) totalJemaatEl.textContent = membersData.length;
+            document.getElementById('dash-total-jemaat').textContent = membersData.length;
             updateSubclassFilterUI();
             initChart(); 
             if (currentAccessLevel === 'Admin') renderManageList();
@@ -1252,23 +1299,16 @@
             const subClassFilter = document.getElementById('filter-subclass') ? document.getElementById('filter-subclass').value : 'All';
             
             let filteredMembers = membersData;
-            
-            if (currentActivity === 'Sekolah Sabat Dewasa') {
-                filteredMembers = filteredMembers.filter(m => m.category === 'Dewasa');
-            } else if (currentActivity === 'Sekolah Sabat Anak') {
-                filteredMembers = filteredMembers.filter(m => m.category === 'Anak-anak');
-            } else if (currentActivity === 'Khotbah') {
-                filteredMembers = filteredMembers.filter(m => m.role.includes('Anggota Jemaat') || m.role.includes('Anggota Anak'));
-            }
+            if (currentActivity === 'Sekolah Sabat Dewasa') filteredMembers = filteredMembers.filter(m => m.category === 'Dewasa');
+            else if (currentActivity === 'Sekolah Sabat Anak') filteredMembers = filteredMembers.filter(m => m.category === 'Anak-anak');
+            else if (currentActivity === 'Khotbah') filteredMembers = filteredMembers.filter(m => m.role.includes('Anggota Jemaat') || m.role.includes('Anggota Anak'));
             
             if (subClassFilter !== 'All' && (currentActivity === 'Sekolah Sabat Dewasa' || currentActivity === 'Sekolah Sabat Anak')) {
                 filteredMembers = filteredMembers.filter(m => m.subClass === subClassFilter);
             }
-            
             filteredMembers = filteredMembers.filter(m => m.name.toLowerCase().includes(searchQuery));
             
-            const totalDbEl = document.getElementById('total-db');
-            if(totalDbEl) totalDbEl.textContent = filteredMembers.length;
+            document.getElementById('total-db').textContent = filteredMembers.length;
             
             if (filteredMembers.length === 0) {
                 container.innerHTML = `<div class="p-10 text-center text-gray-500 italic font-medium drop-shadow-sm">Tidak ada jemaat di kegiatan/kelas ini.</div>`;
@@ -1292,7 +1332,6 @@
 
                 const div = document.createElement('div');
                 div.className = "group flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 rounded-2xl glass-item gap-4";
-                
                 div.innerHTML = `
                     <div class="flex items-center gap-4 w-full sm:w-auto">
                         <div class="w-10 h-10 rounded-full bg-navy text-gold flex items-center justify-center font-bold shadow-sm shrink-0 border border-white/20">
@@ -1307,7 +1346,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div class="flex bg-white/30 p-1.5 rounded-xl w-full sm:w-auto justify-between sm:justify-end gap-1 border border-white/40 shrink-0">
                         <button type="button" onclick="setStatus('${m.id}', 'Hadir')" class="w-16 sm:w-20 px-2 py-2 rounded-lg text-xs font-bold transition-all ${status === 'Hadir' ? 'bg-green-500 text-white shadow-md' : 'text-gray-600 hover:bg-white/60'}">Hadir</button>
                         <button type="button" onclick="setStatus('${m.id}', 'Sakit')" class="w-16 sm:w-20 px-2 py-2 rounded-lg text-xs font-bold transition-all ${status === 'Sakit' ? 'bg-yellow-500 text-white shadow-md' : 'text-gray-600 hover:bg-white/60'}">Sakit</button>
@@ -1316,7 +1354,6 @@
                 `;
                 container.appendChild(div);
             });
-
             updateSubmitButton();
         }
 
@@ -1327,8 +1364,7 @@
         }
 
         window.markAllHadir = () => {
-            const searchInput = document.getElementById('search-input');
-            const searchQuery = searchInput ? searchInput.value.toLowerCase() : "";
+            const searchQuery = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : "";
             const subClassFilter = document.getElementById('filter-subclass') ? document.getElementById('filter-subclass').value : 'All';
             
             let filtered = membersData;
@@ -1339,7 +1375,6 @@
             if (subClassFilter !== 'All' && (currentActivity === 'Sekolah Sabat Dewasa' || currentActivity === 'Sekolah Sabat Anak')) {
                 filtered = filtered.filter(m => m.subClass === subClassFilter);
             }
-            
             filtered = filtered.filter(m => m.name.toLowerCase().includes(searchQuery));
             filtered.forEach(m => attendanceData[m.id] = 'Hadir');
             renderList();
@@ -1349,9 +1384,8 @@
             const btn = document.getElementById('btn-submit-absensi');
             if(!btn) return;
             
-            const totalSel = document.getElementById('total-selected');
             const totalSet = Object.keys(attendanceData).length;
-            if (totalSel) totalSel.textContent = totalSet;
+            document.getElementById('total-selected').textContent = totalSet;
 
             let h = 0, s = 0, a = 0;
             Object.values(attendanceData).forEach(val => {
@@ -1359,18 +1393,12 @@
                 if (val === 'Sakit') s++;
                 if (val === 'Alpa') a++;
             });
-            const tamuInput = document.getElementById('input-tamu');
-            const t = tamuInput ? parseInt(tamuInput.value || 0) : 0;
+            const t = document.getElementById('input-tamu') ? parseInt(document.getElementById('input-tamu').value || 0) : 0;
 
-            const sumHadir = document.getElementById('sum-hadir');
-            const sumTamu = document.getElementById('sum-tamu');
-            const sumSakit = document.getElementById('sum-sakit');
-            const sumAlpa = document.getElementById('sum-alpa');
-
-            if(sumHadir) sumHadir.textContent = h;
-            if(sumTamu) sumTamu.textContent = t;
-            if(sumSakit) sumSakit.textContent = s;
-            if(sumAlpa) sumAlpa.textContent = a;
+            document.getElementById('sum-hadir').textContent = h;
+            document.getElementById('sum-tamu').textContent = t;
+            document.getElementById('sum-sakit').textContent = s;
+            document.getElementById('sum-alpa').textContent = a;
 
             if (isSubmitting) {
                 btn.disabled = true;
@@ -1379,12 +1407,7 @@
             } else {
                 btn.disabled = totalSet === 0;
                 btn.innerHTML = `KIRIM <span id="submit-count" class="bg-navy text-white px-2 py-0.5 rounded-md text-[10px] shadow-inner">${totalSet}</span> DATA ABSENSI ↗`;
-                
-                if (totalSet > 0) {
-                    btn.className = "w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 glass-btn-gold";
-                } else {
-                    btn.className = "w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all opacity-50 cursor-not-allowed bg-white/40 text-gray-600 border border-white/30";
-                }
+                btn.className = totalSet > 0 ? "w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 glass-btn-gold" : "w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all opacity-50 cursor-not-allowed bg-white/40 text-gray-600 border border-white/30";
             }
         }
 
@@ -1396,7 +1419,6 @@
             updateSubmitButton();
 
             const finalDateString = selectedDate.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            let successCount = 0;
             let statHadirAnggota = 0, statSakit = 0, statAlpa = 0;
 
             try {
@@ -1420,11 +1442,9 @@
                     params.append('waktu', finalDateString);
 
                     await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: params });
-                    successCount++;
                 }
 
-                const inputTamu = document.getElementById('input-tamu');
-                const tamuCount = inputTamu ? parseInt(inputTamu.value || 0) : 0;
+                const tamuCount = parseInt(document.getElementById('input-tamu').value || 0);
                 if (tamuCount > 0) {
                     const paramTamu = new URLSearchParams();
                     paramTamu.append('action', 'absensi');
@@ -1435,13 +1455,10 @@
                     paramTamu.append('kegiatan', currentActivity);
                     paramTamu.append('status', tamuCount); 
                     paramTamu.append('waktu', finalDateString);
-                    
                     await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: paramTamu });
-                    successCount++;
                 }
                 
                 const currentWeekId = getWeekIdentifier(selectedDate);
-                
                 if (appStatsV2.weekId !== currentWeekId) {
                     appStatsV2.mingguLalu = { ...appStatsV2.mingguIni };
                     appStatsV2.mingguIni = { 'Permintaan Doa': 0, 'Sekolah Sabat Dewasa': 0, 'Sekolah Sabat Anak': 0, 'Khotbah': 0 };
@@ -1464,11 +1481,10 @@
                 }
                 localStorage.setItem('navy_stats', JSON.stringify(appStats));
 
-                const summaryText = `Hadir: ${statHadirAnggota} Anggota, ${tamuCount} Tamu | Sakit: ${statSakit} | Alpa: ${statAlpa}`;
-                showToast("Data Terkirim!", summaryText, "success");
+                showToast("Data Terkirim!", `Hadir: ${statHadirAnggota} Anggota, ${tamuCount} Tamu | Sakit: ${statSakit} | Alpa: ${statAlpa}`, "success");
                 
                 attendanceData = {}; 
-                if(inputTamu) inputTamu.value = ""; 
+                document.getElementById('input-tamu').value = ""; 
                 renderList();
                 initChart(); 
             } catch (err) {
@@ -1481,7 +1497,7 @@
 
         window.submitKeterlibatan = async () => {
             const btn = document.getElementById('btn-submit-keterlibatan');
-            if(btn) { btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> MENGIRIM DATA...'; }
+            btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> MENGIRIM DATA...';
             
             const finalDateString = selectedDate.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const params = new URLSearchParams();
@@ -1490,15 +1506,14 @@
             
             let isAnyFilled = false;
             for(let i = 1; i <= 10; i++) {
-                const el = document.getElementById(`ket_${i}`);
-                const val = el ? el.value || "0" : "0";
+                const val = document.getElementById(`ket_${i}`)?.value || "0";
                 params.append(`k${i}`, val);
                 if (parseInt(val) > 0) isAnyFilled = true;
             }
 
             if (!isAnyFilled) {
                 showToast("Data Kosong", "Mohon isi minimal satu kegiatan dengan angka.", "error");
-                if(btn) { btn.disabled = false; btn.innerHTML = 'KIRIM DATA KETERLIBATAN ↗'; }
+                btn.disabled = false; btn.innerHTML = 'KIRIM DATA KETERLIBATAN ↗';
                 return;
             }
 
@@ -1512,10 +1527,13 @@
             } catch (err) {
                 showToast("Gagal", "Tidak dapat menghubungi server.", "error");
             } finally {
-                if(btn) { btn.disabled = false; btn.innerHTML = 'KIRIM DATA KETERLIBATAN ↗'; }
+                btn.disabled = false; btn.innerHTML = 'KIRIM DATA KETERLIBATAN ↗';
             }
         };
 
+        // ========================================================
+        // ROMBAKAN DAFTAR DATABASE KESELURUHAN (ADMIN)
+        // ========================================================
         window.renderManageList = () => {
             const container = document.getElementById('manage-list-container');
             const search = document.getElementById('manage-search').value.toLowerCase();
@@ -1530,25 +1548,45 @@
             container.innerHTML = '';
             
             if(filtered.length === 0) {
-                 container.innerHTML = `<p class="text-center text-gray-500 mt-8 drop-shadow-sm">Data tidak ditemukan di database.</p>`;
+                 container.innerHTML = `<p class="text-center text-gray-500 mt-8 drop-shadow-sm font-medium">Data tidak ditemukan di database.</p>`;
                  return;
             }
             
             filtered.forEach(m => {
                 const div = document.createElement('div');
-                div.className = "flex items-center justify-between p-4 rounded-2xl glass-item";
+                // Desain Kartu (Card) Baru untuk List Database
+                div.className = "flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 md:p-5 rounded-2xl glass-item gap-4 transition-all hover:shadow-lg border border-white/60 bg-white/40";
                 
-                const roleDisplay = m.role.split(',').map(r=>r.trim()).join(', ');
-                const subClassDisplay = m.subClass ? ` [${m.subClass}]` : '';
+                const firstChar = (m.name || '?').charAt(0).toUpperCase();
                 
+                // Badge Kategori, Subkelas, dan Role
+                const catColor = m.category === 'Dewasa' ? 'bg-navy/10 text-navy border-navy/20' : 'bg-orange-500/10 text-orange-800 border-orange-500/20';
+                const subClassBadge = m.subClass ? `<span class="bg-gold/20 text-yellow-900 border border-gold/30 px-2.5 py-1 rounded-md text-[10px] font-black uppercase shadow-sm">${m.subClass}</span>` : '';
+                const roleBadges = m.role.split(',').map(r => `<span class="bg-white/80 text-gray-700 border border-gray-200 px-2 py-1 rounded-md text-[9px] font-bold uppercase shadow-sm">${r.trim()}</span>`).join('');
+
                 div.innerHTML = `
-                    <div class="flex-1 pr-2">
-                        <span class="font-bold text-navy text-[15px] block drop-shadow-sm">${m.name}</span>
-                        <span class="text-[10px] text-gray-600 uppercase font-semibold mt-1 block">${m.category}${subClassDisplay} • ${roleDisplay}</span>
+                    <div class="flex items-center gap-4 w-full sm:w-auto">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-navy to-navy-light text-gold flex items-center justify-center font-black text-xl shadow-md shrink-0 border border-gold/30">
+                            ${firstChar}
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-black text-navy text-base md:text-lg drop-shadow-sm leading-tight">${m.name}</h3>
+                            <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                                <span class="border px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm ${catColor}">${m.category}</span>
+                                ${subClassBadge}
+                                ${roleBadges}
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="editMember('${m.id}', '${m.name.replace(/'/g, "\\'")}', '${m.category}', '${m.role}', '${(m.subClass || '').replace(/'/g, "\\'")}')" class="px-4 py-2 bg-blue-500/20 text-blue-800 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-500/30 transition-colors">EDIT</button>
-                        <button onclick="confirmDelete('${m.id}', '${m.name.replace(/'/g, "\\'")}')" class="px-4 py-2 bg-red-500/20 text-red-800 border border-red-500/30 rounded-xl text-xs font-bold hover:bg-red-500/30 transition-colors">HAPUS</button>
+                    <div class="flex gap-2 w-full sm:w-auto justify-end mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/50">
+                        <button onclick="editMember('${m.id}', '${m.name.replace(/'/g, "\\'")}', '${m.category}', '${m.role}', '${(m.subClass || '').replace(/'/g, "\\'")}')" class="flex-1 sm:flex-none px-4 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-800 border border-blue-500/30 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                            EDIT
+                        </button>
+                        <button onclick="confirmDelete('${m.id}', '${m.name.replace(/'/g, "\\'")}')" class="flex-1 sm:flex-none px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-800 border border-red-500/30 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                            HAPUS
+                        </button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -1558,10 +1596,7 @@
         window.editMember = (id, name, cat, roleStr, subClass) => {
             document.getElementById('member-id').value = id;
             document.getElementById('member-name').value = name;
-            
-            const catSelect = document.getElementById('member-category');
-            catSelect.value = cat;
-            
+            document.getElementById('member-category').value = cat;
             document.getElementById('member-subclass').value = subClass || '';
             
             updateRoleOptions(); 
@@ -1574,7 +1609,8 @@
             document.getElementById('btn-save').textContent = "SIMPAN PERUBAHAN";
             document.getElementById('btn-cancel').classList.remove('hidden');
             document.getElementById('form-title').textContent = "Edit Data Jemaat";
-            
+            document.getElementById('family-extra-fields').style.display = 'block';
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
             setTimeout(() => document.getElementById('member-name').focus(), 300);
         };
@@ -1597,139 +1633,72 @@
         };
 
         document.getElementById('member-form').onsubmit = async (e) => {
-    e.preventDefault();
+            e.preventDefault();
 
-    const id = document.getElementById('member-id').value;
-    const name = document.getElementById('member-name').value.trim();
-    let subClassInput = document.getElementById('member-subclass').value;
-    let cat = document.getElementById('member-category').value;
+            const id = document.getElementById('member-id').value;
+            const name = document.getElementById('member-name').value.trim();
+            let subClassInput = document.getElementById('member-subclass').value;
+            let cat = document.getElementById('member-category').value;
+            const checkedBoxes = Array.from(document.querySelectorAll('.role-checkbox:checked'));
 
-    const checkedBoxes = Array.from(
-        document.querySelectorAll('.role-checkbox:checked')
-    );
+            if (!name) { showToast("Validasi Gagal", "Nama lengkap jemaat wajib diisi!", "error"); return; }
+            if (!cat) { showToast("Validasi Gagal", "Kategori utama wajib dipilih!", "error"); return; }
+            if (!subClassInput) { showToast("Validasi Gagal", "Silakan pilih Sub Kelas!", "error"); return; }
+            if (checkedBoxes.length === 0) { showToast("Validasi Gagal", "Minimal 1 Jabatan/Role wajib dipilih!", "error"); return; }
 
-    if (!name) {
-        showToast("Validasi Gagal", "Nama lengkap jemaat wajib diisi!", "error");
-        document.getElementById('member-name').focus();
-        return;
-    }
+            let roleJoined = checkedBoxes.map(cb => cb.value).join(', ');
 
-    if (!cat) {
-        showToast("Validasi Gagal", "Kategori utama wajib dipilih!", "error");
-        document.getElementById('member-category').focus();
-        return;
-    }
-
-    if (!subClassInput) {
-        showToast("Validasi Gagal", "Silakan pilih Sub Kelas!", "error");
-        document.getElementById('member-subclass').focus();
-        return;
-    }
-
-    if (checkedBoxes.length === 0) {
-        showToast("Validasi Gagal", "Minimal 1 Jabatan/Role wajib dipilih!", "error");
-        return;
-    }
-
-    let roleJoined = checkedBoxes.map(cb => cb.value).join(', ');
-
-    // Cek duplicate nama
-const duplicateMember = membersData.find(m => {
-
-    // abaikan data yang sedang diedit
-    if (id && m.id === id) return false;
-
-    return (
-        (m.name || '').trim().toLowerCase() ===
-        name.trim().toLowerCase()
-    );
-});
-
-if (duplicateMember) {
-
-    showToast(
-        "Duplikat Terdeteksi",
-        "Nama jemaat sudah ada di database",
-        "error"
-    );
-
-    return;
-}
-
-    if (id) {
-
-        const index = membersData.findIndex(m => m.id === id);
-
-        if (index !== -1) {
-            membersData[index].name = name;
-            membersData[index].category = cat;
-            membersData[index].subClass = subClassInput;
-            membersData[index].role = roleJoined;
-        }
-
-        showToast("Berhasil", "Perubahan data jemaat disimpan", "success");
-
-    } else {
-
-        membersData.push({
-            id: Date.now().toString(),
-            name: name,
-            category: cat,
-            subClass: subClassInput,
-            role: roleJoined
-        });
-
-        try {
-
-            const params = new URLSearchParams();
-
-            params.append('action', 'saveMember');
-            params.append('nama', name);
-            params.append('kategori', cat);
-            params.append('subkelas', subClassInput);
-            params.append('jabatan', roleJoined);
-
-            await fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: params
+            const duplicateMember = membersData.find(m => {
+                if (id && m.id === id) return false;
+                return ((m.name || '').trim().toLowerCase() === name.trim().toLowerCase());
             });
 
-        } catch (err) {
+            if (duplicateMember) {
+                showToast("Duplikat Terdeteksi", "Nama jemaat sudah ada di database", "error");
+                return;
+            }
 
-            console.error('Gagal simpan ke Spreadsheet:', err);
+            if (id) {
+                const index = membersData.findIndex(m => m.id === id);
+                if (index !== -1) {
+                    membersData[index].name = name;
+                    membersData[index].category = cat;
+                    membersData[index].subClass = subClassInput;
+                    membersData[index].role = roleJoined;
+                }
+                showToast("Berhasil", "Perubahan data jemaat disimpan", "success");
+            } else {
+                membersData.push({ id: Date.now().toString(), name: name, category: cat, subClass: subClassInput, role: roleJoined });
+                try {
+                    const params = new URLSearchParams();
+                    params.append('action', 'saveMember');
+                    params.append('nama', name);
+                    params.append('kategori', cat);
+                    params.append('subkelas', subClassInput);
+                    params.append('jabatan', roleJoined);
+                    await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: params });
+                } catch (err) { console.error('Gagal simpan ke Spreadsheet:', err); }
+                showToast("Berhasil", "Jemaat baru ditambahkan ke database", "success");
+            }
 
-        }
-
-        showToast("Berhasil", "Jemaat baru ditambahkan ke database", "success");
-    }
-
-    saveToLocal();
-
-    membersData.sort((a, b) =>
-        (a.name || "").localeCompare(b.name || "")
-    );
-
-    renderList();
-
-    resetForm();
-};
+            saveToLocal();
+            membersData.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+            renderList();
+            resetForm();
+        };
 
         window.resetForm = () => {
             document.getElementById('member-id').value = "";
             document.getElementById('member-name').value = "";
-            
-            const catSelect = document.getElementById('member-category');
-            catSelect.value = "Dewasa"; 
-            
-            const subClassSelect = document.getElementById('member-subclass');
-            if (subClassSelect) subClassSelect.value = "";
+            document.getElementById('member-category').value = "Dewasa"; 
+            document.getElementById('member-subclass').value = "";
             
             updateRoleOptions();
 
             document.getElementById('btn-save').textContent = "SIMPAN JEMAAT";
             document.getElementById('btn-cancel').classList.add('hidden');
             document.getElementById('form-title').textContent = "Setup Data Jemaat Baru";
+            document.getElementById('family-extra-fields').style.display = 'none';
         };
 
         const searchInput = document.getElementById('search-input');
@@ -1758,7 +1727,6 @@ if (duplicateMember) {
             }
         }
         
-        // --- LIVE CLOCK LOGIC ---
         function startLiveClock() {
             function updateClock() {
                 const now = new Date();
@@ -1768,37 +1736,19 @@ if (duplicateMember) {
                 
                 const elH = document.getElementById('clock-hours');
                 const elM = document.getElementById('clock-minutes');
-                const elS = document.getElementById('clock-seconds');
+                if (elH && elH.textContent !== h) { elH.textContent = h; elH.classList.remove('flip-animate'); void elH.offsetWidth; elH.classList.add('flip-animate'); }
+                if (elM && elM.textContent !== m) { elM.textContent = m; elM.classList.remove('flip-animate'); void elM.offsetWidth; elM.classList.add('flip-animate'); }
+                if (document.getElementById('clock-seconds')) document.getElementById('clock-seconds').textContent = s;
                 
-                if (elH && elH.textContent !== h) {
-                    elH.textContent = h;
-                    elH.classList.remove('flip-animate');
-                    void elH.offsetWidth; 
-                    elH.classList.add('flip-animate');
-                }
-                if (elM && elM.textContent !== m) {
-                    elM.textContent = m;
-                    elM.classList.remove('flip-animate');
-                    void elM.offsetWidth;
-                    elM.classList.add('flip-animate');
-                }
-                if (elS && elS.textContent !== s) {
-                    elS.textContent = s;
-                }
-                
-                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                const fullDate = now.toLocaleDateString('id-ID', options);
-                const dateEl = document.getElementById('dash-tanggal-lengkap');
-                if (dateEl && dateEl.textContent !== fullDate) {
-                    dateEl.textContent = fullDate;
-                }
+                const fullDate = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                if (document.getElementById('dash-tanggal-lengkap')) document.getElementById('dash-tanggal-lengkap').textContent = fullDate;
             }
             setInterval(updateClock, 1000);
             updateClock();
         }
         
         renderSubClassUI(); 
-        renderRoleUI(); // Inisialisasi daftar jabatan saat web dimuat
+        renderRoleUI(); 
         updateRoleOptions();
         updateDateUI(); 
         applyDayLogic();
@@ -1809,107 +1759,67 @@ if (duplicateMember) {
         startLiveClock(); 
     
         async function syncAllMembers() {
+            if (membersData.length === 0) { showToast("Info", "Tidak ada data jemaat", "error"); return; }
+            let successCount = 0, failedCount = 0;
+            const sentNames = new Set();
 
-    if (membersData.length === 0) {
+            for (let i = 0; i < membersData.length; i++) {
+                const member = membersData[i];
+                const normalizedName = (member.name || '').trim().toLowerCase();
+                if (sentNames.has(normalizedName)) continue;
+                sentNames.add(normalizedName);
 
-        showToast(
-            "Info",
-            "Tidak ada data jemaat",
-            "error"
-        );
+                try {
+                    showToast("Sinkronisasi", `Mengirim ${member.name}...`, "success");
+                    const params = new URLSearchParams();
+                    params.append('action', 'saveMember');
+                    params.append('nama', member.name || '');
+                    params.append('kategori', member.category || '');
+                    params.append('subkelas', member.subClass || '');
+                    params.append('jabatan', member.role || '');
+                    await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: params });
+                    successCount++;
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                } catch (err) { failedCount++; }
+            }
+            showToast("Sinkronisasi Selesai", `${successCount} berhasil, ${failedCount} gagal`, "success");
+        }
 
-        return;
-    }
-
-    const syncBtn = document.getElementById('sync-btn');
-
-    if (syncBtn) {
-        syncBtn.disabled = true;
-        syncBtn.innerText = 'Memulai Sinkronisasi...';
-    }
-
-    let successCount = 0;
-    let failedCount = 0;
-
-    const sentNames = new Set();
-
-for (let i = 0; i < membersData.length; i++) {
-
-        const member = membersData[i];
-
-        const normalizedName =
-    (member.name || '').trim().toLowerCase();
-
-if (sentNames.has(normalizedName)) {
-
-    console.log(
-        'Duplicate dilewati:',
-        member.name
-    );
-
-    continue;
-}
-
-sentNames.add(normalizedName);
-
-        try {
-
-            if (syncBtn) {
-                syncBtn.innerText =
-                    `Sync ${i + 1}/${membersData.length} : ${member.name}`;
+        document.addEventListener('DOMContentLoaded', () => {
+            const maritalSelect = document.getElementById('member-marital');
+            if (maritalSelect) {
+                maritalSelect.addEventListener('change', function () {
+                    const marriageBox = document.getElementById('marriage-fields');
+                    if (marriageBox) marriageBox.style.display = this.value === 'Menikah' ? 'block' : 'none';
+                });
             }
 
-            showToast(
-                "Sinkronisasi",
-                `Mengirim ${member.name}`,
-                "success"
-            );
+            const familyRole = document.getElementById('member-family-role');
+            if (familyRole) {
+                familyRole.addEventListener('change', function () {
+                    const parentBox = document.getElementById('parent-fields');
+                    if (parentBox) parentBox.style.display = this.value === 'Anak' ? 'block' : 'none';
+                });
+            }
+        });
 
-            const params = new URLSearchParams();
-
-            params.append('action', 'saveMember');
-            params.append('nama', member.name || '');
-            params.append('kategori', member.category || '');
-            params.append('subkelas', member.subClass || '');
-            params.append('jabatan', member.role || '');
-
-            await fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: params
+        function populateSpouseOptions() {
+            const select = document.getElementById('member-spouse-select');
+            if (!select) return;
+            select.innerHTML = '<option value="">-- Pilih Anggota --</option>';
+            membersData.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.name;
+                option.textContent = member.name;
+                select.appendChild(option);
             });
-
-            successCount++;
-
-            // Delay supaya Apps Script stabil
-            await new Promise(resolve =>
-                setTimeout(resolve, 500)
-            );
-
-        } catch (err) {
-
-            failedCount++;
-
-            console.error(
-                'Gagal sync:',
-                member.name,
-                err
-            );
         }
-    }
 
-    if (syncBtn) {
-        syncBtn.disabled = false;
-        syncBtn.innerText = 'Sinkron Semua Data';
-    }
+        setTimeout(() => { populateSpouseOptions(); }, 500);
 
-    showToast(
-        "Sinkronisasi Selesai",
-        `${successCount} berhasil, ${failedCount} gagal`,
-        "success"
-    );
-}
-
+        document.getElementById('member-spouse-select').addEventListener('change', function () {
+            if (this.value) document.getElementById('member-spouse').value = this.value;
+        });
     </script>
 </body>
 </html>
