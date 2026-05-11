@@ -153,6 +153,11 @@
 </head>
 <body class="min-h-screen font-sans selection:bg-gold selection:text-navy">
 
+    <!-- Global Floating Logo Kiri Bawah (Watermark) -->
+    <div class="fixed -bottom-20 -left-20 md:-bottom-32 md:-left-32 w-[25rem] h-[25rem] md:w-[40rem] md:h-[40rem] pointer-events-none z-0 opacity-40">
+        <img src="PisgahWhite.png" alt="Watermark Kiri Bawah" class="w-full h-full object-contain animate-float-logo" style="animation-delay: -3s;" onerror="this.style.display='none'">
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast-container" class="fixed top-6 right-6 z-[100] hidden">
         <div id="toast-content" class="px-6 py-4 rounded-xl shadow-2xl font-semibold flex items-center gap-3 text-sm border-l-4">
@@ -204,7 +209,7 @@
             </div>
             <div class="flex items-center gap-2 bg-black/40 p-1.5 rounded-2xl border border-white/10 backdrop-blur-md">
                 <button onclick="showHomeView()" id="nav-home" class="px-5 py-2 rounded-xl text-sm font-bold glass-btn-gold shadow-lg shadow-gold/20">🏠 BERANDA</button>
-                <button onclick="openLogin()" id="nav-admin" class="px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/80 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10">🔒 ADMIN</button>
+                <button onclick="navAdminClicked()" id="nav-admin" class="px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/80 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10">🔒 ADMIN</button>
             </div>
         </div>
     </header>
@@ -248,6 +253,32 @@
                     <p class="text-[10px] text-gold font-bold mt-1 relative z-10 uppercase tracking-widest drop-shadow-sm" id="dash-kegiatan-hari-ini">-</p>
                     
                     <span id="dash-hari-ini" class="hidden"></span>
+                </div>
+
+                <!-- WIDGET: PERMOHONAN DOA (Glass Dark) -->
+                <div class="glass-card-dark p-6 rounded-3xl relative overflow-hidden border border-white/10 shadow-xl">
+                    <div class="absolute top-0 left-0 w-24 h-24 bg-blue-500/20 rounded-br-full blur-xl -z-0"></div>
+                    <h3 class="text-sm font-black text-white mb-1 uppercase tracking-widest relative z-10 flex items-center gap-2 drop-shadow-md">🙏 Permohonan Doa</h3>
+                    <p class="text-[10px] text-blue-200/80 mb-5 relative z-10">Bagikan pergumulan Anda, kami rindu mendoakannya.</p>
+
+                    <form id="form-doa" onsubmit="submitDoa(event)" class="space-y-4 relative z-10">
+                        <div>
+                            <label class="block text-xs font-bold text-white mb-1.5 ml-1 drop-shadow-md">Nama Lengkap</label>
+                            <input type="text" id="doa-nama" required placeholder="Contoh: John Doe" class="w-full px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy placeholder-gray-500" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-white mb-1.5 ml-1 drop-shadow-md">No. Handphone (Wajib pakai +)</label>
+                            <input type="tel" id="doa-hp" required placeholder="Contoh: +62812... atau +65..." pattern="^\+.*" title="Nomor harus diawali dengan lambang + dan kode negara" class="w-full px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy placeholder-gray-500" />
+                            <p class="text-[9px] text-gold-light mt-1.5 ml-1 drop-shadow-sm font-medium">Wajib pakai simbol + dan kode negara.</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-white mb-1.5 ml-1 drop-shadow-md">Isi Permohonan Doa</label>
+                            <textarea id="doa-pesan" required rows="3" placeholder="Tuliskan pergumulan Anda di sini..." class="w-full px-4 py-3 glass-input rounded-xl text-sm font-bold text-navy placeholder-gray-500 resize-none custom-scrollbar"></textarea>
+                        </div>
+                        <button type="submit" id="btn-submit-doa" class="w-full py-3.5 rounded-xl font-black text-xs tracking-widest uppercase flex items-center justify-center gap-2 glass-btn-gold mt-2 shadow-lg shadow-gold/20">
+                            KIRIM PERMOHONAN ↗
+                        </button>
+                    </form>
                 </div>
             </div>
             
@@ -568,6 +599,46 @@
         ];
 
         Chart.register(ChartDataLabels);
+
+        // --- SISTEM PERMOHONAN DOA ---
+        window.submitDoa = async (e) => {
+            e.preventDefault();
+            const nama = document.getElementById('doa-nama').value.trim();
+            const hp = document.getElementById('doa-hp').value.trim();
+            const pesan = document.getElementById('doa-pesan').value.trim();
+            const btn = document.getElementById('btn-submit-doa');
+
+            if (!hp.startsWith('+')) {
+                showToast("Format Tidak Sesuai", "Nomor HP wajib diawali simbol '+' dan kode negara (misal: +62...).", "error");
+                document.getElementById('doa-hp').focus();
+                return;
+            }
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div> MENGIRIM...';
+            btn.disabled = true;
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'doa'); 
+                params.append('nama', nama);
+                params.append('hp', hp);
+                params.append('pesan', pesan);
+                // Menambahkan waktu secara lengkap dengan jam
+                const waktuKirim = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                params.append('waktu', waktuKirim);
+
+                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: params });
+                
+                showToast("Berhasil Terkirim!", "Permohonan doa Anda telah kami terima.", "success");
+                document.getElementById('form-doa').reset();
+            } catch (err) {
+                showToast("Pengiriman Gagal", "Koneksi terputus. Silakan coba beberapa saat lagi.", "error");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
 
         // --- SISTEM LOGOUT BARU ---
         window.logout = () => {
@@ -944,6 +1015,24 @@
             initChart(); 
         }
 
+        window.showAdminView = () => {
+            document.getElementById('view-home').classList.add('hidden');
+            document.getElementById('view-home').classList.remove('block');
+            document.getElementById('view-admin').classList.remove('hidden');
+            document.getElementById('nav-home').className = "px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/80 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10";
+            document.getElementById('nav-admin').className = "px-5 py-2 rounded-xl text-sm font-bold glass-btn-gold shadow-lg shadow-gold/20";
+        };
+
+        window.navAdminClicked = () => {
+            if (currentAccessLevel && currentAccessLevel !== '') {
+                // Jika sudah login, langsung buka panel admin
+                showAdminView();
+            } else {
+                // Jika belum, buka modal PIN
+                openLogin();
+            }
+        };
+
         function openLogin() {
             document.getElementById('login-overlay').style.display = 'flex';
             document.getElementById('admin-pin').value = '';
@@ -995,11 +1084,7 @@
                         switchTab('absensi');
                     }
 
-                    document.getElementById('view-home').classList.add('hidden');
-                    document.getElementById('view-home').classList.remove('block');
-                    document.getElementById('view-admin').classList.remove('hidden');
-                    document.getElementById('nav-home').className = "px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/80 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10";
-                    document.getElementById('nav-admin').className = "px-5 py-2 rounded-xl text-sm font-bold glass-btn-gold shadow-lg shadow-gold/20";
+                    showAdminView();
                     
                     showToast("Berhasil Masuk", `Selamat bertugas, ${data.account}!`, "success");
                     pinInput.value = ''; 
