@@ -737,7 +737,15 @@
                 name: m.name,
                 category: m.category || 'Dewasa',
                 subClass: m.subClass || '',
-                role: rawRole
+                role: rawRole,
+                jk: m.jk || '',
+                tgl_lahir: m.tgl_lahir || '',
+                status_nikah: m.status_nikah || '',
+                nama_pasangan: m.nama_pasangan || '',
+                tgl_nikah: m.tgl_nikah || '',
+                relasi: m.relasi || '',
+                nama_ayah: m.nama_ayah || '',
+                nama_ibu: m.nama_ibu || ''
             };
         });
         
@@ -1599,6 +1607,21 @@
             document.getElementById('member-category').value = cat;
             document.getElementById('member-subclass').value = subClass || '';
             
+            const m = membersData.find(x => x.id === id);
+            if (m) {
+                document.getElementById('member-gender').value = m.jk || '';
+                document.getElementById('member-birth').value = m.tgl_lahir || '';
+                document.getElementById('member-marital').value = m.status_nikah || '';
+                document.getElementById('member-family-role').value = m.relasi || '';
+                document.getElementById('member-spouse').value = m.nama_pasangan || '';
+                document.getElementById('member-wedding').value = m.tgl_nikah || '';
+                document.getElementById('member-father').value = m.nama_ayah || '';
+                document.getElementById('member-mother').value = m.nama_ibu || '';
+
+                document.getElementById('member-marital').dispatchEvent(new Event('change'));
+                document.getElementById('member-family-role').dispatchEvent(new Event('change'));
+            }
+            
             updateRoleOptions(); 
             
             const selectedRoles = roleStr.split(',').map(r => r.trim());
@@ -1641,6 +1664,15 @@
             let cat = document.getElementById('member-category').value;
             const checkedBoxes = Array.from(document.querySelectorAll('.role-checkbox:checked'));
 
+            const jk = document.getElementById('member-gender').value;
+            const tgl_lahir = document.getElementById('member-birth').value;
+            const status_nikah = document.getElementById('member-marital').value;
+            const relasi = document.getElementById('member-family-role').value;
+            let nama_pasangan = document.getElementById('member-spouse').value.trim();
+            const tgl_nikah = document.getElementById('member-wedding').value;
+            const nama_ayah = document.getElementById('member-father').value.trim();
+            const nama_ibu = document.getElementById('member-mother').value.trim();
+
             if (!name) { showToast("Validasi Gagal", "Nama lengkap jemaat wajib diisi!", "error"); return; }
             if (!cat) { showToast("Validasi Gagal", "Kategori utama wajib dipilih!", "error"); return; }
             if (!subClassInput) { showToast("Validasi Gagal", "Silakan pilih Sub Kelas!", "error"); return; }
@@ -1665,10 +1697,23 @@
                     membersData[index].category = cat;
                     membersData[index].subClass = subClassInput;
                     membersData[index].role = roleJoined;
+                    
+                    membersData[index].jk = jk;
+                    membersData[index].tgl_lahir = tgl_lahir;
+                    membersData[index].status_nikah = status_nikah;
+                    membersData[index].nama_pasangan = nama_pasangan;
+                    membersData[index].tgl_nikah = tgl_nikah;
+                    membersData[index].relasi = relasi;
+                    membersData[index].nama_ayah = nama_ayah;
+                    membersData[index].nama_ibu = nama_ibu;
                 }
                 showToast("Berhasil", "Perubahan data jemaat disimpan", "success");
             } else {
-                membersData.push({ id: Date.now().toString(), name: name, category: cat, subClass: subClassInput, role: roleJoined });
+                membersData.push({ 
+                    id: Date.now().toString(), name: name, category: cat, subClass: subClassInput, role: roleJoined,
+                    jk: jk, tgl_lahir: tgl_lahir, status_nikah: status_nikah, nama_pasangan: nama_pasangan, 
+                    tgl_nikah: tgl_nikah, relasi: relasi, nama_ayah: nama_ayah, nama_ibu: nama_ibu 
+                });
                 try {
                     const params = new URLSearchParams();
                     params.append('action', 'saveMember');
@@ -1676,6 +1721,14 @@
                     params.append('kategori', cat);
                     params.append('subkelas', subClassInput);
                     params.append('jabatan', roleJoined);
+                    params.append('jk', jk);
+                    params.append('tgl_lahir', tgl_lahir);
+                    params.append('status_nikah', status_nikah);
+                    params.append('nama_pasangan', nama_pasangan);
+                    params.append('tgl_nikah', tgl_nikah);
+                    params.append('relasi', relasi);
+                    params.append('nama_ayah', nama_ayah);
+                    params.append('nama_ibu', nama_ibu);
                     await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: params });
                 } catch (err) { console.error('Gagal simpan ke Spreadsheet:', err); }
                 showToast("Berhasil", "Jemaat baru ditambahkan ke database", "success");
@@ -1692,6 +1745,18 @@
             document.getElementById('member-name').value = "";
             document.getElementById('member-category').value = "Dewasa"; 
             document.getElementById('member-subclass').value = "";
+            
+            document.getElementById('member-gender').value = "";
+            document.getElementById('member-birth').value = "";
+            document.getElementById('member-marital').value = "";
+            document.getElementById('member-family-role').value = "";
+            document.getElementById('member-spouse').value = "";
+            document.getElementById('member-wedding').value = "";
+            document.getElementById('member-father').value = "";
+            document.getElementById('member-mother').value = "";
+
+            document.getElementById('member-marital').dispatchEvent(new Event('change'));
+            document.getElementById('member-family-role').dispatchEvent(new Event('change'));
             
             updateRoleOptions();
 
@@ -1777,6 +1842,14 @@
                     params.append('kategori', member.category || '');
                     params.append('subkelas', member.subClass || '');
                     params.append('jabatan', member.role || '');
+                    params.append('jk', member.jk || '');
+                    params.append('tgl_lahir', member.tgl_lahir || '');
+                    params.append('status_nikah', member.status_nikah || '');
+                    params.append('nama_pasangan', member.nama_pasangan || '');
+                    params.append('tgl_nikah', member.tgl_nikah || '');
+                    params.append('relasi', member.relasi || '');
+                    params.append('nama_ayah', member.nama_ayah || '');
+                    params.append('nama_ibu', member.nama_ibu || '');
                     await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: params });
                     successCount++;
                     await new Promise(resolve => setTimeout(resolve, 500));
