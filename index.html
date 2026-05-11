@@ -481,7 +481,7 @@
                         <button onclick="addRole()" class="px-5 py-2 glass-btn-gold font-bold rounded-xl text-xs">TAMBAH</button>
                     </div>
                     
-                    <div id="role-manage-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1 relative z-10">
+                    <div id="role-manage-list" class="flex flex-wrap gap-2 p-1 relative z-10">
                         <!-- JS Injected -->
                     </div>
                 </div>
@@ -583,8 +583,8 @@
 
         // --- INISIALISASI DATA JABATAN GLOBAL ---
         let rolesData = JSON.parse(localStorage.getItem('navy_roles')) || [
-            'Anggota Jemaat', 'Anggota Anak', 'Guru Sekolah Sabat Dewasa', 
-            'Guru Anak-anak', 'Pemimpin', 'Koordinator', 'Sekretaris'
+            'Anggota Jemaat', 'Anggota SS Anak', 'Guru SS Anak', 'Anggota SS Dewasa', 'Guru SS Dewasa', 
+            'Pemimpin', 'Koordinator', 'Sekretaris'
         ];
         let isRoleEditMode = false;
         
