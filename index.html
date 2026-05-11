@@ -337,7 +337,7 @@
 
                         <div class="pt-2 border-t border-gray-100">
                             <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Nama Lengkap Jemaat</label>
-                            <input type="text" id="member-name" required placeholder="Ketik nama lengkap..." class="w-full mt-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-bold text-navy shadow-sm focus:bg-white" />
+                            <input type="text" id="member-name" placeholder="Ketik nama lengkap..." class="w-full mt-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-gold outline-none transition-all text-sm font-bold text-navy shadow-sm focus:bg-white" />
                         </div>
 
                         <div class="flex flex-col gap-2 pt-2">
@@ -1206,29 +1206,46 @@
         document.getElementById('member-form').onsubmit = (e) => {
             e.preventDefault();
             const id = document.getElementById('member-id').value;
-            const name = document.getElementById('member-name').value;
+            const name = document.getElementById('member-name').value.trim();
             let subClassInput = document.getElementById('member-subclass').value.trim();
-            
             let cat = document.getElementById('member-category').value;
             const checkedBoxes = Array.from(document.querySelectorAll('.role-checkbox:checked'));
+            
+            // --- VALIDASI WAJIB ISI (TIDAK BOLEH KOSONG) ---
+            if (!name) {
+                showToast("Validasi Gagal", "Nama lengkap jemaat wajib diisi!", "error");
+                document.getElementById('member-name').focus();
+                return;
+            }
+            if (!cat) {
+                showToast("Validasi Gagal", "Kategori utama wajib dipilih!", "error");
+                document.getElementById('member-category').focus();
+                return;
+            }
+            if (!subClassInput) {
+                showToast("Validasi Gagal", "Sub Kelas wajib diisi! (Ketik 'Umum' jika tidak ada)", "error");
+                document.getElementById('member-subclass').focus();
+                return;
+            }
+            if (checkedBoxes.length === 0) {
+                showToast("Validasi Gagal", "Minimal 1 Jabatan/Role wajib dipilih!", "error");
+                return;
+            }
+            // ----------------------------------------------
+
             let roleJoined = checkedBoxes.map(cb => cb.value).join(', ');
-            
-            let defaultRoleFallback = cat === 'Dewasa' ? 'Anggota Jemaat' : 'Anggota Anak';
-            if (!roleJoined) roleJoined = defaultRoleFallback;
-            
-            if (!name.trim()) return;
 
             if (id) {
                 const index = membersData.findIndex(m => m.id === id);
                 if (index !== -1) {
                     membersData[index].name = name;
                     membersData[index].category = cat;
-                    membersData[index].subClass = subClassInput || 'Umum';
+                    membersData[index].subClass = subClassInput;
                     membersData[index].role = roleJoined;
                 }
                 showToast("Berhasil", "Perubahan data jemaat disimpan", "success");
             } else {
-                membersData.push({ id: Date.now().toString(), name: name, category: cat, subClass: subClassInput || 'Umum', role: roleJoined });
+                membersData.push({ id: Date.now().toString(), name: name, category: cat, subClass: subClassInput, role: roleJoined });
                 showToast("Berhasil", "Jemaat baru ditambahkan ke database", "success");
             }
             
@@ -1248,9 +1265,10 @@
             
             updateRoleOptions();
             
-            let defaultRole = 'Anggota Jemaat';
-            const defaultCheck = document.querySelector(`.role-checkbox[value="${defaultRole}"]`);
-            if (defaultCheck) defaultCheck.checked = true;
+            // Auto-check dihilangkan agar Admin wajib mencentang secara sadar
+            // let defaultRole = 'Anggota Jemaat';
+            // const defaultCheck = document.querySelector(`.role-checkbox[value="${defaultRole}"]`);
+            // if (defaultCheck) defaultCheck.checked = true;
 
             document.getElementById('btn-save').textContent = "SIMPAN JEMAAT";
             document.getElementById('btn-cancel').classList.add('hidden');
