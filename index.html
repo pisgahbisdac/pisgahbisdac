@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PISGAH BISDAC - Matrix System v4.1</title>
+    <title>PISGAH BISDAC - Matrix System v4.2</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="PisgahWhite.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tambahan Library Chart.js untuk Grafik Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
@@ -78,6 +84,8 @@
         
         .loading-spinner { border: 5px solid rgba(212, 175, 55, 0.1); width: 50px; height: 50px; border-radius: 50%; border-left-color: var(--gold); animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Animasi masuk untuk Dashboard */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="min-h-screen pb-20">
@@ -85,8 +93,10 @@
     <header class="bg-[#0a192f]/95 border-b border-[#D4AF37]/50 p-6 sticky top-0 z-50 backdrop-blur-md">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-4">
-                <div class="p-3 bg-[#D4AF37] rounded-xl shadow-lg"><i class="fas fa-church text-[#0a192f] text-2xl"></i></div>
-                <div><h1 class="text-2xl font-black text-[#D4AF37]">PISGAH BISDAC</h1><p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Matrix System v4.1</p></div>
+                <div class="p-2 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-xl shadow-lg">
+                    <img src="PisgahWhite.png" alt="Logo" class="w-8 h-8 object-contain">
+                </div>
+                <div><h1 class="text-2xl font-black text-[#D4AF37]">PISGAH BISDAC</h1><p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Matrix System v4.2</p></div>
             </div>
             <div id="status" class="text-[10px] font-black border-2 border-[#D4AF37] text-[#D4AF37] px-4 py-2 rounded-full uppercase"><i class="fas fa-sync fa-spin mr-2"></i> Syncing...</div>
         </div>
@@ -94,13 +104,15 @@
 
     <main class="max-w-6xl mx-auto p-4 md:p-8">
         <div class="flex overflow-x-auto space-x-10 mb-10 no-scrollbar border-b border-white/10 py-2">
-            <button onclick="switchTab('khotbah')" id="btn-khotbah" class="pb-4 px-2 whitespace-nowrap tab-active text-lg uppercase font-black">Khotbah</button>
+            <!-- Tambahan Tab Dashboard -->
+            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="pb-4 px-2 whitespace-nowrap tab-active text-lg uppercase font-black">Dashboard</button>
+            <button onclick="switchTab('khotbah')" id="btn-khotbah" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Khotbah</button>
             <button onclick="switchTab('ss_dewasa')" id="btn-ss_dewasa" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">SS Dewasa</button>
             <button onclick="switchTab('ss_anak')" id="btn-ss_anak" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">SS Anak</button>
             <button onclick="switchTab('pendalaman')" id="btn-pendalaman" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Pendalaman</button>
             <button onclick="switchTab('kegiatan')" id="btn-kegiatan" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Kegiatan</button>
             <button onclick="switchTab('anggota')" id="btn-anggota" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Data Jemaat</button>
-            <button onclick="switchTab('unit')" id="btn-unit" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black text-[#D4AF37]">Kelola Unit</button>
+            <button onclick="switchTab('unit')" id="btn-unit" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black text-[#D4AF37]">Unit & Jabatan</button>
         </div>
 
         <div id="content-area"></div>
@@ -115,16 +127,19 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbzKhoegE49TJy_Rm1R2lJermJGzmt2zFqemWiyr4yth8eGbC0OzPNqxr7CutjQiVYkkow/exec";
         let members = [];
         let units = [];
-        let currentTab = 'khotbah';
+        let roles = [];
+        let statsData = { history: [] }; // Tambahan penampung statistik
+        // Ubah default tab awal menjadi dashboard
+        let currentTab = 'dashboard';
         
         // State Absensi
-        let memberAttendance = {}; // { 'id1': 'Hadir', 'id2': 'Alpha' }
+        let memberAttendance = {}; 
         
-        // State Form Data Jemaat
+        // State Form
         let editingMemberId = null;
         let editingUnitName = null;
-        let formSelectedRoles = ['Anggota']; // Default role
-        const availableRoles = ['Anggota', 'Guru', 'Pemimpin', 'Kordinator'];
+        let editingRoleName = null;
+        let formSelectedRoles = ['Anggota']; // Default form role
 
         async function init() {
             toggleLoading(true);
@@ -134,6 +149,8 @@
                 if(json.status === 'success') {
                     members = json.members;
                     units = json.units || [];
+                    roles = json.roles || ['Anggota', 'Guru', 'Pemimpin', 'Kordinator'];
+                    statsData = json.stats || { history: [] }; // Simpan data statistik dari backend
                     document.getElementById('status').innerHTML = '<i class="fas fa-check-circle mr-2"></i> Sinkron';
                     switchTab(currentTab);
                 }
@@ -147,8 +164,8 @@
             const btn = document.getElementById('btn-' + tabId);
             if(btn) btn.classList.add('tab-active');
             
-            // Reset state absen saat pindah tab agar bersih (Khotbah maupun Kelas)
-            if(['khotbah', 'ss_dewasa', 'ss_anak', 'pendalaman'].includes(tabId)) {
+            // Reset state absen saat pindah tab agar bersih
+            if(['khotbah', 'ss_dewasa', 'ss_anak', 'pendalaman', 'dashboard'].includes(tabId)) {
                 memberAttendance = {};
             }
             renderUI();
@@ -158,7 +175,9 @@
             const area = document.getElementById('content-area');
             const today = new Date().toISOString().split('T')[0];
 
-            if(currentTab === 'khotbah') {
+            if(currentTab === 'dashboard') {
+                renderDashboard(area);
+            } else if(currentTab === 'khotbah') {
                 area.innerHTML = `
                     <div class="glass p-8">
                         <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
@@ -228,14 +247,13 @@
             } else if(currentTab === 'anggota') {
                 renderMemberManager(area);
             } else if(currentTab === 'unit') {
-                renderUnitManager(area);
+                renderManagerAll(area);
             }
         }
 
         // --- RENDER KELAS (HADIR/ALPHA) ---
         function renderFilteredMembers(cat) {
             const filter = document.getElementById('unit-filter').value;
-            // Menjaga kompatibilitas database lama jika masih ada yang pakai data 'PA' untuk 'Pendalaman'
             let filtered = members.filter(m => m.kelasTetap === cat || (cat === 'Pendalaman' && m.kelasTetap === 'PA'));
             if(filter !== 'ALL') filtered = filtered.filter(m => m.unit === filter);
 
@@ -251,7 +269,6 @@
                     </div>
                     
                     <div class="flex flex-col w-full gap-4">
-                        <!-- Tombol Hadir / Alpha -->
                         <div class="flex gap-3 w-full">
                             <button id="btn-hadir-${m.id}" onclick="setAttendance('${m.id}', 'Hadir')" class="btn-hadir flex-1 ${att === 'Hadir' ? 'active' : ''}"><i class="fas fa-check mr-2"></i>HADIR</button>
                             <button id="btn-alpha-${m.id}" onclick="setAttendance('${m.id}', 'Alpha')" class="btn-alpha flex-1 ${att === 'Alpha' ? 'active' : ''}"><i class="fas fa-times mr-2"></i>ALPHA</button>
@@ -263,8 +280,6 @@
 
         function setAttendance(id, status) {
             memberAttendance[id] = status;
-            
-            // Update UI Warna Tombol
             const btnHadir = document.getElementById(`btn-hadir-${id}`);
             const btnAlpha = document.getElementById(`btn-alpha-${id}`);
             
@@ -281,7 +296,6 @@
         function renderMemberManager(area) {
             area.innerHTML = `
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Form Edit/Tambah -->
                     <div class="glass p-8 h-fit sticky top-32">
                         <h3 id="form-title" class="text-2xl font-black text-[#D4AF37] mb-8 uppercase text-center">Tambah Jemaat Baru</h3>
                         <div class="space-y-6">
@@ -300,7 +314,6 @@
                             <div>
                                 <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Jabatan (Bisa Pilih > 1)</label>
                                 <div id="m-jabatan-container" class="flex flex-wrap justify-center gap-2 mt-2">
-                                    <!-- Diisi oleh Javascript renderFormRoles() -->
                                 </div>
                             </div>
                             <div class="pt-4 flex gap-4">
@@ -309,7 +322,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- List Jemaat -->
                     <div class="lg:col-span-2 glass p-8">
                         <div class="flex justify-between items-end mb-8">
                             <h3 class="text-2xl font-black text-[#D4AF37] uppercase">Daftar Master Jemaat</h3>
@@ -341,7 +353,7 @@
         function renderFormRoles() {
             const container = document.getElementById('m-jabatan-container');
             if(!container) return;
-            container.innerHTML = availableRoles.map(role => `
+            container.innerHTML = roles.map(role => `
                 <button type="button" onclick="toggleFormRole('${role}')" class="role-btn text-xs ${formSelectedRoles.includes(role) ? 'active' : ''}">${role.toUpperCase()}</button>
             `).join('');
         }
@@ -363,7 +375,6 @@
             document.getElementById('m-cat').value = m.kelasTetap === 'PA' ? 'Pendalaman' : m.kelasTetap;
             document.getElementById('m-unit-select').value = m.unit;
             
-            // Konversi string jabatan (cth: "Guru, Pemimpin") menjadi array
             formSelectedRoles = m.jabatan ? m.jabatan.split(',').map(s => s.trim()) : ['Anggota'];
             renderFormRoles();
             
@@ -387,37 +398,266 @@
             document.getElementById('btn-cancel-member').classList.add('hidden');
         }
 
-        // --- RENDER MANAJEMEN UNIT ---
-        function renderUnitManager(area) {
+        // --- RENDER MANAJEMEN UNIT & JABATAN ---
+        function renderManagerAll(area) {
             area.innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Form Unit -->
-                    <div class="glass p-8 h-fit">
-                        <h3 id="unit-form-title" class="text-2xl font-black text-[#D4AF37] mb-8 uppercase text-center">Buat Unit Baru</h3>
-                        <div class="space-y-6">
-                            <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Nama Unit</label><input type="text" id="u-nama" placeholder="Contoh: Unit Efrata..."></div>
-                            <div class="pt-2 flex gap-4">
-                                <button onclick="saveUnit()" id="btn-save-unit" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN UNIT</button>
-                                <button onclick="cancelEditUnit()" id="btn-cancel-unit" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button>
+                <!-- BAGIAN UNIT -->
+                <div class="mb-16">
+                    <div class="flex items-center gap-4 mb-6"><h3 class="text-3xl font-black text-[#D4AF37] uppercase"><i class="fas fa-users mr-3"></i>Kelola Unit</h3></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="glass p-8 h-fit">
+                            <h3 id="unit-form-title" class="text-xl font-black text-[#D4AF37] mb-6 uppercase text-center">Buat Unit Baru</h3>
+                            <div class="space-y-6">
+                                <div><input type="text" id="u-nama" placeholder="Contoh: Unit Efrata..."></div>
+                                <div class="pt-2 flex gap-4">
+                                    <button onclick="saveUnit()" id="btn-save-unit" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN UNIT</button>
+                                    <button onclick="cancelEditUnit()" id="btn-cancel-unit" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="glass p-8">
+                            <div class="flex justify-between items-end mb-6">
+                                <h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Unit</h3>
+                                <span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${units.length} Unit</span>
+                            </div>
+                            <div class="space-y-4 max-h-[300px] overflow-y-auto pr-4 no-scrollbar">${units.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada unit.</p>' : units.map(u => `
+                                <div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
+                                    <div class="text-lg font-black text-white uppercase">${u}</div>
+                                    <div class="flex gap-2">
+                                        <button onclick="editUnit('${u}')" class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
+                                        <button onclick="deleteUnit('${u}')" class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>`).join('')}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BAGIAN JABATAN -->
+                <div class="mb-10">
+                    <div class="flex items-center gap-4 mb-6"><h3 class="text-3xl font-black text-[#D4AF37] uppercase"><i class="fas fa-star mr-3"></i>Kelola Jabatan</h3></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="glass p-8 h-fit">
+                            <h3 id="role-form-title" class="text-xl font-black text-[#D4AF37] mb-6 uppercase text-center">Buat Jabatan Baru</h3>
+                            <div class="space-y-6">
+                                <div><input type="text" id="r-nama" placeholder="Contoh: Sekretaris..."></div>
+                                <div class="pt-2 flex gap-4">
+                                    <button onclick="saveRole()" id="btn-save-role" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN JABATAN</button>
+                                    <button onclick="cancelEditRole()" id="btn-cancel-role" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="glass p-8">
+                            <div class="flex justify-between items-end mb-6">
+                                <h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Jabatan</h3>
+                                <span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${roles.length} Jabatan</span>
+                            </div>
+                            <div class="space-y-4 max-h-[300px] overflow-y-auto pr-4 no-scrollbar">${roles.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada jabatan.</p>' : roles.map(r => `
+                                <div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
+                                    <div class="text-lg font-black text-white uppercase">${r}</div>
+                                    <div class="flex gap-2">
+                                        <button onclick="editRole('${r}')" class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
+                                        <button onclick="deleteRole('${r}')" class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>`).join('')}</div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        // --- RENDER DASHBOARD (MOTIVASI & STATISTIK) ---
+        function renderDashboard(area) {
+            const quotes = [
+                '"Janganlah kita menjauhkan diri dari pertemuan-pertemuan ibadah kita..." - Ibrani 10:25',
+                '"Layanilah seorang akan yang lain, sesuai dengan karunia yang telah diperoleh..." - 1 Petrus 4:10',
+                '"Apa pun juga yang kamu perbuat, perbuatlah dengan segenap hatimu seperti untuk Tuhan..." - Kolose 3:23',
+                '"Bersukacitalah dalam pengharapan, sabarlah dalam kesesakan, dan bertekunlah dalam doa!" - Roma 12:12'
+            ];
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            
+            // Format hari ini
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const todayStr = new Date().toLocaleDateString('id-ID', options);
+
+            // Perhitungan Statistik Real-Time dari Riwayat Kehadiran (Hadir + Tamu)
+            const history = statsData.history || [];
+            
+            // Mingguan
+            const latestWeek = history.length > 0 ? history[history.length - 1].count : 0;
+            const prevWeek = history.length > 1 ? history[history.length - 2].count : 0;
+            const weekDiff = latestWeek - prevWeek;
+            const weekTrendIcon = weekDiff >= 0 ? '<i class="fas fa-arrow-up mr-1"></i>' : '<i class="fas fa-arrow-down mr-1"></i>';
+            const weekTrendClass = weekDiff >= 0 ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10';
+            const weekTrendText = weekDiff >= 0 ? `+${weekDiff} jiwa` : `${weekDiff} jiwa`;
+
+            // Bulanan (Rata-rata 4 minggu terakhir)
+            const last4 = history.slice(-4);
+            const monthAvg = last4.length > 0 ? Math.round(last4.reduce((sum, item) => sum + item.count, 0) / last4.length) : 0;
+
+            // Triwulanan (Rata-rata up to 12 minggu terakhir)
+            const qtrAvg = history.length > 0 ? Math.round(history.reduce((sum, item) => sum + item.count, 0) / history.length) : 0;
+            
+            area.innerHTML = `
+                <div class="mb-10 animate-[fadeIn_0.5s_ease-out]">
+                    
+                    <!-- Kotak Selamat Datang (Welcome Box) Menawan -->
+                    <div class="glass p-8 md:p-10 mb-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden border-t-4 border-t-[#D4AF37] shadow-2xl">
+                        <!-- Efek cahaya (Glow) di belakang logo -->
+                        <div class="absolute -left-10 -top-10 w-48 h-48 bg-[#D4AF37] rounded-full blur-[80px] opacity-20 pointer-events-none"></div>
+                        
+                        <!-- Logo Pisgah -->
+                        <div class="relative shrink-0 z-10">
+                            <img src="PisgahWhite.png" alt="Pisgah Logo" class="w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-[0_0_20px_rgba(212,175,55,0.4)]">
+                        </div>
+                        
+                        <!-- Teks Sambutan -->
+                        <div class="text-center md:text-left z-10 flex-1">
+                            <h2 class="text-3xl md:text-4xl font-black text-[#D4AF37] mb-3 uppercase tracking-wide">Selamat Datang!</h2>
+                            <p class="text-lg text-slate-200 font-medium mb-6">Di Matrix System PISGAH BISDAC v4.2. Kelola kehadiran, data jemaat, dan kegiatan gereja dengan lebih terstruktur.</p>
+                            <div class="inline-flex items-center gap-3 bg-[#0a192f]/50 border border-[#D4AF37]/30 px-5 py-2.5 rounded-full shadow-inner">
+                                <i class="fas fa-calendar-alt text-[#D4AF37]"></i>
+                                <span class="text-sm font-bold text-slate-300 uppercase tracking-widest">${todayStr}</span>
                             </div>
                         </div>
                     </div>
-                    <!-- List Unit -->
-                    <div class="glass p-8">
-                        <div class="flex justify-between items-end mb-8">
-                            <h3 class="text-2xl font-black text-[#D4AF37] uppercase">Daftar Unit Tersedia</h3>
-                            <span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${units.length} Unit</span>
+
+                    <!-- Card Motivasi -->
+                    <div class="glass p-10 mb-10 text-center relative overflow-hidden">
+                        <div class="absolute -right-6 -top-6 text-gold/10 text-9xl"><i class="fas fa-quote-right"></i></div>
+                        <h3 class="text-xl md:text-3xl font-black text-white italic relative z-10 leading-relaxed max-w-4xl mx-auto drop-shadow-md">
+                            ${randomQuote}
+                        </h3>
+                        <div class="mt-6 inline-block bg-[#D4AF37]/20 px-6 py-2 rounded-full border border-[#D4AF37]/30">
+                            <p class="text-[#D4AF37] font-black tracking-widest uppercase text-xs relative z-10">Motivasi Sabat Ini</p>
                         </div>
-                        <div class="space-y-4 max-h-[600px] overflow-y-auto pr-4 no-scrollbar">${units.length === 0 ? '<p class="text-slate-400 italic text-center py-10">Belum ada unit yang dibuat.</p>' : units.map(u => `
-                            <div class="p-6 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
-                                <div class="text-xl font-black text-white uppercase"><i class="fas fa-users text-gold mr-3"></i>${u}</div>
-                                <div class="flex gap-3">
-                                    <button onclick="editUnit('${u}')" class="text-yellow-500 bg-yellow-500/10 px-4 py-3 hover:bg-yellow-500 hover:text-[#0a192f] rounded-xl font-bold transition-all"><i class="fas fa-pen"></i></button>
-                                    <button onclick="deleteUnit('${u}')" class="text-red-400 bg-red-400/10 px-4 py-3 hover:bg-red-500 hover:text-white rounded-xl font-bold transition-all"><i class="fas fa-trash"></i></button>
-                                </div>
-                            </div>`).join('')}</div>
                     </div>
-                </div>`;
+                    
+                    <h3 class="text-2xl font-black text-[#D4AF37] uppercase mb-6"><i class="fas fa-chart-line mr-3"></i>Perbandingan Kehadiran Khotbah</h3>
+                    
+                    <!-- Grid 4 Stats (Data Real-Time) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                        <!-- Mingguan -->
+                        <div class="glass p-6 border-l-4 border-l-blue-400 relative overflow-hidden group hover:bg-white/5 transition-all">
+                            <i class="fas fa-calendar-week absolute -right-4 -bottom-4 text-7xl text-blue-400/10 group-hover:scale-110 transition-transform"></i>
+                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Kehadiran Terakhir</div>
+                            <div class="text-4xl font-black text-white mb-2 relative z-10">${latestWeek}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
+                            <div class="text-xs font-bold ${weekTrendClass} relative z-10 inline-block px-3 py-1 rounded-lg">${weekTrendIcon} ${weekTrendText}</div>
+                        </div>
+                        <!-- Bulanan -->
+                        <div class="glass p-6 border-l-4 border-l-green-400 relative overflow-hidden group hover:bg-white/5 transition-all">
+                            <i class="fas fa-calendar-alt absolute -right-4 -bottom-4 text-7xl text-green-400/10 group-hover:scale-110 transition-transform"></i>
+                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Rata-rata Bulanan</div>
+                            <div class="text-4xl font-black text-white mb-2 relative z-10">${monthAvg}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
+                            <div class="text-xs font-bold text-green-400 relative z-10 bg-green-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-chart-bar mr-1"></i> 4 Pekan Terakhir</div>
+                        </div>
+                        <!-- Triwulanan -->
+                        <div class="glass p-6 border-l-4 border-l-yellow-400 relative overflow-hidden group hover:bg-white/5 transition-all">
+                            <i class="fas fa-chart-pie absolute -right-4 -bottom-4 text-7xl text-yellow-400/10 group-hover:scale-110 transition-transform"></i>
+                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Rata-rata Triwulan</div>
+                            <div class="text-4xl font-black text-white mb-2 relative z-10">${qtrAvg}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
+                            <div class="text-xs font-bold text-yellow-400 relative z-10 bg-yellow-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-history mr-1"></i> 12 Pekan Terakhir</div>
+                        </div>
+                        <!-- Tahunan -->
+                        <div class="glass p-6 border-l-4 border-l-purple-400 relative overflow-hidden group hover:bg-white/5 transition-all">
+                            <i class="fas fa-globe absolute -right-4 -bottom-4 text-7xl text-purple-400/10 group-hover:scale-110 transition-transform"></i>
+                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Total Jemaat Terdaftar</div>
+                            <div class="text-4xl font-black text-white mb-2 relative z-10">${members.length}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
+                            <div class="text-xs font-bold text-purple-400 relative z-10 bg-purple-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-users mr-1"></i> Database Sistem</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Area -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="glass p-8">
+                            <h4 class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Simulasi Kehadiran Bulanan</h4>
+                            <div class="relative h-64"><canvas id="chartBulanan"></canvas></div>
+                        </div>
+                        <div class="glass p-8">
+                            <h4 class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Komposisi Unit Real-Time</h4>
+                            <div class="relative h-64 flex justify-center"><canvas id="chartUnit"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Render grafik setelah elemen HTML dimuat
+            setTimeout(initCharts, 100);
+        }
+
+        function initCharts() {
+            const ctxBulanan = document.getElementById('chartBulanan');
+            const ctxUnit = document.getElementById('chartUnit');
+            
+            // Bersihkan chart lama jika ada agar tidak tertumpuk
+            if(window.myChartBulanan) window.myChartBulanan.destroy();
+            if(window.myChartUnit) window.myChartUnit.destroy();
+
+            // Setup Grafik Bulanan (Menggunakan Data Asli Khotbah 4 Pekan Terakhir)
+            if(ctxBulanan) {
+                const history = statsData.history || [];
+                const last4 = history.slice(-4);
+                
+                // Jika belum ada data, siapkan data kosong agar grafik tetap tampil rapi
+                const labels = last4.length > 0 ? last4.map(h => h.date) : ['Belum ada data'];
+                const dataPoints = last4.length > 0 ? last4.map(h => h.count) : [0];
+
+                window.myChartBulanan = new Chart(ctxBulanan, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Total Kehadiran',
+                            data: dataPoints,
+                            borderColor: '#D4AF37',
+                            backgroundColor: 'rgba(212, 175, 55, 0.2)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#0a192f',
+                            pointBorderColor: '#D4AF37',
+                            pointRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0', precision: 0 } },
+                            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0' } }
+                        }
+                    }
+                });
+            }
+            
+            // Setup Grafik Unit (Mengambil data asli secara Real-Time)
+            if(ctxUnit) {
+                const unitCounts = {};
+                members.forEach(m => {
+                    const u = m.unit || 'Umum';
+                    unitCounts[u] = (unitCounts[u] || 0) + 1;
+                });
+                
+                window.myChartUnit = new Chart(ctxUnit, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(unitCounts),
+                        datasets: [{
+                            data: Object.values(unitCounts),
+                            backgroundColor: ['#D4AF37', '#10B981', '#3B82F6', '#8B5CF6', '#EF4444', '#F59E0B', '#ec4899', '#14b8a6'],
+                            borderWidth: 2,
+                            borderColor: '#0a192f'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: { position: 'right', labels: { color: '#e6f1ff', font: { family: 'Plus Jakarta Sans' } } }
+                        }
+                    }
+                });
+            }
         }
 
         function editUnit(name) {
@@ -439,20 +679,51 @@
         async function saveUnit() {
             const nama = document.getElementById('u-nama').value.trim();
             if(!nama) return showToast("NAMA UNIT KOSONG!", "error");
-            
-            if(editingUnitName) {
-                await send({ action: 'updateUnit', data: { oldName: editingUnitName, newName: nama } });
-            } else {
+            if(editingUnitName) await send({ action: 'updateUnit', data: { oldName: editingUnitName, newName: nama } });
+            else {
                 if(units.includes(nama)) return showToast("UNIT SUDAH ADA!", "error");
                 await send({ action: 'addUnit', data: nama });
             }
-            editingUnitName = null;
-            init();
+            editingUnitName = null; init();
         }
 
         async function deleteUnit(name) {
-            if(!confirm(`Hapus unit "${name}"?\n(Anggota di unit ini akan otomatis dipindah ke 'Umum')`)) return;
+            if(!confirm(`Hapus unit "${name}"?\n(Anggota di unit ini akan dipindah ke 'Umum')`)) return;
             await send({ action: 'deleteUnit', data: name });
+            init();
+        }
+
+        // --- FUNGSI CRUD JABATAN ---
+        function editRole(name) {
+            editingRoleName = name;
+            document.getElementById('role-form-title').innerText = "Ubah Nama Jabatan";
+            document.getElementById('r-nama').value = name;
+            document.getElementById('btn-save-role').innerText = "UPDATE JABATAN";
+            document.getElementById('btn-cancel-role').classList.remove('hidden');
+        }
+
+        function cancelEditRole() {
+            editingRoleName = null;
+            document.getElementById('role-form-title').innerText = "Buat Jabatan Baru";
+            document.getElementById('r-nama').value = '';
+            document.getElementById('btn-save-role').innerText = "SIMPAN JABATAN";
+            document.getElementById('btn-cancel-role').classList.add('hidden');
+        }
+
+        async function saveRole() {
+            const nama = document.getElementById('r-nama').value.trim();
+            if(!nama) return showToast("NAMA JABATAN KOSONG!", "error");
+            if(editingRoleName) await send({ action: 'updateRole', data: { oldName: editingRoleName, newName: nama } });
+            else {
+                if(roles.includes(nama)) return showToast("JABATAN SUDAH ADA!", "error");
+                await send({ action: 'addRole', data: nama });
+            }
+            editingRoleName = null; init();
+        }
+
+        async function deleteRole(name) {
+            if(!confirm(`Hapus jabatan "${name}"?\n(Jabatan ini akan dihapus dari seluruh jemaat yang memilikinya)`)) return;
+            await send({ action: 'deleteRole', data: name });
             init();
         }
 
@@ -461,47 +732,34 @@
             const tgl = formatDate(document.getElementById('tgl').value);
             const tamu = document.getElementById('tamu').value;
             const records = [];
-            
-            // Loop seluruh jemaat dan cek state memberAttendance
             members.forEach(m => {
                 const status = memberAttendance[m.id];
-                if(status === 'Hadir' || status === 'Alpha') {
-                    records.push({ memberId: m.id, nama: m.nama, status: status });
-                }
+                if(status === 'Hadir' || status === 'Alpha') records.push({ memberId: m.id, nama: m.nama, status: status });
             });
-
             if(records.length === 0) return showToast("BELUM ADA DATA ABSEN YANG DIISI!", "error");
             await send({ action: 'submitAttendance', data: { type: 'khotbah', tanggal: tgl, tamu, records } });
-            memberAttendance = {}; // Reset setelah simpan
-            renderUI();
+            memberAttendance = {}; renderUI();
         }
 
         async function submitKelas(cat) {
             const tgl = formatDate(document.getElementById('tgl').value);
             const tamu = document.getElementById('tamu').value;
             const records = [];
-            
-            // Loop jemaat berdasarkan kategori (termasuk kompatibilitas PA ke Pendalaman)
             members.forEach(m => {
                 if(m.kelasTetap === cat || (cat === 'Pendalaman' && m.kelasTetap === 'PA')) {
                     const status = memberAttendance[m.id];
-                    if(status === 'Hadir' || status === 'Alpha') {
-                        records.push({ memberId: m.id, nama: m.nama, status: status });
-                    }
+                    if(status === 'Hadir' || status === 'Alpha') records.push({ memberId: m.id, nama: m.nama, status: status });
                 }
             });
-
             if(records.length === 0) return showToast("BELUM ADA DATA ABSEN YANG DIISI!", "error");
             await send({ action: 'submitAttendance', data: { type: 'sekolah_sabat', category: cat, tanggal: tgl, tamu, records } });
-            memberAttendance = {}; // Reset setelah simpan
-            renderUI();
+            memberAttendance = {}; renderUI();
         }
 
         async function submitKegiatan() {
             const tgl = formatDate(document.getElementById('tgl').value);
             const poin = Array.from({length: 10}).map((_, i) => document.getElementById(`k-${i}`).value);
             await send({ action: 'submitAttendance', data: { type: 'kegiatan', tanggal: tgl, poin } });
-            // Reset input
             Array.from({length: 10}).forEach((_, i) => document.getElementById(`k-${i}`).value = "0");
         }
 
@@ -511,19 +769,12 @@
                 status: document.getElementById('m-status').value,
                 unit: document.getElementById('m-unit-select').value,
                 kelasTetap: document.getElementById('m-cat').value,
-                // Gabungkan jabatan yang dipilih dengan tanda koma. Jika kosong, default 'Anggota'
                 jabatan: formSelectedRoles.length > 0 ? formSelectedRoles.join(', ') : 'Anggota'
             };
             if(!payload.nama) return showToast("NAMA KOSONG!", "error");
-            
-            if(editingMemberId) {
-                payload.id = editingMemberId;
-                await send({ action: 'updateMember', data: payload });
-            } else {
-                await send({ action: 'addMember', data: payload });
-            }
-            editingMemberId = null;
-            init();
+            if(editingMemberId) { payload.id = editingMemberId; await send({ action: 'updateMember', data: payload }); } 
+            else await send({ action: 'addMember', data: payload });
+            editingMemberId = null; init();
         }
 
         async function deleteMember(id, nama) {
