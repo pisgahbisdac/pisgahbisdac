@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PISGAH BISDAC - Matrix System v4.2</title>
+    <title>PISGAH BISDAC - Matrix System v4.4</title>
     
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="PisgahWhite.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tambahan Library Chart.js untuk Grafik Dashboard -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -24,58 +22,30 @@
         .tab-active { border-bottom: 4px solid var(--gold); color: var(--gold); font-weight: 800; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Kotak pilihan dengan gaya Glassmorphism, Membulat & Centered */
         input, select { 
             background: rgba(10, 25, 47, 0.4) !important; 
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             border: 2px solid rgba(212, 175, 55, 0.6) !important; 
             color: var(--gold) !important; 
-            padding: 1.8rem 1.5rem; /* Padding vertikal ditinggikan sekitar 50% */
-            border-radius: 9999px; /* Bentuk kapsul (pill-shape) membulat penuh */
-            font-weight: 800; 
-            font-size: 1.2rem; 
-            width: 100%; 
-            outline: none;
-            transition: all 0.3s ease;
-            text-align: center;
+            padding: 1.8rem 1.5rem; border-radius: 9999px; 
+            font-weight: 800; font-size: 1.2rem; width: 100%; outline: none; transition: all 0.3s ease; text-align: center;
             box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
         }
         input:focus, select:focus { 
-            border-color: var(--gold) !important;
-            background: rgba(17, 34, 64, 0.8) !important;
+            border-color: var(--gold) !important; background: rgba(17, 34, 64, 0.8) !important;
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.3), inset 0 2px 10px rgba(0, 0, 0, 0.3); 
         }
+        input:disabled, select:disabled { opacity: 0.6; cursor: not-allowed; }
         input::placeholder { color: rgba(212, 175, 55, 0.3); }
-        ::-webkit-calendar-picker-indicator {
-            filter: invert(75%) sepia(40%) saturate(400%) hue-rotate(5deg) brightness(95%) contrast(90%);
-            cursor: pointer; opacity: 0.7; transition: 0.2s;
-        }
+        ::-webkit-calendar-picker-indicator { filter: invert(75%) sepia(40%) saturate(400%) hue-rotate(5deg) brightness(95%) contrast(90%); cursor: pointer; opacity: 0.7; transition: 0.2s; }
         ::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
         
-        /* Menghilangkan panah scroll (spinner) pada kotak angka */
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            appearance: none;
-            margin: 0;
-        }
-        input[type="number"] {
-            -moz-appearance: textfield; 
-            appearance: textfield; 
-        }
-        
-        /* Tombol Role & Hadir/Alpha */
-        .role-btn { 
-            padding: 0.6rem 1.2rem; border: 2px solid var(--gold); border-radius: 0.75rem; 
-            font-size: 0.85rem; font-weight: 800; color: var(--gold); transition: all 0.2s;
-            background: transparent; cursor: pointer;
-        }
+        .role-btn { padding: 0.6rem 1.2rem; border: 2px solid var(--gold); border-radius: 0.75rem; font-size: 0.85rem; font-weight: 800; color: var(--gold); transition: all 0.2s; background: transparent; cursor: pointer; }
         .role-btn.active { background: var(--gold); color: var(--navy); box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
-
         .btn-hadir { padding: 0.8rem 1.5rem; border: 2px solid #10B981; border-radius: 0.75rem; color: #10B981; font-weight: 800; font-size: 0.9rem; transition: 0.2s; background: transparent; cursor: pointer; }
         .btn-hadir.active { background: #10B981; color: white; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
-        
         .btn-alpha { padding: 0.8rem 1.5rem; border: 2px solid #EF4444; border-radius: 0.75rem; color: #EF4444; font-weight: 800; font-size: 0.9rem; transition: 0.2s; background: transparent; cursor: pointer; }
         .btn-alpha.active { background: #EF4444; color: white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
         
@@ -84,62 +54,107 @@
         
         .loading-spinner { border: 5px solid rgba(212, 175, 55, 0.1); width: 50px; height: 50px; border-radius: 50%; border-left-color: var(--gold); animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* Animasi masuk untuk Dashboard */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="min-h-screen pb-20">
 
-    <header class="bg-[#0a192f]/95 border-b border-[#D4AF37]/50 p-6 sticky top-0 z-50 backdrop-blur-md">
+    <!-- NAVBAR HEADER -->
+    <header class="bg-[#0a192f]/95 border-b border-[#D4AF37]/50 p-6 sticky top-0 z-40 backdrop-blur-md">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <div class="p-2 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-xl shadow-lg">
                     <img src="PisgahWhite.png" alt="Logo" class="w-8 h-8 object-contain">
                 </div>
-                <div><h1 class="text-2xl font-black text-[#D4AF37]">PISGAH BISDAC</h1><p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Matrix System v4.2</p></div>
+                <div><h1 class="text-xl md:text-2xl font-black text-[#D4AF37]">PISGAH BISDAC</h1><p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Matrix System v4.4</p></div>
             </div>
-            <div id="status" class="text-[10px] font-black border-2 border-[#D4AF37] text-[#D4AF37] px-4 py-2 rounded-full uppercase"><i class="fas fa-sync fa-spin mr-2"></i> Syncing...</div>
+            <div class="flex items-center gap-4">
+                <div id="user-info" class="text-right hidden md:block">
+                    <div class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Status Akses:</div>
+                    <div id="user-role-text" class="text-xs text-[#D4AF37] font-black uppercase">Publik</div>
+                </div>
+                <button onclick="showChangePin()" id="btn-changepin" class="hidden bg-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#D4AF37] px-4 py-2 rounded-full text-xs font-black uppercase hover:bg-[#D4AF37] hover:text-[#0a192f] transition-all shadow-lg"><i class="fas fa-key mr-1"></i>Ganti PIN</button>
+                <button onclick="showLogin()" id="btn-login" class="bg-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#D4AF37] px-5 py-2 rounded-full text-xs font-black uppercase hover:bg-[#D4AF37] hover:text-[#0a192f] transition-all shadow-lg"><i class="fas fa-sign-in-alt mr-2"></i>Login</button>
+                <button onclick="logout()" id="btn-logout" class="hidden bg-red-500/20 border border-red-500/50 text-red-400 px-5 py-2 rounded-full text-xs font-black uppercase hover:bg-red-500 hover:text-white transition-all shadow-lg"><i class="fas fa-sign-out-alt mr-2"></i>Keluar</button>
+            </div>
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto p-4 md:p-8">
-        <div class="flex overflow-x-auto space-x-10 mb-10 no-scrollbar border-b border-white/10 py-2">
-            <!-- Tambahan Tab Dashboard -->
+        <!-- TABS NAV -->
+        <div id="tab-container" class="flex overflow-x-auto space-x-10 mb-10 no-scrollbar border-b border-white/10 py-2">
             <button onclick="switchTab('dashboard')" id="btn-dashboard" class="pb-4 px-2 whitespace-nowrap tab-active text-lg uppercase font-black">Dashboard</button>
-            <button onclick="switchTab('khotbah')" id="btn-khotbah" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Khotbah</button>
-            <button onclick="switchTab('ss_dewasa')" id="btn-ss_dewasa" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">SS Dewasa</button>
-            <button onclick="switchTab('ss_anak')" id="btn-ss_anak" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">SS Anak</button>
-            <button onclick="switchTab('pendalaman')" id="btn-pendalaman" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Pendalaman</button>
-            <button onclick="switchTab('kegiatan')" id="btn-kegiatan" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Kegiatan</button>
-            <button onclick="switchTab('anggota')" id="btn-anggota" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Data Jemaat</button>
-            <button onclick="switchTab('unit')" id="btn-unit" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black text-[#D4AF37]">Unit & Jabatan</button>
+            <button onclick="switchTab('khotbah')" id="btn-khotbah" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Khotbah</button>
+            <button onclick="switchTab('ss_dewasa')" id="btn-ss_dewasa" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">SS Dewasa</button>
+            <button onclick="switchTab('ss_anak')" id="btn-ss_anak" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">SS Anak</button>
+            <button onclick="switchTab('pendalaman')" id="btn-pendalaman" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Pendalaman</button>
+            <button onclick="switchTab('kegiatan')" id="btn-kegiatan" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Kegiatan</button>
+            <button onclick="switchTab('anggota')" id="btn-anggota" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Data Jemaat</button>
+            <button onclick="switchTab('unit')" id="btn-unit" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Unit & Jabatan</button>
+            <!-- TAB BARU: KELOLA ADMIN -->
+            <button onclick="switchTab('admin')" id="btn-admin" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Kelola Admin</button>
         </div>
 
         <div id="content-area"></div>
     </main>
 
-    <div id="loading" class="fixed inset-0 bg-[#0a192f]/98 flex items-center justify-center z-[200] hidden">
-        <div class="flex flex-col items-center"><div class="loading-spinner mb-6"></div><p class="text-[#D4AF37] font-black tracking-widest text-xl animate-pulse uppercase">Memproses Data...</p></div>
+    <!-- MODAL LOGIN -->
+    <div id="login-modal" class="fixed inset-0 bg-[#0a192f]/90 flex items-center justify-center z-[300] hidden backdrop-blur-md">
+        <div class="glass p-10 max-w-sm w-full mx-4 text-center border-t-4 border-t-[#D4AF37] shadow-2xl animate-[fadeIn_0.3s_ease-out]">
+            <div class="mb-4"><i class="fas fa-user-shield text-5xl text-[#D4AF37]"></i></div>
+            <h3 class="text-2xl font-black text-[#D4AF37] mb-2 uppercase tracking-wide">Akses Masuk</h3>
+            <p class="text-xs text-slate-300 mb-8 font-medium">Masukkan PIN Admin atau PIN Unit Anda</p>
+            <input type="password" id="login-pin" class="mb-8 tracking-[1rem]" placeholder="****" maxlength="6">
+            <div class="flex gap-4">
+                <button onclick="processLogin()" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-full font-black uppercase shadow-lg hover:bg-yellow-400 transition-all text-sm">Masuk</button>
+                <button onclick="document.getElementById('login-modal').classList.add('hidden')" class="flex-1 bg-slate-600 text-white py-4 rounded-full font-black uppercase shadow-lg hover:bg-slate-500 transition-all text-sm">Batal</button>
+            </div>
+        </div>
     </div>
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-[#D4AF37] text-[#0a192f] px-10 py-4 rounded-full opacity-0 transition-all z-[100] font-black uppercase shadow-2xl text-center min-w-[300px]">Pesan</div>
+
+    <!-- MODAL GANTI PIN -->
+    <div id="changepin-modal" class="fixed inset-0 bg-[#0a192f]/90 flex items-center justify-center z-[300] hidden backdrop-blur-md">
+        <div class="glass p-10 max-w-sm w-full mx-4 text-center border-t-4 border-t-[#D4AF37] shadow-2xl animate-[fadeIn_0.3s_ease-out]">
+            <div class="mb-4"><i class="fas fa-key text-5xl text-[#D4AF37]"></i></div>
+            <h3 class="text-2xl font-black text-[#D4AF37] mb-2 uppercase tracking-wide">Ganti PIN</h3>
+            <p class="text-xs text-slate-300 mb-8 font-medium">Masukkan PIN Lama dan PIN Baru Anda</p>
+            <input type="password" id="cp-old" class="mb-4 tracking-[1rem]" placeholder="PIN LAMA" maxlength="6">
+            <input type="password" id="cp-new" class="mb-8 tracking-[1rem]" placeholder="PIN BARU" maxlength="6">
+            <div class="flex gap-4">
+                <button onclick="processChangePin()" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-full font-black uppercase shadow-lg hover:bg-yellow-400 transition-all text-sm">Simpan</button>
+                <button onclick="document.getElementById('changepin-modal').classList.add('hidden')" class="flex-1 bg-slate-600 text-white py-4 rounded-full font-black uppercase shadow-lg hover:bg-slate-500 transition-all text-sm">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOADING & TOAST -->
+    <div id="loading" class="fixed inset-0 bg-[#0a192f]/98 flex items-center justify-center z-[400] flex-col">
+        <div class="loading-spinner mb-6"></div>
+        <p class="text-[#D4AF37] font-black tracking-widest text-xl animate-pulse uppercase">Memproses Data...</p>
+    </div>
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-[#D4AF37] text-[#0a192f] px-10 py-4 rounded-full opacity-0 transition-all z-[500] font-black uppercase shadow-2xl text-center min-w-[300px]">Pesan</div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzKhoegE49TJy_Rm1R2lJermJGzmt2zFqemWiyr4yth8eGbC0OzPNqxr7CutjQiVYkkow/exec";
-        let members = [];
-        let units = [];
-        let roles = [];
-        let statsData = { history: [] }; // Tambahan penampung statistik
-        // Ubah default tab awal menjadi dashboard
-        let currentTab = 'dashboard';
         
-        // State Absensi
+        // Data dari Backend
+        let members = [];
+        let units = []; // Array of {name: 'Unit A', pin: '1234'}
+        let roles = [];
+        let admins = []; // Array of {username: 'Master', pin: '12345'}
+        let statsData = { history: [] }; 
+        
+        // State User & UI
+        let currentUser = { role: 'public', unitName: null, adminName: null }; // 'public', 'unit', 'admin'
+        let currentTab = 'dashboard';
         let memberAttendance = {}; 
         
-        // State Form
+        // State Form Manage
         let editingMemberId = null;
         let editingUnitName = null;
         let editingRoleName = null;
-        let formSelectedRoles = ['Anggota']; // Default form role
+        let editingAdminUsername = null;
+        let formSelectedRoles = ['Anggota']; 
 
         async function init() {
             toggleLoading(true);
@@ -147,33 +162,183 @@
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getInitialData' }) });
                 const json = await res.json();
                 if(json.status === 'success') {
-                    members = json.members;
+                    members = json.members || [];
                     units = json.units || [];
                     roles = json.roles || ['Anggota', 'Guru', 'Pemimpin', 'Kordinator'];
-                    statsData = json.stats || { history: [] }; // Simpan data statistik dari backend
-                    document.getElementById('status').innerHTML = '<i class="fas fa-check-circle mr-2"></i> Sinkron';
+                    admins = json.admins || [];
+                    statsData = json.stats || { history: [] }; 
+                    
+                    renderTabs();
                     switchTab(currentTab);
                 }
             } catch(e) { console.error(e); }
             toggleLoading(false);
         }
 
+        // --- SISTEM LOGIN & AKSES ---
+        function showLogin() {
+            document.getElementById('login-pin').value = '';
+            document.getElementById('login-modal').classList.remove('hidden');
+            document.getElementById('login-pin').focus();
+        }
+
+        function processLogin() {
+            const pin = document.getElementById('login-pin').value.trim();
+            if(!pin) return showToast("Masukkan PIN Anda!", "error");
+
+            // Cek di tabel Admin terlebih dahulu
+            const foundAdmin = admins.find(a => String(a.pin) === pin);
+            
+            if (foundAdmin) {
+                currentUser = { role: 'admin', unitName: 'ALL', adminName: foundAdmin.username };
+                showToast(`Berhasil Login sebagai ${foundAdmin.username}`);
+            } else {
+                // Jika bukan admin, cek di tabel Unit
+                const foundUnit = units.find(u => {
+                    const uPin = typeof u === 'object' && u !== null ? u.pin : null;
+                    return String(uPin) === pin;
+                });
+                
+                if (foundUnit) {
+                    const uName = typeof foundUnit === 'object' && foundUnit !== null ? foundUnit.name : foundUnit;
+                    currentUser = { role: 'unit', unitName: uName, adminName: null };
+                    showToast(`Berhasil Login sebagai ${uName}`);
+                } else {
+                    return showToast("PIN SALAH ATAU TIDAK DITEMUKAN!", "error");
+                }
+            }
+            
+            document.getElementById('login-modal').classList.add('hidden');
+            updateHeaderUI();
+            renderTabs();
+            switchTab('dashboard');
+        }
+
+        function updateHeaderUI() {
+            const txtRole = document.getElementById('user-role-text');
+            const btnLogin = document.getElementById('btn-login');
+            const btnLogout = document.getElementById('btn-logout');
+            const btnChangePin = document.getElementById('btn-changepin');
+            
+            if(currentUser.role === 'public') {
+                txtRole.innerText = 'Publik';
+                txtRole.style.color = '#94a3b8'; // Slate
+                btnLogin.classList.remove('hidden');
+                btnLogout.classList.add('hidden');
+                btnChangePin.classList.add('hidden');
+            } else if (currentUser.role === 'admin') {
+                txtRole.innerText = `ADMIN: ${currentUser.adminName}`;
+                txtRole.style.color = '#D4AF37'; // Gold
+                btnLogin.classList.add('hidden');
+                btnLogout.classList.remove('hidden');
+                btnChangePin.classList.remove('hidden');
+            } else {
+                txtRole.innerText = `UNIT ${currentUser.unitName}`;
+                txtRole.style.color = '#10B981'; // Green
+                btnLogin.classList.add('hidden');
+                btnLogout.classList.remove('hidden');
+                btnChangePin.classList.remove('hidden');
+            }
+        }
+
+        function renderTabs() {
+            const role = currentUser.role;
+            const toggleTab = (id, show) => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = show ? 'block' : 'none';
+            };
+            
+            toggleTab('btn-dashboard', true); // Semua bisa lihat dashboard
+            toggleTab('btn-khotbah', role !== 'public');
+            toggleTab('btn-ss_dewasa', role !== 'public');
+            toggleTab('btn-ss_anak', role !== 'public');
+            toggleTab('btn-pendalaman', role !== 'public');
+            toggleTab('btn-kegiatan', role === 'admin');
+            toggleTab('btn-anggota', role === 'admin');
+            toggleTab('btn-unit', role === 'admin');
+            toggleTab('btn-admin', role === 'admin');
+        }
+
         function switchTab(tabId) {
             currentTab = tabId;
-            document.querySelectorAll('button[id^="btn-"]').forEach(b => b.classList.remove('tab-active', 'text-slate-400'));
+            document.querySelectorAll('button[id^="btn-"]').forEach(b => {
+                b.classList.remove('tab-active');
+                if (b.id !== 'btn-' + tabId) b.classList.add('text-slate-400');
+            });
             const btn = document.getElementById('btn-' + tabId);
-            if(btn) btn.classList.add('tab-active');
-            
-            // Reset state absen saat pindah tab agar bersih
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('tab-active');
+            }
             if(['khotbah', 'ss_dewasa', 'ss_anak', 'pendalaman', 'dashboard'].includes(tabId)) {
                 memberAttendance = {};
             }
             renderUI();
         }
 
+        function logout() {
+            currentUser = { role: 'public', unitName: null, adminName: null };
+            updateHeaderUI();
+            renderTabs();
+            switchTab('dashboard');
+            showToast("Anda telah keluar.");
+        }
+
+        // --- GANTI PIN LOGIC ---
+        function showChangePin() {
+            document.getElementById('cp-old').value = '';
+            document.getElementById('cp-new').value = '';
+            document.getElementById('changepin-modal').classList.remove('hidden');
+            document.getElementById('cp-old').focus();
+        }
+
+        async function processChangePin() {
+            const oldPin = document.getElementById('cp-old').value.trim();
+            const newPin = document.getElementById('cp-new').value.trim();
+            if(!oldPin || !newPin) return showToast("Semua kolom harus diisi!", "error");
+            
+            const identifier = currentUser.role === 'admin' ? currentUser.adminName : currentUser.unitName;
+            
+            toggleLoading(true);
+            try {
+                const res = await fetch(API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: 'changePin', 
+                        data: { role: currentUser.role, identifier: identifier, oldPin: oldPin, newPin: newPin } 
+                    }) 
+                });
+                const json = await res.json();
+                if(json.status === 'success') {
+                    showToast("PIN BERHASIL DIUBAH!");
+                    document.getElementById('changepin-modal').classList.add('hidden');
+                    init(); // refresh data agar sinkron
+                } else {
+                    showToast(json.message || "Gagal mengubah PIN", "error");
+                }
+            } catch(e) {
+                showToast("KONEKSI GAGAL!", "error");
+            }
+            toggleLoading(false);
+        }
+
+        // --- RENDER HALAMAN UTAMA ---
         function renderUI() {
             const area = document.getElementById('content-area');
             const today = new Date().toISOString().split('T')[0];
+            
+            const unitOptionsHTML = units.map(u => {
+                const uName = typeof u === 'object' && u !== null ? (u.name || '') : (u || '');
+                const safeName = String(uName || '');
+                return `<option value="${safeName}">${safeName.toUpperCase()}</option>`;
+            }).join('');
+            
+            const isUnitRole = currentUser.role === 'unit';
+            const currUnitName = currentUser.unitName || '';
+            
+            const filterDropdownHTML = (funcName) => isUnitRole 
+                ? `<select id="unit-filter" disabled><option value="${currUnitName}">${String(currUnitName || '').toUpperCase()}</option></select>`
+                : `<select id="unit-filter" onchange="${funcName}"><option value="ALL">TAMPILKAN SEMUA UNIT</option>${unitOptionsHTML}</select>`;
 
             if(currentTab === 'dashboard') {
                 renderDashboard(area);
@@ -182,29 +347,18 @@
                     <div class="glass p-8">
                         <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
                             <h3 class="text-3xl font-black text-[#D4AF37] uppercase">Khotbah Sabat</h3>
-                            <div class="flex gap-4 w-full md:w-auto justify-center md:justify-end">
+                            <div class="flex flex-wrap gap-4 w-full md:w-auto items-end justify-center md:justify-end">
+                                <div class="flex-1 min-w-[200px]"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Filter Unit</label>
+                                    ${filterDropdownHTML('renderFilteredKhotbah()')}
+                                </div>
                                 <div class="w-28 md:w-32"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tamu</label><input type="number" id="tamu" value="0"></div>
                                 <div class="w-40 md:w-48"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tanggal</label><input type="date" id="tgl" value="${today}"></div>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">${members.map(m => {
-                            const att = memberAttendance[m.id] || '';
-                            const jab = m.jabatan || 'Anggota';
-                            return `
-                            <div class="bg-white/5 p-6 rounded-2xl border-2 border-white/5 flex flex-col justify-between hover:border-gold/30 transition-all gap-5 text-center">
-                                <div>
-                                    <div class="font-black text-white uppercase text-xl">${m.nama}</div>
-                                    <div class="text-[13px] text-[#D4AF37] uppercase font-black tracking-widest mt-2">${jab}</div>
-                                    <div class="text-[10px] text-gold/60 uppercase font-bold tracking-wider mt-1">${m.status} | ${m.unit}</div>
-                                </div>
-                                <div class="flex gap-3 w-full">
-                                    <button id="btn-hadir-${m.id}" onclick="setAttendance('${m.id}', 'Hadir')" class="btn-hadir flex-1 ${att === 'Hadir' ? 'active' : ''}"><i class="fas fa-check mr-2"></i>HADIR</button>
-                                    <button id="btn-alpha-${m.id}" onclick="setAttendance('${m.id}', 'Alpha')" class="btn-alpha flex-1 ${att === 'Alpha' ? 'active' : ''}"><i class="fas fa-times mr-2"></i>ALPHA</button>
-                                </div>
-                            </div>`
-                        }).join('')}</div>
+                        <div id="khotbah-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"></div>
                         <button onclick="submitKhotbah()" class="w-full bg-[#D4AF37] text-[#0a192f] py-6 rounded-2xl font-black text-2xl shadow-xl hover:bg-yellow-400 transition-all">SIMPAN ABSENSI KHOTBAH</button>
                     </div>`;
+                renderFilteredKhotbah();
             } else if(['ss_dewasa', 'ss_anak', 'pendalaman'].includes(currentTab)) {
                 const cat = currentTab === 'ss_dewasa' ? 'SS Dewasa' : (currentTab === 'ss_anak' ? 'SS Anak' : 'Pendalaman');
                 area.innerHTML = `
@@ -213,10 +367,7 @@
                             <h3 class="text-3xl font-black text-[#D4AF37] uppercase">${cat}</h3>
                             <div class="flex flex-wrap gap-4 w-full md:w-auto items-end justify-center md:justify-end">
                                 <div class="flex-1 min-w-[200px]"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Filter Unit</label>
-                                    <select id="unit-filter" onchange="renderFilteredMembers('${cat}')">
-                                        <option value="ALL">TAMPILKAN SEMUA UNIT</option>
-                                        ${units.map(u => `<option value="${u}">${u.toUpperCase()}</option>`).join('')}
-                                    </select>
+                                    ${filterDropdownHTML(`renderFilteredMembers('${cat}')`)}
                                 </div>
                                 <div class="w-28 md:w-32"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tamu</label><input type="number" id="tamu" value="0"></div>
                                 <div class="w-40 md:w-48"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tanggal</label><input type="date" id="tgl" value="${today}"></div>
@@ -227,9 +378,7 @@
                     </div>`;
                 renderFilteredMembers(cat);
             } else if(currentTab === 'kegiatan') {
-                const items = [
-                    "Anggota datang tepat waktu di SS", "Membaca Alkitab setiap hari", "Renungan Pagi setiap hari", "Belajar Sekolah Sabat setiap hari", "Hadir di Kebaktian Rabu Malam", "Melakukan Jangkauan Keluar", "Melakukan Perlawatan Pemeliharaan", "Ikut Doa (777, 1752 & Doa Subuh)", "Terlibat kegiatan Kelompok Kecil", "Membagikan risalah / buku rohani"
-                ];
+                const items = ["Anggota datang tepat waktu di SS", "Membaca Alkitab setiap hari", "Renungan Pagi setiap hari", "Belajar Sekolah Sabat setiap hari", "Hadir di Kebaktian Rabu Malam", "Melakukan Jangkauan Keluar", "Melakukan Perlawatan Pemeliharaan", "Ikut Doa (777, 1752 & Doa Subuh)", "Terlibat kegiatan Kelompok Kecil", "Membagikan risalah / buku rohani"];
                 area.innerHTML = `
                     <div class="glass p-8">
                         <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
@@ -248,34 +397,49 @@
                 renderMemberManager(area);
             } else if(currentTab === 'unit') {
                 renderManagerAll(area);
+            } else if(currentTab === 'admin') {
+                renderAdminManager(area);
             }
         }
 
-        // --- RENDER KELAS (HADIR/ALPHA) ---
+        // --- FILTER & TAMPILAN ABSEN ---
+        function renderFilteredKhotbah() {
+            let filter = document.getElementById('unit-filter').value;
+            if (currentUser.role === 'unit') filter = currentUser.unitName;
+
+            let filtered = members;
+            if(filter !== 'ALL') filtered = filtered.filter(m => m.unit === filter);
+
+            document.getElementById('khotbah-list').innerHTML = filtered.map(m => createCardHTML(m)).join('');
+        }
+
         function renderFilteredMembers(cat) {
-            const filter = document.getElementById('unit-filter').value;
+            let filter = document.getElementById('unit-filter').value;
+            if (currentUser.role === 'unit') filter = currentUser.unitName;
+
             let filtered = members.filter(m => m.kelasTetap === cat || (cat === 'Pendalaman' && m.kelasTetap === 'PA'));
             if(filter !== 'ALL') filtered = filtered.filter(m => m.unit === filter);
 
-            document.getElementById('unit-list').innerHTML = filtered.map(m => {
-                const att = memberAttendance[m.id] || ''; 
-                const jab = m.jabatan || 'Anggota';
-                return `
-                <div class="bg-white/5 p-6 rounded-2xl flex flex-col items-center justify-between border-2 border-gold/10 gap-5 hover:border-gold/30 transition-all text-center">
-                    <div class="w-full">
-                        <div class="text-2xl font-black text-white uppercase">${m.nama}</div>
-                        <div class="text-[13px] text-[#D4AF37] uppercase font-black tracking-widest mt-2">${jab}</div>
-                        <div class="text-[11px] text-gold font-bold uppercase tracking-widest mt-1">${m.unit} | ${m.status}</div>
+            document.getElementById('unit-list').innerHTML = filtered.map(m => createCardHTML(m)).join('');
+        }
+
+        function createCardHTML(m) {
+            const att = memberAttendance[m.id] || ''; 
+            const jab = m.jabatan || 'Anggota';
+            return `
+            <div class="bg-white/5 p-6 rounded-2xl flex flex-col items-center justify-between border-2 border-gold/10 gap-5 hover:border-gold/30 transition-all text-center">
+                <div class="w-full">
+                    <div class="text-2xl font-black text-white uppercase">${m.nama}</div>
+                    <div class="text-[13px] text-[#D4AF37] uppercase font-black tracking-widest mt-2">${jab}</div>
+                    <div class="text-[11px] text-gold font-bold uppercase tracking-widest mt-1">${m.unit} | ${m.status}</div>
+                </div>
+                <div class="flex flex-col w-full gap-4">
+                    <div class="flex gap-3 w-full">
+                        <button id="btn-hadir-${m.id}" onclick="setAttendance('${m.id}', 'Hadir')" class="btn-hadir flex-1 ${att === 'Hadir' ? 'active' : ''}"><i class="fas fa-check mr-2"></i>HADIR</button>
+                        <button id="btn-alpha-${m.id}" onclick="setAttendance('${m.id}', 'Alpha')" class="btn-alpha flex-1 ${att === 'Alpha' ? 'active' : ''}"><i class="fas fa-times mr-2"></i>ALPHA</button>
                     </div>
-                    
-                    <div class="flex flex-col w-full gap-4">
-                        <div class="flex gap-3 w-full">
-                            <button id="btn-hadir-${m.id}" onclick="setAttendance('${m.id}', 'Hadir')" class="btn-hadir flex-1 ${att === 'Hadir' ? 'active' : ''}"><i class="fas fa-check mr-2"></i>HADIR</button>
-                            <button id="btn-alpha-${m.id}" onclick="setAttendance('${m.id}', 'Alpha')" class="btn-alpha flex-1 ${att === 'Alpha' ? 'active' : ''}"><i class="fas fa-times mr-2"></i>ALPHA</button>
-                        </div>
-                    </div>
-                </div>`
-            }).join('');
+                </div>
+            </div>`;
         }
 
         function setAttendance(id, status) {
@@ -289,6 +453,127 @@
             } else { 
                 if(btnAlpha) btnAlpha.classList.add('active'); 
                 if(btnHadir) btnHadir.classList.remove('active'); 
+            }
+        }
+
+        // --- DASHBOARD ---
+        function renderDashboard(area) {
+            const quotes = [
+                '"Janganlah kita menjauhkan diri dari pertemuan-pertemuan ibadah kita..." - Ibrani 10:25',
+                '"Layanilah seorang akan yang lain, sesuai dengan karunia yang telah diperoleh..." - 1 Petrus 4:10',
+                '"Apa pun juga yang kamu perbuat, perbuatlah dengan segenap hatimu seperti untuk Tuhan..." - Kolose 3:23',
+                '"Bersukacitalah dalam pengharapan, sabarlah dalam kesesakan, dan bertekunlah dalam doa!" - Roma 12:12'
+            ];
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const todayStr = new Date().toLocaleDateString('id-ID', options);
+
+            const history = statsData.history || [];
+            const latestWeek = history.length > 0 ? history[history.length - 1].count : 0;
+            const prevWeek = history.length > 1 ? history[history.length - 2].count : 0;
+            const weekDiff = latestWeek - prevWeek;
+            const weekTrendIcon = weekDiff >= 0 ? '<i class="fas fa-arrow-up mr-1"></i>' : '<i class="fas fa-arrow-down mr-1"></i>';
+            const weekTrendClass = weekDiff >= 0 ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10';
+            const weekTrendText = weekDiff >= 0 ? `+${weekDiff} jiwa` : `${weekDiff} jiwa`;
+
+            const last4 = history.slice(-4);
+            const monthAvg = last4.length > 0 ? Math.round(last4.reduce((sum, item) => sum + item.count, 0) / last4.length) : 0;
+            const qtrAvg = history.length > 0 ? Math.round(history.reduce((sum, item) => sum + item.count, 0) / history.length) : 0;
+            
+            area.innerHTML = `
+                <div class="mb-10 animate-[fadeIn_0.5s_ease-out]">
+                    <!-- Kotak Selamat Datang -->
+                    <div class="glass p-8 md:p-10 mb-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden border-t-4 border-t-[#D4AF37] shadow-2xl">
+                        <div class="absolute -left-10 -top-10 w-48 h-48 bg-[#D4AF37] rounded-full blur-[80px] opacity-20 pointer-events-none"></div>
+                        <div class="relative shrink-0 z-10"><img src="PisgahWhite.png" alt="Pisgah Logo" class="w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-[0_0_20px_rgba(212,175,55,0.4)]"></div>
+                        <div class="text-center md:text-left z-10 flex-1">
+                            <h2 class="text-3xl md:text-4xl font-black text-[#D4AF37] mb-3 uppercase tracking-wide">Selamat Datang!</h2>
+                            <p class="text-lg text-slate-200 font-medium mb-6">Di Matrix System PISGAH BISDAC v4.4. Silakan <span class="text-gold font-bold">Login</span> untuk dapat mengisi absen jemaat unit Anda.</p>
+                            <div class="inline-flex items-center gap-3 bg-[#0a192f]/50 border border-[#D4AF37]/30 px-5 py-2.5 rounded-full shadow-inner">
+                                <i class="fas fa-calendar-alt text-[#D4AF37]"></i>
+                                <span class="text-sm font-bold text-slate-300 uppercase tracking-widest">${todayStr}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Motivasi -->
+                    <div class="glass p-10 mb-10 text-center relative overflow-hidden">
+                        <div class="absolute -right-6 -top-6 text-gold/10 text-9xl"><i class="fas fa-quote-right"></i></div>
+                        <h3 class="text-xl md:text-3xl font-black text-white italic relative z-10 leading-relaxed max-w-4xl mx-auto drop-shadow-md">${randomQuote}</h3>
+                        <div class="mt-6 inline-block bg-[#D4AF37]/20 px-6 py-2 rounded-full border border-[#D4AF37]/30"><p class="text-[#D4AF37] font-black tracking-widest uppercase text-xs relative z-10">Motivasi Sabat Ini</p></div>
+                    </div>
+                    
+                    <h3 class="text-2xl font-black text-[#D4AF37] uppercase mb-6"><i class="fas fa-chart-line mr-3"></i>Perbandingan Kehadiran Khotbah</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                        <div class="glass p-6 border-l-4 border-l-blue-400 relative overflow-hidden group hover:bg-white/5 transition-all">
+                            <i class="fas fa-calendar-week absolute -right-4 -bottom-4 text-7xl text-blue-400/10 group-hover:scale-110 transition-transform"></i>
+                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Kehadiran Terakhir</div>
+                            <div class="text-4xl font-black text-white mb-2 relative z-10">${latestWeek}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
+                            <div class="text-xs font-bold ${weekTrendClass} relative z-10 inline-block px-3 py-1 rounded-lg">${weekTrendIcon} ${weekTrendText}</div>
+                        </div>
+                        <div class="glass p-6 border-l-4 border-l-green-400 relative overflow-hidden group hover:bg-white/5 transition-all">
+                            <i class="fas fa-calendar-alt absolute -right-4 -bottom-4 text-7xl text-green-400/10 group-hover:scale-110 transition-transform"></i>
+                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Rata-rata Bulanan</div>
+                            <div class="text-4xl font-black text-white mb-2 relative z-10">${monthAvg}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
+                            <div class="text-xs font-bold text-green-400 relative z-10 bg-green-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-chart-bar mr-1"></i> 4 Pekan Terakhir</div>
+                        </div>
+                        <div class="glass p-6 border-l-4 border-l-yellow-400 relative overflow-hidden group hover:bg-white/5 transition-all">
+                            <i class="fas fa-chart-pie absolute -right-4 -bottom-4 text-7xl text-yellow-400/10 group-hover:scale-110 transition-transform"></i>
+                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Rata-rata Triwulan</div>
+                            <div class="text-4xl font-black text-white mb-2 relative z-10">${qtrAvg}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
+                            <div class="text-xs font-bold text-yellow-400 relative z-10 bg-yellow-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-history mr-1"></i> 12 Pekan Terakhir</div>
+                        </div>
+                        <div class="glass p-6 border-l-4 border-l-purple-400 relative overflow-hidden group hover:bg-white/5 transition-all">
+                            <i class="fas fa-globe absolute -right-4 -bottom-4 text-7xl text-purple-400/10 group-hover:scale-110 transition-transform"></i>
+                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Total Jemaat Terdaftar</div>
+                            <div class="text-4xl font-black text-white mb-2 relative z-10">${members.length}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
+                            <div class="text-xs font-bold text-purple-400 relative z-10 bg-purple-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-users mr-1"></i> Database Sistem</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="glass p-8">
+                            <h4 class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Riwayat Kehadiran Terakhir</h4>
+                            <div class="relative h-64"><canvas id="chartBulanan"></canvas></div>
+                        </div>
+                        <div class="glass p-8">
+                            <h4 class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Komposisi Unit Real-Time</h4>
+                            <div class="relative h-64 flex justify-center"><canvas id="chartUnit"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            setTimeout(initCharts, 100);
+        }
+
+        function initCharts() {
+            const ctxBulanan = document.getElementById('chartBulanan');
+            const ctxUnit = document.getElementById('chartUnit');
+            if(window.myChartBulanan) window.myChartBulanan.destroy();
+            if(window.myChartUnit) window.myChartUnit.destroy();
+
+            if(ctxBulanan) {
+                const history = statsData.history || [];
+                const last4 = history.slice(-4);
+                const labels = last4.length > 0 ? last4.map(h => h.date) : ['Belum ada data'];
+                const dataPoints = last4.length > 0 ? last4.map(h => h.count) : [0];
+
+                window.myChartBulanan = new Chart(ctxBulanan, {
+                    type: 'line',
+                    data: { labels: labels, datasets: [{ label: 'Total Kehadiran', data: dataPoints, borderColor: '#D4AF37', backgroundColor: 'rgba(212, 175, 55, 0.2)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#0a192f', pointBorderColor: '#D4AF37', pointRadius: 5 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0', precision: 0 } }, x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0' } } } }
+                });
+            }
+            
+            if(ctxUnit) {
+                const unitCounts = {};
+                members.forEach(m => { const u = m.unit || 'Umum'; unitCounts[u] = (unitCounts[u] || 0) + 1; });
+                window.myChartUnit = new Chart(ctxUnit, {
+                    type: 'doughnut',
+                    data: { labels: Object.keys(unitCounts), datasets: [{ data: Object.values(unitCounts), backgroundColor: ['#D4AF37', '#10B981', '#3B82F6', '#8B5CF6', '#EF4444', '#F59E0B', '#ec4899', '#14b8a6'], borderWidth: 2, borderColor: '#0a192f' }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { color: '#e6f1ff', font: { family: 'Plus Jakarta Sans' } } } } }
+                });
             }
         }
 
@@ -306,15 +591,15 @@
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Unit</label>
-                                <select id="m-unit-select">
-                                    <option value="Umum">UMUM (TANPA UNIT)</option>
-                                    ${units.map(u => `<option value="${u}">${u.toUpperCase()}</option>`).join('')}
-                                </select>
+                                <select id="m-unit-select"><option value="Umum">UMUM (TANPA UNIT)</option>${units.map(u => {
+                                    const uName = typeof u === 'object' && u !== null ? (u.name || '') : (u || '');
+                                    const safeName = String(uName || '');
+                                    return `<option value="${safeName}">${safeName.toUpperCase()}</option>`;
+                                }).join('')}</select>
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Jabatan (Bisa Pilih > 1)</label>
-                                <div id="m-jabatan-container" class="flex flex-wrap justify-center gap-2 mt-2">
-                                </div>
+                                <div id="m-jabatan-container" class="flex flex-wrap justify-center gap-2 mt-2"></div>
                             </div>
                             <div class="pt-4 flex gap-4">
                                 <button onclick="saveMember()" id="btn-save-member" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN DATA</button>
@@ -327,24 +612,14 @@
                             <h3 class="text-2xl font-black text-[#D4AF37] uppercase">Daftar Master Jemaat</h3>
                             <span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">Total: ${members.length} Orang</span>
                         </div>
-                        <div class="space-y-4 max-h-[600px] overflow-y-auto pr-4 no-scrollbar">${members.map(m => {
-                            const jab = m.jabatan || 'Anggota';
-                            return `
+                        <div class="space-y-4 max-h-[600px] overflow-y-auto pr-4 no-scrollbar">${members.map(m => `
                             <div class="p-6 bg-white/5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
-                                <div>
-                                    <div class="text-xl font-black text-white uppercase">${m.nama}</div>
-                                    <div class="text-[11px] text-gold/80 font-black uppercase tracking-widest mt-1">
-                                        <i class="fas fa-star mr-1"></i> ${jab} &nbsp;|&nbsp; 
-                                        <i class="fas fa-users mr-1"></i> ${m.unit} &nbsp;|&nbsp; 
-                                        <i class="fas fa-bookmark mr-1"></i> ${m.kelasTetap}
-                                    </div>
-                                </div>
+                                <div><div class="text-xl font-black text-white uppercase">${m.nama}</div><div class="text-[11px] text-gold/80 font-black uppercase tracking-widest mt-1"><i class="fas fa-star mr-1"></i> ${m.jabatan || 'Anggota'} &nbsp;|&nbsp; <i class="fas fa-users mr-1"></i> ${m.unit} &nbsp;|&nbsp; <i class="fas fa-bookmark mr-1"></i> ${m.kelasTetap}</div></div>
                                 <div class="flex gap-3 w-full sm:w-auto">
                                     <button onclick="editMember('${m.id}')" class="flex-1 sm:flex-none text-yellow-500 bg-yellow-500/10 px-4 py-3 hover:bg-yellow-500 hover:text-[#0a192f] rounded-xl font-bold transition-all"><i class="fas fa-pen mr-2"></i>EDIT</button>
                                     <button onclick="deleteMember('${m.id}', '${m.nama}')" class="flex-1 sm:flex-none text-red-400 bg-red-400/10 px-4 py-3 hover:bg-red-500 hover:text-white rounded-xl font-bold transition-all"><i class="fas fa-trash"></i></button>
                                 </div>
-                            </div>`
-                        }).join('')}</div>
+                            </div>`).join('')}</div>
                     </div>
                 </div>`;
             renderFormRoles();
@@ -353,15 +628,11 @@
         function renderFormRoles() {
             const container = document.getElementById('m-jabatan-container');
             if(!container) return;
-            container.innerHTML = roles.map(role => `
-                <button type="button" onclick="toggleFormRole('${role}')" class="role-btn text-xs ${formSelectedRoles.includes(role) ? 'active' : ''}">${role.toUpperCase()}</button>
-            `).join('');
+            container.innerHTML = roles.map(role => `<button type="button" onclick="toggleFormRole('${role}')" class="role-btn text-xs ${formSelectedRoles.includes(role) ? 'active' : ''}">${String(role || '').toUpperCase()}</button>`).join('');
         }
-
         function toggleFormRole(role) {
             const idx = formSelectedRoles.indexOf(role);
-            if(idx > -1) formSelectedRoles.splice(idx, 1);
-            else formSelectedRoles.push(role);
+            if(idx > -1) formSelectedRoles.splice(idx, 1); else formSelectedRoles.push(role);
             renderFormRoles();
         }
 
@@ -374,10 +645,8 @@
             document.getElementById('m-status').value = m.status;
             document.getElementById('m-cat').value = m.kelasTetap === 'PA' ? 'Pendalaman' : m.kelasTetap;
             document.getElementById('m-unit-select').value = m.unit;
-            
             formSelectedRoles = m.jabatan ? m.jabatan.split(',').map(s => s.trim()) : ['Anggota'];
             renderFormRoles();
-            
             document.getElementById('btn-save-member').innerText = "UPDATE DATA";
             document.getElementById('btn-cancel-member').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -386,14 +655,9 @@
         function cancelEditMember() {
             editingMemberId = null;
             document.getElementById('form-title').innerText = "Tambah Jemaat Baru";
-            document.getElementById('m-nama').value = '';
-            document.getElementById('m-status').value = 'Baptis';
-            document.getElementById('m-cat').value = 'SS Dewasa';
-            document.getElementById('m-unit-select').value = 'Umum';
-            
-            formSelectedRoles = ['Anggota'];
-            renderFormRoles();
-            
+            document.getElementById('m-nama').value = ''; document.getElementById('m-status').value = 'Baptis';
+            document.getElementById('m-cat').value = 'SS Dewasa'; document.getElementById('m-unit-select').value = 'Umum';
+            formSelectedRoles = ['Anggota']; renderFormRoles();
             document.getElementById('btn-save-member').innerText = "SIMPAN DATA";
             document.getElementById('btn-cancel-member').classList.add('hidden');
         }
@@ -401,14 +665,14 @@
         // --- RENDER MANAJEMEN UNIT & JABATAN ---
         function renderManagerAll(area) {
             area.innerHTML = `
-                <!-- BAGIAN UNIT -->
                 <div class="mb-16">
-                    <div class="flex items-center gap-4 mb-6"><h3 class="text-3xl font-black text-[#D4AF37] uppercase"><i class="fas fa-users mr-3"></i>Kelola Unit</h3></div>
+                    <div class="flex items-center gap-4 mb-6"><h3 class="text-3xl font-black text-[#D4AF37] uppercase"><i class="fas fa-users mr-3"></i>Kelola Unit & Akses</h3></div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="glass p-8 h-fit">
                             <h3 id="unit-form-title" class="text-xl font-black text-[#D4AF37] mb-6 uppercase text-center">Buat Unit Baru</h3>
                             <div class="space-y-6">
                                 <div><input type="text" id="u-nama" placeholder="Contoh: Unit Efrata..."></div>
+                                <div><input type="text" id="u-pin" placeholder="Bikin PIN Akses (Kosong = Otomatis)"></div>
                                 <div class="pt-2 flex gap-4">
                                     <button onclick="saveUnit()" id="btn-save-unit" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN UNIT</button>
                                     <button onclick="cancelEditUnit()" id="btn-cancel-unit" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button>
@@ -416,23 +680,27 @@
                             </div>
                         </div>
                         <div class="glass p-8">
-                            <div class="flex justify-between items-end mb-6">
-                                <h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Unit</h3>
-                                <span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${units.length} Unit</span>
-                            </div>
-                            <div class="space-y-4 max-h-[300px] overflow-y-auto pr-4 no-scrollbar">${units.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada unit.</p>' : units.map(u => `
+                            <div class="flex justify-between items-end mb-6"><h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Unit & PIN</h3><span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${units.length} Unit</span></div>
+                            <div class="space-y-4 max-h-[300px] overflow-y-auto pr-4 no-scrollbar">${units.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada unit.</p>' : units.map(u => {
+                                const uName = typeof u === 'object' && u !== null ? (u.name || '') : (u || '');
+                                const safeName = String(uName || '');
+                                const uPin = typeof u === 'object' && u !== null ? (u.pin || 'N/A') : 'N/A';
+                                return `
                                 <div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
-                                    <div class="text-lg font-black text-white uppercase">${u}</div>
-                                    <div class="flex gap-2">
-                                        <button onclick="editUnit('${u}')" class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
-                                        <button onclick="deleteUnit('${u}')" class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
+                                    <div>
+                                        <div class="text-lg font-black text-white uppercase">${safeName}</div>
+                                        <div class="text-[11px] text-green-400 font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: ${uPin}</div>
                                     </div>
-                                </div>`).join('')}</div>
+                                    <div class="flex gap-2">
+                                        <button onclick="editUnit('${safeName}')" class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
+                                        <button onclick="deleteUnit('${safeName}')" class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>`;
+                            }).join('')}</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- BAGIAN JABATAN -->
                 <div class="mb-10">
                     <div class="flex items-center gap-4 mb-6"><h3 class="text-3xl font-black text-[#D4AF37] uppercase"><i class="fas fa-star mr-3"></i>Kelola Jabatan</h3></div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -447,13 +715,10 @@
                             </div>
                         </div>
                         <div class="glass p-8">
-                            <div class="flex justify-between items-end mb-6">
-                                <h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Jabatan</h3>
-                                <span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${roles.length} Jabatan</span>
-                            </div>
+                            <div class="flex justify-between items-end mb-6"><h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Jabatan</h3><span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${roles.length} Jabatan</span></div>
                             <div class="space-y-4 max-h-[300px] overflow-y-auto pr-4 no-scrollbar">${roles.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada jabatan.</p>' : roles.map(r => `
                                 <div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
-                                    <div class="text-lg font-black text-white uppercase">${r}</div>
+                                    <div class="text-lg font-black text-white uppercase">${String(r || '')}</div>
                                     <div class="flex gap-2">
                                         <button onclick="editRole('${r}')" class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
                                         <button onclick="deleteRole('${r}')" class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
@@ -464,225 +729,68 @@
                 </div>`;
         }
 
-        // --- RENDER DASHBOARD (MOTIVASI & STATISTIK) ---
-        function renderDashboard(area) {
-            const quotes = [
-                '"Janganlah kita menjauhkan diri dari pertemuan-pertemuan ibadah kita..." - Ibrani 10:25',
-                '"Layanilah seorang akan yang lain, sesuai dengan karunia yang telah diperoleh..." - 1 Petrus 4:10',
-                '"Apa pun juga yang kamu perbuat, perbuatlah dengan segenap hatimu seperti untuk Tuhan..." - Kolose 3:23',
-                '"Bersukacitalah dalam pengharapan, sabarlah dalam kesesakan, dan bertekunlah dalam doa!" - Roma 12:12'
-            ];
-            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-            
-            // Format hari ini
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const todayStr = new Date().toLocaleDateString('id-ID', options);
-
-            // Perhitungan Statistik Real-Time dari Riwayat Kehadiran (Hadir + Tamu)
-            const history = statsData.history || [];
-            
-            // Mingguan
-            const latestWeek = history.length > 0 ? history[history.length - 1].count : 0;
-            const prevWeek = history.length > 1 ? history[history.length - 2].count : 0;
-            const weekDiff = latestWeek - prevWeek;
-            const weekTrendIcon = weekDiff >= 0 ? '<i class="fas fa-arrow-up mr-1"></i>' : '<i class="fas fa-arrow-down mr-1"></i>';
-            const weekTrendClass = weekDiff >= 0 ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10';
-            const weekTrendText = weekDiff >= 0 ? `+${weekDiff} jiwa` : `${weekDiff} jiwa`;
-
-            // Bulanan (Rata-rata 4 minggu terakhir)
-            const last4 = history.slice(-4);
-            const monthAvg = last4.length > 0 ? Math.round(last4.reduce((sum, item) => sum + item.count, 0) / last4.length) : 0;
-
-            // Triwulanan (Rata-rata up to 12 minggu terakhir)
-            const qtrAvg = history.length > 0 ? Math.round(history.reduce((sum, item) => sum + item.count, 0) / history.length) : 0;
-            
+        // --- RENDER MANAJEMEN ADMIN (BARU) ---
+        function renderAdminManager(area) {
             area.innerHTML = `
-                <div class="mb-10 animate-[fadeIn_0.5s_ease-out]">
-                    
-                    <!-- Kotak Selamat Datang (Welcome Box) Menawan -->
-                    <div class="glass p-8 md:p-10 mb-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden border-t-4 border-t-[#D4AF37] shadow-2xl">
-                        <!-- Efek cahaya (Glow) di belakang logo -->
-                        <div class="absolute -left-10 -top-10 w-48 h-48 bg-[#D4AF37] rounded-full blur-[80px] opacity-20 pointer-events-none"></div>
-                        
-                        <!-- Logo Pisgah -->
-                        <div class="relative shrink-0 z-10">
-                            <img src="PisgahWhite.png" alt="Pisgah Logo" class="w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-[0_0_20px_rgba(212,175,55,0.4)]">
-                        </div>
-                        
-                        <!-- Teks Sambutan -->
-                        <div class="text-center md:text-left z-10 flex-1">
-                            <h2 class="text-3xl md:text-4xl font-black text-[#D4AF37] mb-3 uppercase tracking-wide">Selamat Datang!</h2>
-                            <p class="text-lg text-slate-200 font-medium mb-6">Di Matrix System PISGAH BISDAC v4.2. Kelola kehadiran, data jemaat, dan kegiatan gereja dengan lebih terstruktur.</p>
-                            <div class="inline-flex items-center gap-3 bg-[#0a192f]/50 border border-[#D4AF37]/30 px-5 py-2.5 rounded-full shadow-inner">
-                                <i class="fas fa-calendar-alt text-[#D4AF37]"></i>
-                                <span class="text-sm font-bold text-slate-300 uppercase tracking-widest">${todayStr}</span>
+                <div class="mb-16">
+                    <div class="flex items-center gap-4 mb-6"><h3 class="text-3xl font-black text-[#D4AF37] uppercase"><i class="fas fa-user-shield mr-3"></i>Kelola Administrator</h3></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="glass p-8 h-fit">
+                            <h3 id="admin-form-title" class="text-xl font-black text-[#D4AF37] mb-6 uppercase text-center">Buat Admin Baru</h3>
+                            <div class="space-y-6">
+                                <div><input type="text" id="a-username" placeholder="Username (Cth: Admin Utama)"></div>
+                                <div><input type="text" id="a-pin" placeholder="Buat PIN Akses Rahasia"></div>
+                                <div class="pt-2 flex gap-4">
+                                    <button onclick="saveAdmin()" id="btn-save-admin" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN ADMIN</button>
+                                    <button onclick="cancelEditAdmin()" id="btn-cancel-admin" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Card Motivasi -->
-                    <div class="glass p-10 mb-10 text-center relative overflow-hidden">
-                        <div class="absolute -right-6 -top-6 text-gold/10 text-9xl"><i class="fas fa-quote-right"></i></div>
-                        <h3 class="text-xl md:text-3xl font-black text-white italic relative z-10 leading-relaxed max-w-4xl mx-auto drop-shadow-md">
-                            ${randomQuote}
-                        </h3>
-                        <div class="mt-6 inline-block bg-[#D4AF37]/20 px-6 py-2 rounded-full border border-[#D4AF37]/30">
-                            <p class="text-[#D4AF37] font-black tracking-widest uppercase text-xs relative z-10">Motivasi Sabat Ini</p>
-                        </div>
-                    </div>
-                    
-                    <h3 class="text-2xl font-black text-[#D4AF37] uppercase mb-6"><i class="fas fa-chart-line mr-3"></i>Perbandingan Kehadiran Khotbah</h3>
-                    
-                    <!-- Grid 4 Stats (Data Real-Time) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                        <!-- Mingguan -->
-                        <div class="glass p-6 border-l-4 border-l-blue-400 relative overflow-hidden group hover:bg-white/5 transition-all">
-                            <i class="fas fa-calendar-week absolute -right-4 -bottom-4 text-7xl text-blue-400/10 group-hover:scale-110 transition-transform"></i>
-                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Kehadiran Terakhir</div>
-                            <div class="text-4xl font-black text-white mb-2 relative z-10">${latestWeek}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
-                            <div class="text-xs font-bold ${weekTrendClass} relative z-10 inline-block px-3 py-1 rounded-lg">${weekTrendIcon} ${weekTrendText}</div>
-                        </div>
-                        <!-- Bulanan -->
-                        <div class="glass p-6 border-l-4 border-l-green-400 relative overflow-hidden group hover:bg-white/5 transition-all">
-                            <i class="fas fa-calendar-alt absolute -right-4 -bottom-4 text-7xl text-green-400/10 group-hover:scale-110 transition-transform"></i>
-                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Rata-rata Bulanan</div>
-                            <div class="text-4xl font-black text-white mb-2 relative z-10">${monthAvg}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
-                            <div class="text-xs font-bold text-green-400 relative z-10 bg-green-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-chart-bar mr-1"></i> 4 Pekan Terakhir</div>
-                        </div>
-                        <!-- Triwulanan -->
-                        <div class="glass p-6 border-l-4 border-l-yellow-400 relative overflow-hidden group hover:bg-white/5 transition-all">
-                            <i class="fas fa-chart-pie absolute -right-4 -bottom-4 text-7xl text-yellow-400/10 group-hover:scale-110 transition-transform"></i>
-                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Rata-rata Triwulan</div>
-                            <div class="text-4xl font-black text-white mb-2 relative z-10">${qtrAvg}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
-                            <div class="text-xs font-bold text-yellow-400 relative z-10 bg-yellow-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-history mr-1"></i> 12 Pekan Terakhir</div>
-                        </div>
-                        <!-- Tahunan -->
-                        <div class="glass p-6 border-l-4 border-l-purple-400 relative overflow-hidden group hover:bg-white/5 transition-all">
-                            <i class="fas fa-globe absolute -right-4 -bottom-4 text-7xl text-purple-400/10 group-hover:scale-110 transition-transform"></i>
-                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Total Jemaat Terdaftar</div>
-                            <div class="text-4xl font-black text-white mb-2 relative z-10">${members.length}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
-                            <div class="text-xs font-bold text-purple-400 relative z-10 bg-purple-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-users mr-1"></i> Database Sistem</div>
-                        </div>
-                    </div>
-
-                    <!-- Charts Area -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="glass p-8">
-                            <h4 class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Simulasi Kehadiran Bulanan</h4>
-                            <div class="relative h-64"><canvas id="chartBulanan"></canvas></div>
-                        </div>
-                        <div class="glass p-8">
-                            <h4 class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Komposisi Unit Real-Time</h4>
-                            <div class="relative h-64 flex justify-center"><canvas id="chartUnit"></canvas></div>
+                            <div class="flex justify-between items-end mb-6"><h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Master Admin</h3><span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${admins.length} Admin</span></div>
+                            <div class="space-y-4 max-h-[300px] overflow-y-auto pr-4 no-scrollbar">${admins.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada admin.</p>' : admins.map(a => `
+                                <div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
+                                    <div>
+                                        <div class="text-lg font-black text-white uppercase">${a.username}</div>
+                                        <div class="text-[11px] text-[#D4AF37] font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: ${a.pin}</div>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button onclick="editAdmin('${a.username}')" class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
+                                        <button onclick="deleteAdmin('${a.username}')" class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>`).join('')}</div>
                         </div>
                     </div>
-                </div>
-            `;
-            
-            // Render grafik setelah elemen HTML dimuat
-            setTimeout(initCharts, 100);
+                </div>`;
         }
 
-        function initCharts() {
-            const ctxBulanan = document.getElementById('chartBulanan');
-            const ctxUnit = document.getElementById('chartUnit');
-            
-            // Bersihkan chart lama jika ada agar tidak tertumpuk
-            if(window.myChartBulanan) window.myChartBulanan.destroy();
-            if(window.myChartUnit) window.myChartUnit.destroy();
-
-            // Setup Grafik Bulanan (Menggunakan Data Asli Khotbah 4 Pekan Terakhir)
-            if(ctxBulanan) {
-                const history = statsData.history || [];
-                const last4 = history.slice(-4);
-                
-                // Jika belum ada data, siapkan data kosong agar grafik tetap tampil rapi
-                const labels = last4.length > 0 ? last4.map(h => h.date) : ['Belum ada data'];
-                const dataPoints = last4.length > 0 ? last4.map(h => h.count) : [0];
-
-                window.myChartBulanan = new Chart(ctxBulanan, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Total Kehadiran',
-                            data: dataPoints,
-                            borderColor: '#D4AF37',
-                            backgroundColor: 'rgba(212, 175, 55, 0.2)',
-                            borderWidth: 3,
-                            tension: 0.4,
-                            fill: true,
-                            pointBackgroundColor: '#0a192f',
-                            pointBorderColor: '#D4AF37',
-                            pointRadius: 5
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0', precision: 0 } },
-                            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0' } }
-                        }
-                    }
-                });
-            }
-            
-            // Setup Grafik Unit (Mengambil data asli secara Real-Time)
-            if(ctxUnit) {
-                const unitCounts = {};
-                members.forEach(m => {
-                    const u = m.unit || 'Umum';
-                    unitCounts[u] = (unitCounts[u] || 0) + 1;
-                });
-                
-                window.myChartUnit = new Chart(ctxUnit, {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(unitCounts),
-                        datasets: [{
-                            data: Object.values(unitCounts),
-                            backgroundColor: ['#D4AF37', '#10B981', '#3B82F6', '#8B5CF6', '#EF4444', '#F59E0B', '#ec4899', '#14b8a6'],
-                            borderWidth: 2,
-                            borderColor: '#0a192f'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '70%',
-                        plugins: {
-                            legend: { position: 'right', labels: { color: '#e6f1ff', font: { family: 'Plus Jakarta Sans' } } }
-                        }
-                    }
-                });
-            }
-        }
-
+        // --- CRUD LOGIC FOR UNITS & ROLES ---
         function editUnit(name) {
+            const u = units.find(x => (typeof x === 'object' && x !== null ? x.name : x) === name);
             editingUnitName = name;
-            document.getElementById('unit-form-title').innerText = "Ubah Nama Unit";
-            document.getElementById('u-nama').value = name;
-            document.getElementById('btn-save-unit').innerText = "UPDATE UNIT";
+            document.getElementById('unit-form-title').innerText = "Ubah Unit & PIN";
+            document.getElementById('u-nama').value = typeof u === 'object' && u !== null ? (u.name || name) : name;
+            document.getElementById('u-pin').value = typeof u === 'object' && u !== null ? (u.pin || '') : '';
+            document.getElementById('btn-save-unit').innerText = "UPDATE DATA";
             document.getElementById('btn-cancel-unit').classList.remove('hidden');
         }
 
         function cancelEditUnit() {
             editingUnitName = null;
             document.getElementById('unit-form-title').innerText = "Buat Unit Baru";
-            document.getElementById('u-nama').value = '';
+            document.getElementById('u-nama').value = ''; document.getElementById('u-pin').value = '';
             document.getElementById('btn-save-unit').innerText = "SIMPAN UNIT";
             document.getElementById('btn-cancel-unit').classList.add('hidden');
         }
 
         async function saveUnit() {
             const nama = document.getElementById('u-nama').value.trim();
+            const pin = document.getElementById('u-pin').value.trim();
             if(!nama) return showToast("NAMA UNIT KOSONG!", "error");
-            if(editingUnitName) await send({ action: 'updateUnit', data: { oldName: editingUnitName, newName: nama } });
+            if(editingUnitName) await send({ action: 'updateUnit', data: { oldName: editingUnitName, newName: nama, pin: pin } });
             else {
-                if(units.includes(nama)) return showToast("UNIT SUDAH ADA!", "error");
-                await send({ action: 'addUnit', data: nama });
+                if(units.find(u => (typeof u === 'object' && u !== null ? u.name : u) === nama)) return showToast("UNIT SUDAH ADA!", "error");
+                await send({ action: 'addUnit', data: { name: nama, pin: pin } });
             }
             editingUnitName = null; init();
         }
@@ -693,41 +801,73 @@
             init();
         }
 
-        // --- FUNGSI CRUD JABATAN ---
         function editRole(name) {
             editingRoleName = name;
-            document.getElementById('role-form-title').innerText = "Ubah Nama Jabatan";
-            document.getElementById('r-nama').value = name;
-            document.getElementById('btn-save-role').innerText = "UPDATE JABATAN";
-            document.getElementById('btn-cancel-role').classList.remove('hidden');
+            document.getElementById('role-form-title').innerText = "Ubah Nama Jabatan"; document.getElementById('r-nama').value = name;
+            document.getElementById('btn-save-role').innerText = "UPDATE JABATAN"; document.getElementById('btn-cancel-role').classList.remove('hidden');
         }
 
         function cancelEditRole() {
             editingRoleName = null;
-            document.getElementById('role-form-title').innerText = "Buat Jabatan Baru";
-            document.getElementById('r-nama').value = '';
-            document.getElementById('btn-save-role').innerText = "SIMPAN JABATAN";
-            document.getElementById('btn-cancel-role').classList.add('hidden');
+            document.getElementById('role-form-title').innerText = "Buat Jabatan Baru"; document.getElementById('r-nama').value = '';
+            document.getElementById('btn-save-role').innerText = "SIMPAN JABATAN"; document.getElementById('btn-cancel-role').classList.add('hidden');
         }
 
         async function saveRole() {
             const nama = document.getElementById('r-nama').value.trim();
             if(!nama) return showToast("NAMA JABATAN KOSONG!", "error");
             if(editingRoleName) await send({ action: 'updateRole', data: { oldName: editingRoleName, newName: nama } });
-            else {
-                if(roles.includes(nama)) return showToast("JABATAN SUDAH ADA!", "error");
-                await send({ action: 'addRole', data: nama });
-            }
+            else { if(roles.includes(nama)) return showToast("JABATAN SUDAH ADA!", "error"); await send({ action: 'addRole', data: nama }); }
             editingRoleName = null; init();
         }
 
         async function deleteRole(name) {
             if(!confirm(`Hapus jabatan "${name}"?\n(Jabatan ini akan dihapus dari seluruh jemaat yang memilikinya)`)) return;
-            await send({ action: 'deleteRole', data: name });
+            await send({ action: 'deleteRole', data: name }); init();
+        }
+
+        // --- CRUD LOGIC FOR ADMINS ---
+        function editAdmin(username) {
+            const a = admins.find(x => x.username === username);
+            editingAdminUsername = username;
+            document.getElementById('admin-form-title').innerText = "Ubah Admin & PIN";
+            document.getElementById('a-username').value = a.username;
+            document.getElementById('a-pin').value = a.pin;
+            document.getElementById('btn-save-admin').innerText = "UPDATE ADMIN";
+            document.getElementById('btn-cancel-admin').classList.remove('hidden');
+        }
+
+        function cancelEditAdmin() {
+            editingAdminUsername = null;
+            document.getElementById('admin-form-title').innerText = "Buat Admin Baru";
+            document.getElementById('a-username').value = ''; document.getElementById('a-pin').value = '';
+            document.getElementById('btn-save-admin').innerText = "SIMPAN ADMIN";
+            document.getElementById('btn-cancel-admin').classList.add('hidden');
+        }
+
+        async function saveAdmin() {
+            const username = document.getElementById('a-username').value.trim();
+            const pin = document.getElementById('a-pin').value.trim();
+            if(!username || !pin) return showToast("USERNAME/PIN HARUS DIISI!", "error");
+            
+            if(editingAdminUsername) {
+                await send({ action: 'updateAdmin', data: { oldUsername: editingAdminUsername, newUsername: username, pin: pin } });
+            } else {
+                if(admins.find(a => a.username === username)) return showToast("USERNAME SUDAH ADA!", "error");
+                await send({ action: 'addAdmin', data: { username: username, pin: pin } });
+            }
+            editingAdminUsername = null; 
             init();
         }
 
-        // --- FUNGSI SUBMIT DATA ---
+        async function deleteAdmin(username) {
+            if(admins.length <= 1) return showToast("TIDAK BISA MENGHAPUS SATU-SATUNYA ADMIN!", "error");
+            if(!confirm(`Apakah Anda yakin ingin menghapus Admin "${username}"?`)) return;
+            await send({ action: 'deleteAdmin', data: username }); 
+            init();
+        }
+
+        // --- SUBMIT API ---
         async function submitKhotbah() {
             const tgl = formatDate(document.getElementById('tgl').value);
             const tamu = document.getElementById('tamu').value;
@@ -765,10 +905,8 @@
 
         async function saveMember() {
             const payload = {
-                nama: document.getElementById('m-nama').value,
-                status: document.getElementById('m-status').value,
-                unit: document.getElementById('m-unit-select').value,
-                kelasTetap: document.getElementById('m-cat').value,
+                nama: document.getElementById('m-nama').value, status: document.getElementById('m-status').value,
+                unit: document.getElementById('m-unit-select').value, kelasTetap: document.getElementById('m-cat').value,
                 jabatan: formSelectedRoles.length > 0 ? formSelectedRoles.join(', ') : 'Anggota'
             };
             if(!payload.nama) return showToast("NAMA KOSONG!", "error");
@@ -779,11 +917,9 @@
 
         async function deleteMember(id, nama) {
             if(!confirm(`Yakin ingin menghapus data ${nama}?`)) return;
-            await send({ action: 'deleteMember', data: id });
-            init();
+            await send({ action: 'deleteMember', data: id }); init();
         }
 
-        // --- CORE API SENDER ---
         async function send(payload) {
             toggleLoading(true);
             try {
@@ -799,10 +935,8 @@
         function toggleLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
         function showToast(m, type="success") {
             const t = document.getElementById('toast');
-            t.innerText = m; 
-            t.style.backgroundColor = type === "success" ? "#D4AF37" : "#EF4444";
-            t.style.color = type === "success" ? "#0a192f" : "#FFFFFF";
-            t.style.opacity = '1'; t.style.bottom = '40px';
+            t.innerText = m; t.style.backgroundColor = type === "success" ? "#D4AF37" : "#EF4444";
+            t.style.color = type === "success" ? "#0a192f" : "#FFFFFF"; t.style.opacity = '1'; t.style.bottom = '40px';
             setTimeout(() => { t.style.opacity = '0'; t.style.bottom = '10px'; }, 3500);
         }
 
