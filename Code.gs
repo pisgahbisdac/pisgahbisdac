@@ -1,5 +1,5 @@
 /**
- * KONFIGURASI BACKEND PISGAH BISDAC v4.4 (Admin Control Panel)
+ * KONFIGURASI BACKEND PISGAH BISDAC v4.4 (Admin Control Panel & Doa)
  * Spreadsheet ID: 1-fWE3bjOlTU9VFITCgI6smG8d__vxjWpVMN35ODb-zc
  */
 
@@ -33,6 +33,7 @@ function doPost(e) {
       case 'deleteAdmin': result = deleteAdmin(data); break;
       case 'changePin': result = changePin(data); break;
       case 'submitAttendance': result = submitAttendance(data); break;
+      case 'submitDoa': result = submitDoa(data); break; // Endpoint baru untuk Permohonan Doa
       default: result = { status: 'error', message: 'Aksi tidak dikenal' };
     }
     
@@ -81,8 +82,25 @@ function getInitialData() {
   return { status: 'success', members, units, roles, admins, stats };
 }
 
-// --- FUNGSI PENGELOLAAN DATA MASTER ADMIN ---
+// --- FUNGSI PERMOHONAN DOA ---
+function submitDoa(data) {
+  const ss = getDb();
+  let sheet = ss.getSheetByName('Permohonan_Doa');
+  if (!sheet) {
+    sheet = ss.insertSheet('Permohonan_Doa');
+    sheet.getRange(1, 1, 1, 4).setValues([['Waktu', 'Nama', 'No Telepon', 'Poin Doa']]).setBackground("#3B82F6").setFontColor("white").setFontWeight("bold");
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(4, 400);
+  }
+  
+  const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
+  const poinString = data.poin.map((p, i) => `${i + 1}. ${p}`).join('\n');
+  
+  sheet.appendRow([timestamp, data.nama, data.telp, poinString]);
+  return { status: 'success' };
+}
 
+// --- FUNGSI PENGELOLAAN DATA MASTER ADMIN ---
 function createAdminSheet(ss) {
   const sheet = ss.insertSheet('Admins');
   sheet.getRange(1, 1, 1, 2).setValues([['Username', 'PIN Akses']]).setBackground("#D4AF37").setFontWeight("bold");
@@ -154,7 +172,6 @@ function changePin(data) {
 }
 
 // --- FUNGSI PENGELOLAAN MEMBER ---
-
 function addMember(data) {
   const ss = getDb();
   const sheet = ss.getSheetByName('Members');
@@ -187,7 +204,6 @@ function deleteMember(id) {
 }
 
 // --- FUNGSI PENGELOLAAN UNIT ---
-
 function addUnit(data) {
   const ss = getDb();
   const sheet = ss.getSheetByName('Units');
@@ -234,7 +250,6 @@ function deleteUnit(unitName) {
 }
 
 // --- FUNGSI PENGELOLAAN JABATAN ---
-
 function addRole(roleName) {
   const ss = getDb();
   const sheet = ss.getSheetByName('Jabatan');
@@ -294,7 +309,6 @@ function deleteRole(roleName) {
 }
 
 // --- FUNGSI ABSENSI ---
-
 function submitAttendance(data) {
   const ss = getDb();
   let sheetName = "";
@@ -396,7 +410,6 @@ function getAttendanceStats(ss) {
 }
 
 // --- HELPER FUNCTIONS ---
-
 function findMemberRow(sheet, id) {
   if (sheet.getLastRow() < 2) return -1;
   const ids = sheet.getRange(1, 1, sheet.getLastRow(), 1).getValues();
