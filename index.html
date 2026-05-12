@@ -77,6 +77,7 @@
                 <button onclick="showLogin()" id="btn-login" class="bg-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#D4AF37] px-5 py-2 rounded-full text-xs font-black uppercase hover:bg-[#D4AF37] hover:text-[#0a192f] transition-all shadow-lg"><i class="fas fa-sign-in-alt mr-2"></i>Login</button>
                 <button onclick="logout()" id="btn-logout" class="hidden bg-red-500/20 border border-red-500/50 text-red-400 px-5 py-2 rounded-full text-xs font-black uppercase hover:bg-red-500 hover:text-white transition-all shadow-lg"><i class="fas fa-sign-out-alt mr-2"></i>Keluar</button>
             </div>
+            </div>
         </div>
     </header>
 
@@ -110,6 +111,76 @@
         <div class="flex gap-4">
             <button onclick="processLogin()" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-full font-black uppercase shadow-lg hover:bg-yellow-400 transition-all text-sm">Masuk</button>
             <button onclick="document.getElementById('login-modal').classList.add('hidden')" class="flex-1 bg-slate-600 text-white py-4 rounded-full font-black uppercase shadow-lg hover:bg-slate-500 transition-all text-sm">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL GANTI PIN -->
+<div id="changepin-modal"
+class="fixed inset-0 bg-[#0a192f]/90 flex items-center justify-center z-[300] hidden backdrop-blur-md">
+
+    <div class="glass p-10 max-w-sm w-full mx-4 text-center border-t-4 border-t-[#D4AF37] shadow-2xl animate-[fadeIn_0.3s_ease-out]">
+
+        <div class="mb-4">
+            <i class="fas fa-key text-5xl text-[#D4AF37]"></i>
+        </div>
+
+        <h3 class="text-2xl font-black text-[#D4AF37] mb-2 uppercase tracking-wide">
+            Ganti PIN
+        </h3>
+
+        <p class="text-xs text-slate-300 mb-8 font-medium">
+            Masukkan PIN lama dan PIN baru
+        </p>
+
+        <div class="space-y-5">
+
+            <div class="relative">
+                <input
+                    type="password"
+                    id="old-pin"
+                    placeholder="PIN Lama"
+                    maxlength="6"
+                    class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-center text-xl tracking-[0.3rem]"
+                >
+
+                <i class="fas fa-eye-slash absolute right-4 top-1/2 -translate-y-1/2 text-gold cursor-pointer"
+                   onclick="togglePassword('old-pin', this)">
+                </i>
+            </div>
+
+            <div class="relative">
+                <input
+                    type="password"
+                    id="new-pin"
+                    placeholder="PIN Baru"
+                    maxlength="6"
+                    class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-center text-xl tracking-[0.3rem]"
+                >
+
+                <i class="fas fa-eye-slash absolute right-4 top-1/2 -translate-y-1/2 text-gold cursor-pointer"
+                   onclick="togglePassword('new-pin', this)">
+                </i>
+            </div>
+
+        </div>
+
+        <div class="flex gap-4 mt-8">
+
+            <button
+                onclick="changePin()"
+                class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-full font-black uppercase shadow-lg hover:bg-yellow-400 transition-all text-sm">
+
+                GANTI PIN
+            </button>
+
+            <button
+                onclick="document.getElementById('changepin-modal').classList.add('hidden')"
+                class="flex-1 bg-slate-600 text-white py-4 rounded-full font-black uppercase shadow-lg hover:bg-slate-500 transition-all text-sm">
+
+                BATAL
+            </button>
+
         </div>
     </div>
 </div>
@@ -526,19 +597,28 @@ function switchTab(tabId) {
 
         // --- GANTI PIN LOGIC ---
         function showChangePin() {
-            document.getElementById('cp-old').value = '';
-            document.getElementById('cp-new').value = '';
-            document.getElementById('changepin-modal').classList.remove('hidden');
-            document.getElementById('cp-old').focus();
-        }
+
+    document.getElementById('old-pin').value = '';
+    document.getElementById('new-pin').value = '';
+
+    document
+        .getElementById('changepin-modal')
+        .classList
+        .remove('hidden');
+
+    document.getElementById('old-pin').focus();
+}
 
         async function processChangePin() {
             const oldPin = document.getElementById('cp-old').value.trim();
             const newPin = document.getElementById('cp-new').value.trim();
             if(!oldPin || !newPin) return showToast("Semua kolom harus diisi!", "error");
             
-            const identifier = currentUser.role === 'admin' ? currentUser.adminName : currentUser.unitName;
-            
+            const identifier =
+    currentUser.role === 'admin'
+    ? currentUser.adminName
+    : currentUser.unitName;
+    
             toggleLoading(true);
             disableButtons(true);
             try {
@@ -1366,24 +1446,59 @@ if (duplicatePin) {
             await send({ action: 'deleteMember', data: id }); init();
         }
 
+        async function changePin() {
+
+    const oldPin =
+        document.getElementById('old-pin').value.trim();
+
+    const newPin =
+        document.getElementById('new-pin').value.trim();
+
+    if (!oldPin || !newPin) {
+
+        return showToast(
+            "PIN LAMA & BARU HARUS DIISI!",
+            "error"
+        );
+    }
+
+    // role user login
+    const role =
+        currentUser.role;
+
+    // username admin / nama unit
+    const identifier =
+        currentUser.identifier;
+
+    const result = await send({
+        action: 'changePin',
+        data: {
+            role: role,
+            identifier: identifier,
+            oldPin: oldPin,
+            newPin: newPin
+        }
+    });
+
+    if (result?.status === 'success') {
+
+        showToast("PIN BERHASIL DIGANTI!");
+
+        document.getElementById('old-pin').value = '';
+        document.getElementById('new-pin').value = '';
+    }
+}
+
         async function send(payload) {
 
     toggleLoading(true);
-    disableButtons(true);
 
     try {
 
         const res = await fetch(API_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(payload)
         });
-
-        if (!res.ok) {
-            throw new Error(`HTTP ERROR ${res.status}`);
-        }
 
         const json = await res.json();
 
@@ -1399,19 +1514,23 @@ if (duplicatePin) {
             );
         }
 
+        return json;
+
     } catch (e) {
 
-        console.error(e);
-
         showToast(
-            "KONEKSI / SERVER GAGAL!",
+            "KONEKSI GAGAL! PERIKSA INTERNET.",
             "error"
         );
 
-    } finally {
+        return {
+            status: 'error'
+        };
+    }
+
+    finally {
 
         toggleLoading(false);
-        disableButtons(false);
     }
 }
 
