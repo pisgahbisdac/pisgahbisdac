@@ -63,9 +63,6 @@
     <header class="bg-[#0a192f]/95 border-b border-[#D4AF37]/50 p-6 sticky top-0 z-40 backdrop-blur-md">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-4">
-                <div class="p-2 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-xl shadow-lg">
-                    <img src="PisgahWhite.png" alt="Logo" class="w-8 h-8 object-contain">
-                </div>
                 <div><h1 class="text-xl md:text-2xl font-black text-[#D4AF37]">PISGAH BISDAC</h1><p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Matrix System v4.4</p></div>
             </div>
             <div class="flex items-center gap-4">
@@ -483,15 +480,18 @@
             area.innerHTML = `
                 <div class="mb-10 animate-[fadeIn_0.5s_ease-out]">
                     <!-- Kotak Selamat Datang -->
-                    <div class="glass p-8 md:p-10 mb-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden border-t-4 border-t-[#D4AF37] shadow-2xl">
-                        <div class="absolute -left-10 -top-10 w-48 h-48 bg-[#D4AF37] rounded-full blur-[80px] opacity-20 pointer-events-none"></div>
-                        <div class="relative shrink-0 z-10"><img src="PisgahWhite.png" alt="Pisgah Logo" class="w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-[0_0_20px_rgba(212,175,55,0.4)]"></div>
-                        <div class="text-center md:text-left z-10 flex-1">
-                            <h2 class="text-3xl md:text-4xl font-black text-[#D4AF37] mb-3 uppercase tracking-wide">Selamat Datang!</h2>
-                            <p class="text-lg text-slate-200 font-medium mb-6">Di Matrix System PISGAH BISDAC v4.4. Silakan <span class="text-gold font-bold">Login</span> untuk dapat mengisi absen jemaat unit Anda.</p>
-                            <div class="inline-flex items-center gap-3 bg-[#0a192f]/50 border border-[#D4AF37]/30 px-5 py-2.5 rounded-full shadow-inner">
-                                <i class="fas fa-calendar-alt text-[#D4AF37]"></i>
-                                <span class="text-sm font-bold text-slate-300 uppercase tracking-widest">${todayStr}</span>
+                    <div class="glass p-8 md:p-10 mb-8 flex flex-col items-center justify-center relative overflow-hidden border-t-4 border-t-[#D4AF37] shadow-2xl min-h-[250px]">
+                        <!-- Floating Logo Background -->
+                        <img src="PisgahWhite.png" alt="Background Logo" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] md:w-[70%] lg:w-[50%] h-auto object-contain opacity-[0.05] pointer-events-none select-none z-0 scale-125">
+                        
+                        <div class="absolute -left-10 -top-10 w-48 h-48 bg-[#D4AF37] rounded-full blur-[80px] opacity-20 pointer-events-none z-0"></div>
+                        
+                        <div class="text-center z-10 w-full relative">
+                            <h2 class="text-3xl md:text-5xl font-black text-[#D4AF37] mb-4 uppercase tracking-wide drop-shadow-lg">Selamat Datang!</h2>
+                            <p class="text-lg md:text-xl text-slate-200 font-medium mb-8 drop-shadow-md max-w-2xl mx-auto">Di Matrix System PISGAH BISDAC v4.4. Silakan <span class="text-gold font-bold">Login</span> untuk dapat mengisi absen jemaat unit Anda.</p>
+                            <div class="inline-flex items-center gap-3 bg-[#0a192f]/70 border border-[#D4AF37]/30 px-6 py-3 rounded-full shadow-inner relative z-10 backdrop-blur-sm">
+                                <i class="fas fa-calendar-alt text-[#D4AF37] text-lg"></i>
+                                <span class="text-sm font-bold text-slate-200 uppercase tracking-widest">${todayStr}</span>
                             </div>
                         </div>
                     </div>
