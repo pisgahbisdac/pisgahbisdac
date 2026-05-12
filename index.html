@@ -196,33 +196,12 @@ const permissions = {
     ]
 };
 
-function getCurrentPermissionRole() {
+function normalizeUnitName(name) {
 
-    if (currentUser.role === 'admin') {
-        return 'admin';
-    }
-
-    if (currentUser.role === 'khotbah') {
-        return 'khotbah';
-    }
-
-    const unit =
-        (currentUser.unitName || '')
-        .toLowerCase();
-
-    if (unit === 'ss dewasa') {
-        return 'ss_dewasa';
-    }
-
-    if (unit === 'ss anak') {
-        return 'ss_anak';
-    }
-
-    if (unit === 'pendalaman') {
-        return 'pendalaman';
-    }
-
-    return 'public';
+    return String(name || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, ' ');
 }
 
 function getCurrentPermissionRole() {
@@ -236,18 +215,28 @@ function getCurrentPermissionRole() {
     }
 
     const unit =
-        (currentUser.unitName || '')
-        .toLowerCase();
+        normalizeUnitName(
+            currentUser.unitName
+        );
 
-    if (unit === 'ss dewasa') {
+    // SS DEWASA
+    if (
+        unit.includes('ss dewasa')
+    ) {
         return 'ss_dewasa';
     }
 
-    if (unit === 'ss anak') {
+    // SS ANAK
+    if (
+        unit.includes('ss anak')
+    ) {
         return 'ss_anak';
     }
 
-    if (unit === 'pendalaman') {
+    // PENDALAMAN
+    if (
+        unit.includes('pendalaman')
+    ) {
         return 'pendalaman';
     }
 
