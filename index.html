@@ -152,6 +152,115 @@ function togglePassword(inputId, iconElem) {
         let currentTab = 'dashboard';
         let memberAttendance = {}; 
         
+        // ========================================
+// PERMISSION MATRIX SYSTEM
+// ========================================
+
+const permissions = {
+
+    public: [
+        'dashboard'
+    ],
+
+    admin: [
+        'dashboard',
+        'khotbah',
+        'ss_dewasa',
+        'ss_anak',
+        'pendalaman',
+        'kegiatan',
+        'anggota',
+        'unit',
+        'admin'
+    ],
+
+    khotbah: [
+        'dashboard',
+        'khotbah'
+    ],
+
+    ss_dewasa: [
+        'dashboard',
+        'ss_dewasa',
+        'kegiatan'
+    ],
+
+    ss_anak: [
+        'dashboard',
+        'ss_anak'
+    ],
+
+    pendalaman: [
+        'dashboard',
+        'pendalaman'
+    ]
+};
+
+function getCurrentPermissionRole() {
+
+    if (currentUser.role === 'admin') {
+        return 'admin';
+    }
+
+    if (currentUser.role === 'khotbah') {
+        return 'khotbah';
+    }
+
+    const unit =
+        (currentUser.unitName || '')
+        .toLowerCase();
+
+    if (unit === 'ss dewasa') {
+        return 'ss_dewasa';
+    }
+
+    if (unit === 'ss anak') {
+        return 'ss_anak';
+    }
+
+    if (unit === 'pendalaman') {
+        return 'pendalaman';
+    }
+
+    return 'public';
+}
+
+function getCurrentPermissionRole() {
+
+    if (currentUser.role === 'admin') {
+        return 'admin';
+    }
+
+    if (currentUser.role === 'khotbah') {
+        return 'khotbah';
+    }
+
+    const unit =
+        (currentUser.unitName || '')
+        .toLowerCase();
+
+    if (unit === 'ss dewasa') {
+        return 'ss_dewasa';
+    }
+
+    if (unit === 'ss anak') {
+        return 'ss_anak';
+    }
+
+    if (unit === 'pendalaman') {
+        return 'pendalaman';
+    }
+
+    return 'public';
+}
+
+function hasAccess(tabName) {
+
+    const role = getCurrentPermissionRole();
+
+    return permissions[role]?.includes(tabName);
+}
+
         // State Form Manage
         let editingMemberId = null;
         let editingUnitName = null;
@@ -196,17 +305,43 @@ function togglePassword(inputId, iconElem) {
                 showToast(`Berhasil Login sebagai ${foundAdmin.username}`);
             } else {
                 const foundUnit = units.find(u => {
-                    const uPin = typeof u === 'object' && u !== null ? u.pin : null;
-                    return String(uPin) === pin;
-                });
-                
-                if (foundUnit) {
-                    const uName = typeof foundUnit === 'object' && foundUnit !== null ? foundUnit.name : foundUnit;
-                    currentUser = { role: 'unit', unitName: uName, adminName: null };
-                    showToast(`Berhasil Login sebagai ${uName}`);
-                } else {
-                    return showToast("PIN SALAH ATAU TIDAK DITEMUKAN!", "error");
-                }
+    const uPin = typeof u === 'object' && u !== null ? u.pin : null;
+    return String(uPin) === pin;
+});
+
+if (foundUnit) {
+
+    const uName =
+        typeof foundUnit === 'object' && foundUnit !== null
+        ? foundUnit.name
+        : foundUnit;
+
+    const normalized =
+    uName.toLowerCase();
+
+let roleType = 'unit';
+
+if (normalized === 'khotbah') {
+    roleType = 'khotbah';
+}
+
+currentUser = {
+    role: roleType,
+    unitName: uName,
+    adminName: null
+};
+
+showToast(
+    `Berhasil Login sebagai ${uName}`
+);
+
+} else {
+
+    return showToast(
+        "PIN SALAH ATAU TIDAK DITEMUKAN!",
+        "error"
+    );
+}
             }
             
             document.getElementById('login-modal').classList.add('hidden');
@@ -243,27 +378,76 @@ function togglePassword(inputId, iconElem) {
         }
 
         function renderTabs() {
-            const role = currentUser.role;
-            const isKhotbahUnit = role === 'unit' && (currentUser.unitName || '').toLowerCase() === 'khotbah';
-            
-            const toggleTab = (id, show) => {
-                const el = document.getElementById(id);
-                if (el) el.style.display = show ? 'block' : 'none';
-            };
-            
-            toggleTab('btn-dashboard', true); // Semua bisa lihat dashboard
-            toggleTab('btn-khotbah', role === 'admin' || isKhotbahUnit);
-            toggleTab('btn-ss_dewasa', role === 'admin' || (role === 'unit' && !isKhotbahUnit));
-            toggleTab('btn-ss_anak', role === 'admin' || (role === 'unit' && !isKhotbahUnit));
-            toggleTab('btn-pendalaman', role === 'admin' || (role === 'unit' && !isKhotbahUnit));
-            toggleTab('btn-kegiatan', role === 'admin');
-            toggleTab('btn-anggota', role === 'admin');
-            toggleTab('btn-unit', role === 'admin');
-            toggleTab('btn-admin', role === 'admin');
-        }
 
-        function switchTab(tabId) {
-            currentTab = tabId;
+    const toggleTab = (id, allowed) => {
+
+        const el = document.getElementById(id);
+
+        if (!el) return;
+
+        el.style.display =
+            allowed
+            ? 'block'
+            : 'none';
+    };
+
+    toggleTab(
+        'btn-dashboard',
+        hasAccess('dashboard')
+    );
+
+    toggleTab(
+        'btn-khotbah',
+        hasAccess('khotbah')
+    );
+
+    toggleTab(
+        'btn-ss_dewasa',
+        hasAccess('ss_dewasa')
+    );
+
+    toggleTab(
+        'btn-ss_anak',
+        hasAccess('ss_anak')
+    );
+
+    toggleTab(
+        'btn-pendalaman',
+        hasAccess('pendalaman')
+    );
+
+    toggleTab(
+        'btn-kegiatan',
+        hasAccess('kegiatan')
+    );
+
+    toggleTab(
+        'btn-anggota',
+        hasAccess('anggota')
+    );
+
+    toggleTab(
+        'btn-unit',
+        hasAccess('unit')
+    );
+
+    toggleTab(
+        'btn-admin',
+        hasAccess('admin')
+    );
+}
+
+function switchTab(tabId) {
+
+    if (!hasAccess(tabId)) {
+
+        return showToast(
+            'ANDA TIDAK MEMILIKI AKSES!',
+            'error'
+        );
+    }
+
+    currentTab = tabId;
             document.querySelectorAll('button[id^="btn-"]').forEach(b => {
                 b.classList.remove('tab-active');
                 if (b.id !== 'btn-' + tabId) b.classList.add('text-slate-400');
