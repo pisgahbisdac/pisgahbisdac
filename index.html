@@ -1043,6 +1043,41 @@
             });
         }
 
+        // --- SUBMIT KETERLIBATAN (NEW FIX) ---
+        window.submitKeterlibatan = async () => {
+            const btn = document.getElementById('btn-submit-keterlibatan');
+            btn.innerHTML = '<div class="spinner"></div> MENGIRIM...';
+            btn.disabled = true;
+
+            let payload = [];
+            kegiatanList.forEach((teks, index) => {
+                const num = index + 1;
+                const val = document.getElementById(`ket_${num}`).value || 0;
+                payload.push({ kegiatan: teks, jumlah: parseInt(val) });
+            });
+
+            const submitDate = document.getElementById('input-tanggal').value;
+
+            try {
+                await fetch(scriptURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'submitKeterlibatan', data: payload, date: submitDate })
+                });
+                showToast("Terkirim!", "Data keterlibatan berhasil disimpan di Cloud.", "success");
+                
+                // Clear inputs after successful submission
+                kegiatanList.forEach((teks, index) => {
+                    document.getElementById(`ket_${index + 1}`).value = '';
+                });
+            } catch(e) {
+                showToast("Gagal", "Koneksi bermasalah. Coba lagi.", "error");
+            } finally {
+                btn.innerHTML = 'KIRIM DATA KETERLIBATAN ↗';
+                btn.disabled = false;
+            }
+        };
+
         function initChart() {
             Chart.defaults.color = '#e2e8f0'; 
             Chart.defaults.font.family = "'Inter', 'Helvetica', 'Arial', sans-serif";
@@ -1130,7 +1165,11 @@
                 if (currentAccessLevel === 'Anak') { activityOptions.innerHTML += createOption('Sekolah Sabat (Anak)', 'Sekolah Sabat Anak'); hasAccess = true; }
                 if (currentAccessLevel === 'Khotbah') { activityOptions.innerHTML += createOption('Khotbah / Ibadah Raya', 'Khotbah'); hasAccess = true; }
             } else if (dayOfWeek === 3) { 
-                if (currentAccessLevel === 'Dewasa') { activityOptions.innerHTML += createOption('Permintaan Doa', 'Permintaan Doa'); hasAccess = true; }
+                if (currentAccessLevel === 'Dewasa') { 
+                    activityOptions.innerHTML += createOption('Permintaan Doa', 'Permintaan Doa'); 
+                    activityOptions.innerHTML += createOption('Pendalaman Alkitab', 'Pendalaman Alkitab');
+                    hasAccess = true; 
+                }
             }
 
             if (hasAccess) {
@@ -1138,7 +1177,7 @@
                 document.getElementById('tab-container').style.display = 'flex';
                 document.getElementById('panel-warning').classList.add('hidden');
                 if(activityOptions.firstElementChild) {
-                    const titles = { "Sekolah Sabat (Dewasa)": "Sekolah Sabat Dewasa", "Sekolah Sabat (Anak)": "Sekolah Sabat Anak", "Khotbah / Ibadah Raya": "Khotbah", "Permintaan Doa": "Permintaan Doa" };
+                    const titles = { "Sekolah Sabat (Dewasa)": "Sekolah Sabat Dewasa", "Sekolah Sabat (Anak)": "Sekolah Sabat Anak", "Khotbah / Ibadah Raya": "Khotbah", "Permintaan Doa": "Permintaan Doa", "Pendalaman Alkitab": "Pendalaman Alkitab" };
                     selectActivity(titles[activityOptions.firstElementChild.querySelector('.activity-title').textContent], activityOptions.firstElementChild);
                 }
             } else {
@@ -1411,10 +1450,11 @@
 
             try {
                 // Mengirim payload JSON dalam format text/plain agar tidak diblokir CORS preflight Apps Script
+                const submitDate = document.getElementById('input-tanggal').value;
                 await fetch(scriptURL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'submitAttendance', data: payload })
+                    body: JSON.stringify({ action: 'submitAttendance', data: payload, kegiatan: currentActivity, tanggal: submitDate })
                 });
 
                 // Update Stats Lokal
@@ -1464,12 +1504,15 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
+        // --- HAPUS ANGGOTA (NEW FIX) ---
         let deleteTarget = null;
+        let deleteTargetName = null; // Fix: Menambahkan target nama agar backend tau apa yang dihapus.
         window.confirmDelete = (id, name) => {
             deleteTarget = id;
+            deleteTargetName = name;
             document.getElementById('modal-overlay').style.display = 'flex';
         };
-        window.closeModal = () => { deleteTarget = null; document.getElementById('modal-overlay').style.display = 'none'; };
+        window.closeModal = () => { deleteTarget = null; deleteTargetName = null; document.getElementById('modal-overlay').style.display = 'none'; };
         
         document.getElementById('modal-confirm-btn').onclick = async () => {
             if (!deleteTarget) return;
@@ -1477,12 +1520,11 @@
             btn.innerHTML = 'Menghapus...'; btn.disabled = true;
 
             try {
-                // Untuk menghapus dari Cloud, gunakan parameter URL dengan mode standar agar mudah. 
-                // Atau post plain text
                 await fetch(scriptURL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'deleteMember', id: deleteTarget })
+                    // Fix: Backend butuh nama untuk mencari row spreadsheet
+                    body: JSON.stringify({ action: 'deleteMember', id: deleteTarget, name: deleteTargetName })
                 });
 
                 membersData = membersData.filter(m => m.id !== deleteTarget);
