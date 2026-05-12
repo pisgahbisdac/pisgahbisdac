@@ -258,6 +258,11 @@
             background: white;
             border: 1px solid #ccc;
         }
+
+        /* Status Sinkronisasi */
+        #sync-status-indicator {
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body class="min-h-screen font-sans selection:bg-gold selection:text-navy">
@@ -333,6 +338,11 @@
                 <button onclick="navAdminClicked()" id="nav-admin" class="px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/80 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10">🔒 ADMIN</button>
             </div>
         </div>
+        <!-- Indikator Cloud Sync -->
+        <div id="sync-status-indicator" class="absolute bottom-[-14px] left-1/2 transform -translate-x-1/2 bg-navy border border-white/20 text-white/80 text-[10px] px-3 py-0.5 rounded-b-lg flex items-center gap-1 shadow-md cursor-pointer hover:bg-navy-light" onclick="syncDataFromCloud()">
+            <svg id="sync-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21v-5h5"/></svg>
+            <span id="sync-text">Cloud Sync</span>
+        </div>
     </header>
 
     <!-- VIEW: HOME -->
@@ -341,17 +351,18 @@
         <div class="glass-card-dark rounded-3xl p-8 md:p-12 relative overflow-hidden mb-8">
             <img src="./PisgahColor.png" alt="Background Logo" class="absolute -right-10 -top-10 w-96 h-96 object-contain pointer-events-none" onerror="this.style.display='none'">
             <h2 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight drop-shadow-lg relative z-10">Selamat Datang,<br><span class="text-gold">PISGAH BISDAC</span><br><span class="text-lg md:text-2xl text-blue-100 font-bold block mt-2 opacity-90">Batam International Seventh-Day Adventist Church</span></h2>
-            <p class="text-blue-100/90 max-w-xl text-sm md:text-base leading-relaxed relative z-10">Platform digital pemantauan kehadiran jemaat dan tingkat keterlibatan secara real-time.</p>
+            <p class="text-blue-100/90 max-w-xl text-sm md:text-base leading-relaxed relative z-10">Platform digital pemantauan kehadiran jemaat dan tingkat keterlibatan secara real-time tersinkronisasi awan.</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div class="lg:col-span-4 space-y-6">
                 <!-- WIDGET: Total Database -->
-                <div class="glass-card-dark p-6 rounded-3xl flex items-center gap-5 border border-white/10 shadow-xl">
-                    <div class="w-14 h-14 rounded-2xl bg-gold/20 text-gold flex items-center justify-center shrink-0 border border-gold/30 shadow-inner">
+                <div class="glass-card-dark p-6 rounded-3xl flex items-center gap-5 border border-white/10 shadow-xl relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-blue-500/10 rounded-bl-full blur-xl -z-0"></div>
+                    <div class="w-14 h-14 rounded-2xl bg-gold/20 text-gold flex items-center justify-center shrink-0 border border-gold/30 shadow-inner relative z-10">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </div>
-                    <div>
+                    <div class="relative z-10">
                         <p class="text-xs font-bold text-blue-200 uppercase tracking-wider opacity-80">Total Jemaat Database</p>
                         <h3 class="text-3xl font-black text-white mt-1 drop-shadow-md" id="dash-total-jemaat">0</h3>
                     </div>
@@ -548,7 +559,7 @@
         <div id="layout-admin" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden items-start">
             <!-- PANEL KIRI: SETUP FORM -->
             <div class="lg:col-span-4 lg:order-1 space-y-6 lg:sticky lg:top-24 h-fit">
-                <!-- Kelola Sub Kelas (dengan fitur edit nama & ganti PIN) -->
+                <!-- Kelola Sub Kelas -->
                 <div class="glass-card p-5 rounded-3xl relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-gold"></div>
                     <div class="flex items-center justify-between mb-4 relative z-10">
@@ -565,7 +576,7 @@
                     <div id="subclass-manage-list" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar p-1 relative z-10"></div>
                 </div>
 
-                <!-- Kelola Jabatan (sama) -->
+                <!-- Kelola Jabatan -->
                 <div class="glass-card p-5 rounded-3xl relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
                     <div class="flex items-center justify-between mb-4 relative z-10">
@@ -696,11 +707,14 @@
                         </div>
 
                         <div class="flex flex-col gap-2 pt-2">
-                            <button type="submit" id="btn-save" class="w-full px-6 py-4 font-black rounded-xl text-sm glass-btn-gold uppercase tracking-wider">SIMPAN JEMAAT</button>
+                            <button type="submit" id="btn-save" class="w-full px-6 py-4 font-black rounded-xl text-sm glass-btn-gold uppercase tracking-wider relative">
+                                <span id="btn-save-text">SIMPAN JEMAAT</span>
+                                <div id="btn-save-loader" class="spinner-dark hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
+                            </button>
                             <button type="button" id="btn-cancel" onclick="resetForm()" class="hidden w-full px-6 py-4 bg-white/40 hover:bg-white/60 border border-white/50 text-gray-700 font-bold rounded-xl transition-colors text-sm uppercase shadow-sm">BATAL EDIT</button>
-                            <button type="button" onclick="syncAllMembers()" class="px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-sm flex items-center justify-center gap-2 mt-2">
+                            <button type="button" onclick="syncDataFromCloud()" class="px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-sm flex items-center justify-center gap-2 mt-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21v-5h5"/></svg>
-                                Sinkron Semua Data
+                                Sinkron Manual ke Database Awan
                             </button>
                         </div>
                     </form>
@@ -742,6 +756,9 @@
     </main>
 
     <script>
+        // URL SCRIPT GOOGLE APPS SCRIPT ANDA
+        const scriptURL = "https://script.google.com/macros/s/AKfycbw-A-0Dsw5tCC8Jb_Ufq3Fc0OsO7mLyUv1lOdLfJCcHH_V2-A50I-u56XaGWkadc9c-og/exec";
+
         // --- DATA LOCAL ---
         let rawData = JSON.parse(localStorage.getItem('navy_members')) || [];
         let membersData = rawData.map(m => {
@@ -779,6 +796,61 @@
         ];
         let isRoleEditMode = false;
         
+        // ========================================================
+        // SINKRONISASI 2 ARAH (CLOUD SYNC)
+        // ========================================================
+        async function syncDataFromCloud() {
+            const syncIcon = document.getElementById('sync-icon');
+            const syncText = document.getElementById('sync-text');
+            
+            if (syncIcon) syncIcon.classList.add('animate-spin');
+            if (syncText) syncText.textContent = "Menyinkronkan...";
+
+            try {
+                // Fetch data dari Google Sheets via action=getMembers
+                const response = await fetch(`${scriptURL}?action=getMembers`);
+                const result = await response.json();
+
+                if (result && result.success && Array.isArray(result.data)) {
+                    membersData = result.data.map(m => ({
+                        id: m.id || String(Date.now() + Math.random()), // Pastikan ada ID
+                        name: m.nama,
+                        category: m.kategori || 'Dewasa',
+                        subClass: m.subkelas || '',
+                        role: m.jabatan || 'Anggota Jemaat',
+                        jk: m.jk || '',
+                        tgl_lahir: m.tgl_lahir || '',
+                        status_nikah: m.status_nikah || '',
+                        nama_pasangan: m.nama_pasangan || '',
+                        tgl_nikah: m.tgl_nikah || '',
+                        relasi: m.relasi || '',
+                        nama_ayah: m.nama_ayah || '',
+                        nama_ibu: m.nama_ibu || ''
+                    }));
+
+                    // Update Subclass secara dinamis berdasarkan data awan
+                    membersData.forEach(m => {
+                        if (m.subClass && !subClassesData.includes(m.subClass)) subClassesData.push(m.subClass);
+                    });
+
+                    saveToLocal(); // Ini akan memperbarui UI juga
+                    showToast("Sinkronisasi Sukses", "Data berhasil diperbarui dari awan.", "success");
+                }
+            } catch (error) {
+                console.error('Sync error:', error);
+                showToast("Sinkronisasi Gagal", "Gagal menghubungi database awan. Menggunakan data lokal.", "error");
+            } finally {
+                if (syncIcon) syncIcon.classList.remove('animate-spin');
+                if (syncText) syncText.textContent = "Cloud Sync";
+            }
+        }
+
+        // Panggil saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            syncDataFromCloud();
+        });
+        // ========================================================
+
         let isSubClassMigrated = false;
         membersData.forEach(m => {
             if (m.subClass && !subClassesData.includes(m.subClass)) {
@@ -824,8 +896,6 @@
         let trendChartInstance = null; 
         let komposisiChartInstance = null;
         let statusChartInstance = null;
-
-        const scriptURL = "https://script.google.com/macros/s/AKfycbw-A-0Dsw5tCC8Jb_Ufq3Fc0OsO7mLyUv1lOdLfJCcHH_V2-A50I-u56XaGWkadc9c-og/exec";
 
         const kegiatanList = [
             "Datang tepat waktu Kebaktian Sekolah Sabat", "Membaca Alkitab setiap hari",
@@ -889,11 +959,8 @@
             renderSubClassUI();
         }
         function getCategoryFromSubClass(subclassName) {
-            // Tentukan kategori berdasarkan sub kelas (default Dewasa)
-            // Karena kita hanya punya kategori Dewasa/Anak-anak, kita bisa cek dari anggota
             let memberSample = membersData.find(m => m.subClass === subclassName);
             if (memberSample) return memberSample.category;
-            // fallback
             return 'Dewasa';
         }
 
@@ -905,23 +972,23 @@
             const oldClass = member.subClass;
             member.subClass = newSubClass;
             saveToLocal();
-            renderManageList(); // refresh daftar admin
-            // Jika sedang di panel absensi, refresh juga
+            renderManageList(); 
             if (document.getElementById('view-admin').classList.contains('hidden') === false && currentAccessLevel !== 'Admin') {
                 renderList();
             }
             showToast("Pindah Kelas", `${member.name} pindah dari ${oldClass} ke ${newSubClass}`, "success");
-            // Opsional: sinkronkan ke spreadsheet
+            
+            // Sinkronisasi pemindahan kelas ke Awan tanpa no-cors
             try {
                 const params = new URLSearchParams();
                 params.append('action', 'updateMemberClass');
                 params.append('id', member.id);
                 params.append('subkelas', newSubClass);
-                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: params });
-            } catch(e) { console.warn("Gagal sync ke spreadsheet"); }
+                await fetch(scriptURL, { method: 'POST', body: params });
+            } catch(e) { console.warn("Gagal sync ke spreadsheet", e); }
         }
 
-        // ========== FUNGSI ADMIN MANAGE DATABASE (dengan dropdown pindah kelas) ==========
+        // ========== FUNGSI ADMIN MANAGE DATABASE ==========
         window.renderManageList = () => {
             const container = document.getElementById('manage-list-container');
             const search = document.getElementById('manage-search').value.toLowerCase();
@@ -945,15 +1012,11 @@
                 const subClassBadge = m.subClass ? `<span class="bg-gold/20 text-yellow-900 border border-gold/30 px-2.5 py-1 rounded-md text-[10px] font-black uppercase shadow-sm">${m.subClass}</span>` : `<span class="bg-gray-200 text-gray-500 px-2 py-1 rounded-md text-[10px]">Tanpa Kelas</span>`;
                 const roleBadges = m.role.split(',').map(r => `<span class="bg-white/80 text-gray-700 border border-gray-200 px-2 py-1 rounded-md text-[9px] font-bold uppercase shadow-sm">${r.trim()}</span>`).join('');
                 
-                // Dropdown untuk pindah kelas (hanya sub kelas yang sesuai dengan kategori anggota)
                 let availableSubClasses = subClassesData.filter(sc => {
-                    // Validasi sederhana: kita bisa lihat contoh anggota lain atau asumsikan semua sub kelas bisa untuk kategori tersebut
-                    // Untuk keamanan, kita cek apakah ada anggota dengan kategori sama dan sub kelas itu, atau biarkan semua
-                    // Tapi lebih baik filter berdasarkan kategori yang sama
                     let sample = membersData.find(mem => mem.category === m.category && mem.subClass === sc);
                     return sample !== undefined || sc === m.subClass;
                 });
-                if (availableSubClasses.length === 0) availableSubClasses = subClassesData; // fallback
+                if (availableSubClasses.length === 0) availableSubClasses = subClassesData; 
                 
                 const selectHtml = `
                     <select class="move-class-select text-xs" data-memberid="${m.id}" onchange="moveMemberToClass('${m.id}', this.value)">
@@ -996,7 +1059,7 @@
             });
         }
         
-        // ========== RENDER SUB KELAS (dengan tombol edit & ganti PIN) ==========
+        // ========== RENDER SUB KELAS ==========
         function renderSubClassUI() {
             const manageContainer = document.getElementById('subclass-manage-list');
             if (manageContainer) {
@@ -1580,6 +1643,7 @@
 
                     const params = new URLSearchParams();
                     params.append('action', 'absensi');
+                    params.append('id', id);
                     params.append('nama', member.name);
                     params.append('kategori', member.category);
                     params.append('subkelas', member.subClass || '-');
@@ -1588,7 +1652,8 @@
                     params.append('status', status); 
                     params.append('waktu', finalDateString);
 
-                    await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: params });
+                    // Menggunakan fetch biasa agar bisa terbaca (pastikan script GAS punya header CORS)
+                    await fetch(scriptURL, { method: 'POST', body: params });
                 }
 
                 const tamuCount = parseInt(document.getElementById('input-tamu').value || 0);
@@ -1602,7 +1667,7 @@
                     paramTamu.append('kegiatan', currentActivity);
                     paramTamu.append('status', tamuCount); 
                     paramTamu.append('waktu', finalDateString);
-                    await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: paramTamu });
+                    await fetch(scriptURL, { method: 'POST', body: paramTamu });
                 }
                 
                 const currentWeekId = getWeekIdentifier(selectedDate);
@@ -1665,7 +1730,7 @@
             }
 
             try {
-                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: params });
+                await fetch(scriptURL, { method: 'POST', body: params });
                 showToast("Sukses!", "Rekap Keterlibatan Kelas berhasil dikirim.", "success");
                 for(let i = 1; i <= 10; i++) {
                     const el = document.getElementById(`ket_${i}`);
@@ -1677,68 +1742,6 @@
                 btn.disabled = false; btn.innerHTML = 'KIRIM DATA KETERLIBATAN ↗';
             }
         };
-
-        // ========================================================
-        // ROMBAKAN DAFTAR DATABASE KESELURUHAN (ADMIN)
-        // ========================================================
-        window.renderManageList = () => {
-            const container = document.getElementById('manage-list-container');
-            const search = document.getElementById('manage-search').value.toLowerCase();
-            const filterCat = document.getElementById('manage-filter').value;
-            const totalEl = document.getElementById('admin-total-db');
-            
-            let filtered = membersData;
-            if (filterCat !== 'All') filtered = filtered.filter(m => m.category === filterCat);
-            filtered = filtered.filter(m => m.name.toLowerCase().includes(search));
-            
-            if (totalEl) totalEl.textContent = filtered.length;
-            container.innerHTML = '';
-            
-            if(filtered.length === 0) {
-                 container.innerHTML = `<p class="text-center text-gray-500 mt-8 drop-shadow-sm font-medium">Data tidak ditemukan di database.</p>`;
-                 return;
-            }
-            
-            filtered.forEach(m => {
-                const div = document.createElement('div');
-                // Desain Kartu (Card) Baru untuk List Database
-                div.className = "flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 md:p-5 rounded-2xl glass-item gap-4 transition-all hover:shadow-lg border border-white/60 bg-white/40";
-                
-                const firstChar = (m.name || '?').charAt(0).toUpperCase();
-                
-                // Badge Kategori, Subkelas, dan Role
-                const catColor = m.category === 'Dewasa' ? 'bg-navy/10 text-navy border-navy/20' : 'bg-orange-500/10 text-orange-800 border-orange-500/20';
-                const subClassBadge = m.subClass ? `<span class="bg-gold/20 text-yellow-900 border border-gold/30 px-2.5 py-1 rounded-md text-[10px] font-black uppercase shadow-sm">${m.subClass}</span>` : '';
-                const roleBadges = m.role.split(',').map(r => `<span class="bg-white/80 text-gray-700 border border-gray-200 px-2 py-1 rounded-md text-[9px] font-bold uppercase shadow-sm">${r.trim()}</span>`).join('');
-
-                div.innerHTML = `
-                    <div class="flex items-center gap-4 w-full sm:w-auto">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-navy to-navy-light text-gold flex items-center justify-center font-black text-xl shadow-md shrink-0 border border-gold/30">
-                            ${firstChar}
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-black text-navy text-base md:text-lg drop-shadow-sm leading-tight">${m.name}</h3>
-                            <div class="flex flex-wrap items-center gap-1.5 mt-2">
-                                <span class="border px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm ${catColor}">${m.category}</span>
-                                ${subClassBadge}
-                                ${roleBadges}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex gap-2 w-full sm:w-auto justify-end mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/50">
-                        <button onclick="editMember('${m.id}', '${m.name.replace(/'/g, "\\'")}', '${m.category}', '${m.role}', '${(m.subClass || '').replace(/'/g, "\\'")}')" class="flex-1 sm:flex-none px-4 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-800 border border-blue-500/30 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                            EDIT
-                        </button>
-                        <button onclick="confirmDelete('${m.id}', '${m.name.replace(/'/g, "\\'")}')" class="flex-1 sm:flex-none px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-800 border border-red-500/30 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                            HAPUS
-                        </button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
 
         window.editMember = (id, name, cat, roleStr, subClass) => {
             document.getElementById('member-id').value = id;
@@ -1768,7 +1771,7 @@
                 cb.checked = selectedRoles.includes(cb.value);
             });
 
-            document.getElementById('btn-save').textContent = "SIMPAN PERUBAHAN";
+            document.getElementById('btn-save-text').textContent = "SIMPAN PERUBAHAN";
             document.getElementById('btn-cancel').classList.remove('hidden');
             document.getElementById('form-title').textContent = "Edit Data Jemaat";
             document.getElementById('family-extra-fields').style.display = 'block';
@@ -1780,24 +1783,47 @@
         let deleteTarget = null;
         window.confirmDelete = (id, name) => {
             deleteTarget = id;
-            document.getElementById('modal-message').textContent = `Menghapus ${name} akan menghilangkannya dari database lokal Anda.`;
+            document.getElementById('modal-message').textContent = `Menghapus ${name} akan menghilangkannya dari database lokal dan Cloud.`;
             document.getElementById('modal-overlay').style.display = 'flex';
         };
         window.closeModal = () => { deleteTarget = null; document.getElementById('modal-overlay').style.display = 'none'; };
-        document.getElementById('modal-confirm-btn').onclick = () => {
+        
+        // Hapus Anggota dengan Sinkronisasi
+        document.getElementById('modal-confirm-btn').onclick = async () => {
             if (!deleteTarget) return;
-            membersData = membersData.filter(m => m.id !== deleteTarget);
-            delete attendanceData[deleteTarget]; 
-            saveToLocal(); 
-            renderList();
-            showToast("Dihapus", "Jemaat berhasil dihapus.", "success");
-            closeModal(); 
+            const btn = document.getElementById('modal-confirm-btn');
+            btn.innerHTML = 'Menghapus...';
+            btn.disabled = true;
+
+            try {
+                // 1. Hapus dari Awan
+                const params = new URLSearchParams();
+                params.append('action', 'deleteMember');
+                params.append('id', deleteTarget);
+                await fetch(scriptURL, { method: 'POST', body: params });
+
+                // 2. Hapus dari Lokal
+                membersData = membersData.filter(m => m.id !== deleteTarget);
+                delete attendanceData[deleteTarget]; 
+                saveToLocal(); 
+                renderList();
+                showToast("Dihapus", "Jemaat berhasil dihapus dari Cloud.", "success");
+            } catch (err) {
+                showToast("Gagal Menghapus", "Terjadi kesalahan sinkronisasi jaringan.", "error");
+            } finally {
+                btn.innerHTML = 'Ya, Hapus';
+                btn.disabled = false;
+                closeModal(); 
+            }
         };
 
+        // Simpan Anggota dengan Sinkronisasi
         document.getElementById('member-form').onsubmit = async (e) => {
             e.preventDefault();
 
-            const id = document.getElementById('member-id').value;
+            const idField = document.getElementById('member-id').value;
+            const newId = idField ? idField : String(Date.now()); // Generate ID baru jika belum ada
+
             const name = document.getElementById('member-name').value.trim();
             let subClassInput = document.getElementById('member-subclass').value;
             let cat = document.getElementById('member-category').value;
@@ -1820,7 +1846,7 @@
             let roleJoined = checkedBoxes.map(cb => cb.value).join(', ');
 
             const duplicateMember = membersData.find(m => {
-                if (id && m.id === id) return false;
+                if (idField && m.id === idField) return false;
                 return ((m.name || '').trim().toLowerCase() === name.trim().toLowerCase());
             });
 
@@ -1829,54 +1855,75 @@
                 return;
             }
 
-            if (id) {
-                const index = membersData.findIndex(m => m.id === id);
-                if (index !== -1) {
-                    membersData[index].name = name;
-                    membersData[index].category = cat;
-                    membersData[index].subClass = subClassInput;
-                    membersData[index].role = roleJoined;
-                    
-                    membersData[index].jk = jk;
-                    membersData[index].tgl_lahir = tgl_lahir;
-                    membersData[index].status_nikah = status_nikah;
-                    membersData[index].nama_pasangan = nama_pasangan;
-                    membersData[index].tgl_nikah = tgl_nikah;
-                    membersData[index].relasi = relasi;
-                    membersData[index].nama_ayah = nama_ayah;
-                    membersData[index].nama_ibu = nama_ibu;
-                }
-                showToast("Berhasil", "Perubahan data jemaat disimpan", "success");
-            } else {
-                membersData.push({ 
-                    id: Date.now().toString(), name: name, category: cat, subClass: subClassInput, role: roleJoined,
-                    jk: jk, tgl_lahir: tgl_lahir, status_nikah: status_nikah, nama_pasangan: nama_pasangan, 
-                    tgl_nikah: tgl_nikah, relasi: relasi, nama_ayah: nama_ayah, nama_ibu: nama_ibu 
-                });
-                try {
-                    const params = new URLSearchParams();
-                    params.append('action', 'saveMember');
-                    params.append('nama', name);
-                    params.append('kategori', cat);
-                    params.append('subkelas', subClassInput);
-                    params.append('jabatan', roleJoined);
-                    params.append('jk', jk);
-                    params.append('tgl_lahir', tgl_lahir);
-                    params.append('status_nikah', status_nikah);
-                    params.append('nama_pasangan', nama_pasangan);
-                    params.append('tgl_nikah', tgl_nikah);
-                    params.append('relasi', relasi);
-                    params.append('nama_ayah', nama_ayah);
-                    params.append('nama_ibu', nama_ibu);
-                    await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: params });
-                } catch (err) { console.error('Gagal simpan ke Spreadsheet:', err); }
-                showToast("Berhasil", "Jemaat baru ditambahkan ke database", "success");
-            }
+            // UI Loading State
+            const btnSave = document.getElementById('btn-save');
+            const btnText = document.getElementById('btn-save-text');
+            const btnLoader = document.getElementById('btn-save-loader');
+            btnSave.disabled = true;
+            btnText.classList.add('opacity-0');
+            btnLoader.classList.remove('hidden');
 
-            saveToLocal();
-            membersData.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-            renderList();
-            resetForm();
+            try {
+                // 1. Simpan ke Cloud (Spreadsheet) terlebih dahulu
+                const params = new URLSearchParams();
+                params.append('action', 'saveMember');
+                params.append('id', newId);
+                params.append('nama', name);
+                params.append('kategori', cat);
+                params.append('subkelas', subClassInput);
+                params.append('jabatan', roleJoined);
+                params.append('jk', jk);
+                params.append('tgl_lahir', tgl_lahir);
+                params.append('status_nikah', status_nikah);
+                params.append('nama_pasangan', nama_pasangan);
+                params.append('tgl_nikah', tgl_nikah);
+                params.append('relasi', relasi);
+                params.append('nama_ayah', nama_ayah);
+                params.append('nama_ibu', nama_ibu);
+
+                // Menggunakan fetch biasa agar response terbaca (Pastikan Google Script ter-deploy dengan Who Has Access: Anyone)
+                await fetch(scriptURL, { method: 'POST', body: params });
+
+                // 2. Simpan ke Data Lokal
+                if (idField) {
+                    const index = membersData.findIndex(m => m.id === idField);
+                    if (index !== -1) {
+                        membersData[index].name = name;
+                        membersData[index].category = cat;
+                        membersData[index].subClass = subClassInput;
+                        membersData[index].role = roleJoined;
+                        membersData[index].jk = jk;
+                        membersData[index].tgl_lahir = tgl_lahir;
+                        membersData[index].status_nikah = status_nikah;
+                        membersData[index].nama_pasangan = nama_pasangan;
+                        membersData[index].tgl_nikah = tgl_nikah;
+                        membersData[index].relasi = relasi;
+                        membersData[index].nama_ayah = nama_ayah;
+                        membersData[index].nama_ibu = nama_ibu;
+                    }
+                    showToast("Berhasil", "Perubahan data jemaat disimpan di Cloud", "success");
+                } else {
+                    membersData.push({ 
+                        id: newId, name: name, category: cat, subClass: subClassInput, role: roleJoined,
+                        jk: jk, tgl_lahir: tgl_lahir, status_nikah: status_nikah, nama_pasangan: nama_pasangan, 
+                        tgl_nikah: tgl_nikah, relasi: relasi, nama_ayah: nama_ayah, nama_ibu: nama_ibu 
+                    });
+                    showToast("Berhasil", "Jemaat baru ditambahkan ke Cloud", "success");
+                }
+
+                saveToLocal();
+                membersData.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+                renderList();
+                resetForm();
+
+            } catch (error) {
+                console.error(error);
+                showToast("Gagal Menyimpan", "Gagal menghubungi database awan.", "error");
+            } finally {
+                btnSave.disabled = false;
+                btnText.classList.remove('opacity-0');
+                btnLoader.classList.add('hidden');
+            }
         };
 
         window.resetForm = () => {
@@ -1899,7 +1946,7 @@
             
             updateRoleOptions();
 
-            document.getElementById('btn-save').textContent = "SIMPAN JEMAAT";
+            document.getElementById('btn-save-text').textContent = "SIMPAN JEMAAT";
             document.getElementById('btn-cancel').classList.add('hidden');
             document.getElementById('form-title').textContent = "Setup Data Jemaat Baru";
             document.getElementById('family-extra-fields').style.display = 'none';
@@ -1951,52 +1998,6 @@
             updateClock();
         }
         
-        renderSubClassUI(); 
-        renderRoleUI(); 
-        updateRoleOptions();
-        updateDateUI(); 
-        applyDayLogic();
-        membersData.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-        renderKeterlibatanForm();
-        renderList();
-        showHomeView(); 
-        startLiveClock(); 
-    
-        async function syncAllMembers() {
-            if (membersData.length === 0) { showToast("Info", "Tidak ada data jemaat", "error"); return; }
-            let successCount = 0, failedCount = 0;
-            const sentNames = new Set();
-
-            for (let i = 0; i < membersData.length; i++) {
-                const member = membersData[i];
-                const normalizedName = (member.name || '').trim().toLowerCase();
-                if (sentNames.has(normalizedName)) continue;
-                sentNames.add(normalizedName);
-
-                try {
-                    showToast("Sinkronisasi", `Mengirim ${member.name}...`, "success");
-                    const params = new URLSearchParams();
-                    params.append('action', 'saveMember');
-                    params.append('nama', member.name || '');
-                    params.append('kategori', member.category || '');
-                    params.append('subkelas', member.subClass || '');
-                    params.append('jabatan', member.role || '');
-                    params.append('jk', member.jk || '');
-                    params.append('tgl_lahir', member.tgl_lahir || '');
-                    params.append('status_nikah', member.status_nikah || '');
-                    params.append('nama_pasangan', member.nama_pasangan || '');
-                    params.append('tgl_nikah', member.tgl_nikah || '');
-                    params.append('relasi', member.relasi || '');
-                    params.append('nama_ayah', member.nama_ayah || '');
-                    params.append('nama_ibu', member.nama_ibu || '');
-                    await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: params });
-                    successCount++;
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                } catch (err) { failedCount++; }
-            }
-            showToast("Sinkronisasi Selesai", `${successCount} berhasil, ${failedCount} gagal`, "success");
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             const maritalSelect = document.getElementById('member-marital');
             if (maritalSelect) {
@@ -2032,6 +2033,17 @@
         document.getElementById('member-spouse-select').addEventListener('change', function () {
             if (this.value) document.getElementById('member-spouse').value = this.value;
         });
+
+        renderSubClassUI(); 
+        renderRoleUI(); 
+        updateRoleOptions();
+        updateDateUI(); 
+        applyDayLogic();
+        membersData.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        renderKeterlibatanForm();
+        renderList();
+        showHomeView(); 
+        startLiveClock(); 
     </script>
 </body>
 </html>
