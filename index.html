@@ -244,24 +244,12 @@
             transition: all .3s ease;
         }
 
-        .database-item:hover {
-            transform: translateY(-2px);
-            background: rgba(255,255,255,.95);
-            border-color: rgba(212,175,55,.45);
-            box-shadow: 0 12px 30px rgba(0,0,0,.10), 0 0 0 1px rgba(212,175,55,.12);
-        }
-        /* Untuk dropdown pindah kelas */
         .move-class-select {
             font-size: 11px;
             padding: 6px 8px;
             border-radius: 12px;
             background: white;
             border: 1px solid #ccc;
-        }
-
-        /* Status Sinkronisasi */
-        #sync-status-indicator {
-            transition: all 0.3s ease;
         }
     </style>
 </head>
@@ -290,7 +278,7 @@
             <p id="modal-message" class="text-gray-600 mb-6 text-sm leading-relaxed">Apakah Anda yakin?</p>
             <div class="flex gap-3 justify-end">
                 <button onclick="closeModal()" class="px-5 py-2.5 rounded-xl font-semibold text-gray-700 bg-white/50 hover:bg-white border border-white transition-colors">Batal</button>
-                <button id="modal-confirm-btn" class="px-5 py-2.5 rounded-xl font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30">Ya, Hapus</button>
+                <button id="modal-confirm-btn" class="px-5 py-2.5 rounded-xl font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30">Ya, Lanjutkan</button>
             </div>
         </div>
     </div>
@@ -325,7 +313,7 @@
 
     <!-- Navigation Header -->
     <header class="px-6 py-4 glass-card-dark sticky top-0 z-40 border-b border-white/10">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 relative">
             <div class="flex items-center gap-4">
                 <img src="PisgahWhite.png" alt="Pisgah Logo" class="h-12 w-auto object-contain drop-shadow-lg" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRDhCMzQ1IiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xOCAyMlYxM2wtNi00LTYgNHY5Ii8+PHBhdGggZD0iTTEyIDJ2NyIvPjxwYXRoIGQ9Ik05IDVoNiIvPjxwYXRoIGQ9Ik0xMiAyMnYtNWEyIDIgMCAwIDEgNCAwdjUiLz48L3N2Zz4='">
                 <div>
@@ -337,32 +325,30 @@
                 <button onclick="showHomeView()" id="nav-home" class="px-5 py-2 rounded-xl text-sm font-bold glass-btn-gold shadow-lg shadow-gold/20">🏠 BERANDA</button>
                 <button onclick="navAdminClicked()" id="nav-admin" class="px-5 py-2 rounded-xl text-sm font-bold transition-all text-white/80 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10">🔒 ADMIN</button>
             </div>
-        </div>
-        <!-- Indikator Cloud Sync -->
-        <div id="sync-status-indicator" class="absolute bottom-[-14px] left-1/2 transform -translate-x-1/2 bg-navy border border-white/20 text-white/80 text-[10px] px-3 py-0.5 rounded-b-lg flex items-center gap-1 shadow-md cursor-pointer hover:bg-navy-light" onclick="syncDataFromCloud()">
-            <svg id="sync-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21v-5h5"/></svg>
-            <span id="sync-text">Cloud Sync</span>
+            
+            <!-- Sync Indicator Toolbar -->
+            <div id="sync-status-indicator" class="absolute -bottom-9 left-1/2 transform -translate-x-1/2 bg-navy border border-white/20 text-white/80 text-[10px] px-4 py-1.5 rounded-b-xl flex items-center gap-2 shadow-lg cursor-pointer hover:bg-navy-light transition-all z-50" onclick="syncDataFromCloud()">
+                <svg id="sync-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21v-5h5"/></svg>
+                <span id="sync-text" class="font-bold tracking-widest uppercase">Cloud Sync</span>
+            </div>
         </div>
     </header>
 
     <!-- VIEW: HOME -->
     <main id="view-home" class="max-w-7xl mx-auto p-4 md:p-8 animate-fade-in-up block">
-        <!-- Kotak Selamat Datang -->
         <div class="glass-card-dark rounded-3xl p-8 md:p-12 relative overflow-hidden mb-8">
-            <img src="./PisgahColor.png" alt="Background Logo" class="absolute -right-10 -top-10 w-96 h-96 object-contain pointer-events-none" onerror="this.style.display='none'">
             <h2 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight drop-shadow-lg relative z-10">Selamat Datang,<br><span class="text-gold">PISGAH BISDAC</span><br><span class="text-lg md:text-2xl text-blue-100 font-bold block mt-2 opacity-90">Batam International Seventh-Day Adventist Church</span></h2>
-            <p class="text-blue-100/90 max-w-xl text-sm md:text-base leading-relaxed relative z-10">Platform digital pemantauan kehadiran jemaat dan tingkat keterlibatan secara real-time tersinkronisasi awan.</p>
+            <p class="text-blue-100/90 max-w-xl text-sm md:text-base leading-relaxed relative z-10">Platform digital pemantauan kehadiran jemaat dan tingkat keterlibatan secara real-time.</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div class="lg:col-span-4 space-y-6">
                 <!-- WIDGET: Total Database -->
-                <div class="glass-card-dark p-6 rounded-3xl flex items-center gap-5 border border-white/10 shadow-xl relative overflow-hidden">
-                    <div class="absolute right-0 top-0 w-32 h-32 bg-blue-500/10 rounded-bl-full blur-xl -z-0"></div>
-                    <div class="w-14 h-14 rounded-2xl bg-gold/20 text-gold flex items-center justify-center shrink-0 border border-gold/30 shadow-inner relative z-10">
+                <div class="glass-card-dark p-6 rounded-3xl flex items-center gap-5 border border-white/10 shadow-xl">
+                    <div class="w-14 h-14 rounded-2xl bg-gold/20 text-gold flex items-center justify-center shrink-0 border border-gold/30 shadow-inner">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </div>
-                    <div class="relative z-10">
+                    <div>
                         <p class="text-xs font-bold text-blue-200 uppercase tracking-wider opacity-80">Total Jemaat Database</p>
                         <h3 class="text-3xl font-black text-white mt-1 drop-shadow-md" id="dash-total-jemaat">0</h3>
                     </div>
@@ -384,32 +370,6 @@
                     <p class="text-sm font-black text-white relative z-10 drop-shadow-md" id="dash-tanggal-lengkap">-</p>
                     <p class="text-[10px] text-gold font-bold mt-1 relative z-10 uppercase tracking-widest drop-shadow-sm" id="dash-kegiatan-hari-ini">-</p>
                     <span id="dash-hari-ini" class="hidden"></span>
-                </div>
-
-                <!-- WIDGET: PERMOHONAN DOA -->
-                <div class="glass-card-dark p-6 rounded-3xl relative overflow-hidden border border-white/10 shadow-xl">
-                    <div class="absolute top-0 left-0 w-24 h-24 bg-blue-500/20 rounded-br-full blur-xl -z-0"></div>
-                    <h3 class="text-sm font-black text-white mb-1 uppercase tracking-widest relative z-10 flex items-center gap-2 drop-shadow-md">🙏 Permohonan Doa</h3>
-                    <p class="text-[10px] text-blue-200/80 mb-5 relative z-10">Bagikan pergumulan Anda, kami rindu mendoakannya.</p>
-
-                    <form id="form-doa" onsubmit="submitDoa(event)" class="space-y-4 relative z-10">
-                        <div>
-                            <label class="block text-xs font-bold text-white mb-1.5 ml-1 drop-shadow-md">Nama Lengkap</label>
-                            <input type="text" id="doa-nama" required placeholder="Contoh: John Doe" class="w-full px-4 py-3 elegant-input text-sm font-bold text-navy placeholder-gray-500" />
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-white mb-1.5 ml-1 drop-shadow-md">No. Handphone</label>
-                            <input type="tel" id="doa-hp" required placeholder="Contoh: +62812..." pattern="^\+.*" title="Nomor harus diawali dengan lambang + dan kode negara" class="w-full px-4 py-3 elegant-input text-sm font-bold text-navy placeholder-gray-500" />
-                            <p class="text-[9px] text-gold-light mt-1.5 ml-1 drop-shadow-sm font-medium">Wajib pakai simbol + dan kode negara.</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-white mb-1.5 ml-1 drop-shadow-md">Isi Permohonan Doa</label>
-                            <textarea id="doa-pesan" required rows="3" placeholder="Tuliskan pergumulan Anda di sini..." class="w-full px-4 py-3 elegant-input text-sm font-bold text-navy placeholder-gray-500 resize-none custom-scrollbar"></textarea>
-                        </div>
-                        <button type="submit" id="btn-submit-doa" class="w-full py-3.5 rounded-xl font-black text-xs tracking-widest uppercase flex items-center justify-center gap-2 glass-btn-gold mt-2 shadow-lg shadow-gold/20">
-                            KIRIM PERMOHONAN ↗
-                        </button>
-                    </form>
                 </div>
             </div>
             
@@ -515,7 +475,7 @@
                         <div class="p-6 glass-panel border-t border-white/50 z-20 sticky bottom-0 rounded-b-3xl">
                             <div class="flex flex-wrap justify-between items-center mb-4 px-3 py-2.5 text-[10px] sm:text-xs font-bold text-gray-600 uppercase tracking-wide elegant-input rounded-xl">
                                 <div class="flex gap-4">
-                                    <span>Hadir: <span id="sum-hadir" class="text-green-700 text-sm ml-1">0</span> <span class="lowercase text-[9px] font-medium">(Anggota)</span></span>
+                                    <span>Hadir: <span id="sum-hadir" class="text-green-700 text-sm ml-1">0</span></span>
                                     <span>Tamu: <span id="sum-tamu" class="text-navy text-sm ml-1">0</span></span>
                                 </div>
                                 <div class="flex gap-4 mt-2 sm:mt-0">
@@ -707,21 +667,14 @@
                         </div>
 
                         <div class="flex flex-col gap-2 pt-2">
-                            <button type="submit" id="btn-save" class="w-full px-6 py-4 font-black rounded-xl text-sm glass-btn-gold uppercase tracking-wider relative">
-                                <span id="btn-save-text">SIMPAN JEMAAT</span>
-                                <div id="btn-save-loader" class="spinner-dark hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
-                            </button>
+                            <button type="submit" id="btn-save" class="w-full px-6 py-4 font-black rounded-xl text-sm glass-btn-gold uppercase tracking-wider">SIMPAN JEMAAT</button>
                             <button type="button" id="btn-cancel" onclick="resetForm()" class="hidden w-full px-6 py-4 bg-white/40 hover:bg-white/60 border border-white/50 text-gray-700 font-bold rounded-xl transition-colors text-sm uppercase shadow-sm">BATAL EDIT</button>
-                            <button type="button" onclick="syncDataFromCloud()" class="px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-sm flex items-center justify-center gap-2 mt-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21v-5h5"/></svg>
-                                Sinkron Manual ke Database Awan
-                            </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <!-- PANEL KANAN: DATABASE KESELURUHAN dengan fitur pindah kelas -->
+            <!-- PANEL KANAN: DATABASE KESELURUHAN -->
             <div class="lg:col-span-8 lg:order-2 flex flex-col relative min-h-[600px]">
                 <div class="glass-card rounded-[32px] flex flex-col h-full flex-1 overflow-hidden shadow-2xl border border-white/40">
                     <div class="p-6 glass-panel border-b border-white/40 flex justify-between items-center">
@@ -746,7 +699,6 @@
                         </select>
                     </div>
 
-                    <!-- Tempat Inject Daftar Jemaat -->
                     <div id="manage-list-container" class="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar space-y-3 pb-8 min-h-[500px]">
                         <!-- JS Injected -->
                     </div>
@@ -756,38 +708,17 @@
     </main>
 
     <script>
-        // URL SCRIPT GOOGLE APPS SCRIPT ANDA
-        const scriptURL = "https://script.google.com/macros/s/AKfycbw-A-0Dsw5tCC8Jb_Ufq3Fc0OsO7mLyUv1lOdLfJCcHH_V2-A50I-u56XaGWkadc9c-og/exec";
+        // URL SCRIPT GOOGLE APPS SCRIPT
+        const scriptURL = "https://script.google.com/macros/s/AKfycbzygQgKUhiqlGWsgMyY4vJVTMgWoj6zY-8lacW3uRfIWJaNgzy8f73YUBuWU1RBPOfu5g/exec";
 
         // --- DATA LOCAL ---
         let rawData = JSON.parse(localStorage.getItem('navy_members')) || [];
-        let membersData = rawData.map(m => {
-            let rawRole = m.role || 'Anggota Jemaat';
-            if (rawRole === 'Anggota') {
-                rawRole = (m.category === 'Dewasa') ? 'Anggota Jemaat' : 'Anggota Anak';
-            }
-            return {
-                id: m.id,
-                name: m.name,
-                category: m.category || 'Dewasa',
-                subClass: m.subClass || '',
-                role: rawRole,
-                jk: m.jk || '',
-                tgl_lahir: m.tgl_lahir || '',
-                status_nikah: m.status_nikah || '',
-                nama_pasangan: m.nama_pasangan || '',
-                tgl_nikah: m.tgl_nikah || '',
-                relasi: m.relasi || '',
-                nama_ayah: m.nama_ayah || '',
-                nama_ibu: m.nama_ibu || ''
-            };
-        });
+        let membersData = rawData;
         
         let appStats = JSON.parse(localStorage.getItem('navy_stats')) || { labels: [], hadir: [], sakit: [], alpa: [] };
         let subClassesData = JSON.parse(localStorage.getItem('navy_subclasses')) || [];
         let isSubClassEditMode = false;
         
-        // Data PIN untuk sub kelas (akun)
         let subclassAccounts = JSON.parse(localStorage.getItem('navy_subclass_accounts')) || {};
 
         let rolesData = JSON.parse(localStorage.getItem('navy_roles')) || [
@@ -795,9 +726,10 @@
             'Pemimpin', 'Koordinator', 'Sekretaris'
         ];
         let isRoleEditMode = false;
-        
+
         // ========================================================
         // SINKRONISASI 2 ARAH (CLOUD SYNC)
+        // Menggunakan fetch biasa untuk GET, dan Headers text/plain untuk hindari CORS pada POST
         // ========================================================
         async function syncDataFromCloud() {
             const syncIcon = document.getElementById('sync-icon');
@@ -807,38 +739,59 @@
             if (syncText) syncText.textContent = "Menyinkronkan...";
 
             try {
-                // Fetch data dari Google Sheets via action=getMembers
-                const response = await fetch(`${scriptURL}?action=getMembers`);
-                const result = await response.json();
+                const response = await fetch(`${scriptURL}?action=getMembers`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (!response.ok) throw new Error("Jaringan bermasalah.");
+                
+                const textResponse = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(textResponse);
+                } catch (e) {
+                    console.error("Format balasan bukan JSON:", textResponse);
+                    throw new Error("Respon server tidak valid.");
+                }
 
-                if (result && result.success && Array.isArray(result.data)) {
-                    membersData = result.data.map(m => ({
-                        id: m.id || String(Date.now() + Math.random()), // Pastikan ada ID
-                        name: m.nama,
-                        category: m.kategori || 'Dewasa',
-                        subClass: m.subkelas || '',
-                        role: m.jabatan || 'Anggota Jemaat',
-                        jk: m.jk || '',
-                        tgl_lahir: m.tgl_lahir || '',
-                        status_nikah: m.status_nikah || '',
-                        nama_pasangan: m.nama_pasangan || '',
-                        tgl_nikah: m.tgl_nikah || '',
-                        relasi: m.relasi || '',
-                        nama_ayah: m.nama_ayah || '',
-                        nama_ibu: m.nama_ibu || ''
-                    }));
+                if (result && Array.isArray(result)) {
+                    membersData = result.map((m, idx) => {
+                        const existing = rawData.find(old => old.name === m.nama);
+                        return {
+                            id: existing ? existing.id : String(Date.now() + idx), 
+                            name: m.nama || '',
+                            category: m.kategori || 'Dewasa',
+                            subClass: m['sub-kelas'] || m.subkelas || '',
+                            role: m.jabatan || 'Anggota Jemaat',
+                            jk: m.gender || m.jk || '',
+                            tgl_lahir: existing ? existing.tgl_lahir : (m.tgl_lahir || ''),
+                            status_nikah: m.status_nikah || '',
+                            nama_pasangan: m.pasangan || m.nama_pasangan || '',
+                            tgl_nikah: existing ? existing.tgl_nikah : (m.tgl_nikah || ''),
+                            relasi: existing ? existing.relasi : (m.relasi || ''),
+                            nama_ayah: m.ayah || m.nama_ayah || '',
+                            nama_ibu: m.ibu || m.nama_ibu || ''
+                        };
+                    });
 
-                    // Update Subclass secara dinamis berdasarkan data awan
+                    // Update Subclass secara dinamis
                     membersData.forEach(m => {
                         if (m.subClass && !subClassesData.includes(m.subClass)) subClassesData.push(m.subClass);
                     });
 
-                    saveToLocal(); // Ini akan memperbarui UI juga
-                    showToast("Sinkronisasi Sukses", "Data berhasil diperbarui dari awan.", "success");
+                    saveToLocal();
+                    showToast("Sinkronisasi Sukses", "Data berhasil diperbarui dari Cloud.", "success");
                 }
             } catch (error) {
                 console.error('Sync error:', error);
-                showToast("Sinkronisasi Gagal", "Gagal menghubungi database awan. Menggunakan data lokal.", "error");
+                let errorMsg = "Menggunakan data lokal Anda. Cek jaringan.";
+                if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+                    errorMsg = "Koneksi diblokir CORS. Pastikan Script di-deploy dengan akses 'Anyone'.";
+                } else if (error.message === 'Respon server tidak valid.') {
+                    errorMsg = "Pastikan URL Script benar dan di-deploy sebagai Web App terbaru.";
+                }
+                showToast("Sinkronisasi Gagal", errorMsg, "error");
             } finally {
                 if (syncIcon) syncIcon.classList.remove('animate-spin');
                 if (syncText) syncText.textContent = "Cloud Sync";
@@ -849,30 +802,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             syncDataFromCloud();
         });
-        // ========================================================
-
-        let isSubClassMigrated = false;
-        membersData.forEach(m => {
-            if (m.subClass && !subClassesData.includes(m.subClass)) {
-                subClassesData.push(m.subClass);
-                isSubClassMigrated = true;
-            }
-        });
-        if (isSubClassMigrated) localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
-
-        let isRoleMigrated = false;
-        membersData.forEach(m => {
-            if (m.role) {
-                let rolesArr = m.role.split(',').map(r => r.trim());
-                rolesArr.forEach(r => {
-                    if (r && !rolesData.includes(r)) {
-                        rolesData.push(r);
-                        isRoleMigrated = true;
-                    }
-                });
-            }
-        });
-        if (isRoleMigrated) localStorage.setItem('navy_roles', JSON.stringify(rolesData));
 
         function getWeekIdentifier(dateObj) {
             const d = new Date(dateObj || new Date());
@@ -898,16 +827,16 @@
         let statusChartInstance = null;
 
         const kegiatanList = [
-            "Datang tepat waktu Kebaktian Sekolah Sabat", "Membaca Alkitab setiap hari",
-            "Renungan Pagi setiap hari", "Belajar Sekolah Sabat setiap hari",
-            "Hadir di Kebaktian Rabu Malam", "Melakukan Jangkauan Keluar (Discipleship)",
-            "Melakukan Perlawatan Pemeliharaan", "Melakukan Doa (777, 1752 & Doa Subuh)",
-            "Terlibat kegiatan Kelompok Kecil", "Membagikan risalah, buku rohani, kursus Alkitab"
+            "Datang tepat waktu Kebaktian", "Membaca Alkitab setiap hari",
+            "Renungan Pagi setiap hari", "Belajar SS setiap hari",
+            "Hadir di Kebaktian Rabu Malam", "Melakukan Jangkauan Keluar",
+            "Melakukan Perlawatan", "Melakukan Doa Subuh",
+            "Terlibat Kelompok Kecil", "Membagikan risalah/buku"
         ];
 
         Chart.register(ChartDataLabels);
 
-        // ========== FUNGSI UNTUK EDIT NAMA SUB KELAS ==========
+        // ========== EDIT SUB KELAS ==========
         let editingSubclassName = null;
         function openEditSubclassModal(oldName) {
             editingSubclassName = oldName;
@@ -921,26 +850,12 @@
         function saveSubclassEdit() {
             const newName = document.getElementById('edit-subclass-input').value.trim();
             if (!newName || newName === editingSubclassName) {
-                closeEditSubclassModal();
-                return;
+                closeEditSubclassModal(); return;
             }
-            // Update semua anggota yang memiliki sub kelas lama
-            let updated = false;
-            membersData.forEach(m => {
-                if (m.subClass === editingSubclassName) {
-                    m.subClass = newName;
-                    updated = true;
-                }
-            });
-            // Update daftar sub kelas
+            membersData.forEach(m => { if (m.subClass === editingSubclassName) m.subClass = newName; });
             const index = subClassesData.indexOf(editingSubclassName);
             if (index !== -1) subClassesData[index] = newName;
-            // Update akun sub kelas (jika ada)
-            if (subclassAccounts[editingSubclassName]) {
-                subclassAccounts[newName] = subclassAccounts[editingSubclassName];
-                delete subclassAccounts[editingSubclassName];
-                localStorage.setItem('navy_subclass_accounts', JSON.stringify(subclassAccounts));
-            }
+            
             localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
             saveToLocal();
             renderSubClassUI();
@@ -950,25 +865,10 @@
         }
         document.getElementById('confirm-edit-subclass').onclick = saveSubclassEdit;
 
-        // ========== FUNGSI UNTUK PIN SUB KELAS ==========
-        function regeneratePin(subclassName) {
-            let newPin = Math.floor(100000 + Math.random() * 900000).toString();
-            subclassAccounts[subclassName] = { pin: newPin, category: getCategoryFromSubClass(subclassName) };
-            localStorage.setItem('navy_subclass_accounts', JSON.stringify(subclassAccounts));
-            showToast("PIN Diubah", `${subclassName} → PIN baru: ${newPin}`, "success");
-            renderSubClassUI();
-        }
-        function getCategoryFromSubClass(subclassName) {
-            let memberSample = membersData.find(m => m.subClass === subclassName);
-            if (memberSample) return memberSample.category;
-            return 'Dewasa';
-        }
-
-        // ========== FUNGSI PINDAH KELAS ANGGOTA ==========
+        // ========== PINDAH KELAS (MANAGE LIST) ==========
         async function moveMemberToClass(memberId, newSubClass) {
             const member = membersData.find(m => m.id === memberId);
-            if (!member) return;
-            if (member.subClass === newSubClass) return;
+            if (!member || member.subClass === newSubClass) return;
             const oldClass = member.subClass;
             member.subClass = newSubClass;
             saveToLocal();
@@ -976,19 +876,9 @@
             if (document.getElementById('view-admin').classList.contains('hidden') === false && currentAccessLevel !== 'Admin') {
                 renderList();
             }
-            showToast("Pindah Kelas", `${member.name} pindah dari ${oldClass} ke ${newSubClass}`, "success");
-            
-            // Sinkronisasi pemindahan kelas ke Awan tanpa no-cors
-            try {
-                const params = new URLSearchParams();
-                params.append('action', 'updateMemberClass');
-                params.append('id', member.id);
-                params.append('subkelas', newSubClass);
-                await fetch(scriptURL, { method: 'POST', body: params });
-            } catch(e) { console.warn("Gagal sync ke spreadsheet", e); }
+            showToast("Pindah Kelas", `${member.name} ke ${newSubClass}`, "success");
         }
 
-        // ========== FUNGSI ADMIN MANAGE DATABASE ==========
         window.renderManageList = () => {
             const container = document.getElementById('manage-list-container');
             const search = document.getElementById('manage-search').value.toLowerCase();
@@ -1003,20 +893,16 @@
             container.innerHTML = '';
             
             if(filtered.length === 0) {
-                 container.innerHTML = `<p class="text-center text-gray-500 mt-8 drop-shadow-sm font-medium">Data tidak ditemukan di database.</p>`;
+                 container.innerHTML = `<p class="text-center text-gray-500 mt-8 font-medium">Data tidak ditemukan di database.</p>`;
                  return;
             }
             
             filtered.forEach(m => {
                 const catColor = m.category === 'Dewasa' ? 'bg-navy/10 text-navy border-navy/20' : 'bg-orange-500/10 text-orange-800 border-orange-500/20';
-                const subClassBadge = m.subClass ? `<span class="bg-gold/20 text-yellow-900 border border-gold/30 px-2.5 py-1 rounded-md text-[10px] font-black uppercase shadow-sm">${m.subClass}</span>` : `<span class="bg-gray-200 text-gray-500 px-2 py-1 rounded-md text-[10px]">Tanpa Kelas</span>`;
+                const subClassBadge = m.subClass ? `<span class="bg-gold/20 text-yellow-900 border border-gold/30 px-2.5 py-1 rounded-md text-[10px] font-black uppercase shadow-sm">${m.subClass}</span>` : '';
                 const roleBadges = m.role.split(',').map(r => `<span class="bg-white/80 text-gray-700 border border-gray-200 px-2 py-1 rounded-md text-[9px] font-bold uppercase shadow-sm">${r.trim()}</span>`).join('');
                 
-                let availableSubClasses = subClassesData.filter(sc => {
-                    let sample = membersData.find(mem => mem.category === m.category && mem.subClass === sc);
-                    return sample !== undefined || sc === m.subClass;
-                });
-                if (availableSubClasses.length === 0) availableSubClasses = subClassesData; 
+                let availableSubClasses = subClassesData;
                 
                 const selectHtml = `
                     <select class="move-class-select text-xs" data-memberid="${m.id}" onchange="moveMemberToClass('${m.id}', this.value)">
@@ -1025,7 +911,7 @@
                 `;
                 
                 const div = document.createElement('div');
-                div.className = "flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 md:p-5 rounded-2xl glass-item gap-4 transition-all hover:shadow-lg border border-white/60 bg-white/40";
+                div.className = "flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 md:p-5 rounded-2xl glass-item gap-4 hover:shadow-lg border border-white/60 bg-white/40";
                 div.innerHTML = `
                     <div class="flex items-center gap-4 w-full sm:w-auto">
                         <div class="w-12 h-12 rounded-full bg-gradient-to-br from-navy to-navy-light text-gold flex items-center justify-center font-black text-xl shadow-md shrink-0 border border-gold/30">
@@ -1042,17 +928,11 @@
                     </div>
                     <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/50">
                         <div class="flex items-center gap-1 bg-white/50 rounded-xl px-2 py-1">
-                            <span class="text-[10px] font-bold">Pindah ke:</span>
+                            <span class="text-[10px] font-bold">Pindah:</span>
                             ${selectHtml}
                         </div>
-                        <button onclick="editMember('${m.id}', '${m.name.replace(/'/g, "\\'")}', '${m.category}', '${m.role}', '${(m.subClass || '').replace(/'/g, "\\'")}')" class="px-4 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-800 border border-blue-500/30 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                            EDIT
-                        </button>
-                        <button onclick="confirmDelete('${m.id}', '${m.name.replace(/'/g, "\\'")}')" class="px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-800 border border-red-500/30 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                            HAPUS
-                        </button>
+                        <button onclick="editMember('${m.id}')" class="px-4 py-2.5 bg-blue-500/10 text-blue-800 border border-blue-500/30 rounded-xl text-xs font-bold shadow-sm">EDIT</button>
+                        <button onclick="confirmDelete('${m.id}', '${m.name.replace(/'/g, "\\'")}')" class="px-4 py-2.5 bg-red-500/10 text-red-800 border border-red-500/30 rounded-xl text-xs font-bold shadow-sm">HAPUS</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -1064,85 +944,53 @@
             const manageContainer = document.getElementById('subclass-manage-list');
             if (manageContainer) {
                 manageContainer.innerHTML = '';
-                if (subClassesData.length === 0) manageContainer.innerHTML = '<p class="text-[10px] text-gray-500 italic mt-1 w-full drop-shadow-sm">Belum ada sub kelas.</p>';
                 subClassesData.forEach(sc => {
-                    const hasAccount = subclassAccounts[sc] ? true : false;
                     manageContainer.innerHTML += `
                         <div class="flex items-center gap-1 glass-item !bg-white/80 px-3 py-1.5 rounded-lg shadow-sm border border-gray-200">
                             <span class="text-[11px] font-bold uppercase tracking-wider text-navy">${sc}</span>
-                            ${isSubClassEditMode ? `
-                                <button type="button" onclick="openEditSubclassModal('${sc}')" class="text-blue-500 hover:text-blue-700 ml-1 font-black text-xs transition-colors" title="Edit Nama">✎</button>
-                                <button type="button" onclick="regeneratePin('${sc}')" class="text-gold hover:text-yellow-700 ml-1 font-black text-xs transition-colors" title="Ganti PIN">🔑</button>
-                                <button type="button" onclick="deleteSubClass('${sc}')" class="text-red-500 hover:text-red-700 ml-1 font-black text-xs transition-colors">✕</button>
-                            ` : ''}
-                            ${!isSubClassEditMode && !hasAccount ? `<button onclick="regeneratePin('${sc}')" class="ml-2 text-[10px] font-bold bg-gold/20 px-2 py-0.5 rounded">Buat Akun</button>` : ''}
-                            ${!isSubClassEditMode && hasAccount ? `<span class="ml-2 text-[9px] text-green-600">✓ PIN tersedia</span>` : ''}
+                            ${isSubClassEditMode ? `<button type="button" onclick="openEditSubclassModal('${sc}')" class="text-blue-500 hover:text-blue-700 ml-1 font-black text-xs">✎</button>
+                                <button type="button" onclick="deleteSubClass('${sc}')" class="text-red-500 hover:text-red-700 ml-1 font-black text-xs">✕</button>` : ''}
                         </div>
                     `;
                 });
             }
-
             const formSelect = document.getElementById('member-subclass');
             if (formSelect) {
                 const currentVal = formSelect.value;
                 formSelect.innerHTML = '<option value="" disabled selected>-- Pilih Sub Kelas --</option>';
-                subClassesData.forEach(sc => {
-                    formSelect.innerHTML += `<option value="${sc}">${sc}</option>`;
-                });
-                if (subClassesData.includes(currentVal)) { formSelect.value = currentVal; } 
-                else { formSelect.value = ""; }
+                subClassesData.forEach(sc => formSelect.innerHTML += `<option value="${sc}">${sc}</option>`);
+                if (subClassesData.includes(currentVal)) formSelect.value = currentVal;
             }
         }
 
         window.addSubClass = () => {
-            const input = document.getElementById('input-new-subclass');
-            const val = input.value.trim();
-            if (!val) return;
-            if (subClassesData.some(sc => sc.toLowerCase() === val.toLowerCase())) return;
+            const val = document.getElementById('input-new-subclass').value.trim();
+            if (!val || subClassesData.some(sc => sc.toLowerCase() === val.toLowerCase())) return;
             subClassesData.push(val);
             localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
-            renderSubClassUI();
-            input.value = '';
+            renderSubClassUI(); document.getElementById('input-new-subclass').value = '';
         };
 
         window.deleteSubClass = (val) => {
-            const isUsed = membersData.some(m => m.subClass === val);
-            if (isUsed) { showToast("Gagal Dihapus", `Sub kelas sedang digunakan!`, "error"); return; }
+            if (membersData.some(m => m.subClass === val)) { showToast("Gagal", `Sedang digunakan!`, "error"); return; }
             subClassesData = subClassesData.filter(sc => sc !== val);
             localStorage.setItem('navy_subclasses', JSON.stringify(subClassesData));
             renderSubClassUI();
         };
 
-         window.toggleSubClassEdit = () => {
+        window.toggleSubClassEdit = () => {
             isSubClassEditMode = !isSubClassEditMode;
-            const controls = document.getElementById('subclass-edit-controls');
+            document.getElementById('subclass-edit-controls').classList.toggle('hidden', !isSubClassEditMode);
             const btn = document.getElementById('btn-toggle-subclass-edit');
-            if (isSubClassEditMode) {
-                controls.classList.remove('hidden');
-                btn.textContent = 'SELESAI';
-                btn.className = 'px-3 py-1.5 bg-green-500/20 border border-green-500/40 text-green-800 rounded-lg text-xs font-bold hover:bg-green-500/30 transition-colors shadow-sm';
-            } else {
-                controls.classList.add('hidden');
-                btn.textContent = 'EDIT';
-                btn.className = 'px-3 py-1.5 bg-white/50 border border-white/60 text-navy rounded-lg text-xs font-bold hover:bg-white transition-colors shadow-sm';
-            }
+            btn.textContent = isSubClassEditMode ? 'SELESAI' : 'EDIT';
             renderSubClassUI(); 
         };
         
         window.toggleRoleEdit = () => {
             isRoleEditMode = !isRoleEditMode;
-            const controls = document.getElementById('role-edit-controls');
+            document.getElementById('role-edit-controls').classList.toggle('hidden', !isRoleEditMode);
             const btn = document.getElementById('btn-toggle-role-edit');
-
-            if (isRoleEditMode) {
-                controls.classList.remove('hidden');
-                btn.textContent = 'SELESAI';
-                btn.className = 'px-3 py-1.5 bg-green-500/20 border border-green-500/40 text-green-800 rounded-lg text-xs font-bold transition-colors shadow-sm';
-            } else {
-                controls.classList.add('hidden');
-                btn.textContent = 'EDIT';
-                btn.className = 'px-3 py-1.5 bg-white/50 border border-white/60 text-navy rounded-lg text-xs font-bold transition-colors shadow-sm';
-            }
+            btn.textContent = isRoleEditMode ? 'SELESAI' : 'EDIT';
             renderRoleUI(); 
         };
 
@@ -1150,12 +998,11 @@
             const manageContainer = document.getElementById('role-manage-list');
             if (manageContainer) {
                 manageContainer.innerHTML = '';
-                if (rolesData.length === 0) manageContainer.innerHTML = '<p class="text-[10px] text-gray-500 italic mt-1 w-full drop-shadow-sm">Belum ada jabatan.</p>';
                 rolesData.forEach(r => {
                     manageContainer.innerHTML += `
-                        <div class="flex items-center gap-1 glass-item !bg-white/80 px-3 py-1.5 rounded-lg shadow-sm border border-gray-200">
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-navy">${r}</span>
-                            ${isRoleEditMode ? `<button type="button" onclick="deleteRole('${r}')" class="text-red-500 hover:text-red-700 ml-2 font-black text-xs transition-colors">✕</button>` : ''}
+                        <div class="flex items-center gap-1 glass-item !bg-white/80 px-3 py-1.5 rounded-lg border border-gray-200">
+                            <span class="text-[11px] font-bold uppercase text-navy">${r}</span>
+                            ${isRoleEditMode ? `<button type="button" onclick="deleteRole('${r}')" class="text-red-500 font-black text-xs">✕</button>` : ''}
                         </div>
                     `;
                 });
@@ -1164,18 +1011,15 @@
         }
 
         window.addRole = () => {
-            const input = document.getElementById('input-new-role');
-            const val = input.value.trim();
+            const val = document.getElementById('input-new-role').value.trim();
             if (!val || rolesData.some(r => r.toLowerCase() === val.toLowerCase())) return;
             rolesData.push(val);
             localStorage.setItem('navy_roles', JSON.stringify(rolesData));
-            renderRoleUI();
-            input.value = '';
+            renderRoleUI(); document.getElementById('input-new-role').value = '';
         };
 
         window.deleteRole = (val) => {
-            const isUsed = membersData.some(m => m.role.split(',').map(r => r.trim()).includes(val));
-            if (isUsed) { showToast("Gagal Dihapus", `Jabatan sedang digunakan!`, "error"); return; }
+            if (membersData.some(m => m.role.includes(val))) { showToast("Gagal", `Sedang digunakan!`, "error"); return; }
             rolesData = rolesData.filter(r => r !== val);
             localStorage.setItem('navy_roles', JSON.stringify(rolesData));
             renderRoleUI();
@@ -1190,11 +1034,10 @@
                 form.innerHTML += `
                     <div class="flex items-center justify-between p-4 rounded-2xl glass-item gap-4">
                         <div class="flex items-start gap-3 flex-1">
-                            <span class="font-black text-gold text-lg mt-0.5 drop-shadow-sm">${num}.</span>
-                            <label class="text-sm font-bold text-navy leading-snug drop-shadow-sm">${teks}</label>
+                            <span class="font-black text-gold text-lg mt-0.5">${num}.</span>
+                            <label class="text-sm font-bold text-navy leading-snug">${teks}</label>
                         </div>
-                        <input type="number" id="ket_${num}" min="0" placeholder="0" 
-                            class="w-16 sm:w-20 px-2 py-2 text-center font-black text-lg elegant-input rounded-xl shadow-inner text-navy">
+                        <input type="number" id="ket_${num}" min="0" placeholder="0" class="w-16 sm:w-20 px-2 py-2 text-center font-black text-lg elegant-input rounded-xl text-navy">
                     </div>
                 `;
             });
@@ -1206,31 +1049,15 @@
             
             const ctxTrend = document.getElementById('trendChart');
             if(ctxTrend) {
-                const labels = ['Rabu (Doa)', 'Dewasa', 'Anak-anak', 'Khotbah'];
-                const dataLalu = [
-                    appStatsV2.mingguLalu['Permintaan Doa'] || 0,
-                    appStatsV2.mingguLalu['Sekolah Sabat Dewasa'] || 0,
-                    appStatsV2.mingguLalu['Sekolah Sabat Anak'] || 0,
-                    appStatsV2.mingguLalu['Khotbah'] || 0
-                ];
-                const dataIni = [
-                    appStatsV2.mingguIni['Permintaan Doa'] || 0,
-                    appStatsV2.mingguIni['Sekolah Sabat Dewasa'] || 0,
-                    appStatsV2.mingguIni['Sekolah Sabat Anak'] || 0,
-                    appStatsV2.mingguIni['Khotbah'] || 0
-                ];
+                const labels = ['Doa', 'Dewasa', 'Anak', 'Khotbah'];
+                const dataLalu = [appStatsV2.mingguLalu['Permintaan Doa'] || 0, appStatsV2.mingguLalu['Sekolah Sabat Dewasa'] || 0, appStatsV2.mingguLalu['Sekolah Sabat Anak'] || 0, appStatsV2.mingguLalu['Khotbah'] || 0];
+                const dataIni = [appStatsV2.mingguIni['Permintaan Doa'] || 0, appStatsV2.mingguIni['Sekolah Sabat Dewasa'] || 0, appStatsV2.mingguIni['Sekolah Sabat Anak'] || 0, appStatsV2.mingguIni['Khotbah'] || 0];
 
                 if(trendChartInstance) trendChartInstance.destroy(); 
                 trendChartInstance = new Chart(ctxTrend, {
                     type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            { label: 'Minggu Lalu', data: dataLalu, backgroundColor: 'rgba(255, 255, 255, 0.3)', borderRadius: 4 },
-                            { label: 'Minggu Ini', data: dataIni, backgroundColor: '#D4AF37', borderRadius: 4 }
-                        ]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, animation: { duration: 2000 }, plugins: { legend: { position: 'bottom' }, datalabels: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
+                    data: { labels: labels, datasets: [{ label: 'Minggu Lalu', data: dataLalu, backgroundColor: 'rgba(255, 255, 255, 0.3)', borderRadius: 4 }, { label: 'Minggu Ini', data: dataIni, backgroundColor: '#D4AF37', borderRadius: 4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, datalabels: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
                 });
             }
 
@@ -1242,8 +1069,8 @@
                 if(komposisiChartInstance) komposisiChartInstance.destroy();
                 komposisiChartInstance = new Chart(ctxKomp, {
                     type: 'doughnut',
-                    data: { labels: ['Dewasa', 'Anak-anak'], datasets: [{ data: [dCount, aCount], backgroundColor: ['#1e293b', '#D4AF37'], borderWidth: 2, hoverOffset: 10 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, datalabels: { color: '#ffffff', font: { weight: 'bold', size: 16 } } }, cutout: '65%' }
+                    data: { labels: ['Dewasa', 'Anak-anak'], datasets: [{ data: [dCount, aCount], backgroundColor: ['#1e293b', '#D4AF37'], borderWidth: 2 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
                 });
             }
 
@@ -1258,18 +1085,15 @@
                 statusChartInstance = new Chart(ctxStatus, {
                     type: 'pie',
                     data: { labels: (appStats.hadir.length) ? ['Hadir', 'Sakit', 'Alpa'] : ['Belum Ada Data'], datasets: [{ data: (appStats.hadir.length) ? [lastHadir, lastSakit, lastAlpa] : [1], backgroundColor: (appStats.hadir.length) ? ['#22c55e', '#eab308', '#ef4444'] : ['rgba(255,255,255,0.2)'], borderWidth: 2 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, datalabels: { color: '#ffffff', font: { weight: 'bold' }, formatter: (value, context) => context.chart.data.labels[0] === 'Belum Ada Data' ? '' : (value > 0 ? value : '') } } }
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
                 });
             }
         }
 
         function updateDateUI() {
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const dateString = selectedDate.toLocaleDateString('id-ID', options);
-            const shortDay = selectedDate.toLocaleDateString('id-ID', {weekday: 'long'});
-            
-            document.getElementById('tanggal-hari-ini').textContent = dateString;
-            document.getElementById('dash-hari-ini').textContent = shortDay;
+            document.getElementById('tanggal-hari-ini').textContent = selectedDate.toLocaleDateString('id-ID', options);
+            document.getElementById('dash-hari-ini').textContent = selectedDate.toLocaleDateString('id-ID', {weekday: 'long'});
             const yyyy = selectedDate.getFullYear();
             const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
             const dd = String(selectedDate.getDate()).padStart(2, '0');
@@ -1291,7 +1115,6 @@
             const dayOfWeek = selectedDate.getDay(); 
             const optionsContainer = document.getElementById('activity-selector-container');
             const activityOptions = document.getElementById('activity-options');
-            const dashKegiatan = document.getElementById('dash-kegiatan-hari-ini');
             let hasAccess = false;
             activityOptions.innerHTML = '';
 
@@ -1311,43 +1134,19 @@
             }
 
             if (hasAccess) {
-                dashKegiatan.textContent = "Jadwal Tersedia";
                 optionsContainer.style.display = 'block';
                 document.getElementById('tab-container').style.display = 'flex';
                 document.getElementById('panel-warning').classList.add('hidden');
-                
                 if(activityOptions.firstElementChild) {
-                    const firstTitle = activityOptions.firstElementChild.querySelector('.activity-title').textContent;
-                    const mapTitle = { "Sekolah Sabat (Dewasa)": "Sekolah Sabat Dewasa", "Sekolah Sabat (Anak)": "Sekolah Sabat Anak", "Khotbah / Ibadah Raya": "Khotbah", "Permintaan Doa": "Permintaan Doa" };
-                    selectActivity(mapTitle[firstTitle], activityOptions.firstElementChild);
+                    const titles = { "Sekolah Sabat (Dewasa)": "Sekolah Sabat Dewasa", "Sekolah Sabat (Anak)": "Sekolah Sabat Anak", "Khotbah / Ibadah Raya": "Khotbah", "Permintaan Doa": "Permintaan Doa" };
+                    selectActivity(titles[activityOptions.firstElementChild.querySelector('.activity-title').textContent], activityOptions.firstElementChild);
                 }
             } else {
-                dashKegiatan.textContent = "Tidak Ada Jadwal";
                 optionsContainer.style.display = 'none';
                 document.getElementById('tab-container').style.display = 'none';
                 document.getElementById('panel-warning').classList.remove('hidden');
                 document.getElementById('panel-absensi').classList.add('hidden');
                 document.getElementById('panel-keterlibatan').classList.add('hidden');
-            }
-        }
-
-        function updateSubclassFilterUI() {
-            const select = document.getElementById('filter-subclass');
-            if(!select) return;
-
-            let filterCat = null;
-            if (currentActivity === 'Sekolah Sabat Dewasa') filterCat = 'Dewasa';
-            else if (currentActivity === 'Sekolah Sabat Anak') filterCat = 'Anak-anak';
-
-            if (filterCat) {
-                select.classList.remove('hidden');
-                let subclasses = [...new Set(membersData.filter(m => m.category === filterCat && m.subClass).map(m => m.subClass))];
-                let prevVal = select.value;
-                select.innerHTML = '<option value="All">Semua Kelas</option>';
-                subclasses.forEach(sc => { select.innerHTML += `<option value="${sc}">${sc}</option>`; });
-                if(subclasses.includes(prevVal)) select.value = prevVal; else select.value = 'All';
-            } else {
-                select.classList.add('hidden'); select.value = 'All';
             }
         }
 
@@ -1372,7 +1171,13 @@
                 tabKeterlibatanBtn.style.display = (activity === 'Sekolah Sabat Dewasa') ? 'block' : 'none';
                 if (activity !== 'Sekolah Sabat Dewasa' && activeTab === 'keterlibatan') switchTab('absensi'); 
             }
-            updateSubclassFilterUI();
+            
+            // Update Subclass filter
+            const select = document.getElementById('filter-subclass');
+            if (activity.includes('Sekolah Sabat')) {
+                select.classList.remove('hidden');
+            } else { select.classList.add('hidden'); select.value = 'All'; }
+            
             renderList();
         }
 
@@ -1380,16 +1185,10 @@
             const container = document.getElementById('member-role-container');
             if (!container) return;
             container.innerHTML = '';
-            
-            if (rolesData.length === 0) {
-                 container.innerHTML = '<p class="text-[10px] text-red-500 font-bold w-full drop-shadow-sm">Belum ada daftar jabatan.</p>';
-                 return;
-            }
-
             rolesData.forEach(role => {
                 container.innerHTML += `
-                    <label class="flex items-center gap-2 px-3 py-2 glass-item rounded-lg cursor-pointer shadow-sm border border-gray-200 hover:border-gold/50">
-                        <input type="checkbox" value="${role}" class="role-checkbox w-4 h-4 text-gold focus:ring-gold border-gray-300 rounded">
+                    <label class="flex items-center gap-2 px-3 py-2 glass-item rounded-lg cursor-pointer shadow-sm hover:border-gold/50">
+                        <input type="checkbox" value="${role}" class="role-checkbox w-4 h-4 text-gold border-gray-300 rounded">
                         <span class="text-[11px] font-bold text-navy uppercase">${role}</span>
                     </label>
                 `;
@@ -1433,20 +1232,20 @@
             btn.disabled = true;
 
             try {
-                const response = await fetch(`${scriptURL}?action=verifyPin&pin=${pin}`);
-                const data = await response.json();
+                const response = await fetch(`${scriptURL}?action=verifyPin&pin=${encodeURIComponent(pin)}`);
+                if (!response.ok) throw new Error("Gagal terkoneksi.");
+                const textResponse = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(textResponse);
+                } catch(e) {
+                    throw new Error("Bukan JSON");
+                }
 
-                if (data.valid) {
+                if (data.success || data.valid) {
                     closeLogin();
                     document.getElementById('active-account-name').textContent = data.account;
-                    currentAccessLevel = data.accessLevel;
-                    if (!currentAccessLevel) {
-                        const accName = (data.account || "").toLowerCase();
-                        if (accName.includes('anak')) currentAccessLevel = 'Anak';
-                        else if (accName.includes('dewasa')) currentAccessLevel = 'Dewasa';
-                        else if (accName.includes('khotbah')) currentAccessLevel = 'Khotbah';
-                        else currentAccessLevel = 'Admin';
-                    }
+                    currentAccessLevel = data.role || data.accessLevel;
                     
                     document.getElementById('active-access-badge').textContent = `Akses: ${currentAccessLevel}`;
                     
@@ -1466,23 +1265,20 @@
                     showToast("Berhasil Masuk", `Selamat bertugas, ${data.account}!`, "success");
                     document.getElementById('admin-pin').value = ''; 
                 } else {
-                    showToast("Kode Tidak Valid!", "Pastikan kode keamanan Anda benar.", "error");
-                    document.getElementById('admin-pin').value = ''; 
+                    showToast("Kode Salah!", "Pastikan kode keamanan Anda benar.", "error");
                 }
             } catch (err) {
-                showToast("Koneksi Gagal", "Periksa internet dan pastikan script sudah di-deploy.", "error");
+                console.error("Login error:", err);
+                let errorMsg = "CORS diblokir. Pastikan 'Who has access' adalah 'Anyone'.";
+                if(err.message === "Bukan JSON") errorMsg = "URL salah atau Deployment belum diperbarui.";
+                showToast("Koneksi Gagal", errorMsg, "error");
             } finally {
                 btn.innerHTML = 'MASUK'; btn.disabled = false;
             }
         }
 
-        document.getElementById('admin-pin').addEventListener('keypress', function (e) { if (e.key === 'Enter') verifyLogin(); });
-
         function switchTab(tab) {
             if (currentAccessLevel === 'Admin') return; 
-            const dayOfWeek = selectedDate.getDay();
-            if (dayOfWeek !== 3 && dayOfWeek !== 6) return;
-
             activeTab = tab;
             ['absensi', 'keterlibatan'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
@@ -1495,7 +1291,6 @@
         function saveToLocal() {
             localStorage.setItem('navy_members', JSON.stringify(membersData));
             document.getElementById('dash-total-jemaat').textContent = membersData.length;
-            updateSubclassFilterUI();
             initChart(); 
             if (currentAccessLevel === 'Admin') renderManageList();
         }
@@ -1511,7 +1306,6 @@
             let filteredMembers = membersData;
             if (currentActivity === 'Sekolah Sabat Dewasa') filteredMembers = filteredMembers.filter(m => m.category === 'Dewasa');
             else if (currentActivity === 'Sekolah Sabat Anak') filteredMembers = filteredMembers.filter(m => m.category === 'Anak-anak');
-            else if (currentActivity === 'Khotbah') filteredMembers = filteredMembers.filter(m => m.role.includes('Anggota Jemaat') || m.role.includes('Anggota Anak'));
             
             if (subClassFilter !== 'All' && (currentActivity === 'Sekolah Sabat Dewasa' || currentActivity === 'Sekolah Sabat Anak')) {
                 filteredMembers = filteredMembers.filter(m => m.subClass === subClassFilter);
@@ -1521,7 +1315,7 @@
             document.getElementById('total-db').textContent = filteredMembers.length;
             
             if (filteredMembers.length === 0) {
-                container.innerHTML = `<div class="p-10 text-center text-gray-500 italic font-medium drop-shadow-sm">Tidak ada jemaat di kegiatan/kelas ini.</div>`;
+                container.innerHTML = `<div class="p-10 text-center text-gray-500 font-medium">Tidak ada jemaat di kegiatan ini.</div>`;
                 updateSubmitButton();
                 return;
             }
@@ -1530,29 +1324,18 @@
             filteredMembers.forEach((m) => {
                 const status = attendanceData[m.id] || null;
                 const firstChar = (m.name || '?').charAt(0).toUpperCase();
-                const subClassBadge = m.subClass ? `<span class="text-[9px] uppercase font-black tracking-wider text-navy bg-gold px-1.5 py-0.5 rounded shadow-sm">${m.subClass}</span>` : '';
+                const subClassBadge = m.subClass ? `<span class="text-[9px] uppercase font-black text-navy bg-gold px-1.5 py-0.5 rounded shadow-sm">${m.subClass}</span>` : '';
                 
-                let roleBadges = m.role.split(',').map(r => r.trim()).map(r => {
-                    let roleColor = "bg-white/40 border border-white/50 text-gray-700";
-                    if(r === 'Koordinator' || r === 'Sekretaris') roleColor = "bg-blue-500/10 text-blue-800 border border-blue-500/20";
-                    if(r === 'Guru Sekolah Sabat Dewasa' || r === 'Guru Anak-anak') roleColor = "bg-green-500/10 text-green-800 border border-green-500/20";
-                    if(r === 'Pemimpin') roleColor = "bg-purple-500/10 text-purple-800 border border-purple-500/20";
-                    return `<span class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded ${roleColor}">${r}</span>`;
-                }).join('');
-
                 const div = document.createElement('div');
                 div.className = "group flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 rounded-2xl glass-item gap-4";
                 div.innerHTML = `
                     <div class="flex items-center gap-4 w-full sm:w-auto">
-                        <div class="w-10 h-10 rounded-full bg-navy text-gold flex items-center justify-center font-bold shadow-sm shrink-0 border border-white/20">
-                            ${firstChar}
-                        </div>
+                        <div class="w-10 h-10 rounded-full bg-navy text-gold flex items-center justify-center font-bold shadow-sm shrink-0 border border-white/20">${firstChar}</div>
                         <div>
                             <div class="font-bold text-[15px] text-navy leading-tight drop-shadow-sm">${m.name}</div>
                             <div class="flex items-center gap-1 mt-1 flex-wrap">
                                 <span class="text-[9px] uppercase font-black tracking-wider text-gray-500 mr-1">${m.category}</span>
                                 ${subClassBadge}
-                                ${roleBadges}
                             </div>
                         </div>
                     </div>
@@ -1574,18 +1357,8 @@
         }
 
         window.markAllHadir = () => {
-            const searchQuery = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : "";
-            const subClassFilter = document.getElementById('filter-subclass') ? document.getElementById('filter-subclass').value : 'All';
-            
             let filtered = membersData;
             if (currentActivity === 'Sekolah Sabat Dewasa') filtered = filtered.filter(m => m.category === 'Dewasa');
-            else if (currentActivity === 'Sekolah Sabat Anak') filtered = filtered.filter(m => m.category === 'Anak-anak');
-            else if (currentActivity === 'Khotbah') filtered = filtered.filter(m => m.role.includes('Anggota Jemaat') || m.role.includes('Anggota Anak'));
-            
-            if (subClassFilter !== 'All' && (currentActivity === 'Sekolah Sabat Dewasa' || currentActivity === 'Sekolah Sabat Anak')) {
-                filtered = filtered.filter(m => m.subClass === subClassFilter);
-            }
-            filtered = filtered.filter(m => m.name.toLowerCase().includes(searchQuery));
             filtered.forEach(m => attendanceData[m.id] = 'Hadir');
             renderList();
         }
@@ -1593,336 +1366,174 @@
         function updateSubmitButton() {
             const btn = document.getElementById('btn-submit-absensi');
             if(!btn) return;
-            
             const totalSet = Object.keys(attendanceData).length;
             document.getElementById('total-selected').textContent = totalSet;
 
             let h = 0, s = 0, a = 0;
             Object.values(attendanceData).forEach(val => {
-                if (val === 'Hadir') h++;
-                if (val === 'Sakit') s++;
-                if (val === 'Alpa') a++;
+                if (val === 'Hadir') h++; else if (val === 'Sakit') s++; else if (val === 'Alpa') a++;
             });
-            const t = document.getElementById('input-tamu') ? parseInt(document.getElementById('input-tamu').value || 0) : 0;
+            const t = parseInt(document.getElementById('input-tamu').value || 0);
 
             document.getElementById('sum-hadir').textContent = h;
             document.getElementById('sum-tamu').textContent = t;
             document.getElementById('sum-sakit').textContent = s;
             document.getElementById('sum-alpa').textContent = a;
 
-            if (isSubmitting) {
-                btn.disabled = true;
-                btn.innerHTML = '<div class="spinner"></div> MENGIRIM DATA...';
-                btn.className = "w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all opacity-70 cursor-not-allowed glass-card-dark text-gold";
-            } else {
-                btn.disabled = totalSet === 0;
+            btn.disabled = totalSet === 0;
+            if (!isSubmitting) {
                 btn.innerHTML = `KIRIM <span id="submit-count" class="bg-navy text-white px-2 py-0.5 rounded-md text-[10px] shadow-inner">${totalSet}</span> DATA ABSENSI ↗`;
-                btn.className = totalSet > 0 ? "w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 glass-btn-gold" : "w-full py-4 px-8 rounded-2xl font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all opacity-50 cursor-not-allowed bg-white/40 text-gray-600 border border-white/30";
+                btn.className = totalSet > 0 ? "w-full py-4 px-8 rounded-2xl font-black text-sm uppercase flex items-center justify-center gap-3 glass-btn-gold" : "w-full py-4 px-8 rounded-2xl font-black text-sm uppercase flex items-center justify-center gap-3 opacity-50 bg-white/40 text-gray-600 border border-white/30";
             }
         }
 
+        // --- SUBMIT ABSENSI DENGAN FETCH HEADERS TEXT/PLAIN ---
         window.submitAbsensi = async () => {
             const ids = Object.keys(attendanceData);
             if (ids.length === 0) return;
             
             isSubmitting = true;
-            updateSubmitButton();
+            const btn = document.getElementById('btn-submit-absensi');
+            btn.innerHTML = '<div class="spinner"></div> MENGIRIM DATA...';
+            btn.className = "w-full py-4 px-8 rounded-2xl font-black text-sm uppercase flex items-center justify-center gap-3 opacity-70 glass-card-dark text-gold";
 
-            const finalDateString = selectedDate.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            let payload = [];
             let statHadirAnggota = 0, statSakit = 0, statAlpa = 0;
 
+            ids.forEach(id => {
+                const member = membersData.find(m => m.id === id);
+                if (member) {
+                    const st = attendanceData[id];
+                    payload.push({ nama: member.name, kategori: member.category, subkelas: member.subClass || "-", jabatan: member.role, status: st });
+                    if(st === 'Hadir') statHadirAnggota++; else if(st === 'Sakit') statSakit++; else statAlpa++;
+                }
+            });
+
             try {
-                for (const id of ids) {
-                    const member = membersData.find(m => m.id === id);
-                    if (!member) continue;
+                // Mengirim payload JSON dalam format text/plain agar tidak diblokir CORS preflight Apps Script
+                await fetch(scriptURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'submitAttendance', data: payload })
+                });
 
-                    const status = attendanceData[id];
-                    if(status === 'Hadir') statHadirAnggota++;
-                    if(status === 'Sakit') statSakit++;
-                    if(status === 'Alpa') statAlpa++;
-
-                    const params = new URLSearchParams();
-                    params.append('action', 'absensi');
-                    params.append('id', id);
-                    params.append('nama', member.name);
-                    params.append('kategori', member.category);
-                    params.append('subkelas', member.subClass || '-');
-                    params.append('jabatan', member.role);
-                    params.append('kegiatan', currentActivity);
-                    params.append('status', status); 
-                    params.append('waktu', finalDateString);
-
-                    // Menggunakan fetch biasa agar bisa terbaca (pastikan script GAS punya header CORS)
-                    await fetch(scriptURL, { method: 'POST', body: params });
-                }
-
-                const tamuCount = parseInt(document.getElementById('input-tamu').value || 0);
-                if (tamuCount > 0) {
-                    const paramTamu = new URLSearchParams();
-                    paramTamu.append('action', 'absensi');
-                    paramTamu.append('nama', `TAMU PENDATANG`);
-                    paramTamu.append('kategori', '-');
-                    paramTamu.append('subkelas', '-');
-                    paramTamu.append('jabatan', 'Tamu');
-                    paramTamu.append('kegiatan', currentActivity);
-                    paramTamu.append('status', tamuCount); 
-                    paramTamu.append('waktu', finalDateString);
-                    await fetch(scriptURL, { method: 'POST', body: paramTamu });
-                }
-                
-                const currentWeekId = getWeekIdentifier(selectedDate);
-                if (appStatsV2.weekId !== currentWeekId) {
-                    appStatsV2.mingguLalu = { ...appStatsV2.mingguIni };
-                    appStatsV2.mingguIni = { 'Permintaan Doa': 0, 'Sekolah Sabat Dewasa': 0, 'Sekolah Sabat Anak': 0, 'Khotbah': 0 };
-                    appStatsV2.weekId = currentWeekId;
-                }
-                
-                if (currentActivity in appStatsV2.mingguIni) {
-                    appStatsV2.mingguIni[currentActivity] = statHadirAnggota + tamuCount;
-                    localStorage.setItem('navy_stats_v2', JSON.stringify(appStatsV2));
-                }
-
+                // Update Stats Lokal
                 const shortDate = selectedDate.toLocaleDateString('id-ID', {day: '2-digit', month: 'short'});
-                appStats.labels.push(`${shortDate} (${currentActivity.split(' ')[0]})`);
-                appStats.hadir.push(statHadirAnggota + tamuCount);
+                appStats.labels.push(`${shortDate}`);
+                appStats.hadir.push(statHadirAnggota);
                 appStats.sakit.push(statSakit);
                 appStats.alpa.push(statAlpa);
-
-                if(appStats.labels.length > 7) {
-                    appStats.labels.shift(); appStats.hadir.shift(); appStats.sakit.shift(); appStats.alpa.shift();
-                }
                 localStorage.setItem('navy_stats', JSON.stringify(appStats));
 
-                showToast("Data Terkirim!", `Hadir: ${statHadirAnggota} Anggota, ${tamuCount} Tamu | Sakit: ${statSakit} | Alpa: ${statAlpa}`, "success");
-                
+                showToast("Data Terkirim!", "Absensi telah sukses dicatat di Spreadsheet.", "success");
                 attendanceData = {}; 
-                document.getElementById('input-tamu').value = ""; 
                 renderList();
                 initChart(); 
             } catch (err) {
-                showToast("Terjadi Kendala", "Koneksi terputus saat mengirim data.", "error");
+                console.error(err);
+                showToast("Kendala Jaringan", "Data gagal terkirim. Coba lagi nanti.", "error");
             } finally {
-                isSubmitting = false;
-                updateSubmitButton();
+                isSubmitting = false; updateSubmitButton();
             }
         };
 
-        window.submitKeterlibatan = async () => {
-            const btn = document.getElementById('btn-submit-keterlibatan');
-            btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> MENGIRIM DATA...';
-            
-            const finalDateString = selectedDate.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            const params = new URLSearchParams();
-            params.append('action', 'keterlibatan');
-            params.append('waktu', finalDateString);
-            
-            let isAnyFilled = false;
-            for(let i = 1; i <= 10; i++) {
-                const val = document.getElementById(`ket_${i}`)?.value || "0";
-                params.append(`k${i}`, val);
-                if (parseInt(val) > 0) isAnyFilled = true;
-            }
-
-            if (!isAnyFilled) {
-                showToast("Data Kosong", "Mohon isi minimal satu kegiatan dengan angka.", "error");
-                btn.disabled = false; btn.innerHTML = 'KIRIM DATA KETERLIBATAN ↗';
-                return;
-            }
-
-            try {
-                await fetch(scriptURL, { method: 'POST', body: params });
-                showToast("Sukses!", "Rekap Keterlibatan Kelas berhasil dikirim.", "success");
-                for(let i = 1; i <= 10; i++) {
-                    const el = document.getElementById(`ket_${i}`);
-                    if(el) el.value = "";
-                }
-            } catch (err) {
-                showToast("Gagal", "Tidak dapat menghubungi server.", "error");
-            } finally {
-                btn.disabled = false; btn.innerHTML = 'KIRIM DATA KETERLIBATAN ↗';
-            }
-        };
-
-        window.editMember = (id, name, cat, roleStr, subClass) => {
-            document.getElementById('member-id').value = id;
-            document.getElementById('member-name').value = name;
-            document.getElementById('member-category').value = cat;
-            document.getElementById('member-subclass').value = subClass || '';
-            
+        // --- SUBMIT JEMAAT BARU/EDIT DENGAN FETCH HEADERS TEXT/PLAIN ---
+        window.editMember = (id) => {
             const m = membersData.find(x => x.id === id);
-            if (m) {
-                document.getElementById('member-gender').value = m.jk || '';
-                document.getElementById('member-birth').value = m.tgl_lahir || '';
-                document.getElementById('member-marital').value = m.status_nikah || '';
-                document.getElementById('member-family-role').value = m.relasi || '';
-                document.getElementById('member-spouse').value = m.nama_pasangan || '';
-                document.getElementById('member-wedding').value = m.tgl_nikah || '';
-                document.getElementById('member-father').value = m.nama_ayah || '';
-                document.getElementById('member-mother').value = m.nama_ibu || '';
-
-                document.getElementById('member-marital').dispatchEvent(new Event('change'));
-                document.getElementById('member-family-role').dispatchEvent(new Event('change'));
-            }
+            if (!m) return;
+            document.getElementById('member-id').value = id;
+            document.getElementById('member-name').value = m.name;
+            document.getElementById('member-category').value = m.category;
+            document.getElementById('member-subclass').value = m.subClass || '';
+            document.getElementById('member-gender').value = m.jk || '';
+            document.getElementById('member-birth').value = m.tgl_lahir || '';
+            document.getElementById('member-marital').value = m.status_nikah || '';
+            document.getElementById('member-family-role').value = m.relasi || '';
+            document.getElementById('member-spouse').value = m.nama_pasangan || '';
+            document.getElementById('member-wedding').value = m.tgl_nikah || '';
+            document.getElementById('member-father').value = m.nama_ayah || '';
+            document.getElementById('member-mother').value = m.nama_ibu || '';
             
             updateRoleOptions(); 
-            
-            const selectedRoles = roleStr.split(',').map(r => r.trim());
-            document.querySelectorAll('.role-checkbox').forEach(cb => {
-                cb.checked = selectedRoles.includes(cb.value);
-            });
+            const selectedRoles = (m.role || '').split(',').map(r => r.trim());
+            document.querySelectorAll('.role-checkbox').forEach(cb => { cb.checked = selectedRoles.includes(cb.value); });
 
-            document.getElementById('btn-save-text').textContent = "SIMPAN PERUBAHAN";
+            document.getElementById('btn-save').textContent = "SIMPAN PERUBAHAN";
             document.getElementById('btn-cancel').classList.remove('hidden');
-            document.getElementById('form-title').textContent = "Edit Data Jemaat";
             document.getElementById('family-extra-fields').style.display = 'block';
-
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            setTimeout(() => document.getElementById('member-name').focus(), 300);
         };
 
         let deleteTarget = null;
         window.confirmDelete = (id, name) => {
             deleteTarget = id;
-            document.getElementById('modal-message').textContent = `Menghapus ${name} akan menghilangkannya dari database lokal dan Cloud.`;
             document.getElementById('modal-overlay').style.display = 'flex';
         };
         window.closeModal = () => { deleteTarget = null; document.getElementById('modal-overlay').style.display = 'none'; };
         
-        // Hapus Anggota dengan Sinkronisasi
         document.getElementById('modal-confirm-btn').onclick = async () => {
             if (!deleteTarget) return;
             const btn = document.getElementById('modal-confirm-btn');
-            btn.innerHTML = 'Menghapus...';
-            btn.disabled = true;
+            btn.innerHTML = 'Menghapus...'; btn.disabled = true;
 
             try {
-                // 1. Hapus dari Awan
-                const params = new URLSearchParams();
-                params.append('action', 'deleteMember');
-                params.append('id', deleteTarget);
-                await fetch(scriptURL, { method: 'POST', body: params });
+                // Untuk menghapus dari Cloud, gunakan parameter URL dengan mode standar agar mudah. 
+                // Atau post plain text
+                await fetch(scriptURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'deleteMember', id: deleteTarget })
+                });
 
-                // 2. Hapus dari Lokal
                 membersData = membersData.filter(m => m.id !== deleteTarget);
-                delete attendanceData[deleteTarget]; 
-                saveToLocal(); 
-                renderList();
-                showToast("Dihapus", "Jemaat berhasil dihapus dari Cloud.", "success");
+                saveToLocal(); renderManageList();
+                showToast("Dihapus", "Anggota dihapus secara permanen.", "success");
             } catch (err) {
-                showToast("Gagal Menghapus", "Terjadi kesalahan sinkronisasi jaringan.", "error");
+                showToast("Gagal Menghapus", "Terdapat masalah koneksi.", "error");
             } finally {
-                btn.innerHTML = 'Ya, Hapus';
-                btn.disabled = false;
-                closeModal(); 
+                btn.innerHTML = 'Ya, Lanjutkan'; btn.disabled = false; closeModal(); 
             }
         };
 
-        // Simpan Anggota dengan Sinkronisasi
         document.getElementById('member-form').onsubmit = async (e) => {
             e.preventDefault();
-
             const idField = document.getElementById('member-id').value;
-            const newId = idField ? idField : String(Date.now()); // Generate ID baru jika belum ada
-
-            const name = document.getElementById('member-name').value.trim();
-            let subClassInput = document.getElementById('member-subclass').value;
-            let cat = document.getElementById('member-category').value;
+            const newId = idField ? idField : String(Date.now());
+            
             const checkedBoxes = Array.from(document.querySelectorAll('.role-checkbox:checked'));
-
-            const jk = document.getElementById('member-gender').value;
-            const tgl_lahir = document.getElementById('member-birth').value;
-            const status_nikah = document.getElementById('member-marital').value;
-            const relasi = document.getElementById('member-family-role').value;
-            let nama_pasangan = document.getElementById('member-spouse').value.trim();
-            const tgl_nikah = document.getElementById('member-wedding').value;
-            const nama_ayah = document.getElementById('member-father').value.trim();
-            const nama_ibu = document.getElementById('member-mother').value.trim();
-
-            if (!name) { showToast("Validasi Gagal", "Nama lengkap jemaat wajib diisi!", "error"); return; }
-            if (!cat) { showToast("Validasi Gagal", "Kategori utama wajib dipilih!", "error"); return; }
-            if (!subClassInput) { showToast("Validasi Gagal", "Silakan pilih Sub Kelas!", "error"); return; }
-            if (checkedBoxes.length === 0) { showToast("Validasi Gagal", "Minimal 1 Jabatan/Role wajib dipilih!", "error"); return; }
-
             let roleJoined = checkedBoxes.map(cb => cb.value).join(', ');
 
-            const duplicateMember = membersData.find(m => {
-                if (idField && m.id === idField) return false;
-                return ((m.name || '').trim().toLowerCase() === name.trim().toLowerCase());
-            });
+            const memberPayload = {
+                name: document.getElementById('member-name').value.trim(),
+                kategori: document.getElementById('member-category').value,
+                subkelas: document.getElementById('member-subclass').value,
+                jabatan: roleJoined,
+                gender: document.getElementById('member-gender').value,
+                statusNikah: document.getElementById('member-marital').value,
+                pasangan: document.getElementById('member-spouse').value,
+                ayah: document.getElementById('member-father').value,
+                ibu: document.getElementById('member-mother').value,
+                alamat: "-"
+            };
 
-            if (duplicateMember) {
-                showToast("Duplikat Terdeteksi", "Nama jemaat sudah ada di database", "error");
-                return;
-            }
-
-            // UI Loading State
             const btnSave = document.getElementById('btn-save');
-            const btnText = document.getElementById('btn-save-text');
-            const btnLoader = document.getElementById('btn-save-loader');
-            btnSave.disabled = true;
-            btnText.classList.add('opacity-0');
-            btnLoader.classList.remove('hidden');
+            btnSave.disabled = true; btnSave.textContent = "Menyimpan ke Cloud...";
 
             try {
-                // 1. Simpan ke Cloud (Spreadsheet) terlebih dahulu
-                const params = new URLSearchParams();
-                params.append('action', 'saveMember');
-                params.append('id', newId);
-                params.append('nama', name);
-                params.append('kategori', cat);
-                params.append('subkelas', subClassInput);
-                params.append('jabatan', roleJoined);
-                params.append('jk', jk);
-                params.append('tgl_lahir', tgl_lahir);
-                params.append('status_nikah', status_nikah);
-                params.append('nama_pasangan', nama_pasangan);
-                params.append('tgl_nikah', tgl_nikah);
-                params.append('relasi', relasi);
-                params.append('nama_ayah', nama_ayah);
-                params.append('nama_ibu', nama_ibu);
+                await fetch(scriptURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'upsertMember', memberData: memberPayload })
+                });
 
-                // Menggunakan fetch biasa agar response terbaca (Pastikan Google Script ter-deploy dengan Who Has Access: Anyone)
-                await fetch(scriptURL, { method: 'POST', body: params });
-
-                // 2. Simpan ke Data Lokal
-                if (idField) {
-                    const index = membersData.findIndex(m => m.id === idField);
-                    if (index !== -1) {
-                        membersData[index].name = name;
-                        membersData[index].category = cat;
-                        membersData[index].subClass = subClassInput;
-                        membersData[index].role = roleJoined;
-                        membersData[index].jk = jk;
-                        membersData[index].tgl_lahir = tgl_lahir;
-                        membersData[index].status_nikah = status_nikah;
-                        membersData[index].nama_pasangan = nama_pasangan;
-                        membersData[index].tgl_nikah = tgl_nikah;
-                        membersData[index].relasi = relasi;
-                        membersData[index].nama_ayah = nama_ayah;
-                        membersData[index].nama_ibu = nama_ibu;
-                    }
-                    showToast("Berhasil", "Perubahan data jemaat disimpan di Cloud", "success");
-                } else {
-                    membersData.push({ 
-                        id: newId, name: name, category: cat, subClass: subClassInput, role: roleJoined,
-                        jk: jk, tgl_lahir: tgl_lahir, status_nikah: status_nikah, nama_pasangan: nama_pasangan, 
-                        tgl_nikah: tgl_nikah, relasi: relasi, nama_ayah: nama_ayah, nama_ibu: nama_ibu 
-                    });
-                    showToast("Berhasil", "Jemaat baru ditambahkan ke Cloud", "success");
-                }
-
-                saveToLocal();
-                membersData.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-                renderList();
+                showToast("Berhasil", "Data Jemaat Tersimpan di Database", "success");
+                // Refresh local data from cloud directly so IDs match perfectly
+                await syncDataFromCloud();
                 resetForm();
-
             } catch (error) {
-                console.error(error);
-                showToast("Gagal Menyimpan", "Gagal menghubungi database awan.", "error");
+                showToast("Gagal Menyimpan", "Cek koneksi internet Anda.", "error");
             } finally {
-                btnSave.disabled = false;
-                btnText.classList.remove('opacity-0');
-                btnLoader.classList.add('hidden');
+                btnSave.disabled = false; btnSave.textContent = "SIMPAN JEMAAT";
             }
         };
 
@@ -1931,30 +1542,11 @@
             document.getElementById('member-name').value = "";
             document.getElementById('member-category').value = "Dewasa"; 
             document.getElementById('member-subclass').value = "";
-            
-            document.getElementById('member-gender').value = "";
-            document.getElementById('member-birth').value = "";
-            document.getElementById('member-marital').value = "";
-            document.getElementById('member-family-role').value = "";
-            document.getElementById('member-spouse').value = "";
-            document.getElementById('member-wedding').value = "";
-            document.getElementById('member-father').value = "";
-            document.getElementById('member-mother').value = "";
-
-            document.getElementById('member-marital').dispatchEvent(new Event('change'));
-            document.getElementById('member-family-role').dispatchEvent(new Event('change'));
-            
-            updateRoleOptions();
-
-            document.getElementById('btn-save-text').textContent = "SIMPAN JEMAAT";
+            document.getElementById('btn-save').textContent = "SIMPAN JEMAAT";
             document.getElementById('btn-cancel').classList.add('hidden');
-            document.getElementById('form-title').textContent = "Setup Data Jemaat Baru";
             document.getElementById('family-extra-fields').style.display = 'none';
         };
 
-        const searchInput = document.getElementById('search-input');
-        if(searchInput) searchInput.addEventListener('input', renderList);
-        
         function showToast(title, message, type = 'success') {
             const toast = document.getElementById('toast-container');
             const content = document.getElementById('toast-content');
@@ -1964,10 +1556,10 @@
                 document.getElementById('toast-title').textContent = title;
                 document.getElementById('toast-message').textContent = message;
                 if (type === 'success') {
-                    content.className = "px-6 py-4 rounded-xl shadow-2xl font-semibold flex items-center gap-3 text-sm border-l-4 glass-card text-green-800 border-green-500";
-                    icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+                    content.className = "px-6 py-4 rounded-xl shadow-2xl font-semibold flex items-center gap-3 text-sm border-l-4 glass-card text-green-800 border-green-500 bg-white/90";
+                    icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
                 } else {
-                    content.className = "px-6 py-4 rounded-xl shadow-2xl font-semibold flex items-center gap-3 text-sm border-l-4 glass-card text-red-800 border-red-500";
+                    content.className = "px-6 py-4 rounded-xl shadow-2xl font-semibold flex items-center gap-3 text-sm border-l-4 glass-card text-red-800 border-red-500 bg-white/90";
                     icon.innerHTML = '⚠️';
                 }
                 toast.style.display = 'block';
@@ -1997,49 +1589,12 @@
             setInterval(updateClock, 1000);
             updateClock();
         }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const maritalSelect = document.getElementById('member-marital');
-            if (maritalSelect) {
-                maritalSelect.addEventListener('change', function () {
-                    const marriageBox = document.getElementById('marriage-fields');
-                    if (marriageBox) marriageBox.style.display = this.value === 'Menikah' ? 'block' : 'none';
-                });
-            }
-
-            const familyRole = document.getElementById('member-family-role');
-            if (familyRole) {
-                familyRole.addEventListener('change', function () {
-                    const parentBox = document.getElementById('parent-fields');
-                    if (parentBox) parentBox.style.display = this.value === 'Anak' ? 'block' : 'none';
-                });
-            }
-        });
-
-        function populateSpouseOptions() {
-            const select = document.getElementById('member-spouse-select');
-            if (!select) return;
-            select.innerHTML = '<option value="">-- Pilih Anggota --</option>';
-            membersData.forEach(member => {
-                const option = document.createElement('option');
-                option.value = member.name;
-                option.textContent = member.name;
-                select.appendChild(option);
-            });
-        }
-
-        setTimeout(() => { populateSpouseOptions(); }, 500);
-
-        document.getElementById('member-spouse-select').addEventListener('change', function () {
-            if (this.value) document.getElementById('member-spouse').value = this.value;
-        });
 
         renderSubClassUI(); 
         renderRoleUI(); 
         updateRoleOptions();
         updateDateUI(); 
         applyDayLogic();
-        membersData.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
         renderKeterlibatanForm();
         renderList();
         showHomeView(); 
