@@ -250,8 +250,8 @@ function createSettingsSheet(ss) {
   var sheet = ss.insertSheet("Pengaturan");
   sheet.appendRow(["Nama Akun / Kelas", "PIN AKSES", "HAK AKSES"]);
   sheet.appendRow(["Admin Utama", "1234", "Admin"]);
-  sheet.appendRow(["Sekretaris Dewasa", "5555", "Dewasa"]);
-  sheet.appendRow(["Sekretaris Anak", "8888", "Anak"]);
+  sheet.appendRow(["Sekretaris Dewasa", "111111111", "Dewasa"]);
+  sheet.appendRow(["Sekretaris Anak", "1111111", "Anak"]);
   sheet.getRange("A1:C1").setFontWeight("bold").setBackground("#D4AF37");
   return sheet;
 }
