@@ -196,39 +196,37 @@ const permissions = {
     ]
 };
 
-function normalizeUnitName(name) {
-
-    return String(name || '')
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, ' ');
-}
-
 function getCurrentPermissionRole() {
 
+    // ADMIN
     if (currentUser.role === 'admin') {
         return 'admin';
     }
 
+    // KHOTBAH
     if (currentUser.role === 'khotbah') {
         return 'khotbah';
     }
 
-    const unit =
-        normalizeUnitName(
-            currentUser.unitName
-        );
+    // NORMALIZE UNIT
+    const unit = normalizeUnitName(
+        currentUser.unitName
+    );
 
     // SS DEWASA
     if (
-        unit.includes('ss dewasa')
+        unit.includes('ss dewasa') ||
+        unit.includes('sekolah sabat dewasa') ||
+        unit.includes('dewasa')
     ) {
         return 'ss_dewasa';
     }
 
     // SS ANAK
     if (
-        unit.includes('ss anak')
+        unit.includes('ss anak') ||
+        unit.includes('sekolah sabat anak') ||
+        unit.includes('anak')
     ) {
         return 'ss_anak';
     }
@@ -241,6 +239,64 @@ function getCurrentPermissionRole() {
     }
 
     return 'public';
+}
+
+// ========================================
+// FILTER MEMBER BERDASARKAN KATEGORI
+// ========================================
+
+function normalizeUnitName(name) {
+
+    return String(name || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, ' ');
+}
+
+function getMembersByCategory(category) {
+
+    // KHOTBAH = SEMUA JEMAAT
+    if (category === 'khotbah') {
+        return members;
+    }
+
+    // SS DEWASA
+    if (category === 'ss_dewasa') {
+
+        return members.filter(member => {
+
+            const unit =
+                normalizeUnitName(member.unit);
+
+            return unit.includes('ss dewasa');
+        });
+    }
+
+    // SS ANAK
+    if (category === 'ss_anak') {
+
+        return members.filter(member => {
+
+            const unit =
+                normalizeUnitName(member.unit);
+
+            return unit.includes('ss anak');
+        });
+    }
+
+    // PENDALAMAN
+    if (category === 'pendalaman') {
+
+        return members.filter(member => {
+
+            const unit =
+                normalizeUnitName(member.unit);
+
+            return unit.includes('pendalaman');
+        });
+    }
+
+    return [];
 }
 
 function hasAccess(tabName) {
@@ -259,6 +315,7 @@ function hasAccess(tabName) {
 
         async function init() {
             toggleLoading(true);
+            disableButtons(true);
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getInitialData' }) });
                 const json = await res.json();
@@ -274,6 +331,7 @@ function hasAccess(tabName) {
                 }
             } catch(e) { console.error(e); }
             toggleLoading(false);
+            disableButtons(false);
         }
 
         // --- SISTEM LOGIN & AKSES ---
@@ -323,6 +381,11 @@ currentUser = {
 showToast(
     `Berhasil Login sebagai ${uName}`
 );
+
+console.log('ROLE:', getCurrentPermissionRole());
+console.log('UNIT:', currentUser.unitName);
+console.log('ACCESS SS DEWASA:', hasAccess('ss_dewasa'));
+console.log('ACCESS SS ANAK:', hasAccess('ss_anak'));
 
 } else {
 
@@ -374,9 +437,10 @@ showToast(
 
         if (!el) return;
 
+        // PAKAI flex BUKAN block
         el.style.display =
             allowed
-            ? 'block'
+            ? 'inline-block'
             : 'none';
     };
 
@@ -476,6 +540,7 @@ function switchTab(tabId) {
             const identifier = currentUser.role === 'admin' ? currentUser.adminName : currentUser.unitName;
             
             toggleLoading(true);
+            disableButtons(true);
             try {
                 const res = await fetch(API_URL, { 
                     method: 'POST', 
@@ -493,6 +558,7 @@ function switchTab(tabId) {
                 showToast("KONEKSI GAGAL!", "error");
             }
             toggleLoading(false);
+            disableButtons(false);
         }
 
         // --- RENDER HALAMAN UTAMA ---
@@ -1011,11 +1077,11 @@ function renderManagerAll(area) {
                         <div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
                             <div>
                                 <div class="text-lg font-black text-white uppercase">${safeName}</div>
-                                <div class="text-[11px] text-green-400 font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: ${uPin}</div>
+                                <div class="text-[11px] text-green-400 font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: ${a.pin.replace(/./g,'•')}</div>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="editUnit('${safeName}')" class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
-                                <button onclick="deleteUnit('${safeName}')" class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
+                                <button onclick='editUnit(${JSON.stringify(safeName)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
+                                <button onclick='deleteUnit(${JSON.stringify(safeName)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>`;
                     }).join('')}</div>
@@ -1042,8 +1108,8 @@ function renderManagerAll(area) {
                         <div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
                             <div class="text-lg font-black text-white uppercase">${String(r || '')}</div>
                             <div class="flex gap-2">
-                                <button onclick="editRole('${r}')" class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
-                                <button onclick="deleteRole('${r}')" class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
+                                <button onclick='editRole(${JSON.stringify(r)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
+                                <button onclick='deleteRole(${JSON.stringify(r)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>`).join('')}</div>
                 </div>
@@ -1073,17 +1139,39 @@ function renderManagerAll(area) {
                                 <div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
                                     <div>
                                         <div class="text-lg font-black text-white uppercase">${a.username}</div>
-                                        <div class="text-[11px] text-[#D4AF37] font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: ${a.pin}</div>
+                                        <div class="text-[11px] text-[#D4AF37] font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: ${a.pin.replace(/./g,'•')}</div>
                                     </div>
                                     <div class="flex gap-2">
-                                        <button onclick="editAdmin('${a.username}')" class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
-                                        <button onclick="deleteAdmin('${a.username}')" class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
+                                        <button onclick='editAdmin(${JSON.stringify(a.username)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
+                                        <button onclick='deleteAdmin(${JSON.stringify(a.username)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
                                     </div>
                                 </div>`).join('')}</div>
                         </div>
                     </div>
                 </div>`;
         }
+
+        function disableButtons(state) {
+
+    document
+        .querySelectorAll('button')
+        .forEach(btn => {
+
+            btn.disabled = state;
+
+            if(state) {
+                btn.classList.add(
+                    'opacity-50',
+                    'pointer-events-none'
+                );
+            } else {
+                btn.classList.remove(
+                    'opacity-50',
+                    'pointer-events-none'
+                );
+            }
+        });
+}
 
         // --- CRUD LOGIC FOR UNITS & ROLES ---
         function editUnit(name) {
@@ -1114,6 +1202,19 @@ function renderManagerAll(area) {
                 await send({ action: 'addUnit', data: { name: nama, pin: pin } });
             }
             editingUnitName = null; init();
+            if (nama.length < 3) {
+    return showToast(
+        "NAMA UNIT TERLALU PENDEK!",
+        "error"
+    );
+}
+
+if (nama.length < 3) {
+    return showToast(
+        "NAMA JABATAN TERLALU PENDEK!",
+        "error"
+    );
+}
         }
 
         async function deleteUnit(name) {
@@ -1169,14 +1270,38 @@ function renderManagerAll(area) {
         async function saveAdmin() {
             const username = document.getElementById('a-username').value.trim();
             const pin = document.getElementById('a-pin').value.trim();
-            if(!username || !pin) return showToast("USERNAME/PIN HARUS DIISI!", "error");
-            
-            if(editingAdminUsername) {
-                await send({ action: 'updateAdmin', data: { oldUsername: editingAdminUsername, newUsername: username, pin: pin } });
-            } else {
-                if(admins.find(a => a.username === username)) return showToast("USERNAME SUDAH ADA!", "error");
-                await send({ action: 'addAdmin', data: { username: username, pin: pin } });
-            }
+            if (!username || !pin) {
+    return showToast(
+        "USERNAME/PIN HARUS DIISI!",
+        "error"
+    );
+}
+
+if (pin.length < 4) {
+    return showToast(
+        "PIN MINIMAL 4 DIGIT!",
+        "error"
+    );
+}
+
+if (!/^\d+$/.test(pin)) {
+    return showToast(
+        "PIN HARUS BERUPA ANGKA!",
+        "error"
+    );
+}
+
+const duplicatePin = admins.find(a =>
+    a.pin === pin &&
+    a.username !== editingAdminUsername
+);
+
+if (duplicatePin) {
+    return showToast(
+        "PIN SUDAH DIGUNAKAN ADMIN LAIN!",
+        "error"
+    );
+}
             editingAdminUsername = null; 
             init();
         }
@@ -1242,23 +1367,62 @@ function renderManagerAll(area) {
         }
 
         async function send(payload) {
-            toggleLoading(true);
-            try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const json = await res.json();
-                if(json.status === 'success') showToast("BERHASIL DISIMPAN!");
-                else showToast(json.message || "TERJADI KESALAHAN!", "error");
-            } catch(e) { showToast("KONEKSI GAGAL! PERIKSA INTERNET.", "error"); }
-            toggleLoading(false);
+
+    toggleLoading(true);
+    disableButtons(true);
+
+    try {
+
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+            throw new Error(`HTTP ERROR ${res.status}`);
         }
 
-        function formatDate(d) { const p = d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
+        const json = await res.json();
+
+        if (json.status === 'success') {
+
+            showToast("BERHASIL DISIMPAN!");
+
+        } else {
+
+            showToast(
+                json.message || "TERJADI KESALAHAN!",
+                "error"
+            );
+        }
+
+    } catch (e) {
+
+        console.error(e);
+
+        showToast(
+            "KONEKSI / SERVER GAGAL!",
+            "error"
+        );
+
+    } finally {
+
+        toggleLoading(false);
+        disableButtons(false);
+    }
+}
+
+        function formatDate(d) { if (!d) return ''; const p = d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`;
+        }
         function toggleLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
         function showToast(m, type="success") {
             const t = document.getElementById('toast');
             t.innerText = m; t.style.backgroundColor = type === "success" ? "#D4AF37" : "#EF4444";
-            t.style.color = type === "success" ? "#0a192f" : "#FFFFFF"; t.style.opacity = '1'; t.style.bottom = '40px';
-            setTimeout(() => { t.style.opacity = '0'; t.style.bottom = '10px'; }, 3500);
+            t.style.color = type === "success" ? "#0a192f" : "#FFFFFF"; t.style.opacity = '1'; t.style.transform = 'translateY(0)'; t.style.bottom = '40px';
+            setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; t.style.bottom = '10px'; }, 3500);
         }
 
         window.onload = init;

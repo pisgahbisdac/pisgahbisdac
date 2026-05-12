@@ -310,47 +310,180 @@ function deleteRole(roleName) {
 
 // --- FUNGSI ABSENSI ---
 function submitAttendance(data) {
+
   const ss = getDb();
   let sheetName = "";
-  
+
+  // ========================================
+  // KHOTBAH
+  // ========================================
+
   if (data.type === 'khotbah') {
-      sheetName = "Absensi_Khotbah";
-  } else if (data.type === 'sekolah_sabat') {
-      if (data.category === 'SS Dewasa') sheetName = "Absensi_SS_Dewasa";
-      else if (data.category === 'SS Anak') sheetName = "Absensi_SS_Anak";
-      else if (data.category === 'Pendalaman' || data.category === 'PA') sheetName = "Absensi_Pendalaman";
-      else sheetName = "Absensi_Lainnya";
-  } else if (data.type === 'kegiatan') {
-      return submitMatrixKegiatan(ss, data);
+
+    sheetName = "Absensi_Khotbah";
   }
-  
-  const sheet = ss.getSheetByName(sheetName) || createMatrixSheet(ss, sheetName);
-  const dateStr = data.tanggal; 
-  const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
-  let colIdx = headers.indexOf(dateStr) + 1;
-  
+
+  // ========================================
+  // SEKOLAH SABAT
+  // ========================================
+
+  else if (data.type === 'sekolah_sabat') {
+
+    // SS DEWASA
+    if (data.category === 'ss_dewasa') {
+
+      sheetName = "Absensi_SS_Dewasa";
+    }
+
+    // SS ANAK
+    else if (data.category === 'ss_anak') {
+
+      sheetName = "Absensi_SS_Anak";
+    }
+
+    // PENDALAMAN
+    else if (data.category === 'pendalaman') {
+
+      sheetName = "Absensi_Pendalaman";
+    }
+
+    // DEFAULT
+    else {
+
+      sheetName = "Absensi_Lainnya";
+    }
+  }
+
+  // ========================================
+  // KEGIATAN
+  // ========================================
+
+  else if (data.type === 'kegiatan') {
+
+    return submitMatrixKegiatan(ss, data);
+  }
+
+  // ========================================
+  // AMBIL / BUAT SHEET
+  // ========================================
+
+  const sheet =
+    ss.getSheetByName(sheetName)
+    || createMatrixSheet(ss, sheetName);
+
+  const dateStr =
+    data.tanggal ||
+    Utilities.formatDate(
+      new Date(),
+      Session.getScriptTimeZone(),
+      'dd/MM/yyyy'
+    );
+
+  const headers =
+    sheet.getRange(
+      1,
+      1,
+      1,
+      Math.max(sheet.getLastColumn(), 1)
+    ).getValues()[0];
+
+  let colIdx =
+    headers.indexOf(dateStr) + 1;
+
+  // ========================================
+  // BUAT KOLOM TANGGAL
+  // ========================================
+
   if (colIdx === 0) {
+
     colIdx = sheet.getLastColumn() + 1;
-    sheet.getRange(1, colIdx).setValue(dateStr).setBackground("#D4AF37").setFontWeight("bold").setHorizontalAlignment("center");
+
+    sheet.getRange(1, colIdx)
+      .setValue(dateStr)
+      .setBackground("#D4AF37")
+      .setFontWeight("bold")
+      .setHorizontalAlignment("center");
   }
+
+  // ========================================
+  // SIMPAN ABSENSI
+  // ========================================
 
   data.records.forEach(rec => {
-    let rowIdx = findMemberRow(sheet, rec.memberId);
+
+    let rowIdx =
+      findMemberRow(sheet, rec.memberId);
+
     if (rowIdx === -1) {
+
       rowIdx = sheet.getLastRow() + 1;
-      sheet.getRange(rowIdx, 1, 1, 2).setValues([[rec.memberId, rec.nama]]);
+
+      sheet.getRange(
+        rowIdx,
+        1,
+        1,
+        2
+      ).setValues([
+        [
+          rec.memberId,
+          rec.nama
+        ]
+      ]);
     }
-    const bgStatus = rec.status === 'Hadir' ? '#e6f4ea' : '#fce8e6';
-    const fontColor = rec.status === 'Hadir' ? '#137333' : '#c5221f';
-    sheet.getRange(rowIdx, colIdx).setValue(rec.status).setHorizontalAlignment("center").setBackground(bgStatus).setFontColor(fontColor);
+
+    const bgStatus =
+      rec.status === 'Hadir'
+      ? '#e6f4ea'
+      : '#fce8e6';
+
+    const fontColor =
+      rec.status === 'Hadir'
+      ? '#137333'
+      : '#c5221f';
+
+    sheet.getRange(
+      rowIdx,
+      colIdx
+    )
+    .setValue(rec.status)
+    .setHorizontalAlignment("center")
+    .setBackground(bgStatus)
+    .setFontColor(fontColor);
   });
 
+  // ========================================
+  // SIMPAN TAMU
+  // ========================================
+
   if (data.tamu > 0) {
-    let tamuRowIdx = findTamuRow(sheet);
-    if (tamuRowIdx === -1) { tamuRowIdx = sheet.getLastRow() + 1; sheet.getRange(tamuRowIdx, 2).setValue("Tamu").setFontWeight("bold"); }
-    sheet.getRange(tamuRowIdx, colIdx).setValue(data.tamu).setHorizontalAlignment("center");
+
+    let tamuRowIdx =
+      findTamuRow(sheet);
+
+    if (tamuRowIdx === -1) {
+
+      tamuRowIdx =
+        sheet.getLastRow() + 1;
+
+      sheet.getRange(
+        tamuRowIdx,
+        2
+      )
+      .setValue("Tamu")
+      .setFontWeight("bold");
+    }
+
+    sheet.getRange(
+      tamuRowIdx,
+      colIdx
+    )
+    .setValue(data.tamu)
+    .setHorizontalAlignment("center");
   }
-  return { status: 'success' };
+
+  return {
+    status: 'success'
+  };
 }
 
 function submitMatrixKegiatan(ss, data) {
