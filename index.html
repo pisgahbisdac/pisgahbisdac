@@ -39,15 +39,6 @@
         .tab-active { border-bottom: 4px solid var(--gold); color: var(--gold); font-weight: 800; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        .drag-item { 
-            cursor: grab; transition: all 0.2s;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(212, 175, 55, 0.1);
-        }
-        .drag-item:hover { background: rgba(212, 175, 55, 0.15); border-color: var(--gold); }
-        
-        .drop-zone { min-height: 300px; border: 2px dashed rgba(212, 175, 55, 0.2); transition: all 0.3s; }
-        
         input[type=text], input[type=number], select, input[type=date] {
             color: var(--gold) !important;
             background-color: #050d1a !important;
@@ -59,16 +50,7 @@
             width: 100%;
         }
 
-        select option {
-            background-color: var(--navy-dark);
-            color: var(--gold);
-        }
-
-        input[type=number] {
-            text-align: center;
-            font-size: 1.2rem;
-            width: 100px;
-        }
+        select option { background-color: var(--navy-dark); color: var(--gold); }
         
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
@@ -95,10 +77,7 @@
             cursor: pointer;
             color: var(--gold);
         }
-        .role-btn.active {
-            background-color: var(--gold);
-            color: var(--navy-dark);
-        }
+        .role-btn.active { background-color: var(--gold); color: var(--navy-dark); }
 
         .loading-spinner { 
             border: 6px solid rgba(212, 175, 55, 0.1); width: 70px; height: 70px; 
@@ -112,12 +91,10 @@
     <header class="bg-[#0a192f]/95 border-b border-[#D4AF37]/50 text-white p-6 shadow-2xl sticky top-0 z-50 backdrop-blur-md">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-4">
-                <div class="p-3 gold-gradient rounded-xl shadow-lg">
-                    <i class="fas fa-church text-[#0a192f] text-3xl"></i>
-                </div>
+                <div class="p-3 gold-gradient rounded-xl shadow-lg"><i class="fas fa-church text-[#0a192f] text-3xl"></i></div>
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-[#D4AF37]">PISGAH BISDAC</h1>
-                    <p class="text-xs text-slate-400 uppercase tracking-widest font-bold">Official Database Matrix</p>
+                    <p class="text-xs text-slate-400 uppercase tracking-widest font-bold">Matrix Kehadiran Dinamis</p>
                 </div>
             </div>
             <div id="connectionStatus" class="text-[12px] font-black border-2 border-[#D4AF37] text-[#D4AF37] px-4 py-2 rounded-full uppercase">
@@ -127,14 +104,14 @@
     </header>
 
     <main class="max-w-6xl mx-auto p-4 md:p-8">
-        
+        <!-- Tab Navigation -->
         <div class="flex overflow-x-auto space-x-12 mb-10 no-scrollbar border-b border-white/10 scroll-smooth relative py-2">
             <button onclick="switchTab('khotbah')" id="btn-khotbah" class="pb-4 px-2 whitespace-nowrap tab-active text-xl uppercase font-black tracking-wider">Khotbah</button>
             <button onclick="switchTab('ss_dewasa')" id="btn-ss_dewasa" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-xl uppercase font-black tracking-wider">SS Dewasa</button>
             <button onclick="switchTab('ss_anak')" id="btn-ss_anak" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-xl uppercase font-black tracking-wider">SS Anak</button>
             <button onclick="switchTab('pa')" id="btn-pa" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-xl uppercase font-black tracking-wider">PA</button>
             <button onclick="switchTab('kegiatan')" id="btn-kegiatan" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-xl uppercase font-black tracking-wider">Kegiatan</button>
-            <button onclick="switchTab('anggota')" id="btn-anggota" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-xl uppercase font-black tracking-wider">Database</button>
+            <button onclick="switchTab('anggota')" id="btn-anggota" class="pb-4 px-2 whitespace-nowrap text-slate-400 text-xl uppercase font-black tracking-wider">Data Jemaat</button>
         </div>
 
         <!-- Section: Khotbah -->
@@ -145,7 +122,7 @@
                     <div class="flex flex-wrap items-center gap-6">
                         <div class="flex items-center gap-3">
                             <span class="text-xs text-gold font-black uppercase">TAMU</span>
-                            <input type="number" id="khotbahTamu" value="0">
+                            <input type="number" id="khotbahTamu" value="0" style="width: 80px;">
                         </div>
                         <input type="date" id="khotbahDate" style="width: auto;">
                     </div>
@@ -155,37 +132,41 @@
             </div>
         </section>
 
-        <!-- Section: Shared Area (SS / PA / Kegiatan) -->
+        <!-- Section: Shared Area (SS / PA) -->
         <section id="sec-shared" class="tab-content hidden">
-            <div class="flex flex-col lg:flex-row gap-8">
-                <div id="sidePool" class="w-full lg:w-1/3 glass-card p-8 h-fit sticky top-32">
-                    <h3 class="font-black mb-6 text-[#D4AF37] text-xl uppercase tracking-tight">CARI JEMAAT</h3>
-                    <input type="text" placeholder="Masukkan nama..." onkeyup="filterPool(this)" class="mb-6">
-                    <div id="memberPool" class="space-y-4 max-h-[500px] overflow-y-auto pr-2 no-scrollbar"></div>
-                </div>
-
-                <div class="flex-1 glass-card p-8">
-                    <div class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                        <div id="dynamicTitle"></div>
-                        <div class="flex flex-wrap items-center gap-6">
-                             <div id="tamuContainer" class="flex items-center gap-3">
-                                <span class="text-xs text-gold font-black uppercase">TAMU</span>
-                                <input type="number" id="sharedTamu" value="0">
-                            </div>
-                            <input type="date" id="sharedDate" style="width: auto;">
+            <div class="glass-card p-8 mb-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div id="dynamicTitle"></div>
+                    <div class="flex flex-wrap items-center gap-6">
+                        <!-- Dropdown Filter Unit Spesifik -->
+                        <div id="unitFilterContainer">
+                            <span class="text-xs text-gold font-black uppercase block mb-1">PILIH UNIT/KELAS</span>
+                            <select id="unitFilter" onchange="updateZoneUI()"></select>
                         </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-gold font-black uppercase">TAMU</span>
+                            <input type="number" id="sharedTamu" value="0" style="width: 80px;">
+                        </div>
+                        <input type="date" id="sharedDate" style="width: auto;">
                     </div>
-                    
-                    <div id="kegiatanForm" class="hidden space-y-6">
-                        <div id="kegiatanInputs" class="grid grid-cols-1 gap-6"></div>
-                    </div>
-
-                    <div id="mainDropZone" ondragover="event.preventDefault()" ondrop="handleDrop(event)" class="drop-zone rounded-3xl p-8 bg-black/30">
-                        <div id="selectedList" class="space-y-6"></div>
-                    </div>
-                    
-                    <button id="btnSubmitZone" onclick="submitAttendanceFromZone()" class="w-full mt-10 gold-gradient text-[#0a192f] py-6 rounded-2xl font-black text-2xl shadow-2xl hover:scale-[1.01] active:scale-95 transition-all uppercase tracking-tighter">SIMPAN DATA</button>
                 </div>
+            </div>
+            
+            <div id="mainDropZone" class="glass-card p-8">
+                <div id="selectedList" class="space-y-6"></div>
+                <button onclick="submitAttendanceFromZone()" class="w-full mt-10 gold-gradient text-[#0a192f] py-6 rounded-2xl font-black text-2xl shadow-2xl hover:scale-[1.01] active:scale-95 transition-all uppercase tracking-tighter">SIMPAN DATA KEHADIRAN</button>
+            </div>
+        </section>
+
+        <!-- Section: Kegiatan -->
+        <section id="sec-kegiatan" class="tab-content hidden">
+            <div class="glass-card p-8">
+                <div class="flex justify-between items-center mb-10">
+                    <h3 class="text-3xl font-black text-gold uppercase">LAPORAN KETERLIBATAN</h3>
+                    <input type="date" id="kegiatanDate" style="width: auto;">
+                </div>
+                <div id="kegiatanInputs" class="grid grid-cols-1 gap-6"></div>
+                <button onclick="submitAttendanceFromZone()" class="w-full mt-10 gold-gradient text-[#0a192f] py-6 rounded-2xl font-black text-2xl shadow-2xl uppercase tracking-tighter">SIMPAN DATA KEGIATAN</button>
             </div>
         </section>
 
@@ -193,44 +174,50 @@
         <section id="sec-anggota" class="tab-content hidden">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 <div class="glass-card p-8 h-fit">
-                    <h3 class="font-black text-[#D4AF37] mb-8 text-2xl uppercase tracking-tight">ADMINISTRASI JEMAAT</h3>
+                    <h3 class="font-black text-[#D4AF37] mb-8 text-2xl uppercase tracking-tight">INPUT JEMAAT BARU</h3>
                     <div class="space-y-6">
                         <div>
                             <label class="text-[12px] uppercase font-black text-gold tracking-widest mb-2 block">NAMA LENGKAP</label>
                             <input type="text" id="newMemberName">
                         </div>
-                        <div>
-                            <label class="text-[12px] uppercase font-black text-gold tracking-widest mb-2 block">STATUS ROHANI</label>
-                            <select id="newMemberStatus">
-                                <option value="Baptis">Sudah Baptis</option>
-                                <option value="Belum Baptis">Belum Baptis</option>
-                            </select>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[12px] uppercase font-black text-gold tracking-widest mb-2 block">STATUS</label>
+                                <select id="newMemberStatus">
+                                    <option value="Baptis">Baptis</option>
+                                    <option value="Belum Baptis">Belum</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[12px] uppercase font-black text-gold tracking-widest mb-2 block">UNIT/KELAS</label>
+                                <input type="text" id="newMemberUnit" placeholder="Contoh: Kelas A">
+                            </div>
                         </div>
                         <div>
-                            <label class="text-[12px] uppercase font-black text-gold tracking-widest mb-2 block">PENEMPATAN KELAS</label>
+                            <label class="text-[12px] uppercase font-black text-gold tracking-widest mb-2 block">KATEGORI UTAMA</label>
                             <select id="newMemberClass">
-                                <option value="Tidak Ada">Pilih Kelas...</option>
                                 <option value="SS Dewasa">SS Dewasa</option>
                                 <option value="SS Anak">SS Anak</option>
-                                <option value="PA">Pendalaman Alkitab</option>
+                                <option value="PA">PA</option>
                             </select>
                         </div>
-                        <button onclick="addMember()" class="w-full gold-gradient text-[#0a192f] py-5 rounded-2xl font-black text-xl shadow-xl hover:scale-[1.01] transition-all uppercase mt-4">SIMPAN JEMAAT</button>
+                        <button onclick="addMember()" class="w-full gold-gradient text-[#0a192f] py-5 rounded-2xl font-black text-xl shadow-xl uppercase mt-4">SIMPAN JEMAAT</button>
                     </div>
                 </div>
                 <div class="lg:col-span-2 glass-card p-8">
-                    <h3 class="font-black text-[#D4AF37] mb-8 text-2xl uppercase tracking-tight">LIST MASTER JEMAAT</h3>
+                    <h3 class="font-black text-[#D4AF37] mb-8 text-2xl uppercase tracking-tight">DAFTAR JEMAAT MASTER</h3>
                     <div id="allMembersList" class="grid grid-cols-1 gap-4"></div>
                 </div>
             </div>
         </section>
     </main>
 
-    <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 gold-gradient text-[#0a192f] px-12 py-5 rounded-full opacity-0 transition-all pointer-events-none z-[100] shadow-2xl font-black text-xl">PESAN</div>
+    <!-- Toast & Loading -->
+    <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 gold-gradient text-[#0a192f] px-12 py-5 rounded-full opacity-0 transition-all pointer-events-none z-[100] shadow-2xl font-black text-xl uppercase">PESAN</div>
     <div id="loadingOverlay" class="fixed inset-0 bg-[#0a192f]/98 flex items-center justify-center z-[200] hidden backdrop-blur-2xl">
         <div class="flex flex-col items-center">
             <div class="loading-spinner mb-8"></div>
-            <p class="text-[#D4AF37] font-black tracking-[0.3em] text-2xl uppercase animate-pulse">SINKRONISASI DATABASE...</p>
+            <p class="text-[#D4AF37] font-black tracking-[0.3em] text-2xl uppercase animate-pulse">SINKRONISASI...</p>
         </div>
     </div>
 
@@ -239,28 +226,20 @@
         
         let members = [];
         let currentTab = 'khotbah';
-        let selectedData = { ss_dewasa: [], ss_anak: [], pa: [] };
+        let memberRoles = {}; // Menyimpan role sementara agar tidak hilang saat filter/switch
 
         const CATEGORY_MAP = { 'ss_dewasa': 'SS Dewasa', 'ss_anak': 'SS Anak', 'pa': 'PA' };
-
         const KEGIATAN_ITEMS = [
-            "Anggota datang tepat waktu di SS",
-            "Anggota membaca Alkitab setiap hari",
-            "Anggota Renungan Pagi setiap hari",
-            "Anggota Belajar SS setiap hari",
-            "Anggota hadir di Kebaktian Rabu Malam",
-            "Anggota melakukan Jangkauan Keluar",
-            "Anggota melakukan Perlawatan Pemeliharaan",
-            "Anggota melakukan Doa (777, 1752 & Subuh)",
-            "Anggota terlibat Kelompok Kecil",
-            "Anggota membagikan risalah/buku rohani"
+            "Anggota datang tepat waktu di SS", "Anggota membaca Alkitab setiap hari", "Anggota Renungan Pagi setiap hari",
+            "Anggota Belajar SS setiap hari", "Anggota hadir di Kebaktian Rabu Malam", "Anggota melakukan Jangkauan Keluar",
+            "Anggota melakukan Perlawatan Pemeliharaan", "Anggota melakukan Doa (777, 1752 & Subuh)",
+            "Anggota terlibat Kelompok Kecil", "Anggota membagikan risalah/buku rohani"
         ];
 
         async function init() {
             toggleLoading(true);
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('khotbahDate').value = today;
-            document.getElementById('sharedDate').value = today;
+            ['khotbahDate', 'sharedDate', 'kegiatanDate'].forEach(id => document.getElementById(id).value = today);
 
             try {
                 const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getInitialData' }) });
@@ -268,170 +247,127 @@
                 if (result.status === 'success') {
                     members = result.members;
                     document.getElementById('connectionStatus').innerHTML = '<i class="fas fa-check-circle mr-2"></i> SINKRON';
-                    loadPredefinedClasses();
                     renderAll();
                 }
-            } catch (e) { 
-                showToast("GAGAL KONEKSI!", "error"); 
-                document.getElementById('connectionStatus').innerHTML = '<i class="fas fa-times-circle mr-2"></i> OFFLINE';
-            }
+            } catch (e) { showToast("OFFLINE", "error"); }
             toggleLoading(false);
         }
 
         function switchTab(tabId) {
             currentTab = tabId;
             document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-            document.querySelectorAll('button[id^="btn-"]').forEach(b => {
-                b.classList.remove('tab-active');
-                b.classList.add('text-slate-400');
-            });
-            
-            const btn = document.getElementById('btn-' + tabId);
-            if(btn) { 
-                btn.classList.add('tab-active'); 
-                btn.classList.remove('text-slate-400');
-                btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
+            document.querySelectorAll('button[id^="btn-"]').forEach(b => b.classList.remove('tab-active'));
+            document.getElementById('btn-' + tabId).classList.add('tab-active');
 
-            if(['ss_dewasa', 'ss_anak', 'pa', 'kegiatan'].includes(tabId)) {
+            if(['ss_dewasa', 'ss_anak', 'pa'].includes(tabId)) {
                 document.getElementById('sec-shared').classList.remove('hidden');
-                const isKegiatan = tabId === 'kegiatan';
-                document.getElementById('sidePool').classList.toggle('hidden', isKegiatan);
-                document.getElementById('kegiatanForm').classList.toggle('hidden', !isKegiatan);
-                document.getElementById('mainDropZone').classList.toggle('hidden', isKegiatan);
-                document.getElementById('tamuContainer').classList.toggle('hidden', isKegiatan);
+                populateUnitFilter();
                 updateZoneUI();
             } else {
                 document.getElementById('sec-' + tabId).classList.remove('hidden');
+                if(tabId === 'kegiatan') renderKegiatanForm();
             }
         }
 
-        function loadPredefinedClasses() {
-            Object.keys(selectedData).forEach(key => {
-                const mappedCategory = CATEGORY_MAP[key];
-                const assigned = members.filter(m => m.kelasTetap === mappedCategory);
-                selectedData[key] = assigned.map(m => ({ id: m.id, nama: m.nama, roles: ['Anggota'] }));
-            });
+        function populateUnitFilter() {
+            const filter = document.getElementById('unitFilter');
+            const category = CATEGORY_MAP[currentTab];
+            const units = [...new Set(members.filter(m => m.kelasTetap === category).map(m => m.unit))];
+            
+            filter.innerHTML = `<option value="ALL">SEMUA UNIT</option>` + 
+                units.map(u => `<option value="${u}">${u.toUpperCase()}</option>`).join('');
         }
 
         function renderAll() {
             renderKhotbah();
-            renderPools();
             renderMemberManagement();
         }
 
         function renderKhotbah() {
             const list = document.getElementById('khotbahList');
             list.innerHTML = members.map(m => `
-                <div class="bg-white/5 p-6 rounded-2xl flex justify-between items-center border-2 border-white/5 hover:border-gold/40 transition-all">
+                <div class="bg-white/5 p-6 rounded-2xl flex justify-between items-center border-2 border-white/5">
                     <div>
-                        <div class="font-black text-white text-xl uppercase tracking-tight">${m.nama}</div>
-                        <div class="text-[10px] text-gold/60 uppercase font-black tracking-widest mt-1">${m.status} | ${m.kelasTetap}</div>
+                        <div class="font-black text-white text-xl uppercase">${m.nama}</div>
+                        <div class="text-[10px] text-gold/60 uppercase font-black tracking-widest mt-1">${m.status} | ${m.unit}</div>
                     </div>
                     <input type="checkbox" data-member="${m.id}" data-nama="${m.nama}" class="custom-checkbox">
-                </div>
-            `).join('');
-        }
-
-        function renderPools() {
-            const pool = document.getElementById('memberPool');
-            pool.innerHTML = members.map(m => `
-                <div draggable="true" ondragstart="handleDragStart(event, '${m.id}', '${m.nama}')" onclick="addToZone('${m.id}', '${m.nama}')" 
-                     class="drag-item p-5 rounded-2xl flex justify-between items-center group">
-                    <span class="font-black text-white text-lg group-hover:text-gold uppercase tracking-tighter">${m.nama}</span>
-                    <i class="fas fa-plus-circle text-gold/20 group-hover:text-gold transition-all text-xl"></i>
-                </div>
-            `).join('');
-        }
-
-        function toggleRole(memberIdx, roleName) {
-            const currentRoles = selectedData[currentTab][memberIdx].roles;
-            const roleIdx = currentRoles.indexOf(roleName);
-            
-            if (roleIdx > -1) {
-                if (currentRoles.length > 1) currentRoles.splice(roleIdx, 1);
-            } else {
-                currentRoles.push(roleName);
-            }
-            updateZoneUI();
+                </div>`).join('');
         }
 
         function updateZoneUI() {
-            const title = document.getElementById('dynamicTitle');
             const list = document.getElementById('selectedList');
-            const kInputContainer = document.getElementById('kegiatanInputs');
-
-            title.innerHTML = `<h3 class="text-3xl font-black text-gold uppercase tracking-tighter">${CATEGORY_MAP[currentTab] || 'MATRIX KETERLIBATAN'}</h3>`;
+            const filterVal = document.getElementById('unitFilter').value;
+            const category = CATEGORY_MAP[currentTab];
             
-            if(currentTab === 'kegiatan') {
-                kInputContainer.innerHTML = KEGIATAN_ITEMS.map((k, i) => `
-                    <div class="relative overflow-hidden flex items-center gap-10 bg-white/5 p-6 rounded-2xl border-2 border-white/10 group hover:border-gold/40 transition-all">
-                        <div class="absolute -right-4 -bottom-8 text-9xl font-black text-white/5 select-none pointer-events-none group-hover:text-gold/10 transition-colors">${i+1}</div>
-                        <div class="flex-1 relative z-10"><span class="text-xl font-black text-white leading-tight uppercase tracking-tighter">${k}</span></div>
-                        <input type="number" id="k-val-${i}" value="0" min="0">
-                    </div>
-                `).join('');
-            }
+            document.getElementById('dynamicTitle').innerHTML = `<h3 class="text-3xl font-black text-gold uppercase tracking-tighter">${category}</h3>`;
+            
+            let filteredMembers = members.filter(m => m.kelasTetap === category);
+            if(filterVal !== 'ALL') filteredMembers = filteredMembers.filter(m => m.unit === filterVal);
 
-            if(['ss_dewasa', 'ss_anak', 'pa'].includes(currentTab)) {
-                const currentData = selectedData[currentTab];
-                const availableRoles = ['Anggota', 'Guru', 'Pemimpin', 'Kordinator'];
+            list.innerHTML = filteredMembers.map(m => {
+                if(!memberRoles[m.id]) memberRoles[m.id] = ['Anggota'];
+                const roles = ['Anggota', 'Guru', 'Pemimpin', 'Kordinator'];
                 
-                list.innerHTML = currentData.map((item, idx) => `
-                    <div class="bg-white/5 p-6 rounded-2xl border-2 border-gold/20 transition-all">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                            <div class="flex-1 font-black text-white text-2xl uppercase tracking-tighter">${item.nama}</div>
-                            <div class="flex flex-wrap gap-2">
-                                ${availableRoles.map(role => `
-                                    <button onclick="toggleRole(${idx}, '${role}')" 
-                                            class="role-btn ${item.roles.includes(role) ? 'active' : ''}">
-                                        ${role}
-                                    </button>
-                                `).join('')}
-                            </div>
-                            <button onclick="removeFromZone(${idx})" class="text-red-500 hover:text-red-400 text-2xl transition-colors bg-red-500/10 p-4 rounded-xl">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
+                return `
+                    <div class="bg-white/5 p-6 rounded-2xl border-2 border-gold/20 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div class="flex-1">
+                            <div class="font-black text-white text-2xl uppercase tracking-tighter">${m.nama}</div>
+                            <div class="text-xs text-gold font-bold opacity-60 uppercase">${m.unit}</div>
                         </div>
-                    </div>`).join('');
-            }
+                        <div class="flex flex-wrap gap-2">
+                            ${roles.map(role => `
+                                <button onclick="toggleRole('${m.id}', '${role}')" 
+                                        class="role-btn ${memberRoles[m.id].includes(role) ? 'active' : ''}">${role}</button>
+                            `).join('')}
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function toggleRole(id, role) {
+            const idx = memberRoles[id].indexOf(role);
+            if(idx > -1) { if(memberRoles[id].length > 1) memberRoles[id].splice(idx, 1); }
+            else { memberRoles[id].push(role); }
+            updateZoneUI();
+        }
+
+        function renderKegiatanForm() {
+            const container = document.getElementById('kegiatanInputs');
+            container.innerHTML = KEGIATAN_ITEMS.map((k, i) => `
+                <div class="relative overflow-hidden flex items-center gap-10 bg-white/5 p-6 rounded-2xl border-2 border-white/10 group">
+                    <div class="absolute -right-4 -bottom-8 text-9xl font-black text-white/5 select-none pointer-events-none group-hover:text-gold/10 transition-colors">${i+1}</div>
+                    <div class="flex-1 relative z-10"><span class="text-xl font-black text-white uppercase tracking-tighter">${k}</span></div>
+                    <input type="number" id="k-val-${i}" value="0" min="0" style="width: 100px;">
+                </div>`).join('');
         }
 
         async function submitAttendance(type) {
-            const records = [];
             const dateInput = document.getElementById('khotbahDate').value;
-            const dateParts = dateInput.split('-');
-            const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
-            const tamuVal = document.getElementById('khotbahTamu').value || 0;
-            
-            document.querySelectorAll('#khotbahList input[type="checkbox"]').forEach(el => {
-                if(el.checked) records.push({ memberId: el.dataset.member, nama: el.dataset.nama, status: 'Hadir' });
+            const records = [];
+            document.querySelectorAll('#khotbahList input[type="checkbox"]:checked').forEach(el => {
+                records.push({ memberId: el.dataset.member, nama: el.dataset.nama, status: 'Hadir' });
             });
             
-            if(records.length === 0 && tamuVal == 0) return showToast("PILIH JEMAAT!", "error");
-            sendToAPI({ type: 'khotbah', tanggal: formattedDate, tamu: tamuVal, records });
+            if(records.length === 0) return showToast("DATA KOSONG", "error");
+            sendToAPI({ type: 'khotbah', tanggal: formatDate(dateInput), tamu: document.getElementById('khotbahTamu').value, records });
         }
 
         async function submitAttendanceFromZone() {
-            const dateInput = document.getElementById('sharedDate').value;
-            const dateParts = dateInput.split('-');
-            const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
-
             if(currentTab === 'kegiatan') {
                 const poin = KEGIATAN_ITEMS.map((_, i) => document.getElementById(`k-val-${i}`).value || 0);
-                sendToAPI({ type: 'kegiatan', tanggal: formattedDate, poin: poin });
+                sendToAPI({ type: 'kegiatan', tanggal: formatDate(document.getElementById('kegiatanDate').value), poin });
             } else {
-                const data = selectedData[currentTab];
-                const tamuVal = document.getElementById('sharedTamu').value || 0;
-                if(data.length === 0 && tamuVal == 0) return showToast("DATA KOSONG!", "error");
+                const category = CATEGORY_MAP[currentTab];
+                const filterVal = document.getElementById('unitFilter').value;
+                let activeMembers = members.filter(m => m.kelasTetap === category);
+                if(filterVal !== 'ALL') activeMembers = activeMembers.filter(m => m.unit === filterVal);
                 
-                const records = data.map(item => ({ 
-                    memberId: item.id, 
-                    nama: item.nama, 
-                    // Kita kirimkan detail ke API, tapi Backend akan menyimpannya sebagai "Hadir" saja
-                    status: 'Hadir' 
+                const records = activeMembers.map(m => ({ 
+                    memberId: m.id, nama: m.nama, status: 'Hadir' // Di Matrix Excel hanya muncul "Hadir"
                 }));
-                sendToAPI({ type: currentTab, category: CATEGORY_MAP[currentTab], tanggal: formattedDate, tamu: tamuVal, records });
+                
+                sendToAPI({ type: currentTab, category, tanggal: formatDate(document.getElementById('sharedDate').value), tamu: document.getElementById('sharedTamu').value, records });
             }
         }
 
@@ -440,47 +376,30 @@
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'submitAttendance', data: payload }) });
                 const result = await res.json();
-                if(result.status === 'success') showToast("BERHASIL DISIMPAN!");
-            } catch (e) { showToast("GAGAL KIRIM DATA!", "error"); }
+                if(result.status === 'success') showToast("BERHASIL DISIMPAN");
+            } catch (e) { showToast("ERROR KIRIM", "error"); }
             toggleLoading(false);
         }
 
         async function addMember() {
             const nama = document.getElementById('newMemberName').value;
             const status = document.getElementById('newMemberStatus').value;
+            const unit = document.getElementById('newMemberUnit').value || 'Umum';
             const kelasTetap = document.getElementById('newMemberClass').value;
-            if(!nama) return showToast("NAMA WAJIB ISI!", "error");
+            
+            if(!nama) return showToast("NAMA KOSONG", "error");
             toggleLoading(true);
             try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'addMember', data: { nama, status, kelasTetap } }) });
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'addMember', data: { nama, status, unit, kelasTetap } }) });
                 const result = await res.json();
                 if(result.status === 'success') {
-                    members.push({ id: result.id, nama, status, kelasTetap });
-                    loadPredefinedClasses();
+                    members.push({ id: result.id, nama, status, unit, kelasTetap });
                     renderAll();
                     document.getElementById('newMemberName').value = '';
-                    showToast("JEMAAT TERSIMPAN!");
+                    showToast("JEMAAT TERSIMPAN");
                 }
-            } catch(e) { showToast("ERROR DATABASE!", "error"); }
+            } catch(e) { showToast("ERROR DATABASE", "error"); }
             toggleLoading(false);
-        }
-
-        function addToZone(id, nama) {
-            if(!['ss_dewasa', 'ss_anak', 'pa'].includes(currentTab)) return;
-            if(selectedData[currentTab].find(x => x.id === id)) return showToast("SUDAH ADA!", "error");
-            selectedData[currentTab].push({id, nama, roles: ['Anggota']});
-            updateZoneUI();
-        }
-
-        function removeFromZone(idx) { selectedData[currentTab].splice(idx, 1); updateZoneUI(); }
-        function handleDragStart(e, id, nama) { e.dataTransfer.setData("id", id); e.dataTransfer.setData("nama", nama); }
-        function handleDrop(e) { e.preventDefault(); addToZone(e.dataTransfer.getData("id"), e.dataTransfer.getData("nama")); }
-        
-        function filterPool(input) {
-            const f = input.value.toLowerCase();
-            document.querySelectorAll('#memberPool .drag-item').forEach(it => {
-                it.style.display = it.textContent.toLowerCase().includes(f) ? "" : "none";
-            });
         }
 
         function renderMemberManagement() {
@@ -489,18 +408,18 @@
                 <div class="p-6 bg-white/5 rounded-2xl border-2 border-white/5 flex justify-between items-center group">
                     <div class="flex flex-col">
                         <span class="font-black text-2xl text-white uppercase tracking-tighter">${m.nama}</span>
-                        <span class="text-[12px] text-gold/60 font-black uppercase tracking-widest mt-1">UNIT: ${m.kelasTetap}</span>
+                        <span class="text-[12px] text-gold/60 font-black uppercase tracking-widest mt-1">${m.unit} | ${m.kelasTetap}</span>
                     </div>
                     <span class="text-[12px] bg-gold/10 text-gold px-4 py-2 rounded-xl uppercase font-black tracking-widest border-2 border-gold/30">${m.status}</span>
                 </div>`).join('');
         }
 
+        function formatDate(d) { const p = d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
         function showToast(m) {
             const t = document.getElementById('toast');
             t.innerText = m; t.style.opacity = '1'; t.style.bottom = '40px';
             setTimeout(() => { t.style.opacity = '0'; t.style.bottom = '12px'; }, 3000);
         }
-
         function toggleLoading(s) { document.getElementById('loadingOverlay').classList.toggle('hidden', !s); }
 
         window.onload = init;

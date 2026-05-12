@@ -1,8 +1,3 @@
-/**
- * KONFIGURASI BACKEND PISGAH BISDAC - MATRIX EDITION
- * Spreadsheet ID: 1-fWE3bjOlTU9VFITCgI6smG8d__vxjWpVMN35ODb-zc
- */
-
 const SPREADSHEET_ID = '1-fWE3bjOlTU9VFITCgI6smG8d__vxjWpVMN35ODb-zc'; 
 
 function getDb() {
@@ -41,7 +36,8 @@ function getInitialData() {
     id: r[0], 
     nama: r[1], 
     status: r[2],
-    kelasTetap: r[3] || 'Tidak Ada' 
+    kelasTetap: r[3] || 'Tidak Ada',
+    unit: r[4] || 'Umum' // Kolom baru untuk Unit/Kelas Spesifik
   })) : [];
   return { status: 'success', members };
 }
@@ -51,7 +47,8 @@ function submitAttendance(data) {
   let sheetName = "";
   
   if (data.type === 'khotbah') sheetName = "Absensi_Khotbah";
-  else if (data.type === 'sekolah_sabat' || data.type === 'ss_dewasa' || data.type === 'ss_anak') sheetName = "Absensi_" + (data.category || "SS").replace(/\s+/g, "_");
+  else if (data.type === 'ss_dewasa') sheetName = "Absensi_SS_Dewasa";
+  else if (data.type === 'ss_anak') sheetName = "Absensi_SS_Anak";
   else if (data.type === 'pa') sheetName = "Absensi_PA";
   else if (data.type === 'kegiatan') return submitMatrixKegiatan(ss, data);
   
@@ -61,25 +58,21 @@ function submitAttendance(data) {
   const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 2)).getValues()[0];
   let colIdx = headers.indexOf(dateStr) + 1;
   
-  // Jika tanggal belum ada, buat kolom baru di paling kanan
   if (colIdx === 0) {
     colIdx = sheet.getLastColumn() + 1;
     sheet.getRange(1, colIdx).setValue(dateStr).setBackground("#D4AF37").setFontWeight("bold").setHorizontalAlignment("center");
   }
 
   data.records.forEach(rec => {
-    if (rec.status === 'Hadir') {
-      let rowIdx = findMemberRow(sheet, rec.memberId);
-      if (rowIdx === -1) {
-        rowIdx = sheet.getLastRow() + 1;
-        sheet.getRange(rowIdx, 1, 1, 2).setValues([[rec.memberId, rec.nama]]);
-      }
-      // Hanya menulis "Hadir", tanpa jabatan (sesuai instruksi)
-      sheet.getRange(rowIdx, colIdx).setValue("Hadir").setHorizontalAlignment("center");
+    let rowIdx = findMemberRow(sheet, rec.memberId);
+    if (rowIdx === -1) {
+      rowIdx = sheet.getLastRow() + 1;
+      sheet.getRange(rowIdx, 1, 1, 2).setValues([[rec.memberId, rec.nama]]);
     }
+    // Hanya mengisi "Hadir" sesuai instruksi (tanpa jabatan di excel)
+    sheet.getRange(rowIdx, colIdx).setValue(rec.status === 'Hadir' ? "Hadir" : "").setHorizontalAlignment("center");
   });
 
-  // Simpan baris Tamu di bawah
   if (data.tamu !== undefined && data.tamu > 0) {
     let tamuRowIdx = findTamuRow(sheet);
     if (tamuRowIdx === -1) {
@@ -89,41 +82,6 @@ function submitAttendance(data) {
     sheet.getRange(tamuRowIdx, colIdx).setValue(data.tamu).setHorizontalAlignment("center");
   }
 
-  return { status: 'success' };
-}
-
-function submitMatrixKegiatan(ss, data) {
-  const sheetName = "Rekap_Kegiatan_Triwulan";
-  const kegiatanList = [
-    "Anggota datang tepat waktu di SS",
-    "Anggota membaca Alkitab setiap hari",
-    "Anggota Renungan Pagi setiap hari",
-    "Anggota Belajar SS setiap hari",
-    "Anggota hadir di Kebaktian Rabu Malam",
-    "Anggota melakukan Jangkauan Keluar",
-    "Anggota melakukan Perlawatan Pemeliharaan",
-    "Anggota melakukan Doa (777, 1752 & Subuh)",
-    "Anggota terlibat Kelompok Kecil",
-    "Anggota membagikan risalah/buku rohani"
-  ];
-  
-  const sheet = ss.getSheetByName(sheetName) || createMatrixSheet(ss, sheetName, "No", "Deskripsi Kegiatan");
-  if (sheet.getLastRow() <= 1) {
-    const initRows = kegiatanList.map((k, i) => [i + 1, k]);
-    sheet.getRange(2, 1, initRows.length, 2).setValues(initRows);
-  }
-
-  const dateStr = data.tanggal;
-  const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 2)).getValues()[0];
-  let colIdx = headers.indexOf(dateStr) + 1;
-  
-  if (colIdx === 0) {
-    colIdx = sheet.getLastColumn() + 1;
-    sheet.getRange(1, colIdx).setValue(dateStr).setBackground("#D4AF37").setFontWeight("bold").setHorizontalAlignment("center");
-  }
-
-  const values = data.poin.map(p => [p]);
-  sheet.getRange(2, colIdx, values.length, 1).setValues(values).setHorizontalAlignment("center");
   return { status: 'success' };
 }
 
@@ -143,16 +101,16 @@ function findTamuRow(sheet) {
 
 function createMainSheet(ss) {
   const sheet = ss.insertSheet('Members');
-  sheet.getRange(1, 1, 1, 4).setValues([['ID', 'Nama', 'Status', 'KelasTetap']]).setBackground("#D4AF37").setFontWeight("bold");
+  sheet.getRange(1, 1, 1, 5).setValues([['ID', 'Nama', 'Status', 'Kategori', 'Unit']]).setBackground("#D4AF37").setFontWeight("bold");
   sheet.setFrozenRows(1);
   return sheet;
 }
 
-function createMatrixSheet(ss, name, h1 = "MemberID", h2 = "Nama") {
+function createMatrixSheet(ss, name) {
   const sheet = ss.insertSheet(name);
-  sheet.getRange(1, 1, 1, 2).setValues([[h1, h2]]).setBackground("#D4AF37").setFontWeight("bold");
+  sheet.getRange(1, 1, 1, 2).setValues([['MemberID', 'Nama']]).setBackground("#D4AF37").setFontWeight("bold");
   sheet.setFrozenRows(1);
-  sheet.setFrozenColumns(2); // Mengunci Kolom ID dan Nama
+  sheet.setFrozenColumns(2);
   return sheet;
 }
 
@@ -160,6 +118,37 @@ function addMember(data) {
   const ss = getDb();
   const sheet = ss.getSheetByName('Members') || createMainSheet(ss);
   const id = "M-" + Math.random().toString(36).substr(2, 9).toUpperCase();
-  sheet.appendRow([id, data.nama, data.status, data.kelasTetap || 'Tidak Ada']);
+  sheet.appendRow([id, data.nama, data.status, data.kelasTetap, data.unit || 'Umum']);
   return { status: 'success', id };
+}
+
+function submitMatrixKegiatan(ss, data) {
+  const sheetName = "Rekap_Kegiatan_Triwulan";
+  const kegiatanList = [
+    "Anggota datang tepat waktu di SS",
+    "Anggota membaca Alkitab setiap hari",
+    "Anggota Renungan Pagi setiap hari",
+    "Anggota Belajar SS setiap hari",
+    "Anggota hadir di Kebaktian Rabu Malam",
+    "Anggota melakukan Jangkauan Keluar",
+    "Anggota melakukan Perlawatan Pemeliharaan",
+    "Anggota melakukan Doa (777, 1752 & Subuh)",
+    "Anggota terlibat Kelompok Kecil",
+    "Anggota membagikan risalah/buku rohani"
+  ];
+  const sheet = ss.getSheetByName(sheetName) || createMatrixSheet(ss, sheetName);
+  if (sheet.getLastRow() <= 1) {
+    const initRows = kegiatanList.map((k, i) => [i + 1, k]);
+    sheet.getRange(2, 1, initRows.length, 2).setValues(initRows);
+  }
+  const dateStr = data.tanggal;
+  const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 2)).getValues()[0];
+  let colIdx = headers.indexOf(dateStr) + 1;
+  if (colIdx === 0) {
+    colIdx = sheet.getLastColumn() + 1;
+    sheet.getRange(1, colIdx).setValue(dateStr).setBackground("#D4AF37").setFontWeight("bold").setHorizontalAlignment("center");
+  }
+  const values = data.poin.map(p => [p]);
+  sheet.getRange(2, colIdx, values.length, 1).setValues(values).setHorizontalAlignment("center");
+  return { status: 'success' };
 }
