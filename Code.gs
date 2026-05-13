@@ -330,7 +330,7 @@ function submitAttendance(data) {
     if (data.category === 'ss_dewasa') prefix = "SS_Dewasa";
     else if (data.category === 'ss_anak') prefix = "SS_Anak";
     else if (data.category === 'pendalaman') prefix = "Pendalaman";
-    else prefix = "Lainnya";
+    else prefix = "Absensi"; // Mengubah nama "Lainnya" menjadi "Absensi"
   }
 
   // ========================================
@@ -404,8 +404,10 @@ function submitAttendance(data) {
 
     let tamuRowIdx = findTamuRow(sheet);
     if (tamuRowIdx === -1) {
-      tamuRowIdx = sheet.getLastRow() + 1;
-      sheet.getRange(tamuRowIdx, 2).setValue("Tamu").setFontWeight("bold");
+      // Jika belum ada, paksa sisipkan di baris ke-2 agar tidak tertimpa anggota
+      sheet.insertRowBefore(2);
+      tamuRowIdx = 2;
+      sheet.getRange(tamuRowIdx, 1, 1, 2).setValues([['TAMU', 'Tamu']]).setFontWeight("bold").setBackground("#f3f4f6").setFontColor("#000000");
     }
     sheet.getRange(tamuRowIdx, colIdx).setValue(data.tamu).setHorizontalAlignment("center");
   }
@@ -532,7 +534,11 @@ function createRoleSheet(ss) {
 function createMatrixSheet(ss, name) {
   const sheet = ss.insertSheet(name);
   sheet.getRange(1, 1, 1, 2).setValues([['MemberID', 'Nama']]).setBackground("#D4AF37").setFontWeight("bold");
-  sheet.setFrozenRows(1);
+  
+  // DEFAULT: Selalu buat Tamu di baris kedua sejak sheet pertama kali dibuat
+  sheet.getRange(2, 1, 1, 2).setValues([['TAMU', 'Tamu']]).setFontWeight("bold").setBackground("#f3f4f6").setFontColor("#000000");
+  
+  sheet.setFrozenRows(2); // Kunci baris 1 (Header) dan baris 2 (Tamu)
   sheet.setFrozenColumns(2);
   return sheet;
 }
