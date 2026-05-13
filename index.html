@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PISGAH BISDAC - Matrix System v4.4</title>
+    <title>PISGAH BISDAC - Matrix System v1.0</title>
     
     <link rel="icon" type="image/png" href="./PisgahWhite.png">
     
@@ -57,12 +57,21 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         #filter-unit-select, #tamu, #tgl { padding: 12px 16px; border-radius: 8px; width: 100%;}
 
+        /* Pastikan .no-scrollbar sudah ada, jika belum tambahkan: */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
     </style>
 </head>
 <body class="min-h-screen pb-20">
 
     <!-- NAVBAR HEADER -->
-    <header class="bg-[#0a192f]/95 border-b border-[#D4AF37]/50 p-6 sticky top-0 z-40 backdrop-blur-md">
+    <header class="bg-[#0a192f]/95 border-b border-[#D4AF37]/50 p-3 md:p-6 sticky top-0 z-40 backdrop-blur-md">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <img src="./PisgahColor.png" alt="Logo" class="w-10 h-10 object-contain drop-shadow-md" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'">
@@ -73,16 +82,22 @@
                     <div class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Status Akses:</div>
                     <div id="user-role-text" class="text-xs text-[#D4AF37] font-black uppercase">Publik</div>
                 </div>
-                <button onclick="showChangePin()" id="btn-changepin" class="hidden bg-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#D4AF37] px-4 py-2 rounded-full text-xs font-black uppercase hover:bg-[#D4AF37] hover:text-[#0a192f] transition-all shadow-lg"><i class="fas fa-key mr-1"></i>Ganti PIN</button>
-                <button onclick="showLogin()" id="btn-login" class="bg-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#D4AF37] px-5 py-2 rounded-full text-xs font-black uppercase hover:bg-[#D4AF37] hover:text-[#0a192f] transition-all shadow-lg"><i class="fas fa-sign-in-alt mr-2"></i>Login</button>
-                <button onclick="logout()" id="btn-logout" class="hidden bg-red-500/20 border border-red-500/50 text-red-400 px-5 py-2 rounded-full text-xs font-black uppercase hover:bg-red-500 hover:text-white transition-all shadow-lg"><i class="fas fa-sign-out-alt mr-2"></i>Keluar</button>
-            </div>
+                <button onclick="showChangePin()" id="btn-changepin" class="hidden bg-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#D4AF37] px-2 md:px-4 py-1 md:py-2 rounded-full text-[11px] md:text-xs font-black uppercase hover:bg-[#D4AF37] hover:text-[#0a192f] transition-all shadow-lg"><i class="fas fa-key mr-1"></i>Ganti PIN</button>
+<button onclick="showLogin()" id="btn-login" class="bg-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#D4AF37] px-3 md:px-5 py-1 md:py-2 rounded-full text-[11px] md:text-xs font-black uppercase hover:bg-[#D4AF37] hover:text-[#0a192f] transition-all shadow-lg"><i class="fas fa-sign-in-alt mr-2"></i>Login</button>
+<button onclick="logout()" id="btn-logout" class="hidden bg-red-500/20 border border-red-500/50 text-red-400 px-3 md:px-5 py-1 md:py-2 rounded-full text-[11px] md:text-xs font-black uppercase hover:bg-red-500 hover:text-white transition-all shadow-lg"><i class="fas fa-sign-out-alt mr-2"></i>Keluar</button>
+</div>
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto p-4 md:p-8">
         <!-- TABS NAV -->
-        <div id="tab-container" class="flex overflow-x-auto space-x-10 mb-10 no-scrollbar border-b border-white/10 py-2">
+        <div class="relative flex items-center gap-2 mb-10">
+    <button id="scrollLeft" class="chevron-btn bg-gray-800/80 text-white px-4 py-2 rounded-lg font-bold text-lg flex items-center justify-center whitespace-nowrap hover:bg-gold hover:text-[#D4AF37] transition disabled:opacity-50 disabled:cursor-not-allowed">
+    ‹
+</button>
+    <div id="tabsContainer" class="flex-1 overflow-x-auto no-scrollbar">
+        <div id="tab-wrapper" class="flex space-x-10 min-w-max border-b border-white/10 py-2">
+            <!-- tombol-tombol tab akan tetap di sini, hanya dibungkus -->
             <button onclick="switchTab('dashboard')" id="btn-dashboard" class="pb-4 px-2 whitespace-nowrap tab-active text-lg uppercase font-black">Dashboard</button>
             <button onclick="switchTab('khotbah')" id="btn-khotbah" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Khotbah</button>
             <button onclick="switchTab('ss_dewasa')" id="btn-ss_dewasa" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">SS Dewasa</button>
@@ -93,9 +108,25 @@
             <button onclick="switchTab('unit')" id="btn-unit" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Unit & Jabatan</button>
             <button onclick="switchTab('admin')" id="btn-admin" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Kelola Admin</button>
         </div>
+    </div>
+    <button id="scrollRight" class="chevron-btn bg-gray-800/80 text-white px-4 py-2 rounded-lg font-bold text-lg flex items-center justify-center whitespace-nowrap hover:bg-gold hover:text-[#D4AF37] transition disabled:opacity-50 disabled:cursor-not-allowed">
+    ›
+</button>
+</div>
 
         <div id="content-area"></div>
     </main>
+
+    <!-- ========== FOOTER COPYRIGHT ========== -->
+    <footer class="text-center py-6 mt-10 border-t border-white/10">
+        <p class="text-xs text-slate-400 font-medium tracking-wider">
+            &copy; 2026 PISGAH BISDAC<br/>Batam International Seventh-Day Adventist Church. 
+            <br class="block sm:hidden"> All rights reserved.
+        </p>
+        <p class="text-[10px] text-slate-500 mt-1">
+            Matrix System v1.0
+        </p>
+    </footer>
 
     <!-- MODAL LOGIN dengan toggle password & icon gold -->
 <div id="login-modal" class="fixed inset-0 bg-[#0a192f]/90 flex items-center justify-center z-[300] hidden backdrop-blur-md">
@@ -160,6 +191,53 @@ function togglePassword(inputId, iconElem) {
         iconElem.classList.add('fa-eye-slash');
     }
 }
+
+// Fungsi untuk mengaktifkan scrolling dengan chevron pada tab
+function initTabScrolling() {
+    const container = document.getElementById('tabsContainer');
+    const leftBtn = document.getElementById('scrollLeft');
+    const rightBtn = document.getElementById('scrollRight');
+    
+    if (!container) return;
+    
+    function updateButtons() {
+        const scrollLeft = container.scrollLeft;
+        const maxScroll = container.scrollWidth - container.clientWidth;
+        leftBtn.disabled = scrollLeft <= 1;
+        rightBtn.disabled = maxScroll - scrollLeft <= 1;
+    }
+    
+    leftBtn.addEventListener('click', () => {
+        container.scrollBy({ left: -250, behavior: 'smooth' });
+    });
+    
+    rightBtn.addEventListener('click', () => {
+        container.scrollBy({ left: 250, behavior: 'smooth' });
+    });
+    
+    container.addEventListener('scroll', updateButtons);
+    window.addEventListener('resize', updateButtons);
+    updateButtons(); // set awal
+}
+
+// Panggil fungsi setelah DOM siap (misal di dalam window.onload atau di akhir init)
+// Jika sudah ada event DOMContentLoaded, tambahkan di sana. Jika belum, cukup letakkan di akhir script:
+
+// Tunggu hingga tab container selesai dirender (karena tab bisa muncul setelah login)
+// Cara praktis: panggil setelah renderTabs() atau di dalam switchTab? 
+// Tapi cukup panggil sekali saat halaman dimuat.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTabScrolling);
+} else {
+    initTabScrolling();
+}
+
+// Namun karena tab container mungkin berubah ukuran saat tab ditampilkan (hidden menjadi visible),
+// kita juga panggil ulang updateButtons setiap kali ada perubahan tab.
+// Tambahkan baris ini di dalam fungsi renderTabs() atau setelah switchTab():
+// setTimeout(() => { if (typeof updateButtons === 'function') updateButtons(); }, 100);
+// Untuk praktis, kita override initTabScrolling agar bisa dipanggil ulang.
+
 </script>
 
     <!-- LOADING & TOAST -->
@@ -335,6 +413,17 @@ function togglePassword(inputId, iconElem) {
             }
         }
 
+        window.refreshTabScrollButtons = function() {
+            const container = document.getElementById('tabsContainer');
+                if (!container) return;
+            const scrollLeft = container.scrollLeft;
+            const maxScroll = container.scrollWidth - container.clientWidth;
+            const leftBtn = document.getElementById('scrollLeft');
+            const rightBtn = document.getElementById('scrollRight');
+                if (leftBtn) leftBtn.disabled = scrollLeft <= 1;
+                if (rightBtn) rightBtn.disabled = maxScroll - scrollLeft <= 1;
+        };
+
         function renderTabs() {
             const toggleTab = (id, allowed) => {
                 const el = document.getElementById(id);
@@ -351,6 +440,9 @@ function togglePassword(inputId, iconElem) {
             toggleTab('btn-anggota', hasAccess('anggota'));
             toggleTab('btn-unit', hasAccess('unit'));
             toggleTab('btn-admin', hasAccess('admin'));
+            // Di dalam fungsi renderTabs(), setelah semua toggleTab selesai:
+            if (typeof updateTabButtons === 'function') updateTabButtons();
+            setTimeout(refreshTabScrollButtons, 50);
         }
 
         function switchTab(tabId) {
@@ -454,10 +546,7 @@ function togglePassword(inputId, iconElem) {
                             <h3 class="text-3xl font-black text-[#D4AF37] uppercase">Khotbah Sabat</h3>
                             <div class="flex flex-wrap gap-4 w-full md:w-auto items-end justify-center md:justify-end">
                                 <!-- Filter Unit -->
-                                <div class="flex-1 min-w-[200px]">
-                                    <label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Filter Unit</label>
-                                    ${filterDropdownHTML('renderFilteredKhotbah()')}
-                                </div>
+                                <input type="hidden" id="unit-filter" value="ALL">
                                 <!-- Input Tamu -->
                                 <div class="w-28 md:w-32">
                                     <label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tamu</label>
@@ -517,8 +606,8 @@ function togglePassword(inputId, iconElem) {
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">${items.map((it, i) => `
                             <div class="activity-card p-6 flex flex-col justify-between">
-                                <div class="activity-number">${i+1}</div>
-                                <div class="text-base font-black text-white uppercase mb-6 leading-relaxed relative z-10">${it}</div>
+                                <div class="activity-number text-white">${i+1}</div>
+                                <div class="text-base font-black text-white uppercase mb-6">${it}</div>
                                 <input type="number" id="k-${i}" value="0" class="text-center text-3xl py-4 relative z-10 font-black">
                             </div>`).join('')}</div>
                         <button onclick="submitKegiatan()" class="w-full bg-[#D4AF37] text-[#0a192f] py-6 rounded-2xl font-black text-2xl hover:bg-yellow-400 transition-all">SIMPAN LAPORAN KEGIATAN</button>
@@ -1213,5 +1302,6 @@ function togglePassword(inputId, iconElem) {
 
         window.onload = init;
     </script>
+
 </body>
 </html>

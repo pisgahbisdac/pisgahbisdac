@@ -1,5 +1,5 @@
 /**
- * KONFIGURASI BACKEND PISGAH BISDAC v4.4 (Admin Control Panel & Doa)
+ * KONFIGURASI BACKEND PISGAH BISDAC v1.0 (Admin Control Panel & Doa)
  * Spreadsheet ID: 1-fWE3bjOlTU9VFITCgI6smG8d__vxjWpVMN35ODb-zc
  */
 
