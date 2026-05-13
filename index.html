@@ -688,7 +688,7 @@
                 
                 const timer = setInterval(() => {
                     setCurrentSlide((prev) => (prev + 1) % displayImages.length);
-                }, 4000); // Angka 4000 artinya 4 detik. Ubah angka ini jika ingin lebih lambat/cepat.
+                }, 6000); // Angka 4000 artinya 4 detik. Ubah angka ini jika ingin lebih lambat/cepat.
                 
                 return () => clearInterval(timer);
             }, [displayImages.length]);
@@ -747,104 +747,110 @@
 };
 
             return (
-                <div className="animate-fade-in relative z-10">
-                    {/* Hero Image + Overlapping Welcome Box */}
-                    <div className="w-full relative mb-6 md:mb-10 group mt-0">
-                        {/* Dibuat tidak full width (menyesuaikan padding layar) dengan border-radius di semua sisi */}
-                        <div className="w-full h-[220px] sm:h-[280px] md:h-[320px] lg:h-[360px] overflow-hidden relative z-0 bg-navy-900 rounded-[1.5rem] md:rounded-[2rem] shadow-xl border border-navy-100/20">
+    <div className="animate-fade-in relative z-10">
+        {/* Hero Image + Overlapping Welcome Box */}
+        <div className="w-full relative mb-6 md:mb-10 group mt-0">
+            {/* 
+              PERUBAHAN DI SINI: 
+              Menghapus tinggi statis (h-[220px] dll) dan menggantinya dengan aspect-[1500/500],
+              ditambah max-w-[1500px] dan mx-auto agar posisinya di tengah jika layar sangat lebar.
+            */}
+            <div className="w-full aspect-[1500/500] max-w-[1500px] mx-auto overflow-hidden relative z-0 bg-navy-900 rounded-[1.5rem] md:rounded-[2rem] shadow-xl border border-navy-100/20">
+                <div 
+                    className="w-full h-full flex transition-transform duration-700 ease-in-out" 
+                    style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                    {displayImages.map((img, idx) => (
+                        <div key={idx} className="w-full h-full flex-shrink-0 relative">
+                            {/* Background Blur (Mengisi ruang kosong jika gambar tidak proporsional) */}
                             <div 
-                                className="w-full h-full flex transition-transform duration-700 ease-in-out" 
-                                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                            >
-                                {displayImages.map((img, idx) => (
-                                    <div key={idx} className="w-full h-full flex-shrink-0 relative">
-                                        {/* Background Blur (Mengisi ruang kosong agar gambar proporsional) */}
-                                        <div 
-                                            className="absolute inset-0 bg-cover bg-center opacity-40 blur-md scale-110 z-0" 
-                                            style={{ backgroundImage: `url(${img})` }}
-                                        ></div>
+                                className="absolute inset-0 bg-cover bg-center opacity-40 blur-md scale-110 z-0" 
+                                style={{ backgroundImage: `url(${img})` }}
+                            ></div>
 
-                                        {/* 🖼️ Gambar Utama: object-contain di semua ukuran layar */}
-                                        <img
-                                            src={img}
-                                            alt={`Hero Banner ${idx + 1}`}
-                                            className="w-full h-full object-contain object-center relative z-10"
-                                        />
-                                        
-                                        {/* Overlay Gelap Tipis agar Teks Welcome Box Tetap Terbaca */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-navy-900/60 to-transparent z-10 pointer-events-none"></div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Carousel Controls */}
-                            {displayImages.length > 1 && (
-                                <>
-                                    <button 
-                                        onClick={() => setCurrentSlide((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1))} 
-                                        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 bg-glass-card hover:bg-black/50 text-navy p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10"
-                                    >
-                                        <Icon name="ChevronLeft" className="w-5 h-5"/>
-                                    </button>
-                                    <button 
-                                        onClick={() => setCurrentSlide((prev) => (prev + 1) % displayImages.length)} 
-                                        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 bg-glass-card hover:bg-black/50 text-navy p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10"
-                                    >
-                                        <Icon name="ChevronRight" className="w-5 h-5"/>
-                                    </button>
-                                    
-                                    {/* Pagination Dots */}
-                                    <div className="absolute bottom-10 md:bottom-12 left-0 right-0 flex justify-center gap-1.5 z-10">
-                                        {displayImages.map((_, idx) => (
-                                            <button 
-                                                key={idx} 
-                                                onClick={() => setCurrentSlide(idx)} 
-                                                className={`h-1.5 rounded-full transition-all duration-300 ${currentSlide === idx ? 'bg-gold-500 w-5' : 'bg-white/60 hover:bg-white w-2'}`} 
-                                                aria-label={`Slide ${idx + 1}`}
-                                            />
-                                        ))}
-                                    </div>
-                                </>
-                            )}
+                            {/* 🖼️ Gambar Utama: karena kotak sudah proporsional 1500x500, gambar akan pas */}
+                            <img
+                                src={img}
+                                alt={`Hero Banner ${idx + 1}`}
+                                className="w-full h-full object-contain object-center relative z-10"
+                            />
+                            
+                            {/* Overlay Gelap Tipis agar Teks Welcome Box Tetap Terbaca */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-navy-900/60 to-transparent z-10 pointer-events-none"></div>
                         </div>
-                        {/* Welcome Box - overlapping hero */}
-                        <div className="relative z-10 px-4 md:px-10 -mt-6 md:-mt-8">
-                            <div className="welcome-box-gradient rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-blue-100/80 px-5 py-3.5 md:px-8 md:py-4 flex items-center justify-center backdrop-blur-sm">
-                                <h2 className="text-[0.95rem] md:text-lg font-bold text-navy-900 flex items-center flex-wrap justify-center gap-x-2">
-                                    <span className="text-navy-700"> Selamat Datang di</span>
-                                    <img src="./icons/PisgahColor.png" alt="PISGAH" className="h-7 md:h-9 w-auto inline-block" style={{ verticalAlign: 'middle' }} />
-                                    <span><p className="text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span> <span className="text-navy-700">app</span></p></span>
-                                </h2>
-                            </div>
+                    ))}
+                </div>
 
-                            {/* Artikel Promosi Pembangunan */}
-                            <div className="mt-4 glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
-                                <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-navy-400 text-white text-[9px] md:text-[10px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center z-10">
-                                    <Icon name="Home" className="w-3 h-3 mr-1" /> Proyek Gereja
-                                </div>
-                                <div className="p-5 md:p-6 bg-gradient-to-br from-navy-800 via-gold-50/40 to-gold-400">
-                                    <h3 className="text-[1.1rem] md:text-xl font-black text-navy-900 leading-tight mb-2">
-                                        Bersama Membangun Rumah Tuhan
-                                    </h3>
-                                    <p class="text-xs md:text-sm font-medium text-navy-600 leading-relaxed mb-5 text-center">
-                                        Setiap doa, dukungan, dan persembahan pembangunan Anda adalah fondasi utama dalam mewujudkan tempat ibadah yang lebih nyaman bagi jemaat dan saksi kebaikan Tuhan bagi lingkungan sekitar.
-                                        <p class="text-xs md:text-sm font-medium text-navy-600 leading-relaxed mb-5 text-center">Mari ambil bagian dalam penatalayanan ini!</p>
-                                    </p>
-                                    <a href="https://pembangunan.pisgahbisdac.app" target="_self" rel="noopener noreferrer" onClick={(e) => {
-                                        e.preventDefault();
-                                        const userConfirmed = window.confirm("Buka halaman pembangunan sekarang?");
-                                         if (userConfirmed) { 
-                                         window.location.href = 'https://pembangunan.pisgahbisdac.app';
-                                        }
-                                }}
-                                    className="flex items-center justify-center w-full glass-card hover:glass-card text-navy-800 py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 border border-navy-500 group"
-                                    ><span className="text-[11px] md:text-sm font-bold uppercase tracking-widest group-hover:text-gold-300 transition-colors">Klik Untuk Melihat Progres Pembangunan</span>
-                                        <Icon name="ChevronRight" className="w-4 h-4 ml-1.5 text-navy-500 group-hover:translate-x-1 transition-transform" />
-                                    </a>
-                                </div>
-                            </div>
+                {/* Carousel Controls */}
+                {displayImages.length > 1 && (
+                    <>
+                        <button 
+                            onClick={() => setCurrentSlide((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1))} 
+                            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 bg-glass-card hover:bg-black/50 text-navy p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10"
+                        >
+                            <Icon name="ChevronLeft" className="w-5 h-5"/>
+                        </button>
+                        <button 
+                            onClick={() => setCurrentSlide((prev) => (prev + 1) % displayImages.length)} 
+                            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 bg-glass-card hover:bg-black/50 text-navy p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10"
+                        >
+                            <Icon name="ChevronRight" className="w-5 h-5"/>
+                        </button>
+                        
+                        {/* Pagination Dots */}
+                        <div className="absolute bottom-10 md:bottom-12 left-0 right-0 flex justify-center gap-1.5 z-10">
+                            {displayImages.map((_, idx) => (
+                                <button 
+                                    key={idx} 
+                                    onClick={() => setCurrentSlide(idx)} 
+                                    className={`h-1.5 rounded-full transition-all duration-300 ${currentSlide === idx ? 'bg-gold-500 w-5' : 'bg-white/60 hover:bg-white w-2'}`} 
+                                    aria-label={`Slide ${idx + 1}`}
+                                />
+                            ))}
                         </div>
+                    </>
+                )}
+            </div>
+            
+            {/* Welcome Box - overlapping hero */}
+            <div className="relative z-10 px-4 md:px-10 -mt-6 md:-mt-8 max-w-[1500px] mx-auto">
+                <div className="welcome-box-gradient rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-blue-100/80 px-5 py-3.5 md:px-8 md:py-4 flex items-center justify-center backdrop-blur-sm">
+                    <h2 className="text-[0.95rem] md:text-lg font-bold text-navy-900 flex items-center flex-wrap justify-center gap-x-2">
+                        <span className="text-navy-700"> Selamat Datang di</span>
+                        <img src="./icons/PisgahColor.png" alt="PISGAH" className="h-7 md:h-9 w-auto inline-block" style={{ verticalAlign: 'middle' }} />
+                        <span><span className="text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span> <span className="text-navy-700">app</span></span></span>
+                    </h2>
+                </div>
+
+                {/* Artikel Promosi Pembangunan */}
+                <div className="mt-4 glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
+                    <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-navy-400 text-white text-[9px] md:text-[10px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center z-10">
+                        <Icon name="Home" className="w-3 h-3 mr-1" /> Proyek Gereja
                     </div>
+                    <div className="p-5 md:p-6 bg-gradient-to-br from-navy-800 via-gold-50/40 to-gold-400">
+                        <h3 className="text-[1.1rem] md:text-xl font-black text-navy-900 leading-tight mb-2">
+                            Bersama Membangun Rumah Tuhan
+                        </h3>
+                        <div className="text-xs md:text-sm font-medium text-navy-600 leading-relaxed mb-5 text-center">
+                            <p>Setiap doa, dukungan, dan persembahan pembangunan Anda adalah fondasi utama dalam mewujudkan tempat ibadah yang lebih nyaman bagi jemaat dan saksi kebaikan Tuhan bagi lingkungan sekitar.</p>
+                            <p className="mt-2 font-bold">Mari ambil bagian dalam penatalayanan ini!</p>
+                        </div>
+                        <a href="https://pembangunan.pisgahbisdac.app" target="_self" rel="noopener noreferrer" onClick={(e) => {
+                            e.preventDefault();
+                            const userConfirmed = window.confirm("Buka halaman pembangunan sekarang?");
+                                if (userConfirmed) { 
+                                window.location.href = 'https://pembangunan.pisgahbisdac.app';
+                            }
+                        }}
+                            className="flex items-center justify-center w-full glass-card hover:glass-card text-navy-800 py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 border border-navy-500 group"
+                        >
+                            <span className="text-[11px] md:text-sm font-bold uppercase tracking-widest group-hover:text-gold-300 transition-colors">Klik Untuk Melihat Progres Pembangunan</span>
+                            <Icon name="ChevronRight" className="w-4 h-4 ml-1.5 text-navy-500 group-hover:translate-x-1 transition-transform" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
                     {!isPengumumanReallyEmpty() && (
                         <div className="bg-gradient-to-r from-gold-50 to-white-100 p-5 md:p-6 rounded-[1.5rem] shadow-sm border border-gold-200 hover:shadow-md transition-shadow relative overflow-hidden mb-6 md:mb-8">
@@ -2735,23 +2741,6 @@ const scrollPengaturanTabs = (direction) => {
             React.useEffect(() => {
             setWartaCurrentPage(1);
             }, [daftarWarta]);
-
-            // Di dalam komponen Home
-const isPengumumanEmpty = (pengumuman) => {
-    if (!pengumuman || !pengumuman.isi) return true;
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = pengumuman.isi;
-    const text = tempDiv.textContent || tempDiv.innerText || '';
-    return text.trim() === '';
-};
-
-// Kemudian dalam render:
-{!isPengumumanEmpty(pengumuman) && (
-    <div className="bg-gradient-to-r ...">
-        ...
-        <div dangerouslySetInnerHTML={{ __html: pengumuman.isi }} />
-    </div>
-)}
 
 // Fungsi simpan warta// 
 const handleWartaFormSubmit = async (e) => {
