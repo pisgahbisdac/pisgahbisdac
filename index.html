@@ -21,6 +21,7 @@
         .glass { background: rgba(17, 34, 64, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 1.5rem; }
         .tab-active { border-bottom: 4px solid var(--gold); color: var(--gold); font-weight: 800; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         input, select { 
             background: rgba(10, 25, 47, 0.4) !important; 
@@ -56,21 +57,14 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         #filter-unit-select, #tamu, #tgl { padding: 12px 16px; border-radius: 8px; width: 100%;}
-
-        /* Pastikan .no-scrollbar sudah ada, jika belum tambahkan: */
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-.no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
     </style>
 </head>
 <body class="min-h-screen pb-20">
 
-    <!-- NAVBAR HEADER -->
+    <button onclick="syncData()" class="fixed bottom-24 right-6 md:bottom-8 md:right-8 bg-[#D4AF37] text-[#0a192f] w-14 h-14 rounded-full shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:scale-110 hover:shadow-[0_0_25px_rgba(212,175,55,0.7)] transition-all z-[60] flex items-center justify-center cursor-pointer" title="Sinkronisasi Data">
+        <i class="fas fa-sync-alt text-xl" id="syncIcon"></i>
+    </button>
+
     <header class="bg-[#0a192f]/95 border-b border-[#D4AF37]/50 p-3 md:p-6 sticky top-0 z-40 backdrop-blur-md">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-4">
@@ -95,14 +89,12 @@
     </header>
 
     <main class="max-w-6xl mx-auto p-4 md:p-8">
-        <!-- TABS NAV -->
         <div class="relative flex items-center gap-2 mb-10">
     <button id="scrollLeft" class="chevron-btn bg-gray-800/80 text-white px-4 py-2 rounded-lg font-bold text-lg flex items-center justify-center whitespace-nowrap hover:bg-gold hover:text-[#D4AF37] transition disabled:opacity-50 disabled:cursor-not-allowed">
     ‹
 </button>
     <div id="tabsContainer" class="flex-1 overflow-x-auto no-scrollbar">
         <div id="tab-wrapper" class="flex space-x-10 min-w-max border-b border-white/10 py-2">
-            <!-- tombol-tombol tab akan tetap di sini, hanya dibungkus -->
             <button onclick="switchTab('dashboard')" id="btn-dashboard" class="pb-4 px-2 whitespace-nowrap tab-active text-lg uppercase font-black">Dashboard</button>
             <button onclick="switchTab('khotbah')" id="btn-khotbah" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Khotbah</button>
             <button onclick="switchTab('ss_dewasa')" id="btn-ss_dewasa" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">SS Dewasa</button>
@@ -122,18 +114,15 @@
         <div id="content-area"></div>
     </main>
 
-    <!-- ========== FOOTER COPYRIGHT ========== -->
     <footer class="text-center py-6 mt-10 border-t border-white/10">
         <p class="text-xs text-slate-400 font-medium tracking-wider">
             &copy; 2026 PISGAH BISDAC<br/>Batam International Seventh-Day Adventist Church. 
             <br class="block sm:hidden"> All rights reserved.
         </p>
-        <p class="text-[10px] text-slate-500 mt-1">
-            Matrix System v1.0
-        </p>
+        <p class="text-[10px] text-slate-500 mt-1">Matrix System v1.0</p>
     </footer>
 
-    <!-- MODAL LOGIN dengan toggle password & icon gold -->
+<!-- MODAL LOGIN -->
 <div id="login-modal" class="fixed inset-0 bg-[#0a192f]/90 flex items-center justify-center z-[300] hidden backdrop-blur-md">
     <div class="glass p-10 max-w-sm w-full mx-4 text-center border-t-4 border-t-[#D4AF37] shadow-2xl animate-[fadeIn_0.3s_ease-out]">
         <div class="mb-4"><i class="fas fa-user-shield text-5xl text-[#D4AF37]"></i></div>
@@ -153,15 +142,9 @@
 <!-- MODAL GANTI PIN -->
 <div id="changepin-modal" class="fixed inset-0 bg-[#0a192f]/90 flex items-center justify-center z-[300] hidden backdrop-blur-md">
     <div class="glass p-10 max-w-sm w-full mx-4 text-center border-t-4 border-t-[#D4AF37] shadow-2xl animate-[fadeIn_0.3s_ease-out]">
-        <div class="mb-4">
-            <i class="fas fa-key text-5xl text-[#D4AF37]"></i>
-        </div>
-        <h3 class="text-2xl font-black text-[#D4AF37] mb-2 uppercase tracking-wide">
-            Ganti PIN
-        </h3>
-        <p class="text-xs text-slate-300 mb-8 font-medium">
-            Masukkan PIN lama dan PIN baru
-        </p>
+        <div class="mb-4"><i class="fas fa-key text-5xl text-[#D4AF37]"></i></div>
+        <h3 class="text-2xl font-black text-[#D4AF37] mb-2 uppercase tracking-wide">Ganti PIN</h3>
+        <p class="text-xs text-slate-300 mb-8 font-medium">Masukkan PIN lama dan PIN baru</p>
         <div class="space-y-5">
             <div class="relative">
                 <input type="password" id="old-pin" placeholder="PIN Lama" maxlength="6" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-center text-xl tracking-[0.3rem]">
@@ -173,12 +156,8 @@
             </div>
         </div>
         <div class="flex gap-4 mt-8">
-            <button onclick="processChangePin()" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-full font-black uppercase shadow-lg hover:bg-yellow-400 transition-all text-sm">
-                GANTI PIN
-            </button>
-            <button onclick="document.getElementById('changepin-modal').classList.add('hidden')" class="flex-1 bg-slate-600 text-white py-4 rounded-full font-black uppercase shadow-lg hover:bg-slate-500 transition-all text-sm">
-                BATAL
-            </button>
+            <button onclick="processChangePin()" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-full font-black uppercase shadow-lg hover:bg-yellow-400 transition-all text-sm">GANTI PIN</button>
+            <button onclick="document.getElementById('changepin-modal').classList.add('hidden')" class="flex-1 bg-slate-600 text-white py-4 rounded-full font-black uppercase shadow-lg hover:bg-slate-500 transition-all text-sm">BATAL</button>
         </div>
     </div>
 </div>
@@ -197,52 +176,27 @@ function togglePassword(inputId, iconElem) {
     }
 }
 
-// Fungsi untuk mengaktifkan scrolling dengan chevron pada tab
 function initTabScrolling() {
     const container = document.getElementById('tabsContainer');
     const leftBtn = document.getElementById('scrollLeft');
     const rightBtn = document.getElementById('scrollRight');
     
     if (!container) return;
-    
     function updateButtons() {
         const scrollLeft = container.scrollLeft;
         const maxScroll = container.scrollWidth - container.clientWidth;
         leftBtn.disabled = scrollLeft <= 1;
         rightBtn.disabled = maxScroll - scrollLeft <= 1;
     }
-    
-    leftBtn.addEventListener('click', () => {
-        container.scrollBy({ left: -250, behavior: 'smooth' });
-    });
-    
-    rightBtn.addEventListener('click', () => {
-        container.scrollBy({ left: 250, behavior: 'smooth' });
-    });
-    
+    leftBtn.addEventListener('click', () => { container.scrollBy({ left: -250, behavior: 'smooth' }); });
+    rightBtn.addEventListener('click', () => { container.scrollBy({ left: 250, behavior: 'smooth' }); });
     container.addEventListener('scroll', updateButtons);
     window.addEventListener('resize', updateButtons);
-    updateButtons(); // set awal
+    updateButtons(); 
 }
 
-// Panggil fungsi setelah DOM siap (misal di dalam window.onload atau di akhir init)
-// Jika sudah ada event DOMContentLoaded, tambahkan di sana. Jika belum, cukup letakkan di akhir script:
-
-// Tunggu hingga tab container selesai dirender (karena tab bisa muncul setelah login)
-// Cara praktis: panggil setelah renderTabs() atau di dalam switchTab? 
-// Tapi cukup panggil sekali saat halaman dimuat.
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTabScrolling);
-} else {
-    initTabScrolling();
-}
-
-// Namun karena tab container mungkin berubah ukuran saat tab ditampilkan (hidden menjadi visible),
-// kita juga panggil ulang updateButtons setiap kali ada perubahan tab.
-// Tambahkan baris ini di dalam fungsi renderTabs() atau setelah switchTab():
-// setTimeout(() => { if (typeof updateButtons === 'function') updateButtons(); }, 100);
-// Untuk praktis, kita override initTabScrolling agar bisa dipanggil ulang.
-
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initTabScrolling);
+} else { initTabScrolling(); }
 </script>
 
     <!-- LOADING & TOAST -->
@@ -255,23 +209,17 @@ if (document.readyState === 'loading') {
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzKhoegE49TJy_Rm1R2lJermJGzmt2zFqemWiyr4yth8eGbC0OzPNqxr7CutjQiVYkkow/exec";
         
-        // Data Global
         let members = [];
         let units = []; 
         let roles = [];
         let admins = []; 
-        let statsData = { history: [] }; 
-        let doaPoints = []; // State untuk kotak permohonan doa
+        let statsData = { history: [], historyByUnit: { 'ALL': [] } }; 
+        let doaPoints = []; 
         
-        // State User & UI
         let currentUser = { role: 'public', unitName: null, adminName: null }; 
         let currentTab = 'dashboard';
         let memberAttendance = {}; 
         
-        // ========================================
-        // PERMISSION MATRIX SYSTEM
-        // ========================================
-
         const permissions = {
             public: ['dashboard'],
             admin: ['dashboard', 'khotbah', 'ss_dewasa', 'ss_anak', 'pendalaman', 'kegiatan', 'anggota', 'unit', 'admin'],
@@ -284,42 +232,21 @@ if (document.readyState === 'loading') {
         function getCurrentPermissionRole() {
             if (currentUser.role === 'admin') return 'admin';
             if (currentUser.role === 'khotbah') return 'khotbah';
-
             const unit = normalizeUnitName(currentUser.unitName);
             if (unit.includes('ss dewasa') || unit.includes('sekolah sabat dewasa') || unit.includes('dewasa')) return 'ss_dewasa';
             if (unit.includes('ss anak') || unit.includes('sekolah sabat anak') || unit.includes('anak')) return 'ss_anak';
             if (unit.includes('pendalaman')) return 'pendalaman';
-
             return 'public';
         }
 
-        // ========================================
-        // FILTER MEMBER BERDASARKAN KATEGORI
-        // ========================================
-
-        function normalizeUnitName(name) {
-            return String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
-        }
-
-        function getMembersByCategory(category) {
-            if (category === 'khotbah') return members;
-            if (category === 'ss_dewasa') return members.filter(member => normalizeUnitName(member.unit).includes('ss dewasa'));
-            if (category === 'ss_anak') return members.filter(member => normalizeUnitName(member.unit).includes('ss anak'));
-            if (category === 'pendalaman') return members.filter(member => normalizeUnitName(member.unit).includes('pendalaman'));
-            return [];
-        }
+        function normalizeUnitName(name) { return String(name || '').trim().toLowerCase().replace(/\s+/g, ' '); }
 
         function hasAccess(tabName) {
             const role = getCurrentPermissionRole();
             return permissions[role]?.includes(tabName);
         }
 
-        // State Form Manage
-        let editingMemberId = null;
-        let editingUnitName = null;
-        let editingRoleName = null;
-        let editingAdminUsername = null;
-        let formSelectedRoles = ['Anggota']; 
+        let editingMemberId = null; let editingUnitName = null; let editingRoleName = null; let editingAdminUsername = null; let formSelectedRoles = ['Anggota']; 
 
         async function init() {
             toggleLoading(true);
@@ -328,54 +255,32 @@ if (document.readyState === 'loading') {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getInitialData' }) });
                 const json = await res.json();
                 if(json.status === 'success') {
-                    // MENDUKUNG STRUKTUR DATA LAMA (json.data) DAN BARU (json)
                     const payload = json.data ? json.data : json;
-                    
-                    // NORMALISASI DATA AGAR KOMPATIBEL DENGAN BERBAGAI VERSI BACKEND
                     members = (payload.members || []).map(m => ({
-                        id: m.id || m.ID || m['ID'] || '',
-                        nama: m.nama || m.Nama || m['Nama'] || '',
-                        status: m.status || m.Status || m['Status'] || '',
-                        kelasTetap: m.kelasTetap || m.Kategori || m['Kategori'] || '',
-                        unit: m.unit || m.Unit || m['Unit'] || 'Umum',
-                        jabatan: m.jabatan || m.Jabatan || m['Jabatan'] || 'Anggota'
+                        id: m.id || m.ID || m['ID'] || '', nama: m.nama || m.Nama || m['Nama'] || '',
+                        status: m.status || m.Status || m['Status'] || '', kelasTetap: m.kelasTetap || m.Kategori || m['Kategori'] || '',
+                        unit: m.unit || m.Unit || m['Unit'] || 'Umum', jabatan: m.jabatan || m.Jabatan || m['Jabatan'] || 'Anggota'
                     }));
 
                     units = (payload.units || []).map(u => {
-                        if (typeof u === 'object') {
-                            return {
-                                name: u.name || u.namaUnit || u['Nama Unit'] || u.nama || '',
-                                pin: String(u.pin || u['PIN Akses'] || '').trim()
-                            };
-                        }
+                        if (typeof u === 'object') return { name: u.name || u.namaUnit || u['Nama Unit'] || u.nama || '', pin: String(u.pin || u['PIN Akses'] || '').trim() };
                         return { name: String(u), pin: '' };
                     });
 
                     let rawRoles = payload.roles || [];
                     if (rawRoles.length > 0 && typeof rawRoles[0] === 'object') {
                         roles = rawRoles.map(r => r.namaJabatan || r['Nama Jabatan'] || r.nama || Object.values(r)[0]);
-                    } else if (rawRoles.length > 0) {
-                        roles = rawRoles;
-                    } else {
-                        roles = ['Anggota', 'Guru', 'Pemimpin', 'Kordinator'];
-                    }
+                    } else if (rawRoles.length > 0) roles = rawRoles;
+                    else roles = ['Anggota', 'Guru', 'Pemimpin', 'Kordinator'];
 
                     admins = (payload.admins || []).map(a => {
-                        if (typeof a === 'object') {
-                            return {
-                                username: a.username || a['Username'] || a.nama || '',
-                                pin: String(a.pin || a['PIN Akses'] || '').trim()
-                            };
-                        }
+                        if (typeof a === 'object') return { username: a.username || a['Username'] || a.nama || '', pin: String(a.pin || a['PIN Akses'] || '').trim() };
                         return a;
                     });
 
-                    statsData = payload.stats || { history: [] }; 
-                    
-                    // Peringatan jika data benar-benar kosong diringankan (hanya di console, tidak merusak UI)
-                    if(admins.length === 0 && units.length === 0 && members.length === 0) {
-                        console.warn("Spreadsheet masih kosong atau data menggunakan format lama.");
-                    }
+                    // Pastikan struktur format baru di-handle dengan baik (Ada data per Unit)
+                    statsData = payload.stats || { history: [], historyByUnit: { 'ALL': [] } }; 
+                    if (!statsData.historyByUnit) statsData.historyByUnit = { 'ALL': statsData.history || [] };
                     
                     renderTabs();
                     switchTab(currentTab);
@@ -400,170 +305,89 @@ if (document.readyState === 'loading') {
         function processLogin() {
             const pin = document.getElementById('login-pin').value.trim();
             if(!pin) return showToast("Masukkan PIN Anda!", "error");
-
-            // Memastikan spasi dihapus saat mencocokkan PIN Admin
             const foundAdmin = admins.find(a => String(a.pin).trim() === pin);
-            
             if (foundAdmin) {
                 currentUser = { role: 'admin', unitName: 'ALL', adminName: foundAdmin.username };
                 showToast(`Berhasil Login sebagai ${foundAdmin.username}`);
             } else {
-                // Memastikan spasi dihapus saat mencocokkan PIN Unit
                 const foundUnit = units.find(u => {
                     const uPin = typeof u === 'object' && u !== null ? u.pin : null;
                     return String(uPin).trim() === pin;
                 });
-
                 if (foundUnit) {
                     const uName = typeof foundUnit === 'object' && foundUnit !== null ? foundUnit.name : foundUnit;
                     const normalized = uName.toLowerCase();
                     let roleType = 'unit';
-
-                    if (normalized === 'khotbah') {
-                        roleType = 'khotbah';
-                    }
-
-                    currentUser = {
-                        role: roleType,
-                        unitName: uName,
-                        adminName: null
-                    };
-
+                    if (normalized === 'khotbah') roleType = 'khotbah';
+                    currentUser = { role: roleType, unitName: uName, adminName: null };
                     showToast(`Berhasil Login sebagai ${uName}`);
                 } else {
                     return showToast("PIN SALAH ATAU TIDAK DITEMUKAN!", "error");
                 }
             }
-            
             document.getElementById('login-modal').classList.add('hidden');
-            updateHeaderUI();
-            renderTabs();
-            switchTab('dashboard');
+            updateHeaderUI(); renderTabs(); switchTab('dashboard');
         }
 
         function updateHeaderUI() {
-            const txtRole = document.getElementById('user-role-text');
-            const btnLogin = document.getElementById('btn-login');
-            const btnLogout = document.getElementById('btn-logout');
-            const btnChangePin = document.getElementById('btn-changepin');
-            
+            const txtRole = document.getElementById('user-role-text'); const btnLogin = document.getElementById('btn-login'); const btnLogout = document.getElementById('btn-logout'); const btnChangePin = document.getElementById('btn-changepin');
             if(currentUser.role === 'public') {
-                txtRole.innerText = 'Publik';
-                txtRole.style.color = '#94a3b8';
-                btnLogin.classList.remove('hidden');
-                btnLogout.classList.add('hidden');
-                btnChangePin.classList.add('hidden');
+                txtRole.innerText = 'Publik'; txtRole.style.color = '#94a3b8';
+                btnLogin.classList.remove('hidden'); btnLogout.classList.add('hidden'); btnChangePin.classList.add('hidden');
             } else if (currentUser.role === 'admin') {
-                txtRole.innerText = `ADMIN: ${currentUser.adminName}`;
-                txtRole.style.color = '#D4AF37'; 
-                btnLogin.classList.add('hidden');
-                btnLogout.classList.remove('hidden');
-                btnChangePin.classList.remove('hidden');
+                txtRole.innerText = `ADMIN: ${currentUser.adminName}`; txtRole.style.color = '#D4AF37'; 
+                btnLogin.classList.add('hidden'); btnLogout.classList.remove('hidden'); btnChangePin.classList.remove('hidden');
             } else {
-                txtRole.innerText = `UNIT ${currentUser.unitName}`;
-                txtRole.style.color = '#10B981'; 
-                btnLogin.classList.add('hidden');
-                btnLogout.classList.remove('hidden');
-                btnChangePin.classList.remove('hidden');
+                txtRole.innerText = `UNIT ${currentUser.unitName}`; txtRole.style.color = '#10B981'; 
+                btnLogin.classList.add('hidden'); btnLogout.classList.remove('hidden'); btnChangePin.classList.remove('hidden');
             }
         }
 
         window.refreshTabScrollButtons = function() {
-            const container = document.getElementById('tabsContainer');
-                if (!container) return;
-            const scrollLeft = container.scrollLeft;
-            const maxScroll = container.scrollWidth - container.clientWidth;
-            const leftBtn = document.getElementById('scrollLeft');
-            const rightBtn = document.getElementById('scrollRight');
-                if (leftBtn) leftBtn.disabled = scrollLeft <= 1;
-                if (rightBtn) rightBtn.disabled = maxScroll - scrollLeft <= 1;
+            const container = document.getElementById('tabsContainer'); if (!container) return;
+            const scrollLeft = container.scrollLeft; const maxScroll = container.scrollWidth - container.clientWidth;
+            const leftBtn = document.getElementById('scrollLeft'); const rightBtn = document.getElementById('scrollRight');
+            if (leftBtn) leftBtn.disabled = scrollLeft <= 1; if (rightBtn) rightBtn.disabled = maxScroll - scrollLeft <= 1;
         };
 
         function renderTabs() {
-            const toggleTab = (id, allowed) => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                el.style.display = allowed ? 'inline-block' : 'none';
-            };
-
-            toggleTab('btn-dashboard', hasAccess('dashboard'));
-            toggleTab('btn-khotbah', hasAccess('khotbah'));
-            toggleTab('btn-ss_dewasa', hasAccess('ss_dewasa'));
-            toggleTab('btn-ss_anak', hasAccess('ss_anak'));
-            toggleTab('btn-pendalaman', hasAccess('pendalaman'));
-            toggleTab('btn-kegiatan', hasAccess('kegiatan'));
-            toggleTab('btn-anggota', hasAccess('anggota'));
-            toggleTab('btn-unit', hasAccess('unit'));
-            toggleTab('btn-admin', hasAccess('admin'));
-            // Di dalam fungsi renderTabs(), setelah semua toggleTab selesai:
+            const toggleTab = (id, allowed) => { const el = document.getElementById(id); if (el) el.style.display = allowed ? 'inline-block' : 'none'; };
+            toggleTab('btn-dashboard', hasAccess('dashboard')); toggleTab('btn-khotbah', hasAccess('khotbah')); toggleTab('btn-ss_dewasa', hasAccess('ss_dewasa')); toggleTab('btn-ss_anak', hasAccess('ss_anak')); toggleTab('btn-pendalaman', hasAccess('pendalaman')); toggleTab('btn-kegiatan', hasAccess('kegiatan')); toggleTab('btn-anggota', hasAccess('anggota')); toggleTab('btn-unit', hasAccess('unit')); toggleTab('btn-admin', hasAccess('admin'));
             if (typeof updateTabButtons === 'function') updateTabButtons();
             setTimeout(refreshTabScrollButtons, 50);
         }
 
         function switchTab(tabId) {
-            if (!hasAccess(tabId)) {
-                return showToast('ANDA TIDAK MEMILIKI AKSES!', 'error');
-            }
-
+            if (!hasAccess(tabId)) return showToast('ANDA TIDAK MEMILIKI AKSES!', 'error');
             currentTab = tabId;
-            document.querySelectorAll('button[id^="btn-"]').forEach(b => {
-                b.classList.remove('tab-active');
-                if (b.id !== 'btn-' + tabId) b.classList.add('text-slate-400');
-            });
-            const btn = document.getElementById('btn-' + tabId);
-            if(btn) {
-                btn.classList.remove('text-slate-400');
-                btn.classList.add('tab-active');
-            }
-            if(['khotbah', 'ss_dewasa', 'ss_anak', 'pendalaman', 'dashboard'].includes(tabId)) {
-                memberAttendance = {};
-            }
+            document.querySelectorAll('button[id^="btn-"]').forEach(b => { b.classList.remove('tab-active'); if (b.id !== 'btn-' + tabId) b.classList.add('text-slate-400'); });
+            const btn = document.getElementById('btn-' + tabId); if(btn) { btn.classList.remove('text-slate-400'); btn.classList.add('tab-active'); }
+            if(['khotbah', 'ss_dewasa', 'ss_anak', 'pendalaman', 'dashboard'].includes(tabId)) memberAttendance = {};
             renderUI();
         }
 
         function logout() {
             currentUser = { role: 'public', unitName: null, adminName: null };
-            updateHeaderUI();
-            renderTabs();
-            switchTab('dashboard');
-            showToast("Anda telah keluar.");
+            updateHeaderUI(); renderTabs(); switchTab('dashboard'); showToast("Anda telah keluar.");
         }
 
         // --- GANTI PIN LOGIC ---
         function showChangePin() {
-            document.getElementById('old-pin').value = '';
-            document.getElementById('new-pin').value = '';
-            document.getElementById('changepin-modal').classList.remove('hidden');
-            document.getElementById('old-pin').focus();
+            document.getElementById('old-pin').value = ''; document.getElementById('new-pin').value = '';
+            document.getElementById('changepin-modal').classList.remove('hidden'); document.getElementById('old-pin').focus();
         }
-
         async function processChangePin() {
-            const oldPin = document.getElementById('old-pin').value.trim();
-            const newPin = document.getElementById('new-pin').value.trim();
+            const oldPin = document.getElementById('old-pin').value.trim(); const newPin = document.getElementById('new-pin').value.trim();
             if(!oldPin || !newPin) return showToast("Semua kolom harus diisi!", "error");
-            
             const identifier = currentUser.role === 'admin' ? currentUser.adminName : currentUser.unitName;
-            
-            toggleLoading(true);
-            disableButtons(true);
+            toggleLoading(true); disableButtons(true);
             try {
-                const res = await fetch(API_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: 'changePin', data: { role: currentUser.role, identifier: identifier, oldPin: oldPin, newPin: newPin } }) 
-                });
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'changePin', data: { role: currentUser.role, identifier: identifier, oldPin: oldPin, newPin: newPin } }) });
                 const json = await res.json();
-                if(json.status === 'success') {
-                    showToast("PIN BERHASIL DIUBAH!");
-                    document.getElementById('changepin-modal').classList.add('hidden');
-                    init(); 
-                } else {
-                    showToast(json.message || "Gagal mengubah PIN", "error");
-                }
-            } catch(e) {
-                showToast("KONEKSI GAGAL!", "error");
-            }
-            toggleLoading(false);
-            disableButtons(false);
+                if(json.status === 'success') { showToast("PIN BERHASIL DIUBAH!"); document.getElementById('changepin-modal').classList.add('hidden'); init(); } 
+                else { showToast(json.message || "Gagal mengubah PIN", "error"); }
+            } catch(e) { showToast("KONEKSI GAGAL!", "error"); }
+            toggleLoading(false); disableButtons(false);
         }
 
         // --- RENDER HALAMAN UTAMA ---
@@ -578,21 +402,17 @@ if (document.readyState === 'loading') {
             }).join('');
             
             const currUnitName = currentUser.unitName || '';
-            // FIX: Izinkan "ALL" filter jika user adalah Admin ATAU jika rolenya 'khotbah' (mereka harus bisa lihat semua jemaat untuk diabsen)
             const canFilterAll = currentUser.role === 'admin' || currentUser.role === 'khotbah' || currUnitName.toLowerCase() === 'khotbah';
             
-            // Fungsi filter dropdown dengan class tambahan
             const filterDropdownHTML = (funcName, extraClass = '') => {
                 const baseClass = "!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800";
                 const fullClass = extraClass ? `${baseClass} ${extraClass}` : baseClass;
-                if (!canFilterAll) {
-                    return `<select id="unit-filter" disabled class="${fullClass}"><option value="${currUnitName}">${String(currUnitName || '').toUpperCase()}</option></select>`;
-                }
+                if (!canFilterAll) return `<select id="unit-filter" disabled class="${fullClass}"><option value="${currUnitName}">${String(currUnitName || '').toUpperCase()}</option></select>`;
                 return `<select id="unit-filter" onchange="${funcName}" class="${fullClass}"><option value="ALL">TAMPILKAN SEMUA UNIT</option>${unitOptionsHTML}</select>`;
             };
 
             if(currentTab === 'dashboard') {
-                renderDashboard(area);
+                renderDashboard(area, unitOptionsHTML);
             } 
             else if(currentTab === 'khotbah') {
                 area.innerHTML = `
@@ -600,18 +420,11 @@ if (document.readyState === 'loading') {
                         <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
                             <h3 class="text-3xl font-black text-[#D4AF37] uppercase">Khotbah Sabat</h3>
                             <div class="flex flex-wrap gap-4 w-full md:w-auto items-end justify-center md:justify-end">
-                                <!-- Filter Unit -->
                                 <input type="hidden" id="unit-filter" value="ALL">
-                                <!-- Input Tamu -->
-                                <div class="w-28 md:w-32">
-                                    <label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tamu</label>
-                                    <input type="number" id="tamu" value="0" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
-                                </div>
-                                <!-- Input Tanggal -->
-                                <div class="w-40 md:w-48">
-                                    <label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tanggal</label>
-                                    <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
-                                </div>
+                                <div class="w-28 md:w-32"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tamu</label>
+                                <input type="number" id="tamu" value="0" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
+                                <div class="w-40 md:w-48"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tanggal</label>
+                                <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
                             </div>
                         </div>
                         <div id="khotbah-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"></div>
@@ -626,21 +439,12 @@ if (document.readyState === 'loading') {
                         <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
                             <h3 class="text-3xl font-black text-[#D4AF37] uppercase">${cat}</h3>
                             <div class="flex flex-wrap gap-4 w-full md:w-auto items-end justify-center md:justify-end">
-                                <!-- Filter Unit -->
-                                <div class="flex-1 min-w-[200px]">
-                                    <label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Filter Unit</label>
-                                    ${filterDropdownHTML(`renderFilteredMembers('${cat}')`)}
-                                </div>
-                                <!-- Input Tamu -->
-                                <div class="w-28 md:w-32">
-                                    <label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tamu</label>
-                                    <input type="number" id="tamu" value="0" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
-                                </div>
-                                <!-- Input Tanggal -->
-                                <div class="w-40 md:w-48">
-                                    <label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tanggal</label>
-                                    <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
-                                </div>
+                                <div class="flex-1 min-w-[200px]"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Filter Unit</label>
+                                ${filterDropdownHTML(`renderFilteredMembers('${cat}')`)}</div>
+                                <div class="w-28 md:w-32"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tamu</label>
+                                <input type="number" id="tamu" value="0" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
+                                <div class="w-40 md:w-48"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tanggal</label>
+                                <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
                             </div>
                         </div>
                         <div id="unit-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"></div>
@@ -649,105 +453,38 @@ if (document.readyState === 'loading') {
                 renderFilteredMembers(cat);
             } 
             else if(currentTab === 'kegiatan') {
-                const items = ["Anggota datang tepat waktu di SS", "Membaca Alkitab setiap hari", "Renungan Pagi setiap hari", "Belajar Sekolah Sabat setiap hari", "Hadir di Kebaktian Rabu Malam", "Melakukan Jangkauan Keluar", "Melakukan Perlawatan Pemeliharaan", "Ikut Doa (777, 1752 & Doa Subuh)", "Terlibat kegiatan Kelompok Kecil", "Membagikan risalah / buku rohani"];
+                const items = [
+                    "Anggota datang tepat waktu di S.S.", "Membaca Alkitab setiap hari", "Pelajaran S.S. setiap hari", "Renungan Pagi setiap hari", "Hadir Pertemuan Rabu Malam",
+                    "Melakukan Jangkauan Keluar (Pemberian Alkitab, Berdoa u/ orang lain, Membagikan makanan/pakaian)", "Melakukan Perlawatan Pemeliharaan (Mendoakan yg sakit, Anggota S.S. yg lama tidak hadir)",
+                    "Memberikan / Membagikan Risalah / Buku Rohani", "Terlibat Kegiatan Kelompok Kecil", "Mengikuti / Terlibat Program Berdoa (777 / 1752 dll)"
+                ];
                 area.innerHTML = `
                     <div class="glass p-8">
                         <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
                             <h3 class="text-3xl font-black text-[#D4AF37] uppercase text-center md:text-left">Keterlibatan Anggota</h3>
                             <div class="flex flex-wrap gap-4 w-full md:w-auto items-end justify-center md:justify-end">
-                                <!-- Filter Unit -->
-                                <div class="flex-1 min-w-[200px]">
-                                    <label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Pilih Unit Laporan</label>
-                                    ${filterDropdownHTML('')} 
-                                </div>
-                                <!-- Input Tanggal -->
-                                <div class="w-48 md:w-56">
-                                    <label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tanggal Laporan</label>
-                                    <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
-                                </div>
+                                <div class="flex-1 min-w-[200px]"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Pilih Unit Laporan</label>
+                                ${filterDropdownHTML('')}</div>
+                                <div class="w-48 md:w-56"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tanggal Laporan</label>
+                                <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">${items.map((it, i) => `
-                            <div class="activity-card p-6 flex flex-col justify-between">
-                                <div class="activity-number text-white">${i+1}</div>
-                                <div class="text-base font-black text-white uppercase mb-6">${it}</div>
-                                <input type="number" id="k-${i}" value="0" class="text-center text-3xl py-4 relative z-10 font-black">
+                            <div class="bg-[#112240] border border-white/5 rounded-xl p-6 flex flex-col justify-between">
+                                <div class="text-[#D4AF37]/50 font-black text-2xl mb-2">#${i+1}</div>
+                                <div class="text-xs md:text-sm font-bold text-white uppercase mb-6 leading-relaxed min-h-[4rem] flex-grow">${it}</div>
+                                <input type="number" id="k-${i}" value="0" class="text-center text-3xl py-4 bg-gray-800 rounded-lg border-gold/50 focus:border-gold outline-none text-white font-black">
                             </div>`).join('')}</div>
                         <button onclick="submitKegiatan()" class="w-full bg-[#D4AF37] text-[#0a192f] py-6 rounded-2xl font-black text-2xl hover:bg-yellow-400 transition-all">SIMPAN LAPORAN KEGIATAN</button>
                     </div>`;
             } 
-            else if(currentTab === 'anggota') {
-                renderMemberManager(area);
-            } 
-            else if(currentTab === 'unit') {
-                renderManagerAll(area);
-            } 
-            else if(currentTab === 'admin') {
-                renderAdminManager(area);
-            }
+            else if(currentTab === 'anggota') renderMemberManager(area);
+            else if(currentTab === 'unit') renderManagerAll(area);
+            else if(currentTab === 'admin') renderAdminManager(area);
         }
 
-        // --- FILTER & TAMPILAN ABSEN ---
-        function renderFilteredKhotbah() {
-            const filterEl = document.getElementById('unit-filter');
-            let filter = filterEl ? filterEl.value : 'ALL';
-            
-            // Tampilkan SELURUH anggota untuk diabsen (kecuali difilter unit tertentu)
-            let filtered = members;
-            if(filter !== 'ALL') {
-                filtered = filtered.filter(m => m.unit === filter);
-            }
-
-            document.getElementById('khotbah-list').innerHTML = filtered.map(m => createCardHTML(m)).join('');
-        }
-
-        function renderFilteredMembers(cat) {
-            const filterEl = document.getElementById('unit-filter');
-            let filter = filterEl ? filterEl.value : 'ALL';
-
-            let filtered = members.filter(m => m.kelasTetap === cat || (cat === 'Pendalaman' && m.kelasTetap === 'PA'));
-            if(filter !== 'ALL') {
-                filtered = filtered.filter(m => m.unit === filter);
-            }
-
-            document.getElementById('unit-list').innerHTML = filtered.map(m => createCardHTML(m)).join('');
-        }
-
-        function createCardHTML(m) {
-            const att = memberAttendance[m.id] || ''; 
-            const jab = m.jabatan || 'Anggota';
-            return `
-            <div class="bg-white/5 p-6 rounded-2xl flex flex-col items-center justify-between border-2 border-gold/10 gap-5 hover:border-gold/30 transition-all text-center">
-                <div class="w-full">
-                    <div class="text-2xl font-black text-white uppercase">${m.nama}</div>
-                    <div class="text-[13px] text-[#D4AF37] uppercase font-black tracking-widest mt-2">${jab}</div>
-                    <div class="text-[11px] text-gold font-bold uppercase tracking-widest mt-1">${m.unit} | ${m.status}</div>
-                </div>
-                <div class="flex flex-col w-full gap-4">
-                    <div class="flex gap-3 w-full">
-                        <button id="btn-hadir-${m.id}" onclick="setAttendance('${m.id}', 'Hadir')" class="btn-hadir flex-1 ${att === 'Hadir' ? 'active' : ''}"><i class="fas fa-check mr-2"></i>HADIR</button>
-                        <button id="btn-alpha-${m.id}" onclick="setAttendance('${m.id}', 'Alpha')" class="btn-alpha flex-1 ${att === 'Alpha' ? 'active' : ''}"><i class="fas fa-times mr-2"></i>ALPHA</button>
-                    </div>
-                </div>
-            </div>`;
-        }
-
-        function setAttendance(id, status) {
-            memberAttendance[id] = status;
-            const btnHadir = document.getElementById(`btn-hadir-${id}`);
-            const btnAlpha = document.getElementById(`btn-alpha-${id}`);
-            
-            if(status === 'Hadir') { 
-                if(btnHadir) btnHadir.classList.add('active'); 
-                if(btnAlpha) btnAlpha.classList.remove('active'); 
-            } else { 
-                if(btnAlpha) btnAlpha.classList.add('active'); 
-                if(btnHadir) btnHadir.classList.remove('active'); 
-            }
-        }
-
-        // --- DASHBOARD & KOTAK DOA ---
-        function renderDashboard(area) {
+        // --- DASHBOARD & ANALISIS ---
+        function renderDashboard(area, unitOptionsHTML) {
             const quotes = [
                 '"Janganlah kita menjauhkan diri dari pertemuan-pertemuan ibadah kita..." - Ibrani 10:25',
                 '"Layanilah seorang akan yang lain, sesuai dengan karunia yang telah diperoleh..." - 1 Petrus 4:10',
@@ -757,21 +494,6 @@ if (document.readyState === 'loading') {
             const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const todayStr = new Date().toLocaleDateString('id-ID', options);
-
-            const history = statsData.history || [];
-            const latestWeek = history.length > 0 ? history[history.length - 1].count : 0;
-            const prevWeek = history.length > 1 ? history[history.length - 2].count : 0;
-            const weekDiff = latestWeek - prevWeek;
-            const weekTrendIcon = weekDiff >= 0 ? '<i class="fas fa-arrow-up mr-1"></i>' : '<i class="fas fa-arrow-down mr-1"></i>';
-            const weekTrendClass = weekDiff >= 0 ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10';
-            const weekTrendText = weekDiff >= 0 ? `+${weekDiff} jiwa` : `${weekDiff} jiwa`;
-
-            const last4 = history.slice(-4);
-            const monthAvg = last4.length > 0 ? Math.round(last4.reduce((sum, item) => sum + item.count, 0) / last4.length) : 0;
-            const qtrAvg = history.length > 0 ? Math.round(history.reduce((sum, item) => sum + item.count, 0) / history.length) : 0;
-            
-            // Jemaat yang tidak disembunyikan (exclude Khotbah dari Total Jemaat)
-            const visibleMembers = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
 
             area.innerHTML = `
                 <div class="mb-10 animate-[fadeIn_0.5s_ease-out]">
@@ -797,16 +519,11 @@ if (document.readyState === 'loading') {
                         <p class="text-sm text-slate-300 relative z-10 mb-8 max-w-2xl mx-auto">Tuliskan permohonan doa Anda di bawah ini. Tim pendoa kami siap mendukung Anda dalam doa.</p>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 relative z-10 text-left">
-                            <div>
-                                <label class="text-[10px] font-bold text-blue-300 uppercase mb-2 block tracking-widest pl-4">Nama Lengkap</label>
-                                <input type="text" id="doa-nama" placeholder="Masukkan Nama Anda..." class="!border-blue-500/50 focus:!border-blue-400 !text-white py-3 px-4 rounded-lg w-full">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-blue-300 uppercase mb-2 block tracking-widest pl-4">No. WhatsApp / Telepon</label>
-                                <input type="tel" id="doa-telp" placeholder="Contoh: 08123456789..." class="!border-blue-500/50 focus:!border-blue-400 !text-white py-3 px-4 rounded-lg w-full">
-                            </div>
+                            <div><label class="text-[10px] font-bold text-blue-300 uppercase mb-2 block tracking-widest pl-4">Nama Lengkap</label>
+                            <input type="text" id="doa-nama" placeholder="Masukkan Nama Anda..." class="!border-blue-500/50 focus:!border-blue-400 !text-white py-3 px-4 rounded-lg w-full"></div>
+                            <div><label class="text-[10px] font-bold text-blue-300 uppercase mb-2 block tracking-widest pl-4">No. WhatsApp / Telepon</label>
+                            <input type="tel" id="doa-telp" placeholder="Contoh: 08123456789..." class="!border-blue-500/50 focus:!border-blue-400 !text-white py-3 px-4 rounded-lg w-full"></div>
                         </div>
-                        
                         <div class="relative z-10 text-left mb-8">
                             <label class="text-[10px] font-bold text-blue-300 uppercase mb-2 block tracking-widest pl-4">Poin Doa (Ketik lalu tekan Enter)</label>
                             <div class="bg-[#0a192f]/60 backdrop-blur-md p-4 rounded-[2rem] border-2 border-blue-500/30 min-h-[120px] transition-all focus-within:border-blue-400 focus-within:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
@@ -814,7 +531,6 @@ if (document.readyState === 'loading') {
                                 <input type="text" id="doa-input" placeholder="Ketik pokok doa di sini, lalu tekan Enter..." class="!bg-transparent !border-none !p-2 !text-left !text-lg !font-medium !text-white focus:!ring-0 focus:!shadow-none !rounded-none w-full" onkeypress="handleDoaEnter(event)">
                             </div>
                         </div>
-                        
                         <button onclick="submitDoaForm()" class="w-full relative z-10 bg-blue-500 text-white py-5 rounded-full font-black text-xl shadow-lg hover:bg-blue-400 hover:shadow-blue-500/50 transition-all uppercase tracking-widest"><i class="fas fa-paper-plane mr-3"></i>Kirim Permohonan Doa</button>
                     </div>
 
@@ -825,31 +541,41 @@ if (document.readyState === 'loading') {
                         <div class="mt-6 inline-block bg-[#D4AF37]/20 px-6 py-2 rounded-full border border-[#D4AF37]/30"><p class="text-[#D4AF37] font-black tracking-widest uppercase text-xs relative z-10">Motivasi Sabat Ini</p></div>
                     </div>
                     
-                    <h3 class="text-2xl font-black text-[#D4AF37] uppercase mb-6"><i class="fas fa-chart-line mr-3"></i>Perbandingan Kehadiran Khotbah</h3>
+                    <!-- DROPDOWN FILTER DASHBOARD -->
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                        <h3 class="text-2xl font-black text-[#D4AF37] uppercase"><i class="fas fa-chart-line mr-3"></i>Perbandingan Kehadiran</h3>
+                        <div class="w-full md:w-64">
+                            <select id="dash-unit-filter" onchange="updateDashboardStats()" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm font-bold">
+                                <option value="ALL">SEMUA JEMAAT (GLOBAL)</option>
+                                ${unitOptionsHTML}
+                            </select>
+                        </div>
+                    </div>
                     
+                    <!-- 4 KARTU STATISTIK -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                         <div class="glass p-6 border-l-4 border-l-blue-400 relative overflow-hidden group hover:bg-white/5 transition-all">
                             <i class="fas fa-calendar-week absolute -right-4 -bottom-4 text-7xl text-blue-400/10 group-hover:scale-110 transition-transform"></i>
                             <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Kehadiran Terakhir</div>
-                            <div class="text-4xl font-black text-white mb-2 relative z-10">${latestWeek}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
-                            <div class="text-xs font-bold ${weekTrendClass} relative z-10 inline-block px-3 py-1 rounded-lg">${weekTrendIcon} ${weekTrendText}</div>
+                            <div id="dash-latest-val" class="text-4xl font-black text-white mb-2 relative z-10">0<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
+                            <div id="dash-trend-val" class="text-xs font-bold text-slate-400 relative z-10 inline-block px-3 py-1 rounded-lg">Memuat...</div>
                         </div>
                         <div class="glass p-6 border-l-4 border-l-green-400 relative overflow-hidden group hover:bg-white/5 transition-all">
                             <i class="fas fa-calendar-alt absolute -right-4 -bottom-4 text-7xl text-green-400/10 group-hover:scale-110 transition-transform"></i>
                             <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Rata-rata Bulanan</div>
-                            <div class="text-4xl font-black text-white mb-2 relative z-10">${monthAvg}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
+                            <div id="dash-month-val" class="text-4xl font-black text-white mb-2 relative z-10">0<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
                             <div class="text-xs font-bold text-green-400 relative z-10 bg-green-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-chart-bar mr-1"></i> 4 Pekan Terakhir</div>
                         </div>
                         <div class="glass p-6 border-l-4 border-l-yellow-400 relative overflow-hidden group hover:bg-white/5 transition-all">
                             <i class="fas fa-chart-pie absolute -right-4 -bottom-4 text-7xl text-yellow-400/10 group-hover:scale-110 transition-transform"></i>
                             <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Rata-rata Triwulan</div>
-                            <div class="text-4xl font-black text-white mb-2 relative z-10">${qtrAvg}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
+                            <div id="dash-qtr-val" class="text-4xl font-black text-white mb-2 relative z-10">0<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
                             <div class="text-xs font-bold text-yellow-400 relative z-10 bg-yellow-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-history mr-1"></i> 12 Pekan Terakhir</div>
                         </div>
                         <div class="glass p-6 border-l-4 border-l-purple-400 relative overflow-hidden group hover:bg-white/5 transition-all">
                             <i class="fas fa-globe absolute -right-4 -bottom-4 text-7xl text-purple-400/10 group-hover:scale-110 transition-transform"></i>
-                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Total Jemaat Terdaftar</div>
-                            <div class="text-4xl font-black text-white mb-2 relative z-10">${visibleMembers.length}<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
+                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Total Terdaftar</div>
+                            <div id="dash-total-val" class="text-4xl font-black text-white mb-2 relative z-10">0<span class="text-lg text-slate-400 ml-1">Jiwa</span></div>
                             <div class="text-xs font-bold text-purple-400 relative z-10 bg-purple-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-users mr-1"></i> Database Sistem</div>
                         </div>
                     </div>
@@ -860,85 +586,72 @@ if (document.readyState === 'loading') {
                             <div class="relative h-64"><canvas id="chartBulanan"></canvas></div>
                         </div>
                         <div class="glass p-8">
-                            <h4 class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Komposisi Unit Real-Time</h4>
+                            <h4 class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Komposisi Unit Global Real-Time</h4>
                             <div class="relative h-64 flex justify-center"><canvas id="chartUnit"></canvas></div>
                         </div>
                     </div>
                 </div>
             `;
             setTimeout(() => {
-                initCharts();
+                updateDashboardStats();
+                initPieChart();
                 renderDoaPoints();
             }, 100);
         }
 
-        // --- FUNGSI KOTAK DOA ---
-        function handleDoaEnter(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const val = e.target.value.trim();
-                if (val) {
-                    doaPoints.push(val);
-                    e.target.value = '';
-                    renderDoaPoints();
-                }
+        // --- UPDATE DASHBOARD BERDASARKAN UNIT YANG DIPILIH ---
+        function updateDashboardStats() {
+            const selectedUnit = document.getElementById('dash-unit-filter').value;
+            const historyData = statsData.historyByUnit ? (statsData.historyByUnit[selectedUnit] || []) : [];
+
+            const latestWeek = historyData.length > 0 ? historyData[historyData.length - 1].count : 0;
+            const prevWeek = historyData.length > 1 ? historyData[historyData.length - 2].count : 0;
+            const weekDiff = latestWeek - prevWeek;
+            
+            const weekTrendIcon = weekDiff >= 0 ? '<i class="fas fa-arrow-up mr-1"></i>' : '<i class="fas fa-arrow-down mr-1"></i>';
+            const weekTrendClass = weekDiff >= 0 ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10';
+            const weekTrendText = weekDiff >= 0 ? `+${weekDiff} jiwa` : `${weekDiff} jiwa`;
+
+            const last4 = historyData.slice(-4);
+            const monthAvg = last4.length > 0 ? Math.round(last4.reduce((sum, item) => sum + item.count, 0) / last4.length) : 0;
+            const qtrAvg = historyData.length > 0 ? Math.round(historyData.reduce((sum, item) => sum + item.count, 0) / historyData.length) : 0;
+
+            let visibleMembersCount = 0;
+            if (selectedUnit === 'ALL') {
+                visibleMembersCount = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah').length;
+            } else {
+                visibleMembersCount = members.filter(m => m.unit === selectedUnit).length;
             }
-        }
 
-        function renderDoaPoints() {
-            const container = document.getElementById('doa-list');
-            if (!container) return;
-            container.innerHTML = doaPoints.map((p, i) => `
-                <div class="bg-blue-500/20 text-blue-300 px-4 py-2 rounded-full text-sm flex items-center gap-2 border border-blue-500/30 font-bold whitespace-nowrap">
-                    <span>${p}</span>
-                    <button onclick="removeDoaPoint(${i})" class="hover:text-red-400 transition-colors ml-1"><i class="fas fa-times"></i></button>
-                </div>
-            `).join('');
-        }
-
-        function removeDoaPoint(index) {
-            doaPoints.splice(index, 1);
-            renderDoaPoints();
-        }
-
-        async function submitDoaForm() {
-            const nama = document.getElementById('doa-nama').value.trim();
-            const telp = document.getElementById('doa-telp').value.trim();
+            document.getElementById('dash-latest-val').innerHTML = `${latestWeek}<span class="text-lg text-slate-400 ml-1">Jiwa</span>`;
+            document.getElementById('dash-month-val').innerHTML = `${monthAvg}<span class="text-lg text-slate-400 ml-1">Jiwa</span>`;
+            document.getElementById('dash-qtr-val').innerHTML = `${qtrAvg}<span class="text-lg text-slate-400 ml-1">Jiwa</span>`;
+            document.getElementById('dash-total-val').innerHTML = `${visibleMembersCount}<span class="text-lg text-slate-400 ml-1">Jiwa</span>`;
             
-            if(!nama || !telp) return showToast("NAMA DAN NO TELP WAJIB DIISI!", "error");
-            if(doaPoints.length === 0) return showToast("MASUKKAN MINIMAL 1 POIN DOA!", "error");
-            
-            await send({ action: 'submitDoa', data: { nama, telp, poin: doaPoints } });
-            
-            document.getElementById('doa-nama').value = '';
-            document.getElementById('doa-telp').value = '';
-            doaPoints = [];
-            renderDoaPoints();
-        }
+            const elTrend = document.getElementById('dash-trend-val');
+            elTrend.className = `text-xs font-bold ${weekTrendClass} relative z-10 inline-block px-3 py-1 rounded-lg`;
+            elTrend.innerHTML = `${weekTrendIcon} ${weekTrendText}`;
 
-        // --- LANJUTAN FUNGSI CHART ---
-        function initCharts() {
+            // Perbarui Chart Bulanan (Line Chart)
             const ctxBulanan = document.getElementById('chartBulanan');
-            const ctxUnit = document.getElementById('chartUnit');
-            if(window.myChartBulanan) window.myChartBulanan.destroy();
-            if(window.myChartUnit) window.myChartUnit.destroy();
-
             if(ctxBulanan) {
-                const history = statsData.history || [];
-                const last4 = history.slice(-4);
+                if(window.myChartBulanan) window.myChartBulanan.destroy();
                 const labels = last4.length > 0 ? last4.map(h => h.date) : ['Belum ada data'];
                 const dataPoints = last4.length > 0 ? last4.map(h => h.count) : [0];
 
                 window.myChartBulanan = new Chart(ctxBulanan, {
                     type: 'line',
-                    data: { labels: labels, datasets: [{ label: 'Total Kehadiran', data: dataPoints, borderColor: '#D4AF37', backgroundColor: 'rgba(212, 175, 55, 0.2)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#0a192f', pointBorderColor: '#D4AF37', pointRadius: 5 }] },
+                    data: { labels: labels, datasets: [{ label: `Kehadiran (${selectedUnit})`, data: dataPoints, borderColor: '#D4AF37', backgroundColor: 'rgba(212, 175, 55, 0.2)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#0a192f', pointBorderColor: '#D4AF37', pointRadius: 5 }] },
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0', precision: 0 } }, x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0' } } } }
                 });
             }
-            
+        }
+
+        function initPieChart() {
+            const ctxUnit = document.getElementById('chartUnit');
             if(ctxUnit) {
+                if(window.myChartUnit) window.myChartUnit.destroy();
                 const unitCounts = {};
-                // Sembunyikan Khotbah dari chart
                 const visibleMembers = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
                 visibleMembers.forEach(m => { const u = m.unit || 'Umum'; unitCounts[u] = (unitCounts[u] || 0) + 1; });
                 window.myChartUnit = new Chart(ctxUnit, {
@@ -949,70 +662,85 @@ if (document.readyState === 'loading') {
             }
         }
 
-        // --- RENDER MANAJEMEN JEMAAT ---
-        function renderMemberManager(area) {
-            // Hilangkan unit Khotbah dari direktori jemaat
-            const visibleMembers = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
+        // --- FILTER & TAMPILAN ABSEN ---
+        function renderFilteredKhotbah() {
+            const filterEl = document.getElementById('unit-filter'); let filter = filterEl ? filterEl.value : 'ALL';
+            let filtered = members; if(filter !== 'ALL') filtered = filtered.filter(m => m.unit === filter);
+            document.getElementById('khotbah-list').innerHTML = filtered.map(m => createCardHTML(m)).join('');
+        }
 
+        function renderFilteredMembers(cat) {
+            const filterEl = document.getElementById('unit-filter'); let filter = filterEl ? filterEl.value : 'ALL';
+            let filtered = members.filter(m => m.kelasTetap === cat || (cat === 'Pendalaman' && m.kelasTetap === 'PA'));
+            if(filter !== 'ALL') filtered = filtered.filter(m => m.unit === filter);
+            document.getElementById('unit-list').innerHTML = filtered.map(m => createCardHTML(m)).join('');
+        }
+
+        function createCardHTML(m) {
+            const att = memberAttendance[m.id] || ''; const jab = m.jabatan || 'Anggota';
+            return `
+            <div class="bg-white/5 p-6 rounded-2xl flex flex-col items-center justify-between border-2 border-gold/10 gap-5 hover:border-gold/30 transition-all text-center">
+                <div class="w-full"><div class="text-2xl font-black text-white uppercase">${m.nama}</div><div class="text-[13px] text-[#D4AF37] uppercase font-black tracking-widest mt-2">${jab}</div><div class="text-[11px] text-gold font-bold uppercase tracking-widest mt-1">${m.unit} | ${m.status}</div></div>
+                <div class="flex flex-col w-full gap-4"><div class="flex gap-3 w-full">
+                        <button id="btn-hadir-${m.id}" onclick="setAttendance('${m.id}', 'Hadir')" class="btn-hadir flex-1 ${att === 'Hadir' ? 'active' : ''}"><i class="fas fa-check mr-2"></i>HADIR</button>
+                        <button id="btn-alpha-${m.id}" onclick="setAttendance('${m.id}', 'Alpha')" class="btn-alpha flex-1 ${att === 'Alpha' ? 'active' : ''}"><i class="fas fa-times mr-2"></i>ALPHA</button>
+                </div></div>
+            </div>`;
+        }
+
+        function setAttendance(id, status) {
+            memberAttendance[id] = status; const btnHadir = document.getElementById(`btn-hadir-${id}`); const btnAlpha = document.getElementById(`btn-alpha-${id}`);
+            if(status === 'Hadir') { if(btnHadir) btnHadir.classList.add('active'); if(btnAlpha) btnAlpha.classList.remove('active'); } 
+            else { if(btnAlpha) btnAlpha.classList.add('active'); if(btnHadir) btnHadir.classList.remove('active'); }
+        }
+
+        // --- FUNGSI KOTAK DOA ---
+        function handleDoaEnter(e) {
+            if (e.key === 'Enter') { e.preventDefault(); const val = e.target.value.trim(); if (val) { doaPoints.push(val); e.target.value = ''; renderDoaPoints(); } }
+        }
+        function renderDoaPoints() {
+            const container = document.getElementById('doa-list'); if (!container) return;
+            container.innerHTML = doaPoints.map((p, i) => `<div class="bg-blue-500/20 text-blue-300 px-4 py-2 rounded-full text-sm flex items-center gap-2 border border-blue-500/30 font-bold whitespace-nowrap"><span>${p}</span><button onclick="removeDoaPoint(${i})" class="hover:text-red-400 transition-colors ml-1"><i class="fas fa-times"></i></button></div>`).join('');
+        }
+        function removeDoaPoint(index) { doaPoints.splice(index, 1); renderDoaPoints(); }
+        async function submitDoaForm() {
+            const nama = document.getElementById('doa-nama').value.trim(); const telp = document.getElementById('doa-telp').value.trim();
+            if(!nama || !telp) return showToast("NAMA DAN NO TELP WAJIB DIISI!", "error"); if(doaPoints.length === 0) return showToast("MASUKKAN MINIMAL 1 POIN DOA!", "error");
+            await send({ action: 'submitDoa', data: { nama, telp, poin: doaPoints } });
+            document.getElementById('doa-nama').value = ''; document.getElementById('doa-telp').value = ''; doaPoints = []; renderDoaPoints();
+        }
+
+        // --- RENDER MANAJEMEN ---
+        function renderMemberManager(area) {
+            const visibleMembers = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
             area.innerHTML = `
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="glass p-8 h-fit sticky top-32">
                         <h3 id="form-title" class="text-2xl font-black text-[#D4AF37] mb-8 uppercase text-center">Tambah Jemaat Baru</h3>
                         <div class="space-y-6">
-                            <div>
-                                <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Nama Lengkap</label>
-                                <input type="text" id="m-nama" placeholder="Masukkan Nama..." class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
-                            </div>
+                            <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Nama Lengkap</label>
+                            <input type="text" id="m-nama" placeholder="Masukkan Nama..." class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
                             <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Status Baptis</label>
-                                    <select id="m-status" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
-                                        <option value="Baptis">SUDAH BAPTIS</option>
-                                        <option value="Belum Baptis">BELUM BAPTIS</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Kategori Kelas</label>
-                                    <select id="m-cat" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
-                                        <option value="SS Dewasa">SS DEWASA</option>
-                                        <option value="SS Anak">SS ANAK</option>
-                                        <option value="Pendalaman">PENDALAMAN ALKITAB</option>
-                                    </select>
-                                </div>
+                                <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Status Baptis</label>
+                                <select id="m-status" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"><option value="Baptis">SUDAH BAPTIS</option><option value="Belum Baptis">BELUM BAPTIS</option></select></div>
+                                <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Kategori Kelas</label>
+                                <select id="m-cat" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"><option value="SS Dewasa">SS DEWASA</option><option value="SS Anak">SS ANAK</option><option value="Pendalaman">PENDALAMAN ALKITAB</option></select></div>
                             </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Unit</label>
-                                <select id="m-unit-select" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
-                                    <option value="Umum">UMUM (TANPA UNIT)</option>
-                                    ${units.map(u => {
-                                        const uName = typeof u === 'object' && u !== null ? (u.name || '') : (u || '');
-                                        const safeName = String(uName || '');
-                                        return `<option value="${safeName}">${safeName.toUpperCase()}</option>`;
-                                    }).join('')}
+                            <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Unit</label>
+                                <select id="m-unit-select" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"><option value="Umum">UMUM (TANPA UNIT)</option>
+                                    ${units.map(u => { const safeName = String(u.name || u || ''); return `<option value="${safeName}">${safeName.toUpperCase()}</option>`; }).join('')}
                                 </select>
                             </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Jabatan (Bisa Pilih > 1)</label>
-                                <div id="m-jabatan-container" class="flex flex-wrap justify-center gap-2 mt-2"></div>
-                            </div>
-                            <div class="pt-4 flex gap-4">
-                                <button onclick="saveMember()" id="btn-save-member" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN DATA</button>
-                                <button onclick="cancelEditMember()" id="btn-cancel-member" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button>
-                            </div>
+                            <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Jabatan (Bisa Pilih > 1)</label><div id="m-jabatan-container" class="flex flex-wrap justify-center gap-2 mt-2"></div></div>
+                            <div class="pt-4 flex gap-4"><button onclick="saveMember()" id="btn-save-member" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN DATA</button><button onclick="cancelEditMember()" id="btn-cancel-member" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button></div>
                         </div>
                     </div>
                     <div class="lg:col-span-2 glass p-8">
-                        <div class="flex justify-between items-end mb-8">
-                            <h3 class="text-2xl font-black text-[#D4AF37] uppercase">Daftar Master Jemaat</h3>
-                            <span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">Total: ${visibleMembers.length} Orang</span>
-                        </div>
+                        <div class="flex justify-between items-end mb-8"><h3 class="text-2xl font-black text-[#D4AF37] uppercase">Daftar Master Jemaat</h3><span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">Total: ${visibleMembers.length} Orang</span></div>
                         <div class="space-y-4 max-h-[600px] overflow-y-auto pr-4 no-scrollbar">${visibleMembers.map(m => `
                             <div class="p-6 bg-white/5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
                                 <div><div class="text-xl font-black text-white uppercase">${m.nama}</div><div class="text-[11px] text-gold/80 font-black uppercase tracking-widest mt-1"><i class="fas fa-star mr-1"></i> ${m.jabatan || 'Anggota'} &nbsp;|&nbsp; <i class="fas fa-users mr-1"></i> ${m.unit} &nbsp;|&nbsp; <i class="fas fa-bookmark mr-1"></i> ${m.kelasTetap}</div></div>
-                                <div class="flex gap-3 w-full sm:w-auto">
-                                    <button onclick="editMember('${m.id}')" class="flex-1 sm:flex-none text-yellow-500 bg-yellow-500/10 px-4 py-3 hover:bg-yellow-500 hover:text-[#0a192f] rounded-xl font-bold transition-all"><i class="fas fa-pen mr-2"></i>EDIT</button>
-                                    <button onclick="deleteMember('${m.id}', '${m.nama}')" class="flex-1 sm:flex-none text-red-400 bg-red-400/10 px-4 py-3 hover:bg-red-500 hover:text-white rounded-xl font-bold transition-all"><i class="fas fa-trash"></i></button>
-                                </div>
+                                <div class="flex gap-3 w-full sm:w-auto"><button onclick="editMember('${m.id}')" class="flex-1 sm:flex-none text-yellow-500 bg-yellow-500/10 px-4 py-3 hover:bg-yellow-500 hover:text-[#0a192f] rounded-xl font-bold transition-all"><i class="fas fa-pen mr-2"></i>EDIT</button><button onclick="deleteMember('${m.id}', '${m.nama}')" class="flex-1 sm:flex-none text-red-400 bg-red-400/10 px-4 py-3 hover:bg-red-500 hover:text-white rounded-xl font-bold transition-all"><i class="fas fa-trash"></i></button></div>
                             </div>`).join('')}</div>
                     </div>
                 </div>`;
@@ -1020,108 +748,39 @@ if (document.readyState === 'loading') {
         }
 
         function renderFormRoles() {
-            const container = document.getElementById('m-jabatan-container');
-            if(!container) return;
+            const container = document.getElementById('m-jabatan-container'); if(!container) return;
             container.innerHTML = roles.map(role => `<button type="button" onclick="toggleFormRole('${role}')" class="role-btn text-xs ${formSelectedRoles.includes(role) ? 'active' : ''}">${String(role || '').toUpperCase()}</button>`).join('');
         }
-
-        function toggleFormRole(role) {
-            const idx = formSelectedRoles.indexOf(role);
-            if(idx > -1) formSelectedRoles.splice(idx, 1); else formSelectedRoles.push(role);
-            renderFormRoles();
-        }
-
+        function toggleFormRole(role) { const idx = formSelectedRoles.indexOf(role); if(idx > -1) formSelectedRoles.splice(idx, 1); else formSelectedRoles.push(role); renderFormRoles(); }
         function editMember(id) {
-            const m = members.find(x => x.id === id);
-            if(!m) return;
-            editingMemberId = id;
-            document.getElementById('form-title').innerText = "Edit Data Jemaat";
-            document.getElementById('m-nama').value = m.nama;
-            document.getElementById('m-status').value = m.status;
-            document.getElementById('m-cat').value = m.kelasTetap === 'PA' ? 'Pendalaman' : m.kelasTetap;
-            document.getElementById('m-unit-select').value = m.unit;
-            formSelectedRoles = m.jabatan ? m.jabatan.split(',').map(s => s.trim()) : ['Anggota'];
-            renderFormRoles();
-            document.getElementById('btn-save-member').innerText = "UPDATE DATA";
-            document.getElementById('btn-cancel-member').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const m = members.find(x => x.id === id); if(!m) return; editingMemberId = id; document.getElementById('form-title').innerText = "Edit Data Jemaat"; document.getElementById('m-nama').value = m.nama; document.getElementById('m-status').value = m.status; document.getElementById('m-cat').value = m.kelasTetap === 'PA' ? 'Pendalaman' : m.kelasTetap; document.getElementById('m-unit-select').value = m.unit; formSelectedRoles = m.jabatan ? m.jabatan.split(',').map(s => s.trim()) : ['Anggota']; renderFormRoles(); document.getElementById('btn-save-member').innerText = "UPDATE DATA"; document.getElementById('btn-cancel-member').classList.remove('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+        function cancelEditMember() { editingMemberId = null; document.getElementById('form-title').innerText = "Tambah Jemaat Baru"; document.getElementById('m-nama').value = ''; document.getElementById('m-status').value = 'Baptis'; document.getElementById('m-cat').value = 'SS Dewasa'; document.getElementById('m-unit-select').value = 'Umum'; formSelectedRoles = ['Anggota']; renderFormRoles(); document.getElementById('btn-save-member').innerText = "SIMPAN DATA"; document.getElementById('btn-cancel-member').classList.add('hidden'); }
 
-        function cancelEditMember() {
-            editingMemberId = null;
-            document.getElementById('form-title').innerText = "Tambah Jemaat Baru";
-            document.getElementById('m-nama').value = ''; 
-            document.getElementById('m-status').value = 'Baptis';
-            document.getElementById('m-cat').value = 'SS Dewasa'; 
-            document.getElementById('m-unit-select').value = 'Umum';
-            formSelectedRoles = ['Anggota']; 
-            renderFormRoles();
-            document.getElementById('btn-save-member').innerText = "SIMPAN DATA";
-            document.getElementById('btn-cancel-member').classList.add('hidden');
-        }
-
-        // --- RENDER MANAJEMEN UNIT & JABATAN ---
         function renderManagerAll(area) {
             area.innerHTML = `
                 <div class="mb-16">
                     <div class="flex items-center gap-4 mb-6"><h3 class="text-3xl font-black text-[#D4AF37] uppercase"><i class="fas fa-users mr-3"></i>Kelola Unit & Akses</h3></div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div class="glass p-8 h-fit">
-                            <h3 id="unit-form-title" class="text-xl font-black text-[#D4AF37] mb-6 uppercase text-center">Buat Unit Baru</h3>
-                            <div class="space-y-6">
-                                <div><input type="text" id="u-nama" placeholder="Contoh: Unit Efrata..." class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
-                                <div><input type="text" id="u-pin" placeholder="Bikin PIN Akses (Kosong = Otomatis)" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
-                                <div class="pt-2 flex gap-4">
-                                    <button onclick="saveUnit()" id="btn-save-unit" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN UNIT</button>
-                                    <button onclick="cancelEditUnit()" id="btn-cancel-unit" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button>
-                                </div>
-                            </div>
+                        <div class="glass p-8 h-fit"><h3 id="unit-form-title" class="text-xl font-black text-[#D4AF37] mb-6 uppercase text-center">Buat Unit Baru</h3>
+                            <div class="space-y-6"><div><input type="text" id="u-nama" placeholder="Contoh: Unit Efrata..." class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div><div><input type="text" id="u-pin" placeholder="Bikin PIN Akses (Kosong = Otomatis)" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div><div class="pt-2 flex gap-4"><button onclick="saveUnit()" id="btn-save-unit" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN UNIT</button><button onclick="cancelEditUnit()" id="btn-cancel-unit" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button></div></div>
                         </div>
-                        <div class="glass p-8">
-                            <div class="flex justify-between items-end mb-6"><h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Unit & PIN</h3><span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${units.length} Unit</span></div>
+                        <div class="glass p-8"><div class="flex justify-between items-end mb-6"><h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Unit & PIN</h3><span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${units.length} Unit</span></div>
                             <div class="space-y-4 max-h-[300px] overflow-y-auto pr-4 no-scrollbar">${units.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada unit.</p>' : units.map(u => {
-                                const uName = typeof u === 'object' && u !== null ? (u.name || '') : (u || '');
-                                const safeName = String(uName || '');
-                                const uPin = typeof u === 'object' && u !== null ? (u.pin || 'N/A') : 'N/A';
-                                return `
-                                <div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
-                                    <div>
-                                        <div class="text-lg font-black text-white uppercase">${safeName}</div>
-                                        <div class="text-[11px] text-green-400 font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: ${String(uPin).replace(/./g,'•')}</div>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button onclick='editUnit(${JSON.stringify(safeName)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
-                                        <button onclick='deleteUnit(${JSON.stringify(safeName)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
-                                    </div>
-                                </div>`;
+                                const safeName = String(u.name || u || ''); const uPin = String(u.pin || 'N/A');
+                                return `<div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4"><div><div class="text-lg font-black text-white uppercase">${safeName}</div><div class="text-[11px] text-green-400 font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: ${uPin.replace(/./g,'•')}</div></div><div class="flex gap-2"><button onclick='editUnit(${JSON.stringify(safeName)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button><button onclick='deleteUnit(${JSON.stringify(safeName)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button></div></div>`;
                             }).join('')}</div>
                         </div>
                     </div>
                 </div>
-
                 <div class="mb-10">
                     <div class="flex items-center gap-4 mb-6"><h3 class="text-3xl font-black text-[#D4AF37] uppercase"><i class="fas fa-star mr-3"></i>Kelola Jabatan</h3></div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div class="glass p-8 h-fit">
-                            <h3 id="role-form-title" class="text-xl font-black text-[#D4AF37] mb-6 uppercase text-center">Buat Jabatan Baru</h3>
-                            <div class="space-y-6">
-                                <div><input type="text" id="r-nama" placeholder="Contoh: Sekretaris..." class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
-                                <div class="pt-2 flex gap-4">
-                                    <button onclick="saveRole()" id="btn-save-role" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN JABATAN</button>
-                                    <button onclick="cancelEditRole()" id="btn-cancel-role" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button>
-                                </div>
-                            </div>
+                        <div class="glass p-8 h-fit"><h3 id="role-form-title" class="text-xl font-black text-[#D4AF37] mb-6 uppercase text-center">Buat Jabatan Baru</h3>
+                            <div class="space-y-6"><div><input type="text" id="r-nama" placeholder="Contoh: Sekretaris..." class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div><div class="pt-2 flex gap-4"><button onclick="saveRole()" id="btn-save-role" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN JABATAN</button><button onclick="cancelEditRole()" id="btn-cancel-role" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button></div></div>
                         </div>
-                        <div class="glass p-8">
-                            <div class="flex justify-between items-end mb-6"><h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Jabatan</h3><span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${roles.length} Jabatan</span></div>
-                            <div class="space-y-4 max-h-[300px] overflow-y-auto pr-4 no-scrollbar">${roles.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada jabatan.</p>' : roles.map(r => `
-                                <div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
-                                    <div class="text-lg font-black text-white uppercase">${String(r || '')}</div>
-                                    <div class="flex gap-2">
-                                        <button onclick='editRole(${JSON.stringify(r)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
-                                        <button onclick='deleteRole(${JSON.stringify(r)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
-                                    </div>
-                                </div>`).join('')}</div>
+                        <div class="glass p-8"><div class="flex justify-between items-end mb-6"><h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Jabatan</h3><span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${roles.length} Jabatan</span></div>
+                            <div class="space-y-4 max-h-[300px] overflow-y-auto pr-4 no-scrollbar">${roles.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada jabatan.</p>' : roles.map(r => `<div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4"><div class="text-lg font-black text-white uppercase">${String(r || '')}</div><div class="flex gap-2"><button onclick='editRole(${JSON.stringify(r)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button><button onclick='deleteRole(${JSON.stringify(r)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button></div></div>`).join('')}</div>
                         </div>
                     </div>
                 </div>`;
@@ -1132,248 +791,103 @@ if (document.readyState === 'loading') {
                 <div class="mb-16">
                     <div class="flex items-center gap-4 mb-6"><h3 class="text-3xl font-black text-[#D4AF37] uppercase"><i class="fas fa-user-shield mr-3"></i>Kelola Administrator</h3></div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div class="glass p-8 h-fit">
-                            <h3 id="admin-form-title" class="text-xl font-black text-[#D4AF37] mb-6 uppercase text-center">Buat Admin Baru</h3>
-                            <div class="space-y-6">
-                                <div><input type="text" id="a-username" placeholder="Username (Cth: Admin Utama)" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
-                                <div><input type="text" id="a-pin" placeholder="Buat PIN Akses Rahasia" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
-                                <div class="pt-2 flex gap-4">
-                                    <button onclick="saveAdmin()" id="btn-save-admin" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN ADMIN</button>
-                                    <button onclick="cancelEditAdmin()" id="btn-cancel-admin" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button>
-                                </div>
-                            </div>
+                        <div class="glass p-8 h-fit"><h3 id="admin-form-title" class="text-xl font-black text-[#D4AF37] mb-6 uppercase text-center">Buat Admin Baru</h3>
+                            <div class="space-y-6"><div><input type="text" id="a-username" placeholder="Username (Cth: Admin Utama)" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div><div><input type="text" id="a-pin" placeholder="Buat PIN Akses Rahasia" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div><div class="pt-2 flex gap-4"><button onclick="saveAdmin()" id="btn-save-admin" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN ADMIN</button><button onclick="cancelEditAdmin()" id="btn-cancel-admin" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button></div></div>
                         </div>
-                        <div class="glass p-8">
-                            <div class="flex justify-between items-end mb-6"><h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Master Admin</h3><span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${admins.length} Admin</span></div>
-                            <div class="space-y-4 max-h-[300px] overflow-y-auto pr-4 no-scrollbar">${admins.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada admin.</p>' : admins.map(a => `
-                                <div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
-                                    <div>
-                                        <div class="text-lg font-black text-white uppercase">${a.username}</div>
-                                        <div class="text-[11px] text-[#D4AF37] font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: ${String(a.pin).replace(/./g,'•')}</div>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button onclick='editAdmin(${JSON.stringify(a.username)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
-                                        <button onclick='deleteAdmin(${JSON.stringify(a.username)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
-                                    </div>
-                                </div>`).join('')}</div>
+                        <div class="glass p-8"><div class="flex justify-between items-end mb-6"><h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Master Admin</h3><span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${admins.length} Admin</span></div>
+                            <div class="space-y-4 max-h-[300px] overflow-y-auto pr-4 no-scrollbar">${admins.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada admin.</p>' : admins.map(a => `<div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4"><div><div class="text-lg font-black text-white uppercase">${a.username}</div><div class="text-[11px] text-[#D4AF37] font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: ${String(a.pin).replace(/./g,'•')}</div></div><div class="flex gap-2"><button onclick='editAdmin(${JSON.stringify(a.username)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button><button onclick='deleteAdmin(${JSON.stringify(a.username)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button></div></div>`).join('')}</div>
                         </div>
                     </div>
                 </div>`;
         }
 
-        function disableButtons(state) {
-            document.querySelectorAll('button').forEach(btn => {
-                btn.disabled = state;
-                if(state) {
-                    btn.classList.add('opacity-50', 'pointer-events-none');
-                } else {
-                    btn.classList.remove('opacity-50', 'pointer-events-none');
-                }
-            });
-        }
-
-        // --- CRUD LOGIC FOR UNITS & ROLES ---
-        function editUnit(name) {
-            const u = units.find(x => (typeof x === 'object' && x !== null ? x.name : x) === name);
-            editingUnitName = name;
-            document.getElementById('unit-form-title').innerText = "Ubah Unit & PIN";
-            document.getElementById('u-nama').value = typeof u === 'object' && u !== null ? (u.name || name) : name;
-            document.getElementById('u-pin').value = typeof u === 'object' && u !== null ? (u.pin || '') : '';
-            document.getElementById('btn-save-unit').innerText = "UPDATE DATA";
-            document.getElementById('btn-cancel-unit').classList.remove('hidden');
-        }
-
-        function cancelEditUnit() {
-            editingUnitName = null;
-            document.getElementById('unit-form-title').innerText = "Buat Unit Baru";
-            document.getElementById('u-nama').value = ''; document.getElementById('u-pin').value = '';
-            document.getElementById('btn-save-unit').innerText = "SIMPAN UNIT";
-            document.getElementById('btn-cancel-unit').classList.add('hidden');
-        }
-
-        async function saveUnit() {
-            const nama = document.getElementById('u-nama').value.trim();
-            const pin = document.getElementById('u-pin').value.trim();
-            if(!nama) return showToast("NAMA UNIT KOSONG!", "error");
-            if(nama.length < 3) return showToast("NAMA UNIT TERLALU PENDEK!", "error");
-            if(editingUnitName) await send({ action: 'updateUnit', data: { oldName: editingUnitName, newName: nama, pin: pin } });
-            else {
-                if(units.find(u => (typeof u === 'object' && u !== null ? u.name : u) === nama)) return showToast("UNIT SUDAH ADA!", "error");
-                await send({ action: 'addUnit', data: { name: nama, pin: pin } });
-            }
-            editingUnitName = null; init();
-        }
-
-        async function deleteUnit(name) {
-            if(!confirm(`Hapus unit "${name}"?\n(Anggota di unit ini akan dipindah ke 'Umum')`)) return;
-            await send({ action: 'deleteUnit', data: name });
-            init();
-        }
-
-        function editRole(name) {
-            editingRoleName = name;
-            document.getElementById('role-form-title').innerText = "Ubah Nama Jabatan"; document.getElementById('r-nama').value = name;
-            document.getElementById('btn-save-role').innerText = "UPDATE JABATAN"; document.getElementById('btn-cancel-role').classList.remove('hidden');
-        }
-
-        function cancelEditRole() {
-            editingRoleName = null;
-            document.getElementById('role-form-title').innerText = "Buat Jabatan Baru"; document.getElementById('r-nama').value = '';
-            document.getElementById('btn-save-role').innerText = "SIMPAN JABATAN"; document.getElementById('btn-cancel-role').classList.add('hidden');
-        }
-
-        async function saveRole() {
-            const nama = document.getElementById('r-nama').value.trim();
-            if(!nama) return showToast("NAMA JABATAN KOSONG!", "error");
-            if(nama.length < 3) return showToast("NAMA JABATAN TERLALU PENDEK!", "error");
-            if(editingRoleName) await send({ action: 'updateRole', data: { oldName: editingRoleName, newName: nama } });
-            else { if(roles.includes(nama)) return showToast("JABATAN SUDAH ADA!", "error"); await send({ action: 'addRole', data: nama }); }
-            editingRoleName = null; init();
-        }
-
-        async function deleteRole(name) {
-            if(!confirm(`Hapus jabatan "${name}"?\n(Jabatan ini akan dihapus dari seluruh jemaat yang memilikinya)`)) return;
-            await send({ action: 'deleteRole', data: name }); init();
-        }
-
-        // --- CRUD LOGIC FOR ADMINS ---
-        function editAdmin(username) {
-            const a = admins.find(x => x.username === username);
-            editingAdminUsername = username;
-            document.getElementById('admin-form-title').innerText = "Ubah Admin & PIN";
-            document.getElementById('a-username').value = a.username;
-            document.getElementById('a-pin').value = a.pin;
-            document.getElementById('btn-save-admin').innerText = "UPDATE ADMIN";
-            document.getElementById('btn-cancel-admin').classList.remove('hidden');
-        }
-
-        function cancelEditAdmin() {
-            editingAdminUsername = null;
-            document.getElementById('admin-form-title').innerText = "Buat Admin Baru";
-            document.getElementById('a-username').value = ''; document.getElementById('a-pin').value = '';
-            document.getElementById('btn-save-admin').innerText = "SIMPAN ADMIN";
-            document.getElementById('btn-cancel-admin').classList.add('hidden');
-        }
-
-        async function saveAdmin() {
-            const username = document.getElementById('a-username').value.trim();
-            const pin = document.getElementById('a-pin').value.trim();
-            if (!username || !pin) return showToast("USERNAME/PIN HARUS DIISI!", "error");
-            if (pin.length < 4) return showToast("PIN MINIMAL 4 DIGIT!", "error");
-            if (!/^\d+$/.test(pin)) return showToast("PIN HARUS BERUPA ANGKA!", "error");
-
-            const duplicatePin = admins.find(a => a.pin === pin && a.username !== editingAdminUsername);
-            if (duplicatePin) return showToast("PIN SUDAH DIGUNAKAN ADMIN LAIN!", "error");
-            
-            if(editingAdminUsername) await send({ action: 'updateAdmin', data: { oldUsername: editingAdminUsername, newUsername: username, pin: pin } });
-            else await send({ action: 'addAdmin', data: { username: username, pin: pin } });
-            
-            editingAdminUsername = null; 
-            init();
-        }
-
-        async function deleteAdmin(username) {
-            if(admins.length <= 1) return showToast("TIDAK BISA MENGHAPUS SATU-SATUNYA ADMIN!", "error");
-            if(!confirm(`Apakah Anda yakin ingin menghapus Admin "${username}"?`)) return;
-            await send({ action: 'deleteAdmin', data: username }); 
-            init();
-        }
+        function disableButtons(state) { document.querySelectorAll('button').forEach(btn => { btn.disabled = state; if(state) btn.classList.add('opacity-50', 'pointer-events-none'); else btn.classList.remove('opacity-50', 'pointer-events-none'); }); }
 
         // --- SUBMIT API ---
         async function submitKhotbah() {
-            const tgl = formatDate(document.getElementById('tgl').value);
-            const tamu = document.getElementById('tamu').value;
-            const filterEl = document.getElementById('unit-filter');
-            const unitFilter = filterEl ? filterEl.value : 'ALL';
-
-            const records = [];
-            members.forEach(m => {
-                const status = memberAttendance[m.id];
-                if(status === 'Hadir' || status === 'Alpha') records.push({ memberId: m.id, nama: m.nama, status: status });
-            });
+            const tgl = formatDate(document.getElementById('tgl').value); const tamu = document.getElementById('tamu').value; const unitFilter = document.getElementById('unit-filter') ? document.getElementById('unit-filter').value : 'ALL';
+            const records = []; members.forEach(m => { const status = memberAttendance[m.id]; if(status === 'Hadir' || status === 'Alpha') records.push({ memberId: m.id, nama: m.nama, status: status }); });
             if(records.length === 0) return showToast("BELUM ADA DATA ABSEN YANG DIISI!", "error");
             await send({ action: 'submitAttendance', data: { type: 'khotbah', tanggal: tgl, tamu, records, unitFilter } });
             memberAttendance = {}; renderUI();
         }
 
         async function submitKelas(cat) {
-            const tgl = formatDate(document.getElementById('tgl').value);
-            const tamu = document.getElementById('tamu').value;
-            const filterEl = document.getElementById('unit-filter');
-            const unitFilter = filterEl ? filterEl.value : 'ALL';
-
-            const records = [];
-            members.forEach(m => {
-                if(m.kelasTetap === cat || (cat === 'Pendalaman' && m.kelasTetap === 'PA')) {
-                    const status = memberAttendance[m.id];
-                    if(status === 'Hadir' || status === 'Alpha') records.push({ memberId: m.id, nama: m.nama, status: status });
-                }
-            });
+            const tgl = formatDate(document.getElementById('tgl').value); const tamu = document.getElementById('tamu').value; const unitFilter = document.getElementById('unit-filter') ? document.getElementById('unit-filter').value : 'ALL';
+            const records = []; members.forEach(m => { if(m.kelasTetap === cat || (cat === 'Pendalaman' && m.kelasTetap === 'PA')) { const status = memberAttendance[m.id]; if(status === 'Hadir' || status === 'Alpha') records.push({ memberId: m.id, nama: m.nama, status: status }); } });
             if(records.length === 0) return showToast("BELUM ADA DATA ABSEN YANG DIISI!", "error");
             await send({ action: 'submitAttendance', data: { type: 'sekolah_sabat', category: cat, tanggal: tgl, tamu, records, unitFilter } });
             memberAttendance = {}; renderUI();
         }
 
         async function submitKegiatan() {
-            const tgl = formatDate(document.getElementById('tgl').value);
-            const filterEl = document.getElementById('unit-filter');
-            const unitFilter = filterEl ? filterEl.value : 'ALL';
-
+            const tgl = formatDate(document.getElementById('tgl').value); const unitFilter = document.getElementById('unit-filter') ? document.getElementById('unit-filter').value : 'ALL';
             const poin = Array.from({length: 10}).map((_, i) => document.getElementById(`k-${i}`).value);
             await send({ action: 'submitAttendance', data: { type: 'kegiatan', tanggal: tgl, poin, unitFilter } });
             Array.from({length: 10}).forEach((_, i) => document.getElementById(`k-${i}`).value = "0");
         }
 
-        async function saveMember() {
-            const payload = {
-                nama: document.getElementById('m-nama').value, status: document.getElementById('m-status').value,
-                unit: document.getElementById('m-unit-select').value, kelasTetap: document.getElementById('m-cat').value,
-                jabatan: formSelectedRoles.length > 0 ? formSelectedRoles.join(', ') : 'Anggota'
-            };
-            if(!payload.nama) return showToast("NAMA KOSONG!", "error");
-            if(editingMemberId) { payload.id = editingMemberId; await send({ action: 'updateMember', data: payload }); } 
-            else await send({ action: 'addMember', data: payload });
-            editingMemberId = null; init();
+        function editUnit(name) {
+            const u = units.find(x => (typeof x === 'object' && x !== null ? x.name : x) === name); editingUnitName = name;
+            document.getElementById('unit-form-title').innerText = "Ubah Unit & PIN"; document.getElementById('u-nama').value = typeof u === 'object' && u !== null ? (u.name || name) : name; document.getElementById('u-pin').value = typeof u === 'object' && u !== null ? (u.pin || '') : ''; document.getElementById('btn-save-unit').innerText = "UPDATE DATA"; document.getElementById('btn-cancel-unit').classList.remove('hidden');
         }
+        function cancelEditUnit() { editingUnitName = null; document.getElementById('unit-form-title').innerText = "Buat Unit Baru"; document.getElementById('u-nama').value = ''; document.getElementById('u-pin').value = ''; document.getElementById('btn-save-unit').innerText = "SIMPAN UNIT"; document.getElementById('btn-cancel-unit').classList.add('hidden'); }
+        async function saveUnit() {
+            const nama = document.getElementById('u-nama').value.trim(); const pin = document.getElementById('u-pin').value.trim();
+            if(!nama) return showToast("NAMA UNIT KOSONG!", "error"); if(nama.length < 3) return showToast("NAMA UNIT TERLALU PENDEK!", "error");
+            if(editingUnitName) await send({ action: 'updateUnit', data: { oldName: editingUnitName, newName: nama, pin: pin } }); else { if(units.find(u => (typeof u === 'object' && u !== null ? u.name : u) === nama)) return showToast("UNIT SUDAH ADA!", "error"); await send({ action: 'addUnit', data: { name: nama, pin: pin } }); }
+            editingUnitName = null; init();
+        }
+        async function deleteUnit(name) { if(!confirm(`Hapus unit "${name}"?\n(Anggota di unit ini akan dipindah ke 'Umum')`)) return; await send({ action: 'deleteUnit', data: name }); init(); }
 
-        async function deleteMember(id, nama) {
-            if(!confirm(`Yakin ingin menghapus data ${nama}?`)) return;
-            await send({ action: 'deleteMember', data: id }); init();
+        function editRole(name) { editingRoleName = name; document.getElementById('role-form-title').innerText = "Ubah Nama Jabatan"; document.getElementById('r-nama').value = name; document.getElementById('btn-save-role').innerText = "UPDATE JABATAN"; document.getElementById('btn-cancel-role').classList.remove('hidden'); }
+        function cancelEditRole() { editingRoleName = null; document.getElementById('role-form-title').innerText = "Buat Jabatan Baru"; document.getElementById('r-nama').value = ''; document.getElementById('btn-save-role').innerText = "SIMPAN JABATAN"; document.getElementById('btn-cancel-role').classList.add('hidden'); }
+        async function saveRole() {
+            const nama = document.getElementById('r-nama').value.trim(); if(!nama) return showToast("NAMA JABATAN KOSONG!", "error"); if(nama.length < 3) return showToast("NAMA JABATAN TERLALU PENDEK!", "error");
+            if(editingRoleName) await send({ action: 'updateRole', data: { oldName: editingRoleName, newName: nama } }); else { if(roles.includes(nama)) return showToast("JABATAN SUDAH ADA!", "error"); await send({ action: 'addRole', data: nama }); } editingRoleName = null; init();
+        }
+        async function deleteRole(name) { if(!confirm(`Hapus jabatan "${name}"?\n(Jabatan ini akan dihapus dari seluruh jemaat yang memilikinya)`)) return; await send({ action: 'deleteRole', data: name }); init(); }
+
+        function editAdmin(username) {
+            const a = admins.find(x => x.username === username); editingAdminUsername = username;
+            document.getElementById('admin-form-title').innerText = "Ubah Admin & PIN"; document.getElementById('a-username').value = a.username; document.getElementById('a-pin').value = a.pin; document.getElementById('btn-save-admin').innerText = "UPDATE ADMIN"; document.getElementById('btn-cancel-admin').classList.remove('hidden');
+        }
+        function cancelEditAdmin() { editingAdminUsername = null; document.getElementById('admin-form-title').innerText = "Buat Admin Baru"; document.getElementById('a-username').value = ''; document.getElementById('a-pin').value = ''; document.getElementById('btn-save-admin').innerText = "SIMPAN ADMIN"; document.getElementById('btn-cancel-admin').classList.add('hidden'); }
+        async function saveAdmin() {
+            const username = document.getElementById('a-username').value.trim(); const pin = document.getElementById('a-pin').value.trim();
+            if (!username || !pin) return showToast("USERNAME/PIN HARUS DIISI!", "error"); if (pin.length < 4) return showToast("PIN MINIMAL 4 DIGIT!", "error"); if (!/^\\d+$/.test(pin)) return showToast("PIN HARUS BERUPA ANGKA!", "error");
+            const duplicatePin = admins.find(a => a.pin === pin && a.username !== editingAdminUsername); if (duplicatePin) return showToast("PIN SUDAH DIGUNAKAN ADMIN LAIN!", "error");
+            if(editingAdminUsername) await send({ action: 'updateAdmin', data: { oldUsername: editingAdminUsername, newUsername: username, pin: pin } }); else await send({ action: 'addAdmin', data: { username: username, pin: pin } });
+            editingAdminUsername = null; init();
+        }
+        async function deleteAdmin(username) { if(admins.length <= 1) return showToast("TIDAK BISA MENGHAPUS SATU-SATUNYA ADMIN!", "error"); if(!confirm(`Apakah Anda yakin ingin menghapus Admin "${username}"?`)) return; await send({ action: 'deleteAdmin', data: username }); init(); }
+
+        async function saveMember() {
+            const payload = { nama: document.getElementById('m-nama').value, status: document.getElementById('m-status').value, unit: document.getElementById('m-unit-select').value, kelasTetap: document.getElementById('m-cat').value, jabatan: formSelectedRoles.length > 0 ? formSelectedRoles.join(', ') : 'Anggota' };
+            if(!payload.nama) return showToast("NAMA KOSONG!", "error");
+            if(editingMemberId) { payload.id = editingMemberId; await send({ action: 'updateMember', data: payload }); } else await send({ action: 'addMember', data: payload }); editingMemberId = null; init();
+        }
+        async function deleteMember(id, nama) { if(!confirm(`Yakin ingin menghapus data ${nama}?`)) return; await send({ action: 'deleteMember', data: id }); init(); }
+
+        async function syncData() {
+            const icon = document.getElementById('syncIcon'); if(icon) icon.classList.add('animate-spin');
+            try { const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getInitialData', data: {} }) }); const json = await res.json(); if (json.status === 'success') { if (typeof init === 'function') init(); showToast("SINKRONISASI DATA BERHASIL!"); } else { showToast("GAGAL SINKRONISASI!", "error"); } } catch (error) { showToast("KONEKSI GAGAL SAAT SYNC!", "error"); } finally { if(icon) icon.classList.remove('animate-spin'); }
         }
 
         async function send(payload) {
             toggleLoading(true);
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                const json = await res.json();
-                if (json.status === 'success') {
-                    showToast("BERHASIL DISIMPAN!");
-                } else {
-                    showToast(json.message || "TERJADI KESALAHAN!", "error");
-                }
-                return json;
-            } catch (e) {
-                showToast("KONEKSI GAGAL! PERIKSA INTERNET.", "error");
-                return { status: 'error' };
-            } finally {
-                toggleLoading(false);
-            }
+            try { const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const json = await res.json(); if (json.status === 'success') showToast("BERHASIL DISIMPAN!"); else showToast(json.message || "TERJADI KESALAHAN!", "error"); return json;
+            } catch (e) { showToast("KONEKSI GAGAL! PERIKSA INTERNET.", "error"); return { status: 'error' }; } finally { toggleLoading(false); }
         }
 
         function formatDate(d) { if (!d) return ''; const p = d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
         function toggleLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
         function showToast(m, type="success") {
             const t = document.getElementById('toast');
-            t.innerText = m; t.style.backgroundColor = type === "success" ? "#D4AF37" : "#EF4444";
-            t.style.color = type === "success" ? "#0a192f" : "#FFFFFF"; t.style.opacity = '1'; t.style.transform = 'translateY(0)'; t.style.bottom = '40px';
-            setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; t.style.bottom = '10px'; }, 3500);
+            t.innerText = m; t.style.backgroundColor = type === "success" ? "#D4AF37" : "#EF4444"; t.style.color = type === "success" ? "#0a192f" : "#FFFFFF"; t.style.opacity = '1'; t.style.transform = 'translateY(0)'; t.style.bottom = '40px'; setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; t.style.bottom = '10px'; }, 3500);
         }
 
         window.onload = init;
     </script>
-
 </body>
 </html>
