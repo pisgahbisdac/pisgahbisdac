@@ -330,7 +330,7 @@ function submitAttendance(data) {
     if (data.category === 'ss_dewasa') prefix = "SS_Dewasa";
     else if (data.category === 'ss_anak') prefix = "SS_Anak";
     else if (data.category === 'pendalaman') prefix = "Pendalaman";
-    else prefix = "Absensi"; // Mengubah nama "Lainnya" menjadi "Absensi"
+    else prefix = "Absensi";
   }
 
   // ========================================
@@ -359,7 +359,6 @@ function submitAttendance(data) {
   // TULIS ABSENSI KE SHEET MASING-MASING UNIT
   // ========================================
   for (const unit in grouped) {
-    // Bersihkan nama unit dari karakter aneh agar aman jadi nama sheet
     const safeUnitName = unit.replace(/[^a-zA-Z0-9 ]/g, "").trim();
     const sheetName = `${prefix}_${safeUnitName}`;
     let sheet = ss.getSheetByName(sheetName) || createMatrixSheet(ss, sheetName);
@@ -386,11 +385,20 @@ function submitAttendance(data) {
   }
 
   // ========================================
-  // SIMPAN TAMU (Dipisah berdasarkan Filter Admin/Unit)
+  // SIMPAN TAMU (DISATUKAN DENGAN SHEET JEMAAT/UNIT)
   // ========================================
   if (data.tamu > 0) {
-    // Jika Admin mencentang "ALL", Tamu masuk ke Sheet "Gabungan"
-    let targetUnit = (data.unitFilter && data.unitFilter !== 'ALL') ? data.unitFilter : 'Gabungan';
+    let targetUnit = 'Jemaat'; // Mengganti "Gabungan" menjadi "Jemaat"
+    
+    // LOGIKA BARU: Cari tahu Unit mana yang sedang melapor berdasarkan anggota yang diabsen
+    const unitKeys = Object.keys(grouped);
+    if (unitKeys.length === 1) {
+      // Jika hanya ada 1 unit yang sedang absen, Tamu disatukan ke sheet unit tersebut!
+      targetUnit = unitKeys[0];
+    } else if (data.unitFilter && data.unitFilter !== 'ALL') {
+      targetUnit = data.unitFilter;
+    }
+
     const safeTarget = targetUnit.replace(/[^a-zA-Z0-9 ]/g, "").trim();
     const sheetName = `${prefix}_${safeTarget}`;
     let sheet = ss.getSheetByName(sheetName) || createMatrixSheet(ss, sheetName);
@@ -404,7 +412,7 @@ function submitAttendance(data) {
 
     let tamuRowIdx = findTamuRow(sheet);
     if (tamuRowIdx === -1) {
-      // Jika belum ada, paksa sisipkan di baris ke-2 agar tidak tertimpa anggota
+      // Jika belum ada, paksa sisipkan di baris ke-2
       sheet.insertRowBefore(2);
       tamuRowIdx = 2;
       sheet.getRange(tamuRowIdx, 1, 1, 2).setValues([['TAMU', 'Tamu']]).setFontWeight("bold").setBackground("#f3f4f6").setFontColor("#000000");
@@ -416,8 +424,8 @@ function submitAttendance(data) {
 }
 
 function submitMatrixKegiatan(ss, data) {
-  // Pisahkan sheet kegiatan antar Unit
-  const safeTarget = (data.unitFilter && data.unitFilter !== 'ALL') ? data.unitFilter.replace(/[^a-zA-Z0-9 ]/g, "").trim() : 'Gabungan';
+  // Pisahkan sheet kegiatan antar Unit, hilangkan kata 'Gabungan' jadi 'Jemaat'
+  const safeTarget = (data.unitFilter && data.unitFilter !== 'ALL') ? data.unitFilter.replace(/[^a-zA-Z0-9 ]/g, "").trim() : 'Jemaat';
   const sheetName = `Kegiatan_${safeTarget}`;
   const kList = ["Datang tepat waktu", "Baca Alkitab", "Renungan Pagi", "Belajar SS", "Rabu Malam", "Jangkauan Keluar", "Perlawatan", "Doa", "Kelompok Kecil", "Bagi Risalah"];
   const sheet = ss.getSheetByName(sheetName) || createMatrixSheet(ss, sheetName);
