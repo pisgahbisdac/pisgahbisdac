@@ -267,7 +267,7 @@
         }
         
         /* Panel & Card Dasar menjadi Dark Navy elegan (Termasuk efek Hover) */
-        .bg-white, [class*="hover:bg-white"]:hover, [class*="hover:bg-gray-50"]:hover {
+        .bg-white, .bg-white\/50, .bg-white\/60, [class*="hover:bg-white"]:hover, [class*="hover:bg-gray-50"]:hover {
             background-color: #112240 !important; 
             border-color: #1e365d !important; 
         }
@@ -283,16 +283,16 @@
         .text-navy-400, [class*="hover:text-navy-400"]:hover { color: #7c97b5 !important; }
         
         /* Penyesuaian Border dan Highlight Tipis */
-        .border-navy-50, .border-navy-100, .border-navy-200, .border-navy-300 { border-color: #1e365d !important; }
+        .border-navy-50, .border-navy-50\/50, .border-navy-100, .border-navy-100\/20, .border-navy-100\/50, .border-navy-100\/60, .border-navy-100\/80, .border-navy-200, .border-navy-300, .border-gold-200\/50, .border-gold-200\/60, .border-gold-300\/80, .border-gold-400\/30, .border-gold-400\/50 { border-color: #1e365d !important; }
         
         /* Background Hover Universal untuk Menu, Tabel, dan Tombol Navigasi */
-        .bg-navy-50, [class*="hover:bg-navy-50"]:hover { background-color: #162a4a !important; }
-        .bg-navy-100, [class*="hover:bg-navy-100"]:hover { background-color: #1e365d !important; }
+        .bg-navy-50, .bg-navy-50\/10, .bg-navy-50\/20, .bg-navy-50\/30, .bg-navy-50\/50, .bg-navy-50\/70, [class*="hover:bg-navy-50"]:hover { background-color: #162a4a !important; }
+        .bg-navy-100, .bg-navy-100\/50, .bg-navy-100\/60, .bg-navy-100\/80, [class*="hover:bg-navy-100"]:hover { background-color: #1e365d !important; }
         
         /* Aksen Gold / Transparan untuk Highlight (Warna Kuning Emas) */
-        .bg-gold-50, [class*="hover:bg-gold-50"]:hover, 
+        .bg-gold-50, .bg-gold-50\/30, .bg-gold-50\/50, [class*="hover:bg-gold-50"]:hover, 
         .bg-gold-100, [class*="hover:bg-gold-100"]:hover, 
-        .from-gold-50, .bg-gold-50\/50, .bg-gold-400\/10 {
+        .from-gold-50, .bg-gold-400\/10, .bg-gold-400\/20, .bg-gold-400\/30 {
             background: rgba(231, 174, 48, 0.1) !important;
             color: #e7ae30 !important;
             border-color: rgba(231, 174, 48, 0.3) !important;
@@ -1020,9 +1020,9 @@
             const susunan = activeSabat.susunan || defaultSusunan;
 
             const renderItem = (title, desc, isHighlight = false) => (
-                <div className={`flex justify-between items-center py-3 px-4 border-b border-navy-50/50 last:border-0 transition-colors rounded-xl mx-2 my-1 ${isHighlight ? 'bg-gold-50 shadow-sm border-gold-100' : 'hover:bg-navy-50/30'}`}>
-                    <span className="text-sm text-navy-600 font-medium w-1/2 shrink-0">{title}</span>
-                    <span className={`text-sm text-right w-1/2 break-words ${isHighlight ? 'font-bold text-navy-900' : 'font-bold text-navy-800'}`}>{desc}</span>
+                <div className={`flex justify-between items-center py-3 px-4 border-b border-[#1e365d] last:border-0 transition-colors rounded-xl mx-2 my-1 ${isHighlight ? 'bg-[#e7ae30]/10 shadow-sm border border-[#e7ae30]/30' : 'hover:bg-[#1e365d]/50'}`}>
+                    <span className="text-sm font-medium w-1/2 shrink-0 text-[#cbd4e1]">{title}</span>
+                    <span className={`text-sm text-right w-1/2 break-words font-bold ${isHighlight ? 'text-[#e7ae30]' : 'text-[#f4f6f9]'}`}>{desc}</span>
                 </div>
             );
 
@@ -1035,36 +1035,36 @@
 
             return (
                 <div className="space-y-6 animate-fade-in">
-                    <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden relative">
-                        <div className="text-center p-6 md:p-8 border-b border-navy-50 bg-navy-50/30">
-                            <h2 className="text-xl md:text-[1.75rem] font-black text-navy-900 uppercase tracking-widest leading-none">Susunan Ibadah</h2>
-                            <p className="text-gold-600 font-bold mt-2 text-sm md:text-base">{formatIndoDate(sabatYMD)}</p>
+                    <div className="rounded-[1.5rem] shadow-sm border border-[#1e365d] overflow-hidden relative bg-[#112240]">
+                        <div className="text-center p-6 md:p-8 border-b border-[#1e365d] bg-[#0b1a30]/80">
+                            <h2 className="text-xl md:text-[1.75rem] font-black uppercase tracking-widest leading-none text-[#f4f6f9]">Susunan Ibadah</h2>
+                            <p className="text-gold-500 font-bold mt-2 text-sm md:text-base">{formatIndoDate(sabatYMD)}</p>
                         </div>
 
                         <div className="flex flex-col">
                             {/* TABS SCROLLABLE */}
-                            <div className="flex flex-col border-b border-navy-50 bg-white overflow-hidden">
+                            <div className="flex flex-col border-b border-[#1e365d] overflow-hidden bg-[#112240]">
                                 <div className="flex items-center gap-2 p-3 pb-1 md:p-5 md:pb-2">
-                                    <div className="bg-navy-50/50 rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-1.5 gap-2 hide-scrollbar scroll-smooth">
+                                    <div className="rounded-[1.25rem] flex-1 flex overflow-x-auto border border-[#1e365d] p-1.5 gap-2 hide-scrollbar scroll-smooth bg-[#0b1a30]">
                                         {susunanTabs.map(tab => (
                                             <button
                                                 key={tab.id}
                                                 onClick={() => setOpenSection(tab.id)}
-                                                className={`px-5 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all duration-300 flex items-center font-bold shrink-0 ${openSection === tab.id ? 'bg-white shadow-sm border border-navy-100/50 text-navy-900 scale-100' : 'text-navy-400 hover:text-navy-700 hover:bg-navy-100/50 scale-95 origin-center'}`}
+                                                className={`px-5 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all duration-300 flex items-center font-bold shrink-0 ${openSection === tab.id ? 'bg-gold-500 shadow-sm text-navy-900 scale-100' : 'text-[#7c97b5] hover:text-white hover:bg-[#1e365d] scale-95 origin-center'}`}
                                             >
-                                                <Icon name={tab.icon} className={`w-[1.15rem] h-[1.15rem] mr-2 transition-colors ${openSection === tab.id ? 'text-gold-500' : 'text-navy-400'}`} />
+                                                <Icon name={tab.icon} className={`w-[1.15rem] h-[1.15rem] mr-2 transition-colors ${openSection === tab.id ? 'text-navy-900' : 'text-[#7c97b5]'}`} />
                                                 {tab.label}
                                             </button>
                                         ))}
                                     </div>
                                 </div>
-                                <p className="text-[10px] text-navy-400 italic text-center pb-3 md:hidden">scroll ke samping untuk lihat susunan yang lain &rarr;</p>
+                                <p className="text-[10px] italic text-center pb-3 md:hidden text-[#7c97b5]">scroll ke samping untuk lihat susunan yang lain &rarr;</p>
                             </div>
 
                             {/* TAB CONTENT */}
 
                             {openSection === 'khotbah' && (
-                                <div className="p-4 md:p-6 animate-fade-in bg-white">
+                                <div className="p-4 md:p-6 animate-fade-in bg-[#112240]">
                                     {renderItem("Pemimpin Acara", getOfficer(activeSabat.khotbah, "Pemimpin Acara"), true)}
                                     {renderItem("Lagu Pengantar", "LS 515 - Tuhan Ada Dalam Bait Allah")}
                                     {renderItem("Lagu Sambutan", "LS 1 - Di Hadapan Hadirat-Mu")}
@@ -1088,7 +1088,7 @@
                             )}
                             
                             {openSection === 'ss' && (
-                                <div className="p-4 md:p-6 animate-fade-in bg-white">
+                                <div className="p-4 md:p-6 animate-fade-in bg-[#112240]">
                                     {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pemimpin Acara"), true)}
                                     {renderItem("Lagu Buka", susunan.ssLaguBuka)}
                                     {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka"))}
@@ -1100,13 +1100,13 @@
                             )}
 
                             {openSection === 'diakon' && (
-                                <div className="p-4 md:p-6 animate-fade-in bg-white">
+                                <div className="p-4 md:p-6 animate-fade-in bg-[#112240]">
                                     {activeSabat.diakon.map((p, idx) => <div key={idx}>{renderItem(p.tugas, p.nama)}</div>)}
                                 </div>
                             )}
 
                             {openSection === 'musik' && (
-                                <div className="p-4 md:p-6 animate-fade-in bg-white">
+                                <div className="p-4 md:p-6 animate-fade-in bg-[#112240]">
                                     {activeSabat.musik.map((p, idx) => <div key={idx}>{renderItem(p.tugas, p.nama)}</div>)}
                                 </div>
                             )}
