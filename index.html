@@ -860,8 +860,15 @@
                                         Setiap doa, dukungan, dan persembahan pembangunan Anda adalah fondasi utama dalam mewujudkan tempat ibadah yang lebih nyaman bagi jemaat dan saksi kebaikan Tuhan bagi lingkungan sekitar.
                                         <p class="text-xs md:text-sm font-medium text-navy-600 leading-relaxed mb-5 text-center">Mari ambil bagian dalam penatalayanan ini!</p>
                                     </p>
-                                    <a href="https://pembangunan.pisgahbisdac.app" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full glass-card hover:glass-card text-navy-800 py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 border border-navy-500 group">
-                                        <span className="text-[11px] md:text-sm font-bold uppercase tracking-widest group-hover:text-gold-300 transition-colors">Klik Untuk Melihat Progres Pembangunan</span>
+                                    <a href="https://pembangunan.pisgahbisdac.app" target="_self" rel="noopener noreferrer" onClick={(e) => {
+                                        e.preventDefault();
+                                        const userConfirmed = window.confirm("Buka halaman pembangunan sekarang?");
+                                         if (userConfirmed) { 
+                                         window.location.href = 'https://pembangunan.pisgahbisdac.app';
+                                        }
+                                }}
+                                    className="flex items-center justify-center w-full glass-card hover:glass-card text-navy-800 py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 border border-navy-500 group"
+                                    ><span className="text-[11px] md:text-sm font-bold uppercase tracking-widest group-hover:text-gold-300 transition-colors">Klik Untuk Melihat Progres Pembangunan</span>
                                         <Icon name="ChevronRight" className="w-4 h-4 ml-1.5 text-navy-500 group-hover:translate-x-1 transition-transform" />
                                     </a>
                                 </div>
