@@ -1,4 +1,3 @@
-```javascript
 /**
  * KONFIGURASI BACKEND PISGAH BISDAC v1.0 (Admin Control Panel & Doa)
  * Spreadsheet ID: 1-fWE3bjOlTU9VFITCgI6smG8d__vxjWpVMN35ODb-zc
@@ -203,11 +202,23 @@ function submitMatrixKegiatan(ss, data) {
   const safeTarget = (data.unitFilter && data.unitFilter !== 'ALL') ? data.unitFilter.replace(/[^a-zA-Z0-9 ]/g, "").trim() : 'Jemaat';
   const sheetName = `Kegiatan_${safeTarget}`;
   const kList = ["Datang tepat waktu", "Baca Alkitab", "Renungan Pagi", "Belajar SS", "Rabu Malam", "Jangkauan Keluar", "Perlawatan", "Doa", "Kelompok Kecil", "Bagi Risalah"];
-  const sheet = ss.getSheetByName(sheetName) || createMatrixSheet(ss, sheetName);
   
-  if (sheet.getLastRow() <= 1) {
+  let sheet = ss.getSheetByName(sheetName);
+  
+  // Jika sheet Kegiatan belum ada, buat khusus dengan format Kegiatan (Bukan format absen jemaat)
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+    // Buat Header
+    sheet.getRange(1, 1, 1, 2).setValues([['No', 'Keterangan Kegiatan']]).setBackground("#D4AF37").setFontColor("#000000").setFontWeight("bold");
+    
+    // Tulis daftar kegiatan
     const initRows = kList.map((k, i) => [i + 1, k]);
     sheet.getRange(2, 1, initRows.length, 2).setValues(initRows);
+    
+    // Rapikan tampilan sheet
+    sheet.setFrozenRows(1);
+    sheet.setFrozenColumns(2);
+    sheet.setColumnWidth(2, 300); // Lebarkan kolom agar teks kegiatan muat dan rapi
   }
 
   const dateStr = data.tanggal;
@@ -216,7 +227,7 @@ function submitMatrixKegiatan(ss, data) {
   
   if (colIdx === 0) {
     colIdx = sheet.getLastColumn() + 1;
-    sheet.getRange(1, colIdx).setValue(dateStr).setBackground("#D4AF37").setFontWeight("bold").setHorizontalAlignment("center");
+    sheet.getRange(1, colIdx).setValue(dateStr).setBackground("#D4AF37").setFontColor("#000000").setFontWeight("bold").setHorizontalAlignment("center");
   }
 
   const values = data.poin.map(p => [p]);
@@ -525,6 +536,3 @@ function createMatrixSheet(ss, name) {
   sheet.setFrozenColumns(2);
   return sheet;
 }
-
-
-```
