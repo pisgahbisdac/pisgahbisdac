@@ -4844,8 +4844,8 @@ const compressImage = (file, maxWidth = 1200) => {
                                     </button>
                                 )}
 
-                                {/* Menu Burger Mobile (Diantara Search dan Login) */}
-                                <div className="relative md:hidden flex items-center">
+                                {/* Menu Burger Mobile (Diantara Search dan Login) - Sekarang selalu tampil */}
+                                <div className="relative flex items-center">
                                     <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className={`w-10 h-10 bg-white border border-navy-100/60 rounded-full hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm ${isMobileMenuOpen ? 'text-gold-500' : 'text-navy-600'}`} title="Menu Lainnya">
                                         <Icon name={isMobileMenuOpen ? "X" : "Menu"} className="w-4 h-4" />
                                     </button>
@@ -4861,7 +4861,7 @@ const compressImage = (file, maxWidth = 1200) => {
         <button 
             key={tab.id} 
             onClick={() => { setActiveTab(tab.id); setIsMobileMenuOpen(false); }} 
-            className={`w-full text-left px-4 py-3 flex items-center space-x-3 hover:bg-navy-50/70 transition-colors ${activeTab === tab.id ? 'text-gold-600 font-bold bg-gold-50/30' : 'text-navy-700 font-medium'}`}
+            className={`w-full text-left px-4 py-3 flex md:hidden items-center space-x-3 hover:bg-navy-50/70 transition-colors ${activeTab === tab.id ? 'text-gold-600 font-bold bg-gold-50/30' : 'text-navy-700 font-medium'}`}
         >
             <Icon name={tab.icon} className="w-[1.15rem] h-[1.15rem]" />
             <span className="text-sm">{tab.label}</span>
