@@ -750,8 +750,8 @@
 
     const cardContent = (
         <>
-            <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-navy-50 group-hover:bg-gold-50 transition-colors flex items-center justify-center mb-1">
-                <Icon name={item.icon} className="w-4 h-4 md:w-5 md:h-5 text-navy-600 group-hover:text-gold-500 transition-colors" />
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-navy-50 group-hover:bg-gold-50 transition-colors flex items-center justify-center mb-1">
+                <Icon name={item.icon} className="w-7 h-7 md:w-7 md:h-7 text-navy-600 group-hover:text-gold-500 transition-colors" />
             </div>
             <h3 className="font-bold text-[9px] md:text-[10px] leading-tight text-navy-900 group-hover:text-gold-700 transition-colors text-center">
                 {line1}{line2 && <><br />{line2}</>}
@@ -4879,14 +4879,34 @@ const compressImage = (file, maxWidth = 1200) => {
                                             <div className="fixed inset-0 z-40" onClick={() => setIsMobileMenuOpen(false)}></div>
                                             
                                             {/* Dropdown Box */}
-                                            <div className="absolute top-12 right-0 w-48 bg-white border border-navy-100/80 rounded-2xl shadow-xl py-2 z-50 animate-fade-in flex flex-col overflow-hidden">
-                                                {tabs.filter(t => !['belajar', 'warta', 'home', 'jadwal', 'live'].includes(t.id)).map(tab => (
-                                                    <button key={tab.id} onClick={() => { setActiveTab(tab.id); setIsMobileMenuOpen(false); }} className={`w-full text-left px-4 py-3 flex items-center space-x-3 hover:bg-navy-50 transition-colors border-b border-navy-50/50 last:border-0 ${activeTab === tab.id ? 'text-gold-600 font-bold bg-gold-50/30' : 'text-navy-700 font-medium'}`}>
-                                                        <Icon name={tab.icon} className="w-[1.15rem] h-[1.15rem]" />
-                                                        <span className="text-sm">{tab.label}</span>
-                                                    </button>
-                                                ))}
-                                            </div>
+                                            <div className="absolute top-12 right-0 w-48 bg-white/80 backdrop-blur-md border border-navy-100/50 rounded-2xl shadow-xl py-2 z-50 animate-fade-in flex flex-col overflow-hidden">
+    {tabs.filter(t => !['belajar', 'warta', 'home', 'jadwal', 'live'].includes(t.id)).map(tab => (
+        <button 
+            key={tab.id} 
+            onClick={() => { setActiveTab(tab.id); setIsMobileMenuOpen(false); }} 
+            className={`w-full text-left px-4 py-3 flex items-center space-x-3 hover:bg-navy-50/70 transition-colors ${activeTab === tab.id ? 'text-gold-600 font-bold bg-gold-50/30' : 'text-navy-700 font-medium'}`}
+        >
+            <Icon name={tab.icon} className="w-[1.15rem] h-[1.15rem]" />
+            <span className="text-sm">{tab.label}</span>
+        </button>
+    ))}
+    
+    {/* 👇 TEMPATKAN LINK KEHADIRAN DI SINI (setelah mapping, tanpa garis pemisah) */}
+    <button 
+    onClick={(e) => {
+        e.preventDefault(); // Mencegah aksi default jika ada
+        const userConfirmed = window.confirm("Buka halaman kehadiran sekarang?");
+        if (userConfirmed) {
+            window.location.href = 'https://hadir.pisgahbisdac.app'; // Buka di tab yang sama (_self)
+        }
+        setIsMobileMenuOpen(false);
+    }} 
+    className="w-full text-left px-4 py-3 flex items-center space-x-3 hover:bg-navy-50/70 transition-colors text-navy-700 font-medium"
+>
+    <Icon name="Pen" className="w-[1.15rem] h-[1.15rem]" />
+    <span className="text-sm">Kehadiran</span>
+</button>
+</div>
                                         </>
                                     )}
                                 </div>
