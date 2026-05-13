@@ -1,4 +1,3 @@
-```javascript
 /**
  * KONFIGURASI BACKEND PISGAH BISDAC v1.0 (Admin Control Panel & Doa)
  * Spreadsheet ID: 1-fWE3bjOlTU9VFITCgI6smG8d__vxjWpVMN35ODb-zc
@@ -547,6 +546,3 @@ function createMatrixSheet(ss, name) {
   sheet.setFrozenColumns(2);
   return sheet;
 }
-
-
-```
