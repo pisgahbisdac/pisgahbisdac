@@ -312,182 +312,111 @@ function deleteRole(roleName) {
 function submitAttendance(data) {
 
   const ss = getDb();
-  let sheetName = "";
-
-  // ========================================
-  // KHOTBAH
-  // ========================================
-
-  if (data.type === 'khotbah') {
-
-    sheetName = "Absensi_Khotbah";
-  }
-
-  // ========================================
-  // SEKOLAH SABAT
-  // ========================================
-
-  else if (data.type === 'sekolah_sabat') {
-
-    // SS DEWASA
-    if (data.category === 'ss_dewasa') {
-
-      sheetName = "Absensi_SS_Dewasa";
-    }
-
-    // SS ANAK
-    else if (data.category === 'ss_anak') {
-
-      sheetName = "Absensi_SS_Anak";
-    }
-
-    // PENDALAMAN
-    else if (data.category === 'pendalaman') {
-
-      sheetName = "Absensi_Pendalaman";
-    }
-
-    // DEFAULT
-    else {
-
-      sheetName = "Absensi_Lainnya";
-    }
-  }
-
+  
   // ========================================
   // KEGIATAN
   // ========================================
-
-  else if (data.type === 'kegiatan') {
-
+  if (data.type === 'kegiatan') {
     return submitMatrixKegiatan(ss, data);
   }
 
   // ========================================
-  // AMBIL / BUAT SHEET
+  // PREFIX KATEGORI SHEET
   // ========================================
-
-  const sheet =
-    ss.getSheetByName(sheetName)
-    || createMatrixSheet(ss, sheetName);
-
-  const dateStr =
-    data.tanggal ||
-    Utilities.formatDate(
-      new Date(),
-      Session.getScriptTimeZone(),
-      'dd/MM/yyyy'
-    );
-
-  const headers =
-    sheet.getRange(
-      1,
-      1,
-      1,
-      Math.max(sheet.getLastColumn(), 1)
-    ).getValues()[0];
-
-  let colIdx =
-    headers.indexOf(dateStr) + 1;
-
-  // ========================================
-  // BUAT KOLOM TANGGAL
-  // ========================================
-
-  if (colIdx === 0) {
-
-    colIdx = sheet.getLastColumn() + 1;
-
-    sheet.getRange(1, colIdx)
-      .setValue(dateStr)
-      .setBackground("#D4AF37")
-      .setFontWeight("bold")
-      .setHorizontalAlignment("center");
+  let prefix = "";
+  if (data.type === 'khotbah') {
+    prefix = "Khotbah";
+  } else if (data.type === 'sekolah_sabat') {
+    if (data.category === 'ss_dewasa') prefix = "SS_Dewasa";
+    else if (data.category === 'ss_anak') prefix = "SS_Anak";
+    else if (data.category === 'pendalaman') prefix = "Pendalaman";
+    else prefix = "Lainnya";
   }
 
   // ========================================
-  // SIMPAN ABSENSI
+  // MAPPING UNIT MEMBER (Untuk Tahu Jemaat Ada di Unit Apa)
   // ========================================
-
-  data.records.forEach(rec => {
-
-    let rowIdx =
-      findMemberRow(sheet, rec.memberId);
-
-    if (rowIdx === -1) {
-
-      rowIdx = sheet.getLastRow() + 1;
-
-      sheet.getRange(
-        rowIdx,
-        1,
-        1,
-        2
-      ).setValues([
-        [
-          rec.memberId,
-          rec.nama
-        ]
-      ]);
+  const mSheet = ss.getSheetByName('Members');
+  const mData = mSheet.getDataRange().getValues();
+  const memberUnitMap = {};
+  if (mData.length > 1) {
+    for (let i = 1; i < mData.length; i++) {
+      memberUnitMap[mData[i][0]] = mData[i][4] || 'Umum';
     }
+  }
 
-    const bgStatus =
-      rec.status === 'Hadir'
-      ? '#e6f4ea'
-      : '#fce8e6';
-
-    const fontColor =
-      rec.status === 'Hadir'
-      ? '#137333'
-      : '#c5221f';
-
-    sheet.getRange(
-      rowIdx,
-      colIdx
-    )
-    .setValue(rec.status)
-    .setHorizontalAlignment("center")
-    .setBackground(bgStatus)
-    .setFontColor(fontColor);
+  // Mengelompokkan Data Absen Berdasarkan Unit
+  const grouped = {};
+  data.records.forEach(rec => {
+    const unit = memberUnitMap[rec.memberId] || 'Umum';
+    if (!grouped[unit]) grouped[unit] = [];
+    grouped[unit].push(rec);
   });
 
+  const dateStr = data.tanggal || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy');
+
   // ========================================
-  // SIMPAN TAMU
+  // TULIS ABSENSI KE SHEET MASING-MASING UNIT
   // ========================================
+  for (const unit in grouped) {
+    // Bersihkan nama unit dari karakter aneh agar aman jadi nama sheet
+    const safeUnitName = unit.replace(/[^a-zA-Z0-9 ]/g, "").trim();
+    const sheetName = `${prefix}_${safeUnitName}`;
+    let sheet = ss.getSheetByName(sheetName) || createMatrixSheet(ss, sheetName);
 
-  if (data.tamu > 0) {
+    const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+    let colIdx = headers.indexOf(dateStr) + 1;
 
-    let tamuRowIdx =
-      findTamuRow(sheet);
-
-    if (tamuRowIdx === -1) {
-
-      tamuRowIdx =
-        sheet.getLastRow() + 1;
-
-      sheet.getRange(
-        tamuRowIdx,
-        2
-      )
-      .setValue("Tamu")
-      .setFontWeight("bold");
+    // Buat Kolom Tanggal Baru jika belum ada
+    if (colIdx === 0) {
+      colIdx = sheet.getLastColumn() + 1;
+      sheet.getRange(1, colIdx).setValue(dateStr).setBackground("#D4AF37").setFontWeight("bold").setHorizontalAlignment("center");
     }
 
-    sheet.getRange(
-      tamuRowIdx,
-      colIdx
-    )
-    .setValue(data.tamu)
-    .setHorizontalAlignment("center");
+    grouped[unit].forEach(rec => {
+      let rowIdx = findMemberRow(sheet, rec.memberId);
+      if (rowIdx === -1) {
+        rowIdx = sheet.getLastRow() + 1;
+        sheet.getRange(rowIdx, 1, 1, 2).setValues([[rec.memberId, rec.nama]]);
+      }
+      const bgStatus = rec.status === 'Hadir' ? '#e6f4ea' : '#fce8e6';
+      const fontColor = rec.status === 'Hadir' ? '#137333' : '#c5221f';
+      sheet.getRange(rowIdx, colIdx).setValue(rec.status).setHorizontalAlignment("center").setBackground(bgStatus).setFontColor(fontColor);
+    });
   }
 
-  return {
-    status: 'success'
-  };
+  // ========================================
+  // SIMPAN TAMU (Dipisah berdasarkan Filter Admin/Unit)
+  // ========================================
+  if (data.tamu > 0) {
+    // Jika Admin mencentang "ALL", Tamu masuk ke Sheet "Gabungan"
+    let targetUnit = (data.unitFilter && data.unitFilter !== 'ALL') ? data.unitFilter : 'Gabungan';
+    const safeTarget = targetUnit.replace(/[^a-zA-Z0-9 ]/g, "").trim();
+    const sheetName = `${prefix}_${safeTarget}`;
+    let sheet = ss.getSheetByName(sheetName) || createMatrixSheet(ss, sheetName);
+    
+    const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+    let colIdx = headers.indexOf(dateStr) + 1;
+    if (colIdx === 0) {
+      colIdx = sheet.getLastColumn() + 1;
+      sheet.getRange(1, colIdx).setValue(dateStr).setBackground("#D4AF37").setFontWeight("bold").setHorizontalAlignment("center");
+    }
+
+    let tamuRowIdx = findTamuRow(sheet);
+    if (tamuRowIdx === -1) {
+      tamuRowIdx = sheet.getLastRow() + 1;
+      sheet.getRange(tamuRowIdx, 2).setValue("Tamu").setFontWeight("bold");
+    }
+    sheet.getRange(tamuRowIdx, colIdx).setValue(data.tamu).setHorizontalAlignment("center");
+  }
+
+  return { status: 'success' };
 }
 
 function submitMatrixKegiatan(ss, data) {
-  const sheetName = "Rekap_Kegiatan_Triwulan";
+  // Pisahkan sheet kegiatan antar Unit
+  const safeTarget = (data.unitFilter && data.unitFilter !== 'ALL') ? data.unitFilter.replace(/[^a-zA-Z0-9 ]/g, "").trim() : 'Gabungan';
+  const sheetName = `Kegiatan_${safeTarget}`;
   const kList = ["Datang tepat waktu", "Baca Alkitab", "Renungan Pagi", "Belajar SS", "Rabu Malam", "Jangkauan Keluar", "Perlawatan", "Doa", "Kelompok Kecil", "Bagi Risalah"];
   const sheet = ss.getSheetByName(sheetName) || createMatrixSheet(ss, sheetName);
   
@@ -511,22 +440,23 @@ function submitMatrixKegiatan(ss, data) {
 }
 
 function getAttendanceStats(ss) {
-  const sheet = ss.getSheetByName('Absensi_Khotbah');
-  let history = [];
-  
-  if (sheet) {
+  let historyMap = {}; 
+  // Gabungkan hasil dari seluruh sheet yang berawalan Khotbah_
+  const sheets = ss.getSheets().filter(s => s.getName().startsWith('Khotbah_') || s.getName() === 'Absensi_Khotbah');
+
+  sheets.forEach(sheet => {
     const lastCol = sheet.getLastColumn();
     const lastRow = sheet.getLastRow();
     
     if (lastCol >= 3 && lastRow > 1) {
-      const startCol = Math.max(3, lastCol - 11); 
-      const numCols = lastCol - startCol + 1;
-      
-      const dates = sheet.getRange(1, startCol, 1, numCols).getValues()[0];
-      const data = sheet.getRange(2, startCol, lastRow - 1, numCols).getValues();
+      const dates = sheet.getRange(1, 3, 1, lastCol - 2).getValues()[0];
+      const data = sheet.getRange(2, 3, lastRow - 1, lastCol - 2).getValues();
       const names = sheet.getRange(2, 2, lastRow - 1, 1).getValues().map(r => r[0]);
 
-      for (let c = 0; c < numCols; c++) {
+      for (let c = 0; c < dates.length; c++) {
+        const dateStr = dates[c];
+        if (!dateStr) continue;
+        
         let count = 0;
         for (let r = 0; r < data.length; r++) {
           if (names[r] === "Tamu") {
@@ -535,10 +465,22 @@ function getAttendanceStats(ss) {
             count++;
           }
         }
-        history.push({ date: dates[c], count: count });
+        // Akumulasi total kehadiran dari semua Unit ke satu tanggal yang sama
+        historyMap[dateStr] = (historyMap[dateStr] || 0) + count;
       }
     }
-  }
+  });
+
+  // Urutkan tanggal dari yang terlama ke terbaru
+  let sortedDates = Object.keys(historyMap).sort((a, b) => {
+    const [d1, m1, y1] = a.split('/');
+    const [d2, m2, y2] = b.split('/');
+    return new Date(y1, m1-1, d1) - new Date(y2, m2-1, d2);
+  });
+
+  const recentDates = sortedDates.slice(-12);
+  const history = recentDates.map(d => ({ date: d, count: historyMap[d] }));
+
   return { history };
 }
 
