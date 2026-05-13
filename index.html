@@ -328,16 +328,64 @@ if (document.readyState === 'loading') {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getInitialData' }) });
                 const json = await res.json();
                 if(json.status === 'success') {
-                    members = json.members || [];
-                    units = json.units || [];
-                    roles = json.roles || ['Anggota', 'Guru', 'Pemimpin', 'Kordinator'];
-                    admins = json.admins || [];
-                    statsData = json.stats || { history: [] }; 
+                    // MENDUKUNG STRUKTUR DATA LAMA (json.data) DAN BARU (json)
+                    const payload = json.data ? json.data : json;
+                    
+                    // NORMALISASI DATA AGAR KOMPATIBEL DENGAN BERBAGAI VERSI BACKEND
+                    members = (payload.members || []).map(m => ({
+                        id: m.id || m.ID || m['ID'] || '',
+                        nama: m.nama || m.Nama || m['Nama'] || '',
+                        status: m.status || m.Status || m['Status'] || '',
+                        kelasTetap: m.kelasTetap || m.Kategori || m['Kategori'] || '',
+                        unit: m.unit || m.Unit || m['Unit'] || 'Umum',
+                        jabatan: m.jabatan || m.Jabatan || m['Jabatan'] || 'Anggota'
+                    }));
+
+                    units = (payload.units || []).map(u => {
+                        if (typeof u === 'object') {
+                            return {
+                                name: u.name || u.namaUnit || u['Nama Unit'] || u.nama || '',
+                                pin: String(u.pin || u['PIN Akses'] || '').trim()
+                            };
+                        }
+                        return { name: String(u), pin: '' };
+                    });
+
+                    let rawRoles = payload.roles || [];
+                    if (rawRoles.length > 0 && typeof rawRoles[0] === 'object') {
+                        roles = rawRoles.map(r => r.namaJabatan || r['Nama Jabatan'] || r.nama || Object.values(r)[0]);
+                    } else if (rawRoles.length > 0) {
+                        roles = rawRoles;
+                    } else {
+                        roles = ['Anggota', 'Guru', 'Pemimpin', 'Kordinator'];
+                    }
+
+                    admins = (payload.admins || []).map(a => {
+                        if (typeof a === 'object') {
+                            return {
+                                username: a.username || a['Username'] || a.nama || '',
+                                pin: String(a.pin || a['PIN Akses'] || '').trim()
+                            };
+                        }
+                        return a;
+                    });
+
+                    statsData = payload.stats || { history: [] }; 
+                    
+                    // Peringatan jika data benar-benar kosong diringankan (hanya di console, tidak merusak UI)
+                    if(admins.length === 0 && units.length === 0 && members.length === 0) {
+                        console.warn("Spreadsheet masih kosong atau data menggunakan format lama.");
+                    }
                     
                     renderTabs();
                     switchTab(currentTab);
+                } else {
+                    showToast("ERROR DARI SERVER: " + json.message, "error");
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) { 
+                console.error("Fetch Error:", e);
+                showToast("GAGAL MENGHUBUNGI SERVER SPREADSHEET!", "error");
+            }
             toggleLoading(false);
             disableButtons(false);
         }
@@ -353,15 +401,17 @@ if (document.readyState === 'loading') {
             const pin = document.getElementById('login-pin').value.trim();
             if(!pin) return showToast("Masukkan PIN Anda!", "error");
 
-            const foundAdmin = admins.find(a => String(a.pin) === pin);
+            // Memastikan spasi dihapus saat mencocokkan PIN Admin
+            const foundAdmin = admins.find(a => String(a.pin).trim() === pin);
             
             if (foundAdmin) {
                 currentUser = { role: 'admin', unitName: 'ALL', adminName: foundAdmin.username };
                 showToast(`Berhasil Login sebagai ${foundAdmin.username}`);
             } else {
+                // Memastikan spasi dihapus saat mencocokkan PIN Unit
                 const foundUnit = units.find(u => {
                     const uPin = typeof u === 'object' && u !== null ? u.pin : null;
-                    return String(uPin) === pin;
+                    return String(uPin).trim() === pin;
                 });
 
                 if (foundUnit) {
