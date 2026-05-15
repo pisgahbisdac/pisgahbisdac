@@ -278,7 +278,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         return a;
                     });
 
-                    // Pastikan struktur format baru di-handle dengan baik (Ada data per Unit)
                     statsData = payload.stats || { history: [], historyByUnit: { 'ALL': [] } }; 
                     if (!statsData.historyByUnit) statsData.historyByUnit = { 'ALL': statsData.history || [] };
                     
@@ -371,7 +370,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             updateHeaderUI(); renderTabs(); switchTab('dashboard'); showToast("Anda telah keluar.");
         }
 
-        // --- GANTI PIN LOGIC ---
         function showChangePin() {
             document.getElementById('old-pin').value = ''; document.getElementById('new-pin').value = '';
             document.getElementById('changepin-modal').classList.remove('hidden'); document.getElementById('old-pin').focus();
@@ -517,7 +515,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         <i class="fas fa-praying-hands text-5xl text-blue-400 mb-4 relative z-10 drop-shadow-md"></i>
                         <h3 class="text-2xl md:text-3xl font-black text-white relative z-10 mb-2 uppercase tracking-wide">Kotak Permohonan Doa</h3>
                         <p class="text-sm text-slate-300 relative z-10 mb-8 max-w-2xl mx-auto">Tuliskan permohonan doa Anda di bawah ini. Tim pendoa kami siap mendukung Anda dalam doa.</p>
-                        
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 relative z-10 text-left">
                             <div><label class="text-[10px] font-bold text-blue-300 uppercase mb-2 block tracking-widest pl-4">Nama Lengkap</label>
                             <input type="text" id="doa-nama" placeholder="Masukkan Nama Anda..." class="!border-blue-500/50 focus:!border-blue-400 !text-white py-3 px-4 rounded-lg w-full"></div>
@@ -552,7 +549,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         </div>
                     </div>
                     
-                    <!-- 4 KARTU STATISTIK -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                         <div class="glass p-6 border-l-4 border-l-blue-400 relative overflow-hidden group hover:bg-white/5 transition-all">
                             <i class="fas fa-calendar-week absolute -right-4 -bottom-4 text-7xl text-blue-400/10 group-hover:scale-110 transition-transform"></i>
@@ -579,7 +575,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                             <div class="text-xs font-bold text-purple-400 relative z-10 bg-purple-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-users mr-1"></i> Database Sistem</div>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="glass p-8">
                             <h4 class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Riwayat Kehadiran Terakhir</h4>
@@ -592,36 +587,25 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </div>
                 </div>
             `;
-            setTimeout(() => {
-                updateDashboardStats();
-                initPieChart();
-                renderDoaPoints();
-            }, 100);
+            setTimeout(() => { updateDashboardStats(); initPieChart(); renderDoaPoints(); }, 100);
         }
 
-        // --- UPDATE DASHBOARD BERDASARKAN UNIT YANG DIPILIH ---
         function updateDashboardStats() {
             const selectedUnit = document.getElementById('dash-unit-filter').value;
             const historyData = statsData.historyByUnit ? (statsData.historyByUnit[selectedUnit] || []) : [];
-
             const latestWeek = historyData.length > 0 ? historyData[historyData.length - 1].count : 0;
             const prevWeek = historyData.length > 1 ? historyData[historyData.length - 2].count : 0;
             const weekDiff = latestWeek - prevWeek;
-            
             const weekTrendIcon = weekDiff >= 0 ? '<i class="fas fa-arrow-up mr-1"></i>' : '<i class="fas fa-arrow-down mr-1"></i>';
             const weekTrendClass = weekDiff >= 0 ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10';
             const weekTrendText = weekDiff >= 0 ? `+${weekDiff} jiwa` : `${weekDiff} jiwa`;
-
             const last4 = historyData.slice(-4);
             const monthAvg = last4.length > 0 ? Math.round(last4.reduce((sum, item) => sum + item.count, 0) / last4.length) : 0;
             const qtrAvg = historyData.length > 0 ? Math.round(historyData.reduce((sum, item) => sum + item.count, 0) / historyData.length) : 0;
 
             let visibleMembersCount = 0;
-            if (selectedUnit === 'ALL') {
-                visibleMembersCount = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah').length;
-            } else {
-                visibleMembersCount = members.filter(m => m.unit === selectedUnit).length;
-            }
+            if (selectedUnit === 'ALL') visibleMembersCount = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah').length;
+            else visibleMembersCount = members.filter(m => m.unit === selectedUnit).length;
 
             document.getElementById('dash-latest-val').innerHTML = `${latestWeek}<span class="text-lg text-slate-400 ml-1">Jiwa</span>`;
             document.getElementById('dash-month-val').innerHTML = `${monthAvg}<span class="text-lg text-slate-400 ml-1">Jiwa</span>`;
@@ -632,16 +616,13 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             elTrend.className = `text-xs font-bold ${weekTrendClass} relative z-10 inline-block px-3 py-1 rounded-lg`;
             elTrend.innerHTML = `${weekTrendIcon} ${weekTrendText}`;
 
-            // Perbarui Chart Bulanan (Line Chart)
             const ctxBulanan = document.getElementById('chartBulanan');
             if(ctxBulanan) {
                 if(window.myChartBulanan) window.myChartBulanan.destroy();
                 const labels = last4.length > 0 ? last4.map(h => h.date) : ['Belum ada data'];
                 const dataPoints = last4.length > 0 ? last4.map(h => h.count) : [0];
-
                 window.myChartBulanan = new Chart(ctxBulanan, {
-                    type: 'line',
-                    data: { labels: labels, datasets: [{ label: `Kehadiran (${selectedUnit})`, data: dataPoints, borderColor: '#D4AF37', backgroundColor: 'rgba(212, 175, 55, 0.2)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#0a192f', pointBorderColor: '#D4AF37', pointRadius: 5 }] },
+                    type: 'line', data: { labels: labels, datasets: [{ label: `Kehadiran (${selectedUnit})`, data: dataPoints, borderColor: '#D4AF37', backgroundColor: 'rgba(212, 175, 55, 0.2)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#0a192f', pointBorderColor: '#D4AF37', pointRadius: 5 }] },
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0', precision: 0 } }, x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0' } } } }
                 });
             }
@@ -655,14 +636,12 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 const visibleMembers = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
                 visibleMembers.forEach(m => { const u = m.unit || 'Umum'; unitCounts[u] = (unitCounts[u] || 0) + 1; });
                 window.myChartUnit = new Chart(ctxUnit, {
-                    type: 'doughnut',
-                    data: { labels: Object.keys(unitCounts), datasets: [{ data: Object.values(unitCounts), backgroundColor: ['#D4AF37', '#10B981', '#3B82F6', '#8B5CF6', '#EF4444', '#F59E0B', '#ec4899', '#14b8a6'], borderWidth: 2, borderColor: '#0a192f' }] },
+                    type: 'doughnut', data: { labels: Object.keys(unitCounts), datasets: [{ data: Object.values(unitCounts), backgroundColor: ['#D4AF37', '#10B981', '#3B82F6', '#8B5CF6', '#EF4444', '#F59E0B', '#ec4899', '#14b8a6'], borderWidth: 2, borderColor: '#0a192f' }] },
                     options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { color: '#e6f1ff', font: { family: 'Plus Jakarta Sans' } } } } }
                 });
             }
         }
 
-        // --- FILTER & TAMPILAN ABSEN ---
         function renderFilteredKhotbah() {
             const filterEl = document.getElementById('unit-filter'); let filter = filterEl ? filterEl.value : 'ALL';
             let filtered = members; if(filter !== 'ALL') filtered = filtered.filter(m => m.unit === filter);
@@ -694,10 +673,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             else { if(btnAlpha) btnAlpha.classList.add('active'); if(btnHadir) btnHadir.classList.remove('active'); }
         }
 
-        // --- FUNGSI KOTAK DOA ---
-        function handleDoaEnter(e) {
-            if (e.key === 'Enter') { e.preventDefault(); const val = e.target.value.trim(); if (val) { doaPoints.push(val); e.target.value = ''; renderDoaPoints(); } }
-        }
+        function handleDoaEnter(e) { if (e.key === 'Enter') { e.preventDefault(); const val = e.target.value.trim(); if (val) { doaPoints.push(val); e.target.value = ''; renderDoaPoints(); } } }
         function renderDoaPoints() {
             const container = document.getElementById('doa-list'); if (!container) return;
             container.innerHTML = doaPoints.map((p, i) => `<div class="bg-blue-500/20 text-blue-300 px-4 py-2 rounded-full text-sm flex items-center gap-2 border border-blue-500/30 font-bold whitespace-nowrap"><span>${p}</span><button onclick="removeDoaPoint(${i})" class="hover:text-red-400 transition-colors ml-1"><i class="fas fa-times"></i></button></div>`).join('');
@@ -710,11 +686,14 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             document.getElementById('doa-nama').value = ''; document.getElementById('doa-telp').value = ''; doaPoints = []; renderDoaPoints();
         }
 
-        // --- RENDER MANAJEMEN ---
+        // --- RENDER MANAJEMEN DATA JEMAAT ---
         function renderMemberManager(area) {
-            const visibleMembers = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
+            const unitOptions = units.map(u => { const safeName = String(u.name || u || ''); return `<option value="${safeName}">${safeName.toUpperCase()}</option>`; }).join('');
+            const roleOptions = roles.map(r => `<option value="${String(r || '')}">${String(r || '').toUpperCase()}</option>`).join('');
+
             area.innerHTML = `
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- PANEL TAMBAH / EDIT -->
                     <div class="glass p-8 h-fit sticky top-32">
                         <h3 id="form-title" class="text-2xl font-black text-[#D4AF37] mb-8 uppercase text-center">Tambah Jemaat Baru</h3>
                         <div class="space-y-6">
@@ -728,23 +707,113 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                             </div>
                             <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Unit</label>
                                 <select id="m-unit-select" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"><option value="Umum">UMUM (TANPA UNIT)</option>
-                                    ${units.map(u => { const safeName = String(u.name || u || ''); return `<option value="${safeName}">${safeName.toUpperCase()}</option>`; }).join('')}
+                                    ${unitOptions}
                                 </select>
                             </div>
                             <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Jabatan (Bisa Pilih > 1)</label><div id="m-jabatan-container" class="flex flex-wrap justify-center gap-2 mt-2"></div></div>
                             <div class="pt-4 flex gap-4"><button onclick="saveMember()" id="btn-save-member" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN DATA</button><button onclick="cancelEditMember()" id="btn-cancel-member" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button></div>
                         </div>
                     </div>
+                    
+                    <!-- PANEL DAFTAR MASTER JEMAAT -->
                     <div class="lg:col-span-2 glass p-8">
-                        <div class="flex justify-between items-end mb-8"><h3 class="text-2xl font-black text-[#D4AF37] uppercase">Daftar Master Jemaat</h3><span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">Total: ${visibleMembers.length} Orang</span></div>
-                        <div class="space-y-4 max-h-[600px] overflow-y-auto pr-4 no-scrollbar">${visibleMembers.map(m => `
-                            <div class="p-6 bg-white/5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
-                                <div><div class="text-xl font-black text-white uppercase">${m.nama}</div><div class="text-[11px] text-gold/80 font-black uppercase tracking-widest mt-1"><i class="fas fa-star mr-1"></i> ${m.jabatan || 'Anggota'} &nbsp;|&nbsp; <i class="fas fa-users mr-1"></i> ${m.unit} &nbsp;|&nbsp; <i class="fas fa-bookmark mr-1"></i> ${m.kelasTetap}</div></div>
-                                <div class="flex gap-3 w-full sm:w-auto"><button onclick="editMember('${m.id}')" class="flex-1 sm:flex-none text-yellow-500 bg-yellow-500/10 px-4 py-3 hover:bg-yellow-500 hover:text-[#0a192f] rounded-xl font-bold transition-all"><i class="fas fa-pen mr-2"></i>EDIT</button><button onclick="deleteMember('${m.id}', '${m.nama}')" class="flex-1 sm:flex-none text-red-400 bg-red-400/10 px-4 py-3 hover:bg-red-500 hover:text-white rounded-xl font-bold transition-all"><i class="fas fa-trash"></i></button></div>
-                            </div>`).join('')}</div>
+                        <div class="flex justify-between items-end mb-6">
+                            <h3 class="text-2xl font-black text-[#D4AF37] uppercase">Daftar Master Jemaat</h3>
+                            <span id="master-member-count" class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">Total: 0 Orang</span>
+                        </div>
+                        
+                        <!-- FILTER BAR PENCARIAN -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 bg-white/5 p-4 rounded-xl border border-gold/20">
+                            <div>
+                                <label class="text-[9px] font-bold text-gold/60 uppercase block mb-1 tracking-widest">Cari Nama</label>
+                                <input type="text" id="f-nama" oninput="renderFilteredMasterMembers()" placeholder="Ketik nama..." class="!border-gold/50 focus:!border-gold !text-white !py-2 !px-3 rounded-lg w-full bg-gray-800 !text-sm !text-left">
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-gold/60 uppercase block mb-1 tracking-widest">Filter Unit</label>
+                                <select id="f-unit" onchange="renderFilteredMasterMembers()" class="!border-gold/50 focus:!border-gold !text-white !py-2 !px-3 rounded-lg w-full bg-gray-800 !text-sm">
+                                    <option value="ALL">Semua Unit</option>
+                                    <option value="Umum">Umum</option>
+                                    ${unitOptions}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-gold/60 uppercase block mb-1 tracking-widest">Filter Jabatan</label>
+                                <select id="f-jabatan" onchange="renderFilteredMasterMembers()" class="!border-gold/50 focus:!border-gold !text-white !py-2 !px-3 rounded-lg w-full bg-gray-800 !text-sm">
+                                    <option value="ALL">Semua Jabatan</option>
+                                    <option value="Anggota">Anggota</option>
+                                    ${roleOptions}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-gold/60 uppercase block mb-1 tracking-widest">Status Baptis</label>
+                                <select id="f-status" onchange="renderFilteredMasterMembers()" class="!border-gold/50 focus:!border-gold !text-white !py-2 !px-3 rounded-lg w-full bg-gray-800 !text-sm">
+                                    <option value="ALL">Semua Status</option>
+                                    <option value="Baptis">Sudah Baptis</option>
+                                    <option value="Belum Baptis">Belum Baptis</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- LIST KONTEN JEMAAT -->
+                        <div id="master-member-list" class="space-y-4 max-h-[600px] overflow-y-auto pr-4 no-scrollbar"></div>
                     </div>
                 </div>`;
             renderFormRoles();
+            renderFilteredMasterMembers(); // Load data di awal
+        }
+
+        // FUNGSI UNTUK MERENDER DATA BERDASARKAN FILTER DI DATA JEMAAT
+        window.renderFilteredMasterMembers = function() {
+            const sNama = document.getElementById('f-nama').value.toLowerCase();
+            const fUnit = document.getElementById('f-unit').value;
+            const fJabatan = document.getElementById('f-jabatan').value;
+            const fStatus = document.getElementById('f-status').value;
+
+            // Sembunyikan "Khotbah" dari daftar
+            const visibleMembers = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
+
+            const filtered = visibleMembers.filter(m => {
+                const matchNama = m.nama.toLowerCase().includes(sNama);
+                const matchUnit = (fUnit === 'ALL') || (m.unit === fUnit);
+                const matchStatus = (fStatus === 'ALL') || (m.status === fStatus);
+                
+                let matchJabatan = false;
+                if (fJabatan === 'ALL') {
+                    matchJabatan = true;
+                } else if (fJabatan === 'Anggota') {
+                    // Cek jika jabatannya kosong atau secara eksplisit memiliki "Anggota"
+                    matchJabatan = !m.jabatan || m.jabatan.includes('Anggota');
+                } else {
+                    matchJabatan = m.jabatan && m.jabatan.includes(fJabatan);
+                }
+
+                return matchNama && matchUnit && matchStatus && matchJabatan;
+            });
+
+            document.getElementById('master-member-count').innerText = `Total: ${filtered.length} Orang`;
+
+            const listEl = document.getElementById('master-member-list');
+            if(filtered.length === 0) {
+                listEl.innerHTML = '<p class="text-slate-400 italic text-center py-10 font-medium">Tidak ada data jemaat yang sesuai dengan filter pencarian.</p>';
+                return;
+            }
+
+            listEl.innerHTML = filtered.map(m => `
+                <div class="p-6 bg-white/5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
+                    <div>
+                        <div class="text-xl font-black text-white uppercase">${m.nama}</div>
+                        <div class="text-[11px] text-gold/80 font-black uppercase tracking-widest mt-1">
+                            <i class="fas fa-star mr-1 text-gold"></i> ${m.jabatan || 'Anggota'} &nbsp;|&nbsp; 
+                            <i class="fas fa-users mr-1 text-blue-400"></i> ${m.unit} &nbsp;|&nbsp; 
+                            <i class="fas fa-bookmark mr-1 text-green-400"></i> ${m.kelasTetap} &nbsp;|&nbsp; 
+                            <i class="fas fa-water mr-1 text-purple-400"></i> <span class="${m.status === 'Baptis' ? 'text-blue-400' : 'text-red-400'}">${m.status}</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 w-full sm:w-auto">
+                        <button onclick="editMember('${m.id}')" class="flex-1 sm:flex-none text-yellow-500 bg-yellow-500/10 px-4 py-3 hover:bg-yellow-500 hover:text-[#0a192f] rounded-xl font-bold transition-all"><i class="fas fa-pen mr-2"></i>EDIT</button>
+                        <button onclick="deleteMember('${m.id}', '${m.nama}')" class="flex-1 sm:flex-none text-red-400 bg-red-400/10 px-4 py-3 hover:bg-red-500 hover:text-white rounded-xl font-bold transition-all"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`).join('');
         }
 
         function renderFormRoles() {
@@ -802,30 +871,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         }
 
         function disableButtons(state) { document.querySelectorAll('button').forEach(btn => { btn.disabled = state; if(state) btn.classList.add('opacity-50', 'pointer-events-none'); else btn.classList.remove('opacity-50', 'pointer-events-none'); }); }
-
-        // --- SUBMIT API ---
-        async function submitKhotbah() {
-            const tgl = formatDate(document.getElementById('tgl').value); const tamu = document.getElementById('tamu').value; const unitFilter = document.getElementById('unit-filter') ? document.getElementById('unit-filter').value : 'ALL';
-            const records = []; members.forEach(m => { const status = memberAttendance[m.id]; if(status === 'Hadir' || status === 'Alpha') records.push({ memberId: m.id, nama: m.nama, status: status }); });
-            if(records.length === 0) return showToast("BELUM ADA DATA ABSEN YANG DIISI!", "error");
-            await send({ action: 'submitAttendance', data: { type: 'khotbah', tanggal: tgl, tamu, records, unitFilter } });
-            memberAttendance = {}; renderUI();
-        }
-
-        async function submitKelas(cat) {
-            const tgl = formatDate(document.getElementById('tgl').value); const tamu = document.getElementById('tamu').value; const unitFilter = document.getElementById('unit-filter') ? document.getElementById('unit-filter').value : 'ALL';
-            const records = []; members.forEach(m => { if(m.kelasTetap === cat || (cat === 'Pendalaman' && m.kelasTetap === 'PA')) { const status = memberAttendance[m.id]; if(status === 'Hadir' || status === 'Alpha') records.push({ memberId: m.id, nama: m.nama, status: status }); } });
-            if(records.length === 0) return showToast("BELUM ADA DATA ABSEN YANG DIISI!", "error");
-            await send({ action: 'submitAttendance', data: { type: 'sekolah_sabat', category: cat, tanggal: tgl, tamu, records, unitFilter } });
-            memberAttendance = {}; renderUI();
-        }
-
-        async function submitKegiatan() {
-            const tgl = formatDate(document.getElementById('tgl').value); const unitFilter = document.getElementById('unit-filter') ? document.getElementById('unit-filter').value : 'ALL';
-            const poin = Array.from({length: 10}).map((_, i) => document.getElementById(`k-${i}`).value);
-            await send({ action: 'submitAttendance', data: { type: 'kegiatan', tanggal: tgl, poin, unitFilter } });
-            Array.from({length: 10}).forEach((_, i) => document.getElementById(`k-${i}`).value = "0");
-        }
 
         function editUnit(name) {
             const u = units.find(x => (typeof x === 'object' && x !== null ? x.name : x) === name); editingUnitName = name;
