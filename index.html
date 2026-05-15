@@ -204,7 +204,9 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         <div class="loading-spinner mb-6"></div>
         <p class="text-[#D4AF37] font-black tracking-widest text-xl animate-pulse uppercase">...</p>
     </div>
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-[#D4AF37] text-[#0a192f] px-10 py-4 rounded-full opacity-0 transition-all z-[500] font-black uppercase shadow-2xl text-center min-w-[300px]">Pesan</div>
+    
+    <!-- UPDATE: Toast Notification diletakkan di TENGAH ATAS -->
+    <div id="toast" class="fixed top-24 left-1/2 bg-[#D4AF37] text-[#0a192f] px-10 py-4 rounded-full opacity-0 transition-all duration-300 z-[600] font-black uppercase shadow-2xl text-center min-w-[300px] pointer-events-none" style="transform: translate(-50%, -20px);">Pesan</div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzKhoegE49TJy_Rm1R2lJermJGzmt2zFqemWiyr4yth8eGbC0OzPNqxr7CutjQiVYkkow/exec";
@@ -220,26 +222,32 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         let currentTab = 'dashboard';
         let memberAttendance = {}; 
         
-        // PERBAIKAN: Akses unit kini otomatis membuka semua tab absen meskipun nama unit tidak mengandung kata "Dewasa".
-        const permissions = {
-            public: ['dashboard'],
-            admin: ['dashboard', 'khotbah', 'ss_dewasa', 'ss_anak', 'pendalaman', 'kegiatan', 'anggota', 'unit', 'admin'],
-            khotbah: ['dashboard', 'khotbah'],
-            unit: ['dashboard', 'ss_dewasa', 'ss_anak', 'pendalaman', 'kegiatan']
-        };
-
-        function getCurrentPermissionRole() {
-            if (currentUser.role === 'admin') return 'admin';
-            if (currentUser.role === 'khotbah') return 'khotbah';
-            if (currentUser.role === 'unit') return 'unit'; // Pastikan login unit bisa membuka tab absen
-            return 'public';
-        }
-
-        function normalizeUnitName(name) { return String(name || '').trim().toLowerCase().replace(/\s+/g, ' '); }
-
         function hasAccess(tabName) {
-            const role = getCurrentPermissionRole();
-            return permissions[role]?.includes(tabName);
+            if (currentUser.role === 'admin') {
+                return ['dashboard', 'khotbah', 'ss_dewasa', 'ss_anak', 'pendalaman', 'kegiatan', 'anggota', 'unit', 'admin'].includes(tabName);
+            }
+            if (currentUser.role === 'khotbah') {
+                return ['dashboard', 'khotbah'].includes(tabName);
+            }
+            if (currentUser.role === 'unit') {
+                if (['dashboard', 'kegiatan'].includes(tabName)) return true;
+                
+                // Deteksi Cerdas: Hanya tampilkan tab jika unit punya anggota di kategori kelas tersebut
+                const safeUnitName = String(currentUser.unitName || '').trim().toLowerCase();
+                const unitMembers = members.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeUnitName);
+                
+                if (unitMembers.length === 0) {
+                    // Jika unit masih kosong (0 orang), tampilkan semua sebagai default agar admin unit tidak bingung
+                    return ['ss_dewasa', 'ss_anak', 'pendalaman'].includes(tabName);
+                }
+                
+                if (tabName === 'ss_dewasa') return unitMembers.some(m => m.kelasTetap === 'SS Dewasa');
+                if (tabName === 'ss_anak') return unitMembers.some(m => m.kelasTetap === 'SS Anak');
+                if (tabName === 'pendalaman') return unitMembers.some(m => m.kelasTetap === 'Pendalaman' || m.kelasTetap === 'PA');
+                
+                return false;
+            }
+            return tabName === 'dashboard'; // Akses publik hanya Dashboard
         }
 
         let editingMemberId = null; let editingUnitName = null; let editingRoleName = null; let editingAdminUsername = null; let formSelectedRoles = ['Anggota']; 
@@ -347,7 +355,13 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         };
 
         function renderTabs() {
-            const toggleTab = (id, allowed) => { const el = document.getElementById(id); if (el) el.style.display = allowed ? 'inline-block' : 'none'; };
+            const toggleTab = (id, allowed) => { 
+                const el = document.getElementById(id); 
+                if (el) { 
+                    el.style.display = allowed ? 'inline-block' : 'none'; 
+                    if(allowed) el.classList.remove('hidden'); else el.classList.add('hidden');
+                } 
+            };
             toggleTab('btn-dashboard', hasAccess('dashboard')); toggleTab('btn-khotbah', hasAccess('khotbah')); toggleTab('btn-ss_dewasa', hasAccess('ss_dewasa')); toggleTab('btn-ss_anak', hasAccess('ss_anak')); toggleTab('btn-pendalaman', hasAccess('pendalaman')); toggleTab('btn-kegiatan', hasAccess('kegiatan')); toggleTab('btn-anggota', hasAccess('anggota')); toggleTab('btn-unit', hasAccess('unit')); toggleTab('btn-admin', hasAccess('admin'));
             if (typeof updateTabButtons === 'function') updateTabButtons();
             setTimeout(refreshTabScrollButtons, 50);
@@ -641,7 +655,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             const selectedUnit = document.getElementById('dash-unit-filter').value;
             let historyData = [];
             
-            // Pencocokan Cerdas (mengatasi huruf besar/kecil & kelebihan spasi di Database Google)
             if (statsData.historyByUnit) {
                 if (statsData.historyByUnit[selectedUnit]) {
                     historyData = statsData.historyByUnit[selectedUnit];
@@ -670,7 +683,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             if (selectedUnit === 'ALL') {
                 visibleMembersCount = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah').length;
             } else {
-                // Gunakan Pencocokan Cerdas
                 const safeUnitFilter = selectedUnit.trim().toLowerCase();
                 visibleMembersCount = members.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeUnitFilter).length;
             }
@@ -716,7 +728,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             let filtered = members; 
             if(filter !== 'ALL') {
                 const safeFilter = filter.trim().toLowerCase();
-                // PERBAIKAN: Gunakan trim() untuk mengatasi masalah spasi di Excel/Google Sheet
                 filtered = filtered.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeFilter);
             }
             document.getElementById('khotbah-list').innerHTML = filtered.map(m => createCardHTML(m)).join('');
@@ -728,7 +739,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             let filtered = members.filter(m => m.kelasTetap === cat || (cat === 'Pendalaman' && m.kelasTetap === 'PA'));
             if(filter !== 'ALL') {
                 const safeFilter = filter.trim().toLowerCase();
-                // PERBAIKAN: Gunakan trim() untuk mengatasi masalah spasi di Excel/Google Sheet
                 filtered = filtered.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeFilter);
             }
             document.getElementById('unit-list').innerHTML = filtered.map(m => createCardHTML(m)).join('');
@@ -746,18 +756,15 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             </div>`;
         }
 
-        // --- FUNGSI TOGGLE ABSENSI ---
         function setAttendance(id, status) {
             const btnHadir = document.getElementById(`btn-hadir-${id}`); 
             const btnAlpha = document.getElementById(`btn-alpha-${id}`);
             
-            // Cek jika tombol yang sama diklik lagi, maka batalkan (cancel) kehadirannya
             if (memberAttendance[id] === status) {
                 delete memberAttendance[id];
                 if(btnHadir) btnHadir.classList.remove('active');
                 if(btnAlpha) btnAlpha.classList.remove('active');
             } else {
-                // Jika tombol lain yang diklik, atur status baru
                 memberAttendance[id] = status; 
                 if(status === 'Hadir') { 
                     if(btnHadir) btnHadir.classList.add('active'); 
@@ -782,7 +789,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             document.getElementById('doa-nama').value = ''; document.getElementById('doa-telp').value = ''; doaPoints = []; renderDoaPoints();
         }
 
-        // --- RENDER MANAJEMEN DATA JEMAAT ---
+        // --- RENDER MANAJEMEN DATA JEMAAT (DIUBAH MENJADI SATU BARIS PER INPUT) ---
         function renderMemberManager(area) {
             const unitOptions = units.map(u => { const safeName = String(u.name || u || ''); return `<option value="${safeName}">${safeName.toUpperCase()}</option>`; }).join('');
             const roleOptions = roles.map(r => `<option value="${String(r || '')}">${String(r || '').toUpperCase()}</option>`).join('');
@@ -793,25 +800,52 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     <div class="glass p-8 h-fit sticky top-32">
                         <h3 id="form-title" class="text-2xl font-black text-[#D4AF37] mb-8 uppercase text-center">Tambah Jemaat Baru</h3>
                         <div class="space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Nama Lengkap</label>
-                                <input type="text" id="m-nama" placeholder="Masukkan Nama..." class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
-                                <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Tanggal Lahir</label>
-                                <input type="date" id="m-tgllahir" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
+                            
+                            <!-- Input dibuat berbaris ke bawah (satu baris penuh) -->
+                            <div>
+                                <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Nama Lengkap</label>
+                                <input type="text" id="m-nama" placeholder="Masukkan Nama..." class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
                             </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Status Baptis</label>
-                                <select id="m-status" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"><option value="Baptis">SUDAH BAPTIS</option><option value="Belum Baptis">BELUM BAPTIS</option></select></div>
-                                <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Kategori Kelas</label>
-                                <select id="m-cat" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"><option value="SS Dewasa">SS DEWASA</option><option value="SS Anak">SS ANAK</option><option value="Pendalaman">PENDALAMAN ALKITAB</option></select></div>
+                            
+                            <div>
+                                <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Tanggal Lahir</label>
+                                <input type="date" id="m-tgllahir" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
                             </div>
-                            <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Unit</label>
-                                <select id="m-unit-select" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"><option value="Umum">UMUM (TANPA UNIT)</option>
+                            
+                            <div>
+                                <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Status Baptis</label>
+                                <select id="m-status" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
+                                    <option value="Baptis">SUDAH BAPTIS</option>
+                                    <option value="Belum Baptis">BELUM BAPTIS</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Kategori Kelas</label>
+                                <select id="m-cat" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
+                                    <option value="SS Dewasa">SS DEWASA</option>
+                                    <option value="SS Anak">SS ANAK</option>
+                                    <option value="Pendalaman">PENDALAMAN ALKITAB</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Unit</label>
+                                <select id="m-unit-select" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
+                                    <option value="Umum">UMUM (TANPA UNIT)</option>
                                     ${unitOptions}
                                 </select>
                             </div>
-                            <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Jabatan (Bisa Pilih > 1)</label><div id="m-jabatan-container" class="flex flex-wrap justify-center gap-2 mt-2"></div></div>
-                            <div class="pt-4 flex gap-4"><button onclick="saveMember()" id="btn-save-member" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN DATA</button><button onclick="cancelEditMember()" id="btn-cancel-member" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button></div>
+                            
+                            <div>
+                                <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Jabatan (Bisa Pilih > 1)</label>
+                                <div id="m-jabatan-container" class="flex flex-wrap justify-center gap-2 mt-2"></div>
+                            </div>
+                            
+                            <div class="pt-4 flex gap-4">
+                                <button onclick="saveMember()" id="btn-save-member" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN DATA</button>
+                                <button onclick="cancelEditMember()" id="btn-cancel-member" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button>
+                            </div>
                         </div>
                     </div>
                     
@@ -1026,9 +1060,19 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
         function formatDate(d) { if (!d) return ''; const p = d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
         function toggleLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
+        
+        // UPDATE: Logika Toast untuk animasi geser dari ATAS
         function showToast(m, type="success") {
             const t = document.getElementById('toast');
-            t.innerText = m; t.style.backgroundColor = type === "success" ? "#D4AF37" : "#EF4444"; t.style.color = type === "success" ? "#0a192f" : "#FFFFFF"; t.style.opacity = '1'; t.style.transform = 'translateY(0)'; t.style.bottom = '40px'; setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; t.style.bottom = '10px'; }, 3500);
+            t.innerText = m; 
+            t.style.backgroundColor = type === "success" ? "#D4AF37" : "#EF4444"; 
+            t.style.color = type === "success" ? "#0a192f" : "#FFFFFF"; 
+            t.style.opacity = '1'; 
+            t.style.transform = 'translate(-50%, 0)'; // Animasi turun ke tengah
+            setTimeout(() => { 
+                t.style.opacity = '0'; 
+                t.style.transform = 'translate(-50%, -20px)'; // Animasi naik menyembunyi
+            }, 3500);
         }
 
         window.onload = init;
