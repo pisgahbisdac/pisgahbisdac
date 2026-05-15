@@ -570,15 +570,26 @@ function submitAbsensi(data) {
     sheet.setColumnWidth(2, 200);
   }
   
-  // Deteksi kolom tanggal
-  const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
-  let colIdx = headers.indexOf(data.tanggal) + 1;
+  // PERBAIKAN: Konversi format tanggal agar sistem mengenali jika tanggal sudah ada (TIMPA)
+  const headersRaw = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+  const headersStr = headersRaw.map(h => {
+    if (h instanceof Date) return Utilities.formatDate(h, Session.getScriptTimeZone(), "yyyy-MM-dd");
+    return String(h).trim();
+  });
+  
+  let colIdx = headersStr.indexOf(String(data.tanggal).trim()) + 1;
   
   // Jika tanggal belum ada, tambahkan di kolom paling kanan
   if (colIdx === 0) {
     colIdx = Math.max(sheet.getLastColumn() + 1, 3);
     sheet.getRange(1, colIdx).setValue(data.tanggal)
          .setBackground("#0a192f").setFontColor("#D4AF37").setFontWeight("bold").setHorizontalAlignment("center");
+  } else {
+    // Jika TIMPA tanggal yang sama, bersihkan dulu kolom tersebut (Baris 2 ke bawah) agar tidak ada data lama yang tersisa
+    const maxRow = Math.max(sheet.getLastRow(), 2);
+    if (maxRow >= 2) {
+      sheet.getRange(2, colIdx, maxRow - 1, 1).clearContent().setBackground(null);
+    }
   }
   
   // Ambil referensi nama member
@@ -652,8 +663,14 @@ function submitKegiatan(data) {
     sheet.setColumnWidth(2, 350);
   }
   
-  const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
-  let colIdx = headers.indexOf(data.tanggal) + 1;
+  // PERBAIKAN: Konversi format tanggal untuk Laporan Kegiatan
+  const headersRaw = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+  const headersStr = headersRaw.map(h => {
+    if (h instanceof Date) return Utilities.formatDate(h, Session.getScriptTimeZone(), "yyyy-MM-dd");
+    return String(h).trim();
+  });
+  
+  let colIdx = headersStr.indexOf(String(data.tanggal).trim()) + 1;
   
   if (colIdx === 0) {
     colIdx = Math.max(sheet.getLastColumn() + 1, 3);
