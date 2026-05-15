@@ -876,8 +876,12 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             });
             
             memberAttendance = {};
-            if (type === 'khotbah') renderFilteredKhotbah();
-            else renderFilteredMembers(cat);
+            
+            // PERBAIKAN: Refresh data otomatis setelah absen tersimpan
+            // Ini akan menarik ulang data dari Google Sheets dan memperbarui Dashboard!
+            await init(); 
+            
+            showToast("DATA TER-UPDATE. SILAKAN CEK DASHBOARD.");
         }
 
         async function submitKegiatan() {
@@ -893,8 +897,10 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 action: 'submitKegiatan',
                 data: { tanggal: tgl, unit: unit, laporan: data }
             });
+            
+            // Refresh data setelah lapor kegiatan
+            await init(); 
         }
-        // ----------------------------------------------------
 
         function renderMemberManager(area) {
             const unitOptions = units.map(u => { const safeName = String(u.name || u || ''); return `<option value="${safeName}">${safeName.toUpperCase()}</option>`; }).join('');
