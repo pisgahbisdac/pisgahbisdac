@@ -1193,29 +1193,30 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
             const displayed = getDisplayedMembers(type, type === 'khotbah' ? null : catTitle, unit);
             
-            // Logika Mencari Hari Sabat (Sabtu) di antara rentang tanggal
-            let d = new Date(startDate);
-            let end = new Date(endDate);
             let saturdays = [];
-            while (d <= end) {
-                if (d.getDay() === 6) { // 6 = Sabtu
-                    saturdays.push(new Date(d));
+            if (startDate && endDate) {
+                let sParts = startDate.split('-');
+                let eParts = endDate.split('-');
+                let d = new Date(sParts[0], sParts[1] - 1, sParts[2]);
+                let end = new Date(eParts[0], eParts[1] - 1, eParts[2]);
+                
+                while (d <= end) {
+                    if (d.getDay() === 6) { 
+                        saturdays.push(new Date(d));
+                    }
+                    d.setDate(d.getDate() + 1);
                 }
-                d.setDate(d.getDate() + 1);
             }
 
-            // Fallback jika tidak ada hari Sabtu yang terpilih
             if (saturdays.length === 0) {
                 saturdays = [new Date()];
             }
 
-            // Membuat Header Kolom Tanggal
-            let colsHeaderHtml = saturdays.map((sat, i) => {
+            let colsHeaderHtml = saturdays.map((sat) => {
                 const label = `${sat.getDate()}/${sat.getMonth()+1}`;
-                return `<th style="padding: 10px 2px; border: 1px solid #0a192f; text-align: center; width: 40px; font-size: 10px;">${label}</th>`;
+                return `<th style="padding: 10px 2px; border: 1px solid #0a192f; text-align: center; width: 40px; font-size: 10px; background-color: #D4AF37; color: #0a192f;">SAB<br>${label}</th>`;
             }).join('');
 
-            // Membuat Daftar Anggota dan Checkbox Kosong per Tanggal
             let membersListHTML = displayed.map((m, idx) => {
                 let checkboxes = saturdays.map(() => `
                     <td style="padding: 6px; border: 1px solid #eee; text-align: center;">
@@ -1238,7 +1239,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 membersListHTML = `<tr><td colspan="${4 + saturdays.length}" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
             }
 
-            // Menentukan ukuran kertas (Jika minggu > 6, disarankan Landscape melalui CSS)
             const printHtml = `
                 <style>
                     @media print {
@@ -1299,10 +1299,10 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             }, 300);
         }
 
-        function printAttendanceSheet(type, catTitle, overrideUnit, overrideTgl, overrideTamu) {
-            const unit = overrideUnit !== undefined ? overrideUnit : document.getElementById('unit-filter').value;
-            const tgl = overrideTgl !== undefined ? overrideTgl : document.getElementById('tgl').value;
-            const tamu = overrideTamu !== undefined ? overrideTamu : (document.getElementById('tamu') ? document.getElementById('tamu').value : 0);
+        function printAttendanceSheet(type, catTitle) {
+            const unit = document.getElementById('unit-filter').value;
+            const tgl = document.getElementById('tgl').value;
+            const tamu = document.getElementById('tamu').value || 0;
             const optionsFormat = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
             const tglStr = tgl ? new Date(tgl).toLocaleDateString('id-ID', optionsFormat) : '-';
 
@@ -1312,9 +1312,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
             let membersListHTML = displayed.map((m, idx) => {
                 const status = memberAttendance[m.id];
-                // KOTAK FISIK YANG RAPI UNTUK DICENTANG
-                let statusText = '<div style="width: 18px; height: 18px; border: 2px solid #0a192f; margin: auto; border-radius: 4px;"></div>'; 
-                
+                let statusText = '<span style="color:#6b7280; font-style:italic;">Belum Diabsen</span>';
                 if (status === 'Hadir') { statusText = '<span style="color:#10B981; font-weight:900;">HADIR</span>'; hadir++; }
                 else if (status === 'Alpha') { statusText = '<span style="color:#EF4444; font-weight:900;">ALPHA</span>'; alpha++; }
                 else { belum++; }
