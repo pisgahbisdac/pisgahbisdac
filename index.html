@@ -525,7 +525,10 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                             </div>
                         </div>
                         <div id="khotbah-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"></div>
-                        <button onclick="submitKhotbah()" class="w-full bg-[#D4AF37] text-[#0a192f] py-6 rounded-2xl font-black text-2xl shadow-xl hover:bg-yellow-400 transition-all">SIMPAN ABSENSI KHOTBAH</button>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <button onclick="printAttendanceSheet('khotbah', 'Khotbah Sabat')" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"><i class="fas fa-print mr-2"></i>CETAK DAFTAR HADIR</button>
+                            <button onclick="submitKhotbah()" class="flex-[2] bg-[#D4AF37] text-[#0a192f] py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-yellow-400 transition-all"><i class="fas fa-save mr-2"></i>SIMPAN ABSENSI</button>
+                        </div>
                     </div>`;
                 renderFilteredKhotbah();
             } 
@@ -545,7 +548,10 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                             </div>
                         </div>
                         <div id="unit-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"></div>
-                        <button onclick="submitKelas('${cat}')" class="w-full bg-[#D4AF37] text-[#0a192f] py-6 rounded-2xl font-black text-2xl shadow-xl hover:bg-yellow-400 transition-all">SIMPAN ABSENSI ${cat}</button>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <button onclick="printAttendanceSheet('kelas', '${cat}')" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"><i class="fas fa-print mr-2"></i>CETAK DAFTAR HADIR</button>
+                            <button onclick="submitKelas('${cat}')" class="flex-[2] bg-[#D4AF37] text-[#0a192f] py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-yellow-400 transition-all"><i class="fas fa-save mr-2"></i>SIMPAN ABSENSI</button>
+                        </div>
                     </div>`;
                 renderFilteredMembers(cat);
             } 
@@ -1143,6 +1149,113 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 window.print();
                 printContainer.classList.add('hidden');
             }, 300); 
+        }
+
+        function printAttendanceSheet(type, catTitle) {
+            const unit = document.getElementById('unit-filter').value;
+            const tgl = document.getElementById('tgl').value;
+            const tamu = document.getElementById('tamu').value || 0;
+            const optionsFormat = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            const tglStr = tgl ? new Date(tgl).toLocaleDateString('id-ID', optionsFormat) : '-';
+
+            const displayed = getDisplayedMembers(type, type === 'khotbah' ? null : catTitle);
+            
+            let hadir = 0, alpha = 0, belum = 0;
+
+            let membersListHTML = displayed.map((m, idx) => {
+                const status = memberAttendance[m.id];
+                let statusText = '<span style="color:#6b7280; font-style:italic;">Belum Diabsen</span>';
+                if (status === 'Hadir') { statusText = '<span style="color:#10B981; font-weight:900;">HADIR</span>'; hadir++; }
+                else if (status === 'Alpha') { statusText = '<span style="color:#EF4444; font-weight:900;">ALPHA</span>'; alpha++; }
+                else { belum++; }
+
+                return `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
+                    <td style="padding: 10px; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: 10px; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: 10px; border-right: 1px solid #eee; text-align: center;">${m.unit || 'Umum'}</td>
+                    <td style="padding: 10px; text-align: center;">${statusText}</td>
+                </tr>
+                `;
+            }).join('');
+
+            if (displayed.length === 0) {
+                membersListHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
+            }
+
+            const printHtml = `
+                <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 20px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 20px;">
+                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 80px; height: 80px; object-fit: contain;">
+                    <div style="text-align: left;">
+                        <h1 style="margin: 0; font-size: 28px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
+                        <p style="margin: 5px 0 0 0; font-size: 14px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
+                        <p style="margin: 0; font-size: 12px; color: #6b7280;">Laporan Daftar Hadir Kelas & Unit</p>
+                    </div>
+                </div>
+
+                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">ABSENSI: ${catTitle}</h2>
+                <p style="text-align: center; font-size: 14px; color: #0a192f; margin-top: 0; margin-bottom: 30px; font-weight: bold;">
+                    Unit / Filter: <span style="text-transform:uppercase;">${unit === 'ALL' ? 'Global (Semua Unit)' : unit}</span> <br>
+                    Tanggal Ibadah: ${tglStr}
+                </p>
+
+                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f9fafb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
+                    </div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #ecfdf5; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #10B981;">${hadir}</div>
+                    </div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fef2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #EF4444;">${alpha}</div>
+                    </div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fffbeb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #F59E0B;">${tamu}</div>
+                    </div>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 13px; margin-bottom: 40px;">
+                    <thead>
+                        <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 5%;">No</th>
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 25%; text-align: left;">Jabatan</th>
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 15%;">Unit</th>
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 20%;">Status Kehadiran</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${membersListHTML}
+                    </tbody>
+                </table>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 50px; font-size: 14px; page-break-inside: avoid;">
+                    <div style="text-align: center; width: 250px;">
+                        <p>Pemimpin Kelas / Guru SS</p>
+                        <br><br><br>
+                        <p style="font-weight: bold; text-decoration: underline;">______________________</p>
+                    </div>
+                    <div style="text-align: center; width: 250px;">
+                        <p>Sekretaris Unit</p>
+                        <br><br><br>
+                        <p style="font-weight: bold; text-decoration: underline;">______________________</p>
+                    </div>
+                </div>
+            `;
+
+            const printContainer = document.getElementById('print-container');
+            printContainer.innerHTML = printHtml;
+            printContainer.classList.remove('hidden');
+
+            setTimeout(() => {
+                window.print();
+                printContainer.classList.add('hidden');
+            }, 300);
         }
 
         function renderFilteredKhotbah() {
