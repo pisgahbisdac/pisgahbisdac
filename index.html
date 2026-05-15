@@ -7,9 +7,14 @@
     
     <link rel="icon" type="image/png" href="./PisgahWhite.png">
     
+    <!-- Library CSS & JS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- LIBRARY BARU UNTUK LANGSUNG SAVE FILE PDF (Bypass Mobile Print Issue) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         :root { --navy: #0a192f; --navy-light: #112240; --gold: #D4AF37; }
@@ -57,19 +62,6 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         #filter-unit-select, #tamu, #tgl { padding: 12px 16px; border-radius: 8px; width: 100%;}
-        
-        /* CSS KHUSUS UNTUK CETAK PDF */
-        @media print {
-            body * { visibility: hidden !important; }
-            #print-container, #print-container * { visibility: visible !important; }
-            #print-container {
-                position: absolute; left: 0; top: 0; width: 100%; min-height: 100vh;
-                background: white !important; color: black !important;
-                padding: 0; font-family: 'Plus Jakarta Sans', sans-serif;
-            }
-            @page { margin: 1.5cm; size: A4 portrait; }
-            ::-webkit-scrollbar { display: none; }
-        }
     </style>
 </head>
 <body class="min-h-screen pb-20">
@@ -254,7 +246,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
     
     <div id="toast" class="fixed top-24 left-1/2 bg-[#D4AF37] text-[#0a192f] px-10 py-4 rounded-full opacity-0 transition-all duration-300 z-[600] font-black uppercase shadow-2xl text-center min-w-[300px] pointer-events-none" style="transform: translate(-50%, -20px);">Pesan</div>
 
-    <!-- KONTAINER KHUSUS CETAK PDF -->
+    <!-- KONTAINER KHUSUS CETAK PDF TERSEMBUNYI -->
     <div id="print-container" class="hidden"></div>
 
     <script>
@@ -271,6 +263,57 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         let currentUser = { role: 'public', unitName: null, adminName: null }; 
         let currentTab = 'dashboard';
         let memberAttendance = {}; 
+        
+        // ==========================================
+        // FUNGSI INTI DOWNLOAD PDF BYPASS MOBILE
+        // ==========================================
+        function generatePDF(htmlContent, filename, orientation = 'portrait') {
+            toggleLoading(true); // Memunculkan loading karena proses render makan waktu
+            
+            const container = document.getElementById('print-container');
+            
+            // Atur pixel width bayangan (A4 di 96 DPI: Portrait ~794px, Landscape ~1123px)
+            const width = orientation === 'landscape' ? '1123px' : '794px';
+            
+            container.innerHTML = `
+                <div style="width: ${width}; background: white; color: black; font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px; box-sizing: border-box;">
+                    ${htmlContent}
+                </div>
+            `;
+            
+            // Tampilkan elemen agar bisa dirender kamera html2canvas, tapi geser keluar layar agar tak merusak UI HP
+            container.classList.remove('hidden');
+            container.style.display = 'block';
+            container.style.position = 'absolute';
+            container.style.left = '-9999px';
+            container.style.top = '0';
+
+            const opt = {
+                margin:       10, // Margin PDF 10 milimeter
+                filename:     filename,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: parseInt(width) + 40 }, 
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: orientation }
+            };
+
+            // Beri jeda agar gambar (seperti logo) sempat diunduh dari server sebelum difoto
+            setTimeout(() => {
+                html2pdf().set(opt).from(container.firstElementChild).save().then(() => {
+                    // Bersihkan container setelah selesai di-download
+                    container.classList.add('hidden');
+                    container.style.display = 'none';
+                    container.style.position = '';
+                    container.style.left = '';
+                    container.innerHTML = '';
+                    toggleLoading(false);
+                    showToast("PDF Berhasil Diunduh!");
+                }).catch(err => {
+                    console.error("PDF Error:", err);
+                    toggleLoading(false);
+                    showToast("Gagal menyimpan PDF!", "error");
+                });
+            }, 800); 
+        }
         
         function hasAccess(tabName) {
             if (currentUser.role === 'admin') {
@@ -334,7 +377,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     statsData = payload.stats || { history: [], historyByUnit: { 'ALL': [] } }; 
                     if (!statsData.historyByUnit) statsData.historyByUnit = { 'ALL': statsData.history || [] };
                     
-                    // Menarik riwayat kehadiran per individu dari Spreadsheet
                     attendanceHistory = payload.attendanceHistory || {};
                     
                     renderTabs();
@@ -501,7 +543,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         </div>
                         <div id="khotbah-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"></div>
                         <div class="flex flex-col md:flex-row gap-4">
-                            <button onclick="printAttendanceSheet('khotbah', 'Khotbah Sabat')" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"><i class="fas fa-print mr-2"></i>CETAK DAFTAR HADIR</button>
+                            <button onclick="printAttendanceSheet('khotbah', 'Khotbah Sabat')" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"><i class="fas fa-file-pdf mr-2"></i>UNDUH LAPORAN PDF</button>
                             <button onclick="submitKhotbah()" class="flex-[2] bg-[#D4AF37] text-[#0a192f] py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-yellow-400 transition-all"><i class="fas fa-save mr-2"></i>SIMPAN ABSENSI</button>
                         </div>
                     </div>`;
@@ -524,7 +566,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         </div>
                         <div id="unit-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"></div>
                         <div class="flex flex-col md:flex-row gap-4">
-                            <button onclick="printAttendanceSheet('kelas', '${cat}')" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"><i class="fas fa-print mr-2"></i>CETAK DAFTAR HADIR</button>
+                            <button onclick="printAttendanceSheet('kelas', '${cat}')" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"><i class="fas fa-file-pdf mr-2"></i>UNDUH LAPORAN PDF</button>
                             <button onclick="submitKelas('${cat}')" class="flex-[2] bg-[#D4AF37] text-[#0a192f] py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-yellow-400 transition-all"><i class="fas fa-save mr-2"></i>SIMPAN ABSENSI</button>
                         </div>
                     </div>`;
@@ -960,13 +1002,13 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                                         <input type="date" id="c-stat-end" value="${todayStrFull}" class="!border-white/10 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
                                     </div>
                                 </div>
-                                <button onclick="printStatistikFromAdmin()" class="w-full bg-blue-500/20 border border-blue-500/50 text-blue-400 py-4 rounded-xl font-black uppercase shadow-lg hover:bg-blue-500 hover:text-white transition-all text-sm mt-4 tracking-widest"><i class="fas fa-print mr-2"></i> Cetak PDF Statistik</button>
+                                <button onclick="printStatistikFromAdmin()" class="w-full bg-blue-500/20 border border-blue-500/50 text-blue-400 py-4 rounded-xl font-black uppercase shadow-lg hover:bg-blue-500 hover:text-white transition-all text-sm mt-4 tracking-widest"><i class="fas fa-file-pdf mr-2"></i> UNDUH PDF STATISTIK</button>
                             </div>
                         </div>
 
                         <!-- CETAK BLANKO DAFTAR HADIR (RENTANG TANGGAL) -->
                         <div class="bg-[#112240] border border-white/10 p-6 rounded-2xl shadow-xl hover:border-red-500/30 transition-all">
-                            <h4 class="text-xl font-black text-white uppercase mb-6"><i class="fas fa-clipboard-list mr-2 text-green-400"></i> Blanko Daftar Hadir</h4>
+                            <h4 class="text-xl font-black text-white uppercase mb-6"><i class="fas fa-clipboard-list mr-2 text-green-400"></i> Cetak Rekap / Blanko Hadir</h4>
                             <div class="space-y-5">
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Tipe Kelas / Ibadah</label>
@@ -994,7 +1036,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                                         <input type="date" id="c-absen-end" value="${todayStrFull}" class="!border-white/10 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
                                     </div>
                                 </div>
-                                <button onclick="printAbsensiFromAdmin()" class="w-full bg-green-500/20 border border-green-500/50 text-green-400 py-4 rounded-xl font-black uppercase shadow-lg hover:bg-green-500 hover:text-white transition-all text-sm mt-4 tracking-widest"><i class="fas fa-print mr-2"></i> Cetak Blanko Hadir</button>
+                                <button onclick="printAbsensiFromAdmin()" class="w-full bg-green-500/20 border border-green-500/50 text-green-400 py-4 rounded-xl font-black uppercase shadow-lg hover:bg-green-500 hover:text-white transition-all text-sm mt-4 tracking-widest"><i class="fas fa-file-pdf mr-2"></i> UNDUH PDF BLANKO</button>
                             </div>
                         </div>
                     </div>
@@ -1156,14 +1198,9 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </div>
             `;
 
-            const printContainer = document.getElementById('print-container');
-            printContainer.innerHTML = printHtml;
-            printContainer.classList.remove('hidden');
-
-            setTimeout(() => {
-                window.print();
-                printContainer.classList.add('hidden');
-            }, 300); 
+            // MENGGUNAKAN HTML2PDF
+            const safeFileName = `Statistik_${selectedUnit.replace(/\s+/g, '_')}_${todayStr}.pdf`;
+            generatePDF(printHtml, safeFileName, 'portrait');
         }
 
         function printAbsensiFromAdmin() {
@@ -1227,19 +1264,16 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
             let membersListHTML = displayed.map((m, idx) => {
                 let checkboxes = saturdays.map((sat) => {
-                    // Format tanggal menjadi YYYY-MM-DD sesuai standar database
                     const yyyy = sat.getFullYear();
                     const mm = String(sat.getMonth() + 1).padStart(2, '0');
                     const dd = String(sat.getDate()).padStart(2, '0');
                     const dateStr = `${yyyy}-${mm}-${dd}`;
                     
-                    // Cek status kehadiran dari database pada tanggal tersebut
                     let status = '';
                     if (histData[m.id] && histData[m.id][dateStr]) {
                         status = histData[m.id][dateStr];
                     }
 
-                    // Tentukan isi kotak (Centang untuk Hadir, A untuk Alpha, Kosong untuk belum diabsen)
                     let boxContent = '';
                     if (status.toLowerCase() === 'hadir') {
                         boxContent = '<span style="color: #10B981; font-weight: 900; font-size: 14px;">&#10003;</span>';
@@ -1272,11 +1306,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             }
 
             const printHtml = `
-                <style>
-                    @media print {
-                        @page { size: A4 landscape; margin: 1cm; }
-                    }
-                </style>
                 <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px;">
                     <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 60px; height: 60px; object-fit: contain;">
                     <div style="text-align: left;">
@@ -1321,14 +1350,9 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </div>
             `;
 
-            const printContainer = document.getElementById('print-container');
-            printContainer.innerHTML = printHtml;
-            printContainer.classList.remove('hidden');
-
-            setTimeout(() => {
-                window.print();
-                printContainer.classList.add('hidden');
-            }, 300);
+            // MENGGUNAKAN HTML2PDF (SELALU LANDSCAPE)
+            const safeFileName = `Blanko_${catTitle.replace(/\s+/g, '_')}_${unit}.pdf`;
+            generatePDF(printHtml, safeFileName, 'landscape');
         }
 
         function printAttendanceSheet(type, catTitle) {
@@ -1428,14 +1452,9 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </div>
             `;
 
-            const printContainer = document.getElementById('print-container');
-            printContainer.innerHTML = printHtml;
-            printContainer.classList.remove('hidden');
-
-            setTimeout(() => {
-                window.print();
-                printContainer.classList.add('hidden');
-            }, 300);
+            // MENGGUNAKAN HTML2PDF
+            const safeFileName = `Daftar_Hadir_${catTitle.replace(/\s+/g, '_')}_${unit}.pdf`;
+            generatePDF(printHtml, safeFileName, 'portrait');
         }
 
         function renderFilteredKhotbah() {
