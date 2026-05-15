@@ -1,18 +1,22 @@
 // =========================================================================
-// PISGAH BISDAC - MATRIX SYSTEM BACKEND v1.0
+// PISGAH BISDAC - MATRIX SYSTEM BACKEND v1.1 (OPTIMIZED)
 // =========================================================================
 
 // MASUKKAN ID SPREADSHEET ANDA DI SINI
 const SPREADSHEET_ID = "1-fWE3bjOlTU9VFITCgI6smG8d__vxjWpVMN35ODb-zc";
 
-// Helper untuk memanggil database agar tidak perlu menulis ID berulang kali
+// Helper untuk memanggil database
 function getDB() {
-  return SpreadsheetApp.openById(SPREADSHEET_ID);
+  try {
+    return SpreadsheetApp.openById(SPREADSHEET_ID);
+  } catch (e) {
+    throw new Error("Gagal membuka Spreadsheet. Pastikan ID benar dan izin diberikan.");
+  }
 }
 
-// ==========================================
-// 1. SETUP AWAL (JALANKAN FUNGSI INI SEKALI SAJA)
-// ==========================================
+/**
+ * 1. SETUP AWAL (JALANKAN FUNGSI INI SEKALI SAJA)
+ */
 function setup() {
   const ss = getDB();
   
@@ -32,21 +36,35 @@ function setup() {
     if (!sheet) {
       sheet = ss.insertSheet(s.name);
       sheet.appendRow(s.headers);
-      sheet.getRange(1, 1, 1, s.headers.length).setFontWeight("bold").setBackground("#0a192f").setFontColor("white");
+      sheet.getRange(1, 1, 1, s.headers.length)
+           .setFontWeight("bold")
+           .setBackground("#0a192f")
+           .setFontColor("white");
     }
   });
 
-  // Buat 1 Admin Default jika kosong
   const adminSheet = ss.getSheetByName('Admin');
   if (adminSheet.getLastRow() <= 1) {
     adminSheet.appendRow(['Admin Utama', '123456']);
   }
 }
 
-// ==========================================
-// 2. ENTRY POINT (MENERIMA REQUEST DARI WEB)
-// ==========================================
+/**
+ * 2. ENTRY POINT (GET) - Untuk cek koneksi sederhana
+ */
+function doGet(e) {
+  return respond("success", "Backend Matrix System Aktif. Silakan gunakan metode POST.");
+}
+
+/**
+ * 3. ENTRY POINT (POST) - Menerima request dari Frontend
+ */
 function doPost(e) {
+  // CORS Handling
+  if (!e || !e.postData || !e.postData.contents) {
+    return respond("error", "Data tidak ditemukan");
+  }
+
   try {
     const payload = JSON.parse(e.postData.contents);
     const action = payload.action;
@@ -55,11 +73,21 @@ function doPost(e) {
     let responseData = null;
 
     switch (action) {
-      case 'getInitialData': responseData = getInitialData(); break;
-      case 'submitAbsensi': responseData = submitAbsensi(data); break;
-      case 'submitKegiatan': responseData = submitKegiatan(data); break;
-      case 'submitDoa': responseData = submitDoa(data); break;
-      case 'changePin': responseData = changePin(data); break;
+      case 'getInitialData': 
+        responseData = getInitialData(); 
+        break;
+      case 'submitAbsensi': 
+        responseData = submitAbsensi(data); 
+        break;
+      case 'submitKegiatan': 
+        responseData = submitKegiatan(data); 
+        break;
+      case 'submitDoa': 
+        responseData = submitDoa(data); 
+        break;
+      case 'changePin': 
+        responseData = changePin(data); 
+        break;
       
       // CRUD ANGGOTA
       case 'addMember': responseData = addMember(data); break;
@@ -82,13 +110,13 @@ function doPost(e) {
       case 'deleteAdmin': responseData = deleteAdmin(data); break;
       
       default:
-        return respond("error", "Aksi tidak dikenali!");
+        return respond("error", "Aksi '" + action + "' tidak dikenali!");
     }
     
     return respond("success", "OK", responseData);
     
   } catch (err) {
-    return respond("error", err.toString());
+    return respond("error", "Backend Error: " + err.toString());
   }
 }
 
@@ -96,12 +124,14 @@ function doPost(e) {
 function respond(status, message, data = null) {
   const result = { status: status, message: message };
   if (data) result.data = data;
-  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
-// ==========================================
-// 3. FUNGSI UTAMA PENGAMBILAN DATA
-// ==========================================
+/**
+ * 4. FUNGSI PENGAMBILAN DATA
+ */
 function getInitialData() {
   return {
     members: getSheetData('Anggota'),
@@ -118,11 +148,12 @@ function buildAttendanceHistory() {
   let history = {};
   
   data.forEach(row => {
-    const tipe = row['Tipe'] || row.tipe;
-    const id = row['ID_Anggota'] || row.id_anggota;
-    const tgl = row['Tanggal'] || row.tanggal;
-    const status = row['Status'] || row.status;
+    const tipe = row['Tipe'];
+    const id = row['ID_Anggota'];
+    const tgl = row['Tanggal'];
+    const status = row['Status'];
     
+    if (!tipe || !id) return;
     if (!history[tipe]) history[tipe] = {};
     if (!history[tipe][id]) history[tipe][id] = {};
     
@@ -134,23 +165,18 @@ function buildAttendanceHistory() {
 
 function buildStats() {
   const data = getSheetData('Absensi');
-  let historyByUnit = { 'ALL': [], 'Tamu': [] };
-  
-  let tempMap = { 'ALL': {}, 'Tamu': {} };
+  let historyByUnit = { 'ALL': [] };
+  let tempMap = { 'ALL': {} };
   
   data.forEach(row => {
     const tgl = row['Tanggal'];
     const unit = (row['Unit'] || 'Umum').trim();
     const hadir = parseInt(row['Hadir']) || 0;
     const tamu = parseInt(row['Tamu']) || 0;
-    
     const totalCount = hadir + tamu;
     
     if (!tempMap['ALL'][tgl]) tempMap['ALL'][tgl] = 0;
     tempMap['ALL'][tgl] += totalCount;
-    
-    if (!tempMap['Tamu'][tgl]) tempMap['Tamu'][tgl] = 0;
-    tempMap['Tamu'][tgl] += tamu;
     
     if (!tempMap[unit]) tempMap[unit] = {};
     if (!tempMap[unit][tgl]) tempMap[unit][tgl] = 0;
@@ -168,9 +194,9 @@ function buildStats() {
   return { history: historyByUnit['ALL'], historyByUnit: historyByUnit };
 }
 
-// ==========================================
-// 4. SUBMIT FORM & AKTIVITAS
-// ==========================================
+/**
+ * 5. SUBMIT FORM
+ */
 function submitAbsensi(data) {
   const ss = getDB();
   const sheetSummary = ss.getSheetByName('Absensi');
@@ -183,6 +209,7 @@ function submitAbsensi(data) {
     if (data.attendance[id] === 'Alpha') alpha++;
   }
   
+  // Catat Ringkasan
   sheetSummary.appendRow([
     data.tanggal, 
     data.type, 
@@ -193,18 +220,17 @@ function submitAbsensi(data) {
     JSON.stringify(data.attendance)
   ]);
   
-  const histDataRange = sheetHistory.getDataRange();
-  const histValues = histDataRange.getValues();
-  let rowsToDelete = [];
-  
-  for (let i = 1; i < histValues.length; i++) {
-    if (histValues[i][0] === data.tanggal && histValues[i][1] === data.type && histValues[i][2] === data.unit) {
-      rowsToDelete.push(i + 1);
+  // Hapus histori lama di tanggal/tipe/unit yang sama agar tidak duplikat
+  const histValues = sheetHistory.getDataRange().getValues();
+  for (let i = histValues.length - 1; i >= 1; i--) {
+    if (histValues[i][0] === data.tanggal && 
+        histValues[i][1] === data.type && 
+        histValues[i][2] === data.unit) {
+      sheetHistory.deleteRow(i + 1);
     }
   }
   
-  rowsToDelete.reverse().forEach(rowIdx => sheetHistory.deleteRow(rowIdx));
-  
+  // Masukkan histori baru satu per satu
   for (let id in data.attendance) {
     sheetHistory.appendRow([
       data.tanggal,
@@ -230,21 +256,15 @@ function submitDoa(data) {
   return true;
 }
 
-// ==========================================
-// 5. FITUR GANTI PIN
-// ==========================================
 function changePin(data) {
   const sheetName = data.role === 'admin' ? 'Admin' : 'Unit';
-  const idColIndex = 0; 
-  const pinColIndex = 1; 
-  
   const sheet = getDB().getSheetByName(sheetName);
   const rows = sheet.getDataRange().getValues();
   
   for (let i = 1; i < rows.length; i++) {
-    if (String(rows[i][idColIndex]).trim() === String(data.identifier).trim()) {
-      if (String(rows[i][pinColIndex]).trim() === String(data.oldPin).trim()) {
-        sheet.getRange(i + 1, pinColIndex + 1).setValue(data.newPin);
+    if (String(rows[i][0]).trim() === String(data.identifier).trim()) {
+      if (String(rows[i][1]).trim() === String(data.oldPin).trim()) {
+        sheet.getRange(i + 1, 2).setValue(data.newPin);
         return true;
       } else {
         throw new Error("PIN Lama Salah!");
@@ -254,9 +274,9 @@ function changePin(data) {
   throw new Error("Pengguna tidak ditemukan!");
 }
 
-// ==========================================
-// 6. CRUD JEMAAT (ANGGOTA)
-// ==========================================
+/**
+ * 6. CRUD ANGGOTA
+ */
 function addMember(data) {
   const sheet = getDB().getSheetByName('Anggota');
   const newId = "M" + new Date().getTime(); 
@@ -288,12 +308,11 @@ function deleteMember(id) {
   return false;
 }
 
-// ==========================================
-// 7. CRUD UNIT
-// ==========================================
+/**
+ * 7. CRUD UNIT & ADMIN (Sesuai Struktur)
+ */
 function addUnit(data) {
-  const sheet = getDB().getSheetByName('Unit');
-  sheet.appendRow([data.name, data.pin]);
+  getDB().getSheetByName('Unit').appendRow([data.name, data.pin]);
   return true;
 }
 
@@ -303,14 +322,9 @@ function updateUnit(data) {
   for (let i = 1; i < rows.length; i++) {
     if (String(rows[i][0]).trim() === String(data.oldName).trim()) {
       sheet.getRange(i + 1, 1, 1, 2).setValues([[data.newName, data.pin]]);
-      
-      if (data.oldName !== data.newName) {
-        updateUnitNameInMembers(data.oldName, data.newName);
-      }
       return true;
     }
   }
-  throw new Error("Unit tidak ditemukan!");
 }
 
 function deleteUnit(name) {
@@ -319,26 +333,11 @@ function deleteUnit(name) {
   for (let i = 1; i < rows.length; i++) {
     if (String(rows[i][0]).trim() === String(name).trim()) {
       sheet.deleteRow(i + 1);
-      updateUnitNameInMembers(name, 'Umum');
       return true;
     }
   }
-  return false;
 }
 
-function updateUnitNameInMembers(oldName, newName) {
-  const sheet = getDB().getSheetByName('Anggota');
-  const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) {
-    if (String(rows[i][4]).trim() === String(oldName).trim()) {
-      sheet.getRange(i + 1, 5).setValue(newName);
-    }
-  }
-}
-
-// ==========================================
-// 8. CRUD JABATAN & ADMIN
-// ==========================================
 function addRole(name) {
   getDB().getSheetByName('Jabatan').appendRow([name]); return true;
 }
@@ -387,9 +386,9 @@ function deleteAdmin(username) {
   }
 }
 
-// ==========================================
-// HELPER: Mengubah Sheet Menjadi JSON Object
-// ==========================================
+/**
+ * HELPER: Mengubah Sheet Menjadi JSON Object
+ */
 function getSheetData(sheetName) {
   const sheet = getDB().getSheetByName(sheetName);
   if (!sheet) return [];
@@ -404,6 +403,8 @@ function getSheetData(sheetName) {
     let obj = {};
     for (let j = 0; j < headers.length; j++) {
       let cellValue = rows[i][j];
+      
+      // Konversi Tanggal ke string YYYY-MM-DD agar aman di Frontend
       if (cellValue instanceof Date) {
         let m = cellValue.getMonth() + 1;
         let d = cellValue.getDate();
