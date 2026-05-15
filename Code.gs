@@ -550,36 +550,30 @@ function createMatrixSheet(ss, name) {
 
 function submitAbsensi(data) {
   const db = getDb();
-  let sheet = db.getSheetByName('Absensi');
-  // Jika sheet belum ada, otomatis buatkan
+  
+  // 1. Membuat nama sheet khusus untuk masing-masing Unit
+  const sheetName = "Absen - " + data.unit;
+  let sheet = db.getSheetByName(sheetName);
+  
+  // Jika sheet unit tersebut belum ada, sistem akan otomatis membuatkannya
   if (!sheet) {
-    sheet = db.insertSheet('Absensi');
-    sheet.appendRow(['Timestamp', 'Tanggal', 'Kategori', 'Unit', 'Tamu', 'Total Hadir', 'Total Alpha', 'Data Mentah']);
-    sheet.getRange(1, 1, 1, 8).setBackground("#D4AF37").setFontWeight("bold");
+    sheet = db.insertSheet(sheetName);
+    // 2. Tanggal diletakkan di kolom pertama, tanpa kolom Total Hadir/Alpha
+    sheet.appendRow(['Tanggal', 'Timestamp', 'Kategori Kelas', 'Tamu', 'Data Kehadiran Mentah']);
+    sheet.getRange(1, 1, 1, 5).setBackground("#D4AF37").setFontWeight("bold");
+    sheet.setFrozenRows(1); // Kunci baris pertama (Header)
   }
   
-  let hadirCount = 0;
-  let alphaCount = 0;
-  
-  // Hitung jumlah kehadiran
-  for (let id in data.attendance) {
-    if (data.attendance[id] === 'Hadir') hadirCount++;
-    else if (data.attendance[id] === 'Alpha') alphaCount++;
-  }
-  
-  // Simpan baris data ke spreadsheet
+  // 3. Simpan data langsung ke sheet masing-masing unit
   sheet.appendRow([
-    new Date(),
     data.tanggal,
+    new Date(),
     data.type,
-    data.unit,
     data.tamu,
-    hadirCount,
-    alphaCount,
     JSON.stringify(data.attendance)
   ]);
   
-  return { status: 'success', message: 'Absensi berhasil disimpan!' };
+  return { status: 'success', message: 'Absensi berhasil disimpan di sheet ' + sheetName + '!' };
 }
 
 function submitKegiatan(data) {
