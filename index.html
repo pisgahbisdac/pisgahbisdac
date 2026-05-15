@@ -266,6 +266,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         let admins = []; 
         let statsData = { history: [], historyByUnit: { 'ALL': [] } }; 
         let doaPoints = []; 
+        let attendanceHistory = {}; // Menambahkan wadah untuk riwayat absen individu
         
         let currentUser = { role: 'public', unitName: null, adminName: null }; 
         let currentTab = 'dashboard';
@@ -332,6 +333,9 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
                     statsData = payload.stats || { history: [], historyByUnit: { 'ALL': [] } }; 
                     if (!statsData.historyByUnit) statsData.historyByUnit = { 'ALL': statsData.history || [] };
+                    
+                    // Menarik riwayat kehadiran per individu dari Spreadsheet
+                    attendanceHistory = payload.attendanceHistory || {};
                     
                     renderTabs();
                     switchTab(currentTab);
@@ -1212,17 +1216,45 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 saturdays = [new Date()];
             }
 
+            // Report Type untuk mencocokkan data di attendanceHistory
+            let reportType = type === 'khotbah' ? 'Khotbah' : catTitle;
+            let histData = attendanceHistory[reportType] || {};
+
             let colsHeaderHtml = saturdays.map((sat) => {
                 const label = `${sat.getDate()}/${sat.getMonth()+1}`;
                 return `<th style="padding: 10px 2px; border: 1px solid #0a192f; text-align: center; width: 40px; font-size: 10px; background-color: #D4AF37; color: #0a192f;">SAB<br>${label}</th>`;
             }).join('');
 
             let membersListHTML = displayed.map((m, idx) => {
-                let checkboxes = saturdays.map(() => `
-                    <td style="padding: 6px; border: 1px solid #eee; text-align: center;">
-                        <div style="width: 14px; height: 14px; border: 1px solid #0a192f; margin: auto; border-radius: 2px;"></div>
+                let checkboxes = saturdays.map((sat) => {
+                    // Format tanggal menjadi YYYY-MM-DD sesuai standar database
+                    const yyyy = sat.getFullYear();
+                    const mm = String(sat.getMonth() + 1).padStart(2, '0');
+                    const dd = String(sat.getDate()).padStart(2, '0');
+                    const dateStr = `${yyyy}-${mm}-${dd}`;
+                    
+                    // Cek status kehadiran dari database pada tanggal tersebut
+                    let status = '';
+                    if (histData[m.id] && histData[m.id][dateStr]) {
+                        status = histData[m.id][dateStr];
+                    }
+
+                    // Tentukan isi kotak (Centang untuk Hadir, A untuk Alpha, Kosong untuk belum diabsen)
+                    let boxContent = '';
+                    if (status.toLowerCase() === 'hadir') {
+                        boxContent = '<span style="color: #10B981; font-weight: 900; font-size: 14px;">&#10003;</span>';
+                    } else if (status.toLowerCase() === 'alpha') {
+                        boxContent = '<span style="color: #EF4444; font-weight: 900; font-size: 12px;">A</span>';
+                    }
+
+                    return `
+                    <td style="padding: 6px; border: 1px solid #eee; text-align: center; vertical-align: middle;">
+                        <div style="width: 16px; height: 16px; border: 1px solid #0a192f; margin: auto; border-radius: 2px; display: flex; align-items: center; justify-content: center; background: ${boxContent ? '#f8fafc' : 'transparent'};">
+                            ${boxContent}
+                        </div>
                     </td>
-                `).join('');
+                    `;
+                }).join('');
 
                 return `
                 <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
