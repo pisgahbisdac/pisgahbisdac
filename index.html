@@ -129,7 +129,7 @@
         <h3 class="text-2xl font-black text-[#D4AF37] mb-2 uppercase tracking-wide">Akses Masuk</h3>
         <p class="text-xs text-slate-300 mb-8 font-medium">Masukkan PIN Admin atau PIN Unit Anda</p>
         <div class="relative mb-8">
-            <input type="password" id="login-pin" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-center text-xl tracking-[0.5rem]" placeholder="*******" maxlength="6">
+            <input type="password" id="login-pin" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-center text-xl tracking-[0.5rem]" placeholder="*******" maxlength="6" onkeypress="if(event.key === 'Enter') processLogin()">
             <i class="fas fa-eye-slash absolute right-4 top-1/2 -translate-y-1/2 text-gold cursor-pointer hover:text-yellow-400 transition-all" onclick="togglePassword('login-pin', this)"></i>
         </div>
         <div class="flex gap-4">
@@ -663,12 +663,31 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="glass p-8">
-                            <h4 class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Riwayat Kehadiran Terakhir</h4>
+                            <h4 id="chart-bulanan-title" class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Riwayat Kehadiran Terakhir</h4>
                             <div class="relative h-64"><canvas id="chartBulanan"></canvas></div>
                         </div>
                         <div class="glass p-8">
                             <h4 id="pie-chart-title" class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Rasio Kehadiran</h4>
                             <div class="relative h-64 flex justify-center"><canvas id="chartUnit"></canvas></div>
+                        </div>
+                    </div>
+                    
+                    <!-- TABEL KOMPOSISI -->
+                    <div class="glass p-8 mt-8">
+                        <h4 id="table-komposisi-title" class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Komposisi Anggota Terdaftar</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b-2 border-gold/20 text-gold/80 text-[10px] uppercase tracking-widest">
+                                        <th class="py-3 px-4">Kategori</th>
+                                        <th class="py-3 px-4 text-center">Total Jiwa</th>
+                                        <th class="py-3 px-4 text-center">Persentase</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-komposisi-body" class="text-sm text-slate-200">
+                                    <!-- Rows populated by JS -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -726,9 +745,28 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             if(ctxBulanan) {
                 if(window.myChartBulanan) window.myChartBulanan.destroy();
                 
-                let labels = last4.length > 0 ? last4.map(h => h.date) : (globalData.slice(-4).length > 0 ? globalData.slice(-4).map(h => h.date) : ['Belum ada data']);
-                let dataPointsUnit = labels.map(l => { const f = unitData.find(u => u.date === l); return f ? f.count : 0; });
-                let dataPointsGlobal = labels.map(l => { const f = globalData.find(g => g.date === l); return f ? f.count : 0; });
+                let rawLabels = last4.length > 0 ? last4.map(h => h.date) : (globalData.slice(-4).length > 0 ? globalData.slice(-4).map(h => h.date) : ['Belum ada data']);
+                
+                let displayYear = new Date().getFullYear();
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+                
+                let labels = rawLabels.map(l => {
+                    if (l === 'Belum ada data') return l;
+                    const parts = l.split('-');
+                    if (parts.length === 3) {
+                        displayYear = parts[0]; 
+                        return `${parseInt(parts[2])} ${monthNames[parseInt(parts[1]) - 1]}`; 
+                    }
+                    return l;
+                });
+
+                const chartTitleEl = document.getElementById('chart-bulanan-title');
+                if (chartTitleEl) {
+                    chartTitleEl.innerText = `Riwayat Kehadiran Terakhir (${displayYear})`;
+                }
+
+                let dataPointsUnit = rawLabels.map(l => { const f = unitData.find(u => u.date === l); return f ? f.count : 0; });
+                let dataPointsGlobal = rawLabels.map(l => { const f = globalData.find(g => g.date === l); return f ? f.count : 0; });
 
                 const datasets = [{
                     label: `Kehadiran (${selectedUnit})`, data: dataPointsUnit, borderColor: '#D4AF37', backgroundColor: 'rgba(212, 175, 55, 0.2)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#0a192f', pointBorderColor: '#D4AF37', pointRadius: 5
@@ -769,6 +807,68 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         plugins: { legend: { position: 'bottom', labels: { color: '#e6f1ff', font: { family: 'Plus Jakarta Sans', weight: 'bold' } } } } 
                     }
                 });
+            }
+
+            // UPDATE TABEL KOMPOSISI
+            let composition = {};
+            if (selectedUnit === 'ALL') {
+                const visibleMembers = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
+                visibleMembers.forEach(m => {
+                    const u = m.unit || 'Umum';
+                    composition[u] = (composition[u] || 0) + 1;
+                });
+                const titleEl = document.getElementById('table-komposisi-title');
+                if(titleEl) titleEl.innerText = "Komposisi Jemaat Berdasarkan Unit (Global)";
+            } else {
+                const safeUnitFilter = selectedUnit.trim().toLowerCase();
+                const visibleMembers = members.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeUnitFilter);
+                visibleMembers.forEach(m => {
+                    const k = m.kelasTetap || 'Lainnya'; 
+                    composition[k] = (composition[k] || 0) + 1;
+                });
+                const titleEl = document.getElementById('table-komposisi-title');
+                if(titleEl) titleEl.innerText = `Komposisi Anggota: ${selectedUnit} (Berdasarkan Kelas)`;
+            }
+
+            const tbody = document.getElementById('table-komposisi-body');
+            if (tbody) {
+                let html = '';
+                const sortedKeys = Object.keys(composition).sort((a, b) => composition[b] - composition[a]);
+                sortedKeys.forEach(key => {
+                    const count = composition[key];
+                    const pct = visibleMembersCount > 0 ? Math.round((count / visibleMembersCount) * 100) : 0;
+                    html += `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-all">
+                        <td class="py-3 px-4 font-bold uppercase">${key}</td>
+                        <td class="py-3 px-4 text-center font-black text-white">${count}</td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <span class="w-8 text-right text-gold">${pct}%</span>
+                                <div class="w-24 bg-gray-700 h-2 rounded-full overflow-hidden">
+                                    <div class="bg-gold h-full" style="width: ${pct}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+                
+                // Tambahkan Baris Total Keseluruhan
+                if(sortedKeys.length > 0) {
+                     html += `
+                    <tr class="bg-white/5 border-t-2 border-gold/50 text-[#D4AF37] transition-all">
+                        <td class="py-4 px-4 font-black uppercase text-right tracking-widest">TOTAL KESELURUHAN</td>
+                        <td class="py-4 px-4 text-center font-black text-xl">${visibleMembersCount}</td>
+                        <td class="py-4 px-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <span class="w-8 text-right font-black">100%</span>
+                                <div class="w-24 bg-[#D4AF37] h-2 rounded-full overflow-hidden shadow-[0_0_10px_rgba(212,175,55,0.5)]"></div>
+                            </div>
+                        </td>
+                    </tr>`;
+                } else {
+                     html = `<tr><td colspan="3" class="text-center py-6 text-slate-400 italic">Tidak ada data anggota terdaftar.</td></tr>`;
+                }
+                tbody.innerHTML = html;
             }
         }
 
