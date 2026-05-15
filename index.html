@@ -1242,7 +1242,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             const printHtml = `
                 <style>
                     @media print {
-                        @page { size: ${saturdays.length > 6 ? 'A4 landscape' : 'A4 portrait'}; margin: 1cm; }
+                        @page { size: A4 landscape; margin: 1cm; }
                     }
                 </style>
                 <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px;">
