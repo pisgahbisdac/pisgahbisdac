@@ -259,7 +259,8 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     members = (payload.members || []).map(m => ({
                         id: m.id || m.ID || m['ID'] || '', nama: m.nama || m.Nama || m['Nama'] || '',
                         status: m.status || m.Status || m['Status'] || '', kelasTetap: m.kelasTetap || m.Kategori || m['Kategori'] || '',
-                        unit: m.unit || m.Unit || m['Unit'] || 'Umum', jabatan: m.jabatan || m.Jabatan || m['Jabatan'] || 'Anggota'
+                        unit: m.unit || m.Unit || m['Unit'] || 'Umum', jabatan: m.jabatan || m.Jabatan || m['Jabatan'] || 'Anggota',
+                        tanggalLahir: m.tanggalLahir || m['Tanggal Lahir'] || ''
                     }));
 
                     units = (payload.units || []).map(u => {
@@ -492,6 +493,19 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const todayStr = new Date().toLocaleDateString('id-ID', options);
+            
+            // Logika Mengambil Data Ulang Tahun Bulan Ini
+            const currentMonthStr = String(new Date().getMonth() + 1).padStart(2, '0');
+            const birthdaysThisMonth = members.filter(m => {
+                if (!m.tanggalLahir) return false;
+                const parts = m.tanggalLahir.split('-');
+                if (parts.length !== 3) return false;
+                return parts[1] === currentMonthStr;
+            }).sort((a, b) => {
+                const dayA = parseInt(a.tanggalLahir.split('-')[2]);
+                const dayB = parseInt(b.tanggalLahir.split('-')[2]);
+                return dayA - dayB;
+            });
 
             area.innerHTML = `
                 <div class="mb-10 animate-[fadeIn_0.5s_ease-out]">
@@ -529,6 +543,34 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                             </div>
                         </div>
                         <button onclick="submitDoaForm()" class="w-full relative z-10 bg-blue-500 text-white py-5 rounded-full font-black text-xl shadow-lg hover:bg-blue-400 hover:shadow-blue-500/50 transition-all uppercase tracking-widest"><i class="fas fa-paper-plane mr-3"></i>Kirim Permohonan Doa</button>
+                    </div>
+
+                    <!-- ULANG TAHUN BULAN INI -->
+                    <div class="glass p-8 md:p-10 mb-10 relative overflow-hidden border-t-4 border-t-pink-500 shadow-2xl">
+                        <div class="absolute -right-10 -top-10 w-48 h-48 bg-pink-500 rounded-full blur-[80px] opacity-20 pointer-events-none z-0"></div>
+                        <div class="flex items-center justify-center md:justify-start gap-4 mb-6 relative z-10">
+                            <i class="fas fa-birthday-cake text-4xl text-pink-400 drop-shadow-md"></i>
+                            <h3 class="text-2xl font-black text-white uppercase tracking-wide">Ulang Tahun Bulan Ini</h3>
+                        </div>
+                        ${birthdaysThisMonth.length > 0 ? `
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
+                            ${birthdaysThisMonth.map(m => {
+                                const day = parseInt(m.tanggalLahir.split('-')[2]);
+                                const mthName = new Date().toLocaleDateString('id-ID', { month: 'long' });
+                                return `
+                                <div class="bg-[#112240]/80 p-4 rounded-xl border border-pink-500/20 flex items-center gap-4 hover:border-pink-500/50 transition-all shadow-md">
+                                    <div class="bg-pink-500/20 text-pink-400 w-12 h-12 rounded-full flex items-center justify-center font-black text-xl shrink-0">
+                                        ${day}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="text-white font-bold uppercase truncate">${m.nama}</div>
+                                        <div class="text-[10px] text-pink-400 uppercase tracking-widest">${day} ${mthName} • ${m.unit}</div>
+                                    </div>
+                                </div>`;
+                            }).join('')}
+                        </div>` : `
+                        <p class="text-slate-300 italic relative z-10 text-center md:text-left">Tidak ada jemaat yang berulang tahun di bulan ini.</p>
+                        `}
                     </div>
 
                     <!-- Card Motivasi -->
@@ -667,10 +709,27 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             </div>`;
         }
 
+        // --- UPDATE: FUNGSI TOGGLE ABSENSI ---
         function setAttendance(id, status) {
-            memberAttendance[id] = status; const btnHadir = document.getElementById(`btn-hadir-${id}`); const btnAlpha = document.getElementById(`btn-alpha-${id}`);
-            if(status === 'Hadir') { if(btnHadir) btnHadir.classList.add('active'); if(btnAlpha) btnAlpha.classList.remove('active'); } 
-            else { if(btnAlpha) btnAlpha.classList.add('active'); if(btnHadir) btnHadir.classList.remove('active'); }
+            const btnHadir = document.getElementById(`btn-hadir-${id}`); 
+            const btnAlpha = document.getElementById(`btn-alpha-${id}`);
+            
+            // Cek jika tombol yang sama diklik lagi, maka batalkan (cancel) kehadirannya
+            if (memberAttendance[id] === status) {
+                delete memberAttendance[id];
+                if(btnHadir) btnHadir.classList.remove('active');
+                if(btnAlpha) btnAlpha.classList.remove('active');
+            } else {
+                // Jika tombol lain yang diklik, atur status baru
+                memberAttendance[id] = status; 
+                if(status === 'Hadir') { 
+                    if(btnHadir) btnHadir.classList.add('active'); 
+                    if(btnAlpha) btnAlpha.classList.remove('active'); 
+                } else { 
+                    if(btnAlpha) btnAlpha.classList.add('active'); 
+                    if(btnHadir) btnHadir.classList.remove('active'); 
+                }
+            }
         }
 
         function handleDoaEnter(e) { if (e.key === 'Enter') { e.preventDefault(); const val = e.target.value.trim(); if (val) { doaPoints.push(val); e.target.value = ''; renderDoaPoints(); } } }
@@ -697,8 +756,12 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     <div class="glass p-8 h-fit sticky top-32">
                         <h3 id="form-title" class="text-2xl font-black text-[#D4AF37] mb-8 uppercase text-center">Tambah Jemaat Baru</h3>
                         <div class="space-y-6">
-                            <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Nama Lengkap</label>
-                            <input type="text" id="m-nama" placeholder="Masukkan Nama..." class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Nama Lengkap</label>
+                                <input type="text" id="m-nama" placeholder="Masukkan Nama..." class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
+                                <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Tanggal Lahir</label>
+                                <input type="date" id="m-tgllahir" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
+                            </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div><label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Status Baptis</label>
                                 <select id="m-status" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"><option value="Baptis">SUDAH BAPTIS</option><option value="Belum Baptis">BELUM BAPTIS</option></select></div>
@@ -759,17 +822,15 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </div>
                 </div>`;
             renderFormRoles();
-            renderFilteredMasterMembers(); // Load data di awal
+            renderFilteredMasterMembers(); 
         }
 
-        // FUNGSI UNTUK MERENDER DATA BERDASARKAN FILTER DI DATA JEMAAT
         window.renderFilteredMasterMembers = function() {
             const sNama = document.getElementById('f-nama').value.toLowerCase();
             const fUnit = document.getElementById('f-unit').value;
             const fJabatan = document.getElementById('f-jabatan').value;
             const fStatus = document.getElementById('f-status').value;
 
-            // Sembunyikan "Khotbah" dari daftar
             const visibleMembers = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
 
             const filtered = visibleMembers.filter(m => {
@@ -781,7 +842,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 if (fJabatan === 'ALL') {
                     matchJabatan = true;
                 } else if (fJabatan === 'Anggota') {
-                    // Cek jika jabatannya kosong atau secara eksplisit memiliki "Anggota"
                     matchJabatan = !m.jabatan || m.jabatan.includes('Anggota');
                 } else {
                     matchJabatan = m.jabatan && m.jabatan.includes(fJabatan);
@@ -806,7 +866,8 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                             <i class="fas fa-star mr-1 text-gold"></i> ${m.jabatan || 'Anggota'} &nbsp;|&nbsp; 
                             <i class="fas fa-users mr-1 text-blue-400"></i> ${m.unit} &nbsp;|&nbsp; 
                             <i class="fas fa-bookmark mr-1 text-green-400"></i> ${m.kelasTetap} &nbsp;|&nbsp; 
-                            <i class="fas fa-water mr-1 text-purple-400"></i> <span class="${m.status === 'Baptis' ? 'text-blue-400' : 'text-red-400'}">${m.status}</span>
+                            <i class="fas fa-water mr-1 text-purple-400"></i> <span class="${m.status === 'Baptis' ? 'text-blue-400' : 'text-red-400'}">${m.status}</span> &nbsp;|&nbsp;
+                            <i class="fas fa-birthday-cake mr-1 text-pink-400"></i> ${m.tanggalLahir ? formatDate(m.tanggalLahir) : '-'}
                         </div>
                     </div>
                     <div class="flex gap-3 w-full sm:w-auto">
@@ -822,9 +883,9 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         }
         function toggleFormRole(role) { const idx = formSelectedRoles.indexOf(role); if(idx > -1) formSelectedRoles.splice(idx, 1); else formSelectedRoles.push(role); renderFormRoles(); }
         function editMember(id) {
-            const m = members.find(x => x.id === id); if(!m) return; editingMemberId = id; document.getElementById('form-title').innerText = "Edit Data Jemaat"; document.getElementById('m-nama').value = m.nama; document.getElementById('m-status').value = m.status; document.getElementById('m-cat').value = m.kelasTetap === 'PA' ? 'Pendalaman' : m.kelasTetap; document.getElementById('m-unit-select').value = m.unit; formSelectedRoles = m.jabatan ? m.jabatan.split(',').map(s => s.trim()) : ['Anggota']; renderFormRoles(); document.getElementById('btn-save-member').innerText = "UPDATE DATA"; document.getElementById('btn-cancel-member').classList.remove('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' });
+            const m = members.find(x => x.id === id); if(!m) return; editingMemberId = id; document.getElementById('form-title').innerText = "Edit Data Jemaat"; document.getElementById('m-nama').value = m.nama; document.getElementById('m-tgllahir').value = m.tanggalLahir || ''; document.getElementById('m-status').value = m.status; document.getElementById('m-cat').value = m.kelasTetap === 'PA' ? 'Pendalaman' : m.kelasTetap; document.getElementById('m-unit-select').value = m.unit; formSelectedRoles = m.jabatan ? m.jabatan.split(',').map(s => s.trim()) : ['Anggota']; renderFormRoles(); document.getElementById('btn-save-member').innerText = "UPDATE DATA"; document.getElementById('btn-cancel-member').classList.remove('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        function cancelEditMember() { editingMemberId = null; document.getElementById('form-title').innerText = "Tambah Jemaat Baru"; document.getElementById('m-nama').value = ''; document.getElementById('m-status').value = 'Baptis'; document.getElementById('m-cat').value = 'SS Dewasa'; document.getElementById('m-unit-select').value = 'Umum'; formSelectedRoles = ['Anggota']; renderFormRoles(); document.getElementById('btn-save-member').innerText = "SIMPAN DATA"; document.getElementById('btn-cancel-member').classList.add('hidden'); }
+        function cancelEditMember() { editingMemberId = null; document.getElementById('form-title').innerText = "Tambah Jemaat Baru"; document.getElementById('m-nama').value = ''; document.getElementById('m-tgllahir').value = ''; document.getElementById('m-status').value = 'Baptis'; document.getElementById('m-cat').value = 'SS Dewasa'; document.getElementById('m-unit-select').value = 'Umum'; formSelectedRoles = ['Anggota']; renderFormRoles(); document.getElementById('btn-save-member').innerText = "SIMPAN DATA"; document.getElementById('btn-cancel-member').classList.add('hidden'); }
 
         function renderManagerAll(area) {
             area.innerHTML = `
@@ -908,7 +969,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         async function deleteAdmin(username) { if(admins.length <= 1) return showToast("TIDAK BISA MENGHAPUS SATU-SATUNYA ADMIN!", "error"); if(!confirm(`Apakah Anda yakin ingin menghapus Admin "${username}"?`)) return; await send({ action: 'deleteAdmin', data: username }); init(); }
 
         async function saveMember() {
-            const payload = { nama: document.getElementById('m-nama').value, status: document.getElementById('m-status').value, unit: document.getElementById('m-unit-select').value, kelasTetap: document.getElementById('m-cat').value, jabatan: formSelectedRoles.length > 0 ? formSelectedRoles.join(', ') : 'Anggota' };
+            const payload = { nama: document.getElementById('m-nama').value, tanggalLahir: document.getElementById('m-tgllahir').value, status: document.getElementById('m-status').value, unit: document.getElementById('m-unit-select').value, kelasTetap: document.getElementById('m-cat').value, jabatan: formSelectedRoles.length > 0 ? formSelectedRoles.join(', ') : 'Anggota' };
             if(!payload.nama) return showToast("NAMA KOSONG!", "error");
             if(editingMemberId) { payload.id = editingMemberId; await send({ action: 'updateMember', data: payload }); } else await send({ action: 'addMember', data: payload }); editingMemberId = null; init();
         }

@@ -57,7 +57,7 @@ function getInitialData() {
   
   const values = sheet.getDataRange().getValues();
   const members = values.length > 1 ? values.slice(1).map(r => ({ 
-    id: r[0], nama: r[1], status: r[2], kelasTetap: r[3], unit: r[4] || 'Umum', jabatan: r[5] || 'Anggota'
+    id: r[0], nama: r[1], status: r[2], kelasTetap: r[3], unit: r[4] || 'Umum', jabatan: r[5] || 'Anggota', tanggalLahir: r[6] instanceof Date ? Utilities.formatDate(r[6], Session.getScriptTimeZone(), 'yyyy-MM-dd') : (r[6] || '')
   })) : [];
 
   const unitValues = unitSheet.getDataRange().getValues();
@@ -377,7 +377,7 @@ function changePin(data) {
 function addMember(data) {
   const sheet = getDb().getSheetByName('Members');
   const id = "M-" + Math.random().toString(36).substr(2, 9).toUpperCase();
-  sheet.appendRow([id, data.nama, data.status, data.kelasTetap, data.unit || 'Umum', data.jabatan || 'Anggota']);
+  sheet.appendRow([id, data.nama, data.status, data.kelasTetap, data.unit || 'Umum', data.jabatan || 'Anggota', data.tanggalLahir || '']);
   return { status: 'success', id };
 }
 function updateMember(data) {
@@ -385,7 +385,7 @@ function updateMember(data) {
   const ids = sheet.getRange(1, 1, sheet.getLastRow(), 1).getValues();
   for (let i = 0; i < ids.length; i++) {
     if (ids[i][0] == data.id) {
-      sheet.getRange(i + 1, 2, 1, 5).setValues([[data.nama, data.status, data.kelasTetap, data.unit, data.jabatan || 'Anggota']]);
+      sheet.getRange(i + 1, 2, 1, 6).setValues([[data.nama, data.status, data.kelasTetap, data.unit, data.jabatan || 'Anggota', data.tanggalLahir || '']]);
       return { status: 'success' };
     }
   }
@@ -511,7 +511,7 @@ function findTamuRow(sheet) {
 
 function createMainSheet(ss) {
   const sheet = ss.insertSheet('Members');
-  sheet.getRange(1, 1, 1, 6).setValues([['ID', 'Nama', 'Status', 'Kategori', 'Unit', 'Jabatan']]).setBackground("#D4AF37").setFontWeight("bold");
+  sheet.getRange(1, 1, 1, 7).setValues([['ID', 'Nama', 'Status', 'Kategori', 'Unit', 'Jabatan', 'Tanggal Lahir']]).setBackground("#D4AF37").setFontWeight("bold");
   sheet.setFrozenRows(1);
   return sheet;
 }
