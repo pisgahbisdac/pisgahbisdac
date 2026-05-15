@@ -667,42 +667,43 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                             <div class="relative h-64"><canvas id="chartBulanan"></canvas></div>
                         </div>
                         <div class="glass p-8">
-                            <h4 class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Komposisi Unit Global Real-Time</h4>
+                            <h4 id="pie-chart-title" class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Rasio Kehadiran</h4>
                             <div class="relative h-64 flex justify-center"><canvas id="chartUnit"></canvas></div>
                         </div>
                     </div>
                 </div>
             `;
-            setTimeout(() => { updateDashboardStats(); initPieChart(); renderDoaPoints(); }, 100);
+            setTimeout(() => { updateDashboardStats(); renderDoaPoints(); }, 100);
         }
 
         function updateDashboardStats() {
             const selectedUnit = document.getElementById('dash-unit-filter').value;
-            let historyData = [];
             
-            if (statsData.historyByUnit) {
-                if (statsData.historyByUnit[selectedUnit]) {
-                    historyData = statsData.historyByUnit[selectedUnit];
-                } else {
-                    const target = selectedUnit.trim().toLowerCase();
-                    for (let key in statsData.historyByUnit) {
-                        if (key.trim().toLowerCase() === target) {
-                            historyData = statsData.historyByUnit[key];
-                            break;
-                        }
+            let globalData = statsData.historyByUnit['ALL'] || [];
+            let unitData = [];
+            
+            if (selectedUnit === 'ALL') {
+                unitData = globalData;
+            } else {
+                const target = selectedUnit.trim().toLowerCase();
+                for (let key in statsData.historyByUnit) {
+                    if (key.trim().toLowerCase() === target) {
+                        unitData = statsData.historyByUnit[key];
+                        break;
                     }
                 }
             }
             
-            const latestWeek = historyData.length > 0 ? historyData[historyData.length - 1].count : 0;
-            const prevWeek = historyData.length > 1 ? historyData[historyData.length - 2].count : 0;
+            const latestWeek = unitData.length > 0 ? unitData[unitData.length - 1].count : 0;
+            const prevWeek = unitData.length > 1 ? unitData[unitData.length - 2].count : 0;
             const weekDiff = latestWeek - prevWeek;
             const weekTrendIcon = weekDiff >= 0 ? '<i class="fas fa-arrow-up mr-1"></i>' : '<i class="fas fa-arrow-down mr-1"></i>';
             const weekTrendClass = weekDiff >= 0 ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10';
             const weekTrendText = weekDiff >= 0 ? `+${weekDiff} jiwa` : `${weekDiff} jiwa`;
-            const last4 = historyData.slice(-4);
+            
+            const last4 = unitData.slice(-4);
             const monthAvg = last4.length > 0 ? Math.round(last4.reduce((sum, item) => sum + item.count, 0) / last4.length) : 0;
-            const qtrAvg = historyData.length > 0 ? Math.round(historyData.reduce((sum, item) => sum + item.count, 0) / historyData.length) : 0;
+            const qtrAvg = unitData.length > 0 ? Math.round(unitData.reduce((sum, item) => sum + item.count, 0) / unitData.length) : 0;
 
             let visibleMembersCount = 0;
             if (selectedUnit === 'ALL') {
@@ -724,25 +725,49 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             const ctxBulanan = document.getElementById('chartBulanan');
             if(ctxBulanan) {
                 if(window.myChartBulanan) window.myChartBulanan.destroy();
-                const labels = last4.length > 0 ? last4.map(h => h.date) : ['Belum ada data'];
-                const dataPoints = last4.length > 0 ? last4.map(h => h.count) : [0];
+                
+                let labels = last4.length > 0 ? last4.map(h => h.date) : (globalData.slice(-4).length > 0 ? globalData.slice(-4).map(h => h.date) : ['Belum ada data']);
+                let dataPointsUnit = labels.map(l => { const f = unitData.find(u => u.date === l); return f ? f.count : 0; });
+                let dataPointsGlobal = labels.map(l => { const f = globalData.find(g => g.date === l); return f ? f.count : 0; });
+
+                const datasets = [{
+                    label: `Kehadiran (${selectedUnit})`, data: dataPointsUnit, borderColor: '#D4AF37', backgroundColor: 'rgba(212, 175, 55, 0.2)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#0a192f', pointBorderColor: '#D4AF37', pointRadius: 5
+                }];
+
+                if (selectedUnit !== 'ALL') {
+                    datasets.push({
+                        label: `Total Global`, data: dataPointsGlobal, borderColor: '#3B82F6', borderDash: [5, 5], backgroundColor: 'transparent', borderWidth: 2, tension: 0.4, fill: false, pointRadius: 3
+                    });
+                }
+
                 window.myChartBulanan = new Chart(ctxBulanan, {
-                    type: 'line', data: { labels: labels, datasets: [{ label: `Kehadiran (${selectedUnit})`, data: dataPoints, borderColor: '#D4AF37', backgroundColor: 'rgba(212, 175, 55, 0.2)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#0a192f', pointBorderColor: '#D4AF37', pointRadius: 5 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0', precision: 0 } }, x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0' } } } }
+                    type: 'line', data: { labels: labels, datasets: datasets },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: selectedUnit !== 'ALL', labels: { color: '#e6f1ff'} } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0', precision: 0 } }, x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0' } } } }
                 });
             }
-        }
 
-        function initPieChart() {
             const ctxUnit = document.getElementById('chartUnit');
             if(ctxUnit) {
                 if(window.myChartUnit) window.myChartUnit.destroy();
-                const unitCounts = {};
-                const visibleMembers = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
-                visibleMembers.forEach(m => { const u = m.unit || 'Umum'; unitCounts[u] = (unitCounts[u] || 0) + 1; });
+                
+                const tidakHadir = Math.max(0, visibleMembersCount - latestWeek);
+                const titleEl = document.getElementById('pie-chart-title');
+                if(titleEl) titleEl.innerText = `Rasio Kehadiran: ${selectedUnit}`;
+
                 window.myChartUnit = new Chart(ctxUnit, {
-                    type: 'doughnut', data: { labels: Object.keys(unitCounts), datasets: [{ data: Object.values(unitCounts), backgroundColor: ['#D4AF37', '#10B981', '#3B82F6', '#8B5CF6', '#EF4444', '#F59E0B', '#ec4899', '#14b8a6'], borderWidth: 2, borderColor: '#0a192f' }] },
-                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { color: '#e6f1ff', font: { family: 'Plus Jakarta Sans' } } } } }
+                    type: 'doughnut', 
+                    data: { 
+                        labels: ['Hadir', 'Tidak Hadir/Alpha'], 
+                        datasets: [{ 
+                            data: [latestWeek, tidakHadir], 
+                            backgroundColor: ['#10B981', '#EF4444'], 
+                            borderWidth: 2, borderColor: '#0a192f' 
+                        }] 
+                    },
+                    options: { 
+                        responsive: true, maintainAspectRatio: false, cutout: '70%', 
+                        plugins: { legend: { position: 'bottom', labels: { color: '#e6f1ff', font: { family: 'Plus Jakarta Sans', weight: 'bold' } } } } 
+                    }
                 });
             }
         }
@@ -814,7 +839,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             document.getElementById('doa-nama').value = ''; document.getElementById('doa-telp').value = ''; doaPoints = []; renderDoaPoints();
         }
 
-        // --- SISTEM POP-UP KONFIRMASI (RINGKASAN ABSENSI) ---
         function getDisplayedMembers(type, cat) {
             const filterEl = document.getElementById('unit-filter'); 
             let filter = filterEl ? filterEl.value : 'ALL';
@@ -876,11 +900,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             });
             
             memberAttendance = {};
-            
-            // PERBAIKAN: Refresh data otomatis setelah absen tersimpan
-            // Ini akan menarik ulang data dari Google Sheets dan memperbarui Dashboard!
             await init(); 
-            
             showToast("DATA TER-UPDATE. SILAKAN CEK DASHBOARD.");
         }
 
@@ -897,8 +917,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 action: 'submitKegiatan',
                 data: { tanggal: tgl, unit: unit, laporan: data }
             });
-            
-            // Refresh data setelah lapor kegiatan
             await init(); 
         }
 
