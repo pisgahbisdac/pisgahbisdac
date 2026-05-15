@@ -11,8 +11,6 @@ function getDb() {
 }
 
 function doPost(e) {
-  if (e.postData === undefined) return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);
-  
   try {
     const requestData = JSON.parse(e.postData.contents);
     const action = requestData.action;
@@ -28,20 +26,20 @@ function doPost(e) {
       case 'updateUnit': result = updateUnit(data); break;
       case 'deleteUnit': result = deleteUnit(data); break;
       case 'addRole': result = addRole(data); break;
-      case 'updateRole': result = updateRole(data); break;
-      case 'deleteRole': result = deleteRole(data); break;
-      case 'addAdmin': result = addAdmin(data); break;
-      case 'updateAdmin': result = updateAdmin(data); break;
-      case 'deleteAdmin': result = deleteAdmin(data); break;
-      case 'changePin': result = changePin(data); break;
-      case 'submitAttendance': result = submitAttendance(data); break;
+      
+      // --- TAMBAHKAN 3 BARIS INI AGAR AKSI DIKENALI ---
+      case 'submitAbsensi': result = submitAbsensi(data); break;
+      case 'submitKegiatan': result = submitKegiatan(data); break;
       case 'submitDoa': result = submitDoa(data); break;
-      default: result = { status: 'error', message: 'Aksi tidak dikenal' };
+      // ------------------------------------------------
+
+      default:
+        result = { status: 'error', message: 'Aksi tidak dikenali: ' + action };
     }
     
     return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: error.message })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
@@ -545,4 +543,76 @@ function createMatrixSheet(ss, name) {
   sheet.setFrozenRows(2); 
   sheet.setFrozenColumns(2);
   return sheet;
+}
+
+
+// --- TAMBAHKAN 3 FUNGSI INI DI BARIS PALING BAWAH FILE CODE.GS ANDA ---
+
+function submitAbsensi(data) {
+  const db = getDb();
+  let sheet = db.getSheetByName('Absensi');
+  // Jika sheet belum ada, otomatis buatkan
+  if (!sheet) {
+    sheet = db.insertSheet('Absensi');
+    sheet.appendRow(['Timestamp', 'Tanggal', 'Kategori', 'Unit', 'Tamu', 'Total Hadir', 'Total Alpha', 'Data Mentah']);
+    sheet.getRange(1, 1, 1, 8).setBackground("#D4AF37").setFontWeight("bold");
+  }
+  
+  let hadirCount = 0;
+  let alphaCount = 0;
+  
+  // Hitung jumlah kehadiran
+  for (let id in data.attendance) {
+    if (data.attendance[id] === 'Hadir') hadirCount++;
+    else if (data.attendance[id] === 'Alpha') alphaCount++;
+  }
+  
+  // Simpan baris data ke spreadsheet
+  sheet.appendRow([
+    new Date(),
+    data.tanggal,
+    data.type,
+    data.unit,
+    data.tamu,
+    hadirCount,
+    alphaCount,
+    JSON.stringify(data.attendance)
+  ]);
+  
+  return { status: 'success', message: 'Absensi berhasil disimpan!' };
+}
+
+function submitKegiatan(data) {
+  const db = getDb();
+  let sheet = db.getSheetByName('Kegiatan');
+  if (!sheet) {
+    sheet = db.insertSheet('Kegiatan');
+    sheet.appendRow(['Timestamp', 'Tanggal', 'Unit', 'Poin 1', 'Poin 2', 'Poin 3', 'Poin 4', 'Poin 5', 'Poin 6', 'Poin 7', 'Poin 8', 'Poin 9', 'Poin 10']);
+    sheet.getRange(1, 1, 1, 13).setBackground("#10B981").setFontWeight("bold");
+  }
+  
+  let row = [new Date(), data.tanggal, data.unit];
+  row = row.concat(data.laporan); // Gabungkan array laporan
+  
+  sheet.appendRow(row);
+  return { status: 'success', message: 'Laporan Kegiatan berhasil disimpan!' };
+}
+
+function submitDoa(data) {
+  const db = getDb();
+  let sheet = db.getSheetByName('Permohonan Doa');
+  if (!sheet) {
+    sheet = db.insertSheet('Permohonan Doa');
+    sheet.appendRow(['Timestamp', 'Nama Lengkap', 'No Telp', 'Poin Doa', 'Status']);
+    sheet.getRange(1, 1, 1, 5).setBackground("#3B82F6").setFontWeight("bold");
+  }
+  
+  sheet.appendRow([
+    new Date(),
+    data.nama,
+    data.telp,
+    data.poin.join(' | '),
+    'Menunggu'
+  ]);
+  return { status: 'success', message: 'Permohonan Doa berhasil dikirim!' };
 }
