@@ -545,68 +545,124 @@ function createMatrixSheet(ss, name) {
   return sheet;
 }
 
-
-// --- TAMBAHKAN 3 FUNGSI INI DI BARIS PALING BAWAH FILE CODE.GS ANDA ---
+// ==============================================================
+// FUNGSI SIMPAN ABSEN & KEGIATAN (FORMAT MATRIX KANAN)
+// ==============================================================
 
 function submitAbsensi(data) {
   const db = getDb();
   
-  // 1. Membuat nama sheet khusus untuk masing-masing Unit
-  const sheetName = "Absen - " + data.unit;
+  let prefix = data.type; // 'Khotbah', 'SS Dewasa', 'SS Anak', 'Pendalaman'
+  let targetUnit = data.unit;
+  if (data.type === 'Khotbah') targetUnit = 'Jemaat';
+  if (data.unit === 'ALL' && data.type !== 'Khotbah') targetUnit = 'Global'; 
+  
+  const sheetName = `${prefix} - ${targetUnit}`;
   let sheet = db.getSheetByName(sheetName);
   
-  // Jika sheet unit tersebut belum ada, sistem akan otomatis membuatkannya
+  // Jika Sheet belum ada, buat struktur Buku Absen baru
   if (!sheet) {
     sheet = db.insertSheet(sheetName);
-    // 2. Tanggal diletakkan di kolom pertama, tanpa kolom Total Hadir/Alpha
-    sheet.appendRow(['Tanggal', 'Timestamp', 'Kategori Kelas', 'Tamu', 'Data Kehadiran Mentah']);
-    sheet.getRange(1, 1, 1, 5).setBackground("#D4AF37").setFontWeight("bold");
-    sheet.setFrozenRows(1); // Kunci baris pertama (Header)
+    sheet.getRange(1, 1, 1, 2).setValues([['ID Jemaat', 'Nama Lengkap']]).setBackground("#D4AF37").setFontWeight("bold");
+    sheet.getRange(2, 1, 1, 2).setValues([['TAMU', 'Tamu / Simpatisan']]).setBackground("#f3f4f6").setFontWeight("bold");
+    sheet.setFrozenRows(2); // Kunci 2 baris teratas
+    sheet.setFrozenColumns(2); // Kunci 2 kolom nama
+    sheet.setColumnWidth(2, 200);
   }
   
-  // 3. Simpan data langsung ke sheet masing-masing unit
-  sheet.appendRow([
-    data.tanggal,
-    new Date(),
-    data.type,
-    data.tamu,
-    JSON.stringify(data.attendance)
-  ]);
+  // Deteksi kolom tanggal
+  const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+  let colIdx = headers.indexOf(data.tanggal) + 1;
   
-  return { status: 'success', message: 'Absensi berhasil disimpan di sheet ' + sheetName + '!' };
+  // Jika tanggal belum ada, tambahkan di kolom paling kanan
+  if (colIdx === 0) {
+    colIdx = Math.max(sheet.getLastColumn() + 1, 3);
+    sheet.getRange(1, colIdx).setValue(data.tanggal)
+         .setBackground("#0a192f").setFontColor("#D4AF37").setFontWeight("bold").setHorizontalAlignment("center");
+  }
+  
+  // Ambil referensi nama member
+  const mSheet = db.getSheetByName('Members');
+  const mData = mSheet ? mSheet.getDataRange().getValues() : [];
+  const memberMap = {};
+  for (let i = 1; i < mData.length; i++) {
+    memberMap[mData[i][0]] = mData[i][1]; 
+  }
+  
+  const matrixLastRow = Math.max(sheet.getLastRow(), 2);
+  const existingIds = sheet.getRange(1, 1, matrixLastRow, 1).getValues().map(r => r[0].toString());
+  
+  // Masukkan status kehadiran ke dalam baris masing-masing
+  for (let id in data.attendance) {
+    const status = data.attendance[id];
+    let rowIdx = existingIds.indexOf(id.toString()) + 1;
+    
+    // Jika member belum ada di buku absen unit ini, tambahkan ke baris baru paling bawah
+    if (rowIdx === 0) {
+      rowIdx = sheet.getLastRow() + 1;
+      const nama = memberMap[id] || "Unknown";
+      sheet.getRange(rowIdx, 1, 1, 2).setValues([[id, nama]]);
+      existingIds.push(id.toString()); 
+    }
+    
+    const cell = sheet.getRange(rowIdx, colIdx);
+    cell.setValue(status).setHorizontalAlignment("center");
+    
+    // Beri pewarnaan otomatis (Hijau Hadir, Merah Alpha)
+    if (status === 'Hadir') cell.setBackground('#e6f4ea').setFontColor('#137333').setFontWeight("bold");
+    else if (status === 'Alpha') cell.setBackground('#fce8e6').setFontColor('#c5221f').setFontWeight("bold");
+  }
+  
+  // Masukkan angka Tamu
+  if (data.tamu !== undefined && data.tamu !== "" && parseInt(data.tamu) > 0) {
+    let tamuRowIdx = existingIds.indexOf("TAMU") + 1;
+    if (tamuRowIdx === 0) tamuRowIdx = 2; // Default baris 2 untuk TAMU
+    sheet.getRange(tamuRowIdx, colIdx).setValue(data.tamu).setHorizontalAlignment("center").setFontWeight("bold").setBackground('#fffbeb').setFontColor('#b45309');
+  }
+  
+  return { status: 'success', message: 'Absensi ' + prefix + ' berhasil disimpan di ' + sheetName + '!' };
 }
 
 function submitKegiatan(data) {
   const db = getDb();
-  let sheet = db.getSheetByName('Kegiatan');
+  let targetUnit = data.unit === 'ALL' ? 'Global' : data.unit;
+  const sheetName = `Kegiatan - ${targetUnit}`;
+  
+  const kList = [
+    "Anggota datang tepat waktu di S.S.",
+    "Membaca Alkitab setiap hari",
+    "Pelajaran S.S. setiap hari",
+    "Renungan Pagi setiap hari",
+    "Hadir Pertemuan Rabu Malam",
+    "Melakukan Jangkauan Keluar (Pemberian Alkitab, Berdoa untuk orang lain)",
+    "Melakukan Perlawatan Pemeliharaan (Mendoakan yang sakit, Anggota absen)",
+    "Memberikan / Membagikan Risalah / Buku Rohani",
+    "Terlibat Kegiatan Kelompok Kecil",
+    "Mengikuti / Terlibat Program Berdoa (777 / 1752 dll)"
+  ];
+  
+  let sheet = db.getSheetByName(sheetName);
   if (!sheet) {
-    sheet = db.insertSheet('Kegiatan');
-    sheet.appendRow(['Timestamp', 'Tanggal', 'Unit', 'Poin 1', 'Poin 2', 'Poin 3', 'Poin 4', 'Poin 5', 'Poin 6', 'Poin 7', 'Poin 8', 'Poin 9', 'Poin 10']);
-    sheet.getRange(1, 1, 1, 13).setBackground("#10B981").setFontWeight("bold");
+    sheet = db.insertSheet(sheetName);
+    sheet.getRange(1, 1, 1, 2).setValues([['No', 'Keterangan Kegiatan']]).setBackground("#D4AF37").setFontWeight("bold");
+    const initRows = kList.map((k, i) => [i + 1, k]);
+    sheet.getRange(2, 1, initRows.length, 2).setValues(initRows);
+    sheet.setFrozenRows(1);
+    sheet.setFrozenColumns(2);
+    sheet.setColumnWidth(2, 350);
   }
   
-  let row = [new Date(), data.tanggal, data.unit];
-  row = row.concat(data.laporan); // Gabungkan array laporan
+  const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+  let colIdx = headers.indexOf(data.tanggal) + 1;
   
-  sheet.appendRow(row);
-  return { status: 'success', message: 'Laporan Kegiatan berhasil disimpan!' };
-}
-
-function submitDoa(data) {
-  const db = getDb();
-  let sheet = db.getSheetByName('Permohonan Doa');
-  if (!sheet) {
-    sheet = db.insertSheet('Permohonan Doa');
-    sheet.appendRow(['Timestamp', 'Nama Lengkap', 'No Telp', 'Poin Doa', 'Status']);
-    sheet.getRange(1, 1, 1, 5).setBackground("#3B82F6").setFontWeight("bold");
+  if (colIdx === 0) {
+    colIdx = Math.max(sheet.getLastColumn() + 1, 3);
+    sheet.getRange(1, colIdx).setValue(data.tanggal)
+         .setBackground("#0a192f").setFontColor("#D4AF37").setFontWeight("bold").setHorizontalAlignment("center");
   }
   
-  sheet.appendRow([
-    new Date(),
-    data.nama,
-    data.telp,
-    data.poin.join(' | '),
-    'Menunggu'
-  ]);
-  return { status: 'success', message: 'Permohonan Doa berhasil dikirim!' };
+  const values = data.laporan.map(val => [val || 0]);
+  sheet.getRange(2, colIdx, values.length, 1).setValues(values).setHorizontalAlignment("center").setFontWeight("bold").setBackground('#e6f4ea').setFontColor('#137333');
+  
+  return { status: 'success', message: 'Laporan Kegiatan berhasil disimpan di ' + sheetName + '!' };
 }
