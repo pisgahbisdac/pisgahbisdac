@@ -661,6 +661,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                             <div class="text-xs font-bold text-purple-400 relative z-10 bg-purple-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-users mr-1"></i> Database Sistem</div>
                         </div>
                     </div>
+                    
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="glass p-8">
                             <h4 id="chart-bulanan-title" class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Riwayat Kehadiran Terakhir</h4>
@@ -755,24 +756,38 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     const parts = l.split('-');
                     if (parts.length === 3) {
                         displayYear = parts[0]; 
-                        return `${parseInt(parts[2])} ${monthNames[parseInt(parts[1]) - 1]}`; 
+                        return `${parseInt(parts[2], 10)} ${monthNames[parseInt(parts[1], 10) - 1]}`; 
                     }
                     return l;
                 });
 
                 const chartTitleEl = document.getElementById('chart-bulanan-title');
-                if (chartTitleEl) {
-                    chartTitleEl.innerText = `Riwayat Kehadiran Terakhir (${displayYear})`;
-                }
+                if (chartTitleEl) chartTitleEl.innerText = `Riwayat Kehadiran Terakhir (${displayYear})`;
 
                 let dataPointsUnit = rawLabels.map(l => { const f = unitData.find(u => u.date === l); return f ? f.count : 0; });
                 let dataPointsGlobal = rawLabels.map(l => { const f = globalData.find(g => g.date === l); return f ? f.count : 0; });
+                
+                let tamuRawData = statsData.historyByUnit['Tamu'] || [];
+                let dataPointsTamu = rawLabels.map(l => { const f = tamuRawData.find(t => t.date === l); return f ? f.count : 0; });
+                
+                let dataPointsAnggota = rawLabels.map((l, i) => Math.max(0, dataPointsGlobal[i] - dataPointsTamu[i]));
 
-                const datasets = [{
-                    label: `Kehadiran (${selectedUnit})`, data: dataPointsUnit, borderColor: '#D4AF37', backgroundColor: 'rgba(212, 175, 55, 0.2)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#0a192f', pointBorderColor: '#D4AF37', pointRadius: 5
-                }];
+                let datasets = [];
 
-                if (selectedUnit !== 'ALL') {
+                if (selectedUnit === 'ALL') {
+                    datasets.push({
+                        label: 'Anggota Jemaat', data: dataPointsAnggota, borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.2)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#0a192f', pointBorderColor: '#10B981', pointRadius: 4
+                    });
+                    datasets.push({
+                        label: 'Tamu / Simpatisan', data: dataPointsTamu, borderColor: '#F59E0B', backgroundColor: 'rgba(245, 158, 11, 0.2)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#0a192f', pointBorderColor: '#F59E0B', pointRadius: 4
+                    });
+                    datasets.push({
+                        label: 'Total Keseluruhan', data: dataPointsGlobal, borderColor: '#D4AF37', borderDash: [5, 5], backgroundColor: 'transparent', borderWidth: 2, tension: 0.4, fill: false, pointRadius: 0
+                    });
+                } else {
+                    datasets.push({
+                        label: `Kehadiran (${selectedUnit})`, data: dataPointsUnit, borderColor: '#D4AF37', backgroundColor: 'rgba(212, 175, 55, 0.2)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#0a192f', pointBorderColor: '#D4AF37', pointRadius: 5
+                    });
                     datasets.push({
                         label: `Total Global`, data: dataPointsGlobal, borderColor: '#3B82F6', borderDash: [5, 5], backgroundColor: 'transparent', borderWidth: 2, tension: 0.4, fill: false, pointRadius: 3
                     });
@@ -780,7 +795,15 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
                 window.myChartBulanan = new Chart(ctxBulanan, {
                     type: 'line', data: { labels: labels, datasets: datasets },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: selectedUnit !== 'ALL', labels: { color: '#e6f1ff'} } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0', precision: 0 } }, x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0' } } } }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { legend: { display: true, labels: { color: '#e6f1ff', usePointStyle: true, boxWidth: 8 } } }, 
+                        scales: { 
+                            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0', precision: 0 } }, 
+                            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892b0' } } 
+                        } 
+                    }
                 });
             }
 
@@ -809,7 +832,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 });
             }
 
-            // UPDATE TABEL KOMPOSISI
             let composition = {};
             if (selectedUnit === 'ALL') {
                 const visibleMembers = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
@@ -852,7 +874,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </tr>`;
                 });
                 
-                // Tambahkan Baris Total Keseluruhan
                 if(sortedKeys.length > 0) {
                      html += `
                     <tr class="bg-white/5 border-t-2 border-gold/50 text-[#D4AF37] transition-all">
