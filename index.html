@@ -57,6 +57,19 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         #filter-unit-select, #tamu, #tgl { padding: 12px 16px; border-radius: 8px; width: 100%;}
+        
+        /* CSS KHUSUS UNTUK CETAK PDF */
+        @media print {
+            body * { visibility: hidden !important; }
+            #print-container, #print-container * { visibility: visible !important; }
+            #print-container {
+                position: absolute; left: 0; top: 0; width: 100%; min-height: 100vh;
+                background: white !important; color: black !important;
+                padding: 0; font-family: 'Plus Jakarta Sans', sans-serif;
+            }
+            @page { margin: 1.5cm; size: A4 portrait; }
+            ::-webkit-scrollbar { display: none; }
+        }
     </style>
 </head>
 <body class="min-h-screen pb-20">
@@ -195,6 +208,39 @@
     </div>
 </div>
 
+<!-- MODAL CETAK PDF -->
+<div id="print-modal" class="fixed inset-0 bg-[#0a192f]/90 flex items-center justify-center z-[500] hidden backdrop-blur-md">
+    <div class="glass p-8 max-w-md w-full mx-4 border-t-4 border-t-red-500 shadow-2xl animate-[fadeIn_0.3s_ease-out]">
+        <div class="text-center mb-6"><i class="fas fa-file-pdf text-5xl text-red-500"></i></div>
+        <h3 class="text-2xl font-black text-white mb-2 uppercase tracking-wide text-center">Pengaturan Cetak PDF</h3>
+        <p class="text-xs text-slate-300 mb-6 font-medium text-center">Tentukan filter dan periode laporan yang ingin dicetak.</p>
+        
+        <div class="space-y-4 text-left mb-8">
+            <div>
+                <label class="text-[10px] font-bold text-red-400 uppercase tracking-widest block mb-2 pl-2">Filter Unit / Jemaat</label>
+                <select id="print-unit-select" class="!border-red-500/50 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm font-bold">
+                    <!-- options populated dynamically -->
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[10px] font-bold text-red-400 uppercase tracking-widest block mb-2 pl-2">Dari Tanggal</label>
+                    <input type="date" id="print-start-date" class="!border-red-500/50 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-red-400 uppercase tracking-widest block mb-2 pl-2">Sampai Tanggal</label>
+                    <input type="date" id="print-end-date" class="!border-red-500/50 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex gap-4">
+            <button onclick="executePrint()" class="flex-1 bg-red-500 text-white py-4 rounded-full font-black uppercase shadow-lg hover:bg-red-400 transition-all text-sm tracking-widest"><i class="fas fa-print mr-2"></i> CETAK</button>
+            <button onclick="document.getElementById('print-modal').classList.add('hidden')" class="flex-1 bg-slate-600 text-white py-4 rounded-full font-black uppercase shadow-lg hover:bg-slate-500 transition-all text-sm tracking-widest">BATAL</button>
+        </div>
+    </div>
+</div>
+
 <script>
 function togglePassword(inputId, iconElem) {
     const input = document.getElementById(inputId);
@@ -239,6 +285,9 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
     </div>
     
     <div id="toast" class="fixed top-24 left-1/2 bg-[#D4AF37] text-[#0a192f] px-10 py-4 rounded-full opacity-0 transition-all duration-300 z-[600] font-black uppercase shadow-2xl text-center min-w-[300px] pointer-events-none" style="transform: translate(-50%, -20px);">Pesan</div>
+
+    <!-- KONTAINER KHUSUS CETAK PDF -->
+    <div id="print-container" class="hidden"></div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxHSc39iafCEvsEF-6dOznEQkZcxvOUuP_oAwn3GDUgVPm9NGMaMAw5Ag9GllNQyj-vug/exec";
@@ -627,11 +676,16 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         <div class="mt-6 inline-block bg-[#D4AF37]/20 px-6 py-2 rounded-full border border-[#D4AF37]/30"><p class="text-[#D4AF37] font-black tracking-widest uppercase text-xs relative z-10">Motivasi Sabat Ini</p></div>
                     </div>
                     
-                    <!-- DROPDOWN FILTER DASHBOARD -->
+                    <!-- DROPDOWN FILTER DASHBOARD & TOMBOL CETAK PDF -->
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <h3 class="text-2xl font-black text-[#D4AF37] uppercase"><i class="fas fa-chart-line mr-3"></i>Perbandingan Kehadiran</h3>
-                        <div class="w-full md:w-64">
-                            ${dashboardDropdown}
+                        <div class="flex flex-col md:flex-row w-full md:w-auto gap-4">
+                            <div class="w-full md:w-64">
+                                ${dashboardDropdown}
+                            </div>
+                            <button onclick="showPrintModal()" class="bg-red-500/20 border border-red-500/50 text-red-400 px-6 py-3 rounded-lg text-sm font-bold uppercase hover:bg-red-500 hover:text-white transition-all shadow-lg flex items-center justify-center gap-2 whitespace-nowrap">
+                                <i class="fas fa-file-pdf"></i> Cetak Laporan
+                            </button>
                         </div>
                     </div>
                     
@@ -891,6 +945,204 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 }
                 tbody.innerHTML = html;
             }
+        }
+
+        function showPrintModal() {
+            const modal = document.getElementById('print-modal');
+            const select = document.getElementById('print-unit-select');
+            
+            const currUnitName = currentUser.unitName || '';
+            const canFilterAll = currentUser.role === 'admin' || currentUser.role === 'khotbah' || currUnitName.toLowerCase() === 'khotbah' || currentUser.role === 'public';
+            const safeCurrUnit = String(currUnitName || '').replace(/"/g, '&quot;');
+            
+            let unitOptionsHTML = units.map(u => {
+                const uName = typeof u === 'object' && u !== null ? (u.name || '') : (u || '');
+                return `<option value="${String(uName)}">${String(uName).toUpperCase()}</option>`;
+            }).join('');
+
+            if (canFilterAll) {
+                select.innerHTML = `<option value="ALL">SEMUA JEMAAT (GLOBAL)</option>${unitOptionsHTML}`;
+                const dashSelect = document.getElementById('dash-unit-filter');
+                if (dashSelect) select.value = dashSelect.value;
+            } else {
+                select.innerHTML = `<option value="${safeCurrUnit}">${String(currUnitName || '').toUpperCase()}</option>`;
+                select.disabled = true;
+            }
+
+            const today = new Date();
+            const past = new Date();
+            past.setDate(past.getDate() - 30); // Default Mundur 30 Hari
+            
+            document.getElementById('print-end-date').value = today.toISOString().split('T')[0];
+            document.getElementById('print-start-date').value = past.toISOString().split('T')[0];
+            
+            modal.classList.remove('hidden');
+        }
+
+        function executePrint() {
+            document.getElementById('print-modal').classList.add('hidden');
+            const selectedUnit = document.getElementById('print-unit-select').value;
+            const startDate = document.getElementById('print-start-date').value;
+            const endDate = document.getElementById('print-end-date').value;
+
+            const optionsFormat = { day: 'numeric', month: 'long', year: 'numeric' };
+            const todayStr = new Date().toLocaleDateString('id-ID', { weekday: 'long', ...optionsFormat });
+            
+            let startStr = startDate ? new Date(startDate).toLocaleDateString('id-ID', optionsFormat) : '-';
+            let endStr = endDate ? new Date(endDate).toLocaleDateString('id-ID', optionsFormat) : '-';
+            let periodeText = (startDate === endDate) ? startStr : `${startStr} s/d ${endStr}`;
+
+            let composition = {};
+            let filteredMembersForPrint = [];
+            
+            if (selectedUnit === 'ALL') {
+                filteredMembersForPrint = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
+                filteredMembersForPrint.forEach(m => { const u = m.unit || 'Umum'; composition[u] = (composition[u] || 0) + 1; });
+            } else {
+                const safeUnitFilter = selectedUnit.trim().toLowerCase();
+                filteredMembersForPrint = members.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeUnitFilter);
+                filteredMembersForPrint.forEach(m => { const k = m.kelasTetap || 'Lainnya'; composition[k] = (composition[k] || 0) + 1; });
+            }
+
+            const visibleMembersCount = filteredMembersForPrint.length;
+            
+            let historyData = [];
+            if (selectedUnit === 'ALL') {
+                historyData = statsData.historyByUnit['ALL'] || [];
+            } else {
+                const target = selectedUnit.trim().toLowerCase();
+                for (let key in statsData.historyByUnit) {
+                    if (key.trim().toLowerCase() === target) { historyData = statsData.historyByUnit[key]; break; }
+                }
+            }
+
+            let filteredHistory = historyData;
+            if (startDate && endDate) {
+                filteredHistory = historyData.filter(h => h.date >= startDate && h.date <= endDate);
+            }
+
+            let avgCount = 0, maxCount = 0, latestCount = 0;
+            if (filteredHistory.length > 0) {
+                const sum = filteredHistory.reduce((acc, curr) => acc + curr.count, 0);
+                avgCount = Math.round(sum / filteredHistory.length);
+                maxCount = Math.max(...filteredHistory.map(h => h.count));
+                latestCount = filteredHistory[filteredHistory.length - 1].count;
+            }
+
+            const sortedKeys = Object.keys(composition).sort((a, b) => composition[b] - composition[a]);
+            let tableRows = sortedKeys.map((key, i) => {
+                const count = composition[key];
+                const pct = visibleMembersCount > 0 ? Math.round((count / visibleMembersCount) * 100) : 0;
+                return `
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border-right: 1px solid #ddd; text-align: center;">${i+1}</td>
+                        <td style="padding: 10px; border-right: 1px solid #ddd; font-weight: bold;">${key.toUpperCase()}</td>
+                        <td style="padding: 10px; border-right: 1px solid #ddd; text-align: center;">${count}</td>
+                        <td style="padding: 10px; text-align: center;">${pct}%</td>
+                    </tr>
+                `;
+            }).join('');
+
+            tableRows += `
+                <tr style="background-color: #f3f4f6; font-weight: bold;">
+                    <td colspan="2" style="padding: 10px; border-right: 1px solid #ddd; text-align: right;">TOTAL KESELURUHAN</td>
+                    <td style="padding: 10px; border-right: 1px solid #ddd; text-align: center;">${visibleMembersCount}</td>
+                    <td style="padding: 10px; text-align: center;">100%</td>
+                </tr>
+            `;
+
+            let membersListHTML = filteredMembersForPrint.map((m, idx) => `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 8px; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
+                    <td style="padding: 8px; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: 8px; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: 8px; border-right: 1px solid #eee;">${m.unit || 'Umum'}</td>
+                    <td style="padding: 8px;">${m.kelasTetap || '-'}</td>
+                </tr>
+            `).join('');
+
+            if(filteredMembersForPrint.length === 0) {
+                membersListHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat.</td></tr>`;
+            }
+
+            const printHtml = `
+                <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 20px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 20px;">
+                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 80px; height: 80px; object-fit: contain;">
+                    <div style="text-align: left;">
+                        <h1 style="margin: 0; font-size: 28px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
+                        <p style="margin: 5px 0 0 0; font-size: 14px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
+                        <p style="margin: 0; font-size: 12px; color: #6b7280;">Laporan Data Statistik & Kehadiran Jemaat</p>
+                    </div>
+                </div>
+
+                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">Laporan: ${selectedUnit === 'ALL' ? 'GLOBAL (SEMUA JEMAAT)' : 'UNIT ' + selectedUnit}</h2>
+                <p style="text-align: center; font-size: 14px; color: #6b7280; margin-top: 0; margin-bottom: 30px;">
+                    Periode Laporan: <strong>${periodeText}</strong><br>
+                    <span style="font-size: 11px; color: #9ca3af;">(Dicetak pada: ${todayStr})</span>
+                </p>
+
+                <div style="display: flex; gap: 20px; margin-bottom: 40px;">
+                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 10px; padding: 20px; text-align: center;">
+                        <div style="font-size: 12px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Terdaftar</div>
+                        <div style="font-size: 32px; font-weight: 900; color: #0a192f; margin-top: 10px;">${visibleMembersCount}</div>
+                    </div>
+                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 10px; padding: 20px; text-align: center;">
+                        <div style="font-size: 12px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Kehadiran Tertinggi</div>
+                        <div style="font-size: 32px; font-weight: 900; color: #10B981; margin-top: 10px;">${maxCount}</div>
+                    </div>
+                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 10px; padding: 20px; text-align: center;">
+                        <div style="font-size: 12px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Rata-rata Kehadiran</div>
+                        <div style="font-size: 32px; font-weight: 900; color: #F59E0B; margin-top: 10px;">${avgCount}</div>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 16px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px;">Tabel Komposisi Anggota</h3>
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 14px; margin-bottom: 40px;">
+                    <thead>
+                        <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 10%;">No</th>
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 50%; text-align: left;">Kategori / Unit</th>
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 20%;">Total Jiwa</th>
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 20%;">Persentase</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+
+                <h3 style="font-size: 16px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; page-break-before: auto;">Daftar Anggota Terdaftar</h3>
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 12px; margin-bottom: 40px;">
+                    <thead>
+                        <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                            <th style="padding: 10px; border: 1px solid #0a192f; width: 5%;">No</th>
+                            <th style="padding: 10px; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: 10px; border: 1px solid #0a192f; width: 20%; text-align: left;">Jabatan</th>
+                            <th style="padding: 10px; border: 1px solid #0a192f; width: 20%; text-align: left;">Unit</th>
+                            <th style="padding: 10px; border: 1px solid #0a192f; width: 20%; text-align: left;">Kelas SS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${membersListHTML}
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 50px; text-align: right; font-size: 14px; page-break-inside: avoid;">
+                    <p>Mengetahui,</p>
+                    <br><br><br>
+                    <p style="font-weight: bold; text-decoration: underline;">Ketua / Pimpinan Unit</p>
+                    <p>PISGAH BISDAC</p>
+                </div>
+            `;
+
+            const printContainer = document.getElementById('print-container');
+            printContainer.innerHTML = printHtml;
+            printContainer.classList.remove('hidden');
+
+            setTimeout(() => {
+                window.print();
+                printContainer.classList.add('hidden');
+            }, 300); 
         }
 
         function renderFilteredKhotbah() {
