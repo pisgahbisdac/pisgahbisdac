@@ -220,22 +220,18 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         let currentTab = 'dashboard';
         let memberAttendance = {}; 
         
+        // PERBAIKAN: Akses unit kini otomatis membuka semua tab absen meskipun nama unit tidak mengandung kata "Dewasa".
         const permissions = {
             public: ['dashboard'],
             admin: ['dashboard', 'khotbah', 'ss_dewasa', 'ss_anak', 'pendalaman', 'kegiatan', 'anggota', 'unit', 'admin'],
             khotbah: ['dashboard', 'khotbah'],
-            ss_dewasa: ['dashboard', 'ss_dewasa', 'kegiatan'],
-            ss_anak: ['dashboard', 'ss_anak'],
-            pendalaman: ['dashboard', 'pendalaman']
+            unit: ['dashboard', 'ss_dewasa', 'ss_anak', 'pendalaman', 'kegiatan']
         };
 
         function getCurrentPermissionRole() {
             if (currentUser.role === 'admin') return 'admin';
             if (currentUser.role === 'khotbah') return 'khotbah';
-            const unit = normalizeUnitName(currentUser.unitName);
-            if (unit.includes('ss dewasa') || unit.includes('sekolah sabat dewasa') || unit.includes('dewasa')) return 'ss_dewasa';
-            if (unit.includes('ss anak') || unit.includes('sekolah sabat anak') || unit.includes('anak')) return 'ss_anak';
-            if (unit.includes('pendalaman')) return 'pendalaman';
+            if (currentUser.role === 'unit') return 'unit'; // Pastikan login unit bisa membuka tab absen
             return 'public';
         }
 
@@ -402,16 +398,27 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             
             const currUnitName = currentUser.unitName || '';
             const canFilterAll = currentUser.role === 'admin' || currentUser.role === 'khotbah' || currUnitName.toLowerCase() === 'khotbah';
+            const safeCurrUnit = String(currUnitName || '').replace(/"/g, '&quot;');
             
             const filterDropdownHTML = (funcName, extraClass = '') => {
                 const baseClass = "!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800";
                 const fullClass = extraClass ? `${baseClass} ${extraClass}` : baseClass;
-                if (!canFilterAll) return `<select id="unit-filter" disabled class="${fullClass}"><option value="${currUnitName}">${String(currUnitName || '').toUpperCase()}</option></select>`;
+                // Mengunci pilihan dan memastikannya otomatis sesuai Unit yang sedang login.
+                if (!canFilterAll) return `<select id="unit-filter" disabled class="${fullClass}"><option value="${safeCurrUnit}">${String(currUnitName || '').toUpperCase()}</option></select>`;
                 return `<select id="unit-filter" onchange="${funcName}" class="${fullClass}"><option value="ALL">TAMPILKAN SEMUA UNIT</option>${unitOptionsHTML}</select>`;
             };
 
+            const dashboardDropdown = canFilterAll ? 
+                `<select id="dash-unit-filter" onchange="updateDashboardStats()" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm font-bold">
+                    <option value="ALL">SEMUA JEMAAT (GLOBAL)</option>
+                    ${unitOptionsHTML}
+                </select>` : 
+                `<select id="dash-unit-filter" disabled class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm font-bold">
+                    <option value="${safeCurrUnit}">${String(currUnitName || '').toUpperCase()}</option>
+                </select>`;
+
             if(currentTab === 'dashboard') {
-                renderDashboard(area, unitOptionsHTML);
+                renderDashboard(area, dashboardDropdown);
             } 
             else if(currentTab === 'khotbah') {
                 area.innerHTML = `
@@ -419,7 +426,8 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
                             <h3 class="text-3xl font-black text-[#D4AF37] uppercase">Khotbah Sabat</h3>
                             <div class="flex flex-wrap gap-4 w-full md:w-auto items-end justify-center md:justify-end">
-                                <input type="hidden" id="unit-filter" value="ALL">
+                                <div class="flex-1 min-w-[200px]"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Filter Unit</label>
+                                ${filterDropdownHTML(`renderFilteredKhotbah()`)}</div>
                                 <div class="w-28 md:w-32"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tamu</label>
                                 <input type="number" id="tamu" value="0" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
                                 <div class="w-40 md:w-48"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tanggal</label>
@@ -483,7 +491,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         }
 
         // --- DASHBOARD & ANALISIS ---
-        function renderDashboard(area, unitOptionsHTML) {
+        function renderDashboard(area, dashboardDropdown) {
             const quotes = [
                 '"Janganlah kita menjauhkan diri dari pertemuan-pertemuan ibadah kita..." - Ibrani 10:25',
                 '"Layanilah seorang akan yang lain, sesuai dengan karunia yang telah diperoleh..." - 1 Petrus 4:10',
@@ -584,10 +592,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <h3 class="text-2xl font-black text-[#D4AF37] uppercase"><i class="fas fa-chart-line mr-3"></i>Perbandingan Kehadiran</h3>
                         <div class="w-full md:w-64">
-                            <select id="dash-unit-filter" onchange="updateDashboardStats()" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm font-bold">
-                                <option value="ALL">SEMUA JEMAAT (GLOBAL)</option>
-                                ${unitOptionsHTML}
-                            </select>
+                            ${dashboardDropdown}
                         </div>
                     </div>
                     
@@ -634,7 +639,23 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
         function updateDashboardStats() {
             const selectedUnit = document.getElementById('dash-unit-filter').value;
-            const historyData = statsData.historyByUnit ? (statsData.historyByUnit[selectedUnit] || []) : [];
+            let historyData = [];
+            
+            // Pencocokan Cerdas (mengatasi huruf besar/kecil & kelebihan spasi di Database Google)
+            if (statsData.historyByUnit) {
+                if (statsData.historyByUnit[selectedUnit]) {
+                    historyData = statsData.historyByUnit[selectedUnit];
+                } else {
+                    const target = selectedUnit.trim().toLowerCase();
+                    for (let key in statsData.historyByUnit) {
+                        if (key.trim().toLowerCase() === target) {
+                            historyData = statsData.historyByUnit[key];
+                            break;
+                        }
+                    }
+                }
+            }
+            
             const latestWeek = historyData.length > 0 ? historyData[historyData.length - 1].count : 0;
             const prevWeek = historyData.length > 1 ? historyData[historyData.length - 2].count : 0;
             const weekDiff = latestWeek - prevWeek;
@@ -646,8 +667,13 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             const qtrAvg = historyData.length > 0 ? Math.round(historyData.reduce((sum, item) => sum + item.count, 0) / historyData.length) : 0;
 
             let visibleMembersCount = 0;
-            if (selectedUnit === 'ALL') visibleMembersCount = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah').length;
-            else visibleMembersCount = members.filter(m => m.unit === selectedUnit).length;
+            if (selectedUnit === 'ALL') {
+                visibleMembersCount = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah').length;
+            } else {
+                // Gunakan Pencocokan Cerdas
+                const safeUnitFilter = selectedUnit.trim().toLowerCase();
+                visibleMembersCount = members.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeUnitFilter).length;
+            }
 
             document.getElementById('dash-latest-val').innerHTML = `${latestWeek}<span class="text-lg text-slate-400 ml-1">Jiwa</span>`;
             document.getElementById('dash-month-val').innerHTML = `${monthAvg}<span class="text-lg text-slate-400 ml-1">Jiwa</span>`;
@@ -685,15 +711,26 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         }
 
         function renderFilteredKhotbah() {
-            const filterEl = document.getElementById('unit-filter'); let filter = filterEl ? filterEl.value : 'ALL';
-            let filtered = members; if(filter !== 'ALL') filtered = filtered.filter(m => m.unit === filter);
+            const filterEl = document.getElementById('unit-filter'); 
+            let filter = filterEl ? filterEl.value : 'ALL';
+            let filtered = members; 
+            if(filter !== 'ALL') {
+                const safeFilter = filter.trim().toLowerCase();
+                // PERBAIKAN: Gunakan trim() untuk mengatasi masalah spasi di Excel/Google Sheet
+                filtered = filtered.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeFilter);
+            }
             document.getElementById('khotbah-list').innerHTML = filtered.map(m => createCardHTML(m)).join('');
         }
 
         function renderFilteredMembers(cat) {
-            const filterEl = document.getElementById('unit-filter'); let filter = filterEl ? filterEl.value : 'ALL';
+            const filterEl = document.getElementById('unit-filter'); 
+            let filter = filterEl ? filterEl.value : 'ALL';
             let filtered = members.filter(m => m.kelasTetap === cat || (cat === 'Pendalaman' && m.kelasTetap === 'PA'));
-            if(filter !== 'ALL') filtered = filtered.filter(m => m.unit === filter);
+            if(filter !== 'ALL') {
+                const safeFilter = filter.trim().toLowerCase();
+                // PERBAIKAN: Gunakan trim() untuk mengatasi masalah spasi di Excel/Google Sheet
+                filtered = filtered.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeFilter);
+            }
             document.getElementById('unit-list').innerHTML = filtered.map(m => createCardHTML(m)).join('');
         }
 
@@ -709,7 +746,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             </div>`;
         }
 
-        // --- UPDATE: FUNGSI TOGGLE ABSENSI ---
+        // --- FUNGSI TOGGLE ABSENSI ---
         function setAttendance(id, status) {
             const btnHadir = document.getElementById(`btn-hadir-${id}`); 
             const btnAlpha = document.getElementById(`btn-alpha-${id}`);
@@ -835,7 +872,8 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
             const filtered = visibleMembers.filter(m => {
                 const matchNama = m.nama.toLowerCase().includes(sNama);
-                const matchUnit = (fUnit === 'ALL') || (m.unit === fUnit);
+                const safeUnit = (m.unit || 'Umum').trim().toLowerCase();
+                const matchUnit = (fUnit === 'ALL') || (safeUnit === fUnit.trim().toLowerCase());
                 const matchStatus = (fStatus === 'ALL') || (m.status === fStatus);
                 
                 let matchJabatan = false;
