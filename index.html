@@ -162,6 +162,39 @@
     </div>
 </div>
 
+<!-- MODAL KONFIRMASI ABSENSI -->
+<div id="confirm-modal" class="fixed inset-0 bg-[#0a192f]/90 flex items-center justify-center z-[500] hidden backdrop-blur-md">
+    <div class="glass p-8 max-w-sm w-full mx-4 text-center border-t-4 border-t-[#D4AF37] shadow-2xl animate-[fadeIn_0.3s_ease-out]">
+        <div class="mb-4"><i class="fas fa-clipboard-check text-5xl text-[#D4AF37]"></i></div>
+        <h3 class="text-2xl font-black text-[#D4AF37] mb-2 uppercase tracking-wide">Ringkasan Absen</h3>
+        <p id="confirm-subtitle" class="text-xs text-slate-300 mb-6 font-medium">Periksa kembali data kehadiran:</p>
+        
+        <div class="bg-[#112240] rounded-xl p-5 mb-8 border border-white/10 text-left space-y-4">
+            <div class="flex justify-between items-center pb-3 border-b border-white/5">
+                <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Total Anggota</span>
+                <span id="c-total" class="text-xl font-black text-white">0</span>
+            </div>
+            <div class="flex justify-between items-center pb-3 border-b border-white/5">
+                <span class="text-xs text-green-400 font-bold uppercase tracking-widest"><i class="fas fa-check mr-2"></i>Hadir</span>
+                <span id="c-hadir" class="text-xl font-black text-green-400">0</span>
+            </div>
+            <div class="flex justify-between items-center pb-3 border-b border-white/5">
+                <span class="text-xs text-red-400 font-bold uppercase tracking-widest"><i class="fas fa-times mr-2"></i>Alpha</span>
+                <span id="c-alpha" class="text-xl font-black text-red-400">0</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-xs text-yellow-400 font-bold uppercase tracking-widest"><i class="fas fa-exclamation-triangle mr-2"></i>Belum Diabsen</span>
+                <span id="c-belum" class="text-xl font-black text-yellow-400">0</span>
+            </div>
+        </div>
+        
+        <div class="flex gap-4">
+            <button id="btn-confirm-yes" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-full font-black uppercase shadow-lg hover:bg-yellow-400 transition-all text-sm tracking-widest">SIMPAN</button>
+            <button onclick="document.getElementById('confirm-modal').classList.add('hidden')" class="flex-1 bg-slate-600 text-white py-4 rounded-full font-black uppercase shadow-lg hover:bg-slate-500 transition-all text-sm tracking-widest">BATAL</button>
+        </div>
+    </div>
+</div>
+
 <script>
 function togglePassword(inputId, iconElem) {
     const input = document.getElementById(inputId);
@@ -205,7 +238,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         <p class="text-[#D4AF37] font-black tracking-widest text-xl animate-pulse uppercase">...</p>
     </div>
     
-    <!-- UPDATE: Toast Notification diletakkan di TENGAH ATAS -->
     <div id="toast" class="fixed top-24 left-1/2 bg-[#D4AF37] text-[#0a192f] px-10 py-4 rounded-full opacity-0 transition-all duration-300 z-[600] font-black uppercase shadow-2xl text-center min-w-[300px] pointer-events-none" style="transform: translate(-50%, -20px);">Pesan</div>
 
     <script>
@@ -232,12 +264,10 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             if (currentUser.role === 'unit') {
                 if (['dashboard', 'kegiatan'].includes(tabName)) return true;
                 
-                // Deteksi Cerdas: Hanya tampilkan tab jika unit punya anggota di kategori kelas tersebut
                 const safeUnitName = String(currentUser.unitName || '').trim().toLowerCase();
                 const unitMembers = members.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeUnitName);
                 
                 if (unitMembers.length === 0) {
-                    // Jika unit masih kosong (0 orang), tampilkan semua sebagai default agar admin unit tidak bingung
                     return ['ss_dewasa', 'ss_anak', 'pendalaman'].includes(tabName);
                 }
                 
@@ -247,7 +277,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 
                 return false;
             }
-            return tabName === 'dashboard'; // Akses publik hanya Dashboard
+            return tabName === 'dashboard';
         }
 
         let editingMemberId = null; let editingUnitName = null; let editingRoleName = null; let editingAdminUsername = null; let formSelectedRoles = ['Anggota']; 
@@ -299,7 +329,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             disableButtons(false);
         }
 
-        // --- SISTEM LOGIN & AKSES ---
         function showLogin() {
             document.getElementById('login-pin').value = '';
             document.getElementById('login-modal').classList.remove('hidden');
@@ -399,7 +428,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             toggleLoading(false); disableButtons(false);
         }
 
-        // --- RENDER HALAMAN UTAMA ---
         function renderUI() {
             const area = document.getElementById('content-area');
             const today = new Date().toISOString().split('T')[0];
@@ -411,13 +439,12 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             }).join('');
             
             const currUnitName = currentUser.unitName || '';
-            const canFilterAll = currentUser.role === 'admin' || currentUser.role === 'khotbah' || currUnitName.toLowerCase() === 'khotbah';
+            const canFilterAll = currentUser.role === 'admin' || currentUser.role === 'khotbah' || currUnitName.toLowerCase() === 'khotbah' || currentUser.role === 'public';
             const safeCurrUnit = String(currUnitName || '').replace(/"/g, '&quot;');
             
             const filterDropdownHTML = (funcName, extraClass = '') => {
                 const baseClass = "!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800";
                 const fullClass = extraClass ? `${baseClass} ${extraClass}` : baseClass;
-                // Mengunci pilihan dan memastikannya otomatis sesuai Unit yang sedang login.
                 if (!canFilterAll) return `<select id="unit-filter" disabled class="${fullClass}"><option value="${safeCurrUnit}">${String(currUnitName || '').toUpperCase()}</option></select>`;
                 return `<select id="unit-filter" onchange="${funcName}" class="${fullClass}"><option value="ALL">TAMPILKAN SEMUA UNIT</option>${unitOptionsHTML}</select>`;
             };
@@ -504,7 +531,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             else if(currentTab === 'admin') renderAdminManager(area);
         }
 
-        // --- DASHBOARD & ANALISIS ---
         function renderDashboard(area, dashboardDropdown) {
             const quotes = [
                 '"Janganlah kita menjauhkan diri dari pertemuan-pertemuan ibadah kita..." - Ibrani 10:25',
@@ -516,7 +542,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const todayStr = new Date().toLocaleDateString('id-ID', options);
             
-            // Logika Mengambil Data Ulang Tahun Bulan Ini
             const currentMonthStr = String(new Date().getMonth() + 1).padStart(2, '0');
             const birthdaysThisMonth = members.filter(m => {
                 if (!m.tanggalLahir) return false;
@@ -789,7 +814,88 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             document.getElementById('doa-nama').value = ''; document.getElementById('doa-telp').value = ''; doaPoints = []; renderDoaPoints();
         }
 
-        // --- RENDER MANAJEMEN DATA JEMAAT (DIUBAH MENJADI SATU BARIS PER INPUT) ---
+        // --- SISTEM POP-UP KONFIRMASI (RINGKASAN ABSENSI) ---
+        function getDisplayedMembers(type, cat) {
+            const filterEl = document.getElementById('unit-filter'); 
+            let filter = filterEl ? filterEl.value : 'ALL';
+            let filtered = members;
+            
+            if(type === 'kelas') {
+                filtered = members.filter(m => m.kelasTetap === cat || (cat === 'Pendalaman' && m.kelasTetap === 'PA'));
+            }
+            
+            if(filter !== 'ALL') {
+                const safeFilter = filter.trim().toLowerCase();
+                filtered = filtered.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeFilter);
+            }
+            return filtered;
+        }
+
+        function confirmAttendance(type, cat) {
+            const displayed = getDisplayedMembers(type, cat);
+            let hadir = 0, alpha = 0;
+            
+            displayed.forEach(m => {
+                if(memberAttendance[m.id] === 'Hadir') hadir++;
+                else if(memberAttendance[m.id] === 'Alpha') alpha++;
+            });
+            const belum = displayed.length - hadir - alpha;
+            
+            document.getElementById('c-total').innerText = displayed.length;
+            document.getElementById('c-hadir').innerText = hadir;
+            document.getElementById('c-alpha').innerText = alpha;
+            document.getElementById('c-belum').innerText = belum;
+            
+            const subtitle = document.getElementById('confirm-subtitle');
+            if (belum > 0) {
+                subtitle.innerHTML = `<span class="text-yellow-400 font-bold"><i class="fas fa-info-circle mr-1"></i> Peringatan: Ada ${belum} anggota yang belum Anda absen.</span>`;
+            } else {
+                subtitle.innerHTML = `<span class="text-green-400 font-bold"><i class="fas fa-check-circle mr-1"></i> Semua anggota telah diabsen!</span>`;
+            }
+            
+            document.getElementById('confirm-modal').classList.remove('hidden');
+            
+            document.getElementById('btn-confirm-yes').onclick = function() {
+                document.getElementById('confirm-modal').classList.add('hidden');
+                processSubmitAttendance(type, cat);
+            };
+        }
+
+        function submitKhotbah() { confirmAttendance('khotbah', null); }
+        function submitKelas(cat) { confirmAttendance('kelas', cat); }
+
+        async function processSubmitAttendance(type, cat) {
+            const tgl = document.getElementById('tgl').value;
+            const tamu = document.getElementById('tamu').value;
+            const unit = document.getElementById('unit-filter').value;
+            const reportType = type === 'khotbah' ? 'Khotbah' : cat;
+            
+            await send({
+                action: 'submitAbsensi',
+                data: { type: reportType, tanggal: tgl, tamu: tamu, unit: unit, attendance: memberAttendance }
+            });
+            
+            memberAttendance = {};
+            if (type === 'khotbah') renderFilteredKhotbah();
+            else renderFilteredMembers(cat);
+        }
+
+        async function submitKegiatan() {
+            if(!confirm("Yakin ingin menyimpan laporan kegiatan ini?")) return;
+            const tgl = document.getElementById('tgl').value;
+            const unit = document.getElementById('unit-filter').value;
+            const data = [];
+            for(let i=0; i<10; i++) {
+                const inputEl = document.getElementById(`k-${i}`);
+                data.push(inputEl ? inputEl.value : 0);
+            }
+            await send({
+                action: 'submitKegiatan',
+                data: { tanggal: tgl, unit: unit, laporan: data }
+            });
+        }
+        // ----------------------------------------------------
+
         function renderMemberManager(area) {
             const unitOptions = units.map(u => { const safeName = String(u.name || u || ''); return `<option value="${safeName}">${safeName.toUpperCase()}</option>`; }).join('');
             const roleOptions = roles.map(r => `<option value="${String(r || '')}">${String(r || '').toUpperCase()}</option>`).join('');
@@ -801,7 +907,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         <h3 id="form-title" class="text-2xl font-black text-[#D4AF37] mb-8 uppercase text-center">Tambah Jemaat Baru</h3>
                         <div class="space-y-6">
                             
-                            <!-- Input dibuat berbaris ke bawah (satu baris penuh) -->
                             <div>
                                 <label class="text-[10px] font-bold text-gold/60 uppercase mb-2 block text-center tracking-widest">Nama Lengkap</label>
                                 <input type="text" id="m-nama" placeholder="Masukkan Nama..." class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800">
@@ -1061,17 +1166,16 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         function formatDate(d) { if (!d) return ''; const p = d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
         function toggleLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
         
-        // UPDATE: Logika Toast untuk animasi geser dari ATAS
         function showToast(m, type="success") {
             const t = document.getElementById('toast');
             t.innerText = m; 
             t.style.backgroundColor = type === "success" ? "#D4AF37" : "#EF4444"; 
             t.style.color = type === "success" ? "#0a192f" : "#FFFFFF"; 
             t.style.opacity = '1'; 
-            t.style.transform = 'translate(-50%, 0)'; // Animasi turun ke tengah
+            t.style.transform = 'translate(-50%, 0)'; 
             setTimeout(() => { 
                 t.style.opacity = '0'; 
-                t.style.transform = 'translate(-50%, -20px)'; // Animasi naik menyembunyi
+                t.style.transform = 'translate(-50%, -20px)'; 
             }, 3500);
         }
 
