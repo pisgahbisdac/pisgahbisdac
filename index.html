@@ -279,7 +279,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             container.style.top = '0';
 
             const opt = {
-                margin:       10, 
+                margin:       5, 
                 filename:     filename,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: parseInt(width) + 40 }, 
@@ -1020,7 +1020,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
                         <div class="bg-[#112240] border border-white/10 p-6 rounded-2xl shadow-xl hover:border-green-500/30 transition-all flex flex-col justify-between">
                             <div>
-                                <h4 class="text-xl font-black text-white uppercase mb-6"><i class="fas fa-clipboard-list mr-2 text-green-400"></i> Blanko Kosongan</h4>
+                                <h4 class="text-xl font-black text-white uppercase mb-6"><i class="fas fa-calendar-check mr-2 text-green-400"></i> Rekap Multi-Tanggal</h4>
                                 <div class="space-y-5">
                                     <div>
                                         <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Tipe Kelas / Ibadah</label>
@@ -1050,7 +1050,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="printAbsensiFromAdmin()" class="w-full bg-green-500/20 border border-green-500/50 text-green-400 py-4 rounded-xl font-black uppercase shadow-lg hover:bg-green-500 hover:text-white transition-all text-sm mt-8 tracking-widest"><i class="fas fa-file-pdf mr-2"></i> UNDUH PDF BLANKO</button>
+                            <button onclick="printAbsensiFromAdmin()" class="w-full bg-green-500/20 border border-green-500/50 text-green-400 py-4 rounded-xl font-black uppercase shadow-lg hover:bg-green-500 hover:text-white transition-all text-sm mt-8 tracking-widest"><i class="fas fa-file-pdf mr-2"></i> UNDUH REKAP MULTI-TANGGAL</button>
                         </div>
                     </div>
                 </div>`;
@@ -1094,6 +1094,11 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             let reportType = type === 'khotbah' ? 'Khotbah' : catTitle;
             let histData = attendanceHistory[reportType] || {};
 
+            let isDense = displayed.length > 20;
+            let isVeryDense = displayed.length > 35;
+            let tdPad = isVeryDense ? '3px' : (isDense ? '6px' : '10px');
+            let fontSize = isVeryDense ? '10px' : (isDense ? '11px' : '13px');
+
             let membersListHTML = displayed.map((m, idx) => {
                 let status = '';
                 if (histData[m.id] && histData[m.id][dateStr]) {
@@ -1107,11 +1112,11 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
                 return `
                 <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
-                    <td style="padding: 10px; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
-                    <td style="padding: 10px; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: 10px; border-right: 1px solid #eee; text-align: center;">${m.unit || 'Umum'}</td>
-                    <td style="padding: 10px; text-align: center;">${statusText}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${m.unit || 'Umum'}</td>
+                    <td style="padding: ${tdPad}; text-align: center;">${statusText}</td>
                 </tr>
                 `;
             }).join('');
@@ -1137,39 +1142,14 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </div>
                 </div>
 
-                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">REKAP HARIAN: ${catTitle}</h2>
-                <p style="text-align: center; font-size: 14px; color: #0a192f; margin-top: 0; margin-bottom: 30px; font-weight: bold;">
-                    Unit / Filter: <span style="text-transform:uppercase;">${unit === 'ALL' ? 'Global (Semua Unit)' : unit}</span> <br>
-                    Tanggal Ibadah: ${tglStr}
-                </p>
-
-                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f9fafb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
-                    </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #ecfdf5; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #10B981;">${hadir}</div>
-                    </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fef2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #EF4444;">${alpha}</div>
-                    </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fffbeb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu (Global)</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #F59E0B;">${tamuCount}</div>
-                    </div>
-                </div>
-
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 13px; margin-bottom: 40px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 5%;">No</th>
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 25%; text-align: left;">Jabatan</th>
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 15%;">Unit</th>
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 20%;">Status Kehadiran</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 25%; text-align: left;">Jabatan</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 15%;">Unit</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 20%;">Status Kehadiran</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1177,7 +1157,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </tbody>
                 </table>
 
-                <div style="display: flex; justify-content: space-between; margin-top: 50px; font-size: 14px; page-break-inside: avoid;">
+                <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 14px; page-break-inside: avoid;">
                     <div style="text-align: center; width: 250px;">
                         <p>Pemimpin Kelas / Guru SS</p>
                         <br><br><br>
@@ -1270,11 +1250,11 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
             let membersListHTML = filteredMembersForPrint.map((m, idx) => `
                 <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 8px; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
-                    <td style="padding: 8px; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
-                    <td style="padding: 8px; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: 8px; border-right: 1px solid #eee;">${m.unit || 'Umum'}</td>
-                    <td style="padding: 8px;">${m.kelasTetap || '-'}</td>
+                    <td style="padding: 6px; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
+                    <td style="padding: 6px; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: 6px; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: 6px; border-right: 1px solid #eee;">${m.unit || 'Umum'}</td>
+                    <td style="padding: 6px;">${m.kelasTetap || '-'}</td>
                 </tr>
             `).join('');
 
@@ -1314,13 +1294,13 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </div>
 
                 <h3 style="font-size: 16px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px;">Tabel Komposisi Anggota</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 14px; margin-bottom: 40px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 12px; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 10%;">No</th>
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 50%; text-align: left;">Kategori / Unit</th>
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 20%;">Total Jiwa</th>
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 20%;">Persentase</th>
+                            <th style="padding: 10px; border: 1px solid #0a192f; width: 10%;">No</th>
+                            <th style="padding: 10px; border: 1px solid #0a192f; width: 50%; text-align: left;">Kategori / Unit</th>
+                            <th style="padding: 10px; border: 1px solid #0a192f; width: 20%;">Total Jiwa</th>
+                            <th style="padding: 10px; border: 1px solid #0a192f; width: 20%;">Persentase</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1329,14 +1309,14 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </table>
 
                 <h3 style="font-size: 16px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; page-break-before: auto;">Daftar Anggota Terdaftar</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 12px; margin-bottom: 40px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 11px; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: 10px; border: 1px solid #0a192f; width: 5%;">No</th>
-                            <th style="padding: 10px; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
-                            <th style="padding: 10px; border: 1px solid #0a192f; width: 20%; text-align: left;">Jabatan</th>
-                            <th style="padding: 10px; border: 1px solid #0a192f; width: 20%; text-align: left;">Unit</th>
-                            <th style="padding: 10px; border: 1px solid #0a192f; width: 20%; text-align: left;">Kelas SS</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 5%;">No</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%; text-align: left;">Jabatan</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%; text-align: left;">Unit</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%; text-align: left;">Kelas SS</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1344,7 +1324,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </tbody>
                 </table>
 
-                <div style="margin-top: 50px; text-align: right; font-size: 14px; page-break-inside: avoid;">
+                <div style="margin-top: 20px; text-align: right; font-size: 14px; page-break-inside: avoid;">
                     <p>Mengetahui,</p>
                     <br><br><br>
                     <p style="font-weight: bold; text-decoration: underline;">Ketua / Pimpinan Unit</p>
@@ -1409,9 +1389,16 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             let reportType = type === 'khotbah' ? 'Khotbah' : catTitle;
             let histData = attendanceHistory[reportType] || {};
 
+            let isDense = displayed.length > 20;
+            let isVeryDense = displayed.length > 35;
+            let tdPad = isVeryDense ? '2px' : (isDense ? '4px' : '6px');
+            let fontSize = isVeryDense ? '9px' : (isDense ? '10px' : '12px');
+            let boxDim = isVeryDense ? '12px' : (isDense ? '14px' : '16px');
+            let iconSize = isVeryDense ? '10px' : (isDense ? '12px' : '14px');
+
             let colsHeaderHtml = saturdays.map((sat) => {
                 const label = `${sat.getDate()}/${sat.getMonth()+1}`;
-                return `<th style="padding: 10px 2px; border: 1px solid #0a192f; text-align: center; width: 40px; font-size: 10px; background-color: #D4AF37; color: #0a192f;">SAB<br>${label}</th>`;
+                return `<th style="padding: ${tdPad} 2px; border: 1px solid #0a192f; text-align: center; width: 40px; font-size: 10px; background-color: #D4AF37; color: #0a192f;">SAB<br>${label}</th>`;
             }).join('');
 
             let membersListHTML = displayed.map((m, idx) => {
@@ -1428,14 +1415,14 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
                     let boxContent = '';
                     if (status.toLowerCase() === 'hadir') {
-                        boxContent = '<span style="color: #10B981; font-weight: 900; font-size: 14px;">&#10003;</span>';
+                        boxContent = `<span style="color: #10B981; font-weight: 900; font-size: ${iconSize};">&#10003;</span>`;
                     } else if (status.toLowerCase() === 'alpha') {
-                        boxContent = '<span style="color: #EF4444; font-weight: 900; font-size: 12px;">A</span>';
+                        boxContent = `<span style="color: #EF4444; font-weight: 900; font-size: ${iconSize};">A</span>`;
                     }
 
                     return `
-                    <td style="padding: 6px; border: 1px solid #eee; text-align: center; vertical-align: middle;">
-                        <div style="width: 16px; height: 16px; border: 1px solid #0a192f; margin: auto; border-radius: 2px; display: flex; align-items: center; justify-content: center; background: ${boxContent ? '#f8fafc' : 'transparent'};">
+                    <td style="padding: ${tdPad}; border: 1px solid #eee; text-align: center; vertical-align: middle;">
+                        <div style="width: ${boxDim}; height: ${boxDim}; border: 1px solid #0a192f; margin: auto; border-radius: 2px; display: flex; align-items: center; justify-content: center; background: ${boxContent ? '#f8fafc' : 'transparent'};">
                             ${boxContent}
                         </div>
                     </td>
@@ -1444,10 +1431,10 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
                 return `
                 <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
-                    <td style="padding: 6px; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
-                    <td style="padding: 6px; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
-                    <td style="padding: 6px; border-right: 1px solid #eee; font-size: 10px;">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: 6px; border-right: 1px solid #eee; text-align: center; font-size: 10px;">${m.unit || 'Umum'}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-size: 10px;">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center; font-size: 10px;">${m.unit || 'Umum'}</td>
                     ${checkboxes}
                 </tr>
                 `;
@@ -1463,23 +1450,23 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     <div style="text-align: left;">
                         <h1 style="margin: 0; font-size: 24px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
                         <p style="margin: 2px 0 0 0; font-size: 12px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
-                        <p style="margin: 0; font-size: 11px; color: #6b7280;">Blanko Absensi Kelas & Unit</p>
+                        <p style="margin: 0; font-size: 11px; color: #6b7280;">Laporan Absensi Kelas & Unit Multi-Tanggal</p>
                     </div>
                 </div>
 
-                <h2 style="text-align: center; font-size: 18px; text-transform: uppercase; margin-bottom: 5px;">BLANKO ABSENSI: ${catTitle}</h2>
+                <h2 style="text-align: center; font-size: 18px; text-transform: uppercase; margin-bottom: 5px;">REKAP ABSENSI: ${catTitle}</h2>
                 <p style="text-align: center; font-size: 13px; color: #0a192f; margin-top: 0; margin-bottom: 20px; font-weight: bold;">
                     Unit / Filter: <span style="text-transform:uppercase;">${unit === 'ALL' ? 'Global (Semua Unit)' : unit}</span> <br>
                     Periode: ${periodeText}
                 </p>
 
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 12px; margin-bottom: 40px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: 10px; border: 1px solid #0a192f; width: 5%;">No</th>
-                            <th style="padding: 10px; border: 1px solid #0a192f; width: 25%; text-align: left;">Nama Jemaat</th>
-                            <th style="padding: 10px; border: 1px solid #0a192f; width: 15%; text-align: left;">Jabatan</th>
-                            <th style="padding: 10px; border: 1px solid #0a192f; width: 15%;">Unit</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 25%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 15%; text-align: left;">Jabatan</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 15%;">Unit</th>
                             ${colsHeaderHtml}
                         </tr>
                     </thead>
@@ -1488,7 +1475,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </tbody>
                 </table>
 
-                <div style="display: flex; justify-content: space-between; margin-top: 40px; font-size: 12px; page-break-inside: avoid;">
+                <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 12px; page-break-inside: avoid;">
                     <div style="text-align: center; width: 200px;">
                         <p>Pemimpin Kelas / Guru SS</p>
                         <br><br><br>
@@ -1512,10 +1499,10 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             const tamu = document.getElementById('tamu').value || 0;
             const optionsFormat = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
             const tglStr = tgl ? new Date(tgl).toLocaleDateString('id-ID', optionsFormat) : '-';
-
-            const displayed = getDisplayedMembers(type, type === 'khotbah' ? null : catTitle, unit);
-            
-            let hadir = 0, alpha = 0, belum = 0;
+            let isDense = displayed.length > 20;
+            let isVeryDense = displayed.length > 35;
+            let tdPad = isVeryDense ? '3px' : (isDense ? '6px' : '10px');
+            let fontSize = isVeryDense ? '10px' : (isDense ? '11px' : '13px');
 
             let membersListHTML = displayed.map((m, idx) => {
                 const status = memberAttendance[m.id];
@@ -1526,11 +1513,11 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
                 return `
                 <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
-                    <td style="padding: 10px; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
-                    <td style="padding: 10px; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: 10px; border-right: 1px solid #eee; text-align: center;">${m.unit || 'Umum'}</td>
-                    <td style="padding: 10px; text-align: center;">${statusText}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${m.unit || 'Umum'}</td>
+                    <td style="padding: ${tdPad}; text-align: center;">${statusText}</td>
                 </tr>
                 `;
             }).join('');
@@ -1549,39 +1536,14 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </div>
                 </div>
 
-                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">ABSENSI: ${catTitle}</h2>
-                <p style="text-align: center; font-size: 14px; color: #0a192f; margin-top: 0; margin-bottom: 30px; font-weight: bold;">
-                    Unit / Filter: <span style="text-transform:uppercase;">${unit === 'ALL' ? 'Global (Semua Unit)' : unit}</span> <br>
-                    Tanggal Ibadah: ${tglStr}
-                </p>
-
-                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f9fafb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
-                    </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #ecfdf5; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #10B981;">${hadir}</div>
-                    </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fef2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #EF4444;">${alpha}</div>
-                    </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fffbeb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #F59E0B;">${tamu}</div>
-                    </div>
-                </div>
-
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 13px; margin-bottom: 40px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 5%;">No</th>
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 25%; text-align: left;">Jabatan</th>
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 15%;">Unit</th>
-                            <th style="padding: 12px; border: 1px solid #0a192f; width: 20%;">Status Kehadiran</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 25%; text-align: left;">Jabatan</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 15%;">Unit</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 20%;">Status Kehadiran</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1589,7 +1551,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </tbody>
                 </table>
 
-                <div style="display: flex; justify-content: space-between; margin-top: 50px; font-size: 14px; page-break-inside: avoid;">
+                <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 14px; page-break-inside: avoid;">
                     <div style="text-align: center; width: 250px;">
                         <p>Pemimpin Kelas / Guru SS</p>
                         <br><br><br>

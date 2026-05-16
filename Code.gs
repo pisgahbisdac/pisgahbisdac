@@ -80,7 +80,8 @@ function getInitialData() {
   }
 
   const stats = getAttendanceStats(db);
-  return { status: 'success', data: { members, units, roles, admins, stats } };
+  const attendanceHistory = buildFullAttendanceHistory(db); // KODE BARU: Mengambil riwayat centang absen
+  return { status: 'success', data: { members, units, roles, admins, stats, attendanceHistory } };
 }
 
 // ==============================================================
@@ -468,4 +469,42 @@ function createAdminSheet(ss) {
   const sheet = ss.insertSheet('Admins');
   sheet.getRange(1, 1, 1, 2).setValues([['Username', 'PIN Akses']]).setBackground("#D4AF37").setFontWeight("bold");
   sheet.appendRow(['Admin Utama', '12345']); return sheet;
+}
+
+// ==============================================================
+// KODE BARU: MENGAMBIL RIWAYAT ABSENSI PENUH UNTUK PDF REKAP
+// ==============================================================
+function buildFullAttendanceHistory(db) {
+  const history = {};
+  const sheets = db.getSheets();
+  sheets.forEach(sheet => {
+    const name = sheet.getName();
+    let type = null;
+    if (name.startsWith('Khotbah')) type = 'Khotbah';
+    else if (name.startsWith('SS Dewasa')) type = 'SS Dewasa';
+    else if (name.startsWith('SS Anak')) type = 'SS Anak';
+    else if (name.startsWith('Pendalaman')) type = 'Pendalaman';
+
+    if (type && sheet.getLastColumn() >= 3 && sheet.getLastRow() >= 2) {
+      if (!history[type]) history[type] = {};
+      const dates = sheet.getRange(1, 3, 1, sheet.getLastColumn() - 2).getValues()[0];
+      const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).getValues();
+
+      for (let c = 0; c < dates.length; c++) {
+        let rawDate = dates[c];
+        if (!rawDate) continue;
+        let dateStr = rawDate instanceof Date ? Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(rawDate).trim();
+
+        for (let r = 0; r < data.length; r++) {
+          let id = String(data[r][0]).trim();
+          let status = String(data[r][c + 2]).trim();
+          if (id && status) {
+            if (!history[type][id]) history[type][id] = {};
+            history[type][id][dateStr] = status;
+          }
+        }
+      }
+    }
+  });
+  return history;
 }
