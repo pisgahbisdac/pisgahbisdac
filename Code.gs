@@ -37,6 +37,7 @@ function doPost(e) {
       case 'submitAbsensi': result = submitAbsensi(data); break;
       case 'submitKegiatan': result = submitKegiatan(data); break;
       case 'submitDoa': result = submitDoa(data); break;
+      case 'getPrintData': result = getPrintData(data); break; // FUNGSI BARU DITAMBAHKAN
       default:
         result = { status: 'error', message: 'Aksi tidak dikenali: ' + action };
     }
@@ -83,6 +84,62 @@ function getInitialData() {
 }
 
 // ==============================================================
+// AMBIL DATA CETAK ABSENSI DETAIL (FUNGSI BARU)
+// ==============================================================
+function getPrintData(data) {
+  const db = getDb();
+  let prefix = data.type; 
+  let targetUnit = data.unit;
+  
+  if (data.type === 'Khotbah') targetUnit = 'Jemaat';
+  if (data.unit === 'ALL' && data.type !== 'Khotbah') targetUnit = 'Global'; 
+  
+  const sheetName = `${prefix} - ${targetUnit}`;
+  const sheet = db.getSheetByName(sheetName);
+  
+  if (!sheet) return { status: 'error', message: 'Lembar absensi belum dibuat.' };
+  
+  const lastCol = sheet.getLastColumn();
+  const lastRow = sheet.getLastRow();
+  
+  if (lastCol < 3 || lastRow < 2) return { status: 'error', message: 'Belum ada data absensi.' };
+  
+  const headersRaw = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  const headersStr = headersRaw.map(h => {
+    if (h instanceof Date) return Utilities.formatDate(h, Session.getScriptTimeZone(), "yyyy-MM-dd");
+    return String(h).trim();
+  });
+  
+  let colIdx = headersStr.indexOf(String(data.tanggal).trim());
+  if (colIdx === -1) return { status: 'error', message: `Tidak ada data absensi untuk tanggal ${data.tanggal}.` };
+  
+  // Ambil ID, Nama, dan Status pada kolom tanggal tersebut
+  const listId = sheet.getRange(2, 1, lastRow - 1, 1).getValues().map(r => r[0]);
+  const listNama = sheet.getRange(2, 2, lastRow - 1, 1).getValues().map(r => r[0]);
+  const listStatus = sheet.getRange(2, colIdx + 1, lastRow - 1, 1).getValues().map(r => r[0]);
+  
+  let resultList = [];
+  let tamuCount = 0;
+  
+  for (let i = 0; i < listId.length; i++) {
+    let id = String(listId[i]).trim();
+    if (!id) continue;
+    
+    if (id.toUpperCase() === "TAMU") {
+      tamuCount = parseInt(listStatus[i]) || 0;
+    } else {
+      resultList.push({
+        id: id,
+        nama: listNama[i],
+        status: listStatus[i] || 'Alpha' // Jika kosong dianggap Alpha
+      });
+    }
+  }
+  
+  return { status: 'success', data: { list: resultList, tamu: tamuCount } };
+}
+
+// ==============================================================
 // STATISTIK DASHBOARD (Akurasi Tinggi & Sinkronisasi Tanggal)
 // ==============================================================
 function getAttendanceStats(ss) {
@@ -97,7 +154,7 @@ function getAttendanceStats(ss) {
       let idStr = String(mData[i][0]).trim();
       let unitStr = String(mData[i][4] || 'Umum').trim();
       memberUnitMap[idStr] = unitStr; 
-      allUnits.add(unitStr); // Kumpulkan semua unit yang ada
+      allUnits.add(unitStr); 
     }
   }
 
@@ -118,7 +175,6 @@ function getAttendanceStats(ss) {
         
         let dateStr = rawDate instanceof Date ? Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(rawDate).trim();
         
-        // Inisialisasi tanggal ini untuk SEMUA UNIT dengan nilai 0 agar array seimbang
         if (!historyMap['ALL'][dateStr]) historyMap['ALL'][dateStr] = 0;
         allUnits.forEach(u => {
             if (!historyMap[u]) historyMap[u] = {};
