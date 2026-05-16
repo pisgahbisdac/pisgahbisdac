@@ -79,7 +79,20 @@ function getInitialData() {
   }
 
   const stats = getAttendanceStats(db);
-  return { status: 'success', data: { members, units, roles, admins, stats } };
+  const historyData = getAttendanceAndKegiatanHistory(db);
+  
+  return { 
+    status: 'success', 
+    data: { 
+      members, 
+      units, 
+      roles, 
+      admins, 
+      stats,
+      attendanceHistory: historyData.attendanceHistory,
+      kegiatanHistory: historyData.kegiatanHistory
+    } 
+  };
 }
 
 // ==============================================================
@@ -160,6 +173,70 @@ function getAttendanceStats(ss) {
 
   if (!result['ALL']) result['ALL'] = [];
   return { historyByUnit: result, history: result['ALL'] };
+}
+
+function getAttendanceAndKegiatanHistory(ss) {
+  let attendanceHistory = {};
+  let kegiatanHistory = {};
+
+  const sheets = ss.getSheets();
+  
+  sheets.forEach(sheet => {
+    const sheetName = sheet.getName();
+    const lastCol = sheet.getLastColumn();
+    const lastRow = sheet.getLastRow();
+    
+    if (sheetName.startsWith('Kegiatan - ')) {
+      if (lastCol >= 3 && lastRow >= 2) {
+        let unitName = sheetName.replace('Kegiatan - ', '').trim();
+        kegiatanHistory[unitName] = {};
+        const dates = sheet.getRange(1, 3, 1, lastCol - 2).getValues()[0];
+        const data = sheet.getRange(2, 3, lastRow - 1, lastCol - 2).getValues();
+        
+        for (let c = 0; c < dates.length; c++) {
+          let rawDate = dates[c];
+          if (!rawDate) continue;
+          let dateStr = rawDate instanceof Date ? Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(rawDate).trim();
+          
+          let colData = [];
+          for (let r = 0; r < data.length; r++) {
+            colData.push(data[r][c]);
+          }
+          kegiatanHistory[unitName][dateStr] = colData;
+        }
+      }
+    } 
+    else if (sheetName.includes(' - ')) {
+      let parts = sheetName.split(' - ');
+      let type = parts[0].trim();
+      
+      if (['Khotbah', 'SS Dewasa', 'SS Anak', 'Pendalaman'].includes(type)) {
+        if (!attendanceHistory[type]) attendanceHistory[type] = {};
+        
+        if (lastCol >= 3 && lastRow > 1) {
+          const dates = sheet.getRange(1, 3, 1, lastCol - 2).getValues()[0];
+          const data = sheet.getRange(2, 3, lastRow - 1, lastCol - 2).getValues();
+          const ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues().map(r => r[0]);
+          
+          for (let c = 0; c < dates.length; c++) {
+            let rawDate = dates[c];
+            if (!rawDate) continue;
+            let dateStr = rawDate instanceof Date ? Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(rawDate).trim();
+            
+            for (let r = 0; r < data.length; r++) {
+              let idStr = String(ids[r]).trim();
+              if (idStr && idStr !== 'TAMU') {
+                if (!attendanceHistory[type][idStr]) attendanceHistory[type][idStr] = {};
+                attendanceHistory[type][idStr][dateStr] = String(data[r][c]).trim();
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+  
+  return { attendanceHistory, kegiatanHistory };
 }
 
 // ==============================================================
