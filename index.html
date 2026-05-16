@@ -237,6 +237,16 @@ function initTabScrolling() {
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initTabScrolling);
 } else { initTabScrolling(); }
+
+function getYYYYMMDD(d) {
+    if (!d) return '';
+    const dateObj = new Date(d);
+    if (isNaN(dateObj)) return '';
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const dd = String(dateObj.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
 </script>
 
     <!-- LOADING & TOAST -->
@@ -260,6 +270,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         let statsData = { history: [], historyByUnit: { 'ALL': [] } }; 
         let doaPoints = []; 
         let attendanceHistory = {}; 
+        let kegiatanHistory = {}; // DATA Laporan 10 Poin Kegiatan
         
         let currentUser = { role: 'public', unitName: null, adminName: null }; 
         let currentTab = 'dashboard';
@@ -272,9 +283,19 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             "Perlawatan Pemeliharaan", "Membagikan Buku Rohani", "Kegiatan Kelompok Kecil", "Program Berdoa (777/1752)"
         ];
 
+        // MENGAMBIL DATA AKTIVITAS DENGAN AMAN
+        function getActivityData(unitName, dateString) {
+            // Periksa apakah datanya ada dalam objek kegiatanHistory
+            if (kegiatanHistory[unitName] && kegiatanHistory[unitName][dateString]) {
+                return kegiatanHistory[unitName][dateString]; 
+            }
+            // Jika tidak ada laporan, kembalikan array kosong (setrip -)
+            return Array(10).fill('-');
+        }
+
         // ==========================================
         // FUNGSI INTI DOWNLOAD PDF BYPASS MOBILE
-        // UPDATE BARU: AUTO-LANDSCAPE & AUTO-ZOOM (1 LEMBAR)
+        // UPDATE BARU: FONT DASAR PENCEGAH GLITCH / OVERLAP
         // ==========================================
         function generatePDF(htmlContent, filename) {
             toggleLoading(true); 
@@ -290,8 +311,9 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             container.style.opacity = '0';
             container.style.pointerEvents = 'none';
             
+            // FONT ARIAL/HELVETICA + PENCEGAHAN SPASI HURUF BERLEBIHAN
             container.innerHTML = `
-                <div id="pdf-measure-box" style="width: 794px; background: white; color: black; font-family: 'Plus Jakarta Sans', sans-serif; padding: 25px; box-sizing: border-box;">
+                <div id="pdf-measure-box" style="width: 794px; background: white; color: black; font-family: Arial, Helvetica, sans-serif; padding: 25px; box-sizing: border-box; font-feature-settings: normal; letter-spacing: normal;">
                     ${htmlContent}
                 </div>
             `;
@@ -301,31 +323,24 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 const contentWidth = measureBox.scrollWidth;
 
                 let orientation = 'portrait';
-                let finalWidth = 794; // Batas wajar Portrait A4
+                let finalWidth = 794; 
 
-                // DETEKSI CERDAS KELEBARAN: Auto-Landscape
                 if (contentWidth > 800) {
                     orientation = 'landscape';
-                    finalWidth = 1123; // Lebar standar Landscape A4
-                    
+                    finalWidth = 1123; 
                     measureBox.style.width = '1123px'; 
                     if (measureBox.scrollWidth > 1130) {
-                        finalWidth = measureBox.scrollWidth; // Jika masih kurang lebar, PDF engine otomatis Zoom out horizontal
+                        finalWidth = measureBox.scrollWidth; 
                     }
                 }
                 
                 measureBox.style.width = finalWidth + 'px';
 
-                // ==========================================
-                // DETEKSI CERDAS KETINGGIAN: Paksa Muat 1 Lembar (Auto-Zoom Out)
-                // ==========================================
                 let contentHeight = measureBox.scrollHeight;
-                // Tinggi A4 pada 96 DPI dikurangi margin. Portrait ~ 1050px, Landscape ~ 730px.
                 let maxSafeHeight = orientation === 'landscape' ? 730 : 1050;
 
                 if (contentHeight > maxSafeHeight) {
                     let zoomRatio = maxSafeHeight / contentHeight;
-                    // Menerapkan Zoom (Mengecilkan semua elemen) agar tidak pecah ke halaman 2
                     measureBox.style.zoom = zoomRatio;
                 }
 
@@ -420,6 +435,8 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     if (!statsData.historyByUnit) statsData.historyByUnit = { 'ALL': statsData.history || [] };
                     
                     attendanceHistory = payload.attendanceHistory || {};
+                    // TANGKAP DATA KEGIATAN DARI DATABASE 
+                    kegiatanHistory = payload.kegiatanHistory || payload.activityHistory || {};
                     
                     renderTabs();
                     switchTab(currentTab);
@@ -575,11 +592,11 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         <div class="flex flex-col md:flex-row justify-between items-center mb-8 md:mb-10 gap-6">
                             <h3 class="text-2xl md:text-3xl font-black text-[#D4AF37] uppercase">Khotbah Sabat</h3>
                             <div class="flex flex-wrap gap-4 w-full md:w-auto items-end justify-center md:justify-end">
-                                <div class="flex-1 min-w-[200px]"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Filter Unit</label>
+                                <div class="flex-1 min-w-[200px]"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center">Filter Unit</label>
                                 ${filterDropdownHTML(`renderFilteredKhotbah()`)}</div>
-                                <div class="w-24 md:w-32"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tamu</label>
+                                <div class="w-24 md:w-32"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center">Tamu</label>
                                 <input type="number" id="tamu" value="0" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800"></div>
-                                <div class="w-36 md:w-48"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tanggal</label>
+                                <div class="w-36 md:w-48"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center">Tanggal</label>
                                 <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800"></div>
                             </div>
                         </div>
@@ -598,11 +615,11 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         <div class="flex flex-col md:flex-row justify-between items-center mb-8 md:mb-10 gap-6">
                             <h3 class="text-2xl md:text-3xl font-black text-[#D4AF37] uppercase">${cat}</h3>
                             <div class="flex flex-wrap gap-4 w-full md:w-auto items-end justify-center md:justify-end">
-                                <div class="flex-1 min-w-[200px]"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Filter Unit</label>
+                                <div class="flex-1 min-w-[200px]"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center">Filter Unit</label>
                                 ${filterDropdownHTML(`renderFilteredMembers('${cat}')`)}</div>
-                                <div class="w-24 md:w-32"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tamu</label>
+                                <div class="w-24 md:w-32"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center">Tamu</label>
                                 <input type="number" id="tamu" value="0" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800"></div>
-                                <div class="w-36 md:w-48"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tanggal</label>
+                                <div class="w-36 md:w-48"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center">Tanggal</label>
                                 <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800"></div>
                             </div>
                         </div>
@@ -620,9 +637,9 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         <div class="flex flex-col md:flex-row justify-between items-center mb-8 md:mb-10 gap-6">
                             <h3 class="text-2xl md:text-3xl font-black text-[#D4AF37] uppercase text-center md:text-left">Keterlibatan Anggota</h3>
                             <div class="flex flex-wrap gap-4 w-full md:w-auto items-end justify-center md:justify-end">
-                                <div class="flex-1 min-w-[200px]"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Pilih Unit Laporan</label>
+                                <div class="flex-1 min-w-[200px]"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center">Pilih Unit Laporan</label>
                                 ${filterDropdownHTML('')}</div>
-                                <div class="w-48 md:w-56"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center tracking-widest">Tanggal Laporan</label>
+                                <div class="w-48 md:w-56"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2 text-center">Tanggal Laporan</label>
                                 <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800"></div>
                             </div>
                         </div>
@@ -674,7 +691,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                             <p class="text-base md:text-xl text-slate-200 font-medium mb-6 md:mb-8 drop-shadow-md max-w-2xl mx-auto">Di Matrix System <span class="text-gold text-[#D4AF37] font-bold">PISGAH BISDAC v1.0.</span><br/>Silakan <span class="text-gold text-[#D4AF37] font-bold">LOGIN</span> untuk dapat mengisi absen jemaat unit Anda.</p>
                             <div class="inline-flex items-center gap-3 bg-[#0a192f]/70 border border-[#D4AF37]/30 px-5 md:px-6 py-2 md:py-3 rounded-full shadow-inner relative z-10 backdrop-blur-sm">
                                 <i class="fas fa-calendar-alt text-[#D4AF37] text-base md:text-lg"></i>
-                                <span class="text-xs md:text-sm font-bold text-slate-200 uppercase tracking-widest">${todayStr}</span>
+                                <span class="text-xs md:text-sm font-bold text-slate-200 uppercase">${todayStr}</span>
                             </div>
                         </div>
                     </div>
@@ -686,19 +703,19 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         <h3 class="text-xl md:text-3xl font-black text-white relative z-10 mb-2 uppercase tracking-wide">Kotak Permohonan Doa</h3>
                         <p class="text-xs md:text-sm text-slate-300 relative z-10 mb-6 md:mb-8 max-w-2xl mx-auto">Tuliskan permohonan doa Anda di bawah ini. Tim pendoa kami siap mendukung Anda dalam doa.</p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 relative z-10 text-left">
-                            <div><label class="text-[10px] font-bold text-blue-300 uppercase mb-2 block tracking-widest pl-4">Nama Lengkap</label>
+                            <div><label class="text-[10px] font-bold text-blue-300 uppercase mb-2 block pl-4">Nama Lengkap</label>
                             <input type="text" id="doa-nama" placeholder="Masukkan Nama Anda..." class="!border-blue-500/50 focus:!border-blue-400 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full"></div>
-                            <div><label class="text-[10px] font-bold text-blue-300 uppercase mb-2 block tracking-widest pl-4">No. WhatsApp / Telepon</label>
+                            <div><label class="text-[10px] font-bold text-blue-300 uppercase mb-2 block pl-4">No. WhatsApp / Telepon</label>
                             <input type="tel" id="doa-telp" placeholder="Contoh: 08123456789..." class="!border-blue-500/50 focus:!border-blue-400 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full"></div>
                         </div>
                         <div class="relative z-10 text-left mb-6 md:mb-8">
-                            <label class="text-[10px] font-bold text-blue-300 uppercase mb-2 block tracking-widest pl-4">Poin Doa (Ketik lalu tekan Enter)</label>
+                            <label class="text-[10px] font-bold text-blue-300 uppercase mb-2 block pl-4">Poin Doa (Ketik lalu tekan Enter)</label>
                             <div class="bg-[#0a192f]/60 backdrop-blur-md p-3 md:p-4 rounded-[1.5rem] md:rounded-[2rem] border-2 border-blue-500/30 min-h-[100px] md:min-h-[120px] transition-all focus-within:border-blue-400 focus-within:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
                                 <div id="doa-list" class="flex flex-wrap gap-2 mb-2 empty:mb-0"></div>
                                 <input type="text" id="doa-input" placeholder="Ketik pokok doa di sini, lalu tekan Enter..." class="!bg-transparent !border-none !p-2 !text-left !text-base md:text-lg !font-medium !text-white focus:!ring-0 focus:!shadow-none !rounded-none w-full" onkeypress="handleDoaEnter(event)">
                             </div>
                         </div>
-                        <button onclick="submitDoaForm()" class="w-full relative z-10 bg-blue-500 text-white py-4 md:py-5 rounded-full font-black text-lg md:text-xl shadow-lg hover:bg-blue-400 hover:shadow-blue-500/50 transition-all uppercase tracking-widest"><i class="fas fa-paper-plane mr-3"></i>Kirim Permohonan Doa</button>
+                        <button onclick="submitDoaForm()" class="w-full relative z-10 bg-blue-500 text-white py-4 md:py-5 rounded-full font-black text-lg md:text-xl shadow-lg hover:bg-blue-400 hover:shadow-blue-500/50 transition-all uppercase"><i class="fas fa-paper-plane mr-3"></i>Kirim Permohonan Doa</button>
                     </div>
 
                     <!-- ULANG TAHUN BULAN INI -->
@@ -720,7 +737,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                                     </div>
                                     <div class="min-w-0">
                                         <div class="text-white font-bold uppercase truncate">${m.nama}</div>
-                                        <div class="text-[10px] text-pink-400 uppercase tracking-widest">${day} ${mthName} • ${m.unit}</div>
+                                        <div class="text-[10px] text-pink-400 uppercase">${day} ${mthName} • ${m.unit}</div>
                                     </div>
                                 </div>`;
                             }).join('')}
@@ -733,7 +750,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     <div class="glass p-8 md:p-10 mb-10 text-center relative overflow-hidden">
                         <div class="absolute -right-6 -top-6 text-gold/10 text-8xl md:text-9xl"><i class="fas fa-quote-right"></i></div>
                         <h3 class="text-lg md:text-3xl font-black text-white italic relative z-10 leading-relaxed max-w-4xl mx-auto drop-shadow-md">${randomQuote}</h3>
-                        <div class="mt-6 inline-block bg-[#D4AF37]/20 px-6 py-2 rounded-full border border-[#D4AF37]/30"><p class="text-[#D4AF37] font-black tracking-widest uppercase text-xs relative z-10">Motivasi Sabat Ini</p></div>
+                        <div class="mt-6 inline-block bg-[#D4AF37]/20 px-6 py-2 rounded-full border border-[#D4AF37]/30"><p class="text-[#D4AF37] font-black uppercase text-xs relative z-10">Motivasi Sabat Ini</p></div>
                     </div>
                     
                     <!-- DROPDOWN FILTER DASHBOARD -->
@@ -747,25 +764,25 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-10">
                         <div class="glass p-5 md:p-6 border-l-4 border-l-blue-400 relative overflow-hidden group hover:bg-white/5 transition-all">
                             <i class="fas fa-calendar-week absolute -right-4 -bottom-4 text-6xl md:text-7xl text-blue-400/10 group-hover:scale-110 transition-transform"></i>
-                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Kehadiran Terakhir</div>
+                            <div class="text-[10px] font-bold text-gold/60 uppercase mb-2 relative z-10">Kehadiran Terakhir</div>
                             <div id="dash-latest-val" class="text-3xl md:text-4xl font-black text-white mb-2 relative z-10">0<span class="text-base md:text-lg text-slate-400 ml-1">Jiwa</span></div>
                             <div id="dash-trend-val" class="text-xs font-bold text-slate-400 relative z-10 inline-block px-3 py-1 rounded-lg">Memuat...</div>
                         </div>
                         <div class="glass p-5 md:p-6 border-l-4 border-l-green-400 relative overflow-hidden group hover:bg-white/5 transition-all">
                             <i class="fas fa-calendar-alt absolute -right-4 -bottom-4 text-6xl md:text-7xl text-green-400/10 group-hover:scale-110 transition-transform"></i>
-                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Rata-rata Bulanan</div>
+                            <div class="text-[10px] font-bold text-gold/60 uppercase mb-2 relative z-10">Rata-rata Bulanan</div>
                             <div id="dash-month-val" class="text-3xl md:text-4xl font-black text-white mb-2 relative z-10">0<span class="text-base md:text-lg text-slate-400 ml-1">Jiwa</span></div>
                             <div class="text-xs font-bold text-green-400 relative z-10 bg-green-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-chart-bar mr-1"></i> 4 Pekan Terakhir</div>
                         </div>
                         <div class="glass p-5 md:p-6 border-l-4 border-l-yellow-400 relative overflow-hidden group hover:bg-white/5 transition-all">
                             <i class="fas fa-chart-pie absolute -right-4 -bottom-4 text-6xl md:text-7xl text-yellow-400/10 group-hover:scale-110 transition-transform"></i>
-                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Rata-rata Triwulan</div>
+                            <div class="text-[10px] font-bold text-gold/60 uppercase mb-2 relative z-10">Rata-rata Triwulan</div>
                             <div id="dash-qtr-val" class="text-3xl md:text-4xl font-black text-white mb-2 relative z-10">0<span class="text-base md:text-lg text-slate-400 ml-1">Jiwa</span></div>
                             <div class="text-xs font-bold text-yellow-400 relative z-10 bg-yellow-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-history mr-1"></i> 12 Pekan Terakhir</div>
                         </div>
                         <div class="glass p-5 md:p-6 border-l-4 border-l-purple-400 relative overflow-hidden group hover:bg-white/5 transition-all">
                             <i class="fas fa-globe absolute -right-4 -bottom-4 text-6xl md:text-7xl text-purple-400/10 group-hover:scale-110 transition-transform"></i>
-                            <div class="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-2 relative z-10">Total Terdaftar</div>
+                            <div class="text-[10px] font-bold text-gold/60 uppercase mb-2 relative z-10">Total Terdaftar</div>
                             <div id="dash-total-val" class="text-3xl md:text-4xl font-black text-white mb-2 relative z-10">0<span class="text-base md:text-lg text-slate-400 ml-1">Jiwa</span></div>
                             <div class="text-xs font-bold text-purple-400 relative z-10 bg-purple-400/10 inline-block px-3 py-1 rounded-lg"><i class="fas fa-users mr-1"></i> Database Sistem</div>
                         </div>
@@ -773,29 +790,28 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
                         <div class="glass p-5 md:p-8">
-                            <h4 id="chart-bulanan-title" class="text-xs md:text-sm font-bold text-gold uppercase tracking-widest mb-4 md:mb-6 text-center">Riwayat Kehadiran Terakhir</h4>
+                            <h4 id="chart-bulanan-title" class="text-xs md:text-sm font-bold text-gold uppercase mb-4 md:mb-6 text-center">Riwayat Kehadiran Terakhir</h4>
                             <div class="relative h-56 md:h-64"><canvas id="chartBulanan"></canvas></div>
                         </div>
                         <div class="glass p-5 md:p-8">
-                            <h4 id="pie-chart-title" class="text-xs md:text-sm font-bold text-gold uppercase tracking-widest mb-4 md:mb-6 text-center">Rasio Kehadiran</h4>
+                            <h4 id="pie-chart-title" class="text-xs md:text-sm font-bold text-gold uppercase mb-4 md:mb-6 text-center">Rasio Kehadiran</h4>
                             <div class="relative h-56 md:h-64 flex justify-center"><canvas id="chartUnit"></canvas></div>
                         </div>
                     </div>
                     
                     <!-- TABEL KOMPOSISI -->
                     <div class="glass p-5 md:p-8 mt-6 md:mt-8">
-                        <h4 id="table-komposisi-title" class="text-xs md:text-sm font-bold text-gold uppercase tracking-widest mb-4 md:mb-6 text-center">Komposisi Anggota Terdaftar</h4>
+                        <h4 id="table-komposisi-title" class="text-xs md:text-sm font-bold text-gold uppercase mb-4 md:mb-6 text-center">Komposisi Anggota Terdaftar</h4>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse min-w-[400px]">
                                 <thead>
-                                    <tr class="border-b-2 border-gold/20 text-gold/80 text-[10px] uppercase tracking-widest">
+                                    <tr class="border-b-2 border-gold/20 text-gold/80 text-[10px] uppercase">
                                         <th class="py-2 md:py-3 px-3 md:px-4">Kategori</th>
                                         <th class="py-2 md:py-3 px-3 md:px-4 text-center">Total Jiwa</th>
                                         <th class="py-2 md:py-3 px-3 md:px-4 text-center">Persentase</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table-komposisi-body" class="text-sm text-slate-200">
-                                    <!-- Rows populated by JS -->
                                 </tbody>
                             </table>
                         </div>
@@ -986,7 +1002,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 if(sortedKeys.length > 0) {
                      html += `
                     <tr class="bg-white/5 border-t-2 border-gold/50 text-[#D4AF37] transition-all">
-                        <td class="py-3 md:py-4 px-3 md:px-4 font-black uppercase text-right tracking-widest">TOTAL KESELURUHAN</td>
+                        <td class="py-3 md:py-4 px-3 md:px-4 font-black uppercase text-right">TOTAL KESELURUHAN</td>
                         <td class="py-3 md:py-4 px-3 md:px-4 text-center font-black text-lg md:text-xl">${visibleMembersCount}</td>
                         <td class="py-3 md:py-4 px-3 md:px-4 text-center">
                             <div class="flex items-center justify-center gap-2">
@@ -1024,7 +1040,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                                 <h4 class="text-lg md:text-xl font-black text-white uppercase mb-4 md:mb-6"><i class="fas fa-chart-pie mr-2 text-blue-400"></i> Statistik Global</h4>
                                 <div class="space-y-4 md:space-y-5">
                                     <div>
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Filter Unit</label>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Filter Unit</label>
                                         <select id="c-stat-unit" class="!border-white/10 focus:!border-red-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm">
                                             <option value="ALL">SEMUA JEMAAT (GLOBAL)</option>
                                             ${unitOptionsHTML}
@@ -1032,17 +1048,17 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                                     </div>
                                     <div class="grid grid-cols-2 gap-3 md:gap-4">
                                         <div>
-                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Dari</label>
+                                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Dari</label>
                                             <input type="date" id="c-stat-start" value="${pastStrFull}" class="!border-white/10 focus:!border-red-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-xs md:text-sm">
                                         </div>
                                         <div>
-                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Sampai</label>
+                                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Sampai</label>
                                             <input type="date" id="c-stat-end" value="${todayStrFull}" class="!border-white/10 focus:!border-red-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-xs md:text-sm">
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="printStatistikFromAdmin()" class="w-full bg-blue-500/20 border border-blue-500/50 text-blue-400 py-3 md:py-4 rounded-xl font-black uppercase shadow-lg hover:bg-blue-500 hover:text-white transition-all text-xs md:text-sm mt-6 md:mt-8 tracking-widest"><i class="fas fa-file-pdf mr-2"></i> UNDUH PDF STATISTIK</button>
+                            <button onclick="printStatistikFromAdmin()" class="w-full bg-blue-500/20 border border-blue-500/50 text-blue-400 py-3 md:py-4 rounded-xl font-black uppercase shadow-lg hover:bg-blue-500 hover:text-white transition-all text-xs md:text-sm mt-6 md:mt-8"><i class="fas fa-file-pdf mr-2"></i> UNDUH PDF STATISTIK</button>
                         </div>
 
                         <!-- 2. CETAK REKAP ABSEN HARIAN -->
@@ -1051,7 +1067,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                                 <h4 class="text-lg md:text-xl font-black text-white uppercase mb-4 md:mb-6"><i class="fas fa-clipboard-check mr-2 text-yellow-400"></i> Rekap Harian</h4>
                                 <div class="space-y-4 md:space-y-5">
                                     <div>
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Tipe Kelas / Ibadah</label>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Tipe Kelas / Ibadah</label>
                                         <select id="c-rekap-tipe" class="!border-white/10 focus:!border-yellow-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm">
                                             <option value="khotbah">Khotbah Sabat</option>
                                             <option value="ss_dewasa">Sekolah Sabat Dewasa</option>
@@ -1060,19 +1076,19 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Filter Unit</label>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Filter Unit</label>
                                         <select id="c-rekap-unit" class="!border-white/10 focus:!border-yellow-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm">
                                             <option value="ALL">SEMUA JEMAAT (GLOBAL)</option>
                                             ${unitOptionsHTML}
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Tanggal Ibadah (1 Hari)</label>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Tanggal Ibadah (1 Hari)</label>
                                         <input type="date" id="c-rekap-tgl" value="${todayStrFull}" class="!border-white/10 focus:!border-yellow-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-xs md:text-sm">
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="printRekapHarianFromAdmin()" class="w-full bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 py-3 md:py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-500 hover:text-[#0a192f] transition-all text-xs md:text-sm mt-6 md:mt-8 tracking-widest"><i class="fas fa-file-pdf mr-2"></i> UNDUH REKAP HARIAN</button>
+                            <button onclick="printRekapHarianFromAdmin()" class="w-full bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 py-3 md:py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-500 hover:text-[#0a192f] transition-all text-xs md:text-sm mt-6 md:mt-8"><i class="fas fa-file-pdf mr-2"></i> UNDUH REKAP HARIAN</button>
                         </div>
 
                         <!-- 3. CETAK BLANKO DAFTAR HADIR (RENTANG TANGGAL) -->
@@ -1081,7 +1097,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                                 <h4 class="text-lg md:text-xl font-black text-white uppercase mb-4 md:mb-6"><i class="fas fa-calendar-check mr-2 text-green-400"></i> Rekap Multi-Tanggal</h4>
                                 <div class="space-y-4 md:space-y-5">
                                     <div>
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Tipe Kelas / Ibadah</label>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Tipe Kelas / Ibadah</label>
                                         <select id="c-absen-tipe" class="!border-white/10 focus:!border-green-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm">
                                             <option value="khotbah">Khotbah Sabat</option>
                                             <option value="ss_dewasa">Sekolah Sabat Dewasa</option>
@@ -1090,7 +1106,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Filter Unit</label>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Filter Unit</label>
                                         <select id="c-absen-unit" class="!border-white/10 focus:!border-green-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm">
                                             <option value="ALL">SEMUA JEMAAT (GLOBAL)</option>
                                             ${unitOptionsHTML}
@@ -1098,17 +1114,17 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                                     </div>
                                     <div class="grid grid-cols-2 gap-3 md:gap-4">
                                         <div>
-                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Dari</label>
+                                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Dari</label>
                                             <input type="date" id="c-absen-start" value="${pastStrFull}" class="!border-white/10 focus:!border-green-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-xs md:text-sm">
                                         </div>
                                         <div>
-                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Sampai</label>
+                                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Sampai</label>
                                             <input type="date" id="c-absen-end" value="${todayStrFull}" class="!border-white/10 focus:!border-green-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-xs md:text-sm">
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="printAbsensiFromAdmin()" class="w-full bg-green-500/20 border border-green-500/50 text-green-400 py-3 md:py-4 rounded-xl font-black uppercase shadow-lg hover:bg-green-500 hover:text-white transition-all text-xs md:text-sm mt-6 md:mt-8 tracking-widest"><i class="fas fa-file-pdf mr-2"></i> UNDUH REKAP MULTI-TANGGAL</button>
+                            <button onclick="printAbsensiFromAdmin()" class="w-full bg-green-500/20 border border-green-500/50 text-green-400 py-3 md:py-4 rounded-xl font-black uppercase shadow-lg hover:bg-green-500 hover:text-white transition-all text-xs md:text-sm mt-6 md:mt-8"><i class="fas fa-file-pdf mr-2"></i> UNDUH REKAP MULTI-TANGGAL</button>
                         </div>
                     </div>
                 </div>`;
@@ -1137,15 +1153,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             const displayed = getDisplayedMembers(type, type === 'khotbah' ? null : catTitle, unit);
             
             let hadir = 0, alpha = 0, belum = 0;
-            
-            let dateStr = '';
-            if (tgl) {
-                const d = new Date(tgl);
-                const yyyy = d.getFullYear();
-                const mm = String(d.getMonth() + 1).padStart(2, '0');
-                const dd = String(d.getDate()).padStart(2, '0');
-                dateStr = `${yyyy}-${mm}-${dd}`;
-            }
+            let dateStr = getYYYYMMDD(tgl);
 
             let reportType = type === 'khotbah' ? 'Khotbah' : catTitle;
             let histData = attendanceHistory[reportType] || {};
@@ -1167,7 +1175,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 else { belum++; }
 
                 return `
-                <tr style="border-bottom: 1px solid #eee;">
+                <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
@@ -1181,11 +1189,13 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 membersListHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
             }
 
-            // KODE BARU: TABEL KEGIATAN KELAS
+            // KODE BARU: TARIK DATA AKTIVITAS 10 POIN DARI SERVER
+            let actData = getActivityData(unit, dateStr);
+
             let actHTML = `
             <div style="margin-top: 15px; page-break-inside: avoid;">
                 <h3 style="font-size: ${isVeryDense ? '10px' : '12px'}; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; color: #0a192f; border-bottom: 1px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
+                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
                     <thead>
                         <tr style="background-color: #f1f5f9; color: #0a192f; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 5%;">No</th>
@@ -1195,10 +1205,10 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </thead>
                     <tbody>
                         ${actList.map((a, i) => `
-                        <tr>
+                        <tr style="page-break-inside: avoid;">
                             <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">${i+1}</td>
                             <td style="padding: ${tdPad}; border: 1px solid #cbd5e1;">${a}</td>
-                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center;"></td>
+                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; font-size: ${isVeryDense ? '9px' : '12px'};">${actData[i] !== undefined ? actData[i] : '-'}</td>
                         </tr>
                         `).join('')}
                     </tbody>
@@ -1247,14 +1257,14 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </div>
                 </div>
 
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
+                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 30%; text-align: left;">Nama Jemaat</th>
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 25%; text-align: left;">Jabatan</th>
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 15%;">Unit</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 20%;">Status Kehadiran</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 25%;">Status Kehadiran</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1325,12 +1335,11 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 filteredHistory = historyData.filter(h => h.date >= startDate && h.date <= endDate);
             }
 
-            let avgCount = 0, maxCount = 0, latestCount = 0;
+            let avgCount = 0, maxCount = 0;
             if (filteredHistory.length > 0) {
                 const sum = filteredHistory.reduce((acc, curr) => acc + curr.count, 0);
                 avgCount = Math.round(sum / filteredHistory.length);
                 maxCount = Math.max(...filteredHistory.map(h => h.count));
-                latestCount = filteredHistory[filteredHistory.length - 1].count;
             }
 
             const sortedKeys = Object.keys(composition).sort((a, b) => composition[b] - composition[a]);
@@ -1338,7 +1347,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 const count = composition[key];
                 const pct = visibleMembersCount > 0 ? Math.round((count / visibleMembersCount) * 100) : 0;
                 return `
-                    <tr style="border-bottom: 1px solid #ddd;">
+                    <tr style="border-bottom: 1px solid #ddd; page-break-inside: avoid;">
                         <td style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">${i+1}</td>
                         <td style="padding: 8px; border-right: 1px solid #ddd; font-weight: bold;">${key.toUpperCase()}</td>
                         <td style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">${count}</td>
@@ -1401,7 +1410,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </div>
 
                 <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 10px;">Tabel Komposisi Anggota</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 10px; margin-bottom: 20px;">
+                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 10px; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: 8px; border: 1px solid #0a192f; width: 10%;">No</th>
@@ -1416,7 +1425,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </table>
 
                 <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; page-break-before: auto;">Daftar Anggota Terdaftar</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 9px; margin-bottom: 20px;">
+                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 9px; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: 6px; border: 1px solid #0a192f; width: 5%;">No</th>
@@ -1505,15 +1514,12 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
             let colsHeaderHtml = saturdays.map((sat) => {
                 const label = `${sat.getDate()}/${sat.getMonth()+1}`;
-                return `<th style="padding: ${tdPad} 2px; border: 1px solid #0a192f; text-align: center; width: 35px; font-size: ${isVeryDense ? '7px' : '9px'}; background-color: #D4AF37; color: #0a192f; white-space: nowrap;">SAB<br>${label}</th>`;
+                return `<th style="padding: ${tdPad} 2px; border: 1px solid #0a192f; text-align: center; font-size: ${isVeryDense ? '7px' : '9px'}; background-color: #D4AF37; color: #0a192f; white-space: nowrap;">SAB<br>${label}</th>`;
             }).join('');
 
             let membersListHTML = displayed.map((m, idx) => {
                 let checkboxes = saturdays.map((sat) => {
-                    const yyyy = sat.getFullYear();
-                    const mm = String(sat.getMonth() + 1).padStart(2, '0');
-                    const dd = String(sat.getDate()).padStart(2, '0');
-                    const dateStr = `${yyyy}-${mm}-${dd}`;
+                    const dateStr = getYYYYMMDD(sat);
                     
                     let status = '';
                     if (histData[m.id] && histData[m.id][dateStr]) {
@@ -1539,9 +1545,9 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 return `
                 <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold; white-space: nowrap;">${m.nama}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-size: ${isVeryDense ? '7px' : '9px'};">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center; font-size: ${isVeryDense ? '7px' : '9px'}; white-space: nowrap;">${m.unit || 'Umum'}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center; font-size: ${isVeryDense ? '7px' : '9px'};">${m.unit || 'Umum'}</td>
                     ${checkboxes}
                 </tr>
                 `;
@@ -1551,12 +1557,11 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 membersListHTML = `<tr><td colspan="${4 + saturdays.length}" style="padding: 15px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
             }
 
-            // KODE BARU: TABEL KEGIATAN KELAS UNTUK MULTI-TANGGAL
-            let actColsHtml = saturdays.map(() => `<td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center;"></td>`).join('');
+            // KODE BARU: TABEL KEGIATAN KELAS UNTUK MULTI-TANGGAL (AMBIL DATA SERVER)
             let actHTML = `
             <div style="margin-top: 15px; page-break-inside: avoid;">
                 <h3 style="font-size: ${isVeryDense ? '9px' : '11px'}; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; color: #0a192f; border-bottom: 1px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '7px' : '9px'}; margin-bottom: 15px;">
+                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '7px' : '9px'}; margin-bottom: 15px;">
                     <thead>
                         <tr style="background-color: #f1f5f9; color: #0a192f; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 5%;">No</th>
@@ -1565,13 +1570,21 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         </tr>
                     </thead>
                     <tbody>
-                        ${actList.map((a, i) => `
-                        <tr>
-                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">${i+1}</td>
-                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1;">${a}</td>
-                            ${actColsHtml}
-                        </tr>
-                        `).join('')}
+                        ${actList.map((a, i) => {
+                            let actColsHtml = saturdays.map(sat => {
+                                const dStr = getYYYYMMDD(sat);
+                                let actData = getActivityData(unit, dStr);
+                                let val = actData[i] !== undefined ? actData[i] : '-';
+                                return `<td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; font-size: ${isVeryDense ? '8px' : '10px'};">${val}</td>`;
+                            }).join('');
+                            return `
+                            <tr style="page-break-inside: avoid;">
+                                <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">${i+1}</td>
+                                <td style="padding: ${tdPad}; border: 1px solid #cbd5e1;">${a}</td>
+                                ${actColsHtml}
+                            </tr>
+                            `;
+                        }).join('')}
                     </tbody>
                 </table>
             </div>
@@ -1593,12 +1606,12 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     Periode: ${periodeText}
                 </p>
 
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
+                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 25%; text-align: left;">Nama Jemaat</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 15%; text-align: left;">Jabatan</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 28%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 18%; text-align: left;">Jabatan</th>
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 15%;">Unit</th>
                             ${colsHeaderHtml}
                         </tr>
@@ -1638,6 +1651,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             const displayed = getDisplayedMembers(type, type === 'khotbah' ? null : catTitle, unit);
             
             let hadir = 0, alpha = 0, belum = 0;
+            let dateStr = getYYYYMMDD(tgl);
 
             let isDense = displayed.length > 15;
             let isVeryDense = displayed.length > 25;
@@ -1652,7 +1666,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 else { belum++; }
 
                 return `
-                <tr style="border-bottom: 1px solid #eee;">
+                <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
@@ -1666,11 +1680,13 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 membersListHTML = `<tr><td colspan="5" style="padding: 15px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
             }
 
-            // KODE BARU: TABEL KEGIATAN KELAS
+            // KODE BARU: TARIK DATA AKTIVITAS 10 POIN DARI SERVER
+            let actData = getActivityData(unit, dateStr);
+
             let actHTML = `
             <div style="margin-top: 15px; page-break-inside: avoid;">
                 <h3 style="font-size: ${isVeryDense ? '10px' : '12px'}; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; color: #0a192f; border-bottom: 1px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
+                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
                     <thead>
                         <tr style="background-color: #f1f5f9; color: #0a192f; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 5%;">No</th>
@@ -1680,10 +1696,10 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </thead>
                     <tbody>
                         ${actList.map((a, i) => `
-                        <tr>
+                        <tr style="page-break-inside: avoid;">
                             <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">${i+1}</td>
                             <td style="padding: ${tdPad}; border: 1px solid #cbd5e1;">${a}</td>
-                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center;"></td>
+                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; font-size: ${isVeryDense ? '9px' : '12px'};">${actData[i] !== undefined ? actData[i] : '-'}</td>
                         </tr>
                         `).join('')}
                     </tbody>
@@ -1726,14 +1742,14 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </div>
                 </div>
 
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
+                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 30%; text-align: left;">Nama Jemaat</th>
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 25%; text-align: left;">Jabatan</th>
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 15%;">Unit</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 20%;">Status Kehadiran</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 25%;">Status Kehadiran</th>
                         </tr>
                     </thead>
                     <tbody>
