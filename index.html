@@ -270,38 +270,39 @@ function getYYYYMMDD(d) {
         let statsData = { history: [], historyByUnit: { 'ALL': [] } }; 
         let doaPoints = []; 
         let attendanceHistory = {}; 
-        let kegiatanHistory = {}; // DATA Laporan 10 Poin Kegiatan
+        let kegiatanHistory = {}; 
         
         let currentUser = { role: 'public', unitName: null, adminName: null }; 
         let currentTab = 'dashboard';
         let memberAttendance = {}; 
         
-        // 10 POIN KEGIATAN UNTUK RENDER TABEL PDF
         const actList = [
             "Datang tepat waktu di S.S.", "Membaca Alkitab setiap hari", "Pelajaran S.S. setiap hari", 
             "Renungan Pagi setiap hari", "Hadir Pertemuan Rabu Malam", "Melakukan Jangkauan Keluar", 
             "Perlawatan Pemeliharaan", "Membagikan Buku Rohani", "Kegiatan Kelompok Kecil", "Program Berdoa (777/1752)"
         ];
 
-        // MENGAMBIL DATA AKTIVITAS DENGAN AMAN (CASE-INSENSITIVE & DATE SAFE)
+        // FUNGSI PENCARIAN CERDAS: DETEKSI "Kegiatan - Unit"
         function getActivityData(unitName, dateString) {
             if (!kegiatanHistory) return Array(10).fill('-');
             
             const safeUnit = String(unitName).trim().toLowerCase();
             let targetData = null;
 
-            // Loop untuk mencocokkan nama unit tanpa mempedulikan huruf besar/kecil
             for (let unitKey in kegiatanHistory) {
-                if (unitKey.trim().toLowerCase() === safeUnit) {
+                // Bersihkan teks dari awalan "Kegiatan -" agar bisa dicocokkan dengan "Dewasa 1"
+                let cleanKey = unitKey.toLowerCase().replace(/kegiatan\s*-\s*/g, '').replace(/-/g, '').trim();
+                let cleanSafe = safeUnit.replace(/kegiatan\s*-\s*/g, '').replace(/-/g, '').trim();
+                
+                // Cek jika namanya sama persis, ATAU database mengandung "Kegiatan - Dewasa 1"
+                if (cleanKey === cleanSafe || unitKey.toLowerCase().includes(safeUnit)) {
                     let unitRecords = kegiatanHistory[unitKey];
                     
-                    // Cek Kecocokan Tanggal Pasti (YYYY-MM-DD)
                     if (unitRecords[dateString]) {
                         targetData = unitRecords[dateString];
                         break;
                     }
                     
-                    // Cek jika format dari Sheet memiliki Jam (contoh: 2026-05-16T17:00:00Z)
                     for (let dateKey in unitRecords) {
                         if (dateKey.includes(dateString)) {
                             targetData = unitRecords[dateKey];
@@ -312,18 +313,14 @@ function getYYYYMMDD(d) {
                 if (targetData) break;
             }
 
-            // Jika ketemu dan formatnya Array, kirim angkanya
             if (targetData && Array.isArray(targetData)) {
-                return targetData;
+                return targetData.map(val => (val === '' || val === null || val === undefined) ? '-' : val);
             }
             
             return Array(10).fill('-');
         }
 
-        // ==========================================
-        // FUNGSI INTI DOWNLOAD PDF BYPASS MOBILE
-        // UPDATE BARU: FORCED LANDSCAPE, ANTI-GLITCH FONT
-        // ==========================================
+        // FUNGSI PDF GENERATOR ANTI-GLITCH
         function generatePDF(htmlContent, filename, orientation = 'portrait') {
             toggleLoading(true); 
             
@@ -338,15 +335,29 @@ function getYYYYMMDD(d) {
             container.style.opacity = '0';
             container.style.pointerEvents = 'none';
             
-            // FONT ARIAL/HELVETICA + PENCEGAHAN SPASI HURUF BERLEBIHAN + LEBAR PASTI
-            let finalWidth = orientation === 'landscape' ? 1123 : 794; 
+            // PERBESAR RUANG KANVAS AGAR TEKS TIDAK TERJEPIT
+            // Jika Landscape: 1400px, Portrait: 950px
+            let pxWidth = orientation === 'landscape' ? 1400 : 950; 
 
             container.innerHTML = `
-                <div id="pdf-measure-box" style="width: ${finalWidth}px; background: white; color: black; font-family: Arial, Helvetica, sans-serif; padding: 30px; box-sizing: border-box;">
+                <div id="pdf-measure-box" style="width: ${pxWidth}px; background: white; color: black; font-family: Arial, Helvetica, sans-serif; padding: 40px; box-sizing: border-box;">
                     <style>
-                        #pdf-measure-box * { font-family: Arial, Helvetica, sans-serif !important; letter-spacing: 0px !important; }
-                        table { width: 100%; border-collapse: collapse; }
-                        th, td { border: 1px solid #cbd5e1; }
+                        /* Paksa gaya huruf standar mesin & izinkan wrap */
+                        #pdf-measure-box * { 
+                            font-family: Arial, Helvetica, sans-serif !important; 
+                            letter-spacing: normal !important; 
+                            font-variant-ligatures: none !important;
+                            text-rendering: geometricPrecision !important;
+                        }
+                        table { width: 100%; border-collapse: collapse; table-layout: auto; }
+                        th, td { 
+                            border: 1px solid #cbd5e1; 
+                            word-wrap: break-word; 
+                            white-space: normal; 
+                            vertical-align: middle;
+                        }
+                        /* Cegah pemotongan halaman di tengah baris */
+                        tr, td, th { page-break-inside: avoid !important; }
                     </style>
                     ${htmlContent}
                 </div>
@@ -358,9 +369,9 @@ function getYYYYMMDD(d) {
                 const opt = {
                     margin:       [10, 10, 15, 10], 
                     filename:     filename,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    pagebreak:    { mode: 'avoid-all' },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: finalWidth + 40 }, 
+                    image:        { type: 'jpeg', quality: 1.0 },
+                    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: pxWidth + 50 }, 
                     jsPDF:        { unit: 'mm', format: 'a4', orientation: orientation }
                 };
 
@@ -440,7 +451,6 @@ function getYYYYMMDD(d) {
                     if (!statsData.historyByUnit) statsData.historyByUnit = { 'ALL': statsData.history || [] };
                     
                     attendanceHistory = payload.attendanceHistory || {};
-                    // TANGKAP DATA KEGIATAN DARI DATABASE 
                     kegiatanHistory = payload.kegiatanHistory || payload.activityHistory || {};
                     
                     renderTabs();
@@ -1165,8 +1175,8 @@ function getYYYYMMDD(d) {
 
             let isDense = displayed.length > 15;
             let isVeryDense = displayed.length > 25;
-            let tdPad = isVeryDense ? '3px' : (isDense ? '5px' : '8px');
-            let fontSize = isVeryDense ? '9px' : (isDense ? '10px' : '11px');
+            let tdPad = isVeryDense ? '4px' : (isDense ? '6px' : '10px');
+            let fontSize = isVeryDense ? '10px' : (isDense ? '12px' : '14px');
 
             let membersListHTML = displayed.map((m, idx) => {
                 let status = '';
@@ -1180,11 +1190,11 @@ function getYYYYMMDD(d) {
                 else { belum++; }
 
                 return `
-                <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${m.unit || 'Umum'}</td>
+                <tr>
+                    <td style="padding: ${tdPad}; text-align: center;">${idx + 1}</td>
+                    <td style="padding: ${tdPad}; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: ${tdPad};">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: ${tdPad}; text-align: center;">${m.unit || 'Umum'}</td>
                     <td style="padding: ${tdPad}; text-align: center;">${statusText}</td>
                 </tr>
                 `;
@@ -1194,26 +1204,26 @@ function getYYYYMMDD(d) {
                 membersListHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
             }
 
-            // TARIK DATA AKTIVITAS DARI SERVER
+            // TARIK DATA AKTIVITAS DARI SERVER DENGAN PENCARIAN CERDAS
             let actData = getActivityData(unit, dateStr);
 
             let actHTML = `
-            <div style="margin-top: 15px; page-break-inside: avoid;">
-                <h3 style="font-size: ${isVeryDense ? '10px' : '12px'}; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; color: #0a192f; border-bottom: 1px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
+            <div style="margin-top: 20px;">
+                <h3 style="font-size: ${isVeryDense ? '12px' : '14px'}; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; color: #0a192f; border-bottom: 2px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
+                <table style="font-size: ${isVeryDense ? '10px' : '12px'}; margin-bottom: 15px;">
                     <thead>
-                        <tr style="background-color: #f1f5f9; color: #0a192f; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 5%;">No</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 75%; text-align: left;">Indikator Kegiatan Anggota</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 20%; text-align: center;">Total Jiwa Terlibat</th>
+                        <tr style="background-color: #f1f5f9; color: #0a192f;">
+                            <th style="padding: ${tdPad}; width: 5%;">No</th>
+                            <th style="padding: ${tdPad}; width: 75%; text-align: left;">Indikator Kegiatan Anggota</th>
+                            <th style="padding: ${tdPad}; width: 20%; text-align: center;">Total Jiwa Terlibat</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${actList.map((a, i) => `
-                        <tr style="page-break-inside: avoid;">
-                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">${i+1}</td>
-                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1;">${a}</td>
-                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; font-size: ${isVeryDense ? '9px' : '12px'};">${actData[i] !== undefined ? actData[i] : '-'}</td>
+                        <tr>
+                            <td style="padding: ${tdPad}; text-align: center; font-weight: bold;">${i+1}</td>
+                            <td style="padding: ${tdPad};">${a}</td>
+                            <td style="padding: ${tdPad}; text-align: center; font-weight: bold; font-size: ${isVeryDense ? '11px' : '14px'};">${actData[i] !== undefined ? actData[i] : '-'}</td>
                         </tr>
                         `).join('')}
                     </tbody>
@@ -1229,47 +1239,47 @@ function getYYYYMMDD(d) {
 
             const printHtml = `
                 <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px;">
-                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 60px; height: 60px; object-fit: contain;">
+                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 70px; height: 70px; object-fit: contain;">
                     <div style="text-align: left;">
-                        <h1 style="margin: 0; font-size: 24px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
-                        <p style="margin: 2px 0 0 0; font-size: 12px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
-                        <p style="margin: 0; font-size: 11px; color: #6b7280;">Laporan Daftar Hadir Kelas & Unit (Data Tersimpan)</p>
+                        <h1 style="margin: 0; font-size: 28px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
+                        <p style="margin: 2px 0 0 0; font-size: 14px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
+                        <p style="margin: 0; font-size: 12px; color: #6b7280;">Laporan Daftar Hadir Kelas & Unit (Data Tersimpan)</p>
                     </div>
                 </div>
 
-                <h2 style="text-align: center; font-size: 18px; text-transform: uppercase; margin-bottom: 5px;">REKAP HARIAN: ${catTitle}</h2>
-                <p style="text-align: center; font-size: 12px; color: #0a192f; margin-top: 0; margin-bottom: 20px; font-weight: bold;">
+                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">REKAP HARIAN: ${catTitle}</h2>
+                <p style="text-align: center; font-size: 14px; color: #0a192f; margin-top: 0; margin-bottom: 20px; font-weight: bold;">
                     Unit / Filter: <span style="text-transform:uppercase;">${unit === 'ALL' ? 'Global (Semua Unit)' : unit}</span> <br>
                     Tanggal Ibadah: ${tglStr}
                 </p>
 
                 <div style="display: flex; gap: 15px; margin-bottom: 20px;">
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #f9fafb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 10px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
-                        <div style="font-size: 20px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f9fafb;">
+                        <div style="font-size: 12px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
                     </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #ecfdf5; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 10px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
-                        <div style="font-size: 20px; font-weight: 900; color: #10B981;">${hadir}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #ecfdf5;">
+                        <div style="font-size: 12px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #10B981;">${hadir}</div>
                     </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #fef2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 10px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
-                        <div style="font-size: 20px; font-weight: 900; color: #EF4444;">${alpha}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fef2f2;">
+                        <div style="font-size: 12px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #EF4444;">${alpha}</div>
                     </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #fffbeb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 10px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu (Global)</div>
-                        <div style="font-size: 20px; font-weight: 900; color: #F59E0B;">${tamuCount}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fffbeb;">
+                        <div style="font-size: 12px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu (Global)</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #F59E0B;">${tamuCount}</div>
                     </div>
                 </div>
 
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
+                <table style="font-size: ${fontSize}; margin-bottom: 0px;">
                     <thead>
-                        <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 30%; text-align: left;">Nama Jemaat</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 25%; text-align: left;">Jabatan</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 15%;">Unit</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 25%;">Status Kehadiran</th>
+                        <tr style="background-color: #0a192f; color: white;">
+                            <th style="padding: ${tdPad}; width: 5%;">No</th>
+                            <th style="padding: ${tdPad}; width: 30%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: ${tdPad}; width: 25%; text-align: left;">Jabatan</th>
+                            <th style="padding: ${tdPad}; width: 15%;">Unit</th>
+                            <th style="padding: ${tdPad}; width: 25%;">Status Kehadiran</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1279,13 +1289,13 @@ function getYYYYMMDD(d) {
                 
                 ${actHTML}
 
-                <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 12px; page-break-inside: avoid;">
-                    <div style="text-align: center; width: 200px;">
+                <div style="display: flex; justify-content: space-between; margin-top: 30px; font-size: 14px; page-break-inside: avoid;">
+                    <div style="text-align: center; width: 250px;">
                         <p>Pemimpin Kelas / Guru SS</p>
                         <br><br><br>
                         <p style="font-weight: bold; text-decoration: underline;">______________________</p>
                     </div>
-                    <div style="text-align: center; width: 200px;">
+                    <div style="text-align: center; width: 250px;">
                         <p>Sekretaris Unit</p>
                         <br><br><br>
                         <p style="font-weight: bold; text-decoration: underline;">______________________</p>
@@ -1352,77 +1362,76 @@ function getYYYYMMDD(d) {
                 const count = composition[key];
                 const pct = visibleMembersCount > 0 ? Math.round((count / visibleMembersCount) * 100) : 0;
                 return `
-                    <tr style="border-bottom: 1px solid #ddd; page-break-inside: avoid;">
-                        <td style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">${i+1}</td>
-                        <td style="padding: 8px; border-right: 1px solid #ddd; font-weight: bold;">${key.toUpperCase()}</td>
-                        <td style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">${count}</td>
-                        <td style="padding: 8px; text-align: center;">${pct}%</td>
+                    <tr>
+                        <td style="padding: 10px; text-align: center;">${i+1}</td>
+                        <td style="padding: 10px; font-weight: bold;">${key.toUpperCase()}</td>
+                        <td style="padding: 10px; text-align: center;">${count}</td>
+                        <td style="padding: 10px; text-align: center;">${pct}%</td>
                     </tr>
                 `;
             }).join('');
 
             tableRows += `
                 <tr style="background-color: #f3f4f6; font-weight: bold;">
-                    <td colspan="2" style="padding: 8px; border-right: 1px solid #ddd; text-align: right;">TOTAL KESELURUHAN</td>
-                    <td style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">${visibleMembersCount}</td>
-                    <td style="padding: 8px; text-align: center;">100%</td>
+                    <td colspan="2" style="padding: 10px; text-align: right;">TOTAL KESELURUHAN</td>
+                    <td style="padding: 10px; text-align: center;">${visibleMembersCount}</td>
+                    <td style="padding: 10px; text-align: center;">100%</td>
                 </tr>
             `;
 
-            // FONT SIZE DIPERBESAR KARENA MENGGUNAKAN LANDSCAPE
             let membersListHTML = filteredMembersForPrint.map((m, idx) => `
-                <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
-                    <td style="padding: 6px; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
-                    <td style="padding: 6px; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
-                    <td style="padding: 6px; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: 6px; border-right: 1px solid #eee;">${m.unit || 'Umum'}</td>
-                    <td style="padding: 6px;">${m.kelasTetap || '-'}</td>
+                <tr>
+                    <td style="padding: 8px; text-align: center;">${idx + 1}</td>
+                    <td style="padding: 8px; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: 8px;">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: 8px;">${m.unit || 'Umum'}</td>
+                    <td style="padding: 8px;">${m.kelasTetap || '-'}</td>
                 </tr>
             `).join('');
 
             if(filteredMembersForPrint.length === 0) {
-                membersListHTML = `<tr><td colspan="5" style="padding: 15px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat.</td></tr>`;
+                membersListHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat.</td></tr>`;
             }
 
             const printHtml = `
                 <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px;">
-                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 60px; height: 60px; object-fit: contain;">
+                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 70px; height: 70px; object-fit: contain;">
                     <div style="text-align: left;">
-                        <h1 style="margin: 0; font-size: 24px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
-                        <p style="margin: 2px 0 0 0; font-size: 12px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
-                        <p style="margin: 0; font-size: 11px; color: #6b7280;">Laporan Data Statistik & Kehadiran Jemaat</p>
+                        <h1 style="margin: 0; font-size: 28px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
+                        <p style="margin: 2px 0 0 0; font-size: 14px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
+                        <p style="margin: 0; font-size: 12px; color: #6b7280;">Laporan Data Statistik & Kehadiran Jemaat</p>
                     </div>
                 </div>
 
-                <h2 style="text-align: center; font-size: 18px; text-transform: uppercase; margin-bottom: 5px;">Laporan: ${selectedUnit === 'ALL' ? 'GLOBAL (SEMUA JEMAAT)' : 'UNIT ' + selectedUnit}</h2>
-                <p style="text-align: center; font-size: 12px; color: #6b7280; margin-top: 0; margin-bottom: 20px;">
+                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">Laporan: ${selectedUnit === 'ALL' ? 'GLOBAL (SEMUA JEMAAT)' : 'UNIT ' + selectedUnit}</h2>
+                <p style="text-align: center; font-size: 14px; color: #6b7280; margin-top: 0; margin-bottom: 20px;">
                     Periode Laporan: <strong>${periodeText}</strong><br>
-                    <span style="font-size: 10px; color: #9ca3af;">(Dicetak pada: ${todayStr})</span>
+                    <span style="font-size: 12px; color: #9ca3af;">(Dicetak pada: ${todayStr})</span>
                 </p>
 
                 <div style="display: flex; gap: 15px; margin-bottom: 30px;">
-                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 8px; padding: 15px; text-align: center;">
-                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Terdaftar</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #0a192f; margin-top: 5px;">${visibleMembersCount}</div>
+                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 8px; padding: 20px; text-align: center;">
+                        <div style="font-size: 12px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Terdaftar</div>
+                        <div style="font-size: 28px; font-weight: 900; color: #0a192f; margin-top: 5px;">${visibleMembersCount}</div>
                     </div>
-                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 8px; padding: 15px; text-align: center;">
-                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Kehadiran Tertinggi</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #10B981; margin-top: 5px;">${maxCount}</div>
+                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 8px; padding: 20px; text-align: center;">
+                        <div style="font-size: 12px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Kehadiran Tertinggi</div>
+                        <div style="font-size: 28px; font-weight: 900; color: #10B981; margin-top: 5px;">${maxCount}</div>
                     </div>
-                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 8px; padding: 15px; text-align: center;">
-                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Rata-rata Kehadiran</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #F59E0B; margin-top: 5px;">${avgCount}</div>
+                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 8px; padding: 20px; text-align: center;">
+                        <div style="font-size: 12px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Rata-rata Kehadiran</div>
+                        <div style="font-size: 28px; font-weight: 900; color: #F59E0B; margin-top: 5px;">${avgCount}</div>
                     </div>
                 </div>
 
-                <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 10px;">Tabel Komposisi Anggota</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 12px; margin-bottom: 20px;">
+                <h3 style="font-size: 16px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 10px;">Tabel Komposisi Anggota</h3>
+                <table style="font-size: 14px; margin-bottom: 20px;">
                     <thead>
-                        <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 10%;">No</th>
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 50%; text-align: left;">Kategori / Unit</th>
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%;">Total Jiwa</th>
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%;">Persentase</th>
+                        <tr style="background-color: #0a192f; color: white;">
+                            <th style="padding: 10px; width: 10%;">No</th>
+                            <th style="padding: 10px; width: 50%; text-align: left;">Kategori / Unit</th>
+                            <th style="padding: 10px; width: 20%;">Total Jiwa</th>
+                            <th style="padding: 10px; width: 20%;">Persentase</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1430,15 +1439,15 @@ function getYYYYMMDD(d) {
                     </tbody>
                 </table>
 
-                <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; page-break-before: auto;">Daftar Anggota Terdaftar</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 10px; margin-bottom: 20px;">
+                <h3 style="font-size: 16px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; page-break-before: auto;">Daftar Anggota Terdaftar</h3>
+                <table style="font-size: 12px; margin-bottom: 20px;">
                     <thead>
-                        <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 5%;">No</th>
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%; text-align: left;">Jabatan</th>
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%; text-align: left;">Unit</th>
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%; text-align: left;">Kelas SS</th>
+                        <tr style="background-color: #0a192f; color: white;">
+                            <th style="padding: 8px; width: 5%;">No</th>
+                            <th style="padding: 8px; width: 35%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: 8px; width: 20%; text-align: left;">Jabatan</th>
+                            <th style="padding: 8px; width: 20%; text-align: left;">Unit</th>
+                            <th style="padding: 8px; width: 20%; text-align: left;">Kelas SS</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1446,7 +1455,7 @@ function getYYYYMMDD(d) {
                     </tbody>
                 </table>
 
-                <div style="margin-top: 20px; text-align: right; font-size: 12px; page-break-inside: avoid;">
+                <div style="margin-top: 20px; text-align: right; font-size: 14px; page-break-inside: avoid;">
                     <p>Mengetahui,</p>
                     <br><br><br>
                     <p style="font-weight: bold; text-decoration: underline;">Ketua / Pimpinan Unit</p>
@@ -1514,14 +1523,14 @@ function getYYYYMMDD(d) {
 
             let isDense = displayed.length > 15;
             let isVeryDense = displayed.length > 25;
-            let tdPad = isVeryDense ? '2px' : (isDense ? '4px' : '6px');
-            let fontSize = isVeryDense ? '8px' : (isDense ? '10px' : '11px');
-            let boxDim = isVeryDense ? '10px' : (isDense ? '12px' : '14px');
-            let iconSize = isVeryDense ? '8px' : (isDense ? '10px' : '12px');
+            let tdPad = isVeryDense ? '3px' : (isDense ? '5px' : '8px');
+            let fontSize = isVeryDense ? '10px' : (isDense ? '12px' : '14px');
+            let boxDim = isVeryDense ? '12px' : (isDense ? '14px' : '18px');
+            let iconSize = isVeryDense ? '10px' : (isDense ? '12px' : '14px');
 
             let colsHeaderHtml = saturdays.map((sat) => {
                 const label = `${sat.getDate()}/${sat.getMonth()+1}`;
-                return `<th style="padding: ${tdPad} 2px; border: 1px solid #0a192f; text-align: center; font-size: ${isVeryDense ? '8px' : '10px'}; background-color: #D4AF37; color: #0a192f; white-space: nowrap;">SAB<br>${label}</th>`;
+                return `<th style="padding: ${tdPad}; text-align: center; font-size: ${isVeryDense ? '9px' : '11px'}; background-color: #D4AF37; color: #0a192f;">SAB<br>${label}</th>`;
             }).join('');
 
             let membersListHTML = displayed.map((m, idx) => {
@@ -1541,7 +1550,7 @@ function getYYYYMMDD(d) {
                     }
 
                     return `
-                    <td style="padding: ${tdPad}; border: 1px solid #eee; text-align: center; vertical-align: middle;">
+                    <td style="padding: ${tdPad}; text-align: center; vertical-align: middle;">
                         <div style="width: ${boxDim}; height: ${boxDim}; border: 1px solid #0a192f; margin: auto; border-radius: 2px; display: flex; align-items: center; justify-content: center; background: ${boxContent ? '#f8fafc' : 'transparent'};">
                             ${boxContent}
                         </div>
@@ -1550,30 +1559,30 @@ function getYYYYMMDD(d) {
                 }).join('');
 
                 return `
-                <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-size: ${isVeryDense ? '8px' : '10px'};">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center; font-size: ${isVeryDense ? '8px' : '10px'};">${m.unit || 'Umum'}</td>
+                <tr>
+                    <td style="padding: ${tdPad}; text-align: center;">${idx + 1}</td>
+                    <td style="padding: ${tdPad}; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: ${tdPad}; font-size: ${isVeryDense ? '9px' : '11px'};">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: ${tdPad}; text-align: center; font-size: ${isVeryDense ? '9px' : '11px'};">${m.unit || 'Umum'}</td>
                     ${checkboxes}
                 </tr>
                 `;
             }).join('');
 
             if (displayed.length === 0) {
-                membersListHTML = `<tr><td colspan="${4 + saturdays.length}" style="padding: 15px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
+                membersListHTML = `<tr><td colspan="${4 + saturdays.length}" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
             }
 
-            // KODE BARU: TABEL KEGIATAN KELAS UNTUK MULTI-TANGGAL (AMBIL DATA SERVER)
+            // TARIK DATA AKTIVITAS DARI SERVER DENGAN PENCARIAN CERDAS
             let actHTML = `
-            <div style="margin-top: 15px; page-break-inside: avoid;">
-                <h3 style="font-size: ${isVeryDense ? '10px' : '12px'}; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; color: #0a192f; border-bottom: 1px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
+            <div style="margin-top: 20px;">
+                <h3 style="font-size: ${isVeryDense ? '12px' : '14px'}; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; color: #0a192f; border-bottom: 2px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
+                <table style="font-size: ${isVeryDense ? '10px' : '12px'}; margin-bottom: 15px;">
                     <thead>
-                        <tr style="background-color: #f1f5f9; color: #0a192f; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 5%;">No</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 45%; text-align: left;">Indikator Kegiatan Anggota</th>
-                            ${saturdays.map(sat => `<th style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-size: ${isVeryDense ? '8px' : '10px'}; background-color: #f1f5f9; color: #0a192f;">SAB<br>${sat.getDate()}/${sat.getMonth()+1}</th>`).join('')}
+                        <tr style="background-color: #f1f5f9; color: #0a192f;">
+                            <th style="padding: ${tdPad}; width: 5%;">No</th>
+                            <th style="padding: ${tdPad}; width: 45%; text-align: left;">Indikator Kegiatan Anggota</th>
+                            ${saturdays.map(sat => `<th style="padding: ${tdPad}; text-align: center; font-size: ${isVeryDense ? '9px' : '11px'}; background-color: #f1f5f9; color: #0a192f;">SAB<br>${sat.getDate()}/${sat.getMonth()+1}</th>`).join('')}
                         </tr>
                     </thead>
                     <tbody>
@@ -1582,12 +1591,12 @@ function getYYYYMMDD(d) {
                                 const dStr = getYYYYMMDD(sat);
                                 let actData = getActivityData(unit, dStr);
                                 let val = actData[i] !== undefined ? actData[i] : '-';
-                                return `<td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; font-size: ${isVeryDense ? '9px' : '11px'};">${val}</td>`;
+                                return `<td style="padding: ${tdPad}; text-align: center; font-weight: bold; font-size: ${isVeryDense ? '11px' : '13px'};">${val}</td>`;
                             }).join('');
                             return `
-                            <tr style="page-break-inside: avoid;">
-                                <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">${i+1}</td>
-                                <td style="padding: ${tdPad}; border: 1px solid #cbd5e1;">${a}</td>
+                            <tr>
+                                <td style="padding: ${tdPad}; text-align: center; font-weight: bold;">${i+1}</td>
+                                <td style="padding: ${tdPad};">${a}</td>
                                 ${actColsHtml}
                             </tr>
                             `;
@@ -1599,27 +1608,27 @@ function getYYYYMMDD(d) {
 
             const printHtml = `
                 <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px;">
-                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 60px; height: 60px; object-fit: contain;">
+                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 70px; height: 70px; object-fit: contain;">
                     <div style="text-align: left;">
-                        <h1 style="margin: 0; font-size: 24px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
-                        <p style="margin: 2px 0 0 0; font-size: 12px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
-                        <p style="margin: 0; font-size: 11px; color: #6b7280;">Laporan Absensi Kelas & Unit Multi-Tanggal</p>
+                        <h1 style="margin: 0; font-size: 28px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
+                        <p style="margin: 2px 0 0 0; font-size: 14px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
+                        <p style="margin: 0; font-size: 12px; color: #6b7280;">Laporan Absensi Kelas & Unit Multi-Tanggal</p>
                     </div>
                 </div>
 
-                <h2 style="text-align: center; font-size: 18px; text-transform: uppercase; margin-bottom: 5px;">REKAP ABSENSI: ${catTitle}</h2>
-                <p style="text-align: center; font-size: 12px; color: #0a192f; margin-top: 0; margin-bottom: 20px; font-weight: bold;">
+                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">REKAP ABSENSI: ${catTitle}</h2>
+                <p style="text-align: center; font-size: 14px; color: #0a192f; margin-top: 0; margin-bottom: 20px; font-weight: bold;">
                     Unit / Filter: <span style="text-transform:uppercase;">${unit === 'ALL' ? 'Global (Semua Unit)' : unit}</span> <br>
                     Periode: ${periodeText}
                 </p>
 
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
+                <table style="font-size: ${fontSize}; margin-bottom: 0px;">
                     <thead>
-                        <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 28%; text-align: left;">Nama Jemaat</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 18%; text-align: left;">Jabatan</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 15%;">Unit</th>
+                        <tr style="background-color: #0a192f; color: white;">
+                            <th style="padding: ${tdPad}; width: 5%;">No</th>
+                            <th style="padding: ${tdPad}; width: 28%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: ${tdPad}; width: 18%; text-align: left;">Jabatan</th>
+                            <th style="padding: ${tdPad}; width: 15%;">Unit</th>
                             ${colsHeaderHtml}
                         </tr>
                     </thead>
@@ -1630,13 +1639,13 @@ function getYYYYMMDD(d) {
                 
                 ${actHTML}
 
-                <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 12px; page-break-inside: avoid;">
-                    <div style="text-align: center; width: 200px;">
+                <div style="display: flex; justify-content: space-between; margin-top: 30px; font-size: 14px; page-break-inside: avoid;">
+                    <div style="text-align: center; width: 250px;">
                         <p>Pemimpin Kelas / Guru SS</p>
                         <br><br><br>
                         <p style="font-weight: bold; text-decoration: underline;">______________________</p>
                     </div>
-                    <div style="text-align: center; width: 200px;">
+                    <div style="text-align: center; width: 250px;">
                         <p>Sekretaris Unit</p>
                         <br><br><br>
                         <p style="font-weight: bold; text-decoration: underline;">______________________</p>
@@ -1663,8 +1672,8 @@ function getYYYYMMDD(d) {
 
             let isDense = displayed.length > 15;
             let isVeryDense = displayed.length > 25;
-            let tdPad = isVeryDense ? '3px' : (isDense ? '5px' : '8px');
-            let fontSize = isVeryDense ? '9px' : (isDense ? '10px' : '11px');
+            let tdPad = isVeryDense ? '4px' : (isDense ? '6px' : '10px');
+            let fontSize = isVeryDense ? '10px' : (isDense ? '12px' : '14px');
 
             let membersListHTML = displayed.map((m, idx) => {
                 const status = memberAttendance[m.id];
@@ -1674,40 +1683,40 @@ function getYYYYMMDD(d) {
                 else { belum++; }
 
                 return `
-                <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${m.unit || 'Umum'}</td>
+                <tr>
+                    <td style="padding: ${tdPad}; text-align: center;">${idx + 1}</td>
+                    <td style="padding: ${tdPad}; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: ${tdPad};">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: ${tdPad}; text-align: center;">${m.unit || 'Umum'}</td>
                     <td style="padding: ${tdPad}; text-align: center;">${statusText}</td>
                 </tr>
                 `;
             }).join('');
 
             if (displayed.length === 0) {
-                membersListHTML = `<tr><td colspan="5" style="padding: 15px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
+                membersListHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
             }
 
-            // TARIK DATA AKTIVITAS DARI SERVER
+            // TARIK DATA AKTIVITAS DARI SERVER DENGAN PENCARIAN CERDAS
             let actData = getActivityData(unit, dateStr);
 
             let actHTML = `
-            <div style="margin-top: 15px; page-break-inside: avoid;">
-                <h3 style="font-size: ${isVeryDense ? '10px' : '12px'}; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; color: #0a192f; border-bottom: 1px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
+            <div style="margin-top: 20px;">
+                <h3 style="font-size: ${isVeryDense ? '12px' : '14px'}; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; color: #0a192f; border-bottom: 2px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
+                <table style="font-size: ${isVeryDense ? '10px' : '12px'}; margin-bottom: 15px;">
                     <thead>
-                        <tr style="background-color: #f1f5f9; color: #0a192f; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 5%;">No</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 75%; text-align: left;">Indikator Kegiatan Anggota</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 20%; text-align: center;">Total Jiwa Terlibat</th>
+                        <tr style="background-color: #f1f5f9; color: #0a192f;">
+                            <th style="padding: ${tdPad}; width: 5%;">No</th>
+                            <th style="padding: ${tdPad}; width: 75%; text-align: left;">Indikator Kegiatan Anggota</th>
+                            <th style="padding: ${tdPad}; width: 20%; text-align: center;">Total Jiwa Terlibat</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${actList.map((a, i) => `
-                        <tr style="page-break-inside: avoid;">
-                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">${i+1}</td>
-                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1;">${a}</td>
-                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; font-size: ${isVeryDense ? '9px' : '12px'};">${actData[i] !== undefined ? actData[i] : '-'}</td>
+                        <tr>
+                            <td style="padding: ${tdPad}; text-align: center; font-weight: bold;">${i+1}</td>
+                            <td style="padding: ${tdPad};">${a}</td>
+                            <td style="padding: ${tdPad}; text-align: center; font-weight: bold; font-size: ${isVeryDense ? '11px' : '14px'};">${actData[i] !== undefined ? actData[i] : '-'}</td>
                         </tr>
                         `).join('')}
                     </tbody>
@@ -1717,47 +1726,47 @@ function getYYYYMMDD(d) {
 
             const printHtml = `
                 <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px;">
-                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 60px; height: 60px; object-fit: contain;">
+                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 70px; height: 70px; object-fit: contain;">
                     <div style="text-align: left;">
-                        <h1 style="margin: 0; font-size: 24px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
-                        <p style="margin: 2px 0 0 0; font-size: 12px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
-                        <p style="margin: 0; font-size: 11px; color: #6b7280;">Laporan Daftar Hadir Kelas & Unit</p>
+                        <h1 style="margin: 0; font-size: 28px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
+                        <p style="margin: 2px 0 0 0; font-size: 14px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
+                        <p style="margin: 0; font-size: 12px; color: #6b7280;">Laporan Daftar Hadir Kelas & Unit</p>
                     </div>
                 </div>
 
-                <h2 style="text-align: center; font-size: 18px; text-transform: uppercase; margin-bottom: 5px;">ABSENSI: ${catTitle}</h2>
-                <p style="text-align: center; font-size: 12px; color: #0a192f; margin-top: 0; margin-bottom: 20px; font-weight: bold;">
+                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">ABSENSI: ${catTitle}</h2>
+                <p style="text-align: center; font-size: 14px; color: #0a192f; margin-top: 0; margin-bottom: 20px; font-weight: bold;">
                     Unit / Filter: <span style="text-transform:uppercase;">${unit === 'ALL' ? 'Global (Semua Unit)' : unit}</span> <br>
                     Tanggal Ibadah: ${tglStr}
                 </p>
 
                 <div style="display: flex; gap: 15px; margin-bottom: 20px;">
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #f9fafb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 10px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
-                        <div style="font-size: 20px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f9fafb;">
+                        <div style="font-size: 12px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
                     </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #ecfdf5; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 10px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
-                        <div style="font-size: 20px; font-weight: 900; color: #10B981;">${hadir}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #ecfdf5;">
+                        <div style="font-size: 12px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #10B981;">${hadir}</div>
                     </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #fef2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 10px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
-                        <div style="font-size: 20px; font-weight: 900; color: #EF4444;">${alpha}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fef2f2;">
+                        <div style="font-size: 12px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #EF4444;">${alpha}</div>
                     </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #fffbeb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 10px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu</div>
-                        <div style="font-size: 20px; font-weight: 900; color: #F59E0B;">${tamu}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fffbeb;">
+                        <div style="font-size: 12px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #F59E0B;">${tamu}</div>
                     </div>
                 </div>
 
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
+                <table style="font-size: ${fontSize}; margin-bottom: 0px;">
                     <thead>
-                        <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 30%; text-align: left;">Nama Jemaat</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 25%; text-align: left;">Jabatan</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 15%;">Unit</th>
-                            <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 25%;">Status Kehadiran</th>
+                        <tr style="background-color: #0a192f; color: white;">
+                            <th style="padding: ${tdPad}; width: 5%;">No</th>
+                            <th style="padding: ${tdPad}; width: 30%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: ${tdPad}; width: 25%; text-align: left;">Jabatan</th>
+                            <th style="padding: ${tdPad}; width: 15%;">Unit</th>
+                            <th style="padding: ${tdPad}; width: 25%;">Status Kehadiran</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1767,13 +1776,13 @@ function getYYYYMMDD(d) {
 
                 ${actHTML}
 
-                <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 12px; page-break-inside: avoid;">
-                    <div style="text-align: center; width: 200px;">
+                <div style="display: flex; justify-content: space-between; margin-top: 30px; font-size: 14px; page-break-inside: avoid;">
+                    <div style="text-align: center; width: 250px;">
                         <p>Pemimpin Kelas / Guru SS</p>
                         <br><br><br>
                         <p style="font-weight: bold; text-decoration: underline;">______________________</p>
                     </div>
-                    <div style="text-align: center; width: 200px;">
+                    <div style="text-align: center; width: 250px;">
                         <p>Sekretaris Unit</p>
                         <br><br><br>
                         <p style="font-weight: bold; text-decoration: underline;">______________________</p>
