@@ -256,17 +256,22 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         let currentTab = 'dashboard';
         let memberAttendance = {}; 
         
+        // 10 POIN KEGIATAN UNTUK RENDER TABEL PDF
+        const actList = [
+            "Datang tepat waktu di S.S.", "Membaca Alkitab setiap hari", "Pelajaran S.S. setiap hari", 
+            "Renungan Pagi setiap hari", "Hadir Pertemuan Rabu Malam", "Melakukan Jangkauan Keluar", 
+            "Perlawatan Pemeliharaan", "Membagikan Buku Rohani", "Kegiatan Kelompok Kecil", "Program Berdoa (777/1752)"
+        ];
+
         // ==========================================
         // FUNGSI INTI DOWNLOAD PDF BYPASS MOBILE
-        // UPDATE BARU: AUTO-LANDSCAPE DETECTOR
+        // UPDATE BARU: AUTO-LANDSCAPE & AUTO-ZOOM (1 LEMBAR)
         // ==========================================
         function generatePDF(htmlContent, filename) {
             toggleLoading(true); 
             
             const container = document.getElementById('print-container');
             
-            // PERBAIKAN BUG HURUF KEPOTONG: 
-            // Tempatkan div di titik x,y normal, tapi buat tak terlihat dan di belakang semua elemen (z-index)
             container.classList.remove('hidden');
             container.style.display = 'block';
             container.style.position = 'fixed';
@@ -277,7 +282,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             container.style.pointerEvents = 'none';
             
             container.innerHTML = `
-                <div id="pdf-measure-box" style="width: 794px; background: white; color: black; font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px; box-sizing: border-box;">
+                <div id="pdf-measure-box" style="width: 794px; background: white; color: black; font-family: 'Plus Jakarta Sans', sans-serif; padding: 25px; box-sizing: border-box;">
                     ${htmlContent}
                 </div>
             `;
@@ -289,21 +294,31 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 let orientation = 'portrait';
                 let finalWidth = 794; // Batas wajar Portrait A4
 
-                // DETEKSI CERDAS: Jika isi tabel melebar lebih dari batas Portrait
+                // DETEKSI CERDAS KELEBARAN: Auto-Landscape
                 if (contentWidth > 800) {
                     orientation = 'landscape';
                     finalWidth = 1123; // Lebar standar Landscape A4
                     
-                    measureBox.style.width = '1123px'; // Uji coba ubah bentuk ke Landscape
-                    
-                    // Jika setelah Landscape TERNYATA MADIH KURANG LEBAR (Karena kolom terlalu banyak)
+                    measureBox.style.width = '1123px'; 
                     if (measureBox.scrollWidth > 1130) {
-                        finalWidth = measureBox.scrollWidth; // Biarkan lebar maksimal, PDF engine akan ZOOM OUT Otomatis (Fit to page)
+                        finalWidth = measureBox.scrollWidth; // Jika masih kurang lebar, PDF engine otomatis Zoom out horizontal
                     }
                 }
                 
-                // Set ukuran fix hasil analisa
                 measureBox.style.width = finalWidth + 'px';
+
+                // ==========================================
+                // DETEKSI CERDAS KETINGGIAN: Paksa Muat 1 Lembar (Auto-Zoom Out)
+                // ==========================================
+                let contentHeight = measureBox.scrollHeight;
+                // Tinggi A4 pada 96 DPI dikurangi margin. Portrait ~ 1050px, Landscape ~ 730px.
+                let maxSafeHeight = orientation === 'landscape' ? 730 : 1050;
+
+                if (contentHeight > maxSafeHeight) {
+                    let zoomRatio = maxSafeHeight / contentHeight;
+                    // Menerapkan Zoom (Mengecilkan semua elemen) agar tidak pecah ke halaman 2
+                    measureBox.style.zoom = zoomRatio;
+                }
 
                 const opt = {
                     margin:       10, 
@@ -591,11 +606,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 renderFilteredMembers(cat);
             } 
             else if(currentTab === 'kegiatan') {
-                const items = [
-                    "Anggota datang tepat waktu di S.S.", "Membaca Alkitab setiap hari", "Pelajaran S.S. setiap hari", "Renungan Pagi setiap hari", "Hadir Pertemuan Rabu Malam",
-                    "Melakukan Jangkauan Keluar (Pemberian Alkitab, Berdoa u/ orang lain, Membagikan makanan/pakaian)", "Melakukan Perlawatan Pemeliharaan (Mendoakan yg sakit, Anggota S.S. yg lama tidak hadir)",
-                    "Memberikan / Membagikan Risalah / Buku Rohani", "Terlibat Kegiatan Kelompok Kecil", "Mengikuti / Terlibat Program Berdoa (777 / 1752 dll)"
-                ];
                 area.innerHTML = `
                     <div class="glass p-8">
                         <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
@@ -607,7 +617,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                                 <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">${items.map((it, i) => `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">${actList.map((it, i) => `
                             <div class="bg-[#112240] border border-white/5 rounded-xl p-6 flex flex-col justify-between">
                                 <div class="text-[#D4AF37]/50 font-black text-2xl mb-2">#${i+1}</div>
                                 <div class="text-xs md:text-sm font-bold text-white uppercase mb-6 leading-relaxed min-h-[4rem] flex-grow">${it}</div>
@@ -1121,10 +1131,10 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             let reportType = type === 'khotbah' ? 'Khotbah' : catTitle;
             let histData = attendanceHistory[reportType] || {};
 
-            let isDense = displayed.length > 20;
-            let isVeryDense = displayed.length > 35;
-            let tdPad = isVeryDense ? '3px' : (isDense ? '6px' : '10px');
-            let fontSize = isVeryDense ? '10px' : (isDense ? '11px' : '13px');
+            let isDense = displayed.length > 15;
+            let isVeryDense = displayed.length > 25;
+            let tdPad = isVeryDense ? '3px' : (isDense ? '5px' : '8px');
+            let fontSize = isVeryDense ? '9px' : (isDense ? '10px' : '11px');
 
             let membersListHTML = displayed.map((m, idx) => {
                 let status = '';
@@ -1151,6 +1161,31 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             if (displayed.length === 0) {
                 membersListHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
             }
+
+            // KODE BARU: TABEL KEGIATAN KELAS
+            let actHTML = `
+            <div style="margin-top: 15px; page-break-inside: avoid;">
+                <h3 style="font-size: ${isVeryDense ? '10px' : '12px'}; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; color: #0a192f; border-bottom: 1px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9; color: #0a192f; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 5%;">No</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 75%; text-align: left;">Indikator Kegiatan Anggota</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 20%; text-align: center;">Total Jiwa Terlibat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${actList.map((a, i) => `
+                        <tr>
+                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">${i+1}</td>
+                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1;">${a}</td>
+                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center;"></td>
+                        </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            `;
             
             let tamuCount = 0;
             if (statsData.historyByUnit['Tamu']) {
@@ -1159,41 +1194,41 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             }
 
             const printHtml = `
-                <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 20px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 20px;">
-                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 80px; height: 80px; object-fit: contain;">
+                <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px;">
+                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 60px; height: 60px; object-fit: contain;">
                     <div style="text-align: left;">
-                        <h1 style="margin: 0; font-size: 28px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
-                        <p style="margin: 5px 0 0 0; font-size: 14px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
-                        <p style="margin: 0; font-size: 12px; color: #6b7280;">Laporan Daftar Hadir Kelas & Unit (Data Tersimpan)</p>
+                        <h1 style="margin: 0; font-size: 24px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
+                        <p style="margin: 2px 0 0 0; font-size: 12px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
+                        <p style="margin: 0; font-size: 11px; color: #6b7280;">Laporan Daftar Hadir Kelas & Unit (Data Tersimpan)</p>
                     </div>
                 </div>
 
-                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">REKAP HARIAN: ${catTitle}</h2>
-                <p style="text-align: center; font-size: 14px; color: #0a192f; margin-top: 0; margin-bottom: 30px; font-weight: bold;">
+                <h2 style="text-align: center; font-size: 18px; text-transform: uppercase; margin-bottom: 5px;">REKAP HARIAN: ${catTitle}</h2>
+                <p style="text-align: center; font-size: 12px; color: #0a192f; margin-top: 0; margin-bottom: 20px; font-weight: bold;">
                     Unit / Filter: <span style="text-transform:uppercase;">${unit === 'ALL' ? 'Global (Semua Unit)' : unit}</span> <br>
                     Tanggal Ibadah: ${tglStr}
                 </p>
 
-                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f9fafb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #f9fafb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 10px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
+                        <div style="font-size: 20px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
                     </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #ecfdf5; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #10B981;">${hadir}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #ecfdf5; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 10px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
+                        <div style="font-size: 20px; font-weight: 900; color: #10B981;">${hadir}</div>
                     </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fef2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #EF4444;">${alpha}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #fef2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 10px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
+                        <div style="font-size: 20px; font-weight: 900; color: #EF4444;">${alpha}</div>
                     </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fffbeb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu (Global)</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #F59E0B;">${tamuCount}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #fffbeb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 10px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu (Global)</div>
+                        <div style="font-size: 20px; font-weight: 900; color: #F59E0B;">${tamuCount}</div>
                     </div>
                 </div>
 
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
@@ -1207,14 +1242,16 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         ${membersListHTML}
                     </tbody>
                 </table>
+                
+                ${actHTML}
 
-                <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 14px; page-break-inside: avoid;">
-                    <div style="text-align: center; width: 250px;">
+                <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 12px; page-break-inside: avoid;">
+                    <div style="text-align: center; width: 200px;">
                         <p>Pemimpin Kelas / Guru SS</p>
                         <br><br><br>
                         <p style="font-weight: bold; text-decoration: underline;">______________________</p>
                     </div>
-                    <div style="text-align: center; width: 250px;">
+                    <div style="text-align: center; width: 200px;">
                         <p>Sekretaris Unit</p>
                         <br><br><br>
                         <p style="font-weight: bold; text-decoration: underline;">______________________</p>
@@ -1283,75 +1320,75 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 const pct = visibleMembersCount > 0 ? Math.round((count / visibleMembersCount) * 100) : 0;
                 return `
                     <tr style="border-bottom: 1px solid #ddd;">
-                        <td style="padding: 10px; border-right: 1px solid #ddd; text-align: center;">${i+1}</td>
-                        <td style="padding: 10px; border-right: 1px solid #ddd; font-weight: bold;">${key.toUpperCase()}</td>
-                        <td style="padding: 10px; border-right: 1px solid #ddd; text-align: center;">${count}</td>
-                        <td style="padding: 10px; text-align: center;">${pct}%</td>
+                        <td style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">${i+1}</td>
+                        <td style="padding: 8px; border-right: 1px solid #ddd; font-weight: bold;">${key.toUpperCase()}</td>
+                        <td style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">${count}</td>
+                        <td style="padding: 8px; text-align: center;">${pct}%</td>
                     </tr>
                 `;
             }).join('');
 
             tableRows += `
                 <tr style="background-color: #f3f4f6; font-weight: bold;">
-                    <td colspan="2" style="padding: 10px; border-right: 1px solid #ddd; text-align: right;">TOTAL KESELURUHAN</td>
-                    <td style="padding: 10px; border-right: 1px solid #ddd; text-align: center;">${visibleMembersCount}</td>
-                    <td style="padding: 10px; text-align: center;">100%</td>
+                    <td colspan="2" style="padding: 8px; border-right: 1px solid #ddd; text-align: right;">TOTAL KESELURUHAN</td>
+                    <td style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">${visibleMembersCount}</td>
+                    <td style="padding: 8px; text-align: center;">100%</td>
                 </tr>
             `;
 
             let membersListHTML = filteredMembersForPrint.map((m, idx) => `
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 6px; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
-                    <td style="padding: 6px; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
-                    <td style="padding: 6px; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: 6px; border-right: 1px solid #eee;">${m.unit || 'Umum'}</td>
-                    <td style="padding: 6px;">${m.kelasTetap || '-'}</td>
+                <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
+                    <td style="padding: 4px; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
+                    <td style="padding: 4px; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: 4px; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: 4px; border-right: 1px solid #eee;">${m.unit || 'Umum'}</td>
+                    <td style="padding: 4px;">${m.kelasTetap || '-'}</td>
                 </tr>
             `).join('');
 
             if(filteredMembersForPrint.length === 0) {
-                membersListHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat.</td></tr>`;
+                membersListHTML = `<tr><td colspan="5" style="padding: 15px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat.</td></tr>`;
             }
 
             const printHtml = `
-                <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 20px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 20px;">
-                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 80px; height: 80px; object-fit: contain;">
+                <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px;">
+                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 60px; height: 60px; object-fit: contain;">
                     <div style="text-align: left;">
-                        <h1 style="margin: 0; font-size: 28px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
-                        <p style="margin: 5px 0 0 0; font-size: 14px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
-                        <p style="margin: 0; font-size: 12px; color: #6b7280;">Laporan Data Statistik & Kehadiran Jemaat</p>
+                        <h1 style="margin: 0; font-size: 24px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
+                        <p style="margin: 2px 0 0 0; font-size: 12px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
+                        <p style="margin: 0; font-size: 11px; color: #6b7280;">Laporan Data Statistik & Kehadiran Jemaat</p>
                     </div>
                 </div>
 
-                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">Laporan: ${selectedUnit === 'ALL' ? 'GLOBAL (SEMUA JEMAAT)' : 'UNIT ' + selectedUnit}</h2>
-                <p style="text-align: center; font-size: 14px; color: #6b7280; margin-top: 0; margin-bottom: 30px;">
+                <h2 style="text-align: center; font-size: 18px; text-transform: uppercase; margin-bottom: 5px;">Laporan: ${selectedUnit === 'ALL' ? 'GLOBAL (SEMUA JEMAAT)' : 'UNIT ' + selectedUnit}</h2>
+                <p style="text-align: center; font-size: 12px; color: #6b7280; margin-top: 0; margin-bottom: 20px;">
                     Periode Laporan: <strong>${periodeText}</strong><br>
-                    <span style="font-size: 11px; color: #9ca3af;">(Dicetak pada: ${todayStr})</span>
+                    <span style="font-size: 10px; color: #9ca3af;">(Dicetak pada: ${todayStr})</span>
                 </p>
 
-                <div style="display: flex; gap: 20px; margin-bottom: 40px;">
-                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 10px; padding: 20px; text-align: center;">
-                        <div style="font-size: 12px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Terdaftar</div>
-                        <div style="font-size: 32px; font-weight: 900; color: #0a192f; margin-top: 10px;">${visibleMembersCount}</div>
+                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 8px; padding: 15px; text-align: center;">
+                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Terdaftar</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #0a192f; margin-top: 5px;">${visibleMembersCount}</div>
                     </div>
-                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 10px; padding: 20px; text-align: center;">
-                        <div style="font-size: 12px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Kehadiran Tertinggi</div>
-                        <div style="font-size: 32px; font-weight: 900; color: #10B981; margin-top: 10px;">${maxCount}</div>
+                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 8px; padding: 15px; text-align: center;">
+                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Kehadiran Tertinggi</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #10B981; margin-top: 5px;">${maxCount}</div>
                     </div>
-                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 10px; padding: 20px; text-align: center;">
-                        <div style="font-size: 12px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Rata-rata Kehadiran</div>
-                        <div style="font-size: 32px; font-weight: 900; color: #F59E0B; margin-top: 10px;">${avgCount}</div>
+                    <div style="flex: 1; border: 2px solid #0a192f; border-radius: 8px; padding: 15px; text-align: center;">
+                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Rata-rata Kehadiran</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #F59E0B; margin-top: 5px;">${avgCount}</div>
                     </div>
                 </div>
 
-                <h3 style="font-size: 16px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px;">Tabel Komposisi Anggota</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 12px; margin-bottom: 20px;">
+                <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 10px;">Tabel Komposisi Anggota</h3>
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 10px; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: 10px; border: 1px solid #0a192f; width: 10%;">No</th>
-                            <th style="padding: 10px; border: 1px solid #0a192f; width: 50%; text-align: left;">Kategori / Unit</th>
-                            <th style="padding: 10px; border: 1px solid #0a192f; width: 20%;">Total Jiwa</th>
-                            <th style="padding: 10px; border: 1px solid #0a192f; width: 20%;">Persentase</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 10%;">No</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 50%; text-align: left;">Kategori / Unit</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%;">Total Jiwa</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%;">Persentase</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1359,15 +1396,15 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </tbody>
                 </table>
 
-                <h3 style="font-size: 16px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; page-break-before: auto;">Daftar Anggota Terdaftar</h3>
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 11px; margin-bottom: 20px;">
+                <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; page-break-before: auto;">Daftar Anggota Terdaftar</h3>
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 9px; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 5%;">No</th>
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%; text-align: left;">Jabatan</th>
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%; text-align: left;">Unit</th>
-                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%; text-align: left;">Kelas SS</th>
+                            <th style="padding: 6px; border: 1px solid #0a192f; width: 5%;">No</th>
+                            <th style="padding: 6px; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: 6px; border: 1px solid #0a192f; width: 20%; text-align: left;">Jabatan</th>
+                            <th style="padding: 6px; border: 1px solid #0a192f; width: 20%; text-align: left;">Unit</th>
+                            <th style="padding: 6px; border: 1px solid #0a192f; width: 20%; text-align: left;">Kelas SS</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1375,7 +1412,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </tbody>
                 </table>
 
-                <div style="margin-top: 20px; text-align: right; font-size: 14px; page-break-inside: avoid;">
+                <div style="margin-top: 20px; text-align: right; font-size: 12px; page-break-inside: avoid;">
                     <p>Mengetahui,</p>
                     <br><br><br>
                     <p style="font-weight: bold; text-decoration: underline;">Ketua / Pimpinan Unit</p>
@@ -1440,16 +1477,16 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             let reportType = type === 'khotbah' ? 'Khotbah' : catTitle;
             let histData = attendanceHistory[reportType] || {};
 
-            let isDense = displayed.length > 20;
-            let isVeryDense = displayed.length > 35;
-            let tdPad = isVeryDense ? '2px' : (isDense ? '4px' : '6px');
-            let fontSize = isVeryDense ? '9px' : (isDense ? '10px' : '12px');
-            let boxDim = isVeryDense ? '12px' : (isDense ? '14px' : '16px');
-            let iconSize = isVeryDense ? '10px' : (isDense ? '12px' : '14px');
+            let isDense = displayed.length > 15;
+            let isVeryDense = displayed.length > 25;
+            let tdPad = isVeryDense ? '1px' : (isDense ? '3px' : '5px');
+            let fontSize = isVeryDense ? '8px' : (isDense ? '9px' : '11px');
+            let boxDim = isVeryDense ? '10px' : (isDense ? '12px' : '14px');
+            let iconSize = isVeryDense ? '8px' : (isDense ? '10px' : '12px');
 
             let colsHeaderHtml = saturdays.map((sat) => {
                 const label = `${sat.getDate()}/${sat.getMonth()+1}`;
-                return `<th style="padding: ${tdPad} 2px; border: 1px solid #0a192f; text-align: center; width: 40px; font-size: 10px; background-color: #D4AF37; color: #0a192f; white-space: nowrap;">SAB<br>${label}</th>`;
+                return `<th style="padding: ${tdPad} 2px; border: 1px solid #0a192f; text-align: center; width: 35px; font-size: ${isVeryDense ? '7px' : '9px'}; background-color: #D4AF37; color: #0a192f; white-space: nowrap;">SAB<br>${label}</th>`;
             }).join('');
 
             let membersListHTML = displayed.map((m, idx) => {
@@ -1484,16 +1521,42 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold; white-space: nowrap;">${m.nama}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-size: 10px;">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center; font-size: 10px; white-space: nowrap;">${m.unit || 'Umum'}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-size: ${isVeryDense ? '7px' : '9px'};">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center; font-size: ${isVeryDense ? '7px' : '9px'}; white-space: nowrap;">${m.unit || 'Umum'}</td>
                     ${checkboxes}
                 </tr>
                 `;
             }).join('');
 
             if (displayed.length === 0) {
-                membersListHTML = `<tr><td colspan="${4 + saturdays.length}" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
+                membersListHTML = `<tr><td colspan="${4 + saturdays.length}" style="padding: 15px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
             }
+
+            // KODE BARU: TABEL KEGIATAN KELAS UNTUK MULTI-TANGGAL
+            let actColsHtml = saturdays.map(() => `<td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center;"></td>`).join('');
+            let actHTML = `
+            <div style="margin-top: 15px; page-break-inside: avoid;">
+                <h3 style="font-size: ${isVeryDense ? '9px' : '11px'}; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; color: #0a192f; border-bottom: 1px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '7px' : '9px'}; margin-bottom: 15px;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9; color: #0a192f; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 5%;">No</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 45%; text-align: left;">Indikator Kegiatan Anggota</th>
+                            ${saturdays.map(sat => `<th style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-size: ${isVeryDense ? '6px' : '8px'}; background-color: #f1f5f9; color: #0a192f;">SAB<br>${sat.getDate()}/${sat.getMonth()+1}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${actList.map((a, i) => `
+                        <tr>
+                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">${i+1}</td>
+                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1;">${a}</td>
+                            ${actColsHtml}
+                        </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            `;
 
             const printHtml = `
                 <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px;">
@@ -1506,12 +1569,12 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </div>
 
                 <h2 style="text-align: center; font-size: 18px; text-transform: uppercase; margin-bottom: 5px;">REKAP ABSENSI: ${catTitle}</h2>
-                <p style="text-align: center; font-size: 13px; color: #0a192f; margin-top: 0; margin-bottom: 20px; font-weight: bold;">
+                <p style="text-align: center; font-size: 12px; color: #0a192f; margin-top: 0; margin-bottom: 20px; font-weight: bold;">
                     Unit / Filter: <span style="text-transform:uppercase;">${unit === 'ALL' ? 'Global (Semua Unit)' : unit}</span> <br>
                     Periode: ${periodeText}
                 </p>
 
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
@@ -1525,8 +1588,10 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         ${membersListHTML}
                     </tbody>
                 </table>
+                
+                ${actHTML}
 
-                <div style="display: flex; justify-content: space-between; margin-top: 40px; font-size: 12px; page-break-inside: avoid;">
+                <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 12px; page-break-inside: avoid;">
                     <div style="text-align: center; width: 200px;">
                         <p>Pemimpin Kelas / Guru SS</p>
                         <br><br><br>
@@ -1555,10 +1620,10 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             
             let hadir = 0, alpha = 0, belum = 0;
 
-            let isDense = displayed.length > 20;
-            let isVeryDense = displayed.length > 35;
-            let tdPad = isVeryDense ? '3px' : (isDense ? '6px' : '10px');
-            let fontSize = isVeryDense ? '10px' : (isDense ? '11px' : '13px');
+            let isDense = displayed.length > 15;
+            let isVeryDense = displayed.length > 25;
+            let tdPad = isVeryDense ? '3px' : (isDense ? '5px' : '8px');
+            let fontSize = isVeryDense ? '9px' : (isDense ? '10px' : '11px');
 
             let membersListHTML = displayed.map((m, idx) => {
                 const status = memberAttendance[m.id];
@@ -1579,45 +1644,70 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             }).join('');
 
             if (displayed.length === 0) {
-                membersListHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
+                membersListHTML = `<tr><td colspan="5" style="padding: 15px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
             }
 
+            // KODE BARU: TABEL KEGIATAN KELAS
+            let actHTML = `
+            <div style="margin-top: 15px; page-break-inside: avoid;">
+                <h3 style="font-size: ${isVeryDense ? '10px' : '12px'}; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; color: #0a192f; border-bottom: 1px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9; color: #0a192f; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 5%;">No</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 75%; text-align: left;">Indikator Kegiatan Anggota</th>
+                            <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 20%; text-align: center;">Total Jiwa Terlibat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${actList.map((a, i) => `
+                        <tr>
+                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">${i+1}</td>
+                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1;">${a}</td>
+                            <td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center;"></td>
+                        </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            `;
+
             const printHtml = `
-                <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 20px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 20px;">
-                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 80px; height: 80px; object-fit: contain;">
+                <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px;">
+                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 60px; height: 60px; object-fit: contain;">
                     <div style="text-align: left;">
-                        <h1 style="margin: 0; font-size: 28px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
-                        <p style="margin: 5px 0 0 0; font-size: 14px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
-                        <p style="margin: 0; font-size: 12px; color: #6b7280;">Laporan Daftar Hadir Kelas & Unit</p>
+                        <h1 style="margin: 0; font-size: 24px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
+                        <p style="margin: 2px 0 0 0; font-size: 12px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
+                        <p style="margin: 0; font-size: 11px; color: #6b7280;">Laporan Daftar Hadir Kelas & Unit</p>
                     </div>
                 </div>
 
-                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">ABSENSI: ${catTitle}</h2>
-                <p style="text-align: center; font-size: 14px; color: #0a192f; margin-top: 0; margin-bottom: 30px; font-weight: bold;">
+                <h2 style="text-align: center; font-size: 18px; text-transform: uppercase; margin-bottom: 5px;">ABSENSI: ${catTitle}</h2>
+                <p style="text-align: center; font-size: 12px; color: #0a192f; margin-top: 0; margin-bottom: 20px; font-weight: bold;">
                     Unit / Filter: <span style="text-transform:uppercase;">${unit === 'ALL' ? 'Global (Semua Unit)' : unit}</span> <br>
                     Tanggal Ibadah: ${tglStr}
                 </p>
 
-                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f9fafb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #f9fafb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 10px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
+                        <div style="font-size: 20px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
                     </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #ecfdf5; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #10B981;">${hadir}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #ecfdf5; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 10px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
+                        <div style="font-size: 20px; font-weight: 900; color: #10B981;">${hadir}</div>
                     </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fef2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #EF4444;">${alpha}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #fef2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 10px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
+                        <div style="font-size: 20px; font-weight: 900; color: #EF4444;">${alpha}</div>
                     </div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fffbeb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <div style="font-size: 11px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #F59E0B;">${tamu}</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: #fffbeb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 10px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu</div>
+                        <div style="font-size: 20px; font-weight: 900; color: #F59E0B;">${tamu}</div>
                     </div>
                 </div>
 
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
@@ -1632,13 +1722,15 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </tbody>
                 </table>
 
-                <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 14px; page-break-inside: avoid;">
-                    <div style="text-align: center; width: 250px;">
+                ${actHTML}
+
+                <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 12px; page-break-inside: avoid;">
+                    <div style="text-align: center; width: 200px;">
                         <p>Pemimpin Kelas / Guru SS</p>
                         <br><br><br>
                         <p style="font-weight: bold; text-decoration: underline;">______________________</p>
                     </div>
-                    <div style="text-align: center; width: 250px;">
+                    <div style="text-align: center; width: 200px;">
                         <p>Sekretaris Unit</p>
                         <br><br><br>
                         <p style="font-weight: bold; text-decoration: underline;">______________________</p>
