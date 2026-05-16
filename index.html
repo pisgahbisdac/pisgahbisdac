@@ -335,15 +335,24 @@ function getYYYYMMDD(d) {
             container.style.opacity = '0';
             container.style.pointerEvents = 'none';
             
-            // PERBESAR RUANG KANVAS DINAMIS
-            // Menggunakan width: max-content agar elemen bebas melebar ke kanan
-            // PDF akan otomatis mengecilkan persentase skala agar muat 1 halaman
-            let minPxWidth = orientation === 'landscape' ? 1400 : 950; 
+            // ATURAN KHUSUS PORTRAIT VS LANDSCAPE
+            let boxStyle = "";
+            let tdWhiteSpace = "normal";
+
+            if (orientation === 'landscape') {
+                // LANDSCAPE: Biarkan tabel melebar ke kanan (max-content), PDF akan otomatis mengecilkan skala (auto-shrink)
+                boxStyle = "display: inline-block; min-width: 1400px; width: max-content;";
+                tdWhiteSpace = "nowrap";
+            } else {
+                // PORTRAIT: Kunci lebar di 800px agar proporsional di A4 Portrait, teks akan turun ke bawah secara natural
+                boxStyle = "display: block; width: 800px; margin: 0 auto;";
+                tdWhiteSpace = "normal";
+            }
 
             container.innerHTML = `
-                <div id="pdf-measure-box" style="display: inline-block; min-width: ${minPxWidth}px; width: max-content; background: white; color: black; font-family: Arial, Helvetica, sans-serif; padding: 40px; box-sizing: border-box;">
+                <div id="pdf-measure-box" style="${boxStyle} background: white; color: black; font-family: Arial, Helvetica, sans-serif; padding: 40px; box-sizing: border-box;">
                     <style>
-                        /* Paksa gaya huruf standar mesin & izinkan auto-shrink */
+                        /* Paksa gaya huruf standar mesin & izinkan render natural */
                         #pdf-measure-box * { 
                             font-family: Arial, Helvetica, sans-serif !important; 
                             letter-spacing: normal !important; 
@@ -353,7 +362,7 @@ function getYYYYMMDD(d) {
                         table { width: 100%; border-collapse: collapse; table-layout: auto; }
                         th, td { 
                             border: 1px solid #cbd5e1; 
-                            white-space: nowrap; /* Mencegah teks turun dan bertumpuk, memaksa tabel memanjang */
+                            white-space: ${tdWhiteSpace}; 
                             vertical-align: middle;
                         }
                         /* Cegah pemotongan halaman di tengah baris */
@@ -365,14 +374,14 @@ function getYYYYMMDD(d) {
 
             setTimeout(() => {
                 const measureBox = document.getElementById('pdf-measure-box');
-                const actualWidth = measureBox.scrollWidth; // Ambil lebar asli setelah melebar maksimal
+                // Hitung lebar aktual (jika Landscape ambil full lebarnya, jika Portrait ambil 800px)
+                const actualWidth = orientation === 'landscape' ? measureBox.scrollWidth : measureBox.offsetWidth;
 
                 const opt = {
                     margin:       [10, 10, 15, 10], 
                     filename:     filename,
                     image:        { type: 'jpeg', quality: 1.0 },
                     pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] },
-                    // html2canvas menangkap semua area asli, jsPDF otomatis mengecilkan skalanya
                     html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: actualWidth + 50, width: actualWidth }, 
                     jsPDF:        { unit: 'mm', format: 'a4', orientation: orientation }
                 };
