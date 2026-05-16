@@ -10,6 +10,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         :root { --navy: #0a192f; --navy-light: #112240; --gold: #D4AF37; }
@@ -57,19 +60,6 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         #filter-unit-select, #tamu, #tgl { padding: 12px 16px; border-radius: 8px; width: 100%;}
-        
-        /* CSS KHUSUS UNTUK CETAK PDF */
-        @media print {
-            body * { visibility: hidden !important; }
-            #print-container, #print-container * { visibility: visible !important; }
-            #print-container {
-                position: absolute; left: 0; top: 0; width: 100%; min-height: 100vh;
-                background: white !important; color: black !important;
-                padding: 0; font-family: 'Plus Jakarta Sans', sans-serif;
-            }
-            @page { margin: 1.5cm; size: A4 portrait; }
-            ::-webkit-scrollbar { display: none; }
-        }
     </style>
 </head>
 <body class="min-h-screen pb-20">
@@ -136,7 +126,6 @@
         <p class="text-[10px] text-slate-500 mt-1">Matrix System v1.0</p>
     </footer>
 
-<!-- MODAL LOGIN -->
 <div id="login-modal" class="fixed inset-0 bg-[#0a192f]/90 flex items-center justify-center z-[300] hidden backdrop-blur-md">
     <div class="glass p-10 max-w-sm w-full mx-4 text-center border-t-4 border-t-[#D4AF37] shadow-2xl animate-[fadeIn_0.3s_ease-out]">
         <div class="mb-4"><i class="fas fa-user-shield text-5xl text-[#D4AF37]"></i></div>
@@ -153,7 +142,6 @@
     </div>
 </div>
 
-<!-- MODAL GANTI PIN -->
 <div id="changepin-modal" class="fixed inset-0 bg-[#0a192f]/90 flex items-center justify-center z-[300] hidden backdrop-blur-md">
     <div class="glass p-10 max-w-sm w-full mx-4 text-center border-t-4 border-t-[#D4AF37] shadow-2xl animate-[fadeIn_0.3s_ease-out]">
         <div class="mb-4"><i class="fas fa-key text-5xl text-[#D4AF37]"></i></div>
@@ -176,7 +164,6 @@
     </div>
 </div>
 
-<!-- MODAL KONFIRMASI ABSENSI -->
 <div id="confirm-modal" class="fixed inset-0 bg-[#0a192f]/90 flex items-center justify-center z-[500] hidden backdrop-blur-md">
     <div class="glass p-8 max-w-sm w-full mx-4 text-center border-t-4 border-t-[#D4AF37] shadow-2xl animate-[fadeIn_0.3s_ease-out]">
         <div class="mb-4"><i class="fas fa-clipboard-check text-5xl text-[#D4AF37]"></i></div>
@@ -246,7 +233,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 } else { initTabScrolling(); }
 </script>
 
-    <!-- LOADING & TOAST -->
     <div id="loading" class="fixed inset-0 bg-[#0a192f]/98 flex items-center justify-center z-[400] flex-col">
         <div class="loading-spinner mb-6"></div>
         <p class="text-[#D4AF37] font-black tracking-widest text-xl animate-pulse uppercase">...</p>
@@ -254,7 +240,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
     
     <div id="toast" class="fixed top-24 left-1/2 bg-[#D4AF37] text-[#0a192f] px-10 py-4 rounded-full opacity-0 transition-all duration-300 z-[600] font-black uppercase shadow-2xl text-center min-w-[300px] pointer-events-none" style="transform: translate(-50%, -20px);">Pesan</div>
 
-    <!-- KONTAINER KHUSUS CETAK PDF -->
     <div id="print-container" class="hidden"></div>
 
     <script>
@@ -266,11 +251,57 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         let admins = []; 
         let statsData = { history: [], historyByUnit: { 'ALL': [] } }; 
         let doaPoints = []; 
-        let attendanceHistory = {}; // Menambahkan wadah untuk riwayat absen individu
+        let attendanceHistory = {}; 
         
         let currentUser = { role: 'public', unitName: null, adminName: null }; 
         let currentTab = 'dashboard';
         let memberAttendance = {}; 
+        
+        // ==========================================
+        // FUNGSI INTI DOWNLOAD PDF BYPASS MOBILE
+        // ==========================================
+        function generatePDF(htmlContent, filename, orientation = 'portrait') {
+            toggleLoading(true); 
+            
+            const container = document.getElementById('print-container');
+            const width = orientation === 'landscape' ? '1123px' : '794px';
+            
+            container.innerHTML = `
+                <div style="width: ${width}; background: white; color: black; font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px; box-sizing: border-box;">
+                    ${htmlContent}
+                </div>
+            `;
+            
+            container.classList.remove('hidden');
+            container.style.display = 'block';
+            container.style.position = 'absolute';
+            container.style.left = '-9999px';
+            container.style.top = '0';
+
+            const opt = {
+                margin:       10, 
+                filename:     filename,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: parseInt(width) + 40 }, 
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: orientation }
+            };
+
+            setTimeout(() => {
+                html2pdf().set(opt).from(container.firstElementChild).save().then(() => {
+                    container.classList.add('hidden');
+                    container.style.display = 'none';
+                    container.style.position = '';
+                    container.style.left = '';
+                    container.innerHTML = '';
+                    toggleLoading(false);
+                    showToast("PDF Berhasil Diunduh!");
+                }).catch(err => {
+                    console.error("PDF Error:", err);
+                    toggleLoading(false);
+                    showToast("Gagal menyimpan PDF!", "error");
+                });
+            }, 800); 
+        }
         
         function hasAccess(tabName) {
             if (currentUser.role === 'admin') {
@@ -334,7 +365,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     statsData = payload.stats || { history: [], historyByUnit: { 'ALL': [] } }; 
                     if (!statsData.historyByUnit) statsData.historyByUnit = { 'ALL': statsData.history || [] };
                     
-                    // Menarik riwayat kehadiran per individu dari Spreadsheet
                     attendanceHistory = payload.attendanceHistory || {};
                     
                     renderTabs();
@@ -501,7 +531,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         </div>
                         <div id="khotbah-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"></div>
                         <div class="flex flex-col md:flex-row gap-4">
-                            <button onclick="printAttendanceSheet('khotbah', 'Khotbah Sabat')" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"><i class="fas fa-print mr-2"></i>CETAK DAFTAR HADIR</button>
+                            <button onclick="printAttendanceSheet('khotbah', 'Khotbah Sabat')" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"><i class="fas fa-file-pdf mr-2"></i>UNDUH LAPORAN PDF</button>
                             <button onclick="submitKhotbah()" class="flex-[2] bg-[#D4AF37] text-[#0a192f] py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-yellow-400 transition-all"><i class="fas fa-save mr-2"></i>SIMPAN ABSENSI</button>
                         </div>
                     </div>`;
@@ -524,7 +554,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         </div>
                         <div id="unit-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"></div>
                         <div class="flex flex-col md:flex-row gap-4">
-                            <button onclick="printAttendanceSheet('kelas', '${cat}')" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"><i class="fas fa-print mr-2"></i>CETAK DAFTAR HADIR</button>
+                            <button onclick="printAttendanceSheet('kelas', '${cat}')" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"><i class="fas fa-file-pdf mr-2"></i>UNDUH LAPORAN PDF</button>
                             <button onclick="submitKelas('${cat}')" class="flex-[2] bg-[#D4AF37] text-[#0a192f] py-6 rounded-2xl font-black text-lg md:text-xl shadow-xl hover:bg-yellow-400 transition-all"><i class="fas fa-save mr-2"></i>SIMPAN ABSENSI</button>
                         </div>
                     </div>`;
@@ -586,7 +616,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
             area.innerHTML = `
                 <div class="mb-10 animate-[fadeIn_0.5s_ease-out]">
-                    <!-- Kotak Selamat Datang -->
                     <div class="glass p-8 md:p-10 mb-8 flex flex-col items-center justify-center relative overflow-hidden border-t-4 border-t-[#D4AF37] shadow-2xl min-h-[250px]">
                         <img src="PisgahWhite.png" onerror="this.style.display='none'" alt="Background Logo" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] md:w-[70%] lg:w-[50%] h-auto object-contain opacity-[0.05] pointer-events-none select-none z-0 scale-125">
                         <div class="absolute -left-10 -top-10 w-48 h-48 bg-[#D4AF37] rounded-full blur-[80px] opacity-20 pointer-events-none z-0"></div>
@@ -600,7 +629,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         </div>
                     </div>
 
-                    <!-- Kotak Permohonan Doa -->
                     <div class="glass p-8 md:p-10 mb-10 text-center relative overflow-hidden border-t-4 border-t-blue-500 shadow-2xl">
                         <div class="absolute -right-10 -top-10 w-48 h-48 bg-blue-500 rounded-full blur-[80px] opacity-20 pointer-events-none z-0"></div>
                         <i class="fas fa-praying-hands text-5xl text-blue-400 mb-4 relative z-10 drop-shadow-md"></i>
@@ -622,7 +650,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         <button onclick="submitDoaForm()" class="w-full relative z-10 bg-blue-500 text-white py-5 rounded-full font-black text-xl shadow-lg hover:bg-blue-400 hover:shadow-blue-500/50 transition-all uppercase tracking-widest"><i class="fas fa-paper-plane mr-3"></i>Kirim Permohonan Doa</button>
                     </div>
 
-                    <!-- ULANG TAHUN BULAN INI -->
                     <div class="glass p-8 md:p-10 mb-10 relative overflow-hidden border-t-4 border-t-pink-500 shadow-2xl">
                         <div class="absolute -right-10 -top-10 w-48 h-48 bg-pink-500 rounded-full blur-[80px] opacity-20 pointer-events-none z-0"></div>
                         <div class="flex items-center justify-center md:justify-start gap-4 mb-6 relative z-10">
@@ -650,14 +677,12 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         `}
                     </div>
 
-                    <!-- Card Motivasi -->
                     <div class="glass p-10 mb-10 text-center relative overflow-hidden">
                         <div class="absolute -right-6 -top-6 text-gold/10 text-9xl"><i class="fas fa-quote-right"></i></div>
                         <h3 class="text-xl md:text-3xl font-black text-white italic relative z-10 leading-relaxed max-w-4xl mx-auto drop-shadow-md">${randomQuote}</h3>
                         <div class="mt-6 inline-block bg-[#D4AF37]/20 px-6 py-2 rounded-full border border-[#D4AF37]/30"><p class="text-[#D4AF37] font-black tracking-widest uppercase text-xs relative z-10">Motivasi Sabat Ini</p></div>
                     </div>
                     
-                    <!-- DROPDOWN FILTER DASHBOARD -->
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <h3 class="text-2xl font-black text-[#D4AF37] uppercase"><i class="fas fa-chart-line mr-3"></i>Perbandingan Kehadiran</h3>
                         <div class="w-full md:w-64">
@@ -703,7 +728,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         </div>
                     </div>
                     
-                    <!-- TABEL KOMPOSISI -->
                     <div class="glass p-8 mt-8">
                         <h4 id="table-komposisi-title" class="text-sm font-bold text-gold uppercase tracking-widest mb-6 text-center">Komposisi Anggota Terdaftar</h4>
                         <div class="overflow-x-auto">
@@ -716,8 +740,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                                     </tr>
                                 </thead>
                                 <tbody id="table-komposisi-body" class="text-sm text-slate-200">
-                                    <!-- Rows populated by JS -->
-                                </tbody>
+                                    </tbody>
                             </table>
                         </div>
                     </div>
@@ -938,68 +961,241 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     <h3 class="text-3xl font-black text-white uppercase mb-4"><i class="fas fa-print mr-3 text-red-400"></i>Pusat Cetak Laporan</h3>
                     <p class="text-slate-300 mb-8 font-medium">Pilih jenis dokumen yang ingin Anda cetak atau simpan sebagai PDF.</p>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- CETAK STATISTIK DASHBOARD -->
-                        <div class="bg-[#112240] border border-white/10 p-6 rounded-2xl shadow-xl hover:border-red-500/30 transition-all">
-                            <h4 class="text-xl font-black text-white uppercase mb-6"><i class="fas fa-chart-pie mr-2 text-blue-400"></i> Cetak Laporan Statistik</h4>
-                            <div class="space-y-5">
-                                <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Filter Unit</label>
-                                    <select id="c-stat-unit" class="!border-white/10 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
-                                        <option value="ALL">SEMUA JEMAAT (GLOBAL)</option>
-                                        ${unitOptionsHTML}
-                                    </select>
-                                </div>
-                                <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="bg-[#112240] border border-white/10 p-6 rounded-2xl shadow-xl hover:border-red-500/30 transition-all flex flex-col justify-between">
+                            <div>
+                                <h4 class="text-xl font-black text-white uppercase mb-6"><i class="fas fa-chart-pie mr-2 text-blue-400"></i> Statistik Global</h4>
+                                <div class="space-y-5">
                                     <div>
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Dari Tanggal</label>
-                                        <input type="date" id="c-stat-start" value="${pastStrFull}" class="!border-white/10 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Filter Unit</label>
+                                        <select id="c-stat-unit" class="!border-white/10 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                                            <option value="ALL">SEMUA JEMAAT (GLOBAL)</option>
+                                            ${unitOptionsHTML}
+                                        </select>
                                     </div>
-                                    <div>
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Sampai Tanggal</label>
-                                        <input type="date" id="c-stat-end" value="${todayStrFull}" class="!border-white/10 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Dari</label>
+                                            <input type="date" id="c-stat-start" value="${pastStrFull}" class="!border-white/10 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Sampai</label>
+                                            <input type="date" id="c-stat-end" value="${todayStrFull}" class="!border-white/10 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                                        </div>
                                     </div>
                                 </div>
-                                <button onclick="printStatistikFromAdmin()" class="w-full bg-blue-500/20 border border-blue-500/50 text-blue-400 py-4 rounded-xl font-black uppercase shadow-lg hover:bg-blue-500 hover:text-white transition-all text-sm mt-4 tracking-widest"><i class="fas fa-print mr-2"></i> Cetak PDF Statistik</button>
                             </div>
+                            <button onclick="printStatistikFromAdmin()" class="w-full bg-blue-500/20 border border-blue-500/50 text-blue-400 py-4 rounded-xl font-black uppercase shadow-lg hover:bg-blue-500 hover:text-white transition-all text-sm mt-8 tracking-widest"><i class="fas fa-file-pdf mr-2"></i> UNDUH PDF STATISTIK</button>
                         </div>
 
-                        <!-- CETAK BLANKO DAFTAR HADIR (RENTANG TANGGAL) -->
-                        <div class="bg-[#112240] border border-white/10 p-6 rounded-2xl shadow-xl hover:border-red-500/30 transition-all">
-                            <h4 class="text-xl font-black text-white uppercase mb-6"><i class="fas fa-clipboard-list mr-2 text-green-400"></i> Blanko Daftar Hadir</h4>
-                            <div class="space-y-5">
-                                <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Tipe Kelas / Ibadah</label>
-                                    <select id="c-absen-tipe" class="!border-white/10 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
-                                        <option value="khotbah">Khotbah Sabat</option>
-                                        <option value="ss_dewasa">Sekolah Sabat Dewasa</option>
-                                        <option value="ss_anak">Sekolah Sabat Anak</option>
-                                        <option value="pendalaman">Pendalaman Alkitab (PA)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Pilih Unit Jemaat</label>
-                                    <select id="c-absen-unit" class="!border-white/10 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
-                                        <option value="ALL">SEMUA JEMAAT (GLOBAL)</option>
-                                        ${unitOptionsHTML}
-                                    </select>
-                                </div>
-                                <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-[#112240] border border-white/10 p-6 rounded-2xl shadow-xl hover:border-yellow-500/30 transition-all flex flex-col justify-between relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 bg-yellow-500 text-[#0a192f] text-[10px] font-black uppercase tracking-widest py-1 px-8 rotate-45 shadow-md">BARU</div>
+                            <div>
+                                <h4 class="text-xl font-black text-white uppercase mb-6"><i class="fas fa-clipboard-check mr-2 text-yellow-400"></i> Rekap Harian</h4>
+                                <div class="space-y-5">
                                     <div>
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Dari Tanggal</label>
-                                        <input type="date" id="c-absen-start" value="${pastStrFull}" class="!border-white/10 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Tipe Kelas / Ibadah</label>
+                                        <select id="c-rekap-tipe" class="!border-white/10 focus:!border-yellow-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                                            <option value="khotbah">Khotbah Sabat</option>
+                                            <option value="ss_dewasa">Sekolah Sabat Dewasa</option>
+                                            <option value="ss_anak">Sekolah Sabat Anak</option>
+                                            <option value="pendalaman">Pendalaman Alkitab (PA)</option>
+                                        </select>
                                     </div>
                                     <div>
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Sampai Tanggal</label>
-                                        <input type="date" id="c-absen-end" value="${todayStrFull}" class="!border-white/10 focus:!border-red-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Filter Unit</label>
+                                        <select id="c-rekap-unit" class="!border-white/10 focus:!border-yellow-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                                            <option value="ALL">SEMUA JEMAAT (GLOBAL)</option>
+                                            ${unitOptionsHTML}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Tanggal Ibadah (1 Hari)</label>
+                                        <input type="date" id="c-rekap-tgl" value="${todayStrFull}" class="!border-white/10 focus:!border-yellow-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
                                     </div>
                                 </div>
-                                <button onclick="printAbsensiFromAdmin()" class="w-full bg-green-500/20 border border-green-500/50 text-green-400 py-4 rounded-xl font-black uppercase shadow-lg hover:bg-green-500 hover:text-white transition-all text-sm mt-4 tracking-widest"><i class="fas fa-print mr-2"></i> Cetak Blanko Hadir</button>
                             </div>
+                            <button onclick="printRekapHarianFromAdmin()" class="w-full bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-500 hover:text-[#0a192f] transition-all text-sm mt-8 tracking-widest"><i class="fas fa-file-pdf mr-2"></i> UNDUH REKAP HARIAN</button>
+                        </div>
+
+                        <div class="bg-[#112240] border border-white/10 p-6 rounded-2xl shadow-xl hover:border-green-500/30 transition-all flex flex-col justify-between">
+                            <div>
+                                <h4 class="text-xl font-black text-white uppercase mb-6"><i class="fas fa-clipboard-list mr-2 text-green-400"></i> Blanko Kosongan</h4>
+                                <div class="space-y-5">
+                                    <div>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Tipe Kelas / Ibadah</label>
+                                        <select id="c-absen-tipe" class="!border-white/10 focus:!border-green-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                                            <option value="khotbah">Khotbah Sabat</option>
+                                            <option value="ss_dewasa">Sekolah Sabat Dewasa</option>
+                                            <option value="ss_anak">Sekolah Sabat Anak</option>
+                                            <option value="pendalaman">Pendalaman Alkitab (PA)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Filter Unit</label>
+                                        <select id="c-absen-unit" class="!border-white/10 focus:!border-green-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                                            <option value="ALL">SEMUA JEMAAT (GLOBAL)</option>
+                                            ${unitOptionsHTML}
+                                        </select>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Dari</label>
+                                            <input type="date" id="c-absen-start" value="${pastStrFull}" class="!border-white/10 focus:!border-green-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-2">Sampai</label>
+                                            <input type="date" id="c-absen-end" value="${todayStrFull}" class="!border-white/10 focus:!border-green-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="printAbsensiFromAdmin()" class="w-full bg-green-500/20 border border-green-500/50 text-green-400 py-4 rounded-xl font-black uppercase shadow-lg hover:bg-green-500 hover:text-white transition-all text-sm mt-8 tracking-widest"><i class="fas fa-file-pdf mr-2"></i> UNDUH PDF BLANKO</button>
                         </div>
                     </div>
                 </div>`;
         }
+
+        // FUNGSI BARU UNTUK MENCETAK REKAP HARIAN DARI ADMIN
+        function printRekapHarianFromAdmin() {
+            const valTipe = document.getElementById('c-rekap-tipe').value;
+            const valUnit = document.getElementById('c-rekap-unit').value;
+            const valTgl = document.getElementById('c-rekap-tgl').value;
+
+            let typeParam = 'kelas';
+            let catTitle = '';
+
+            if (valTipe === 'khotbah') { typeParam = 'khotbah'; catTitle = 'Khotbah Sabat'; } 
+            else if (valTipe === 'ss_dewasa') { catTitle = 'SS Dewasa'; } 
+            else if (valTipe === 'ss_anak') { catTitle = 'SS Anak'; } 
+            else if (valTipe === 'pendalaman') { catTitle = 'Pendalaman'; }
+
+            generateRekapHarianPDF(typeParam, catTitle, valUnit, valTgl);
+        }
+
+        function generateRekapHarianPDF(type, catTitle, unit, tgl) {
+            const optionsFormat = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            const tglStr = tgl ? new Date(tgl).toLocaleDateString('id-ID', optionsFormat) : '-';
+
+            const displayed = getDisplayedMembers(type, type === 'khotbah' ? null : catTitle, unit);
+            
+            let hadir = 0, alpha = 0, belum = 0;
+            
+            // Format tanggal jadi YYYY-MM-DD
+            let dateStr = '';
+            if (tgl) {
+                const d = new Date(tgl);
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                dateStr = `${yyyy}-${mm}-${dd}`;
+            }
+
+            let reportType = type === 'khotbah' ? 'Khotbah' : catTitle;
+            let histData = attendanceHistory[reportType] || {};
+
+            let membersListHTML = displayed.map((m, idx) => {
+                let status = '';
+                if (histData[m.id] && histData[m.id][dateStr]) {
+                    status = histData[m.id][dateStr];
+                }
+
+                let statusText = '<span style="color:#6b7280; font-style:italic;">Belum Diabsen</span>';
+                if (status.toLowerCase() === 'hadir') { statusText = '<span style="color:#10B981; font-weight:900;">HADIR</span>'; hadir++; }
+                else if (status.toLowerCase() === 'alpha') { statusText = '<span style="color:#EF4444; font-weight:900;">ALPHA</span>'; alpha++; }
+                else { belum++; }
+
+                return `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
+                    <td style="padding: 10px; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: 10px; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: 10px; border-right: 1px solid #eee; text-align: center;">${m.unit || 'Umum'}</td>
+                    <td style="padding: 10px; text-align: center;">${statusText}</td>
+                </tr>
+                `;
+            }).join('');
+
+            if (displayed.length === 0) {
+                membersListHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
+            }
+            
+            // Cari data Tamu dari Statistik Database Global
+            let tamuCount = 0;
+            if (statsData.historyByUnit['Tamu']) {
+                const tObj = statsData.historyByUnit['Tamu'].find(h => h.date === dateStr);
+                if (tObj) tamuCount = tObj.count;
+            }
+
+            const printHtml = `
+                <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 20px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 20px;">
+                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 80px; height: 80px; object-fit: contain;">
+                    <div style="text-align: left;">
+                        <h1 style="margin: 0; font-size: 28px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
+                        <p style="margin: 5px 0 0 0; font-size: 14px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
+                        <p style="margin: 0; font-size: 12px; color: #6b7280;">Laporan Daftar Hadir Kelas & Unit (Data Tersimpan)</p>
+                    </div>
+                </div>
+
+                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">REKAP HARIAN: ${catTitle}</h2>
+                <p style="text-align: center; font-size: 14px; color: #0a192f; margin-top: 0; margin-bottom: 30px; font-weight: bold;">
+                    Unit / Filter: <span style="text-transform:uppercase;">${unit === 'ALL' ? 'Global (Semua Unit)' : unit}</span> <br>
+                    Tanggal Ibadah: ${tglStr}
+                </p>
+
+                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f9fafb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
+                    </div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #ecfdf5; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #10B981;">${hadir}</div>
+                    </div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fef2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #EF4444;">${alpha}</div>
+                    </div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fffbeb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu (Global)</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #F59E0B;">${tamuCount}</div>
+                    </div>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 13px; margin-bottom: 40px;">
+                    <thead>
+                        <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 5%;">No</th>
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 25%; text-align: left;">Jabatan</th>
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 15%;">Unit</th>
+                            <th style="padding: 12px; border: 1px solid #0a192f; width: 20%;">Status Kehadiran</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${membersListHTML}
+                    </tbody>
+                </table>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 50px; font-size: 14px; page-break-inside: avoid;">
+                    <div style="text-align: center; width: 250px;">
+                        <p>Pemimpin Kelas / Guru SS</p>
+                        <br><br><br>
+                        <p style="font-weight: bold; text-decoration: underline;">______________________</p>
+                    </div>
+                    <div style="text-align: center; width: 250px;">
+                        <p>Sekretaris Unit</p>
+                        <br><br><br>
+                        <p style="font-weight: bold; text-decoration: underline;">______________________</p>
+                    </div>
+                </div>
+            `;
+
+            const safeFileName = `Rekap_Harian_${catTitle.replace(/\s+/g, '_')}_${unit}_${dateStr}.pdf`;
+            generatePDF(printHtml, safeFileName, 'portrait');
+        }
+
+        // ============================================
 
         function printStatistikFromAdmin() {
             const selectedUnit = document.getElementById('c-stat-unit').value;
@@ -1156,14 +1352,8 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </div>
             `;
 
-            const printContainer = document.getElementById('print-container');
-            printContainer.innerHTML = printHtml;
-            printContainer.classList.remove('hidden');
-
-            setTimeout(() => {
-                window.print();
-                printContainer.classList.add('hidden');
-            }, 300); 
+            const safeFileName = `Statistik_${selectedUnit.replace(/\s+/g, '_')}_${todayStr}.pdf`;
+            generatePDF(printHtml, safeFileName, 'portrait');
         }
 
         function printAbsensiFromAdmin() {
@@ -1216,7 +1406,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 saturdays = [new Date()];
             }
 
-            // Report Type untuk mencocokkan data di attendanceHistory
             let reportType = type === 'khotbah' ? 'Khotbah' : catTitle;
             let histData = attendanceHistory[reportType] || {};
 
@@ -1227,19 +1416,16 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
             let membersListHTML = displayed.map((m, idx) => {
                 let checkboxes = saturdays.map((sat) => {
-                    // Format tanggal menjadi YYYY-MM-DD sesuai standar database
                     const yyyy = sat.getFullYear();
                     const mm = String(sat.getMonth() + 1).padStart(2, '0');
                     const dd = String(sat.getDate()).padStart(2, '0');
                     const dateStr = `${yyyy}-${mm}-${dd}`;
                     
-                    // Cek status kehadiran dari database pada tanggal tersebut
                     let status = '';
                     if (histData[m.id] && histData[m.id][dateStr]) {
                         status = histData[m.id][dateStr];
                     }
 
-                    // Tentukan isi kotak (Centang untuk Hadir, A untuk Alpha, Kosong untuk belum diabsen)
                     let boxContent = '';
                     if (status.toLowerCase() === 'hadir') {
                         boxContent = '<span style="color: #10B981; font-weight: 900; font-size: 14px;">&#10003;</span>';
@@ -1272,11 +1458,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             }
 
             const printHtml = `
-                <style>
-                    @media print {
-                        @page { size: A4 landscape; margin: 1cm; }
-                    }
-                </style>
                 <div style="text-align: center; border-bottom: 3px solid #0a192f; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px;">
                     <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width: 60px; height: 60px; object-fit: contain;">
                     <div style="text-align: left;">
@@ -1321,14 +1502,8 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </div>
             `;
 
-            const printContainer = document.getElementById('print-container');
-            printContainer.innerHTML = printHtml;
-            printContainer.classList.remove('hidden');
-
-            setTimeout(() => {
-                window.print();
-                printContainer.classList.add('hidden');
-            }, 300);
+            const safeFileName = `Blanko_${catTitle.replace(/\s+/g, '_')}_${unit}.pdf`;
+            generatePDF(printHtml, safeFileName, 'landscape');
         }
 
         function printAttendanceSheet(type, catTitle) {
@@ -1428,14 +1603,8 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </div>
             `;
 
-            const printContainer = document.getElementById('print-container');
-            printContainer.innerHTML = printHtml;
-            printContainer.classList.remove('hidden');
-
-            setTimeout(() => {
-                window.print();
-                printContainer.classList.add('hidden');
-            }, 300);
+            const safeFileName = `Daftar_Hadir_${catTitle.replace(/\s+/g, '_')}_${unit}.pdf`;
+            generatePDF(printHtml, safeFileName, 'portrait');
         }
 
         function renderFilteredKhotbah() {
@@ -1592,7 +1761,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
             area.innerHTML = `
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- PANEL TAMBAH / EDIT -->
                     <div class="glass p-8 h-fit sticky top-32">
                         <h3 id="form-title" class="text-2xl font-black text-[#D4AF37] mb-8 uppercase text-center">Tambah Jemaat Baru</h3>
                         <div class="space-y-6">
@@ -1644,14 +1812,12 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         </div>
                     </div>
                     
-                    <!-- PANEL DAFTAR MASTER JEMAAT -->
                     <div class="lg:col-span-2 glass p-8">
                         <div class="flex justify-between items-end mb-6">
                             <h3 class="text-2xl font-black text-[#D4AF37] uppercase">Daftar Master Jemaat</h3>
                             <span id="master-member-count" class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">Total: 0 Orang</span>
                         </div>
                         
-                        <!-- FILTER BAR PENCARIAN -->
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 bg-white/5 p-4 rounded-xl border border-gold/20">
                             <div>
                                 <label class="text-[9px] font-bold text-gold/60 uppercase block mb-1 tracking-widest">Cari Nama</label>
@@ -1683,7 +1849,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                             </div>
                         </div>
 
-                        <!-- LIST KONTEN JEMAAT -->
                         <div id="master-member-list" class="space-y-4 max-h-[600px] overflow-y-auto pr-4 no-scrollbar"></div>
                     </div>
                 </div>`;
