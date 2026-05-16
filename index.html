@@ -283,21 +283,48 @@ function getYYYYMMDD(d) {
             "Perlawatan Pemeliharaan", "Membagikan Buku Rohani", "Kegiatan Kelompok Kecil", "Program Berdoa (777/1752)"
         ];
 
-        // MENGAMBIL DATA AKTIVITAS DENGAN AMAN
+        // MENGAMBIL DATA AKTIVITAS DENGAN AMAN (CASE-INSENSITIVE & DATE SAFE)
         function getActivityData(unitName, dateString) {
-            // Periksa apakah datanya ada dalam objek kegiatanHistory
-            if (kegiatanHistory[unitName] && kegiatanHistory[unitName][dateString]) {
-                return kegiatanHistory[unitName][dateString]; 
+            if (!kegiatanHistory) return Array(10).fill('-');
+            
+            const safeUnit = String(unitName).trim().toLowerCase();
+            let targetData = null;
+
+            // Loop untuk mencocokkan nama unit tanpa mempedulikan huruf besar/kecil
+            for (let unitKey in kegiatanHistory) {
+                if (unitKey.trim().toLowerCase() === safeUnit) {
+                    let unitRecords = kegiatanHistory[unitKey];
+                    
+                    // Cek Kecocokan Tanggal Pasti (YYYY-MM-DD)
+                    if (unitRecords[dateString]) {
+                        targetData = unitRecords[dateString];
+                        break;
+                    }
+                    
+                    // Cek jika format dari Sheet memiliki Jam (contoh: 2026-05-16T17:00:00Z)
+                    for (let dateKey in unitRecords) {
+                        if (dateKey.includes(dateString)) {
+                            targetData = unitRecords[dateKey];
+                            break;
+                        }
+                    }
+                }
+                if (targetData) break;
             }
-            // Jika tidak ada laporan, kembalikan array kosong (setrip -)
+
+            // Jika ketemu dan formatnya Array, kirim angkanya
+            if (targetData && Array.isArray(targetData)) {
+                return targetData;
+            }
+            
             return Array(10).fill('-');
         }
 
         // ==========================================
         // FUNGSI INTI DOWNLOAD PDF BYPASS MOBILE
-        // UPDATE BARU: FONT DASAR PENCEGAH GLITCH / OVERLAP
+        // UPDATE BARU: FORCED LANDSCAPE, ANTI-GLITCH FONT
         // ==========================================
-        function generatePDF(htmlContent, filename) {
+        function generatePDF(htmlContent, filename, orientation = 'portrait') {
             toggleLoading(true); 
             
             const container = document.getElementById('print-container');
@@ -311,56 +338,34 @@ function getYYYYMMDD(d) {
             container.style.opacity = '0';
             container.style.pointerEvents = 'none';
             
-            // FONT ARIAL/HELVETICA + PENCEGAHAN SPASI HURUF BERLEBIHAN
+            // FONT ARIAL/HELVETICA + PENCEGAHAN SPASI HURUF BERLEBIHAN + LEBAR PASTI
+            let finalWidth = orientation === 'landscape' ? 1123 : 794; 
+
             container.innerHTML = `
-                <div id="pdf-measure-box" style="width: 794px; background: white; color: black; font-family: Arial, Helvetica, sans-serif; padding: 25px; box-sizing: border-box; font-feature-settings: normal; letter-spacing: normal;">
+                <div id="pdf-measure-box" style="width: ${finalWidth}px; background: white; color: black; font-family: Arial, Helvetica, sans-serif; padding: 30px; box-sizing: border-box;">
+                    <style>
+                        #pdf-measure-box * { font-family: Arial, Helvetica, sans-serif !important; letter-spacing: 0px !important; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #cbd5e1; }
+                    </style>
                     ${htmlContent}
                 </div>
             `;
 
             setTimeout(() => {
                 const measureBox = document.getElementById('pdf-measure-box');
-                const contentWidth = measureBox.scrollWidth;
-
-                let orientation = 'portrait';
-                let finalWidth = 794; 
-
-                if (contentWidth > 800) {
-                    orientation = 'landscape';
-                    finalWidth = 1123; 
-                    measureBox.style.width = '1123px'; 
-                    if (measureBox.scrollWidth > 1130) {
-                        finalWidth = measureBox.scrollWidth; 
-                    }
-                }
-                
-                measureBox.style.width = finalWidth + 'px';
-
-                let contentHeight = measureBox.scrollHeight;
-                let maxSafeHeight = orientation === 'landscape' ? 730 : 1050;
-
-                if (contentHeight > maxSafeHeight) {
-                    let zoomRatio = maxSafeHeight / contentHeight;
-                    measureBox.style.zoom = zoomRatio;
-                }
 
                 const opt = {
-                    margin:       10, 
+                    margin:       [10, 10, 15, 10], 
                     filename:     filename,
                     image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: finalWidth + 40, scrollX: 0, scrollY: 0 }, 
+                    pagebreak:    { mode: 'avoid-all' },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: finalWidth + 40 }, 
                     jsPDF:        { unit: 'mm', format: 'a4', orientation: orientation }
                 };
 
                 html2pdf().set(opt).from(measureBox).save().then(() => {
                     container.classList.add('hidden');
-                    container.style.display = 'none';
-                    container.style.position = '';
-                    container.style.left = '';
-                    container.style.top = '';
-                    container.style.zIndex = '';
-                    container.style.opacity = '';
-                    container.style.pointerEvents = '';
                     container.innerHTML = '';
                     toggleLoading(false);
                     showToast("PDF Berhasil Diunduh!");
@@ -1189,13 +1194,13 @@ function getYYYYMMDD(d) {
                 membersListHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
             }
 
-            // KODE BARU: TARIK DATA AKTIVITAS 10 POIN DARI SERVER
+            // TARIK DATA AKTIVITAS DARI SERVER
             let actData = getActivityData(unit, dateStr);
 
             let actHTML = `
             <div style="margin-top: 15px; page-break-inside: avoid;">
                 <h3 style="font-size: ${isVeryDense ? '10px' : '12px'}; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; color: #0a192f; border-bottom: 1px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
-                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
                     <thead>
                         <tr style="background-color: #f1f5f9; color: #0a192f; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 5%;">No</th>
@@ -1257,7 +1262,7 @@ function getYYYYMMDD(d) {
                     </div>
                 </div>
 
-                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
@@ -1289,7 +1294,7 @@ function getYYYYMMDD(d) {
             `;
 
             const safeFileName = `Rekap_Harian_${catTitle.replace(/\s+/g, '_')}_${unit}_${dateStr}.pdf`;
-            generatePDF(printHtml, safeFileName);
+            generatePDF(printHtml, safeFileName, 'portrait');
         }
 
         // ============================================
@@ -1364,13 +1369,14 @@ function getYYYYMMDD(d) {
                 </tr>
             `;
 
+            // FONT SIZE DIPERBESAR KARENA MENGGUNAKAN LANDSCAPE
             let membersListHTML = filteredMembersForPrint.map((m, idx) => `
                 <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
-                    <td style="padding: 4px; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
-                    <td style="padding: 4px; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
-                    <td style="padding: 4px; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: 4px; border-right: 1px solid #eee;">${m.unit || 'Umum'}</td>
-                    <td style="padding: 4px;">${m.kelasTetap || '-'}</td>
+                    <td style="padding: 6px; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
+                    <td style="padding: 6px; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: 6px; border-right: 1px solid #eee;">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: 6px; border-right: 1px solid #eee;">${m.unit || 'Umum'}</td>
+                    <td style="padding: 6px;">${m.kelasTetap || '-'}</td>
                 </tr>
             `).join('');
 
@@ -1410,7 +1416,7 @@ function getYYYYMMDD(d) {
                 </div>
 
                 <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 10px;">Tabel Komposisi Anggota</h3>
-                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 10px; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 12px; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: 8px; border: 1px solid #0a192f; width: 10%;">No</th>
@@ -1425,14 +1431,14 @@ function getYYYYMMDD(d) {
                 </table>
 
                 <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; page-break-before: auto;">Daftar Anggota Terdaftar</h3>
-                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 9px; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 10px; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                            <th style="padding: 6px; border: 1px solid #0a192f; width: 5%;">No</th>
-                            <th style="padding: 6px; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
-                            <th style="padding: 6px; border: 1px solid #0a192f; width: 20%; text-align: left;">Jabatan</th>
-                            <th style="padding: 6px; border: 1px solid #0a192f; width: 20%; text-align: left;">Unit</th>
-                            <th style="padding: 6px; border: 1px solid #0a192f; width: 20%; text-align: left;">Kelas SS</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 5%;">No</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 35%; text-align: left;">Nama Jemaat</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%; text-align: left;">Jabatan</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%; text-align: left;">Unit</th>
+                            <th style="padding: 8px; border: 1px solid #0a192f; width: 20%; text-align: left;">Kelas SS</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1449,7 +1455,8 @@ function getYYYYMMDD(d) {
             `;
 
             const safeFileName = `Statistik_${selectedUnit.replace(/\s+/g, '_')}_${todayStr}.pdf`;
-            generatePDF(printHtml, safeFileName);
+            // PAKSA LANDSCAPE AGAR TABEL TIDAK BERTUMPUK
+            generatePDF(printHtml, safeFileName, 'landscape');
         }
 
         function printAbsensiFromAdmin() {
@@ -1507,14 +1514,14 @@ function getYYYYMMDD(d) {
 
             let isDense = displayed.length > 15;
             let isVeryDense = displayed.length > 25;
-            let tdPad = isVeryDense ? '1px' : (isDense ? '3px' : '5px');
-            let fontSize = isVeryDense ? '8px' : (isDense ? '9px' : '11px');
+            let tdPad = isVeryDense ? '2px' : (isDense ? '4px' : '6px');
+            let fontSize = isVeryDense ? '8px' : (isDense ? '10px' : '11px');
             let boxDim = isVeryDense ? '10px' : (isDense ? '12px' : '14px');
             let iconSize = isVeryDense ? '8px' : (isDense ? '10px' : '12px');
 
             let colsHeaderHtml = saturdays.map((sat) => {
                 const label = `${sat.getDate()}/${sat.getMonth()+1}`;
-                return `<th style="padding: ${tdPad} 2px; border: 1px solid #0a192f; text-align: center; font-size: ${isVeryDense ? '7px' : '9px'}; background-color: #D4AF37; color: #0a192f; white-space: nowrap;">SAB<br>${label}</th>`;
+                return `<th style="padding: ${tdPad} 2px; border: 1px solid #0a192f; text-align: center; font-size: ${isVeryDense ? '8px' : '10px'}; background-color: #D4AF37; color: #0a192f; white-space: nowrap;">SAB<br>${label}</th>`;
             }).join('');
 
             let membersListHTML = displayed.map((m, idx) => {
@@ -1546,8 +1553,8 @@ function getYYYYMMDD(d) {
                 <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-size: ${isVeryDense ? '7px' : '9px'};">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center; font-size: ${isVeryDense ? '7px' : '9px'};">${m.unit || 'Umum'}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-size: ${isVeryDense ? '8px' : '10px'};">${m.jabatan || 'Anggota'}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center; font-size: ${isVeryDense ? '8px' : '10px'};">${m.unit || 'Umum'}</td>
                     ${checkboxes}
                 </tr>
                 `;
@@ -1560,13 +1567,13 @@ function getYYYYMMDD(d) {
             // KODE BARU: TABEL KEGIATAN KELAS UNTUK MULTI-TANGGAL (AMBIL DATA SERVER)
             let actHTML = `
             <div style="margin-top: 15px; page-break-inside: avoid;">
-                <h3 style="font-size: ${isVeryDense ? '9px' : '11px'}; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; color: #0a192f; border-bottom: 1px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
-                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '7px' : '9px'}; margin-bottom: 15px;">
+                <h3 style="font-size: ${isVeryDense ? '10px' : '12px'}; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; color: #0a192f; border-bottom: 1px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
                     <thead>
                         <tr style="background-color: #f1f5f9; color: #0a192f; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 5%;">No</th>
                             <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 45%; text-align: left;">Indikator Kegiatan Anggota</th>
-                            ${saturdays.map(sat => `<th style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-size: ${isVeryDense ? '6px' : '8px'}; background-color: #f1f5f9; color: #0a192f;">SAB<br>${sat.getDate()}/${sat.getMonth()+1}</th>`).join('')}
+                            ${saturdays.map(sat => `<th style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-size: ${isVeryDense ? '8px' : '10px'}; background-color: #f1f5f9; color: #0a192f;">SAB<br>${sat.getDate()}/${sat.getMonth()+1}</th>`).join('')}
                         </tr>
                     </thead>
                     <tbody>
@@ -1575,7 +1582,7 @@ function getYYYYMMDD(d) {
                                 const dStr = getYYYYMMDD(sat);
                                 let actData = getActivityData(unit, dStr);
                                 let val = actData[i] !== undefined ? actData[i] : '-';
-                                return `<td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; font-size: ${isVeryDense ? '8px' : '10px'};">${val}</td>`;
+                                return `<td style="padding: ${tdPad}; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; font-size: ${isVeryDense ? '9px' : '11px'};">${val}</td>`;
                             }).join('');
                             return `
                             <tr style="page-break-inside: avoid;">
@@ -1606,7 +1613,7 @@ function getYYYYMMDD(d) {
                     Periode: ${periodeText}
                 </p>
 
-                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
@@ -1638,7 +1645,8 @@ function getYYYYMMDD(d) {
             `;
 
             const safeFileName = `Rekap_Multi_${catTitle.replace(/\s+/g, '_')}_${unit}.pdf`;
-            generatePDF(printHtml, safeFileName);
+            // PAKSA LANDSCAPE AGAR SEMUA TANGGAL MUAT TANPA TUMPANG TINDIH
+            generatePDF(printHtml, safeFileName, 'landscape');
         }
 
         function printAttendanceSheet(type, catTitle) {
@@ -1680,13 +1688,13 @@ function getYYYYMMDD(d) {
                 membersListHTML = `<tr><td colspan="5" style="padding: 15px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
             }
 
-            // KODE BARU: TARIK DATA AKTIVITAS 10 POIN DARI SERVER
+            // TARIK DATA AKTIVITAS DARI SERVER
             let actData = getActivityData(unit, dateStr);
 
             let actHTML = `
             <div style="margin-top: 15px; page-break-inside: avoid;">
                 <h3 style="font-size: ${isVeryDense ? '10px' : '12px'}; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; color: #0a192f; border-bottom: 1px solid #0a192f; display: inline-block;">Laporan 10 Poin Kegiatan Kelas</h3>
-                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${isVeryDense ? '8px' : '10px'}; margin-bottom: 15px;">
                     <thead>
                         <tr style="background-color: #f1f5f9; color: #0a192f; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #cbd5e1; width: 5%;">No</th>
@@ -1742,7 +1750,7 @@ function getYYYYMMDD(d) {
                     </div>
                 </div>
 
-                <table style="table-layout: fixed; width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 0px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                             <th style="padding: ${tdPad}; border: 1px solid #0a192f; width: 5%;">No</th>
@@ -1774,7 +1782,7 @@ function getYYYYMMDD(d) {
             `;
 
             const safeFileName = `Daftar_Hadir_${catTitle.replace(/\s+/g, '_')}_${unit}.pdf`;
-            generatePDF(printHtml, safeFileName);
+            generatePDF(printHtml, safeFileName, 'portrait');
         }
 
         function renderFilteredKhotbah() {
