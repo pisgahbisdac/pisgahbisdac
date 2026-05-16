@@ -10,7 +10,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
@@ -259,39 +258,70 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
         
         // ==========================================
         // FUNGSI INTI DOWNLOAD PDF BYPASS MOBILE
+        // UPDATE BARU: AUTO-LANDSCAPE DETECTOR
         // ==========================================
-        function generatePDF(htmlContent, filename, orientation = 'portrait') {
+        function generatePDF(htmlContent, filename) {
             toggleLoading(true); 
             
             const container = document.getElementById('print-container');
-            const width = orientation === 'landscape' ? '1123px' : '794px';
+            
+            // PERBAIKAN BUG HURUF KEPOTONG: 
+            // Tempatkan div di titik x,y normal, tapi buat tak terlihat dan di belakang semua elemen (z-index)
+            container.classList.remove('hidden');
+            container.style.display = 'block';
+            container.style.position = 'fixed';
+            container.style.left = '0';
+            container.style.top = '0';
+            container.style.zIndex = '-9999';
+            container.style.opacity = '0';
+            container.style.pointerEvents = 'none';
             
             container.innerHTML = `
-                <div style="width: ${width}; background: white; color: black; font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px; box-sizing: border-box;">
+                <div id="pdf-measure-box" style="width: 794px; background: white; color: black; font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px; box-sizing: border-box;">
                     ${htmlContent}
                 </div>
             `;
-            
-            container.classList.remove('hidden');
-            container.style.display = 'block';
-            container.style.position = 'absolute';
-            container.style.left = '-9999px';
-            container.style.top = '0';
-
-            const opt = {
-                margin:       5, 
-                filename:     filename,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: parseInt(width) + 40 }, 
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: orientation }
-            };
 
             setTimeout(() => {
-                html2pdf().set(opt).from(container.firstElementChild).save().then(() => {
+                const measureBox = document.getElementById('pdf-measure-box');
+                const contentWidth = measureBox.scrollWidth;
+
+                let orientation = 'portrait';
+                let finalWidth = 794; // Batas wajar Portrait A4
+
+                // DETEKSI CERDAS: Jika isi tabel melebar lebih dari batas Portrait
+                if (contentWidth > 800) {
+                    orientation = 'landscape';
+                    finalWidth = 1123; // Lebar standar Landscape A4
+                    
+                    measureBox.style.width = '1123px'; // Uji coba ubah bentuk ke Landscape
+                    
+                    // Jika setelah Landscape TERNYATA MADIH KURANG LEBAR (Karena kolom terlalu banyak)
+                    if (measureBox.scrollWidth > 1130) {
+                        finalWidth = measureBox.scrollWidth; // Biarkan lebar maksimal, PDF engine akan ZOOM OUT Otomatis (Fit to page)
+                    }
+                }
+                
+                // Set ukuran fix hasil analisa
+                measureBox.style.width = finalWidth + 'px';
+
+                const opt = {
+                    margin:       10, 
+                    filename:     filename,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: finalWidth + 40, scrollX: 0, scrollY: 0 }, 
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: orientation }
+                };
+
+                html2pdf().set(opt).from(measureBox).save().then(() => {
                     container.classList.add('hidden');
                     container.style.display = 'none';
                     container.style.position = '';
                     container.style.left = '';
+                    container.style.top = '';
+                    container.style.zIndex = '';
+                    container.style.opacity = '';
+                    container.style.pointerEvents = '';
                     container.innerHTML = '';
                     toggleLoading(false);
                     showToast("PDF Berhasil Diunduh!");
@@ -989,7 +1019,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         </div>
 
                         <div class="bg-[#112240] border border-white/10 p-6 rounded-2xl shadow-xl hover:border-yellow-500/30 transition-all flex flex-col justify-between relative overflow-hidden">
-                            <div class="absolute -right-4 -top-4 bg-yellow-500 text-[#0a192f] text-[10px] font-black uppercase tracking-widest py-1 px-8 rotate-45 shadow-md">BARU</div>
                             <div>
                                 <h4 class="text-xl font-black text-white uppercase mb-6"><i class="fas fa-clipboard-check mr-2 text-yellow-400"></i> Rekap Harian</h4>
                                 <div class="space-y-5">
@@ -1056,7 +1085,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </div>`;
         }
 
-        // FUNGSI BARU UNTUK MENCETAK REKAP HARIAN DARI ADMIN
         function printRekapHarianFromAdmin() {
             const valTipe = document.getElementById('c-rekap-tipe').value;
             const valUnit = document.getElementById('c-rekap-unit').value;
@@ -1081,7 +1109,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             
             let hadir = 0, alpha = 0, belum = 0;
             
-            // Format tanggal jadi YYYY-MM-DD
             let dateStr = '';
             if (tgl) {
                 const d = new Date(tgl);
@@ -1125,7 +1152,6 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 membersListHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #666; font-style: italic;">Tidak ada data jemaat di kelas/unit ini.</td></tr>`;
             }
             
-            // Cari data Tamu dari Statistik Database Global
             let tamuCount = 0;
             if (statsData.historyByUnit['Tamu']) {
                 const tObj = statsData.historyByUnit['Tamu'].find(h => h.date === dateStr);
@@ -1139,6 +1165,31 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                         <h1 style="margin: 0; font-size: 28px; color: #0a192f; font-weight: 900;">PISGAH BISDAC</h1>
                         <p style="margin: 5px 0 0 0; font-size: 14px; color: #4b5563; font-weight: bold; text-transform: uppercase;">Batam International Seventh-Day Adventist Church</p>
                         <p style="margin: 0; font-size: 12px; color: #6b7280;">Laporan Daftar Hadir Kelas & Unit (Data Tersimpan)</p>
+                    </div>
+                </div>
+
+                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">REKAP HARIAN: ${catTitle}</h2>
+                <p style="text-align: center; font-size: 14px; color: #0a192f; margin-top: 0; margin-bottom: 30px; font-weight: bold;">
+                    Unit / Filter: <span style="text-transform:uppercase;">${unit === 'ALL' ? 'Global (Semua Unit)' : unit}</span> <br>
+                    Tanggal Ibadah: ${tglStr}
+                </p>
+
+                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f9fafb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
+                    </div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #ecfdf5; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #10B981;">${hadir}</div>
+                    </div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fef2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #EF4444;">${alpha}</div>
+                    </div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fffbeb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu (Global)</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #F59E0B;">${tamuCount}</div>
                     </div>
                 </div>
 
@@ -1172,7 +1223,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             `;
 
             const safeFileName = `Rekap_Harian_${catTitle.replace(/\s+/g, '_')}_${unit}_${dateStr}.pdf`;
-            generatePDF(printHtml, safeFileName, 'portrait');
+            generatePDF(printHtml, safeFileName);
         }
 
         // ============================================
@@ -1333,7 +1384,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             `;
 
             const safeFileName = `Statistik_${selectedUnit.replace(/\s+/g, '_')}_${todayStr}.pdf`;
-            generatePDF(printHtml, safeFileName, 'portrait');
+            generatePDF(printHtml, safeFileName);
         }
 
         function printAbsensiFromAdmin() {
@@ -1398,7 +1449,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
             let colsHeaderHtml = saturdays.map((sat) => {
                 const label = `${sat.getDate()}/${sat.getMonth()+1}`;
-                return `<th style="padding: ${tdPad} 2px; border: 1px solid #0a192f; text-align: center; width: 40px; font-size: 10px; background-color: #D4AF37; color: #0a192f;">SAB<br>${label}</th>`;
+                return `<th style="padding: ${tdPad} 2px; border: 1px solid #0a192f; text-align: center; width: 40px; font-size: 10px; background-color: #D4AF37; color: #0a192f; white-space: nowrap;">SAB<br>${label}</th>`;
             }).join('');
 
             let membersListHTML = displayed.map((m, idx) => {
@@ -1432,9 +1483,9 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 return `
                 <tr style="border-bottom: 1px solid #eee; page-break-inside: avoid;">
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center;">${idx + 1}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold;">${m.nama}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-weight: bold; white-space: nowrap;">${m.nama}</td>
                     <td style="padding: ${tdPad}; border-right: 1px solid #eee; font-size: 10px;">${m.jabatan || 'Anggota'}</td>
-                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center; font-size: 10px;">${m.unit || 'Umum'}</td>
+                    <td style="padding: ${tdPad}; border-right: 1px solid #eee; text-align: center; font-size: 10px; white-space: nowrap;">${m.unit || 'Umum'}</td>
                     ${checkboxes}
                 </tr>
                 `;
@@ -1475,7 +1526,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </tbody>
                 </table>
 
-                <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 12px; page-break-inside: avoid;">
+                <div style="display: flex; justify-content: space-between; margin-top: 40px; font-size: 12px; page-break-inside: avoid;">
                     <div style="text-align: center; width: 200px;">
                         <p>Pemimpin Kelas / Guru SS</p>
                         <br><br><br>
@@ -1489,8 +1540,8 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </div>
             `;
 
-            const safeFileName = `Blanko_${catTitle.replace(/\s+/g, '_')}_${unit}.pdf`;
-            generatePDF(printHtml, safeFileName, 'landscape');
+            const safeFileName = `Rekap_Multi_${catTitle.replace(/\s+/g, '_')}_${unit}.pdf`;
+            generatePDF(printHtml, safeFileName);
         }
 
         function printAttendanceSheet(type, catTitle) {
@@ -1499,6 +1550,11 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             const tamu = document.getElementById('tamu').value || 0;
             const optionsFormat = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
             const tglStr = tgl ? new Date(tgl).toLocaleDateString('id-ID', optionsFormat) : '-';
+
+            const displayed = getDisplayedMembers(type, type === 'khotbah' ? null : catTitle, unit);
+            
+            let hadir = 0, alpha = 0, belum = 0;
+
             let isDense = displayed.length > 20;
             let isVeryDense = displayed.length > 35;
             let tdPad = isVeryDense ? '3px' : (isDense ? '6px' : '10px');
@@ -1536,6 +1592,31 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                     </div>
                 </div>
 
+                <h2 style="text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px;">ABSENSI: ${catTitle}</h2>
+                <p style="text-align: center; font-size: 14px; color: #0a192f; margin-top: 0; margin-bottom: 30px; font-weight: bold;">
+                    Unit / Filter: <span style="text-transform:uppercase;">${unit === 'ALL' ? 'Global (Semua Unit)' : unit}</span> <br>
+                    Tanggal Ibadah: ${tglStr}
+                </p>
+
+                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f9fafb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase;">Total Anggota</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #0a192f;">${displayed.length}</div>
+                    </div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #ecfdf5; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #10B981; text-transform: uppercase;">Total Hadir</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #10B981;">${hadir}</div>
+                    </div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fef2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #EF4444; text-transform: uppercase;">Total Alpha</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #EF4444;">${alpha}</div>
+                    </div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #fffbeb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                        <div style="font-size: 11px; font-weight: bold; color: #F59E0B; text-transform: uppercase;">Tamu</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #F59E0B;">${tamu}</div>
+                    </div>
+                </div>
+
                 <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: ${fontSize}; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #0a192f; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
@@ -1566,7 +1647,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             `;
 
             const safeFileName = `Daftar_Hadir_${catTitle.replace(/\s+/g, '_')}_${unit}.pdf`;
-            generatePDF(printHtml, safeFileName, 'portrait');
+            generatePDF(printHtml, safeFileName);
         }
 
         function renderFilteredKhotbah() {
