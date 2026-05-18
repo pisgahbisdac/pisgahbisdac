@@ -299,7 +299,7 @@ function submitDoa(data) {
 function getRekapData(data) {
   const db = getDb();
   const sheetName = data.sheetName; // misal: "Absensi_Khotbah", "Kegiatan"
-  const targetDate = data.tanggal;
+  const targetDate = data.tanggal; // format dari web: "YYYY-MM-DD"
   
   const sheet = db.getSheetByName(sheetName);
   if (!sheet) return { status: 'success', data: [] }; 
@@ -308,8 +308,18 @@ function getRekapData(data) {
   
   // Filter berdasarkan kolom 'Tanggal'
   const filtered = rawData.filter(row => {
-    let rowDateStr = row['Tanggal'];
-    return rowDateStr === targetDate;
+    let rowDateStr = String(row['Tanggal'] || '').trim();
+    
+    // Konversi jika format di Spreadsheet adalah "DD/MM/YYYY" menjadi "YYYY-MM-DD"
+    if (rowDateStr.includes('/')) {
+      let parts = rowDateStr.split('/');
+      if (parts.length === 3 && parts[2].length === 4) {
+        rowDateStr = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+      }
+    }
+    
+    // Pencocokan final (menggunakan startsWith untuk mengatasi isu jam/waktu yang ikut menempel)
+    return rowDateStr.startsWith(targetDate) || rowDateStr === targetDate;
   });
   
   return { status: 'success', data: filtered };
