@@ -1245,9 +1245,30 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                             <div class="space-y-6"><div><input type="text" id="u-nama" placeholder="Contoh: Unit Efrata..." class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div><div><input type="text" id="u-pin" placeholder="Bikin PIN Akses (Kosong = Otomatis)" class="!border-gold/50 focus:!border-gold !text-white py-3 px-4 rounded-lg w-full bg-gray-800"></div><div class="pt-2 flex gap-4"><button onclick="saveUnit()" id="btn-save-unit" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all">SIMPAN UNIT</button><button onclick="cancelEditUnit()" id="btn-cancel-unit" class="hidden bg-slate-600 text-white py-4 px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button></div></div>
                         </div>
                         <div class="glass p-8"><div class="flex justify-between items-end mb-6"><h3 class="text-xl font-black text-[#D4AF37] uppercase">Daftar Unit & PIN</h3><span class="text-gold font-bold text-sm bg-gold/10 px-4 py-2 rounded-lg">${units.length} Unit</span></div>
-                            <div class="space-y-4 max-h-[300px] overflow-y-auto pr-4 no-scrollbar">${units.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada unit.</p>' : units.map(u => {
+                            <div class="space-y-4 max-h-[500px] overflow-y-auto pr-4 no-scrollbar">${units.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada unit.</p>' : units.map(u => {
                                 const safeName = String(u.name || u || ''); const uPin = String(u.pin || 'N/A');
-                                return `<div class="p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4"><div><div class="text-lg font-black text-white uppercase">${safeName}</div><div class="text-[11px] text-green-400 font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: ${uPin.replace(/./g,'•')}</div></div><div class="flex gap-2"><button onclick='editUnit(${JSON.stringify(safeName)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button><button onclick='deleteUnit(${JSON.stringify(safeName)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button></div></div>`;
+                                
+                                // MENCARI ANGGOTA & GURU DI UNIT INI
+                                const uMembers = members.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeName.trim().toLowerCase());
+                                const guruNames = uMembers.filter(m => (m.jabatan || '').toLowerCase().includes('guru')).map(m => m.nama).join(', ');
+                                const anggotaNames = uMembers.filter(m => !(m.jabatan || '').toLowerCase().includes('guru')).map(m => m.nama).join(', ');
+                                
+                                return `<div class="p-5 bg-white/5 rounded-2xl flex justify-between items-start group border-2 border-transparent hover:border-gold/30 transition-all gap-4">
+                                    <div class="flex-1">
+                                        <div class="text-lg font-black text-white uppercase">${safeName}</div>
+                                        <div class="text-[11px] text-green-400 font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: ${uPin.replace(/./g,'•')}</div>
+                                        
+                                        <!-- MENAMPILKAN DAFTAR ANGGOTA & GURU -->
+                                        <div class="mt-4 bg-black/20 p-3 rounded-xl border border-white/5 space-y-2">
+                                            <div><span class="text-[9px] text-gold/80 uppercase tracking-widest block mb-0.5">Guru Unit:</span> <span class="text-xs text-white font-bold">${guruNames || 'Belum ada guru'}</span></div>
+                                            <div><span class="text-[9px] text-gold/80 uppercase tracking-widest block mb-0.5">Anggota Unit:</span> <span class="text-xs text-slate-300 leading-relaxed">${anggotaNames || 'Belum ada anggota'}</span></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2 shrink-0">
+                                        <button onclick='editUnit(${JSON.stringify(safeName)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all"><i class="fas fa-pen"></i></button>
+                                        <button onclick='deleteUnit(${JSON.stringify(safeName)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>`;
                             }).join('')}</div>
                         </div>
                     </div>
@@ -1389,7 +1410,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             tempContainer.style.backgroundColor = '#ffffff';
             tempContainer.style.color = '#000000';
             tempContainer.style.fontFamily = "'Plus Jakarta Sans', sans-serif";
-            tempContainer.style.width = '100%';
+            tempContainer.style.width = '1122px'; // Memaksa lebar setara kertas A4 Landscape
 
             // Kop Surat PDF
             tempContainer.innerHTML = `
@@ -1400,26 +1421,27 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 </div>
             `;
 
-            // Kloning tabel
-            const clonedTable = table.cloneNode(true);
+            // Kloning tabel sebagai tabel HTML murni (tanpa tailwind class)
+            const clonedTable = document.createElement('table');
             clonedTable.style.width = '100%';
             clonedTable.style.borderCollapse = 'collapse';
+            clonedTable.innerHTML = table.innerHTML;
+            
+            // Menghapus semua styling bawaan web agar tidak merusak format PDF
+            const allElements = clonedTable.querySelectorAll('*');
+            allElements.forEach(el => el.removeAttribute('class'));
 
             const cells = clonedTable.querySelectorAll('th, td');
             cells.forEach(cell => {
+                // Ekstrak hanya teks (membuang elemen span/icon/badge warna) agar teks PDF bersih
+                let text = cell.innerText.trim();
+                cell.innerHTML = text; 
+                
                 cell.style.border = '1px solid #000000';
                 cell.style.padding = '8px';
                 cell.style.color = '#000000';
-                cell.style.fontSize = '10px';
+                cell.style.fontSize = '12px';
                 
-                // Menghilangkan styling badge warna di PDF agar teks terbaca jelas
-                const spans = cell.querySelectorAll('span');
-                spans.forEach(span => {
-                    span.style.backgroundColor = 'transparent';
-                    span.style.color = '#000000';
-                    span.style.padding = '0';
-                });
-
                 if (cell.tagName === 'TH') {
                     cell.style.backgroundColor = '#e5e7eb';
                     cell.style.fontWeight = 'bold';
@@ -1430,13 +1452,14 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             });
 
             tempContainer.appendChild(clonedTable);
-            tempContainer.style.position = 'absolute';
-            tempContainer.style.left = '-9999px';
+            tempContainer.style.position = 'fixed';
+            tempContainer.style.top = '0';
+            tempContainer.style.left = '-3000px';
             document.body.appendChild(tempContainer);
 
-            // Pengaturan Ekspor HTML2PDF (Landscape agar tabel muat)
+            // Pengaturan Ekspor HTML2PDF
             const opt = {
-                margin:       [0.5, 0.5, 0.5, 0.5],
+                margin:       0.5,
                 filename:     `Rekap_${kategoriText.replace(/ /g, '_')}_${tgl}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
@@ -1447,7 +1470,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
                 document.body.removeChild(tempContainer);
                 showToast("PDF Berhasil Diunduh!");
             }).catch(err => {
-                document.body.removeChild(tempContainer);
+                if(document.body.contains(tempContainer)) document.body.removeChild(tempContainer);
                 showToast("Gagal menyimpan PDF!", "error");
                 console.error(err);
             });
