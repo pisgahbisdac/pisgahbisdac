@@ -246,6 +246,23 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxWt1pIXAjS4vFkSyE8VTjrYK6tFYHKDJEzqCPivFUvp7Y6waPWFcVZJCh2u2GzBxgtcg/exec";
         
+        // FUNGSI TOAST NOTIFIKASI
+        function showToast(message, type="success") {
+            const toast = document.getElementById('toast');
+            if(!toast) return;
+            toast.innerText = message;
+            toast.style.backgroundColor = type === "success" ? "#D4AF37" : "#EF4444";
+            toast.style.color = type === "success" ? "#0a192f" : "#FFFFFF";
+            toast.style.opacity = '1';
+            toast.style.transform = 'translate(-50%, 20px)';
+            
+            if(window.toastTimeout) clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, -20px)';
+            }, 3000);
+        }
+
         let members = [];
         let units = []; 
         let roles = [];
@@ -289,7 +306,13 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
             toggleLoading(true);
             disableButtons(true);
             try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getInitialData' }) });
+                // PERBAIKAN: Menambahkan 'redirect' dan 'headers' agar tidak diblokir oleh sistem Google
+                const res = await fetch(API_URL, { 
+                    method: 'POST', 
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'getInitialData' }) 
+                });
                 const json = await res.json();
                 if(json.status === 'success') {
                     const payload = json.data ? json.data : json;
