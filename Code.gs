@@ -1,7 +1,6 @@
 /**
- * =====================================================================
- * BACKEND PISGAH BISDAC v1.0 - MATRIX SYSTEM
- * =====================================================================
+ * KONFIGURASI BACKEND PISGAH BISDAC v1.0
+ * Spreadsheet ID: 1-fWE3bjOlTU9VFITCgI6smG8d__vxjWpVMN35ODb-zc
  */
 
 const SPREADSHEET_ID = '1-fWE3bjOlTU9VFITCgI6smG8d__vxjWpVMN35ODb-zc'; 
@@ -10,489 +9,484 @@ function getDb() {
   return SpreadsheetApp.openById(SPREADSHEET_ID);
 }
 
-// =====================================================================
-// 1. ROUTER UTAMA (API ENDPOINT)
-// =====================================================================
+// ==============================================================
+// ROUTER UTAMA
+// ==============================================================
 function doPost(e) {
-  // CORS Preflight / Fallback
-  if (!e || !e.postData) return outputJSON({ status: 'error', message: 'No Data' });
-
   try {
     const requestData = JSON.parse(e.postData.contents);
     const action = requestData.action;
-    const data = requestData.data || {};
+    const data = requestData.data;
     
-    // Inisialisasi Sheet Dasar jika belum ada saat pertama kali dipanggil
-    setupDatabase();
-
     let result;
     switch (action) {
       case 'getInitialData': result = getInitialData(); break;
-      case 'changePin': result = changePin(data); break;
-      case 'getRekapData': result = getRekapData(data); break;
-      
-      case 'submitAbsensi': result = submitAbsensi(data); break;
-      case 'submitKegiatan': result = submitKegiatan(data); break;
-      case 'submitDoa': result = submitDoa(data); break;
-      
       case 'addMember': result = addMember(data); break;
       case 'updateMember': result = updateMember(data); break;
       case 'deleteMember': result = deleteMember(data); break;
-      
       case 'addUnit': result = addUnit(data); break;
       case 'updateUnit': result = updateUnit(data); break;
       case 'deleteUnit': result = deleteUnit(data); break;
-      
       case 'addRole': result = addRole(data); break;
       case 'updateRole': result = updateRole(data); break;
       case 'deleteRole': result = deleteRole(data); break;
-      
       case 'addAdmin': result = addAdmin(data); break;
       case 'updateAdmin': result = updateAdmin(data); break;
       case 'deleteAdmin': result = deleteAdmin(data); break;
-      
-      default: result = { status: 'error', message: 'Aksi tidak dikenali!' };
+      case 'changePin': result = changePin(data); break;
+      case 'submitAbsensi': result = submitAbsensi(data); break;
+      case 'submitKegiatan': result = submitKegiatan(data); break;
+      case 'submitDoa': result = submitDoa(data); break;
+      default:
+        result = { status: 'error', message: 'Aksi tidak dikenali: ' + action };
     }
     
-    return outputJSON(result);
-
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
-    return outputJSON({ status: 'error', message: error.toString() });
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: error.message })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
-function doGet(e) {
-  return outputJSON({ status: 'success', message: 'PISGAH BISDAC Backend API Active.' });
-}
-
-function outputJSON(payload) {
-  return ContentService.createTextOutput(JSON.stringify(payload)).setMimeType(ContentService.MimeType.JSON);
-}
-
-
-// =====================================================================
-// 2. SETUP DATABASE (OTOMATIS MEMBUAT TAB JIKA KOSONG)
-// =====================================================================
-function setupDatabase() {
-  const db = getDb();
-  ensureSheet(db, 'Members', ['ID', 'Nama', 'Status', 'Kategori', 'Unit', 'Jabatan', 'Tanggal Lahir']);
-  
-  const adminSheet = ensureSheet(db, 'Admins', ['Username', 'PIN Akses']);
-  if (adminSheet.getLastRow() === 1) {
-    adminSheet.appendRow(['AdminUtama', '123456']); // Admin Bawaan
-  }
-
-  ensureSheet(db, 'Units', ['Nama Unit', 'PIN Akses']);
-  ensureSheet(db, 'Jabatan', ['Nama Jabatan']);
-  ensureSheet(db, 'Stats_History', ['Tanggal', 'Kategori', 'Total']);
-}
-
-function ensureSheet(db, sheetName, headers) {
-  let sheet = db.getSheetByName(sheetName);
-  if (!sheet) {
-    sheet = db.insertSheet(sheetName);
-    sheet.getRange(1, 1, 1, headers.length).setValues([headers])
-         .setBackground('#0a192f').setFontColor('#D4AF37').setFontWeight('bold');
-    sheet.setFrozenRows(1);
-  }
-  return sheet;
-}
-
-function readSheetAsObj(sheet) {
-  if (!sheet) return [];
-  const lastRow = sheet.getLastRow();
-  const lastCol = sheet.getLastColumn();
-  if (lastRow < 2) return [];
-  
-  const data = sheet.getRange(1, 1, lastRow, lastCol).getValues();
-  const headers = data[0];
-  const rows = [];
-  
-  for (let i = 1; i < data.length; i++) {
-    let obj = {};
-    for (let j = 0; j < headers.length; j++) {
-      let val = data[i][j];
-      if (val instanceof Date) {
-        val = new Date(val.getTime() - (val.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-      }
-      obj[headers[j]] = val;
-    }
-    rows.push(obj);
-  }
-  return rows;
-}
-
-
-// =====================================================================
-// 3. PENGAMBILAN DATA AWAL (SYNC)
-// =====================================================================
 function getInitialData() {
   const db = getDb();
-  const members = readSheetAsObj(db.getSheetByName('Members'));
-  const units = readSheetAsObj(db.getSheetByName('Units'));
-  const roles = readSheetAsObj(db.getSheetByName('Jabatan'));
-  const admins = readSheetAsObj(db.getSheetByName('Admins'));
-  const statsRows = readSheetAsObj(db.getSheetByName('Stats_History'));
+  let mSheet = db.getSheetByName('Members'); if(!mSheet) mSheet = createMemberSheet(db);
+  let uSheet = db.getSheetByName('Units'); if(!uSheet) uSheet = createUnitSheet(db, mSheet);
+  let rSheet = db.getSheetByName('Jabatan'); if(!rSheet) rSheet = createRoleSheet(db);
+  let aSheet = db.getSheetByName('Admins'); if(!aSheet) aSheet = createAdminSheet(db);
+
+  let members = [];
+  if (mSheet.getLastRow() > 1) {
+    const data = mSheet.getRange(2, 1, mSheet.getLastRow() - 1, 7).getValues();
+    members = data.map(r => ({ id: r[0], nama: r[1], status: r[2], kelasTetap: r[3], unit: r[4], jabatan: r[5], tanggalLahir: r[6] }));
+  }
+
+  let units = [];
+  if (uSheet.getLastRow() > 1) {
+    const data = uSheet.getRange(2, 1, uSheet.getLastRow() - 1, 2).getValues();
+    units = data.map(r => ({ name: String(r[0]).trim(), pin: String(r[1]).trim() }));
+  }
+
+  let roles = [];
+  if (rSheet.getLastRow() > 1) {
+    const data = rSheet.getRange(2, 1, rSheet.getLastRow() - 1, 1).getValues();
+    roles = data.map(r => String(r[0]).trim());
+  }
+
+  let admins = [];
+  if (aSheet.getLastRow() > 1) {
+    const data = aSheet.getRange(2, 1, aSheet.getLastRow() - 1, 2).getValues();
+    admins = data.map(r => ({ username: String(r[0]).trim(), pin: String(r[1]).trim() }));
+  }
+
+  const stats = getAttendanceStats(db);
+  const historyData = getAttendanceAndKegiatanHistory(db);
   
-  let statsData = { history: [], historyByUnit: {} };
-  statsRows.forEach(row => {
-    let cat = row['Kategori'];
-    let date = row['Tanggal'];
-    let count = parseInt(row['Total']) || 0;
+  return { 
+    status: 'success', 
+    data: { 
+      members, 
+      units, 
+      roles, 
+      admins, 
+      stats,
+      attendanceHistory: historyData.attendanceHistory,
+      kegiatanHistory: historyData.kegiatanHistory
+    } 
+  };
+}
+
+// ==============================================================
+// STATISTIK DASHBOARD (Akurasi Tinggi & Sinkronisasi Tanggal)
+// ==============================================================
+function getAttendanceStats(ss) {
+  let historyMap = { 'ALL': {} }; 
+  let allUnits = new Set(['Umum', 'Tamu']);
+  
+  const mSheet = ss.getSheetByName('Members');
+  const memberUnitMap = {};
+  if (mSheet && mSheet.getLastRow() > 1) {
+    const mData = mSheet.getDataRange().getValues();
+    for (let i = 1; i < mData.length; i++) {
+      let idStr = String(mData[i][0]).trim();
+      let unitStr = String(mData[i][4] || 'Umum').trim();
+      memberUnitMap[idStr] = unitStr; 
+      allUnits.add(unitStr); // Kumpulkan semua unit yang ada
+    }
+  }
+
+  const sheets = ss.getSheets().filter(s => s.getName().startsWith('Khotbah'));
+
+  sheets.forEach(sheet => {
+    const lastCol = sheet.getLastColumn();
+    const lastRow = sheet.getLastRow();
     
-    if (!statsData.historyByUnit[cat]) statsData.historyByUnit[cat] = [];
-    
-    let existingIndex = statsData.historyByUnit[cat].findIndex(x => x.date === date);
-    if(existingIndex > -1) {
-      statsData.historyByUnit[cat][existingIndex].count = count;
-    } else {
-      statsData.historyByUnit[cat].push({ date: date, count: count });
+    if (lastCol >= 3 && lastRow > 1) {
+      const dates = sheet.getRange(1, 3, 1, lastCol - 2).getValues()[0];
+      const data = sheet.getRange(2, 3, lastRow - 1, lastCol - 2).getValues();
+      const ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues().map(r => r[0]);
+
+      for (let c = 0; c < dates.length; c++) {
+        let rawDate = dates[c];
+        if (!rawDate) continue;
+        
+        let dateStr = rawDate instanceof Date ? Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(rawDate).trim();
+        
+        // Inisialisasi tanggal ini untuk SEMUA UNIT dengan nilai 0 agar array seimbang
+        if (!historyMap['ALL'][dateStr]) historyMap['ALL'][dateStr] = 0;
+        allUnits.forEach(u => {
+            if (!historyMap[u]) historyMap[u] = {};
+            if (!historyMap[u][dateStr]) historyMap[u][dateStr] = 0;
+        });
+        
+        for (let r = 0; r < data.length; r++) {
+          let count = 0;
+          let unitName = 'Umum';
+
+          if (ids[r] && ids[r].toString().toUpperCase() === "TAMU") {
+            count = parseInt(data[r][c]) || 0;
+            unitName = 'Tamu';
+          } else if (String(data[r][c]).trim() === "Hadir") {
+            count = 1;
+            let foundId = String(ids[r]).trim();
+            unitName = memberUnitMap[foundId] || 'Umum';
+          }
+          
+          if (count > 0) {
+            historyMap['ALL'][dateStr] += count; 
+            historyMap[unitName][dateStr] += count;
+          }
+        }
+      }
     }
   });
 
-  return { status: 'success', data: { members, units, roles, admins, stats: statsData } };
+  const result = {};
+  for (const unit in historyMap) {
+    let sortedDates = Object.keys(historyMap[unit]).sort((a, b) => {
+      const [y1, m1, d1] = a.split('-'); 
+      const [y2, m2, d2] = b.split('-');
+      return new Date(y1, m1-1, d1) - new Date(y2, m2-1, d2);
+    });
+    const recentDates = sortedDates.slice(-12);
+    result[unit] = recentDates.map(d => ({ date: d, count: historyMap[unit][d] }));
+  }
+
+  if (!result['ALL']) result['ALL'] = [];
+  return { historyByUnit: result, history: result['ALL'] };
 }
 
+function getAttendanceAndKegiatanHistory(ss) {
+  let attendanceHistory = {};
+  let kegiatanHistory = {};
 
-// =====================================================================
-// 4. AUTENTIKASI & PENGATURAN PIN
-// =====================================================================
-function changePin(data) {
-  const db = getDb();
-  let sheet, searchCol, pinCol;
+  const sheets = ss.getSheets();
   
-  if (data.role === 'admin') { sheet = db.getSheetByName('Admins'); searchCol = 1; pinCol = 2; } 
-  else { sheet = db.getSheetByName('Units'); searchCol = 1; pinCol = 2; }
-
-  const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) {
-    if (rows[i][searchCol - 1] === data.identifier) {
-      if (String(rows[i][pinCol - 1]).trim() === String(data.oldPin).trim()) {
-        sheet.getRange(i + 1, pinCol).setValue(String(data.newPin));
-        return { status: 'success', message: 'PIN berhasil diubah!' };
-      } else {
-        return { status: 'error', message: 'PIN lama salah!' };
+  sheets.forEach(sheet => {
+    const sheetName = sheet.getName();
+    const lastCol = sheet.getLastColumn();
+    const lastRow = sheet.getLastRow();
+    
+    if (sheetName.startsWith('Kegiatan - ')) {
+      if (lastCol >= 3 && lastRow >= 2) {
+        let unitName = sheetName.replace('Kegiatan - ', '').trim();
+        kegiatanHistory[unitName] = {};
+        const dates = sheet.getRange(1, 3, 1, lastCol - 2).getValues()[0];
+        const data = sheet.getRange(2, 3, lastRow - 1, lastCol - 2).getValues();
+        
+        for (let c = 0; c < dates.length; c++) {
+          let rawDate = dates[c];
+          if (!rawDate) continue;
+          let dateStr = rawDate instanceof Date ? Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(rawDate).trim();
+          
+          let colData = [];
+          for (let r = 0; r < data.length; r++) {
+            colData.push(data[r][c]);
+          }
+          kegiatanHistory[unitName][dateStr] = colData;
+        }
+      }
+    } 
+    else if (sheetName.includes(' - ')) {
+      let parts = sheetName.split(' - ');
+      let type = parts[0].trim();
+      
+      if (['Khotbah', 'SS Dewasa', 'SS Anak', 'Pendalaman'].includes(type)) {
+        if (!attendanceHistory[type]) attendanceHistory[type] = {};
+        
+        if (lastCol >= 3 && lastRow > 1) {
+          const dates = sheet.getRange(1, 3, 1, lastCol - 2).getValues()[0];
+          const data = sheet.getRange(2, 3, lastRow - 1, lastCol - 2).getValues();
+          const ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues().map(r => r[0]);
+          
+          for (let c = 0; c < dates.length; c++) {
+            let rawDate = dates[c];
+            if (!rawDate) continue;
+            let dateStr = rawDate instanceof Date ? Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(rawDate).trim();
+            
+            for (let r = 0; r < data.length; r++) {
+              let idStr = String(ids[r]).trim();
+              if (idStr && idStr !== 'TAMU') {
+                if (!attendanceHistory[type][idStr]) attendanceHistory[type][idStr] = {};
+                attendanceHistory[type][idStr][dateStr] = String(data[r][c]).trim();
+              }
+            }
+          }
+        }
       }
     }
-  }
-  return { status: 'error', message: 'Pengguna tidak ditemukan!' };
+  });
+  
+  return { attendanceHistory, kegiatanHistory };
 }
 
-
-// =====================================================================
-// 5. FITUR TRANSAKSIONAL (SISTEM ABSENSI MATRIX)
-// =====================================================================
+// ==============================================================
+// SIMPAN ABSEN & KEGIATAN
+// ==============================================================
 function submitAbsensi(data) {
   const db = getDb();
-  const sheetName = 'Absensi_' + data.type; 
-  let sheet = db.getSheetByName(sheetName);
+  let prefix = data.type; 
+  let targetUnit = data.unit;
+  if (data.type === 'Khotbah') targetUnit = 'Jemaat';
+  if (data.unit === 'ALL' && data.type !== 'Khotbah') targetUnit = 'Global'; 
   
-  // Format Header Baru untuk Matrix
-  const standardHeaders = ['ID Anggota', 'Nama Anggota', 'Unit', 'Jabatan', 'Status Baptis'];
+  const sheetName = `${prefix} - ${targetUnit}`;
+  let sheet = db.getSheetByName(sheetName);
   
   if (!sheet) {
     sheet = db.insertSheet(sheetName);
-    sheet.getRange(1, 1, 1, standardHeaders.length).setValues([standardHeaders])
-         .setBackground('#0a192f').setFontColor('#D4AF37').setFontWeight('bold');
-    
-    // Kunci Baris Keterangan Jemaat & Baris Tamu
-    sheet.setFrozenRows(2);
+    sheet.getRange(1, 1, 1, 2).setValues([['ID Jemaat', 'Nama Lengkap']]).setBackground("#D4AF37").setFontWeight("bold");
+    sheet.getRange(2, 1, 1, 2).setValues([['TAMU', 'Tamu / Simpatisan']]).setBackground("#f3f4f6").setFontWeight("bold");
+    sheet.setFrozenRows(2); 
     sheet.setFrozenColumns(2); 
-    
-    // Pembuatan Baris 2 Khusus Untuk Total TAMU
-    sheet.appendRow(['TAMU', 'Total Tamu / Simpatisan', '-', '-', '-']);
-    sheet.getRange(2, 1, 1, standardHeaders.length).setBackground('#112240').setFontColor('#F59E0B').setFontWeight('bold');
+    sheet.setColumnWidth(2, 200);
   }
-
-  let lastCol = sheet.getLastColumn();
-  if(lastCol < standardHeaders.length) lastCol = standardHeaders.length;
   
-  let headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
-  
-  // Deteksi Kolom Tanggal (Atau Buat Baru di Kanan)
-  let dateTarget = data.tanggal;
-  let dateColIdx = headers.findIndex(h => {
-    if(!h) return false;
-    let hStr = h instanceof Date ? new Date(h.getTime() - (h.getTimezoneOffset() * 60000)).toISOString().split('T')[0] : String(h);
-    return hStr.startsWith(dateTarget);
+  const headersRaw = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+  const headersStr = headersRaw.map(h => {
+    if (h instanceof Date) return Utilities.formatDate(h, Session.getScriptTimeZone(), "yyyy-MM-dd");
+    return String(h).trim();
   });
-
-  if (dateColIdx === -1) {
-    dateColIdx = headers.length; // Tambah di kolom paling ujung kanan
-    sheet.getRange(1, dateColIdx + 1).setValue(dateTarget)
-         .setBackground('#0a192f').setFontColor('#D4AF37').setFontWeight('bold').setHorizontalAlignment('center');
-  }
-
-  const dateCol = dateColIdx + 1; // Index untuk range getRange (1-based)
   
-  // Tarik Data Anggota Terbaru dari Database (Agar Unit & Status Up-to-date)
-  const membersSheet = db.getSheetByName('Members');
-  const membersData = readSheetAsObj(membersSheet);
-  const membersMap = {};
-  membersData.forEach(m => membersMap[m.ID || m.id] = m);
-
-  // Proses Input Tamu di Baris ke-2
-  const tamuCount = parseInt(data.tamu) || 0;
-  sheet.getRange(2, dateCol).setValue(tamuCount + ' Jiwa')
-       .setHorizontalAlignment('center').setFontWeight('bold').setFontColor('#F59E0B').setBackground('#112240');
-
-  // Proses Input Anggota
-  const lastRow = sheet.getLastRow();
-  let existingRows = [];
-  if (lastRow > 2) existingRows = sheet.getRange(3, 1, lastRow - 2, 1).getValues(); // Ambil list ID di kolom A
+  let colIdx = headersStr.indexOf(String(data.tanggal).trim()) + 1;
   
-  let rowIndexMap = {};
-  for(let i=0; i<existingRows.length; i++) {
-    if(existingRows[i][0]) rowIndexMap[existingRows[i][0]] = i + 3; // +3 karena Baris 1:Header, Baris 2:Tamu
+  if (colIdx === 0) {
+    colIdx = Math.max(sheet.getLastColumn() + 1, 3);
+    sheet.getRange(1, colIdx).setValue(data.tanggal).setBackground("#0a192f").setFontColor("#D4AF37").setFontWeight("bold").setHorizontalAlignment("center");
+  } else {
+    const maxRow = Math.max(sheet.getLastRow(), 2);
+    if (maxRow >= 2) sheet.getRange(2, colIdx, maxRow - 1, 1).clearContent().setBackground(null);
   }
   
-  let totalHadir = 0;
-  let newRowsData = [];
-
-  for (const id in data.attendance) {
-    let status = data.attendance[id];
-    if (status === 'Hadir') totalHadir++;
+  const mSheet = db.getSheetByName('Members');
+  const mData = mSheet ? mSheet.getDataRange().getValues() : [];
+  const memberMap = {};
+  for (let i = 1; i < mData.length; i++) { memberMap[mData[i][0]] = mData[i][1]; }
+  
+  const matrixLastRow = Math.max(sheet.getLastRow(), 2);
+  const existingIds = sheet.getRange(1, 1, matrixLastRow, 1).getValues().map(r => String(r[0]).trim());
+  
+  for (let id in data.attendance) {
+    const status = data.attendance[id];
+    let rowIdx = existingIds.indexOf(String(id).trim()) + 1;
     
-    let m = membersMap[id] || {};
-    let mNama = m.Nama || m.nama || 'Unknown';
-    let mUnit = m.Unit || m.unit || '-';
-    let mJab = m.Jabatan || m.jabatan || 'Anggota';
-    let mStat = m.Status || m.status || '-';
-
-    if (rowIndexMap[id]) {
-      // Jemaat Sudah Ada: Update identitas & absensi di baris yang sama
-      let r = rowIndexMap[id];
-      sheet.getRange(r, 2, 1, 4).setValues([[mNama, mUnit, mJab, mStat]]); // Sinkronisasi Identitas
-      sheet.getRange(r, dateCol).setValue(status).setHorizontalAlignment('center');
-    } else {
-      // Jemaat Baru Pertama Kali Diabsen: Buat baris baru
-      let newRow = new Array(dateColIdx + 1).fill('-');
-      newRow[0] = id;
-      newRow[1] = mNama;
-      newRow[2] = mUnit;
-      newRow[3] = mJab;
-      newRow[4] = mStat;
-      newRow[dateColIdx] = status;
-      newRowsData.push(newRow);
+    if (rowIdx === 0) {
+      rowIdx = sheet.getLastRow() + 1;
+      const nama = memberMap[id] || "Unknown";
+      sheet.getRange(rowIdx, 1, 1, 2).setValues([[id, nama]]);
+      existingIds.push(String(id).trim()); 
     }
-  }
-
-  // Sisipkan Baris Anggota Baru Sekaligus (Optimasi Kinerja)
-  if (newRowsData.length > 0) {
-    const startRow = sheet.getLastRow() + 1;
-    sheet.getRange(startRow, 1, newRowsData.length, newRowsData[0].length).setValues(newRowsData);
-  }
-
-  // Update Data Statistik Dashboard
-  if (data.type === 'Khotbah') {
-    const statSheet = ensureSheet(db, 'Stats_History', ['Tanggal', 'Kategori', 'Total']);
-    statSheet.appendRow([data.tanggal, data.unit, totalHadir]);
-    if (tamuCount > 0) statSheet.appendRow([data.tanggal, 'Tamu', tamuCount]);
     
-    let allStatRows = statSheet.getDataRange().getValues();
-    let totalGlobal = 0;
+    const cell = sheet.getRange(rowIdx, colIdx);
+    cell.setValue(status).setHorizontalAlignment("center");
     
-    for (let i = 1; i < allStatRows.length; i++) {
-      let rTgl = allStatRows[i][0];
-      if (rTgl instanceof Date) rTgl = new Date(rTgl.getTime() - (rTgl.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-      
-      if (rTgl === data.tanggal && allStatRows[i][1] !== 'ALL' && allStatRows[i][1] !== 'Tamu') {
-        totalGlobal += parseInt(allStatRows[i][2]) || 0;
-      }
-    }
-    statSheet.appendRow([data.tanggal, 'ALL', totalGlobal + tamuCount]);
+    if (status === 'Hadir') cell.setBackground('#e6f4ea').setFontColor('#137333').setFontWeight("bold");
+    else if (status === 'Alpha') cell.setBackground('#fce8e6').setFontColor('#c5221f').setFontWeight("bold");
   }
-
-  return { status: 'success' };
+  
+  if (data.tamu !== undefined && data.tamu !== "" && parseInt(data.tamu) > 0) {
+    let tamuRowIdx = existingIds.indexOf("TAMU") + 1;
+    if (tamuRowIdx === 0) tamuRowIdx = 2; 
+    sheet.getRange(tamuRowIdx, colIdx).setValue(data.tamu).setHorizontalAlignment("center").setFontWeight("bold").setBackground('#fffbeb').setFontColor('#b45309');
+  }
+  
+  return { status: 'success', message: 'Absensi berhasil disimpan!' };
 }
 
 function submitKegiatan(data) {
   const db = getDb();
-  const sheet = ensureSheet(db, 'Kegiatan', [
-    'Tanggal', 'Unit', 'Poin 1', 'Poin 2', 'Poin 3', 'Poin 4', 'Poin 5', 
-    'Poin 6', 'Poin 7', 'Poin 8', 'Poin 9', 'Poin 10'
-  ]);
-  sheet.appendRow([data.tanggal, data.unit, ...data.laporan]);
-  return { status: 'success' };
+  let targetUnit = data.unit === 'ALL' ? 'Global' : data.unit;
+  const sheetName = `Kegiatan - ${targetUnit}`;
+  const kList = [ "Anggota datang tepat waktu di S.S.", "Membaca Alkitab setiap hari", "Pelajaran S.S. setiap hari", "Renungan Pagi setiap hari", "Hadir Pertemuan Rabu Malam", "Melakukan Jangkauan Keluar (Pemberian Alkitab, Berdoa untuk orang lain)", "Melakukan Perlawatan Pemeliharaan (Mendoakan yang sakit, Anggota absen)", "Memberikan / Membagikan Risalah / Buku Rohani", "Terlibat Kegiatan Kelompok Kecil", "Mengikuti / Terlibat Program Berdoa (777 / 1752 dll)" ];
+  
+  let sheet = db.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = db.insertSheet(sheetName);
+    sheet.getRange(1, 1, 1, 2).setValues([['No', 'Keterangan Kegiatan']]).setBackground("#D4AF37").setFontWeight("bold");
+    const initRows = kList.map((k, i) => [i + 1, k]);
+    sheet.getRange(2, 1, initRows.length, 2).setValues(initRows);
+    sheet.setFrozenRows(1); sheet.setFrozenColumns(2); sheet.setColumnWidth(2, 350);
+  }
+  
+  const headersRaw = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+  const headersStr = headersRaw.map(h => h instanceof Date ? Utilities.formatDate(h, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(h).trim());
+  let colIdx = headersStr.indexOf(String(data.tanggal).trim()) + 1;
+  
+  if (colIdx === 0) {
+    colIdx = Math.max(sheet.getLastColumn() + 1, 3);
+    sheet.getRange(1, colIdx).setValue(data.tanggal).setBackground("#0a192f").setFontColor("#D4AF37").setFontWeight("bold").setHorizontalAlignment("center");
+  } else {
+    const maxRow = Math.max(sheet.getLastRow(), 2);
+    if (maxRow >= 2) sheet.getRange(2, colIdx, maxRow - 1, 1).clearContent().setBackground(null);
+  }
+  
+  const values = data.laporan.map(val => [val || 0]);
+  sheet.getRange(2, colIdx, values.length, 1).setValues(values).setHorizontalAlignment("center").setFontWeight("bold").setBackground('#e6f4ea').setFontColor('#137333');
+  return { status: 'success', message: 'Kegiatan berhasil disimpan!' };
 }
 
 function submitDoa(data) {
   const db = getDb();
-  const sheet = ensureSheet(db, 'Permohonan_Doa', ['Tanggal', 'Nama Pemohon', 'No HP', 'Pokok Doa']);
-  let now = new Date().toISOString().split('T')[0];
-  let poinStr = data.poin.join('\n- ');
-  sheet.appendRow([now, data.nama, data.telp, '- ' + poinStr]);
+  let sheet = db.getSheetByName('Permohonan Doa');
+  if (!sheet) {
+    sheet = db.insertSheet('Permohonan Doa');
+    sheet.appendRow(['Timestamp', 'Nama Lengkap', 'No Telp', 'Poin Doa', 'Status']);
+    sheet.getRange(1, 1, 1, 5).setBackground("#3B82F6").setFontColor("#ffffff").setFontWeight("bold");
+  }
+  sheet.appendRow([ new Date(), data.nama, data.telp, data.poin.join(' | '), 'Menunggu' ]);
   return { status: 'success' };
 }
 
-
-// =====================================================================
-// 6. FITUR REKAPITULASI (PEMBACAAN TABEL MATRIX)
-// =====================================================================
-function getRekapData(data) {
-  const db = getDb();
-  const sheetName = data.sheetName; 
-  const targetDate = data.tanggal; 
-  
-  const sheet = db.getSheetByName(sheetName);
-  if (!sheet) return { status: 'success', data: [] }; 
-  
-  const lastRow = sheet.getLastRow();
-  const lastCol = sheet.getLastColumn();
-  if (lastRow < 2 || lastCol < 1) return { status: 'success', data: [] }; 
-  
-  const rawData = sheet.getRange(1, 1, lastRow, lastCol).getValues();
-  const headers = rawData[0];
-  
-  // Kondisi Khusus untuk Laporan Kegiatan (Format Klasik Baris)
-  if (sheetName === 'Kegiatan' || sheetName === 'Permohonan_Doa') {
-    const filtered = [];
-    for (let i = 1; i < rawData.length; i++) {
-      let rowDateStr = String(rawData[i][0] || '').trim();
-      if (rowDateStr instanceof Date) rowDateStr = new Date(rowDateStr.getTime() - (rowDateStr.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-      else if (rowDateStr.includes('/')) {
-        let parts = rowDateStr.split('/');
-        if (parts.length === 3) rowDateStr = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-      }
-      
-      if (rowDateStr.startsWith(targetDate)) {
-        let obj = {};
-        for(let j=0; j<headers.length; j++) obj[headers[j]] = rawData[i][j];
-        filtered.push(obj);
-      }
-    }
-    return { status: 'success', data: filtered };
-  }
-
-  // PEMBACAAN UNTUK FORMAT MATRIX (Absensi Khotbah, SS, dll)
-  let dateColIdx = -1;
-  for (let j = 4; j < headers.length; j++) { // Mulai dari index 4 (Kolom Date Pertama)
-    let hStr = headers[j];
-    if (hStr instanceof Date) hStr = new Date(hStr.getTime() - (hStr.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-    else hStr = String(hStr);
-
-    if (hStr.startsWith(targetDate)) { dateColIdx = j; break; }
-  }
-
-  if (dateColIdx === -1) return { status: 'success', data: [] }; // Tanggal tidak ditemukan
-
-  const filtered = [];
-  
-  // Masukkan Baris 2 (Tamu) ke Paling Atas Rekapan
-  let tamuVal = String(rawData[1][dateColIdx]).trim();
-  filtered.push({
-    'Nama Anggota': '👤 TOTAL TAMU / SIMPATISAN',
-    'Unit': '-',
-    'Jabatan': '-',
-    'Status Baptis': '-',
-    'Kehadiran': tamuVal && tamuVal !== '-' ? tamuVal : '0 Jiwa'
-  });
-
-  // Masukkan Baris 3 dan Seterusnya (Anggota)
-  for (let i = 2; i < rawData.length; i++) {
-    let att = rawData[i][dateColIdx];
-    if (att === "" || att === "-") continue; // Abaikan anggota yang kosong absensinya pada tanggal ini
-
-    filtered.push({
-      'Nama Anggota': rawData[i][1],
-      'Unit': rawData[i][2],
-      'Jabatan': rawData[i][3],
-      'Status Baptis': rawData[i][4],
-      'Kehadiran': att
-    });
-  }
-
-  return { status: 'success', data: filtered };
-}
-
-
-// =====================================================================
-// 7. CRUD MASTER (JEMAAT, UNIT, JABATAN, ADMIN)
-// =====================================================================
+// ==============================================================
+// CRUD MASTER DATA
+// ==============================================================
 function addMember(data) {
-  getDb().getSheetByName('Members').appendRow([
-    data.id, data.nama, data.status, data.kelasTetap, data.unit, data.jabatan, data.tanggalLahir
-  ]);
+  const sheet = getDb().getSheetByName('Members');
+  const newId = 'M' + new Date().getTime();
+  sheet.appendRow([newId, data.nama, data.status, data.kelasTetap, data.unit, data.jabatan, data.tanggalLahir]);
   return { status: 'success' };
 }
 function updateMember(data) {
-  const sheet = getDb().getSheetByName('Members'); const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) {
-    if (rows[i][0] === data.id) {
-      sheet.getRange(i + 1, 2, 1, 6).setValues([[ data.nama, data.status, data.kelasTetap, data.unit, data.jabatan, data.tanggalLahir ]]);
+  const sheet = getDb().getSheetByName('Members');
+  const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][0] === data.id) {
+      sheet.getRange(i + 1, 2, 1, 6).setValues([[data.nama, data.status, data.kelasTetap, data.unit, data.jabatan, data.tanggalLahir]]);
       return { status: 'success' };
     }
-  } return { status: 'error' };
+  }
+  return { status: 'error' };
 }
-function deleteMember(data) {
-  const sheet = getDb().getSheetByName('Members'); const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) { if (rows[i][0] === data.id) { sheet.deleteRow(i + 1); return { status: 'success' }; } } return { status: 'error' };
+function deleteMember(id) {
+  const sheet = getDb().getSheetByName('Members');
+  const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][0] === id) { sheet.deleteRow(i + 1); return { status: 'success' }; }
+  }
+  return { status: 'error' };
 }
-
-function addUnit(data) { getDb().getSheetByName('Units').appendRow([data.newName, data.pin || Math.floor(1000 + Math.random() * 9000)]); return { status: 'success' }; }
+function addUnit(data) {
+  const sheet = getDb().getSheetByName('Units');
+  const pin = data.pin || Math.floor(1000 + Math.random() * 9000).toString();
+  sheet.appendRow([data.name, pin]);
+  return { status: 'success' };
+}
 function updateUnit(data) {
-  const sheet = getDb().getSheetByName('Units'); const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) { if (rows[i][0] === data.oldName) { sheet.getRange(i + 1, 1, 1, 2).setValues([[data.newName, data.pin]]); return { status: 'success' }; } } return { status: 'error' };
+  const db = getDb(); const uSheet = db.getSheetByName('Units');
+  const values = uSheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]).trim() === data.oldName.trim()) {
+      uSheet.getRange(i + 1, 1, 1, 2).setValues([[data.newName, data.pin]]);
+      if(data.oldName !== data.newName) {
+        const mSheet = db.getSheetByName('Members');
+        if(mSheet && mSheet.getLastRow() > 1) {
+          const mData = mSheet.getDataRange().getValues();
+          for(let j=1; j<mData.length; j++) { if(String(mData[j][4]).trim() === data.oldName.trim()) mSheet.getRange(j + 1, 5).setValue(data.newName); }
+        }
+      }
+      return { status: 'success' };
+    }
+  }
+  return { status: 'error' };
 }
-function deleteUnit(data) {
-  const sheet = getDb().getSheetByName('Units'); const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) { if (rows[i][0] === data.name) { sheet.deleteRow(i + 1); return { status: 'success' }; } } return { status: 'error' };
+function deleteUnit(name) {
+  const db = getDb(); const uSheet = db.getSheetByName('Units');
+  const values = uSheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]).trim() === name.trim()) {
+      uSheet.deleteRow(i + 1);
+      const mSheet = db.getSheetByName('Members');
+      if(mSheet && mSheet.getLastRow() > 1) {
+        const mData = mSheet.getDataRange().getValues();
+        for(let j=1; j<mData.length; j++) { if(String(mData[j][4]).trim() === name.trim()) mSheet.getRange(j + 1, 5).setValue('Umum'); }
+      }
+      return { status: 'success' };
+    }
+  }
+  return { status: 'error' };
 }
-
-function addRole(data) { getDb().getSheetByName('Jabatan').appendRow([data.newName]); return { status: 'success' }; }
+function addRole(name) { getDb().getSheetByName('Jabatan').appendRow([name]); return { status: 'success' }; }
 function updateRole(data) {
-  const sheet = getDb().getSheetByName('Jabatan'); const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) { if (rows[i][0] === data.oldName) { sheet.getRange(i + 1, 1).setValue(data.newName); return { status: 'success' }; } } return { status: 'error' };
+  const sheet = getDb().getSheetByName('Jabatan'); const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) { if (String(values[i][0]).trim() === data.oldName.trim()) { sheet.getRange(i + 1, 1).setValue(data.newName); return { status: 'success' }; } }
+  return { status: 'error' };
 }
-function deleteRole(data) {
-  const sheet = getDb().getSheetByName('Jabatan'); const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) { if (rows[i][0] === data.name) { sheet.deleteRow(i + 1); return { status: 'success' }; } } return { status: 'error' };
+function deleteRole(name) {
+  const sheet = getDb().getSheetByName('Jabatan'); const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) { if (String(values[i][0]).trim() === name.trim()) { sheet.deleteRow(i + 1); return { status: 'success' }; } }
+  return { status: 'error' };
 }
-
-function addAdmin(data) { getDb().getSheetByName('Admins').appendRow([data.newUsername, data.pin]); return { status: 'success' }; }
+function addAdmin(data) { getDb().getSheetByName('Admins').appendRow([data.username, data.pin]); return { status: 'success' }; }
 function updateAdmin(data) {
-  const sheet = getDb().getSheetByName('Admins'); const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) { if (rows[i][0] === data.oldUsername) { sheet.getRange(i + 1, 1, 1, 2).setValues([[data.newUsername, data.pin]]); return { status: 'success' }; } } return { status: 'error' };
+  const sheet = getDb().getSheetByName('Admins'); const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) { if (String(values[i][0]).trim() === data.oldUsername.trim()) { sheet.getRange(i + 1, 1, 1, 2).setValues([[data.newUsername, data.pin]]); return { status: 'success' }; } }
+  return { status: 'error' };
 }
-function deleteAdmin(data) {
-  const sheet = getDb().getSheetByName('Admins'); const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) { if (rows[i][0] === data.username) { sheet.deleteRow(i + 1); return { status: 'success' }; } } return { status: 'error' };
+function deleteAdmin(username) {
+  const sheet = getDb().getSheetByName('Admins'); const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) { if (String(values[i][0]).trim() === username.trim()) { sheet.deleteRow(i + 1); return { status: 'success' }; } }
+  return { status: 'error' };
+}
+function changePin(data) {
+  const sheetName = data.role === 'admin' ? 'Admins' : 'Units'; const sheet = getDb().getSheetByName(sheetName);
+  if(!sheet) return {status: 'error'};
+  const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]).trim() === String(data.identifier).trim() && String(values[i][1]).trim() === String(data.oldPin).trim()) {
+      sheet.getRange(i + 1, 2).setValue(data.newPin); return { status: 'success' };
+    }
+  }
+  return { status: 'error' };
 }
 
-// =====================================================================
-// MENU CUSTOM & TEMA SPREADSHEET (DARK & GOLD)
-// =====================================================================
-function onOpen() {
-  const ui = SpreadsheetApp.getUi();
-  ui.createMenu('✨ PISGAH MATRIX')
-    .addItem('🎨 Terapkan Tema (Dark & Gold)', 'applyMatrixThemeToSpreadsheet')
-    .addToUi();
+// ==============================================================
+// PEMBUATAN TAB OTOMATIS
+// ==============================================================
+function createMemberSheet(ss) {
+  const sheet = ss.insertSheet('Members');
+  sheet.getRange(1, 1, 1, 7).setValues([['ID', 'Nama', 'Status', 'Kategori', 'Unit', 'Jabatan', 'Tanggal Lahir']]).setBackground("#D4AF37").setFontWeight("bold");
+  sheet.setFrozenRows(1); return sheet;
 }
-
-function applyMatrixThemeToSpreadsheet() {
-  const db = getDb();
-  const sheets = db.getSheets();
-  
-  sheets.forEach(sheet => {
-    const lastRow = sheet.getLastRow();
-    const lastCol = sheet.getLastColumn();
-    if (lastRow === 0 || lastCol === 0) return; 
-    
-    const headerRange = sheet.getRange(1, 1, 1, lastCol);
-    headerRange.setBackground('#0a192f').setFontColor('#D4AF37').setFontWeight('bold').setHorizontalAlignment('center').setVerticalAlignment('middle');
-    
-    if (lastRow > 1) {
-      const bodyRange = sheet.getRange(2, 1, lastRow - 1, lastCol);
-      bodyRange.setBackground('#112240').setFontColor('#e6f1ff').setVerticalAlignment('middle').setHorizontalAlignment('center');
-      bodyRange.setBorder(true, true, true, true, true, true, '#D4AF37', SpreadsheetApp.BorderStyle.SOLID);
+function createUnitSheet(ss, memberSheet) {
+  const sheet = ss.insertSheet('Units');
+  sheet.getRange(1, 1, 1, 2).setValues([['Nama Unit', 'PIN Akses']]).setBackground("#D4AF37").setFontWeight("bold");
+  if(memberSheet && memberSheet.getLastRow() > 1) {
+    const unitsData = memberSheet.getRange(2, 5, memberSheet.getLastRow() - 1, 1).getValues();
+    const uniqueUnits = [...new Set(unitsData.map(r => r[0]).filter(u => u && u !== 'Umum'))];
+    if(uniqueUnits.length > 0) {
+      const rows = uniqueUnits.map(u => [u, Math.floor(1000 + Math.random() * 9000).toString()]);
+      sheet.getRange(2, 1, rows.length, 2).setValues(rows);
     }
-    
-    for (let i = 1; i <= lastCol; i++) {
-      sheet.autoResizeColumn(i);
-      let currentWidth = sheet.getColumnWidth(i);
-      sheet.setColumnWidth(i, currentWidth + 20); 
-    }
-  });
-  
-  SpreadsheetApp.getActiveSpreadsheet().toast('Tema Matrix (Dark & Gold) berhasil diterapkan ke semua sheet!', 'SELESAI');
+  }
+  return sheet;
+}
+function createRoleSheet(ss) {
+  const sheet = ss.insertSheet('Jabatan');
+  sheet.getRange(1, 1).setValue('Nama Jabatan').setBackground("#D4AF37").setFontWeight("bold");
+  sheet.getRange(2, 1, 5, 1).setValues([['Anggota'], ['Pemimpin Unit'], ['Sekretaris Unit'], ['Pendeta'], ['Ketua Jemaat']]);
+  return sheet;
+}
+function createAdminSheet(ss) {
+  const sheet = ss.insertSheet('Admins');
+  sheet.getRange(1, 1, 1, 2).setValues([['Username', 'PIN Akses']]).setBackground("#D4AF37").setFontWeight("bold");
+  sheet.appendRow(['Admin Utama', '12345']); return sheet;
 }
