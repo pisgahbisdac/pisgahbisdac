@@ -1273,56 +1273,200 @@
             </div>
         );
 
-        const Detailperpustakaan = ({ setActiveTab, dataPejabat }) => (
-            <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
-                <div className="prose max-w-none">
-                    <h1 className="text-[2rem] font-extrabold text-navy-900 mb-6 border-b pb-4 border-navy-50">Download Dan Baca Buku</h1>
-                    <img src="https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg" loading="lazy" alt="Read" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
-                    <div className="space-y-4 text-navy-600 font-medium">
-                        <p>Salah satu cara dalam mengatahui dan dekat dengan Tuhan adalah dengan membaca.</p>
-                        <h3 className="text-navy-900 font-bold text-xl pt-2">Menunjuk ke Alkitab</h3>
-                        <p>Mari lihat kebutuhan anda, dan silahkan Download melalui Link dibawah ini.</p>
-                    <div className="flex flex-wrap justify-center gap-4">
-                        <a href="https://drive.google.com/drive/folders/1EP9dOY3Azcm2K21kKiOiVvAOhIZrUJqv?usp=drive_link"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-gold-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-navy-800 hover:text-white transition-all duration-300"
+        const Detailperpustakaan = ({ setActiveTab, dataPejabat }) => {
+            const [selectedBook, setSelectedBook] = React.useState(null);
+
+            // Daftar buku dengan file PDF
+            // Untuk menambah buku baru: tambahkan objek { id, title, author, cover, desc, pdfUrl, category }
+            // pdfUrl bisa berupa link langsung ke file PDF (mis. dari Google Drive dengan parameter ?export=view atau embed link)
+            const books = [
+                {
+                    id: '28_doktrin',
+                    title: '28 Kepercayaan Dasar',
+                    author: 'GMAHK',
+                    cover: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEglRhj8ki8ZCcKqrouOcDp_Xnlt2ciT4ZIUf4whbGTJ9VCBfiuDITEnrnkYEYavLFNdRMyCEFuo00Yus6YZKT8t5ZnoJuvnswjvmfE5zGPaqYO54K3YUWeFd3tHVzHVQWptpFaMhpEHh9o/s1600/cover+28+doktrin+advent.jpg',
+                    desc: 'Buku lengkap tentang 28 kepercayaan dasar Gereja Masehi Advent Hari Ketujuh.',
+                    category: 'Doktrin',
+                    // Ganti pdfUrl di bawah dengan URL PDF sebenarnya
+                    // Untuk Google Drive: gunakan format https://drive.google.com/file/d/FILE_ID/preview
+                    pdfUrl: './document/28Doktrin.pdf',
+                },
+                {
+                    id: 'panduan_jemaat',
+                    title: 'Panduan Jemaat - Peraturan Jemaat',
+                    author: 'GMAHK',
+                    cover: 'https://down-id.img.susercontent.com/file/id-11134207-7r98t-lu96t6wkzjt2b2',
+                    desc: 'Panduan jemaat Gereja Masehi Advent Hari Ketujuh.',
+                    category: 'Panduan',
+                    pdfUrl: './document/peraturanjemaat.pdf',
+                },
+                {
+                    id: 'kemenangan_akhir',
+                    title: 'Kemenangan Akhir',
+                    author: 'Ellen G. White',
+                    cover: 'https://media4.egwwritings.org/covers/12876_s.jpg',
+                    desc: 'Pertikaian yang segera akan terjadi sekarang, dengan melibatkan prinsip-prinsip vital, dalam mana tak seorangpun boleh netral, dinytakan dengan sederhana dan gamblang.',
+                    category: 'EGW',
+                    pdfUrl: './document/Kemenangan Akhir - The Great Controversy.pdf',
+                },
+                {
+                    id: 'kitab_tahunan',
+                    title: 'Renungan Harian Cerita Misi',
+                    author: 'General Conference',
+                    cover: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg',
+                    desc: 'Renungan harian dari cerita misi seluruh dunia.',
+                    category: 'Renungan',
+                    pdfUrl: 'https://drive.google.com/file/d/1B8C2-YcontohID/preview',
+                },
+                {
+                    id: 'langkah_kristus',
+                    title: 'Langkah kepada Kristus',
+                    author: 'Ellen G. White',
+                    cover: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg',
+                    desc: 'Buku klasik yang membimbing pembaca menuju hubungan pribadi yang lebih dalam dengan Kristus.',
+                    category: 'EGW',
+                    pdfUrl: 'https://drive.google.com/file/d/1contohFileIDLangkahKristus/preview',
+                },
+                {
+                    id: 'pengantar_roh_nubuat',
+                    title: 'Pengantar Roh Nubuat',
+                    author: 'R Hutabarat M.Div',
+                    cover: './icons/PisgahColor.png',
+                    desc: 'Fakta-fakta Alkitab tentang karunia Nubuat di dalam Gereja, dewasa ini.',
+                    category: 'EGW',
+                    pdfUrl: './document/Pengantar Roh Nubuat Lengkap dengan Cover.pdf',
+                },
+                {
+                    id: 'kerinduan_segala',
+                    title: 'Kerinduan Segala Zaman',
+                    author: 'Ellen G. White',
+                    cover: 'https://media4.egwwritings.org/covers/13842_s.jpg',
+                    desc: 'Kisah lengkap kehidupan Yesus Kristus yang menginspirasi dan mengubah hati.',
+                    category: 'EGW',
+                    pdfUrl: './document/Kerinduan Segala Zaman - The Desire of Ages.pdf',
+                },
+                {
+                    id: 'kebahagiaan_sejati',
+                    title: 'Kebahagiaan Sejati',
+                    author: 'Ellen G. White',
+                    cover: 'https://media4.egwwritings.org/covers/11525_s.jpg',
+                    desc: 'PENUNTUN menuju kebahagiaan yang sejati ini akan menuntun Saudara ke dalam hubungan pribadi yang akrab dengan Tuhan',
+                    category: 'EGW',
+                    pdfUrl: './document/Kebahagiaan Sejati - Steps To Christ.pdf',
+                },
+            ];
+
+            const categories = ['Semua', ...new Set(books.map(b => b.category))];
+            const [activeCategory, setActiveCategory] = React.useState('Semua');
+
+            const filteredBooks = activeCategory === 'Semua' ? books : books.filter(b => b.category === activeCategory);
+
+            // Mode baca PDF
+            if (selectedBook) {
+                return (
+                    <div className="animate-fade-in relative z-10">
+                        {/* Header reader */}
+                        <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-4 mb-4 flex items-center gap-3">
+                            <button
+                                onClick={() => setSelectedBook(null)}
+                                className="flex items-center justify-center w-10 h-10 rounded-full bg-navy-50 hover:bg-navy-100 text-navy-700 transition shrink-0"
                             >
-                            Lagu Sion Lengkap MP3
-                        </a>
-                        <a href="https://drive.google.com/drive/folders/0B69W7zsbdDmVflRoZUF4cDA1U1RWeVMwN1dYQmZNaE1Bbm5qQmc4NkVXU1hBUlpNVVpwem8?resourcekey=0-mDboNMKK-a6RJA4ClzRDWw&usp=drive_link"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-gold-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-navy-800 hover:text-white transition-all duration-300"
+                                <Icon name="ArrowLeft" className="w-5 h-5" />
+                            </button>
+                            <div className="flex-1 min-w-0">
+                                <p className="font-black text-navy-900 text-base leading-tight truncate">{selectedBook.title}</p>
+                                <p className="text-xs text-navy-500 font-semibold mt-0.5">{selectedBook.author}</p>
+                            </div>
+                            <a
+                                href={selectedBook.pdfUrl.replace('/preview', '/view')}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1.5 bg-navy-900 text-gold-400 px-4 py-2 rounded-xl text-xs font-bold shrink-0 hover:bg-navy-800 transition"
                             >
-                            Buku-Buku Rohani
-                        </a>
-                        <a href="https://drive.google.com/drive/folders/1d_smrJAY13h5x85A2Y_bAIIXg9sR012r"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-gold-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-navy-800 hover:text-white transition-all duration-300"
-                            >
-                            28 Doktrin
-                        </a>
-                        <a href="https://drive.google.com/drive/folders/1FxfoHGqVxW22_xTlz3BMhi9nfkOuDjUm?usp=drive_link"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-gold-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-navy-800 hover:text-white transition-all duration-300"
-                            >
-                            Panduan Pelayan Jemaat
-                        </a>
-                        <a href="https://drive.google.com/drive/folders/1aQh9EpelV1wych30tXbFIHtqahANsXM4?usp=drive_link"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-gold-500 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-navy-800 hover:text-white transition-all duration-300"
-                            >
-                            Materi Kelas Kepahaman
-                        </a>
+                                <Icon name="Download" className="w-3.5 h-3.5" /> Unduh
+                            </a>
+                        </div>
+                        {/* PDF Iframe Viewer */}
+                        <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden" style={{ minHeight: '75vh' }}>
+                            <iframe
+                                src={selectedBook.pdfUrl}
+                                title={selectedBook.title}
+                                className="w-full"
+                                style={{ height: '75vh', border: 'none' }}
+                                allow="autoplay"
+                            />
+                        </div>
+                        <p className="text-center text-xs text-navy-400 mt-3 font-medium">
+                            Jika PDF tidak tampil, coba buka di browser dengan tombol Unduh di atas.
+                        </p>
                     </div>
+                );
+            }
+
+            // Mode daftar buku
+            return (
+                <div className="animate-fade-in relative z-10 space-y-6">
+                    {/* Header */}
+                    <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden">
+                        <img src="https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg" loading="lazy" alt="Buku" className="w-full h-[14rem] object-cover" />
+                        <div className="p-6">
+                            <h1 className="text-[1.75rem] font-extrabold text-navy-900 mb-2">Perpustakaan Buku</h1>
+                            <p className="text-navy-500 font-medium text-sm leading-relaxed">Baca dan unduh buku-buku rohani langsung di sini. Pilih buku untuk membacanya.</p>
+                        </div>
+                    </div>
+
+                    {/* Filter Kategori */}
+                    <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+                        {categories.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 border ${activeCategory === cat ? 'bg-navy-900 text-gold-400 border-navy-900 shadow' : 'bg-white text-navy-600 border-navy-100 hover:border-navy-300'}`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Grid Buku */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {filteredBooks.map(book => (
+                            <div
+                                key={book.id}
+                                className="bg-white rounded-2xl shadow-sm border border-navy-100/60 overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                                onClick={() => setSelectedBook(book)}
+                            >
+                                <div className="h-[10rem] overflow-hidden relative">
+                                    <img src={book.cover} alt={book.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
+                                    <span className="absolute top-2 right-2 bg-gold-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{book.category}</span>
+                                </div>
+                                <div className="p-3 flex-1 flex flex-col">
+                                    <p className="font-bold text-navy-900 text-sm leading-tight mb-1 line-clamp-2">{book.title}</p>
+                                    <p className="text-xs text-navy-400 font-semibold mb-3">{book.author}</p>
+                                    <button className="mt-auto w-full py-2 rounded-xl bg-navy-900 text-gold-400 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-navy-800 transition">
+                                        <Icon name="BookOpen" className="w-3.5 h-3.5" /> Baca Buku
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Tautan Download Eksternal */}
+                    <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-6">
+                        <h3 className="font-bold text-navy-900 text-base mb-1">Koleksi Lengkap di Google Drive</h3>
+                        <p className="text-sm text-navy-500 mb-4 font-medium">Akses koleksi buku, MP3 lagu, dan materi lainnya secara lengkap.</p>
+                        <div className="flex flex-wrap gap-3">
+                            <a href="https://drive.google.com/drive/folders/1EP9dOY3Azcm2K21kKiOiVvAOhIZrUJqv?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Lagu Sion MP3</a>
+                            <a href="https://drive.google.com/drive/folders/0B69W7zsbdDmVflRoZUF4cDA1U1RWeVMwN1dYQmZNaE1Bbm5qQmc4NkVXU1hBUlpNVVpwem8?resourcekey=0-mDboNMKK-a6RJA4ClzRDWw&usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Buku-Buku Rohani</a>
+                            <a href="https://drive.google.com/drive/folders/1d_smrJAY13h5x85A2Y_bAIIXg9sR012r" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">28 Doktrin</a>
+                            <a href="https://drive.google.com/drive/folders/1FxfoHGqVxW22_xTlz3BMhi9nfkOuDjUm?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Panduan Pelayan</a>
+                            <a href="https://drive.google.com/drive/folders/1aQh9EpelV1wych30tXbFIHtqahANsXM4?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Materi Kepahaman</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        );
+            );
+        };
 
         // Helper Rendering Sub-Group untuk Perjamuan
         const renderPerjamuanGroup = (title, items) => (
