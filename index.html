@@ -20,6 +20,25 @@
             background: linear-gradient(rgba(10, 25, 47, 0.95), rgba(10, 25, 47, 0.98)), url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2070');
             background-size: cover; background-attachment: fixed;
         }
+
+        body {
+            min-height: 100vh;
+            background: rgba(10, 25, 47, 0.96) !important;
+        }
+        
+        /* Header dan footer dipastikan gelap dengan blur */
+        header {
+            background: rgba(10, 25, 47, 0.96) !important;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.5);
+        }
+        
+        footer {
+            background: rgba(10, 25, 47, 0.94) !important;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            backdrop-filter: blur(8px);
+        }
+
         .glass { background: rgba(17, 34, 64, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 1.5rem; }
         .tab-active { border-bottom: 4px solid var(--gold); color: var(--gold); font-weight: 800; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
