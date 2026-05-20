@@ -2242,7 +2242,7 @@ function createAdminCardHTML(m) {
                         </div>
 
                         <!-- LIST KONTEN JEMAAT -->
-                        <div id="master-member-list" class="space-y-4 max-h-[500px] md:max-h-[600px] overflow-y-auto pr-2 md:pr-4 no-scrollbar"></div>
+                        <div id="master-member-list" class="space-y-4 max-h-[500px] md:max-h-[600px] overflow-y-auto no-scrollbar"></div>
                     </div>
                 </div>`;
             renderFormRoles();
@@ -2296,8 +2296,8 @@ function createAdminCardHTML(m) {
                         </div>
                     </div>
                     <div class="flex gap-2 w-full sm:w-auto">
-                        <button onclick="editMember('${m.id}')" class="flex-1 sm:flex-none text-yellow-500 bg-yellow-500/10 px-3 md:px-4 py-2 md:py-3 hover:bg-yellow-500 hover:text-[#0a192f] rounded-xl font-bold transition-all text-xs md:text-sm"><i class="fas fa-pen md:mr-2"></i><span class="md:inline">EDIT</span></button>
-                        <button onclick="deleteMember('${m.id}', '${m.nama}')" class="flex-1 sm:flex-none text-red-400 bg-red-400/10 px-3 md:px-4 py-2 md:py-3 hover:bg-red-500 hover:text-white rounded-xl font-bold transition-all text-xs md:text-sm"><i class="fas fa-trash md:mr-2"></i><span class="md:inline">HAPUS</span></button>
+                        <button onclick="editMember('${m.id}')" class="flex-1 sm:flex-none text-yellow-500 bg-yellow-500/10 px-3 md:px-4 py-2 md:py-3 hover:bg-yellow-500 hover:text-[#0a192f] rounded-xl font-bold transition-all text-xs md:text-sm sm:w-[90px] md:w-[110px] flex items-center justify-center"><i class="fas fa-pen mr-2"></i><span>EDIT</span></button>
+                        <button onclick="deleteMember('${m.id}', '${m.nama}')" class="flex-1 sm:flex-none text-red-400 bg-red-400/10 px-3 md:px-4 py-2 md:py-3 hover:bg-red-500 hover:text-white rounded-xl font-bold transition-all text-xs md:text-sm sm:w-[90px] md:w-[110px] flex items-center justify-center"><i class="fas fa-trash mr-2"></i><span>HAPUS</span></button>
                     </div>
                 </div>`).join('');
         }
@@ -2322,7 +2322,7 @@ function createAdminCardHTML(m) {
                             <div class="space-y-4 md:space-y-6"><div><input type="text" id="u-nama" placeholder="Contoh: Unit Efrata..." class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm md:text-base"></div><div><input type="text" id="u-pin" placeholder="Bikin PIN Akses (Kosong = Otomatis)" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm md:text-base"></div><div class="pt-2 flex gap-3 md:gap-4"><button onclick="saveUnit()" id="btn-save-unit" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-3 md:py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all text-sm md:text-base">SIMPAN UNIT</button><button onclick="cancelEditUnit()" id="btn-cancel-unit" class="hidden bg-slate-600 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button></div></div>
                         </div>
                         <div class="glass p-5 md:p-8"><div class="flex justify-between items-end mb-6"><h3 class="text-lg md:text-xl font-black text-[#D4AF37] uppercase">Daftar Unit & PIN</h3><span class="text-gold font-bold text-xs md:text-sm bg-gold/10 px-3 py-1.5 md:px-4 md:py-2 rounded-lg">${units.length} Unit</span></div>
-                            <div class="space-y-3 md:space-y-4 max-h-[300px] overflow-y-auto pr-2 md:pr-4 no-scrollbar">${units.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada unit.</p>' : units.map(u => {
+                            <div class="space-y-3 md:space-y-4 max-h-[300px] overflow-y-auto no-scrollbar">${units.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada unit.</p>' : units.map(u => {
                                 const safeName = String(u.name || u || ''); const uPin = String(u.pin || 'N/A');
                                 return `<div class="p-4 md:p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4"><div><div class="text-base md:text-lg font-black text-white uppercase">${safeName}</div><div class="text-[10px] md:text-[11px] text-green-400 font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: <span class="text-yellow-300">${uPin}</span></div></div><div class="flex gap-2"><button onclick='editUnit(${JSON.stringify(safeName)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all text-xs md:text-sm"><i class="fas fa-pen"></i></button><button onclick='deleteUnit(${JSON.stringify(safeName)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all text-xs md:text-sm"><i class="fas fa-trash"></i></button></div></div>`;
                             }).join('')}</div>
@@ -2336,7 +2336,23 @@ function createAdminCardHTML(m) {
                             <div class="space-y-4 md:space-y-6"><div><input type="text" id="r-nama" placeholder="Contoh: Sekretaris..." class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm md:text-base"></div><div class="pt-2 flex gap-3 md:gap-4"><button onclick="saveRole()" id="btn-save-role" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-3 md:py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all text-sm md:text-base">SIMPAN JABATAN</button><button onclick="cancelEditRole()" id="btn-cancel-role" class="hidden bg-slate-600 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button></div></div>
                         </div>
                         <div class="glass p-5 md:p-8"><div class="flex justify-between items-end mb-6"><h3 class="text-lg md:text-xl font-black text-[#D4AF37] uppercase">Daftar Jabatan</h3><span class="text-gold font-bold text-xs md:text-sm bg-gold/10 px-3 py-1.5 md:px-4 md:py-2 rounded-lg">${roles.length} Jabatan</span></div>
-                            <div class="space-y-3 md:space-y-4 max-h-[300px] overflow-y-auto pr-2 md:pr-4 no-scrollbar">${roles.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada jabatan.</p>' : roles.map(r => `<div class="p-4 md:p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4"><div class="text-base md:text-lg font-black text-white uppercase">${String(r || '')}</div><div class="flex gap-2"><button onclick='editRole(${JSON.stringify(r)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all text-xs md:text-sm"><i class="fas fa-pen"></i></button><button onclick='deleteRole(${JSON.stringify(r)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all text-xs md:text-sm"><i class="fas fa-trash"></i></button></div></div>`).join('')}</div>
+                            <div class="space-y-3 md:space-y-4 max-h-[300px] overflow-y-auto no-scrollbar">${roles.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada jabatan.</p>' : roles.map(r => `<div class="p-4 md:p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4"><div class="text-base md:text-lg font-black text-white uppercase">${String(r || '')}</div><div class="flex gap-2"><button onclick='editRole(${JSON.stringify(r)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all text-xs md:text-sm"><i class="fas fa-pen"></i></button><button onclick='deleteRole(${JSON.stringify(r)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all text-xs md:text-sm"><i class="fas fa-trash"></i></button></div></div>`).join('')}</div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        // ----- Fungsi renderAdminManager (menampilkan PIN admin secara terbuka) -----
+        function renderAdminManager(area) {
+            area.innerHTML = `
+                <div class="mb-10 md:mb-16">
+                    <div class="flex items-center gap-4 mb-4 md:mb-6"><h3 class="text-2xl md:text-3xl font-black text-[#D4AF37] uppercase"><i class="fas fa-user-shield mr-3"></i>Kelola Administrator</h3></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+                        <div class="glass p-5 md:p-8 h-fit"><h3 id="admin-form-title" class="text-xl font-black text-[#D4AF37] mb-6 uppercase text-center">Buat Admin Baru</h3>
+                            <div class="space-y-4 md:space-y-6"><div><input type="text" id="a-username" placeholder="Username (Cth: Admin Utama)" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm md:text-base"></div><div><input type="text" id="a-pin" placeholder="Buat PIN Akses Rahasia" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm md:text-base"></div><div class="pt-2 flex gap-3 md:gap-4"><button onclick="saveAdmin()" id="btn-save-admin" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-3 md:py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all text-sm md:text-base">SIMPAN ADMIN</button><button onclick="cancelEditAdmin()" id="btn-cancel-admin" class="hidden bg-slate-600 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button></div></div>
+                        </div>
+                        <div class="glass p-5 md:p-8"><div class="flex justify-between items-end mb-6"><h3 class="text-lg md:text-xl font-black text-[#D4AF37] uppercase">Daftar Master Admin</h3><span class="text-gold font-bold text-xs md:text-sm bg-gold/10 px-3 py-1.5 md:px-4 md:py-2 rounded-lg">${admins.length} Admin</span></div>
+                            <div class="space-y-3 md:space-y-4 max-h-[300px] overflow-y-auto no-scrollbar">${admins.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada admin.</p>' : admins.map(a => `<div class="p-4 md:p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4"><div><div class="text-base md:text-lg font-black text-white uppercase">${a.username}</div><div class="text-[10px] md:text-[11px] text-[#D4AF37] font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: <span class="text-green-400">${a.pin}</span></div></div><div class="flex gap-2"><button onclick='editAdmin(${JSON.stringify(a.username)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all text-xs md:text-sm"><i class="fas fa-pen"></i></button><button onclick='deleteAdmin(${JSON.stringify(a.username)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all text-xs md:text-sm"><i class="fas fa-trash"></i></button></div></div>`).join('')}</div>
                         </div>
                     </div>
                 </div>`;
@@ -2488,12 +2504,24 @@ function getCachedData() {
 
 function applyData(payload) {
     // Proses data seperti di dalam init (copy paste dari bagian pengolahan json)
-    members = (payload.members || []).map(m => ({
-        id: m.id || m.ID || m['ID'] || '', nama: m.nama || m.Nama || m['Nama'] || '',
-        status: m.status || m.Status || m['Status'] || '', kelasTetap: m.kelasTetap || m.Kategori || m['Kategori'] || '',
-        unit: m.unit || m.Unit || m['Unit'] || 'Umum', jabatan: m.jabatan || m.Jabatan || m['Jabatan'] || 'Anggota',
-        tanggalLahir: m.tanggalLahir || m['Tanggal Lahir'] || ''
-    }));
+    members = (payload.members || []).map(m => {
+        let tglLahir = m.tanggalLahir || m['Tanggal Lahir'] || '';
+        // Normalisasi format tanggal yang mengandung timezone (T...Z) menjadi YYYY-MM-DD lokal
+        if (tglLahir && typeof tglLahir === 'string' && tglLahir.includes('T')) {
+            const dObj = new Date(tglLahir);
+            if (!isNaN(dObj)) {
+                tglLahir = `${dObj.getFullYear()}-${String(dObj.getMonth()+1).padStart(2,'0')}-${String(dObj.getDate()).padStart(2,'0')}`;
+            } else {
+                tglLahir = tglLahir.split('T')[0];
+            }
+        }
+        return {
+            id: m.id || m.ID || m['ID'] || '', nama: m.nama || m.Nama || m['Nama'] || '',
+            status: m.status || m.Status || m['Status'] || '', kelasTetap: m.kelasTetap || m.Kategori || m['Kategori'] || '',
+            unit: m.unit || m.Unit || m['Unit'] || 'Umum', jabatan: m.jabatan || m.Jabatan || m['Jabatan'] || 'Anggota',
+            tanggalLahir: tglLahir
+        };
+    });
 
     units = (payload.units || []).map(u => {
         if (typeof u === 'object') return { name: u.name || u.namaUnit || u['Nama Unit'] || u.nama || '', pin: String(u.pin || u['PIN Akses'] || '').trim() };
