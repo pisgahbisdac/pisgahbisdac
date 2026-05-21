@@ -5161,11 +5161,6 @@ const compressImage = (file, maxWidth = 1200) => {
                     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 shadow-sm">
                         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 gap-3">
                             <div className="flex items-center gap-2 md:gap-3 flex-1 justify-start">
-                                {activeTab !== 'home' && (
-                                    <button onClick={() => window.history.back()} className="w-10 h-10 flex items-center justify-center shrink-0 text-navy-600 hover:text-gold-500 transition-all border border-transparent bg-navy-50/50 hover:bg-navy-100 rounded-full">
-                                        <Icon name="ArrowLeft" className="w-5 h-5" />
-                                    </button>
-                                )}
                                 <div className="flex items-center shrink-0 cursor-pointer" onClick={() => setActiveTab('home')}>
                                     <img src="./icons/PisgahColor.png" className="w-7 h-7 md:w-8 md:h-8 flex items-center object-contain opacity-90 mr-1.5" alt="Logo" />
                                     <p className="text-xl md:text-2xl font-bold text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></p>
