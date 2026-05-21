@@ -4604,7 +4604,6 @@ const compressImage = (file, maxWidth = 1200) => {
                                                             setEditingBook(null);
                                                             // Reload
                                                              loadBooks(); // refresh daftar
-                                                            const data2 = await res2.json();
                                                             if (data2.status === 'success' || data2.success) setDaftarBuku(data2.data);
                                                         } else {
                                                             alert('Error: ' + (data.message || data.error || 'Tidak diketahui'));
@@ -4706,149 +4705,227 @@ const compressImage = (file, maxWidth = 1200) => {
         };
 
         // --- COMPONENT: SEARCH ---
-        const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs }) => {
-            const [query, setQuery] = React.useState('');
+const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, dataPejabat, pengumuman, daftarBuku }) => {
+    const [query, setQuery] = React.useState('');
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+    // Fungsi untuk membersihkan HTML
+    const stripHtml = (html) => {
+        if (!html) return '';
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+    };
 
-            // Filter menus
-            const filteredMenus = tabs.filter(t => t.id !== 'admin_dashboard' && t.id !== 'search' && t.label.toLowerCase().includes(query.toLowerCase()));
+    // Hasil pencarian
+    const searchResults = React.useMemo(() => {
+        if (query.length < 2) return { warta: [], pejabat: [], jadwal: [], buku: [], pengumuman: false };
+        const q = query.toLowerCase();
+        const results = {
+            warta: [],
+            pejabat: [],
+            jadwal: [],
+            buku: [],
+            pengumuman: false
+        };
 
-            // Filter future schedules for the officer
-            let futureJadwal = [];
+        // 1. Warta: cari di judul dan isi
+        if (daftarWarta && daftarWarta.length) {
+            results.warta = daftarWarta.filter(w => 
+                w.judul.toLowerCase().includes(q) || 
+                stripHtml(w.isi).toLowerCase().includes(q)
+            ).slice(0, 20); // batasi 20
+        }
 
-            if (query.length >= 2) {
-                // Collect default rabu, sabat
-                const allDatesInDB = Object.keys(jadwalDB);
-                // Also add this week's rabuYMD and sabatYMD just in case they are not in DB and use default
-                if (!allDatesInDB.includes(rabuYMD)) allDatesInDB.push(rabuYMD);
-                if (!allDatesInDB.includes(sabatYMD)) allDatesInDB.push(sabatYMD);
+        // 2. Pejabat: cari nama, jabatan
+        if (dataPejabat && dataPejabat.length) {
+            results.pejabat = dataPejabat.filter(p => 
+                p.nama.toLowerCase().includes(q) || 
+                p.jabatan.toLowerCase().includes(q)
+            ).slice(0, 20);
+        }
 
-                const uniqueDates = [...new Set(allDatesInDB)];
+        // 3. Buku: cari judul, pengarang, deskripsi
+        if (daftarBuku && daftarBuku.length) {
+            results.buku = daftarBuku.filter(b => 
+                b.title.toLowerCase().includes(q) || 
+                b.author.toLowerCase().includes(q) || 
+                b.desc.toLowerCase().includes(q)
+            ).slice(0, 20);
+        }
 
-                // Sort dates ascending
-                uniqueDates.sort((a, b) => new Date(a) - new Date(b));
-
-                uniqueDates.forEach(dateStr => {
-                    const dObj = new Date(dateStr + "T00:00:00");
-                    if (dObj >= today) {
-                        const jData = jadwalDB[dateStr];
-                        const isRabu = dObj.getDay() === 3;
-                        let foundTugas = [];
-
-                        if (isRabu) {
-                            const data = jData ? jData.petugas : initialJadwalRabu.petugas;
-                            if (data) {
-                                data.forEach(p => {
-                                    if (p.nama && p.nama.toLowerCase().includes(query.toLowerCase())) {
-                                        foundTugas.push({ role: p.tugas, name: p.nama });
-                                    }
-                                });
-                            }
-                        } else {
-                            const sourceData = jData || initialJadwalSabat;
-                            const categories = ['sekolahSabat', 'khotbah', 'diakon', 'musik', 'perjamuan'];
-                            categories.forEach(cat => {
-                                if (sourceData[cat]) {
-                                    sourceData[cat].forEach(p => {
-                                        if (p.nama && p.nama.toLowerCase().includes(query.toLowerCase())) {
-                                            foundTugas.push({ role: p.tugas, name: p.nama });
-                                        }
-                                    });
-                                }
+        // 4. Jadwal petugas (seperti sebelumnya)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const allDates = [...new Set([...Object.keys(jadwalDB), rabuYMD, sabatYMD])].sort();
+        allDates.forEach(dateStr => {
+            const dObj = new Date(dateStr + "T00:00:00");
+            if (dObj >= today) {
+                const jData = jadwalDB[dateStr];
+                const isRabu = dObj.getDay() === 3;
+                let found = [];
+                if (isRabu && jData?.petugas) {
+                    found = jData.petugas.filter(p => p.nama && p.nama.toLowerCase().includes(q));
+                } else if (!isRabu && jData) {
+                    const cats = ['sekolahSabat', 'khotbah', 'diakon', 'musik', 'perjamuan'];
+                    cats.forEach(cat => {
+                        if (jData[cat]) {
+                            jData[cat].forEach(p => {
+                                if (p.nama && p.nama.toLowerCase().includes(q)) found.push({ ...p, cat });
                             });
                         }
-
-                        if (foundTugas.length > 0) {
-                            futureJadwal.push({
-                                date: dateStr,
-                                isRabu: isRabu,
-                                tugas: foundTugas
-                            });
-                        }
-                    }
-                });
+                    });
+                }
+                if (found.length) {
+                    results.jadwal.push({ date: dateStr, isRabu, items: found });
+                }
             }
+        });
 
-            return (
-                <div className="space-y-6 animate-fade-in pb-10">
-                    <div className="relative mb-6">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-navy-400">
-                            <Icon name="Search" className="w-5 h-5" />
+        // 5. Pengumuman
+        if (pengumuman && pengumuman.isi) {
+            const cleanPeng = stripHtml(pengumuman.isi);
+            if (cleanPeng.toLowerCase().includes(q) || (pengumuman.header && pengumuman.header.toLowerCase().includes(q))) {
+                results.pengumuman = true;
+            }
+        }
+
+        return results;
+    }, [query, daftarWarta, dataPejabat, jadwalDB, daftarBuku, pengumuman, rabuYMD, sabatYMD]);
+
+    // Filter menu seperti sebelumnya
+    const filteredMenus = tabs.filter(t => t.id !== 'admin_dashboard' && t.id !== 'search' && t.label.toLowerCase().includes(query.toLowerCase()));
+
+    return (
+        <div className="space-y-6 animate-fade-in pb-10">
+            <div className="relative mb-6">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-navy-400">
+                    <Icon name="Search" className="w-5 h-5" />
+                </div>
+                <input
+                    type="text"
+                    autoFocus
+                    placeholder="Cari Menu, Warta, Nama Petugas, Buku, Pengumuman..."
+                    className="w-full pl-12 pr-4 py-4 bg-white border border-navy-100/80 rounded-2xl text-base font-bold text-navy-900 placeholder-navy-300 outline-none focus:border-gold-500 shadow-sm transition-all"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                />
+            </div>
+
+            {query.length >= 2 ? (
+                <div className="space-y-6">
+                    {/* Hasil Menu */}
+                    {filteredMenus.length > 0 && (
+                        <div>
+                            <h3 className="text-xs font-black text-navy-500 uppercase tracking-widest mb-3 px-2">Menu</h3>
+                            <div className="bg-white rounded-2xl border border-navy-100/60 overflow-hidden shadow-sm">
+                                {filteredMenus.map((m, i) => (
+                                    <button key={m.id} onClick={() => setActiveTab(m.id)} className="w-full flex items-center p-4 text-left hover:bg-gold-50/50 transition-colors border-b border-navy-50 last:border-0">
+                                        <div className="w-10 h-10 rounded-xl bg-navy-50 flex items-center justify-center text-navy-600 mr-4">
+                                            <Icon name={m.icon} className="w-5 h-5" />
+                                        </div>
+                                        <div className="flex-1 font-bold text-navy-800">{m.label}</div>
+                                        <Icon name="ChevronRight" className="w-4 h-4 text-navy-300" />
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                        <input
-                            type="text"
-                            autoFocus
-                            placeholder="Cari Menu atau Nama Petugas..."
-                            className="w-full pl-12 pr-4 py-4 bg-white border border-navy-100/80 rounded-2xl text-base font-bold text-navy-900 placeholder-navy-300 outline-none focus:border-gold-500 shadow-sm transition-all"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                        />
-                    </div>
+                    )}
 
-                    {query.length > 0 && (
-                        <div className="space-y-6">
-                            {filteredMenus.length > 0 && (
-                                <div>
-                                    <h3 className="text-xs font-black text-navy-500 uppercase tracking-widest mb-3 px-2">Menu Halaman</h3>
-                                    <div className="bg-white rounded-2xl border border-navy-100/60 overflow-hidden shadow-sm">
-                                        {filteredMenus.map((m, i) => (
-                                            <button key={m.id} onClick={() => setActiveTab(m.id)} className={`w-full flex items-center p-4 text-left hover:bg-gold-50/50 transition-colors ${i !== filteredMenus.length - 1 ? 'border-b border-navy-50' : ''}`}>
-                                                <div className="w-10 h-10 rounded-xl bg-navy-50 flex items-center justify-center text-navy-600 mr-4">
-                                                    <Icon name={m.icon} className="w-5 h-5" />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <div className="font-bold text-navy-800">{m.label}</div>
-                                                </div>
-                                                <Icon name="ChevronRight" className="w-4 h-4 text-navy-300" />
-                                            </button>
+                    {/* Hasil Warta */}
+                    {searchResults.warta.length > 0 && (
+                        <div>
+                            <h3 className="text-xs font-black text-gold-600 uppercase tracking-widest mb-3 px-2">Warta</h3>
+                            <div className="space-y-3">
+                                {searchResults.warta.map(w => (
+                                    <div key={w.rowIndex} onClick={() => { setActiveTab('warta'); window.selectedWartaDetail = w; }} className="bg-white rounded-2xl border border-navy-100/60 p-4 cursor-pointer hover:border-gold-300 transition">
+                                        <div className="font-bold text-navy-900">{w.judul}</div>
+                                        <div className="text-xs text-navy-500 mt-1">{w.tanggal}</div>
+                                        <div className="text-sm text-navy-600 mt-2 line-clamp-2">{stripHtml(w.isi)}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Hasil Pejabat */}
+                    {searchResults.pejabat.length > 0 && (
+                        <div>
+                            <h3 className="text-xs font-black text-green-600 uppercase tracking-widest mb-3 px-2">Pejabat / Pelayan</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {searchResults.pejabat.map(p => (
+                                    <div key={p.id} className="bg-white rounded-2xl border border-navy-100/60 p-3 flex items-center gap-3">
+                                        <img src={p.img} className="w-12 h-12 rounded-full object-cover" alt="" />
+                                        <div>
+                                            <div className="font-bold text-navy-900">{p.nama}</div>
+                                            <div className="text-xs text-navy-500">{p.jabatan}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Hasil Buku */}
+                    {searchResults.buku.length > 0 && (
+                        <div>
+                            <h3 className="text-xs font-black text-purple-600 uppercase tracking-widest mb-3 px-2">Buku</h3>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                {searchResults.buku.map(b => (
+                                    <div key={b.id} onClick={() => { setActiveTab('belajar_perpustakaan'); /* navigasi ke buku, perlu implementasi */ }} className="bg-white rounded-xl border border-navy-100/60 p-3 cursor-pointer hover:shadow-md">
+                                        <div className="font-bold text-sm text-navy-900 line-clamp-2">{b.title}</div>
+                                        <div className="text-xs text-navy-500">{b.author}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Hasil Jadwal Petugas */}
+                    {searchResults.jadwal.length > 0 && (
+                        <div>
+                            <h3 className="text-xs font-black text-blue-600 uppercase tracking-widest mb-3 px-2">Jadwal Petugas</h3>
+                            {searchResults.jadwal.map(j => (
+                                <div key={j.date} onClick={() => setActiveTab('jadwal')} className="bg-white rounded-2xl border border-navy-100/60 p-4 mb-3 cursor-pointer hover:border-gold-300">
+                                    <div className="font-bold text-navy-800">{formatIndoDate(j.date)}</div>
+                                    <div className="text-xs uppercase">{j.isRabu ? 'RABU' : 'SABAT'}</div>
+                                    <div className="mt-2 space-y-1">
+                                        {j.items.map((item, idx) => (
+                                            <div key={idx} className="text-sm flex justify-between">
+                                                <span className="text-navy-500">{item.tugas}</span>
+                                                <span className="font-bold text-navy-900">{item.nama}</span>
+                                            </div>
                                         ))}
                                     </div>
                                 </div>
-                            )}
-
-                            {query.length >= 2 && (
-                                <div>
-                                    <h3 className="text-xs font-black text-gold-600 uppercase tracking-widest mb-3 px-2 mt-4">Jadwal Tugas Mendatang (Hari ini & kedepan)</h3>
-                                    {futureJadwal.length > 0 ? (
-                                        <div className="space-y-3">
-                                            {futureJadwal.map((jadwal, idx) => (
-                                                <div key={idx} onClick={() => setActiveTab('jadwal')} className="bg-white rounded-2xl border border-navy-100/60 p-4 shadow-sm cursor-pointer hover:border-gold-300 transition-colors">
-                                                    <div className="flex justify-between items-start mb-3 border-b border-navy-50 pb-2">
-                                                        <div className="font-black text-navy-800">{formatIndoDate(jadwal.date)}</div>
-                                                        <div className={`text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-md ${jadwal.isRabu ? 'bg-navy-100 text-navy-700' : 'bg-gold-100 text-gold-700'}`}>{jadwal.isRabu ? 'RABU' : 'SABAT'}</div>
-                                                    </div>
-                                                    <div className="space-y-2 mt-3">
-                                                        {jadwal.tugas.map((t, i) => (
-                                                            <div key={i} className="flex justify-between items-center text-sm">
-                                                                <span className="text-navy-500 font-medium">{t.role}</span>
-                                                                <span className="font-bold text-navy-900 bg-gold-50 px-2 py-0.5 rounded text-xs">{t.name}</span>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="text-center p-6 border border-dashed border-navy-200 rounded-2xl">
-                                            <p className="text-sm text-navy-500 font-medium">Tidak ada tugas ditemukan untuk <span className="font-bold text-navy-900">"{query}"</span></p>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                            ))}
                         </div>
                     )}
 
-                    {query === '' && (
-                        <div className="text-center pt-10 pb-6 opacity-60">
-                            <Icon name="Search" className="w-12 h-12 mx-auto text-navy-300 mb-3" />
-                            <p className="text-sm font-medium text-navy-500">Ketik kata kunci untuk mencari menu atau jadwal petugas gereja.</p>
+                    {/* Hasil Pengumuman */}
+                    {searchResults.pengumuman && (
+                        <div>
+                            <h3 className="text-xs font-black text-amber-600 uppercase tracking-widest mb-3 px-2">Pengumuman</h3>
+                            <div onClick={() => setActiveTab('home')} className="bg-white rounded-2xl border border-gold-200 p-4 cursor-pointer hover:shadow-md">
+                                <div className="font-bold text-navy-900">{pengumuman.header || "Pengumuman"}</div>
+                                <div className="text-sm text-navy-600 mt-1 line-clamp-3">{stripHtml(pengumuman.isi)}</div>
+                            </div>
+                        </div>
+                    )}
+
+                    {filteredMenus.length === 0 && searchResults.warta.length === 0 && searchResults.pejabat.length === 0 && searchResults.jadwal.length === 0 && searchResults.buku.length === 0 && !searchResults.pengumuman && (
+                        <div className="text-center p-6 border border-dashed border-navy-200 rounded-2xl">
+                            <p className="text-sm text-navy-500 font-medium">Tidak ada hasil untuk <span className="font-bold text-navy-900">"{query}"</span></p>
                         </div>
                     )}
                 </div>
-            );
-        };
+            ) : (
+                <div className="text-center pt-10 pb-6 opacity-60">
+                    <Icon name="Search" className="w-12 h-12 mx-auto text-navy-300 mb-3" />
+                    <p className="text-sm font-medium text-navy-500">Ketik minimal 2 karakter untuk mencari menu, warta, pejabat, buku, pengumuman, atau jadwal petugas.</p>
+                </div>
+            )}
+        </div>
+    );
+};
 
         const App = () => {
             const [isAppLoading, setIsAppLoading] = React.useState(true);
@@ -4928,6 +5005,7 @@ const compressImage = (file, maxWidth = 1200) => {
 
             // Warta default State
             const [daftarWarta, setDaftarWarta] = React.useState([]);
+            const [daftarBuku, setDaftarBuku] = React.useState([]);
 
             // Fungsi refresh warta
             const refreshWarta = async () => {
@@ -5003,110 +5081,116 @@ const compressImage = (file, maxWidth = 1200) => {
 
             // MENGAMBIL DATA DARI REST API GOOGLE APPS SCRIPT DENGAN CACHING
             React.useEffect(() => {
-                if (!GAS_API_URL) {
-                    console.warn("GAS_API_URL belum diisi. Menggunakan data default sementara.");
-                    setIsAppLoading(false);
-                    return;
-                }
+    const fetchData = async () => {
+        if (!GAS_API_URL) {
+            console.warn("GAS_API_URL belum diisi. Menggunakan data default sementara.");
+            setIsAppLoading(false);
+            return;
+        }
 
-                // --- 🚀 FITUR CACHING: Cek memori lokal dulu ---
-                // Jika sudah pernah buka web ini, tampilkan data lama LANGSUNG TANPA LOADING
-                const cachedDataStr = localStorage.getItem('pisgah_data_cache');
-                let hasCache = false;
-                if (cachedDataStr) {
-                    try {
-                        const cached = JSON.parse(cachedDataStr);
-                        if (cached.dataPejabat) setDataPejabat(cached.dataPejabat);
-                        if (cached.jadwalDB) setJadwalDB(cached.jadwalDB);
-                        if (cached.youtubeUrl) setYoutubeUrl(cached.youtubeUrl);
-                        if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
-                        if (cached.heroImages) setHeroImages(cached.heroImages);
-                        if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
-                        if (cached.pengumumanObj) setPengumuman(cached.pengumumanObj);
-                        if (cached.kontakGerejaObj) setKontakGereja(cached.kontakGerejaObj);
-                        
-                        setIsAppLoading(false); // 🔥 MATIKAN LOADING SCREEN SECARA INSTAN!
-                        hasCache = true;
-                    } catch (e) {
-                        console.warn("Gagal membaca cache");
+        const cachedDataStr = localStorage.getItem('pisgah_data_cache');
+        let hasCache = false;
+        if (cachedDataStr) {
+            try {
+                const cached = JSON.parse(cachedDataStr);
+                if (cached.dataPejabat) setDataPejabat(cached.dataPejabat);
+                if (cached.jadwalDB) setJadwalDB(cached.jadwalDB);
+                if (cached.youtubeUrl) setYoutubeUrl(cached.youtubeUrl);
+                if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
+                if (cached.heroImages) setHeroImages(cached.heroImages);
+                if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
+                if (cached.pengumumanObj) setPengumuman(cached.pengumumanObj);
+                if (cached.kontakGerejaObj) setKontakGereja(cached.kontakGerejaObj);
+                setIsAppLoading(false);
+                hasCache = true;
+            } catch (e) { console.warn("Gagal membaca cache"); }
+        }
+
+        try {
+            const res = await fetch(`${GAS_API_URL}?action=getData`);
+            const data = await res.json();
+
+            let newHeroImages = ["./carousel/hero-default.png"];
+            let newPengumumanObj = { header: "Pengumuman Jemaat", isi: "" };
+            let newKontakGerejaObj = defaultKontak;
+
+            if (data.dataPejabat) setDataPejabat(data.dataPejabat);
+            if (data.jadwalDB) setJadwalDB(data.jadwalDB);
+            if (data.youtubeUrl) setYoutubeUrl(data.youtubeUrl);
+            if (data.liveUrl) setLiveUrl(data.liveUrl);
+            if (data.kategoriPejabat) setKategoriPejabat(data.kategoriPejabat);
+            
+            if (data.kontakGereja) {
+                try {
+                    const parsedKontak = JSON.parse(data.kontakGereja);
+                    if (parsedKontak && typeof parsedKontak === 'object') {
+                        newKontakGerejaObj = parsedKontak;
+                        setKontakGereja(newKontakGerejaObj);
                     }
+                } catch(e) {}
+            }
+
+            if (data.heroImageUrl) {
+                try {
+                    const parsed = JSON.parse(data.heroImageUrl);
+                    if (Array.isArray(parsed)) newHeroImages = parsed;
+                    else newHeroImages = [data.heroImageUrl];
+                } catch(e) { newHeroImages = [data.heroImageUrl]; }
+                setHeroImages(newHeroImages);
+            }
+
+            if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
+
+            // Ambil data buku (public)
+            try {
+                const bukuRes = await fetch(GAS_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getBooks' })
+                });
+                const bukuData = await bukuRes.json();
+                if (bukuData.success && bukuData.data) {
+                    setDaftarBuku(bukuData.data);
+                } else {
+                    console.warn('Gagal memuat buku:', bukuData.message);
                 }
+            } catch(e) { 
+                console.error('Error fetching books:', e); 
+            }
 
-                // --- FETCH DATA BARU DARI SERVER DI LATAR BELAKANG ---
-                fetch(`${GAS_API_URL}?action=getData`)
-                    .then(response => {
-                        if (!response.ok) throw new Error('Jaringan bermasalah atau API tidak ditemukan');
-                        return response.json();
-                    })
-                    .then(data => {
-                        let newHeroImages = ["./carousel/hero-default.png"];
-                        let newPengumumanObj = { header: "Pengumuman Jemaat", isi: "" };
-                        let newKontakGerejaObj = defaultKontak;
+            if (data.pengumuman !== undefined) {
+                try {
+                    const parsed = JSON.parse(data.pengumuman);
+                    if (parsed && typeof parsed === 'object') {
+                        newPengumumanObj = { header: parsed.header || "Pengumuman Jemaat", isi: decodeHTML(parsed.isi || "") };
+                    } else {
+                        newPengumumanObj = { header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) };
+                    }
+                } catch (e) {
+                    newPengumumanObj = { header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) };
+                }
+                setPengumuman(newPengumumanObj);
+            }
 
-                        if (data.dataPejabat) setDataPejabat(data.dataPejabat);
-                        if (data.jadwalDB) setJadwalDB(data.jadwalDB);
-                        if (data.youtubeUrl) setYoutubeUrl(data.youtubeUrl);
-                        if (data.liveUrl) setLiveUrl(data.liveUrl);
-                        if (data.kategoriPejabat) setKategoriPejabat(data.kategoriPejabat);
-                        
-                        // Parse Kontak
-                        if (data.kontakGereja) {
-                            try {
-                                const parsedKontak = JSON.parse(data.kontakGereja);
-                                if (parsedKontak && typeof parsedKontak === 'object') {
-                                    newKontakGerejaObj = parsedKontak;
-                                    setKontakGereja(newKontakGerejaObj);
-                                }
-                            } catch(e) {}
-                        }
+            localStorage.setItem('pisgah_data_cache', JSON.stringify({
+                dataPejabat: data.dataPejabat,
+                jadwalDB: data.jadwalDB,
+                youtubeUrl: data.youtubeUrl,
+                kategoriPejabat: data.kategoriPejabat,
+                heroImages: newHeroImages,
+                daftarWarta: data.daftarWarta,
+                pengumumanObj: newPengumumanObj,
+                kontakGerejaObj: newKontakGerejaObj
+            }));
 
-                        // Parse Hero Image
-                        if (data.heroImageUrl) {
-                            try {
-                                const parsed = JSON.parse(data.heroImageUrl);
-                                if (Array.isArray(parsed)) newHeroImages = parsed;
-                                else newHeroImages = [data.heroImageUrl];
-                            } catch(e) { newHeroImages = [data.heroImageUrl]; }
-                            setHeroImages(newHeroImages);
-                        }
+            if (!hasCache) setIsAppLoading(false);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            if (!hasCache) setIsAppLoading(false);
+        }
+    };
 
-                        if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
-
-                        // Parse Pengumuman
-                        if (data.pengumuman !== undefined) {
-                            try {
-                                const parsed = JSON.parse(data.pengumuman);
-                                if (parsed && typeof parsed === 'object') {
-                                    newPengumumanObj = { header: parsed.header || "Pengumuman Jemaat", isi: decodeHTML(parsed.isi || "") };
-                                } else {
-                                    newPengumumanObj = { header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) };
-                                }
-                            } catch (e) {
-                                newPengumumanObj = { header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) };
-                            }
-                            setPengumuman(newPengumumanObj);
-                        }
-
-                        // 🔥 SIMPAN KE LOKAL (CACHE) UNTUK LOADING INSTAN SELANJUTNYA
-                        localStorage.setItem('pisgah_data_cache', JSON.stringify({
-                            dataPejabat: data.dataPejabat,
-                            jadwalDB: data.jadwalDB,
-                            youtubeUrl: data.youtubeUrl,
-                            kategoriPejabat: data.kategoriPejabat,
-                            heroImages: newHeroImages,
-                            daftarWarta: data.daftarWarta,
-                            pengumumanObj: newPengumumanObj,
-                            kontakGerejaObj: newKontakGerejaObj
-                        }));
-
-                        // Jika sebelumnya tidak ada cache (user pertama kali buka web), baru matikan loading sekarang
-                        if (!hasCache) setIsAppLoading(false);
-                    })
-                    .catch(error => {
-                        console.error('Error fetching data, menggunakan data default:', error);
-                        if (!hasCache) setIsAppLoading(false);
-                    });
-            }, []);
+    fetchData();
+}, []);
 
             // FIX TYPO: Memperbaiki penulisan state yang sebelumnya kurang kurung siku
             const [isAdminLoggedIn, setIsAdminLoggedIn] = React.useState(false);
@@ -5170,7 +5254,7 @@ const compressImage = (file, maxWidth = 1200) => {
                     case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
                     case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
                     case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} />;
-                    case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} />;
+                    case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} />;
                     default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta}
                             refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} />;
                 }
