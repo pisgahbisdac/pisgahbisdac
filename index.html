@@ -5331,13 +5331,26 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                 if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
                 if (cached.pengumumanObj) setPengumuman(cached.pengumumanObj);
                 if (cached.kontakGerejaObj) setKontakGereja(cached.kontakGerejaObj);
+                // OPTIMASI: Load buku dari cache segera agar perpustakaan instan
+                if (cached.daftarBuku) setDaftarBuku(cached.daftarBuku);
                 setIsAppLoading(false);
                 hasCache = true;
             } catch (e) { console.warn("Gagal membaca cache"); }
         }
 
         try {
-            const res = await fetch(`${GAS_API_URL}?action=getData`);
+            // OPTIMASI: Jalankan getData & getBooks PARALEL (bukan serial)
+            // Memotong waktu loading ~50% karena kedua request berjalan bersamaan.
+            const [res, bukuRes] = await Promise.all([
+                fetch(`${GAS_API_URL}?action=getData`),
+                fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getBooks' }) })
+            ]);
+            // Proses buku
+            try {
+                const bukuData = await bukuRes.json();
+                if (bukuData.success && bukuData.data) setDaftarBuku(bukuData.data);
+            } catch(e) { console.error('Error fetching books:', e); }
+
             const data = await res.json();
 
             let newHeroImages = ["./carousel/hero-default.png"];
@@ -5371,21 +5384,9 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
 
             if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
 
-            // Ambil data buku (public)
-            try {
-                const bukuRes = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'getBooks' })
-                });
-                const bukuData = await bukuRes.json();
-                if (bukuData.success && bukuData.data) {
-                    setDaftarBuku(bukuData.data);
-                } else {
-                    console.warn('Gagal memuat buku:', bukuData.message);
-                }
-            } catch(e) { 
-                console.error('Error fetching books:', e); 
-            }
+            // Ambil data buku (parallel dengan getData supaya lebih cepat)
+            // Catatan: getBooks berjalan bersamaan (Promise.all), bukan serial
+            // sehingga tidak menambah waktu loading utama.
 
             if (data.pengumuman !== undefined) {
                 try {
@@ -5409,7 +5410,8 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                 heroImages: newHeroImages,
                 daftarWarta: data.daftarWarta,
                 pengumumanObj: newPengumumanObj,
-                kontakGerejaObj: newKontakGerejaObj
+                kontakGerejaObj: newKontakGerejaObj,
+                daftarBuku: daftarBuku  // OPTIMASI: Cache buku agar perpustakaan muat instan
             }));
 
             if (!hasCache) setIsAppLoading(false);
