@@ -408,6 +408,29 @@
     <script type="text/babel">
         const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwQJWQ2hKXQMdnFqVYr8Tan_9BIKQLtZyM_Wil6y19mRrgiQhEb1KB0hwOvJsPThcIX/exec'; // PASTIKAN UNTUK MENGISI KEMBALI URL GAS ANDA DI SINI
 
+        // Default cover buku berdasarkan kategori
+        const getDefaultBookCover = (category) => {
+            const cat = (category || '').toLowerCase().trim();
+            const defaults = {
+                'egw':        'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg',
+                'doktrin':    'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjc1L2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9mcEUxNzQ5NDcxNDI3NTExLmpwZw/w:1920,q:75/hope-images/67054013a60919c92d92c959/fpE1749471427511.jpg',
+                'panduan':    'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg',
+                'renungan':   'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg',
+                'alkitab':    'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg',
+                'kesehatan':  'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjc1L2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9mcEUxNzQ5NDcxNDI3NTExLmpwZw/w:1920,q:75/hope-images/67054013a60919c92d92c959/fpE1749471427511.jpg',
+                'misi':       'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg',
+                'sejarah':    'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg',
+            };
+            // Exact match
+            if (defaults[cat]) return defaults[cat];
+            // Partial match
+            for (const [key, url] of Object.entries(defaults)) {
+                if (cat.includes(key) || key.includes(cat)) return url;
+            }
+            // Default umum
+            return 'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg';
+        };
+
         const parseGambarUrls = (gambarUrl) => {
             if (!gambarUrl) return [];
             return gambarUrl.split('|||').map(url => url.trim()).filter(url => url !== '');
@@ -1408,14 +1431,11 @@
         >
             <div className="h-[10rem] overflow-hidden relative">
                 <img 
-                    src={book.cover} 
+                    src={book.cover || getDefaultBookCover(book.category)} 
                     alt={book.title} 
                     loading="lazy" 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                    onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-navy-100 to-navy-50"><svg class="w-12 h-12 text-navy-300" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>';
-                    }}
+                    onError={(e) => { e.target.src = getDefaultBookCover(book.category); }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
                 <span className="absolute top-2 right-2 bg-gold-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{book.category}</span>
@@ -4733,11 +4753,12 @@ const compressImage = (file, maxWidth = 1200) => {
                                         {daftarBuku.map(book => (
                                             <div key={book.id} className="bg-white rounded-xl shadow-sm border border-navy-100/60 overflow-hidden hover:shadow-md transition">
                                                 <div className="h-40 bg-gradient-to-br from-navy-100 to-navy-50 flex items-center justify-center overflow-hidden">
-                                                    {book.cover ? (
-                                                        <img src={book.cover} alt={book.title} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <Icon name="BookOpen" className="w-12 h-12 text-navy-300" />
-                                                    )}
+                                                    <img 
+                                                        src={book.cover || getDefaultBookCover(book.category)} 
+                                                        alt={book.title} 
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => { e.target.src = getDefaultBookCover(book.category); }}
+                                                    />
                                                 </div>
                                                 <div className="p-4">
                                                     <div className="mb-3">
@@ -5331,26 +5352,13 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                 if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
                 if (cached.pengumumanObj) setPengumuman(cached.pengumumanObj);
                 if (cached.kontakGerejaObj) setKontakGereja(cached.kontakGerejaObj);
-                // OPTIMASI: Load buku dari cache segera agar perpustakaan instan
-                if (cached.daftarBuku) setDaftarBuku(cached.daftarBuku);
                 setIsAppLoading(false);
                 hasCache = true;
             } catch (e) { console.warn("Gagal membaca cache"); }
         }
 
         try {
-            // OPTIMASI: Jalankan getData & getBooks PARALEL (bukan serial)
-            // Memotong waktu loading ~50% karena kedua request berjalan bersamaan.
-            const [res, bukuRes] = await Promise.all([
-                fetch(`${GAS_API_URL}?action=getData`),
-                fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getBooks' }) })
-            ]);
-            // Proses buku
-            try {
-                const bukuData = await bukuRes.json();
-                if (bukuData.success && bukuData.data) setDaftarBuku(bukuData.data);
-            } catch(e) { console.error('Error fetching books:', e); }
-
+            const res = await fetch(`${GAS_API_URL}?action=getData`);
             const data = await res.json();
 
             let newHeroImages = ["./carousel/hero-default.png"];
@@ -5384,9 +5392,21 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
 
             if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
 
-            // Ambil data buku (parallel dengan getData supaya lebih cepat)
-            // Catatan: getBooks berjalan bersamaan (Promise.all), bukan serial
-            // sehingga tidak menambah waktu loading utama.
+            // Ambil data buku (public)
+            try {
+                const bukuRes = await fetch(GAS_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getBooks' })
+                });
+                const bukuData = await bukuRes.json();
+                if (bukuData.success && bukuData.data) {
+                    setDaftarBuku(bukuData.data);
+                } else {
+                    console.warn('Gagal memuat buku:', bukuData.message);
+                }
+            } catch(e) { 
+                console.error('Error fetching books:', e); 
+            }
 
             if (data.pengumuman !== undefined) {
                 try {
@@ -5410,8 +5430,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                 heroImages: newHeroImages,
                 daftarWarta: data.daftarWarta,
                 pengumumanObj: newPengumumanObj,
-                kontakGerejaObj: newKontakGerejaObj,
-                daftarBuku: daftarBuku  // OPTIMASI: Cache buku agar perpustakaan muat instan
+                kontakGerejaObj: newKontakGerejaObj
             }));
 
             if (!hasCache) setIsAppLoading(false);
