@@ -2411,6 +2411,47 @@
             });
             const [isSavingBook, setIsSavingBook] = React.useState(false);
 
+// Modal Tambah Buku
+const openAddBookModal = () => {
+    setEditingBook(null);
+    setBookFormData({
+        id: '',
+        title: '',
+        author: '',
+        cover: '',
+        desc: '',
+        category: '',
+        pdfUrl: ''
+    });
+    setBookFormModal(true);
+};
+
+// 1. Tambahkan fungsi loadBooks (gunakan useCallback)
+const loadBooks = React.useCallback(async () => {
+    if (!adminToken) return;
+    try {
+        const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'getBooks', password: adminToken })
+        });
+        const data = await res.json();
+        if (data.status === 'success' && data.data) {
+            setDaftarBuku(data.data);
+        } else if (data.data && data.data.status === 'success') {
+            setDaftarBuku(data.data.data || []);
+        }
+    } catch (err) {
+        console.error('Error loading books:', err);
+    }
+}, [adminToken]);
+
+// 2. useEffect untuk memuat buku ketika tab 'buku' diaktifkan
+React.useEffect(() => {
+    if (adminTab === 'buku') {
+        loadBooks();
+    }
+}, [adminTab, loadBooks]);
+
             // State Ganti Password
             const [oldPassword, setOldPassword] = React.useState('');
             const [newPassword, setNewPassword] = React.useState('');
@@ -4450,11 +4491,11 @@ const compressImage = (file, maxWidth = 1200) => {
                                             <p className="text-sm text-navy-500 font-medium mt-1">Tambah, edit, atau hapus buku dari perpustakaan</p>
                                         </div>
                                         <button 
-                                            onClick={() => setBookFormModal(true)}
-                                            className="flex items-center gap-2 bg-navy-900 text-gold-400 px-6 py-3 rounded-xl font-bold text-sm hover:bg-navy-800 transition shrink-0"
-                                        >
-                                            <Icon name="Plus" className="w-4 h-4" /> Tambah Buku
-                                        </button>
+    onClick={openAddBookModal}
+    className="flex items-center gap-2 bg-navy-900 text-gold-400 px-6 py-3 rounded-xl font-bold text-sm hover:bg-navy-800 transition shrink-0"
+>
+    <Icon name="Plus" className="w-4 h-4" /> Tambah Buku
+</button>
                                     </div>
 
                                     {/* Book Grid */}
@@ -4501,15 +4542,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                                                     if (data.status === 'success' || data.success) {
                                                                         alert('Buku berhasil dihapus!');
                                                                         // Reload
-                                                                        const res2 = await fetch(GAS_API_URL, { 
-                                                                            method: 'POST', 
-                                                                            body: JSON.stringify({ 
-                                                                                action: 'getBooks',
-                                                                                password: adminToken
-                                                                            }) 
-                                                                        });
-                                                                        const data2 = await res2.json();
-                                                                        if (data2.status === 'success' || data2.success) setDaftarBuku(data2.data);
+                                                                        loadBooks();
                                                                     } else {
                                                                         alert('Error: ' + (data.message || data.error || 'Gagal menghapus'));
                                                                     }
@@ -4538,7 +4571,8 @@ const compressImage = (file, maxWidth = 1200) => {
                                             <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
                                                 <div className="sticky top-0 bg-white border-b border-navy-100 p-6 flex items-center justify-between">
                                                     <h3 className="text-xl font-black text-navy-900">{editingBook ? 'Edit Buku' : 'Tambah Buku Baru'}</h3>
-                                                    <button onClick={() => { setBookFormModal(false); setEditingBook(null); }} className="w-10 h-10 rounded-full bg-navy-50 flex items-center justify-center text-navy-600 hover:bg-navy-100 transition">
+                                                    <button onClick={() => { setBookFormModal(false); setEditingBook(null); setBookFormData({ id: '', title: '', author: '', cover: '', desc: '', category: '', pdfUrl: '' }); }} 
+                                                        className="w-10 h-10 rounded-full bg-navy-50 flex items-center justify-center text-navy-600 hover:bg-navy-100 transition">
                                                         <Icon name="X" className="w-5 h-5" />
                                                     </button>
                                                 </div>
@@ -4658,7 +4692,9 @@ const compressImage = (file, maxWidth = 1200) => {
                                                     </div>
 
                                                     <div className="flex gap-3 pt-6">
-                                                        <button type="button" onClick={() => { setBookFormModal(false); setEditingBook(null); }} className="flex-1 py-2.5 bg-navy-100 text-navy-700 rounded-lg font-bold hover:bg-navy-200 transition">Batal</button>
+                                                        <button type="button" onClick={() => { setBookFormModal(false); setEditingBook(null); setBookFormData({ id: '', title: '', author: '', cover: '', desc: '', category: '', pdfUrl: '' }); }} 
+                                                            className="flex-1 py-2.5 bg-navy-100 text-navy-700 rounded-lg font-bold hover:bg-navy-200 transition"> Batal
+                                                        </button>
                                                         <button type="submit" disabled={isSavingBook} className="flex-1 py-2.5 bg-navy-900 text-gold-400 rounded-lg font-bold hover:bg-navy-800 transition disabled:opacity-50">
                                                             {isSavingBook ? 'Menyimpan...' : 'Simpan Buku'}
                                                         </button>
