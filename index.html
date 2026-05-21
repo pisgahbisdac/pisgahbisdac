@@ -4481,15 +4481,27 @@ const compressImage = (file, maxWidth = 1200) => {
                                                                 try {
                                                                     const res = await fetch(GAS_API_URL, {
                                                                         method: 'POST',
-                                                                        body: JSON.stringify({ action: 'deleteBook', data: book.id })
+                                                                        body: JSON.stringify({ 
+                                                                            action: 'deleteBook', 
+                                                                            password: adminToken,
+                                                                            data: book.id 
+                                                                        })
                                                                     });
                                                                     const data = await res.json();
-                                                                    if (data.status === 'success') {
+                                                                    if (data.status === 'success' || data.success) {
                                                                         alert('Buku berhasil dihapus!');
                                                                         // Reload
-                                                                        const res2 = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getBooks' }) });
+                                                                        const res2 = await fetch(GAS_API_URL, { 
+                                                                            method: 'POST', 
+                                                                            body: JSON.stringify({ 
+                                                                                action: 'getBooks',
+                                                                                password: adminToken
+                                                                            }) 
+                                                                        });
                                                                         const data2 = await res2.json();
-                                                                        if (data2.status === 'success') setDaftarBuku(data2.data);
+                                                                        if (data2.status === 'success' || data2.success) setDaftarBuku(data2.data);
+                                                                    } else {
+                                                                        alert('Error: ' + (data.message || data.error || 'Gagal menghapus'));
                                                                     }
                                                                 } catch (err) { alert('Error: ' + err.message); }
                                                             }}
@@ -4535,19 +4547,29 @@ const compressImage = (file, maxWidth = 1200) => {
                                                         const action = editingBook ? 'updateBook' : 'addBook';
                                                         const res = await fetch(GAS_API_URL, {
                                                             method: 'POST',
-                                                            body: JSON.stringify({ action: action, data: bookFormData })
+                                                            body: JSON.stringify({ 
+                                                                action: action, 
+                                                                password: adminToken,
+                                                                data: bookFormData 
+                                                            })
                                                         });
                                                         const data = await res.json();
-                                                        if (data.status === 'success') {
+                                                        if (data.status === 'success' || data.success) {
                                                             alert(editingBook ? 'Buku berhasil diperbarui!' : 'Buku berhasil ditambahkan!');
                                                             setBookFormModal(false);
                                                             setEditingBook(null);
                                                             // Reload
-                                                            const res2 = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getBooks' }) });
+                                                            const res2 = await fetch(GAS_API_URL, { 
+                                                                method: 'POST', 
+                                                                body: JSON.stringify({ 
+                                                                    action: 'getBooks',
+                                                                    password: adminToken
+                                                                }) 
+                                                            });
                                                             const data2 = await res2.json();
-                                                            if (data2.status === 'success') setDaftarBuku(data2.data);
+                                                            if (data2.status === 'success' || data2.success) setDaftarBuku(data2.data);
                                                         } else {
-                                                            alert('Error: ' + data.message);
+                                                            alert('Error: ' + (data.message || data.error || 'Tidak diketahui'));
                                                         }
                                                     } catch (err) { alert('Error: ' + err.message); }
                                                     setIsSavingBook(false);
