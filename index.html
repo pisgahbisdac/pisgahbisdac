@@ -5572,21 +5572,20 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
 </button>
 
 {/* Logout Button - Hanya tampil saat user sudah login sebagai admin */}
-{adminToken && (
+{isAdminLoggedIn && (
     <>
         <div className="h-px bg-navy-100 my-1"></div>
         <button 
             onClick={() => {
                 if (confirm('Yakin ingin logout dari akun admin?')) {
-                    setAdminToken(null);
-                    setActiveTab('home');
+                    handleLogout();
                     setIsMobileMenuOpen(false);
                 }
             }} 
             className="w-full text-left px-4 py-3 flex items-center space-x-3 hover:bg-red-50/70 transition-colors text-red-600 font-medium"
         >
             <Icon name="LogOut" className="w-[1.15rem] h-[1.15rem]" />
-            <span className="text-sm">Logout</span>
+            <span className="text-sm font-bold">Logout Admin</span>
         </button>
     </>
 )}
