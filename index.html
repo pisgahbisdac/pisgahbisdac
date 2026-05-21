@@ -4603,13 +4603,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                                             setBookFormModal(false);
                                                             setEditingBook(null);
                                                             // Reload
-                                                            const res2 = await fetch(GAS_API_URL, { 
-                                                                method: 'POST', 
-                                                                body: JSON.stringify({ 
-                                                                    action: 'getBooks',
-                                                                    password: adminToken
-                                                                }) 
-                                                            });
+                                                             loadBooks(); // refresh daftar
                                                             const data2 = await res2.json();
                                                             if (data2.status === 'success' || data2.success) setDaftarBuku(data2.data);
                                                         } else {
