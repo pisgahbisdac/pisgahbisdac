@@ -4603,8 +4603,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                                             setBookFormModal(false);
                                                             setEditingBook(null);
                                                             // Reload
-                                                             loadBooks(); // refresh daftar
-                                                            if (data2.status === 'success' || data2.success) setDaftarBuku(data2.data);
+                                                             loadBooks(); // refresh daftar;
                                                         } else {
                                                             alert('Error: ' + (data.message || data.error || 'Tidak diketahui'));
                                                         }
