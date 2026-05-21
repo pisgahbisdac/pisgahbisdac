@@ -372,6 +372,20 @@
             @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
             #filter-unit-select, #tamu, #tgl { padding: 12px 16px; border-radius: 8px; width: 100%;}
 
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #1e365d;
+    border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e7ae30;
+    border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}    
     </style>
   
 </head>
@@ -1382,6 +1396,7 @@
                             <p className="text-navy-400 font-medium">Memuat buku...</p>
                         </div>
                     ) : filteredBooks.length > 0 ? (
+                    <div className="max-h-[calc(150vh-280px)] overflow-y-auto pr-2 custom-scrollbar">
                         <div className="flex flex-wrap justify-center gap-4">
     {filteredBooks.map(book => (
         <div
@@ -1402,9 +1417,9 @@
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
                 <span className="absolute top-2 right-2 bg-gold-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{book.category}</span>
-            </div>
+                </div>
             <div className="p-3 flex-1 flex flex-col">
-                <p className="font-bold text-navy-900 text-sm leading-tight mb-1 line-clamp-2">{book.title}</p>
+                <p className="font-bold text-navy-900 text-sm leading-tight mb-1 line-clamp-3">{book.title}</p>
                 <p className="text-xs text-navy-400 font-semibold mb-3">{book.author}</p>
                 <button className="mt-auto w-full py-2 rounded-xl bg-navy-900 text-gold-400 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-navy-800 transition">
                     <Icon name="BookOpen" className="w-3.5 h-3.5" /> Baca Buku
@@ -1412,6 +1427,7 @@
             </div>
         </div>
     ))}
+</div>
 </div>
                     ) : (
                         <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-12 text-center">
@@ -1422,7 +1438,7 @@
 
                     {/* Tautan Download Eksternal */}
                     <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-6 mx-auto max-w-4xl">
-                        <h3 className="font-bold text-navy-900 text-base mb-1">Koleksi Lengkap di Google Drive</h3>
+                        <h3 className="font-bold text-gold-500 text-base mb-1">Koleksi Lengkap di Google Drive</h3>
                         <p className="text-sm text-navy-500 mb-4 font-medium">Akses koleksi buku, MP3 lagu, dan materi lainnya secara lengkap.</p>
                         <div className="flex flex-wrap gap-3">
                             <a href="https://drive.google.com/drive/folders/1EP9dOY3Azcm2K21kKiOiVvAOhIZrUJqv?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Lagu Sion MP3</a>
@@ -4498,6 +4514,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                     </div>
 
                                     {/* Book Grid */}
+                                    <div className="max-h-[calc(170vh-280px)] overflow-y-auto pr-2 custom-scrollbar">
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                                         {daftarBuku.map(book => (
                                             <div key={book.id} className="bg-white rounded-xl shadow-sm border border-navy-100/60 overflow-hidden hover:shadow-md transition">
@@ -4510,7 +4527,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                                 </div>
                                                 <div className="p-4">
                                                     <div className="mb-3">
-                                                        <p className="font-bold text-navy-900 text-sm line-clamp-2">{book.title}</p>
+                                                        <p className="font-bold text-navy-900 text-sm line-clamp-3">{book.title}</p>
                                                         <p className="text-xs text-navy-400 mt-0.5">{book.author}</p>
                                                     </div>
                                                     <div className="flex items-center justify-between mb-3">
@@ -4555,6 +4572,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                                 </div>
                                             </div>
                                         ))}
+                                    </div>
                                     </div>
 
                                     {daftarBuku.length === 0 && (
