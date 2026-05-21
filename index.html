@@ -1283,7 +1283,7 @@
                 const loadBooks = async () => {
                     setIsLoadingBooks(true);
                     try {
-                        const res = await fetch(GAS_SUBMIT_URL, {
+                        const res = await fetch(GAS_API_URL, {
                             method: 'POST',
                             body: JSON.stringify({ action: 'getBooks' })
                         });
@@ -1412,10 +1412,10 @@
                     )}
 
                     {/* Tautan Download Eksternal */}
-                    <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-6 mx-auto max-w-4xl">
-                        <h3 className="font-bold text-navy-900 text-base mb-1 text-center">Koleksi Lengkap di Google Drive</h3>
-                        <p className="text-sm text-navy-500 mb-4 font-medium text-center">Akses koleksi buku, MP3 lagu, dan materi lainnya secara lengkap.</p>
-                        <div className="flex flex-wrap gap-3 justify-center">
+                    <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-6">
+                        <h3 className="font-bold text-navy-900 text-base mb-1">Koleksi Lengkap di Google Drive</h3>
+                        <p className="text-sm text-navy-500 mb-4 font-medium">Akses koleksi buku, MP3 lagu, dan materi lainnya secara lengkap.</p>
+                        <div className="flex flex-wrap gap-3">
                             <a href="https://drive.google.com/drive/folders/1EP9dOY3Azcm2K21kKiOiVvAOhIZrUJqv?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Lagu Sion MP3</a>
                             <a href="https://drive.google.com/drive/folders/0B69W7zsbdDmVflRoZUF4cDA1U1RWeVMwN1dYQmZNaE1Bbm5qQmc4NkVXU1hBUlpNVVpwem8?resourcekey=0-mDboNMKK-a6RJA4ClzRDWw&usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Buku-Buku Rohani</a>
                             <a href="https://drive.google.com/drive/folders/1d_smrJAY13h5x85A2Y_bAIIXg9sR012r" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">28 Doktrin</a>
@@ -4479,7 +4479,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                                             onClick={async () => {
                                                                 if (!confirm('Yakin ingin menghapus buku ini?')) return;
                                                                 try {
-                                                                    const res = await fetch(GAS_SUBMIT_URL, {
+                                                                    const res = await fetch(GAS_API_URL, {
                                                                         method: 'POST',
                                                                         body: JSON.stringify({ action: 'deleteBook', data: book.id })
                                                                     });
@@ -4487,7 +4487,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                                                     if (data.status === 'success') {
                                                                         alert('Buku berhasil dihapus!');
                                                                         // Reload
-                                                                        const res2 = await fetch(GAS_SUBMIT_URL, { method: 'POST', body: JSON.stringify({ action: 'getBooks' }) });
+                                                                        const res2 = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getBooks' }) });
                                                                         const data2 = await res2.json();
                                                                         if (data2.status === 'success') setDaftarBuku(data2.data);
                                                                     }
@@ -4533,7 +4533,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                                     
                                                     try {
                                                         const action = editingBook ? 'updateBook' : 'addBook';
-                                                        const res = await fetch(GAS_SUBMIT_URL, {
+                                                        const res = await fetch(GAS_API_URL, {
                                                             method: 'POST',
                                                             body: JSON.stringify({ action: action, data: bookFormData })
                                                         });
@@ -4543,7 +4543,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                                             setBookFormModal(false);
                                                             setEditingBook(null);
                                                             // Reload
-                                                            const res2 = await fetch(GAS_SUBMIT_URL, { method: 'POST', body: JSON.stringify({ action: 'getBooks' }) });
+                                                            const res2 = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getBooks' }) });
                                                             const data2 = await res2.json();
                                                             if (data2.status === 'success') setDaftarBuku(data2.data);
                                                         } else {
