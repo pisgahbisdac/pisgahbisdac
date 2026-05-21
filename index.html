@@ -1275,91 +1275,33 @@
 
         const Detailperpustakaan = ({ setActiveTab, dataPejabat }) => {
             const [selectedBook, setSelectedBook] = React.useState(null);
+            const [booksFromServer, setBooksFromServer] = React.useState([]);
+            const [isLoadingBooks, setIsLoadingBooks] = React.useState(true);
 
-            // Daftar buku dengan file PDF
-            // Untuk menambah buku baru: tambahkan objek { id, title, author, cover, desc, pdfUrl, category }
-            // pdfUrl bisa berupa link langsung ke file PDF (mis. dari Google Drive dengan parameter ?export=view atau embed link)
-            const books = [
-                {
-                    id: '28_doktrin',
-                    title: '28 Kepercayaan Dasar',
-                    author: 'GMAHK',
-                    cover: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEglRhj8ki8ZCcKqrouOcDp_Xnlt2ciT4ZIUf4whbGTJ9VCBfiuDITEnrnkYEYavLFNdRMyCEFuo00Yus6YZKT8t5ZnoJuvnswjvmfE5zGPaqYO54K3YUWeFd3tHVzHVQWptpFaMhpEHh9o/s1600/cover+28+doktrin+advent.jpg',
-                    desc: 'Buku lengkap tentang 28 kepercayaan dasar Gereja Masehi Advent Hari Ketujuh.',
-                    category: 'Doktrin',
-                    // Ganti pdfUrl di bawah dengan URL PDF sebenarnya
-                    // Untuk Google Drive: gunakan format https://drive.google.com/file/d/FILE_ID/preview
-                    pdfUrl: './document/28Doktrin.pdf',
-                },
-                {
-                    id: 'panduan_jemaat',
-                    title: 'Panduan Jemaat - Peraturan Jemaat',
-                    author: 'GMAHK',
-                    cover: 'https://down-id.img.susercontent.com/file/id-11134207-7r98t-lu96t6wkzjt2b2',
-                    desc: 'Panduan jemaat Gereja Masehi Advent Hari Ketujuh.',
-                    category: 'Panduan',
-                    pdfUrl: './document/peraturanjemaat.pdf',
-                },
-                {
-                    id: 'kemenangan_akhir',
-                    title: 'Kemenangan Akhir',
-                    author: 'Ellen G. White',
-                    cover: 'https://media4.egwwritings.org/covers/12876_s.jpg',
-                    desc: 'Pertikaian yang segera akan terjadi sekarang, dengan melibatkan prinsip-prinsip vital, dalam mana tak seorangpun boleh netral, dinytakan dengan sederhana dan gamblang.',
-                    category: 'EGW',
-                    pdfUrl: './document/Kemenangan Akhir - The Great Controversy.pdf',
-                },
-                {
-                    id: 'kitab_tahunan',
-                    title: 'Renungan Harian Cerita Misi',
-                    author: 'General Conference',
-                    cover: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg',
-                    desc: 'Renungan harian dari cerita misi seluruh dunia.',
-                    category: 'Renungan',
-                    pdfUrl: 'https://drive.google.com/file/d/1B8C2-YcontohID/preview',
-                },
-                {
-                    id: 'langkah_kristus',
-                    title: 'Langkah kepada Kristus',
-                    author: 'Ellen G. White',
-                    cover: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg',
-                    desc: 'Buku klasik yang membimbing pembaca menuju hubungan pribadi yang lebih dalam dengan Kristus.',
-                    category: 'EGW',
-                    pdfUrl: 'https://drive.google.com/file/d/1contohFileIDLangkahKristus/preview',
-                },
-                {
-                    id: 'amanat_kepada',
-                    title: 'Amanat Kepada Orang Muda',
-                    author: 'Ellen G. White',
-                    cover: 'https://media4.egwwritings.org/covers/14007_s.jpg',
-                    desc: 'Amanat kepada Orang Muda',
-                    category: 'EGW',
-                    pdfUrl: './document/Amanat-Kepada-Orang-Muda.pdf',
-                },
-                {
-                    id: 'kerinduan_segala',
-                    title: 'Kerinduan Segala Zaman',
-                    author: 'Ellen G. White',
-                    cover: 'https://media4.egwwritings.org/covers/13842_s.jpg',
-                    desc: 'Kisah lengkap kehidupan Yesus Kristus yang menginspirasi dan mengubah hati.',
-                    category: 'EGW',
-                    pdfUrl: './document/Kerinduan Segala Zaman - The Desire of Ages.pdf',
-                },
-                {
-                    id: 'kebahagiaan_sejati',
-                    title: 'Kebahagiaan Sejati',
-                    author: 'Ellen G. White',
-                    cover: 'https://media4.egwwritings.org/covers/11525_s.jpg',
-                    desc: 'PENUNTUN menuju kebahagiaan yang sejati ini akan menuntun Saudara ke dalam hubungan pribadi yang akrab dengan Tuhan',
-                    category: 'EGW',
-                    pdfUrl: './document/Kebahagiaan Sejati - Steps To Christ.pdf',
-                },
-            ];
+            // Load books dari backend saat komponen mount
+            React.useEffect(() => {
+                const loadBooks = async () => {
+                    setIsLoadingBooks(true);
+                    try {
+                        const res = await fetch(GAS_SUBMIT_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'getBooks' })
+                        });
+                        const data = await res.json();
+                        if (data.status === 'success' && data.data) {
+                            setBooksFromServer(data.data);
+                        }
+                    } catch (err) {
+                        console.error('Error loading books:', err);
+                    }
+                    setIsLoadingBooks(false);
+                };
+                loadBooks();
+            }, []);
 
-            const categories = ['Semua', ...new Set(books.map(b => b.category))];
+            const categories = ['Semua', ...new Set(booksFromServer.map(b => b.category))];
             const [activeCategory, setActiveCategory] = React.useState('Semua');
-
-            const filteredBooks = activeCategory === 'Semua' ? books : books.filter(b => b.category === activeCategory);
+            const filteredBooks = activeCategory === 'Semua' ? booksFromServer : booksFromServer.filter(b => b.category === activeCategory);
 
             // Mode baca PDF
             if (selectedBook) {
@@ -1378,7 +1320,7 @@
                                 <p className="text-xs text-navy-500 font-semibold mt-0.5">{selectedBook.author}</p>
                             </div>
                             <a
-                                href={selectedBook.pdfUrl.replace('/preview', '/view')}
+                                href={selectedBook.pdfUrl && selectedBook.pdfUrl.replace('/preview', '/view')}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-1.5 bg-navy-900 text-gold-400 px-4 py-2 rounded-xl text-xs font-bold shrink-0 hover:bg-navy-800 transition"
@@ -1388,13 +1330,19 @@
                         </div>
                         {/* PDF Iframe Viewer */}
                         <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden" style={{ minHeight: '75vh' }}>
-                            <iframe
-                                src={selectedBook.pdfUrl}
-                                title={selectedBook.title}
-                                className="w-full"
-                                style={{ height: '75vh', border: 'none' }}
-                                allow="autoplay"
-                            />
+                            {selectedBook.pdfUrl ? (
+                                <iframe
+                                    src={selectedBook.pdfUrl}
+                                    title={selectedBook.title}
+                                    className="w-full"
+                                    style={{ height: '75vh', border: 'none' }}
+                                    allow="autoplay"
+                                />
+                            ) : (
+                                <div className="h-full flex items-center justify-center">
+                                    <p className="text-navy-500 font-medium">Link PDF tidak tersedia</p>
+                                </div>
+                            )}
                         </div>
                         <p className="text-center text-xs text-navy-400 mt-3 font-medium">
                             Jika PDF tidak tampil, coba buka di browser dengan tombol Unduh di atas.
@@ -1428,35 +1376,46 @@
                         ))}
                     </div>
 
-                    {/* Grid Buku */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {filteredBooks.map(book => (
-                            <div
-                                key={book.id}
-                                className="bg-white rounded-2xl shadow-sm border border-navy-100/60 overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-                                onClick={() => setSelectedBook(book)}
-                            >
-                                <div className="h-[10rem] overflow-hidden relative">
-                                    <img src={book.cover} alt={book.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
-                                    <span className="absolute top-2 right-2 bg-gold-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{book.category}</span>
+                    {/* Grid Buku atau Loading State */}
+                    {isLoadingBooks ? (
+                        <div className="text-center py-12">
+                            <p className="text-navy-400 font-medium">Memuat buku...</p>
+                        </div>
+                    ) : filteredBooks.length > 0 ? (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {filteredBooks.map(book => (
+                                <div
+                                    key={book.id}
+                                    className="bg-white rounded-2xl shadow-sm border border-navy-100/60 overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                                    onClick={() => setSelectedBook(book)}
+                                >
+                                    <div className="h-[10rem] overflow-hidden relative">
+                                        <img src={book.cover} alt={book.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
+                                        <span className="absolute top-2 right-2 bg-gold-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{book.category}</span>
+                                    </div>
+                                    <div className="p-3 flex-1 flex flex-col">
+                                        <p className="font-bold text-navy-900 text-sm leading-tight mb-1 line-clamp-2">{book.title}</p>
+                                        <p className="text-xs text-navy-400 font-semibold mb-3">{book.author}</p>
+                                        <button className="mt-auto w-full py-2 rounded-xl bg-navy-900 text-gold-400 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-navy-800 transition">
+                                            <Icon name="BookOpen" className="w-3.5 h-3.5" /> Baca Buku
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="p-3 flex-1 flex flex-col">
-                                    <p className="font-bold text-navy-900 text-sm leading-tight mb-1 line-clamp-2">{book.title}</p>
-                                    <p className="text-xs text-navy-400 font-semibold mb-3">{book.author}</p>
-                                    <button className="mt-auto w-full py-2 rounded-xl bg-navy-900 text-gold-400 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-navy-800 transition">
-                                        <Icon name="BookOpen" className="w-3.5 h-3.5" /> Baca Buku
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-12 text-center">
+                            <Icon name="BookOpen" className="w-16 h-16 text-navy-200 mx-auto mb-4" />
+                            <p className="text-navy-500 font-medium">Belum ada buku di kategori ini.</p>
+                        </div>
+                    )}
 
                     {/* Tautan Download Eksternal */}
-                    <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-6">
-                        <h3 className="font-bold text-navy-900 text-base mb-1">Koleksi Lengkap di Google Drive</h3>
-                        <p className="text-sm text-navy-500 mb-4 font-medium">Akses koleksi buku, MP3 lagu, dan materi lainnya secara lengkap.</p>
-                        <div className="flex flex-wrap gap-3">
+                    <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-6 mx-auto max-w-4xl">
+                        <h3 className="font-bold text-navy-900 text-base mb-1 text-center">Koleksi Lengkap di Google Drive</h3>
+                        <p className="text-sm text-navy-500 mb-4 font-medium text-center">Akses koleksi buku, MP3 lagu, dan materi lainnya secara lengkap.</p>
+                        <div className="flex flex-wrap gap-3 justify-center">
                             <a href="https://drive.google.com/drive/folders/1EP9dOY3Azcm2K21kKiOiVvAOhIZrUJqv?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Lagu Sion MP3</a>
                             <a href="https://drive.google.com/drive/folders/0B69W7zsbdDmVflRoZUF4cDA1U1RWeVMwN1dYQmZNaE1Bbm5qQmc4NkVXU1hBUlpNVVpwem8?resourcekey=0-mDboNMKK-a6RJA4ClzRDWw&usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Buku-Buku Rohani</a>
                             <a href="https://drive.google.com/drive/folders/1d_smrJAY13h5x85A2Y_bAIIXg9sR012r" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">28 Doktrin</a>
@@ -2418,7 +2377,7 @@
         const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken, 
             youtubeUrl, setYoutubeUrl, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages, 
             pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl }) => {
-            const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan
+            const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan, buku
             const [viewMonth, setViewMonth] = React.useState(new Date().getMonth());
             const [viewYear, setViewYear] = React.useState(new Date().getFullYear());
             const [subTab, setSubTab] = React.useState('rabu');
@@ -2426,6 +2385,21 @@
             const [editForm, setEditForm] = React.useState([]);
             const [isSavingJadwal, setIsSavingJadwal] = React.useState(false);
             const [isSavingPejabat, setIsSavingPejabat] = React.useState(false);
+
+            // ============ STATE BOOK MANAGEMENT ============
+            const [daftarBuku, setDaftarBuku] = React.useState([]);
+            const [bookFormModal, setBookFormModal] = React.useState(false);
+            const [editingBook, setEditingBook] = React.useState(null);
+            const [bookFormData, setBookFormData] = React.useState({
+                id: '',
+                title: '',
+                author: '',
+                cover: '',
+                desc: '',
+                category: '',
+                pdfUrl: ''
+            });
+            const [isSavingBook, setIsSavingBook] = React.useState(false);
 
             // State Ganti Password
             const [oldPassword, setOldPassword] = React.useState('');
@@ -3541,6 +3515,7 @@ const compressImage = (file, maxWidth = 1200) => {
                             <button onClick={() => setAdminTab('jadwal')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors ${adminTab === 'jadwal' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Jadwal</button>
                             <button onClick={() => setAdminTab('warta')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors ${adminTab === 'warta' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Buat Warta</button>
                             <button onClick={() => setAdminTab('pelayan')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'pelayan' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Pejabat</button>
+                            <button onClick={() => setAdminTab('buku')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'buku' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Buku</button>
                             <button onClick={() => setAdminTab('pengaturan')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'pengaturan' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Pengaturan Admin</button>
                         </div>
 
@@ -4452,6 +4427,211 @@ const compressImage = (file, maxWidth = 1200) => {
                                         </form>
                                     </div>
                                 )}
+                                </div>
+                            )}
+
+                            {/* BOOK TAB */}
+                            {adminTab === 'buku' && (
+                                <div className="space-y-6">
+                                    {/* Header & Add Button */}
+                                    <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                        <div>
+                                            <h2 className="text-2xl font-black text-navy-900">Kelola Buku</h2>
+                                            <p className="text-sm text-navy-500 font-medium mt-1">Tambah, edit, atau hapus buku dari perpustakaan</p>
+                                        </div>
+                                        <button 
+                                            onClick={() => setBookFormModal(true)}
+                                            className="flex items-center gap-2 bg-navy-900 text-gold-400 px-6 py-3 rounded-xl font-bold text-sm hover:bg-navy-800 transition shrink-0"
+                                        >
+                                            <Icon name="Plus" className="w-4 h-4" /> Tambah Buku
+                                        </button>
+                                    </div>
+
+                                    {/* Book Grid */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {daftarBuku.map(book => (
+                                            <div key={book.id} className="bg-white rounded-xl shadow-sm border border-navy-100/60 overflow-hidden hover:shadow-md transition">
+                                                <div className="h-40 bg-gradient-to-br from-navy-100 to-navy-50 flex items-center justify-center overflow-hidden">
+                                                    {book.cover ? (
+                                                        <img src={book.cover} alt={book.title} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <Icon name="BookOpen" className="w-12 h-12 text-navy-300" />
+                                                    )}
+                                                </div>
+                                                <div className="p-4">
+                                                    <div className="mb-3">
+                                                        <p className="font-bold text-navy-900 text-sm line-clamp-2">{book.title}</p>
+                                                        <p className="text-xs text-navy-400 mt-0.5">{book.author}</p>
+                                                    </div>
+                                                    <div className="flex items-center justify-between mb-3">
+                                                        <span className="text-xs bg-gold-100 text-gold-800 px-2.5 py-1 rounded-full font-semibold">{book.category}</span>
+                                                        {book.pdfUrl && <span className="text-xs text-green-600 font-bold">✓ PDF</span>}
+                                                    </div>
+                                                    <p className="text-xs text-navy-500 mb-4 line-clamp-2">{book.desc}</p>
+                                                    <div className="flex gap-2">
+                                                        <button 
+                                                            onClick={() => { setEditingBook(book); setBookFormData(book); setBookFormModal(true); }}
+                                                            className="flex-1 py-2 bg-navy-50 text-navy-700 rounded-lg text-xs font-bold hover:bg-navy-100 transition flex items-center justify-center gap-1.5"
+                                                        >
+                                                            <Icon name="Edit" className="w-3.5 h-3.5" /> Edit
+                                                        </button>
+                                                        <button 
+                                                            onClick={async () => {
+                                                                if (!confirm('Yakin ingin menghapus buku ini?')) return;
+                                                                try {
+                                                                    const res = await fetch(GAS_SUBMIT_URL, {
+                                                                        method: 'POST',
+                                                                        body: JSON.stringify({ action: 'deleteBook', data: book.id })
+                                                                    });
+                                                                    const data = await res.json();
+                                                                    if (data.status === 'success') {
+                                                                        alert('Buku berhasil dihapus!');
+                                                                        // Reload
+                                                                        const res2 = await fetch(GAS_SUBMIT_URL, { method: 'POST', body: JSON.stringify({ action: 'getBooks' }) });
+                                                                        const data2 = await res2.json();
+                                                                        if (data2.status === 'success') setDaftarBuku(data2.data);
+                                                                    }
+                                                                } catch (err) { alert('Error: ' + err.message); }
+                                                            }}
+                                                            className="flex-1 py-2 bg-red-50 text-red-700 rounded-lg text-xs font-bold hover:bg-red-100 transition flex items-center justify-center gap-1.5"
+                                                        >
+                                                            <Icon name="Trash" className="w-3.5 h-3.5" /> Hapus
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {daftarBuku.length === 0 && (
+                                        <div className="bg-white rounded-xl border-2 border-dashed border-navy-200 p-12 text-center">
+                                            <Icon name="BookOpen" className="w-16 h-16 text-navy-200 mx-auto mb-4" />
+                                            <p className="text-navy-500 font-medium">Belum ada buku. Mulai tambahkan buku pertama Anda!</p>
+                                        </div>
+                                    )}
+
+                                    {/* Book Form Modal */}
+                                    {bookFormModal && (
+                                        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                                            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+                                                <div className="sticky top-0 bg-white border-b border-navy-100 p-6 flex items-center justify-between">
+                                                    <h3 className="text-xl font-black text-navy-900">{editingBook ? 'Edit Buku' : 'Tambah Buku Baru'}</h3>
+                                                    <button onClick={() => { setBookFormModal(false); setEditingBook(null); }} className="w-10 h-10 rounded-full bg-navy-50 flex items-center justify-center text-navy-600 hover:bg-navy-100 transition">
+                                                        <Icon name="X" className="w-5 h-5" />
+                                                    </button>
+                                                </div>
+                                                
+                                                <form onSubmit={async (e) => {
+                                                    e.preventDefault();
+                                                    setIsSavingBook(true);
+                                                    
+                                                    if (!bookFormData.title || !bookFormData.author || !bookFormData.category) {
+                                                        alert('Isi semua field yang diperlukan!');
+                                                        setIsSavingBook(false);
+                                                        return;
+                                                    }
+                                                    
+                                                    try {
+                                                        const action = editingBook ? 'updateBook' : 'addBook';
+                                                        const res = await fetch(GAS_SUBMIT_URL, {
+                                                            method: 'POST',
+                                                            body: JSON.stringify({ action: action, data: bookFormData })
+                                                        });
+                                                        const data = await res.json();
+                                                        if (data.status === 'success') {
+                                                            alert(editingBook ? 'Buku berhasil diperbarui!' : 'Buku berhasil ditambahkan!');
+                                                            setBookFormModal(false);
+                                                            setEditingBook(null);
+                                                            // Reload
+                                                            const res2 = await fetch(GAS_SUBMIT_URL, { method: 'POST', body: JSON.stringify({ action: 'getBooks' }) });
+                                                            const data2 = await res2.json();
+                                                            if (data2.status === 'success') setDaftarBuku(data2.data);
+                                                        } else {
+                                                            alert('Error: ' + data.message);
+                                                        }
+                                                    } catch (err) { alert('Error: ' + err.message); }
+                                                    setIsSavingBook(false);
+                                                }} className="p-6 space-y-4">
+                                                    <div>
+                                                        <label className="block text-sm font-bold text-navy-900 mb-1.5">Judul Buku *</label>
+                                                        <input
+                                                            type="text"
+                                                            required
+                                                            value={bookFormData.title}
+                                                            onChange={(e) => setBookFormData({...bookFormData, title: e.target.value})}
+                                                            className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium"
+                                                            placeholder="Contoh: Langkah kepada Kristus"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-bold text-navy-900 mb-1.5">Pengarang *</label>
+                                                        <input
+                                                            type="text"
+                                                            required
+                                                            value={bookFormData.author}
+                                                            onChange={(e) => setBookFormData({...bookFormData, author: e.target.value})}
+                                                            className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium"
+                                                            placeholder="Contoh: Ellen G. White"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-bold text-navy-900 mb-1.5">Kategori *</label>
+                                                        <input
+                                                            type="text"
+                                                            required
+                                                            value={bookFormData.category}
+                                                            onChange={(e) => setBookFormData({...bookFormData, category: e.target.value})}
+                                                            className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium"
+                                                            placeholder="Contoh: EGW, Doktrin, Panduan"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-bold text-navy-900 mb-1.5">Deskripsi</label>
+                                                        <textarea
+                                                            value={bookFormData.desc}
+                                                            onChange={(e) => setBookFormData({...bookFormData, desc: e.target.value})}
+                                                            rows="3"
+                                                            className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium resize-none"
+                                                            placeholder="Deskripsi singkat tentang buku ini"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-bold text-navy-900 mb-1.5">URL Sampul (Cover)</label>
+                                                        <input
+                                                            type="url"
+                                                            value={bookFormData.cover}
+                                                            onChange={(e) => setBookFormData({...bookFormData, cover: e.target.value})}
+                                                            className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium text-sm"
+                                                            placeholder="https://example.com/image.jpg"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-bold text-navy-900 mb-1.5">Link PDF (Google Drive)</label>
+                                                        <input
+                                                            type="url"
+                                                            value={bookFormData.pdfUrl}
+                                                            onChange={(e) => setBookFormData({...bookFormData, pdfUrl: e.target.value})}
+                                                            className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium text-sm"
+                                                            placeholder="https://drive.google.com/file/d/FILE_ID/preview"
+                                                        />
+                                                        <p className="text-xs text-navy-400 mt-1.5">Format: https://drive.google.com/file/d/FILE_ID/preview</p>
+                                                    </div>
+
+                                                    <div className="flex gap-3 pt-6">
+                                                        <button type="button" onClick={() => { setBookFormModal(false); setEditingBook(null); }} className="flex-1 py-2.5 bg-navy-100 text-navy-700 rounded-lg font-bold hover:bg-navy-200 transition">Batal</button>
+                                                        <button type="submit" disabled={isSavingBook} className="flex-1 py-2.5 bg-navy-900 text-gold-400 rounded-lg font-bold hover:bg-navy-800 transition disabled:opacity-50">
+                                                            {isSavingBook ? 'Menyimpan...' : 'Simpan Buku'}
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
