@@ -908,9 +908,9 @@
                     )}
 
                     {/* ✨ MENU FITUR dengan border gold glowing */}
-<div className="mt-5 grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-1.5 md:gap-2 mb-5 md:mb-7">
-    {filteredItems.map(item => renderFeatureCard(item))}
-</div>
+                <div className="mt-5 grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-1.5 md:gap-2 mb-5 md:mb-7">
+                    {filteredItems.map(item => renderFeatureCard(item))}
+                </div>
 
                     <div className="glass-card p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8">
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
@@ -1564,14 +1564,14 @@
                         ))}
                     </div>
 
-                    {/* Grid Buku atau Loading State */}
+                    {/* Grid 6 Buku atau Loading State */}
                     {isLoadingBooks ? (
                         <div className="text-center py-12">
                             <div className="w-12 h-12 border-4 border-navy-100 border-t-gold-500 rounded-full animate-spin mx-auto mb-4"></div>
                             <p className="text-navy-400 font-medium">Memuat buku...</p>
                         </div>
                     ) : filteredBooks.length > 0 ? (
-                    <div className="max-h-[calc(150vh-280px)] overflow-y-auto pr-2 custom-scrollbar">
+                    <div className="max-h-[calc(170vh-280px)] overflow-y-auto pr-2 custom-scrollbar">
                         {searchQuery.length >= 2 && (
                             <p className="text-xs text-navy-400 font-semibold mb-3 px-1">{filteredBooks.length} hasil untuk &quot;{searchQuery}&quot;</p>
                         )}
@@ -4738,7 +4738,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                     <div className="max-w-2xl mx-auto bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                             <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
-                                            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">URL YouTube Embed</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Live Streaming Acara</p></div>
+                                            <div><h3 className="font-black text-navy-900 text-lg tracking-tight">URL YouTube Embed</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Video Penting</p></div>
                                         </div>
                                         <form onSubmit={handleSaveYoutubeUrl} className="space-y-5">
                                             <div>
@@ -4763,7 +4763,11 @@ const compressImage = (file, maxWidth = 1200) => {
         <form onSubmit={handleSaveLiveUrl}>
             <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Live (Embed)</label>
             <textarea value={editLiveUrl} onChange={e => setEditLiveUrl(e.target.value)} required rows="3" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono font-medium shadow-sm leading-relaxed"></textarea>
-            <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Salin URL dari "Sematkan" di YouTube. Contoh: https://www.youtube.com/embed/live_stream?channel=...</p>
+            <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Pastikan URL diawali dengan <br />
+                <span className="text-gold-600">https://www.youtube.com/embed/</span>...<br />
+                <span className="text-gold-600">https://www.youtube-nocookie.com/embed/</span>...<br/>
+                <span className="text-gold-600">https://www.youtube.com/embed/live_stream?channel=</span>...
+            </p>
             <button type="submit" disabled={isSavingLiveUrl} className="w-full bg-navy-900 hover:bg-navy-800 text-gold-400 font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center">Simpan URL Live</button>
         </form>
     </div>
@@ -4941,9 +4945,9 @@ const compressImage = (file, maxWidth = 1200) => {
                                         )}
                                     </div>
 
-                                    {/* Book Grid — 3 kolom */}
-                                    <div className="max-h-[calc(170vh-280px)] overflow-y-auto pr-2 custom-scrollbar">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                    {/* Book Grid — 6 kolom */}
+                                    <div className="max-h-[calc(285vh-270px)] overflow-y-auto pr-2 custom-scrollbar">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-4">
                                         {filteredAdminBuku.map(book => (
                                             <div key={book.id} className="bg-white rounded-xl shadow-sm border border-navy-100/60 overflow-hidden hover:shadow-md transition">
                                                 <div className="h-40 bg-gradient-to-br from-navy-100 to-navy-50 flex items-center justify-center overflow-hidden">
