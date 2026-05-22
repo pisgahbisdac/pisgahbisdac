@@ -405,7 +405,6 @@
 </div>
     </div>
 
-    /* global React */
     <script type="text/babel">
         const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwQJWQ2hKXQMdnFqVYr8Tan_9BIKQLtZyM_Wil6y19mRrgiQhEb1KB0hwOvJsPThcIX/exec'; // PASTIKAN UNTUK MENGISI KEMBALI URL GAS ANDA DI SINI
 
@@ -854,7 +853,7 @@
             
             {/* Welcome Box - overlapping hero */}
             <div className="relative z-10 px-4 md:px-10 -mt-6 md:-mt-8 max-w-[1500px] mx-auto">
-                <div className="welcome-box-gradient rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-blue-100/80 px-5 py-3.5 md:px-8 md:py-4 flex items-center justify-center backdrop-blur-sm">
+                <div className="welcome-box-gradient glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-blue-100/80 px-5 py-3.5 md:px-8 md:py-4 flex items-center justify-center backdrop-blur-sm">
                     <h2 className="text-[0.95rem] md:text-lg font-bold text-navy-900 flex items-center flex-wrap justify-center gap-x-2">
                         <span className="text-navy-700"> Selamat Datang di</span>
                         <img src="./icons/PisgahColor.png" alt="PISGAH" className="h-7 md:h-9 w-auto inline-block" style={{ verticalAlign: 'middle' }} />
@@ -1054,7 +1053,7 @@
                     {/* ── FOOTER LENGKAP ─────────────────────────────────── */}
                     <footer className="border-t border-navy-200 pt-8 pb-4 mt-2">
                         {/* Grid info utama */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
 
                             {/* Kolom 1 — Logo & Tagline */}
                             <div className="flex flex-col items-center md:items-start text-center md:text-left gap-3">
@@ -1074,7 +1073,7 @@
                                 <p className="text-xs font-black text-navy-700 uppercase tracking-widest mb-1">Alamat & Ibadah</p>
                                 <div className="flex items-start justify-center md:justify-start gap-2 text-xs text-navy-600 font-medium">
                                     <svg className="w-3.5 h-3.5 mt-0.5 shrink-0 text-gold-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                    <span>Ruko Grand California,<br/> Jl. Laksamana Bintan No.11 Blok B 1 & B 2 No.1 - 4 & 9,<br/>Taman Baloi, Kec. Batam Kota, Kota Batam,<br/>Kepulauan Riau 29444</span>
+                                    <span>Ruko Grand California,<br/> Jl. Laksamana Bintan<br/>No.11 Blok B 1 & B 2 Unit.1 - 4 & 9,<br/>Taman Baloi, Kec. Batam Kota, Kota Batam,<br/>Kepulauan Riau 29444</span>
                                 </div>
                                 <div className="flex items-center justify-center md:justify-start gap-2 text-xs text-navy-600 font-medium">
                                     <svg className="w-3.5 h-3.5 shrink-0 text-gold-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2"/></svg>
@@ -1118,7 +1117,29 @@
                                     WhatsApp Gereja
                                 </a>
                             </div>
+                            {/* Kolom 4 — Logo SDA */}
+                            <div className="flex flex-col items-center md:items-start text-center md:text-right gap-3">
+                            {/* Gambar pertama (di atas sendiri) */}
+                                <img src="https://wium.org/wp-content/uploads/2021/08/adventist-id-white-uikb-2048x999.png" 
+                                    className="w-[200px] h-auto object-contain" 
+                                    alt="Logo" 
+                                />
+                            {/* Container untuk gambar kedua dan ketiga (berdampingan) */}
+                            <div className="flex flex-row items-center gap-3">
+                                <img src="https://hope-documents.fra1.digitaloceanspaces.com/66a17f6ceb51197645b35b77/jnZ1727730325426.png" 
+                                    className="w-[60px] h-auto object-contain" 
+                                    alt="Logo" 
+                                />
+                                <img src="https://uc0593593d9a199b18573cc078c9.previews.dropboxusercontent.com/p/thumb/ADBp5DVOgRaBrAft3wdOT4W2hsDlyp1PmF4-XwljtSLnCGwgx6jnfy4z9eV7U1p9VkQbx6mSnTDYpHZIMX5zqbOlddiEwWcZTT79eE2DgUidZdmm3_ywk5F8Dq1fnTV5yI7B_gnvO_uRlieQq-A8vKb1gwaGUI_rROMFrfamu6_pBcqmuP0EZVvgpxWdHHLZYn5OV8hyXciZPnqJcPDzy8dymoVlu05bq4ok_ENJOXFYiWfS9KDvWVk18xFUf8Oxj3cWLUP_CabEV9d-Pt41-ZfllZu1BHIpJNq-D0sLe9Xb8bHFWDyZV4NUI-pKxu6vWFKeJdiOuPta087ztVBn0X1D/p.png" 
+                                  className="w-[160px] h-auto object-contain" 
+                                  alt="Logo" 
+                                />
+                            </div>
+                                <p className="text-xs text-navy-500 font-medium leading-relaxed max-w-xs">
+                                {/* teks opsional */}
+                                </p>
                         </div>
+                    </div>
 
                         {/* Divider */}
                         <div className="border-t border-navy-100 pt-4 flex flex-col md:flex-row items-center justify-between gap-2">
@@ -1190,9 +1211,12 @@
                                     {renderItem("Ayat Bersahutan", susunan.kAyatBersahutan)}
                                     {renderItem("Lagu Buka", susunan.kLaguBuka)}
                                     {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Doa Syafaat"))}
-                                    {renderItem("","LS 516 - Dengar Ya Tuhan")}
+                                    <div className="flex flex-wrap p-4 md:p-6 font-bold text-[#7c97b5] text-xs justify-center">
+                                    <p>"LS 516 - Dengar Ya Tuhan"</p>
+                                    </div>
                                     {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
                                     {susunan.kLaguPujian1_show && renderItem("Lagu Persembahan dan Pujian", susunan.kLaguPujian1_judul)}
+                                    {renderItem("Pengumpulan Persembahan","Diakon Berdiri")}
                                     {renderItem("Doa Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
                                     {susunan.kLaguPujian2_show && renderItem("Lagu Pujian", susunan.kLaguPujian2_judul)}
                                     {renderItem("Cerita Anak-anak", getOfficer(activeSabat.khotbah, "Cerita Anak-anak"))}
@@ -1215,7 +1239,9 @@
                                     {renderItem("Diskusi Sekolah Sabat", "Kelas Dewasa, Kelas Pendalaman Alkitab, Kelas Anak-anak")}
                                     {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
                                     {renderItem("Doa Tutup", getOfficer(activeSabat.sekolahSabat, "Doa Tutup"))}
-                                    {renderItem("","LS 168 - Kita Memiliki Pengharapan")}
+                                    <div className="flex flex-wrap p-4 md:p-6 font-bold text-[#7c97b5] text-xs justify-center">
+                                    <p>"LS 168 Kita Memiliki Pengharapan"</p>
+                                    </div>
                                 </div>
                             )}
 
@@ -1741,18 +1767,18 @@
                         </div>
                     )}
 
-                    <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60 pb-safe">
+                    <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border-separate border-navy-100/60 pb-safe">
                         <div className="flex justify-between items-start sm:items-center mb-6 flex-col sm:flex-row gap-4 border-b pb-5 border-navy-50">
                             <div>
                                 <h3 className={`text-sm font-bold uppercase tracking-widest mb-3 flex items-center ${isToday ? 'text-red-500' : 'text-gold-500'}`}>{isToday ? "🔥 Hari Ini" : "⏳ Terdekat"}</h3>
                                 <div className="flex items-center space-x-3"><Icon name="Calendar" className={`w-[1.4rem] h-[1.4rem] ${isToday ? 'text-red-500' : 'text-gold-500'}`} /><h2 className="text-xl font-bold text-navy-900 tracking-tight">{targetJadwal.title}</h2></div>
                                 <p className="text-sm text-navy-500 mt-1 font-medium">{formatIndoDate(targetDateStr)} &bull; {targetJadwal.time}</p>
                             </div>
-                            <button onClick={() => setActiveTab('susunan_ibadah')} className="hidden sm:flex items-center justify-center text-sm font-bold text-navy-700 hover:text-navy-900 transition bg-navy-50 hover:bg-navy-100 px-6 py-2.5 rounded-full w-full sm:w-auto">Lihat Susunan Ibadah</button>
                         </div>
-
+                            <button onClick={() => setActiveTab('susunan_ibadah')} className="hidden sm:flex items-center justify-center text-sm font-bold text-gold-700 hover:text-navy-900 transition bg-navy-50 hover:bg-navy-100 px-6 py-2.5 rounded-full w-full sm:w-auto">Lihat Susunan Ibadah</button>
+                        
                         {isRabu ? (
-                            <div className="overflow-hidden border rounded-xl border-navy-100/50">
+                            <div className="overflow-hidden border-separate rounded-xl border-navy-100/50">
                                 <table className="w-full text-left text-sm border-collapse">
                                     <tbody>
                                         {targetJadwal.petugas.map((p, idx) => (<tr key={idx} className="border-b border-navy-50 relative last:border-0 hover:bg-navy-50/30 transition-colors"><td className="py-3 px-5 text-navy-500 font-medium w-1/2">{p.tugas}</td><td className="py-3 px-5 font-bold text-navy-900 w-1/2 text-right">{p.nama}</td></tr>))}
@@ -1778,8 +1804,8 @@
                                     </table>
                                 </div>
                             </div>
-                        )}
-                        <button onClick={() => setActiveTab('susunan_ibadah')} className="sm:hidden w-full mt-4 flex justify-center items-center text-sm font-medium text-gold-600 hover:text-blue-800 transition bg-navy-50 hover:bg-navy-100 px-4 py-3 rounded-lg">Lihat Susunan Ibadah</button>
+                        )}   
+                        <button onClick={() => setActiveTab('susunan_ibadah')} className="sm:hidden w-full mt-4 flex justify-center items-center text-sm font-medium text-gold-600 hover:text-blue-800 transition bg-navy-50 hover:bg-navy-100 px-4 py-3 rounded-lg">Lihat Susunan Ibadah</button>      
                     </div>
                 </div>
             );
