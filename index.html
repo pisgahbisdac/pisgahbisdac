@@ -405,6 +405,7 @@
 </div>
     </div>
 
+    /* global React */
     <script type="text/babel">
         const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwQJWQ2hKXQMdnFqVYr8Tan_9BIKQLtZyM_Wil6y19mRrgiQhEb1KB0hwOvJsPThcIX/exec'; // PASTIKAN UNTUK MENGISI KEMBALI URL GAS ANDA DI SINI
 
@@ -601,9 +602,9 @@
             { id: 'ketua', jabatan: "Ketua Jemaat", nama: "Bpk. [Nama Ketua]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Ketua+Jemaat&background=eff6ff&color=1e3a8a&size=128", kategori: "Officers" },
             { id: 'sekretaris', jabatan: "sekretaris", nama: "Bpk. [Nama sekretaris]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=sekretaris&background=eff6ff&color=1e3a8a&size=128", kategori: "Officers" },
             { id: 'bendahara', jabatan: "Bendahara", nama: "Bpk. [Nama Bendahara]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Bendahara+Jemaat&background=f0fdf4&color=14532d&size=128", kategori: "Officers" },
-            { id: 'penginjilan', jabatan: "Penginjilan", nama: "Bpk. [Nama Penginjilan]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Penginjilan&background=f0fdf4&color=14532d&size=128", kategori: "Departemen & Pelayanann" },
+            { id: 'penginjilan', jabatan: "Penginjilan", nama: "Bpk. [Nama Penginjilan]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Penginjilan&background=f0fdf4&color=14532d&size=128", kategori: "Departemen & Pelayanan" },
             { id: 'ss', jabatan: "Sekolah Sabat", nama: "Ibu. [Nama Sekolah Sabat]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Sekolah+Sabat&background=fffbeb&color=78350f&size=128", kategori: "Departemen & Pelayanan" },
-            { id: 'diakon', jabatan: "Ketua Diakon", nama: "Ibu. [Nama Ketua Diakon", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Ketua+Diakon&background=fffbeb&color=78350f&size=128", kategori: "Departemen & Pelayanan" },
+            { id: 'diakon', jabatan: "Ketua Diakon", nama: "Ibu. [Nama Ketua Diakon]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Ketua+Diakon&background=fffbeb&color=78350f&size=128", kategori: "Departemen & Pelayanan" },
             { id: 'rumah', jabatan: "Rumah Tangga", nama: "Sdr. [Nama Rumah Tangga]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Rumah+Tangga&background=e0e7ff&color=3730a3&size=128", kategori: "Departemen & Pelayanan" },
             { id: 'pemuda', jabatan: "Pemuda", nama: "Sdr. [Nama Pemuda]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Pemuda&background=e0e7ff&color=3730a3&size=128", kategori: "Departemen & Pelayanan" },
             { id: 'hotline', jabatan: "Hotline", nama: "Bpk. [Nama Hotline]", wa: "62800000000", img: "https://ui-avatars.com/api/?name=Hotline&background=f3f4f6&color=1f2937&size=128", kategori: "Lainnya" },
@@ -1050,9 +1051,80 @@
                         </button>
                     </div>
 
-                    <footer className="pt-6 pb-2 border-t border-navy-200 text-center text-navy-500 font-medium tracking-wide text-[10px] md:text-xs">
-                        <p>Copyright &copy; by PISGAH BISDAC 2026</p>
-                        <p>GOD BLESS US</p>
+                    {/* ── FOOTER LENGKAP ─────────────────────────────────── */}
+                    <footer className="border-t border-navy-200 pt-8 pb-4 mt-2">
+                        {/* Grid info utama */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+
+                            {/* Kolom 1 — Logo & Tagline */}
+                            <div className="flex flex-col items-center md:items-start text-center md:text-left gap-3">
+                                <div className="flex items-center gap-2">
+                                    <img src="./icons/PisgahColor.png" className="w-8 h-8 object-contain" alt="Logo" />
+                                    <span className="text-lg font-extrabold text-navy-800 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></span>
+                                </div>
+                                <p className="text-xs text-navy-500 font-medium leading-relaxed max-w-xs">
+                                    Gereja Masehi Advent Hari Ketujuh<br/>
+                                    Jemaat Pisgah BISDAC
+                                </p>
+                                <p className="text-[11px] text-gold-600 font-bold italic">"Tuhan adalah Gembalaku, takkan kekurangan aku." — Mazmur 23:1</p>
+                            </div>
+
+                            {/* Kolom 2 — Alamat & Jam Ibadah */}
+                            <div className="flex flex-col gap-2 text-center md:text-left">
+                                <p className="text-xs font-black text-navy-700 uppercase tracking-widest mb-1">Alamat & Ibadah</p>
+                                <div className="flex items-start justify-center md:justify-start gap-2 text-xs text-navy-600 font-medium">
+                                    <svg className="w-3.5 h-3.5 mt-0.5 shrink-0 text-gold-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    <span>Ruko Grand California,<br/> Jl. Laksamana Bintan No.11 Blok B 1 & B 2 No.1 - 4 & 9,<br/>Taman Baloi, Kec. Batam Kota, Kota Batam,<br/>Kepulauan Riau 29444</span>
+                                </div>
+                                <div className="flex items-center justify-center md:justify-start gap-2 text-xs text-navy-600 font-medium">
+                                    <svg className="w-3.5 h-3.5 shrink-0 text-gold-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2"/></svg>
+                                    <span>Rabu 19:00 · Sabat 10:00 WIB</span>
+                                </div>
+                                <div className="flex items-center justify-center md:justify-start gap-2 text-xs text-navy-600 font-medium">
+                                    <svg className="w-3.5 h-3.5 shrink-0 text-gold-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                    <a href="tel:+6285194344004" className="hover:text-gold-600 transition">+6285194344004</a>
+                                </div>
+                                <div className="flex items-center justify-center md:justify-start gap-2 text-xs text-navy-600 font-medium">
+                                    <svg className="w-3.5 h-3.5 shrink-0 text-gold-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    <a href="mailto:gmahkpisgahbisdac@gmail.com" className="hover:text-gold-600 transition">pisgah.bisdac@gmail.com</a>
+                                </div>
+                            </div>
+
+                            {/* Kolom 3 — Sosial Media */}
+                            <div className="flex flex-col gap-2 text-center md:text-left">
+                                <p className="text-xs font-black text-navy-700 uppercase tracking-widest mb-1">Ikuti Kami</p>
+                                <a href="https://www.youtube.com/@turnyeofficial" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start gap-2.5 text-xs text-navy-600 font-medium hover:text-red-600 transition group">
+                                    <span className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition shrink-0">
+                                        <svg className="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                    </span>
+                                    YouTube PISGAH BISDAC
+                                </a>
+                                <a href="https://www.instagram.com/pisgahbisdac" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start gap-2.5 text-xs text-navy-600 font-medium hover:text-pink-600 transition group">
+                                    <span className="w-7 h-7 rounded-lg bg-pink-50 flex items-center justify-center group-hover:bg-pink-100 transition shrink-0">
+                                        <svg className="w-4 h-4 text-pink-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                                    </span>
+                                    @pisgahbisdac
+                                </a>
+                                <a href="https://www.facebook.com/pisgahbisdac" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start gap-2.5 text-xs text-navy-600 font-medium hover:text-blue-600 transition group">
+                                    <span className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition shrink-0">
+                                        <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                                    </span>
+                                    PISGAH BISDAC
+                                </a>
+                                <a href="https://wa.me/6285194344004" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start gap-2.5 text-xs text-navy-600 font-medium hover:text-green-600 transition group">
+                                    <span className="w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition shrink-0">
+                                        <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                                    </span>
+                                    WhatsApp Gereja
+                                </a>
+                            </div>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="border-t border-navy-100 pt-4 flex flex-col md:flex-row items-center justify-between gap-2">
+                            <p className="text-[10px] md:text-xs text-navy-400 font-medium tracking-wide">Copyright &copy; 2026 PISGAH BISDAC. All rights reserved.</p>
+                            <p className="text-[10px] md:text-xs text-gold-500 font-bold tracking-widest uppercase">GOD BLESS US 🙏</p>
+                        </div>
                     </footer>
                 </div>
             );
@@ -1111,23 +1183,25 @@
                             {openSection === 'khotbah' && (
                                 <div className="p-4 md:p-6 animate-fade-in bg-[#112240]">
                                     {renderItem("Pemimpin Acara", getOfficer(activeSabat.khotbah, "Pemimpin Acara"), true)}
-                                    {renderItem("Lagu Pengantar", "LS 515 - Tuhan Ada Dalam Bait Allah")}
+                                    {renderItem("Sambutan", getOfficer(activeSabat.khotbah, "Pemimpin Acara"))}
+                                    {renderItem("Lagu Pengantar", "LS 408 - Berdiam, Berdiam")}
                                     {renderItem("Lagu Sambutan", "LS 1 - Di Hadapan Hadirat-Mu")}
                                     {renderItem("Doa Buka", getOfficer(activeSabat.khotbah, "Khotbah"))}
                                     {renderItem("Ayat Bersahutan", susunan.kAyatBersahutan)}
                                     {renderItem("Lagu Buka", susunan.kLaguBuka)}
                                     {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Doa Syafaat"))}
+                                    {renderItem("","LS 516 - Dengar Ya Tuhan")}
                                     {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
-                                    {susunan.kLaguPujian1_show && renderItem("Lagu Persembahan dan Pujian", susunan.kLaguPujian1_judul, true)}
+                                    {susunan.kLaguPujian1_show && renderItem("Lagu Persembahan dan Pujian", susunan.kLaguPujian1_judul)}
                                     {renderItem("Doa Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
-                                    {susunan.kLaguPujian2_show && renderItem("Lagu Pujian", susunan.kLaguPujian2_judul,true)}
-                                    {renderItem("Cerita Anak-anak", getOfficer(activeSabat.khotbah, "Cerita Anak-anak"), true)}
-                                    {susunan.kLaguPujian3_show && renderItem("Lagu Pujian", susunan.kLaguPujian3_judul, true)}
+                                    {susunan.kLaguPujian2_show && renderItem("Lagu Pujian", susunan.kLaguPujian2_judul)}
+                                    {renderItem("Cerita Anak-anak", getOfficer(activeSabat.khotbah, "Cerita Anak-anak"))}
+                                    {susunan.kLaguPujian3_show && renderItem("Lagu Pujian", susunan.kLaguPujian3_judul)}
                                     {renderItem("Ayat Inti", susunan.kAyatInti)}
-                                    {renderItem("Lagu Tema", "Misi Kita")}
+                                    {renderItem("Lagu Tema - Jemaat Duduk", "Misi Kita")}
                                     {renderItem("Khotbah", getOfficer(activeSabat.khotbah, "Khotbah"), true)}
                                     {renderItem("Lagu Tutup", susunan.kLaguTutup)}
-                                    {renderItem("Doa Tutup Berkat", getOfficer(activeSabat.khotbah, "Khotbah"))}
+                                    {renderItem("Doa Tutup - Berkat", getOfficer(activeSabat.khotbah, "Khotbah"))}
                                     {renderItem("Pengumuman", "Dept. Komunikasi")}
                                 </div>
                             )}
@@ -1141,6 +1215,7 @@
                                     {renderItem("Diskusi Sekolah Sabat", "Kelas Dewasa, Kelas Pendalaman Alkitab, Kelas Anak-anak")}
                                     {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
                                     {renderItem("Doa Tutup", getOfficer(activeSabat.sekolahSabat, "Doa Tutup"))}
+                                    {renderItem("","LS 168 - Kita Memiliki Pengharapan")}
                                 </div>
                             )}
 
@@ -1312,10 +1387,18 @@
             </div>
         );
 
-        const Detailperpustakaan = ({ setActiveTab, dataPejabat }) => {
-            const [selectedBook, setSelectedBook] = React.useState(null);
+        const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpened }) => {
+            const [selectedBook, setSelectedBook] = React.useState(initialBook || null);
             const [booksFromServer, setBooksFromServer] = React.useState([]);
             const [isLoadingBooks, setIsLoadingBooks] = React.useState(true);
+            const [searchQuery, setSearchQuery] = React.useState(''); // State ini sebelumnya hilang
+
+            // Reset initialBook ketika dibuka dari menu pencarian
+            React.useEffect(() => {
+                if (selectedBook && onBookOpened) {
+                    onBookOpened();
+                }
+            }, [selectedBook, onBookOpened]);
 
             // Load books dari backend saat komponen mount
             React.useEffect(() => {
@@ -1327,7 +1410,12 @@
                             body: JSON.stringify({ action: 'getBooks' })
                         });
                         const data = await res.json();
+                        // Pengecekan respons yang lebih tangguh untuk mencegah error
                         if (data.status === 'success' && data.data) {
+                            setBooksFromServer(data.data);
+                        } else if (data.data && data.data.status === 'success') {
+                            setBooksFromServer(data.data.data || []);
+                        } else if (data.success && data.data) {
                             setBooksFromServer(data.data);
                         }
                     } catch (err) {
@@ -1338,9 +1426,25 @@
                 loadBooks();
             }, []);
 
-            const categories = ['Semua', ...new Set(booksFromServer.map(b => b.category))];
+            const categories = ['Semua', ...new Set(booksFromServer.map(b => b.category).filter(Boolean))];
             const [activeCategory, setActiveCategory] = React.useState('Semua');
-            const filteredBooks = activeCategory === 'Semua' ? booksFromServer : booksFromServer.filter(b => b.category === activeCategory);
+
+            // Memperbaiki logika filter agar kolom pencarian (search bar) dapat berfungsi
+            const filteredBooks = React.useMemo(() => {
+                let result = booksFromServer;
+                if (activeCategory !== 'Semua') {
+                    result = result.filter(b => b.category === activeCategory);
+                }
+                if (searchQuery.trim().length >= 2) {
+                    const q = searchQuery.toLowerCase();
+                    result = result.filter(b => 
+                        (b.title && b.title.toLowerCase().includes(q)) || 
+                        (b.author && b.author.toLowerCase().includes(q)) || 
+                        (b.desc && b.desc.toLowerCase().includes(q))
+                    );
+                }
+                return result;
+            }, [booksFromServer, activeCategory, searchQuery]);
 
             // Mode baca PDF
             if (selectedBook) {
@@ -1402,6 +1506,25 @@
                         </div>
                     </div>
 
+                    {/* Search Bar Buku */}
+                    <div className="relative">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-navy-400 pointer-events-none">
+                            <Icon name="Search" className="w-4 h-4" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Cari judul, pengarang, atau deskripsi..."
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                            className="w-full pl-11 pr-10 py-3 bg-white border border-navy-100/80 rounded-2xl text-sm font-semibold text-navy-900 placeholder-navy-300 outline-none focus:border-gold-500 shadow-sm transition-all"
+                        />
+                        {searchQuery && (
+                            <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-navy-100 text-navy-500 hover:bg-navy-200 transition flex items-center justify-center">
+                                <Icon name="X" className="w-3.5 h-3.5" />
+                            </button>
+                        )}
+                    </div>
+
                     {/* Filter Kategori */}
                     <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
                         {categories.map(cat => (
@@ -1418,10 +1541,14 @@
                     {/* Grid Buku atau Loading State */}
                     {isLoadingBooks ? (
                         <div className="text-center py-12">
+                            <div className="w-12 h-12 border-4 border-navy-100 border-t-gold-500 rounded-full animate-spin mx-auto mb-4"></div>
                             <p className="text-navy-400 font-medium">Memuat buku...</p>
                         </div>
                     ) : filteredBooks.length > 0 ? (
                     <div className="max-h-[calc(150vh-280px)] overflow-y-auto pr-2 custom-scrollbar">
+                        {searchQuery.length >= 2 && (
+                            <p className="text-xs text-navy-400 font-semibold mb-3 px-1">{filteredBooks.length} hasil untuk &quot;{searchQuery}&quot;</p>
+                        )}
                         <div className="flex flex-wrap justify-center gap-4">
     {filteredBooks.map(book => (
         <div
@@ -1454,7 +1581,10 @@
                     ) : (
                         <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-12 text-center">
                             <Icon name="BookOpen" className="w-16 h-16 text-navy-200 mx-auto mb-4" />
-                            <p className="text-navy-500 font-medium">Belum ada buku di kategori ini.</p>
+                            {searchQuery.length >= 2
+                                ? <><p className="text-navy-700 font-bold mb-1">Buku tidak ditemukan</p><p className="text-navy-400 text-sm">Tidak ada buku yang cocok dengan &quot;{searchQuery}&quot;</p><button onClick={() => setSearchQuery('')} className="mt-4 px-5 py-2 bg-navy-900 text-gold-400 rounded-xl text-sm font-bold hover:bg-navy-800 transition">Hapus Pencarian</button></>
+                                : <p className="text-navy-500 font-medium">Belum ada buku di kategori ini.</p>
+                            }
                         </div>
                     )}
 
@@ -2435,6 +2565,7 @@
 
             // ============ STATE BOOK MANAGEMENT ============
             const [daftarBuku, setDaftarBuku] = React.useState([]);
+            const [initialBook, setInitialBook] = React.useState(null); // Buku yang dibuka langsung dari pencarian
             const [bookFormModal, setBookFormModal] = React.useState(false);
             const [editingBook, setEditingBook] = React.useState(null);
             const [bookFormData, setBookFormData] = React.useState({
@@ -2447,6 +2578,19 @@
                 pdfUrl: ''
             });
             const [isSavingBook, setIsSavingBook] = React.useState(false);
+
+            // --- TAMBAHKAN KODE INI DI SINI ---
+            const [bukuSearch, setBukuSearch] = React.useState('');
+            const filteredAdminBuku = React.useMemo(() => {
+                if (!bukuSearch.trim() || bukuSearch.length < 2) return daftarBuku;
+                const q = bukuSearch.toLowerCase();
+                return daftarBuku.filter(b =>
+                    (b.title && b.title.toLowerCase().includes(q)) ||
+                    (b.author && b.author.toLowerCase().includes(q)) ||
+                    (b.category && b.category.toLowerCase().includes(q))
+                );
+            }, [daftarBuku, bukuSearch]);
+            // -----------------------------------
 
 // Modal Tambah Buku
 const openAddBookModal = () => {
@@ -3762,7 +3906,7 @@ const compressImage = (file, maxWidth = 1200) => {
                         </div>
 
                         <div className={`p-4 md:p-6 ${adminTab === 'jadwal' ? 'bg-navy-50/30' : 'bg-white'}`}>
-
+                    </div>
     {/* Modal Edit Warta */}
 {editWartaModal && (
   <div className="fixed inset-0 z-[100] flex justify-center bg-navy-900/60 px-4 backdrop-blur-md overflow-y-auto" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 4rem)', paddingBottom: '1rem' }}>
@@ -4737,7 +4881,7 @@ const compressImage = (file, maxWidth = 1200) => {
                                     <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                         <div>
                                             <h2 className="text-2xl font-black text-navy-900">Kelola Buku</h2>
-                                            <p className="text-sm text-navy-500 font-medium mt-1">Tambah, edit, atau hapus buku dari perpustakaan</p>
+                                            <p className="text-sm text-navy-500 font-medium mt-1">Total: {daftarBuku.length} buku · Tambah, edit, atau hapus buku dari perpustakaan</p>
                                         </div>
                                         <button 
     onClick={openAddBookModal}
@@ -4747,10 +4891,34 @@ const compressImage = (file, maxWidth = 1200) => {
 </button>
                                     </div>
 
-                                    {/* Book Grid */}
+                                    {/* Search Bar Admin Buku */}
+                                    <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-4">
+                                        <div className="relative">
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-navy-400 pointer-events-none">
+                                                <Icon name="Search" className="w-4 h-4" />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                placeholder="Cari judul, pengarang, atau kategori..."
+                                                value={bukuSearch}
+                                                onChange={e => setBukuSearch(e.target.value)}
+                                                className="w-full pl-11 pr-10 py-3 bg-navy-50/50 border border-navy-100 rounded-xl text-sm font-semibold text-navy-900 placeholder-navy-300 outline-none focus:border-gold-500 transition-all"
+                                            />
+                                            {bukuSearch && (
+                                                <button onClick={() => setBukuSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-navy-200 text-navy-500 hover:bg-navy-300 transition flex items-center justify-center">
+                                                    <Icon name="X" className="w-3.5 h-3.5" />
+                                                </button>
+                                            )}
+                                        </div>
+                                        {bukuSearch.length >= 2 && (
+                                            <p className="text-xs text-navy-400 font-semibold mt-2 px-1">{filteredAdminBuku.length} dari {daftarBuku.length} buku</p>
+                                        )}
+                                    </div>
+
+                                    {/* Book Grid — 3 kolom */}
                                     <div className="max-h-[calc(170vh-280px)] overflow-y-auto pr-2 custom-scrollbar">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                                        {daftarBuku.map(book => (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                        {filteredAdminBuku.map(book => (
                                             <div key={book.id} className="bg-white rounded-xl shadow-sm border border-navy-100/60 overflow-hidden hover:shadow-md transition">
                                                 <div className="h-40 bg-gradient-to-br from-navy-100 to-navy-50 flex items-center justify-center overflow-hidden">
                                                     <img 
@@ -4810,10 +4978,13 @@ const compressImage = (file, maxWidth = 1200) => {
                                     </div>
                                     </div>
 
-                                    {daftarBuku.length === 0 && (
+                                    {filteredAdminBuku.length === 0 && (
                                         <div className="bg-white rounded-xl border-2 border-dashed border-navy-200 p-12 text-center">
                                             <Icon name="BookOpen" className="w-16 h-16 text-navy-200 mx-auto mb-4" />
-                                            <p className="text-navy-500 font-medium">Belum ada buku. Mulai tambahkan buku pertama Anda!</p>
+                                            {bukuSearch.length >= 2
+                                                ? <><p className="text-navy-700 font-bold mb-1">Tidak ditemukan</p><p className="text-navy-400 text-sm">Tidak ada buku cocok dengan &quot;{bukuSearch}&quot;</p></>
+                                                : <p className="text-navy-500 font-medium">Belum ada buku. Mulai tambahkan buku pertama Anda!</p>
+                                            }
                                         </div>
                                     )}
 
@@ -4951,12 +5122,11 @@ const compressImage = (file, maxWidth = 1200) => {
                             )}
                         </div>
                     </div>
-                </div>
             );
         };
 
         // --- COMPONENT: SEARCH ---
-const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, dataPejabat, pengumuman, daftarBuku }) => {
+const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, dataPejabat, pengumuman, daftarBuku, setInitialBook }) => {
     const [query, setQuery] = React.useState('');
 
     // Fungsi untuk membersihkan HTML
@@ -5118,12 +5288,22 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                     {/* Hasil Buku */}
                     {searchResults.buku.length > 0 && (
                         <div>
-                            <h3 className="text-xs font-black text-purple-600 uppercase tracking-widest mb-3 px-2">Buku</h3>
+                            <h3 className="text-xs font-black text-purple-600 uppercase tracking-widest mb-3 px-2">Buku <span className="text-navy-300 font-semibold normal-case tracking-normal">— klik untuk membaca langsung</span></h3>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                                 {searchResults.buku.map(b => (
-                                    <div key={b.id} onClick={() => { setActiveTab('belajar_perpustakaan'); /* navigasi ke buku, perlu implementasi */ }} className="bg-white rounded-xl border border-navy-100/60 p-3 cursor-pointer hover:shadow-md">
-                                        <div className="font-bold text-sm text-navy-900 line-clamp-2">{b.title}</div>
-                                        <div className="text-xs text-navy-500">{b.author}</div>
+                                    <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className="bg-white rounded-xl border border-navy-100/60 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group">
+                                        <div className="h-28 overflow-hidden relative">
+                                            <img src={b.cover || getDefaultBookCover(b.category)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-navy-900/70 to-transparent" />
+                                            <span className="absolute top-1.5 right-1.5 bg-gold-500/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">{b.category}</span>
+                                        </div>
+                                        <div className="p-2.5">
+                                            <div className="font-bold text-xs text-navy-900 line-clamp-2 leading-tight">{b.title}</div>
+                                            <div className="text-[10px] text-navy-400 mt-0.5 font-semibold">{b.author}</div>
+                                            <div className="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-purple-600">
+                                                <Icon name="BookOpen" className="w-3 h-3" /> Buka & Baca
+                                            </div>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -5257,6 +5437,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
             // Warta default State
             const [daftarWarta, setDaftarWarta] = React.useState([]);
             const [daftarBuku, setDaftarBuku] = React.useState([]);
+            const [initialBook, setInitialBook] = React.useState(null);
 
             // Fungsi refresh warta
             const refreshWarta = async () => {
@@ -5393,13 +5574,20 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
             if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
 
             // Ambil data buku (public)
+            // Ambil data buku (public)
             try {
                 const bukuRes = await fetch(GAS_API_URL, {
                     method: 'POST',
                     body: JSON.stringify({ action: 'getBooks' })
                 });
                 const bukuData = await bukuRes.json();
-                if (bukuData.success && bukuData.data) {
+                
+                // Menyamakan standar pengecekan dengan panel admin
+                if (bukuData.status === 'success' && bukuData.data) {
+                    setDaftarBuku(bukuData.data);
+                } else if (bukuData.data && bukuData.data.status === 'success') {
+                    setDaftarBuku(bukuData.data.data || []);
+                } else if (bukuData.success && bukuData.data) {
                     setDaftarBuku(bukuData.data);
                 } else {
                     console.warn('Gagal memuat buku:', bukuData.message);
@@ -5493,7 +5681,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                     case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
                     case 'belajar_egw': return <DetailEGW setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
-                    case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
+                    case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} initialBook={initialBook} onBookOpened={() => setInitialBook(null)} />;
                     case 'warta':  return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta} selectedWarta={selectedWartaDetail} setSelectedWarta={setSelectedWartaDetail} />;
                     case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} liveUrl={liveUrl} />;
                     case 'jadwal': return <Jadwal activeRabu={jadwalKhususRabu} activeSabat={jadwalKhususSabat} rabuYMD={displayRabuYMD} sabatYMD={displaySabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} />;
@@ -5505,7 +5693,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                     case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
                     case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
                     case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} />;
-                    case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} />;
+                    case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
                     default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta}
                             refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} />;
                 }
