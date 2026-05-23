@@ -1192,22 +1192,6 @@ function escapeHtml(str) {
     });
 }
 
-async function fetchDoa() {
-    try {
-        const doaRes = await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'getDoa' })
-        });
-        const doaJson = await doaRes.json();
-        if (doaJson.status === 'success') {
-            doaList = doaJson.data || [];
-            renderDoaTable();
-        }
-    } catch(e) {
-        console.warn("Gagal memuat data doa", e);
-    }
-}
-
         function hasAccess(tabName) {
             if (currentUser.role === 'admin') {
                 return ['dashboard', 'khotbah', 'ss_dewasa', 'ss_anak', 'pendalaman', 'kegiatan', 'anggota', 'unit', 'cetak', 'admin'].includes(tabName);
@@ -1381,7 +1365,7 @@ function renderTabs() {
             const identifier = currentUser.role === 'admin' ? currentUser.adminName : currentUser.unitName;
             toggleLoading(true); disableButtons(true);
             try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'changePin', data: { role: currentUser.role, identifier: identifier, oldPin: oldPin, newPin: newPin } }) });
+                const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'changePin', data: { role: currentUser.role, identifier: identifier, oldPin: oldPin, newPin: newPin } }) });
                 const json = await res.json();
                 if(json.status === 'success') { showToast("PIN BERHASIL DIUBAH!"); document.getElementById('changepin-modal').classList.add('hidden'); init(); } 
                 else { showToast(json.message || "Gagal mengubah PIN", "error"); }
@@ -2664,6 +2648,7 @@ async function fetchDoa() {
     try {
         const doaRes = await fetch(API_URL, {
             method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({ action: 'getDoa' })
         });
         const doaJson = await doaRes.json();
@@ -2678,7 +2663,7 @@ async function fetchDoa() {
 
         async function send(payload) {
             toggleLoading(true);
-            try { const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const json = await res.json(); if (json.status === 'success') showToast("BERHASIL DISIMPAN!"); else showToast(json.message || "TERJADI KESALAHAN!", "error"); return json;
+            try { const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }); const json = await res.json(); if (json.status === 'success') showToast("BERHASIL DISIMPAN!"); else showToast(json.message || "TERJADI KESALAHAN!", "error"); return json;
             } catch (e) { showToast("KONEKSI GAGAL! PERIKSA INTERNET.", "error"); return { status: 'error' }; } finally { toggleLoading(false); }
         }
 
@@ -2783,7 +2768,7 @@ function applyData(payload) {
 
 async function fetchAndApply() {
     try {
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getInitialData' }) });
+        const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'getInitialData' }) });
         const json = await res.json();
         if (json.status === 'success') {
             const payload = json.data ? json.data : json;
@@ -2806,7 +2791,7 @@ async function fetchAndApply() {
 
 async function syncDataInBackground() {
     try {
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getInitialData' }) });
+        const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'getInitialData' }) });
         const json = await res.json();
         if (json.status === 'success') {
             const payload = json.data ? json.data : json;
