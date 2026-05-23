@@ -506,103 +506,300 @@ function doPrint(htmlContent, orientation = 'portrait') {
         }
 
         window.renderDashboard = function(area, dropdownHTML) {
+            const isAdmin = currentUser.role === 'admin';
+            const adminBadge = isAdmin ? `<span class="inline-flex items-center gap-1.5 bg-[#D4AF37]/20 border border-[#D4AF37]/40 text-[#D4AF37] text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full"><i class="fas fa-shield-alt text-[9px]"></i>Admin View</span>` : '';
+            const nowDate = new Date().toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
             area.innerHTML = `
                 <div class="mb-8 animate-[fadeIn_0.5s_ease-out]">
-                    <!-- WELCOME SECTION -->
-                    <div class="glass p-6 md:p-8 mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-center gap-6 border-l-4 border-l-[#D4AF37]">
-                        <div>
-                            <h2 class="text-2xl md:text-3xl font-black text-white mb-2 uppercase">Selamat Datang di PISGAH BISDAC Matrix</h2>
-                            <p class="text-slate-400 text-sm md:text-base">Sistem Informasi Manajemen Kehadiran & Kegiatan Jemaat PISGAH BISDAC.</p>
-                        </div>
-                        <div class="w-full md:w-64">
-                            ${dropdownHTML}
+
+                    <!-- ======= WELCOME HERO SECTION ======= -->
+                    <div class="glass p-6 md:p-8 mb-6 md:mb-8 border-l-4 border-l-[#D4AF37] relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-48 h-48 bg-[#D4AF37]/5 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                        <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/5 rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+                        <div class="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div>
+                                <div class="flex items-center gap-3 mb-3 flex-wrap">
+                                    <h2 class="text-2xl md:text-3xl font-black text-white uppercase leading-tight">Selamat Datang di PISGAH BISDAC Matrix</h2>
+                                    ${adminBadge}
+                                </div>
+                                <p class="text-slate-400 text-sm md:text-base mb-1">Sistem Informasi Manajemen Kehadiran & Kegiatan Jemaat PISGAH BISDAC.</p>
+                                <p class="text-[#D4AF37]/60 text-xs font-bold uppercase tracking-widest"><i class="fas fa-calendar-day mr-1"></i>${nowDate}</p>
+                            </div>
+                            <div class="w-full md:w-72 shrink-0">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 tracking-widest"><i class="fas fa-filter mr-1"></i>Filter Unit</label>
+                                ${dropdownHTML}
+                            </div>
                         </div>
                     </div>
-                    
-                    <!-- ====== BAGIAN BARU: ULANG TAHUN BULAN INI ====== -->
-        <div class="glass p-5 md:p-8 mb-8 border-t-4 border-t-pink-500">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 text-xl">
-                    <i class="fas fa-birthday-cake"></i>
-                </div>
-                <h3 class="text-xl md:text-2xl font-black text-white uppercase">Ulang Tahun Bulan Ini</h3>
-            </div>
-            <div id="birthday-list" class="overflow-x-auto text-center">
-                <p class="text-slate-400 italic">Memuat data...</p>
-            </div>
-        </div>
 
-                    <!-- STATISTIK UTAMA (5 KARTU) -->
-                    <h3 class="text-xl md:text-2xl font-black text-[#D4AF37] uppercase mb-4"><i class="fas fa-chart-pie mr-3"></i>Statistik Kehadiran</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 mb-8">
-                        <div class="glass p-4 text-center border-t-4 border-t-blue-500 hover:scale-105 transition-transform duration-300 stat-card">
-                            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Anggota</h4>
+                    <!-- ======= KPI SCORECARD UTAMA (6 KARTU) ======= -->
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-1 h-7 bg-[#D4AF37] rounded-full"></div>
+                        <h3 class="text-xl md:text-2xl font-black text-[#D4AF37] uppercase"><i class="fas fa-tachometer-alt mr-2"></i>Ringkasan KPI Jemaat</h3>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-8">
+                        <div class="glass p-4 text-center border-t-4 border-t-blue-500 hover:scale-105 transition-all duration-300 cursor-default group">
+                            <div class="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-2 group-hover:bg-blue-500/40 transition-all">
+                                <i class="fas fa-users text-blue-400 text-sm"></i>
+                            </div>
+                            <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Jemaat</h4>
                             <div id="dash-total-members" class="text-2xl md:text-3xl font-black text-white">-</div>
+                            <div id="dash-total-sub" class="text-[10px] text-slate-500 mt-1">terdaftar</div>
                         </div>
-                        <div class="glass p-4 text-center border-t-4 border-t-green-500 hover:scale-105 transition-transform duration-300 stat-card">
-                            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hadir Terakhir</h4>
+                        <div class="glass p-4 text-center border-t-4 border-t-green-500 hover:scale-105 transition-all duration-300 cursor-default group">
+                            <div class="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-2 group-hover:bg-green-500/40 transition-all">
+                                <i class="fas fa-check-circle text-green-400 text-sm"></i>
+                            </div>
+                            <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hadir Terakhir</h4>
                             <div id="dash-last-attendance" class="text-2xl md:text-3xl font-black text-green-400">-</div>
+                            <div id="dash-hadir-sub" class="text-[10px] text-slate-500 mt-1">jiwa</div>
                         </div>
-                        <div class="glass p-4 text-center border-t-4 border-t-red-500 hover:scale-105 transition-transform duration-300 stat-card">
-                            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Alpha Terakhir</h4>
+                        <div class="glass p-4 text-center border-t-4 border-t-red-500 hover:scale-105 transition-all duration-300 cursor-default group">
+                            <div class="w-8 h-8 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-2 group-hover:bg-red-500/40 transition-all">
+                                <i class="fas fa-times-circle text-red-400 text-sm"></i>
+                            </div>
+                            <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Alpha Terakhir</h4>
                             <div id="dash-last-alpha" class="text-2xl md:text-3xl font-black text-red-400">-</div>
+                            <div class="text-[10px] text-slate-500 mt-1">jiwa</div>
                         </div>
-                        <div class="glass p-4 text-center border-t-4 border-t-yellow-500 hover:scale-105 transition-transform duration-300 stat-card">
-                            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Rata-rata Hadir</h4>
+                        <div class="glass p-4 text-center border-t-4 border-t-yellow-500 hover:scale-105 transition-all duration-300 cursor-default group">
+                            <div class="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-2 group-hover:bg-yellow-500/40 transition-all">
+                                <i class="fas fa-chart-bar text-yellow-400 text-sm"></i>
+                            </div>
+                            <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Rata-rata Hadir</h4>
                             <div id="dash-avg-attendance" class="text-2xl md:text-3xl font-black text-yellow-400">-</div>
+                            <div class="text-[10px] text-slate-500 mt-1">per Sabat</div>
                         </div>
-                        <div class="glass p-4 text-center border-t-4 border-t-purple-500 hover:scale-105 transition-transform duration-300 stat-card">
-                            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">% Kehadiran</h4>
+                        <div class="glass p-4 text-center border-t-4 border-t-purple-500 hover:scale-105 transition-all duration-300 cursor-default group">
+                            <div class="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-2 group-hover:bg-purple-500/40 transition-all">
+                                <i class="fas fa-percentage text-purple-400 text-sm"></i>
+                            </div>
+                            <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">% Kehadiran</h4>
                             <div id="dash-percent" class="text-2xl md:text-3xl font-black text-purple-400">-</div>
+                            <div class="text-[10px] text-slate-500 mt-1">rata-rata</div>
+                        </div>
+                        <div class="glass p-4 text-center border-t-4 border-t-cyan-500 hover:scale-105 transition-all duration-300 cursor-default group">
+                            <div class="w-8 h-8 bg-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-2 group-hover:bg-cyan-500/40 transition-all">
+                                <i class="fas fa-trophy text-cyan-400 text-sm"></i>
+                            </div>
+                            <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tertinggi</h4>
+                            <div id="dash-max-attendance" class="text-2xl md:text-3xl font-black text-cyan-400">-</div>
+                            <div class="text-[10px] text-slate-500 mt-1">record hadir</div>
                         </div>
                     </div>
 
-                    <!-- GRAFIK TREN KEHADIRAN -->
-                    <div class="glass p-5 md:p-8 mb-8">
-                        <h3 class="text-lg font-black text-white uppercase mb-4 text-center tracking-widest">Grafik Tren Kehadiran</h3>
-                        <div class="w-full h-[300px] relative">
-                            <canvas id="attendanceChart"></canvas>
+                    <!-- ======= PROGRESS BAR KEHADIRAN ======= -->
+                    <div class="glass p-5 md:p-6 mb-8 border border-white/5">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="text-sm font-black text-white uppercase tracking-wider"><i class="fas fa-signal mr-2 text-[#D4AF37]"></i>Tingkat Kehadiran Saat Ini</h4>
+                            <span id="progress-percent-label" class="text-[#D4AF37] font-black text-lg">-</span>
+                        </div>
+                        <div class="w-full bg-white/10 rounded-full h-4 overflow-hidden">
+                            <div id="progress-bar" class="h-4 rounded-full transition-all duration-1000 ease-out" style="width:0%; background: linear-gradient(90deg, #10B981, #D4AF37, #EF4444 200%)"></div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-[10px] text-slate-500 font-bold uppercase">
+                            <span>0%</span>
+                            <span id="progress-bar-label" class="text-slate-400">Memuat...</span>
+                            <span>100%</span>
                         </div>
                     </div>
 
-                    <!-- KOMPOSISI KELAS & STATUS BAPTIS -->
+                    <!-- ======= GRAFIK TREN + RINGKASAN MINGGUAN ======= -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="glass p-5 md:p-8 lg:col-span-2">
+                            <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                                <h3 class="text-lg font-black text-white uppercase tracking-widest"><i class="fas fa-chart-line mr-2 text-[#D4AF37]"></i>Tren Kehadiran</h3>
+                                <div class="flex items-center gap-3 text-xs">
+                                    <span class="flex items-center gap-1"><span class="w-3 h-1 bg-[#D4AF37] inline-block rounded"></span><span class="text-slate-400">Hadir</span></span>
+                                    <span class="flex items-center gap-1"><span class="w-3 h-1 bg-red-500 inline-block rounded"></span><span class="text-slate-400">Alpha</span></span>
+                                </div>
+                            </div>
+                            <div class="w-full h-[280px] relative">
+                                <canvas id="attendanceChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- RINGKASAN CEPAT -->
+                        <div class="glass p-5 md:p-6 flex flex-col gap-4">
+                            <h3 class="text-sm font-black text-white uppercase tracking-widest mb-1"><i class="fas fa-bolt mr-2 text-yellow-400"></i>Insight Cepat</h3>
+                            <div id="insight-cards" class="flex flex-col gap-3 flex-1">
+                                <div class="bg-white/5 rounded-xl p-4 border border-white/5">
+                                    <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Tren Terakhir</div>
+                                    <div id="insight-trend" class="text-sm font-black text-white">Memuat...</div>
+                                </div>
+                                <div class="bg-white/5 rounded-xl p-4 border border-white/5">
+                                    <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Baptis vs Belum</div>
+                                    <div id="insight-baptis" class="text-sm font-black text-white">Memuat...</div>
+                                </div>
+                                <div class="bg-white/5 rounded-xl p-4 border border-white/5">
+                                    <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Total Sabat Tercatat</div>
+                                    <div id="insight-total-sabat" class="text-sm font-black text-white">Memuat...</div>
+                                </div>
+                                <div class="bg-white/5 rounded-xl p-4 border border-white/5">
+                                    <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Kelas Terbesar</div>
+                                    <div id="insight-top-class" class="text-sm font-black text-white">Memuat...</div>
+                                </div>
+                                <div class="bg-white/5 rounded-xl p-4 border border-white/5">
+                                    <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Ulang Tahun Bulan Ini</div>
+                                    <div id="insight-birthday-count" class="text-sm font-black text-white">Memuat...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ======= DISTRIBUSI PER KELAS & STATUS BAPTIS ======= -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         <div class="glass p-5 md:p-8">
-                            <h3 class="text-lg font-black text-white uppercase mb-4 text-center">Komposisi Kelas</h3>
+                            <h3 class="text-lg font-black text-white uppercase mb-1 text-center"><i class="fas fa-layer-group mr-2 text-blue-400"></i>Komposisi Kelas</h3>
+                            <p class="text-center text-[10px] text-slate-500 uppercase tracking-widest mb-4">Distribusi SS Dewasa · Anak · PA</p>
                             <div class="w-full h-[250px] relative">
                                 <canvas id="classCompChart"></canvas>
                             </div>
+                            <div id="class-legend" class="flex flex-wrap justify-center gap-3 mt-4"></div>
                         </div>
                         <div class="glass p-5 md:p-8">
-                            <h3 class="text-lg font-black text-white uppercase mb-4 text-center">Status Baptis</h3>
+                            <h3 class="text-lg font-black text-white uppercase mb-1 text-center"><i class="fas fa-water mr-2 text-cyan-400"></i>Status Baptis</h3>
+                            <p class="text-center text-[10px] text-slate-500 uppercase tracking-widest mb-4">Baptis vs Belum Baptis</p>
                             <div class="w-full h-[250px] relative">
                                 <canvas id="baptisChart"></canvas>
                             </div>
+                            <div id="baptis-legend" class="flex flex-wrap justify-center gap-3 mt-4"></div>
                         </div>
                     </div>
 
-                    <!-- TABEL RIWAYAT 5 PEKAN TERAKHIR -->
+                    <!-- ======= ADMIN-ONLY: STATISTIK LANJUTAN ======= -->
+                    ${isAdmin ? `
+                    <div class="mb-2">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-1 h-7 bg-red-500 rounded-full"></div>
+                            <h3 class="text-xl md:text-2xl font-black text-white uppercase"><i class="fas fa-user-shield mr-2 text-red-400"></i>Panel Statistik Admin</h3>
+                            <span class="bg-red-500/20 border border-red-500/30 text-red-400 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full">Admin Only</span>
+                        </div>
+
+                        <!-- Grafik Bar Kehadiran Per Unit -->
+                        <div class="glass p-5 md:p-8 mb-6 border-t-4 border-t-orange-500">
+                            <h4 class="text-lg font-black text-white uppercase mb-1"><i class="fas fa-building mr-2 text-orange-400"></i>Perbandingan Kehadiran Per Unit</h4>
+                            <p class="text-[11px] text-slate-500 uppercase tracking-widest mb-5">Jumlah anggota terdaftar di setiap unit jemaat</p>
+                            <div class="w-full h-[280px] relative">
+                                <canvas id="unitBarChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- LEADERBOARD UNIT + PIE JABATAN -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <!-- Leaderboard Unit -->
+                            <div class="glass p-5 md:p-6 border-t-4 border-t-amber-500">
+                                <h4 class="text-base font-black text-white uppercase mb-1"><i class="fas fa-medal mr-2 text-amber-400"></i>Leaderboard Unit</h4>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-4">Ranking unit berdasarkan jumlah anggota</p>
+                                <div id="unit-leaderboard" class="space-y-3">
+                                    <p class="text-slate-400 italic text-sm text-center">Memuat...</p>
+                                </div>
+                            </div>
+                            <!-- Distribusi Jabatan -->
+                            <div class="glass p-5 md:p-6 border-t-4 border-t-violet-500">
+                                <h4 class="text-base font-black text-white uppercase mb-1"><i class="fas fa-id-badge mr-2 text-violet-400"></i>Distribusi Jabatan</h4>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-4">Komposisi jabatan dalam jemaat</p>
+                                <div class="w-full h-[200px] relative">
+                                    <canvas id="jabatanChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TABEL STATISTIK KEHADIRAN PER UNIT (Admin) -->
+                        <div class="glass p-5 md:p-8 mb-6 border-t-4 border-t-teal-500">
+                            <h4 class="text-base font-black text-white uppercase mb-1"><i class="fas fa-table mr-2 text-teal-400"></i>Ringkasan Statistik Per Unit</h4>
+                            <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-5">Total anggota, kehadiran terakhir, dan persentase per unit</p>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm text-left text-slate-300">
+                                    <thead class="text-[10px] uppercase bg-white/5 text-slate-400 border-b border-white/10">
+                                        <tr>
+                                            <th class="px-4 py-3">Unit</th>
+                                            <th class="px-4 py-3 text-center">Anggota</th>
+                                            <th class="px-4 py-3 text-center">Hadir Terakhir</th>
+                                            <th class="px-4 py-3 text-center">Alpha</th>
+                                            <th class="px-4 py-3 text-center">% Hadir</th>
+                                            <th class="px-4 py-3 text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-unit-stats-table">
+                                        <tr><td colspan="6" class="text-center py-4 text-slate-400 italic">Memuat data...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- RINGKASAN HISTORI SABAT LENGKAP -->
+                        <div class="glass p-5 md:p-8 mb-6 border-t-4 border-t-sky-500">
+                            <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                                <div>
+                                    <h4 class="text-base font-black text-white uppercase"><i class="fas fa-calendar-alt mr-2 text-sky-400"></i>Rekap Histori Kehadiran Global</h4>
+                                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Semua catatan Sabat yang tersimpan</p>
+                                </div>
+                                <span id="admin-total-records" class="bg-sky-500/20 text-sky-400 border border-sky-500/30 px-3 py-1.5 rounded-lg text-xs font-black">- rekaman</span>
+                            </div>
+                            <div class="overflow-x-auto max-h-64 no-scrollbar">
+                                <table class="w-full text-sm text-left text-slate-300">
+                                    <thead class="text-[10px] uppercase bg-white/5 text-slate-400 sticky top-0">
+                                        <tr>
+                                            <th class="px-4 py-2">Tanggal</th>
+                                            <th class="px-4 py-2 text-center">Hadir</th>
+                                            <th class="px-4 py-2 text-center">Alpha</th>
+                                            <th class="px-4 py-2 text-center">%</th>
+                                            <th class="px-4 py-2 text-center">Trend</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-history-full-table">
+                                        <tr><td colspan="5" class="text-center py-4 text-slate-400 italic">Memuat data...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                    ` : ''}
+
+                    <!-- ======= RIWAYAT 5 PEKAN TERAKHIR ======= -->
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-1 h-7 bg-blue-500 rounded-full"></div>
+                        <h3 class="text-lg font-black text-white uppercase"><i class="fas fa-history mr-2 text-blue-400"></i>Riwayat Kehadiran 5 Pekan Terakhir</h3>
+                    </div>
                     <div class="glass p-5 md:p-8 mb-8">
-                        <h3 class="text-lg font-black text-white uppercase mb-4"><i class="fas fa-history mr-2"></i>Riwayat Kehadiran 5 Pekan Terakhir</h3>
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm text-left text-slate-300">
-                                <thead class="text-xs uppercase bg-white/5 text-slate-400">
+                                <thead class="text-[10px] uppercase bg-white/5 text-slate-400 border-b border-white/10">
                                     <tr>
-                                        <th class="px-4 py-2">Tanggal</th>
-                                        <th class="px-4 py-2 text-center">Hadir</th>
-                                        <th class="px-4 py-2 text-center">Alpha</th>
-                                        <th class="px-4 py-2 text-center">Persentase</th>
+                                        <th class="px-4 py-3">Tanggal</th>
+                                        <th class="px-4 py-3 text-center">Hadir</th>
+                                        <th class="px-4 py-3 text-center">Alpha</th>
+                                        <th class="px-4 py-3 text-center">Persentase</th>
+                                        <th class="px-4 py-3 text-center">Indikator</th>
                                     </tr>
                                 </thead>
                                 <tbody id="dash-history-table">
-                                    <tr><td colspan="4" class="text-center py-4 text-slate-400 italic">Memuat data...</td></tr>
+                                    <tr><td colspan="5" class="text-center py-4 text-slate-400 italic">Memuat data...</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- PERMOHONAN DOA -->
-                    <div class="glass p-6 md:p-8 border-t-4 border-t-purple-500">
+                    <!-- ======= ULANG TAHUN BULAN INI ======= -->
+                    <div class="glass p-5 md:p-8 mb-8 border-t-4 border-t-pink-500">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 text-xl">
+                                <i class="fas fa-birthday-cake"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl md:text-2xl font-black text-white uppercase">Ulang Tahun Bulan Ini</h3>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest">Jemaat yang berulang tahun bulan ini</p>
+                            </div>
+                        </div>
+                        <div id="birthday-list" class="overflow-x-auto text-center">
+                            <p class="text-slate-400 italic">Memuat data...</p>
+                        </div>
+                    </div>
+
+                    <!-- ======= PERMOHONAN DOA ======= -->
+                    <div class="glass p-6 md:p-8 mb-8 border-t-4 border-t-purple-500">
                         <div class="flex items-center gap-4 mb-6">
                             <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-2xl"><i class="fas fa-praying-hands"></i></div>
                             <div>
@@ -610,7 +807,6 @@ function doPrint(htmlContent, orientation = 'portrait') {
                                 <p class="text-xs md:text-sm text-slate-400">Kirimkan pokok doa untuk didoakan bersama oleh jemaat.</p>
                             </div>
                         </div>
-                        
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
                             <div>
                                 <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Nama Pemohon</label>
@@ -621,28 +817,28 @@ function doPrint(htmlContent, orientation = 'portrait') {
                                 <input type="text" id="doa-telp" placeholder="Contoh: 628123456789" inputmode="numeric" pattern="[0-9]*" class="!border-white/10 focus:!border-purple-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
                             </div>
                         </div>
-                        
                         <div class="bg-gray-800/50 border border-white/5 p-4 rounded-xl mb-6">
                             <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Pokok Doa (Ketik lalu tekan Enter)</label>
                             <input type="text" id="doa-input" onkeypress="handleDoaEnter(event)" placeholder="Ketik satu pokok doa & tekan Enter..." class="!border-white/10 focus:!border-purple-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-900 text-sm mb-4">
                             <div id="doa-list" class="flex flex-wrap gap-2 min-h-[40px]"></div>
                         </div>
-                        
                         <button onclick="submitDoaForm()" class="w-full bg-purple-500/20 text-purple-400 border border-purple-500/50 py-4 rounded-xl font-black uppercase text-sm hover:bg-purple-500 hover:text-white transition-all shadow-lg"><i class="fas fa-paper-plane mr-2"></i>Kirim Permohonan Doa</button>
                     </div>
+
+                    <!-- ======= DAFTAR DOA JEMAAT ======= -->
+                    <div class="glass p-5 md:p-8 mb-8 border-t-4 border-t-purple-500">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-xl">
+                                <i class="fas fa-praying-hands"></i>
+                            </div>
+                            <h3 class="text-xl md:text-2xl font-black text-white uppercase">Pokok Doa Jemaat</h3>
+                        </div>
+                        <div id="doa-table" class="overflow-x-auto">
+                            <p class="text-slate-400 italic text-center">Memuat data doa...</p>
+                        </div>
+                    </div>
+
                 </div>
-                <!-- ====== BAGIAN BARU: DAFTAR PERMOHONAN DOA ====== -->
-        <div class="glass p-5 md:p-8 mb-8 border-t-4 border-t-purple-500">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-xl">
-                    <i class="fas fa-praying-hands"></i>
-                </div>
-                <h3 class="text-xl md:text-2xl font-black text-white uppercase">Pokok Doa Jemaat</h3>
-            </div>
-            <div id="doa-table" class="overflow-x-auto">
-                <p class="text-slate-400 italic text-center">Memuat data doa...</p>
-            </div>
-        </div>
             `;
             // Setelah render, panggil fungsi untuk mengisi tabel
     setTimeout(() => {
@@ -665,7 +861,8 @@ function doPrint(htmlContent, orientation = 'portrait') {
             const totalMembers = filteredMembers.length;
             
             // Update total card
-            document.getElementById('dash-total-members').innerText = totalMembers;
+            const tmEl = document.getElementById('dash-total-members');
+            if (tmEl) tmEl.innerText = totalMembers;
 
             let historyData = [];
             if (unit === 'ALL') {
@@ -683,90 +880,328 @@ function doPrint(htmlContent, orientation = 'portrait') {
             let avgCount = 0;
             let lastAlpha = 0;
             let percent = 0;
+            let maxCount = 0;
             
             if (sortedHistory.length > 0) {
                 lastCount = sortedHistory[sortedHistory.length - 1].count;
                 const sum = sortedHistory.reduce((acc, curr) => acc + curr.count, 0);
                 avgCount = Math.round(sum / sortedHistory.length);
+                maxCount = Math.max(...sortedHistory.map(h => h.count));
             }
             
             if (totalMembers > 0) {
                 lastAlpha = totalMembers - lastCount;
                 percent = Math.round((lastCount / totalMembers) * 100);
             }
-            
-            document.getElementById('dash-last-attendance').innerText = lastCount;
-            document.getElementById('dash-last-alpha').innerText = lastAlpha;
-            document.getElementById('dash-avg-attendance').innerText = avgCount;
-            document.getElementById('dash-percent').innerText = percent + '%';
+
+            const setEl = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+            setEl('dash-last-attendance', lastCount);
+            setEl('dash-last-alpha', lastAlpha);
+            setEl('dash-avg-attendance', avgCount);
+            setEl('dash-percent', percent + '%');
+            setEl('dash-max-attendance', maxCount);
+
+            // Progress bar
+            const pb = document.getElementById('progress-bar');
+            const pbl = document.getElementById('progress-bar-label');
+            const ppl = document.getElementById('progress-percent-label');
+            if (pb) { pb.style.width = percent + '%'; }
+            if (ppl) ppl.innerText = percent + '%';
+            if (pbl) {
+                const label = percent >= 80 ? '🟢 Sangat Baik' : percent >= 60 ? '🟡 Cukup Baik' : percent >= 40 ? '🟠 Perlu Perhatian' : '🔴 Rendah';
+                pbl.innerText = label;
+            }
+
+            // Insight cards
+            if (sortedHistory.length >= 2) {
+                const last2 = sortedHistory.slice(-2);
+                const diff = last2[1].count - last2[0].count;
+                const trendEl = document.getElementById('insight-trend');
+                if (trendEl) {
+                    if (diff > 0) trendEl.innerHTML = `<span class="text-green-400">▲ Naik ${diff} jiwa</span> dari Sabat sebelumnya`;
+                    else if (diff < 0) trendEl.innerHTML = `<span class="text-red-400">▼ Turun ${Math.abs(diff)} jiwa</span> dari Sabat sebelumnya`;
+                    else trendEl.innerHTML = `<span class="text-yellow-400">→ Stabil</span> dari Sabat sebelumnya`;
+                }
+            } else {
+                setEl('insight-trend', 'Data belum cukup');
+            }
+            const baptisCount = filteredMembers.filter(m => m.status === 'Baptis').length;
+            const belumBaptis = totalMembers - baptisCount;
+            const bEl = document.getElementById('insight-baptis');
+            if (bEl) bEl.innerHTML = `<span class="text-cyan-400">${baptisCount}</span> Baptis · <span class="text-orange-400">${belumBaptis}</span> Belum`;
+            setEl('insight-total-sabat', sortedHistory.length + ' Sabat tercatat');
+
+            // Top class
+            const classCounts = {};
+            filteredMembers.forEach(m => { const k = m.kelasTetap || 'Lainnya'; classCounts[k] = (classCounts[k] || 0) + 1; });
+            const topClass = Object.entries(classCounts).sort((a,b)=>b[1]-a[1])[0];
+            const tcEl = document.getElementById('insight-top-class');
+            if (tcEl) tcEl.innerHTML = topClass ? `<span class="text-[#D4AF37]">${topClass[0]}</span> (${topClass[1]} jiwa)` : '-';
+
+            // Birthday count
+            const now = new Date();
+            const bdays = (members || []).filter(m => { if (!m.tanggalLahir) return false; const d = new Date(m.tanggalLahir); return d.getMonth() === now.getMonth(); });
+            const bdEl = document.getElementById('insight-birthday-count');
+            if (bdEl) bdEl.innerHTML = `<span class="text-pink-400">${bdays.length} jiwa</span> di bulan ini`;
 
             // Update charts
-            drawDashboardChart(sortedHistory.slice(-6));
+            drawDashboardChart(sortedHistory.slice(-10));
             drawClassCompositionChart(filteredMembers);
             drawBaptisStatusChart(filteredMembers);
             
-            // Update history table
+            // Update history table (5 pekan terakhir)
             const tableBody = document.getElementById('dash-history-table');
-            if (sortedHistory.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-slate-400 italic">Belum ada data kehadiran.</td></tr>';
-            } else {
-                const lastFive = sortedHistory.slice(-5).reverse(); // show newest first
-                tableBody.innerHTML = lastFive.map(h => {
-                    const hadir = h.count;
-                    const alpha = totalMembers - hadir;
-                    const pct = totalMembers > 0 ? Math.round((hadir / totalMembers) * 100) : 0;
+            if (tableBody) {
+                if (sortedHistory.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-slate-400 italic">Belum ada data kehadiran.</td></tr>';
+                } else {
+                    const lastFive = sortedHistory.slice(-5).reverse();
+                    let prevPct = null;
+                    tableBody.innerHTML = lastFive.map((h, idx) => {
+                        const hadir = h.count;
+                        const alpha = totalMembers - hadir;
+                        const pct = totalMembers > 0 ? Math.round((hadir / totalMembers) * 100) : 0;
+                        let trendIcon = '';
+                        if (idx < lastFive.length - 1) {
+                            const nextH = lastFive[idx + 1];
+                            if (h.count > nextH.count) trendIcon = '<span class="text-green-400 font-black">▲</span>';
+                            else if (h.count < nextH.count) trendIcon = '<span class="text-red-400 font-black">▼</span>';
+                            else trendIcon = '<span class="text-slate-400">→</span>';
+                        }
+                        const barW = totalMembers > 0 ? Math.round((hadir / totalMembers) * 100) : 0;
+                        return `
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                            <td class="px-4 py-3 font-medium text-sm">${formatDate(h.date)}</td>
+                            <td class="px-4 py-3 text-center text-green-400 font-black">${hadir}</td>
+                            <td class="px-4 py-3 text-center text-red-400 font-bold">${alpha}</td>
+                            <td class="px-4 py-3 text-center">
+                                <div class="flex items-center gap-2 justify-center">
+                                    <div class="w-20 bg-white/10 rounded-full h-1.5 hidden md:block">
+                                        <div class="h-1.5 rounded-full bg-[#D4AF37]" style="width:${barW}%"></div>
+                                    </div>
+                                    <span class="font-black text-${pct >= 70 ? 'green' : pct >= 50 ? 'yellow' : 'red'}-400">${pct}%</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-center text-lg">${trendIcon}</td>
+                        </tr>`;
+                    }).join('');
+                }
+            }
+
+            // Admin-only: render extra panels
+            if (currentUser.role === 'admin') {
+                renderAdminExtraStats();
+            }
+        };
+
+        function renderAdminExtraStats() {
+            // === Grafik Bar Per Unit ===
+            const allMembers = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
+            const unitMap = {};
+            allMembers.forEach(m => { const u = m.unit || 'Umum'; unitMap[u] = (unitMap[u] || 0) + 1; });
+            const unitEntries = Object.entries(unitMap).sort((a,b) => b[1]-a[1]);
+            const unitBarCtx = document.getElementById('unitBarChart');
+            if (unitBarCtx) {
+                if (window._unitBarChart) window._unitBarChart.destroy();
+                const colors = ['#D4AF37','#10B981','#3B82F6','#8B5CF6','#F59E0B','#EF4444','#06B6D4','#EC4899','#84CC16','#F97316'];
+                window._unitBarChart = new Chart(unitBarCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: unitEntries.map(([u]) => u),
+                        datasets: [{
+                            label: 'Jumlah Anggota',
+                            data: unitEntries.map(([,v]) => v),
+                            backgroundColor: unitEntries.map((_, i) => colors[i % colors.length] + 'CC'),
+                            borderColor: unitEntries.map((_, i) => colors[i % colors.length]),
+                            borderWidth: 2,
+                            borderRadius: 8,
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} jiwa` } } },
+                        scales: {
+                            x: { ticks: { color: '#94a3b8', font: { size: 11, weight: 'bold' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            y: { ticks: { color: '#94a3b8', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            // === Leaderboard Unit ===
+            const lbEl = document.getElementById('unit-leaderboard');
+            if (lbEl) {
+                const medals = ['🥇','🥈','🥉'];
+                const maxVal = unitEntries[0] ? unitEntries[0][1] : 1;
+                lbEl.innerHTML = unitEntries.slice(0, 8).map(([u, v], i) => {
+                    const pct = Math.round((v / maxVal) * 100);
+                    const medal = medals[i] || `<span class="text-slate-400 font-black text-xs">#${i+1}</span>`;
+                    return `
+                    <div class="flex items-center gap-3">
+                        <div class="text-lg w-8 text-center flex-shrink-0">${medal}</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-xs font-black text-white uppercase truncate">${u}</span>
+                                <span class="text-xs font-black text-[#D4AF37] ml-2 flex-shrink-0">${v}</span>
+                            </div>
+                            <div class="w-full bg-white/10 rounded-full h-1.5">
+                                <div class="h-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#10B981] transition-all duration-700" style="width:${pct}%"></div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            // === Grafik Jabatan (Doughnut) ===
+            const jabMap = {};
+            allMembers.forEach(m => {
+                const jabs = (m.jabatan || 'Anggota').split(',').map(j => j.trim());
+                jabs.forEach(j => { if(j) jabMap[j] = (jabMap[j] || 0) + 1; });
+            });
+            const jabCtx = document.getElementById('jabatanChart');
+            if (jabCtx) {
+                if (window._jabChart) window._jabChart.destroy();
+                const jabEntries = Object.entries(jabMap).sort((a,b)=>b[1]-a[1]).slice(0, 6);
+                const jabColors = ['#D4AF37','#10B981','#8B5CF6','#3B82F6','#F59E0B','#EF4444'];
+                window._jabChart = new Chart(jabCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: jabEntries.map(([j])=>j),
+                        datasets: [{ data: jabEntries.map(([,v])=>v), backgroundColor: jabColors, borderColor: 'rgba(10,25,47,0.8)', borderWidth: 3 }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, cutout: '65%',
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10, weight: 'bold' }, padding: 10 } },
+                            tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} jiwa` } }
+                        }
+                    }
+                });
+            }
+
+            // === Tabel Statistik Per Unit ===
+            const adminUnitTable = document.getElementById('admin-unit-stats-table');
+            if (adminUnitTable) {
+                const rows = unitEntries.map(([u, count]) => {
+                    // Cari history unit ini
+                    let unitHist = [];
+                    for (let key in statsData.historyByUnit) {
+                        if (key.trim().toLowerCase() === u.trim().toLowerCase()) { unitHist = statsData.historyByUnit[key]; break; }
+                    }
+                    const sortedH = [...unitHist].sort((a,b) => new Date(a.date) - new Date(b.date));
+                    const lastH = sortedH.length > 0 ? sortedH[sortedH.length - 1].count : '-';
+                    const lastAlpha = (typeof lastH === 'number') ? (count - lastH) : '-';
+                    const pct = (typeof lastH === 'number' && count > 0) ? Math.round((lastH/count)*100) : 0;
+                    const status = pct >= 75 ? '<span class="bg-green-500/20 text-green-400 border border-green-500/30 px-2 py-0.5 rounded-full text-[10px] font-black">BAIK</span>'
+                        : pct >= 50 ? '<span class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-full text-[10px] font-black">CUKUP</span>'
+                        : pct > 0 ? '<span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full text-[10px] font-black">RENDAH</span>'
+                        : '<span class="bg-slate-500/20 text-slate-400 border border-slate-500/30 px-2 py-0.5 rounded-full text-[10px] font-black">NO DATA</span>';
                     return `
                     <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                        <td class="px-4 py-3 font-medium">${formatDate(h.date)}</td>
-                        <td class="px-4 py-3 text-center text-green-400 font-bold">${hadir}</td>
-                        <td class="px-4 py-3 text-center text-red-400 font-bold">${alpha}</td>
-                        <td class="px-4 py-3 text-center font-bold">${pct}%</td>
+                        <td class="px-4 py-3 font-black text-white uppercase text-sm">${u}</td>
+                        <td class="px-4 py-3 text-center text-blue-400 font-bold">${count}</td>
+                        <td class="px-4 py-3 text-center text-green-400 font-bold">${lastH}</td>
+                        <td class="px-4 py-3 text-center text-red-400 font-bold">${lastAlpha}</td>
+                        <td class="px-4 py-3 text-center font-black ${pct >= 75 ? 'text-green-400' : pct >= 50 ? 'text-yellow-400' : 'text-red-400'}">${pct > 0 ? pct + '%' : '-'}</td>
+                        <td class="px-4 py-3 text-center">${status}</td>
                     </tr>`;
                 }).join('');
+                adminUnitTable.innerHTML = rows || '<tr><td colspan="6" class="text-center py-4 text-slate-400 italic">Tidak ada data unit.</td></tr>';
+            }
+
+            // === Tabel Histori Global (ALL) ===
+            const histFull = (statsData.historyByUnit['ALL'] || []).sort((a,b) => new Date(b.date) - new Date(a.date));
+            const fullTableEl = document.getElementById('admin-history-full-table');
+            const totalRecEl = document.getElementById('admin-total-records');
+            if (totalRecEl) totalRecEl.innerText = histFull.length + ' rekaman';
+            if (fullTableEl) {
+                if (histFull.length === 0) {
+                    fullTableEl.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-slate-400 italic">Belum ada rekaman data global.</td></tr>';
+                } else {
+                    const allM = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah').length;
+                    fullTableEl.innerHTML = histFull.map((h, idx) => {
+                        const alpha = allM > 0 ? allM - h.count : '-';
+                        const pct = allM > 0 ? Math.round((h.count/allM)*100) : 0;
+                        const prev = histFull[idx + 1];
+                        let trend = '';
+                        if (prev) {
+                            if (h.count > prev.count) trend = '<span class="text-green-400">▲</span>';
+                            else if (h.count < prev.count) trend = '<span class="text-red-400">▼</span>';
+                            else trend = '<span class="text-slate-400">→</span>';
+                        }
+                        return `
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition text-sm">
+                            <td class="px-4 py-2 font-medium">${formatDate(h.date)}</td>
+                            <td class="px-4 py-2 text-center text-green-400 font-bold">${h.count}</td>
+                            <td class="px-4 py-2 text-center text-red-400 font-bold">${alpha}</td>
+                            <td class="px-4 py-2 text-center font-black ${pct >= 70 ? 'text-green-400' : pct >= 50 ? 'text-yellow-400' : 'text-red-400'}">${pct > 0 ? pct+'%' : '-'}</td>
+                            <td class="px-4 py-2 text-center">${trend}</td>
+                        </tr>`;
+                    }).join('');
+                }
             }
         };
 
         window.drawDashboardChart = function(data) {
             const ctx = document.getElementById('attendanceChart');
             if (!ctx) return;
-            
             if (dashChart) dashChart.destroy();
 
             const labels = data.map(d => formatDate(d.date));
             const counts = data.map(d => d.count);
+            const filterEl = document.getElementById('dash-unit-filter');
+            const unit = filterEl ? filterEl.value : 'ALL';
+            let filteredM = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
+            if (unit !== 'ALL') { const su = unit.trim().toLowerCase(); filteredM = filteredM.filter(m => (m.unit || 'Umum').trim().toLowerCase() === su); }
+            const total = filteredM.length;
+            const alphas = counts.map(c => total > 0 ? total - c : 0);
 
             dashChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Total Hadir',
+                        label: 'Hadir',
                         data: counts,
                         borderColor: '#D4AF37',
-                        backgroundColor: 'rgba(212, 175, 55, 0.15)',
+                        backgroundColor: 'rgba(212, 175, 55, 0.12)',
                         borderWidth: 3,
                         pointBackgroundColor: '#10B981',
                         pointBorderColor: '#ffffff',
                         pointBorderWidth: 2,
                         pointRadius: 5,
-                        pointHoverRadius: 7,
+                        pointHoverRadius: 8,
                         fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Alpha',
+                        data: alphas,
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239,68,68,0.04)',
+                        borderWidth: 2,
+                        borderDash: [6, 3],
+                        pointBackgroundColor: '#EF4444',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 1,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: false,
                         tension: 0.4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
                     plugins: {
-                        legend: { display: false },
+                        legend: { display: true, position: 'top', labels: { color: '#94a3b8', font: { size: 11, weight: 'bold' }, boxWidth: 20, padding: 16 } },
                         tooltip: {
-                            backgroundColor: 'rgba(10, 25, 47, 0.9)',
+                            backgroundColor: 'rgba(10, 25, 47, 0.95)',
                             titleColor: '#D4AF37',
-                            bodyColor: '#ffffff',
-                            borderColor: 'rgba(212, 175, 55, 0.3)',
+                            bodyColor: '#e6f1ff',
+                            borderColor: 'rgba(212, 175, 55, 0.4)',
                             borderWidth: 1,
-                            padding: 10,
-                            displayColors: false
+                            padding: 12,
                         }
                     },
                     scales: {
@@ -776,7 +1211,7 @@ function doPrint(htmlContent, orientation = 'portrait') {
                             grid: { color: 'rgba(255,255,255,0.05)' }
                         },
                         x: {
-                            ticks: { color: '#94a3b8', font: { weight: 'bold' } },
+                            ticks: { color: '#94a3b8', font: { weight: 'bold', size: 10 }, maxRotation: 45 },
                             grid: { display: false }
                         }
                     }
