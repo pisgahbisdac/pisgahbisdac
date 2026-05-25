@@ -139,8 +139,8 @@
         .role-btn.active { background: var(--gold); color: var(--navy); box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
         .btn-hadir { padding: 0.8rem 1.5rem; border: 2px solid #10B981; border-radius: 0.75rem; color: #10B981; font-weight: 800; font-size: 0.9rem; transition: 0.2s; background: rgba(16, 185, 129, 0.1); backdrop-filter: blur(4px); cursor: pointer; }
         .btn-hadir.active { background: #10B981; color: white; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
-        .btn-alpha { padding: 0.8rem 1.5rem; border: 2px solid #EF4444; border-radius: 0.75rem; color: #EF4444; font-weight: 800; font-size: 0.9rem; transition: 0.2s; background: rgba(239, 68, 68, 0.1); backdrop-filter: blur(4px); cursor: pointer; }
-        .btn-alpha.active { background: #EF4444; color: white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+        .btn-alpa { padding: 0.8rem 1.5rem; border: 2px solid #EF4444; border-radius: 0.75rem; color: #EF4444; font-weight: 800; font-size: 0.9rem; transition: 0.2s; background: rgba(239, 68, 68, 0.1); backdrop-filter: blur(4px); cursor: pointer; }
+        .btn-alpa.active { background: #EF4444; color: white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
         
         .activity-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.1); border-radius: 1rem; position: relative; overflow: hidden; }
         .activity-number { position: absolute; right: -10px; bottom: -20px; font-size: 6rem; font-weight: 900; color: rgba(212, 175, 55, 0.05); pointer-events: none; }
@@ -294,8 +294,8 @@
                 <span id="c-hadir" class="text-xl font-black text-green-400">0</span>
             </div>
             <div class="flex justify-between items-center pb-3 border-b border-white/5">
-                <span class="text-xs text-red-400 font-bold uppercase tracking-widest"><i class="fas fa-times mr-2"></i>Alpha</span>
-                <span id="c-alpha" class="text-xl font-black text-red-400">0</span>
+                <span class="text-xs text-red-400 font-bold uppercase tracking-widest"><i class="fas fa-times mr-2"></i>Alpa</span>
+                <span id="c-alpa" class="text-xl font-black text-red-400">0</span>
             </div>
             <div class="flex justify-between items-center">
                 <span class="text-xs text-yellow-400 font-bold uppercase tracking-widest"><i class="fas fa-exclamation-triangle mr-2"></i>Belum Diabsen</span>
@@ -447,11 +447,11 @@ function doPrint(htmlContent, orientation = 'portrait') {
 
             const trendRows = filteredSorted.map((h, idx) => {
                 const pct = totalJemaat > 0 ? Math.round((h.count/totalJemaat)*100) : 0;
-                const alpha = totalJemaat - h.count;
+                const Alpa = totalJemaat - h.count;
                 const prev = filteredSorted[idx-1];
                 const diff = prev ? h.count - prev.count : null;
                 const trenStr = diff === null ? '-' : (diff > 0 ? `▲ +${diff}` : diff < 0 ? `▼ ${diff}` : '= 0');
-                return `<tr><td style="padding:5px 8px;border:1px solid #ccc;">${formatDate(h.date)}</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:center;color:#137333;font-weight:bold;">${h.count}</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:center;color:#c5221f;font-weight:bold;">${alpha}</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:center;font-weight:bold;">${pct}%</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:center;">${trenStr}</td></tr>`;
+                return `<tr><td style="padding:5px 8px;border:1px solid #ccc;">${formatDate(h.date)}</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:center;color:#137333;font-weight:bold;">${h.count}</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:center;color:#c5221f;font-weight:bold;">${Alpa}</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:center;font-weight:bold;">${pct}%</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:center;">${trenStr}</td></tr>`;
             }).join('');
 
             const printHtml = `
@@ -476,7 +476,7 @@ function doPrint(htmlContent, orientation = 'portrait') {
                     <thead><tr style="background:#f3f4f6;font-weight:bold;">
                         <th style="padding:6px 8px;border:1px solid #ccc;text-align:left;">Tanggal</th>
                         <th style="padding:6px 8px;border:1px solid #ccc;text-align:center;">Hadir</th>
-                        <th style="padding:6px 8px;border:1px solid #ccc;text-align:center;">Alpha</th>
+                        <th style="padding:6px 8px;border:1px solid #ccc;text-align:center;">Alpa</th>
                         <th style="padding:6px 8px;border:1px solid #ccc;text-align:center;">%</th>
                         <th style="padding:6px 8px;border:1px solid #ccc;text-align:center;">Tren</th>
                     </tr></thead>
@@ -536,7 +536,7 @@ function doPrint(htmlContent, orientation = 'portrait') {
                         const status = (histData[m.id] && histData[m.id][dStr]) ? histData[m.id][dStr] : '';
                         let bg = '', color = '', text = status || '-';
                         if (status === 'Hadir') { bg='#e6f4ea'; color='#137333'; }
-                        else if (status === 'Alpha') { bg='#fce8e6'; color='#c5221f'; }
+                        else if (status === 'Alpa') { bg='#fce8e6'; color='#c5221f'; }
                         return `<td style="padding:${tdPad};border:1px solid #000;text-align:center;font-weight:bold;background:${bg};color:${color||'#888'};font-size:${fontSize};">${text}</td>`;
                     }).join('');
                     return `<tr style="${idx%2===1?'background:#fafafa':''}">
@@ -675,8 +675,8 @@ function doPrint(htmlContent, orientation = 'portrait') {
                         </div>
                         <div class="glass p-4 text-center border-t-4 border-t-red-500 hover:scale-105 transition-transform duration-300">
                             <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-400 mx-auto mb-2"><i class="fas fa-times-circle text-sm"></i></div>
-                            <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Alpha Terakhir</h4>
-                            <div id="dash-last-alpha" class="text-2xl md:text-3xl font-black text-red-400">-</div>
+                            <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Alpa Terakhir</h4>
+                            <div id="dash-last-Alpa" class="text-2xl md:text-3xl font-black text-red-400">-</div>
                         </div>
                         <div class="glass p-4 text-center border-t-4 border-t-yellow-500 hover:scale-105 transition-transform duration-300">
                             <div class="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400 mx-auto mb-2"><i class="fas fa-chart-line text-sm"></i></div>
@@ -731,7 +731,7 @@ function doPrint(htmlContent, orientation = 'portrait') {
                             </div>
                             <div class="flex gap-4 text-xs text-slate-400">
                                 <span><span class="inline-block w-3 h-3 rounded-full bg-[#D4AF37] mr-1"></span>Hadir</span>
-                                <span><span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-1"></span>Alpha</span>
+                                <span><span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-1"></span>Alpa</span>
                             </div>
                         </div>
                         <div class="w-full h-[300px] relative">
@@ -763,7 +763,7 @@ function doPrint(htmlContent, orientation = 'portrait') {
                                     <tr>
                                         <th class="px-4 py-2">Tanggal</th>
                                         <th class="px-4 py-2 text-center">Hadir</th>
-                                        <th class="px-4 py-2 text-center">Alpha</th>
+                                        <th class="px-4 py-2 text-center">Alpa</th>
                                         <th class="px-4 py-2 text-center">Persentase</th>
                                         <th class="px-4 py-2 text-center">Tren</th>
                                     </tr>
@@ -867,18 +867,18 @@ function doPrint(htmlContent, orientation = 'portrait') {
 
             const sortedHistory = [...historyData].sort((a, b) => new Date(a.date) - new Date(b.date));
             
-            let lastCount = 0, avgCount = 0, lastAlpha = 0, percent = 0;
+            let lastCount = 0, avgCount = 0, lastAlpa = 0, percent = 0;
             if (sortedHistory.length > 0) {
                 lastCount = sortedHistory[sortedHistory.length - 1].count;
                 const sum = sortedHistory.reduce((acc, curr) => acc + curr.count, 0);
                 avgCount = Math.round(sum / sortedHistory.length);
             }
             if (totalMembers > 0) {
-                lastAlpha = totalMembers - lastCount;
+                lastAlpa = totalMembers - lastCount;
                 percent = Math.round((lastCount / totalMembers) * 100);
             }
             document.getElementById('dash-last-attendance').innerText = lastCount;
-            document.getElementById('dash-last-alpha').innerText = lastAlpha;
+            document.getElementById('dash-last-Alpa').innerText = lastAlpa;
             document.getElementById('dash-avg-attendance').innerText = avgCount;
             document.getElementById('dash-percent').innerText = percent + '%';
 
@@ -986,7 +986,7 @@ function doPrint(htmlContent, orientation = 'portrait') {
                     const lastEight = sortedHistory.slice(-8).reverse();
                     tableBody.innerHTML = lastEight.map((h, idx) => {
                         const hadir = h.count;
-                        const alpha = totalMembers - hadir;
+                        const Alpa = totalMembers - hadir;
                         const pct = totalMembers > 0 ? Math.round((hadir/totalMembers)*100) : 0;
                         // Tren: bandingkan dengan data sebelumnya di array (idx+1 = lebih lama)
                         let trenHtml = '<span class="text-slate-500">-</span>';
@@ -1002,7 +1002,7 @@ function doPrint(htmlContent, orientation = 'portrait') {
                         <tr class="border-b border-white/5 hover:bg-white/5 transition ${rowColor}">
                             <td class="px-4 py-3 font-medium ${idx === 0 ? 'text-[#D4AF37]' : ''}">${formatDate(h.date)}${idx === 0 ? ' <span class="text-[9px] text-[#D4AF37] ml-1 font-black uppercase">Terakhir</span>' : ''}</td>
                             <td class="px-4 py-3 text-center text-green-400 font-bold">${hadir}</td>
-                            <td class="px-4 py-3 text-center text-red-400 font-bold">${alpha}</td>
+                            <td class="px-4 py-3 text-center text-red-400 font-bold">${Alpa}</td>
                             <td class="px-4 py-3 text-center font-bold">
                                 <span class="${pct >= 70 ? 'text-green-400' : pct >= 50 ? 'text-yellow-400' : 'text-red-400'}">${pct}%</span>
                             </td>
@@ -1054,7 +1054,7 @@ function doPrint(htmlContent, orientation = 'portrait') {
 
             const labels = data.map(d => formatDate(d.date));
             const counts = data.map(d => d.count);
-            const alphas = data.map(d => Math.max(0, totalMembers - d.count));
+            const Alpas = data.map(d => Math.max(0, totalMembers - d.count));
 
             dashChart = new Chart(ctx, {
                 type: 'line',
@@ -1076,8 +1076,8 @@ function doPrint(htmlContent, orientation = 'portrait') {
                             tension: 0.4
                         },
                         {
-                            label: 'Alpha',
-                            data: alphas,
+                            label: 'Alpa',
+                            data: Alpas,
                             borderColor: '#EF4444',
                             backgroundColor: 'rgba(239, 68, 68, 0.07)',
                             borderWidth: 2,
@@ -1573,7 +1573,7 @@ function renderTabs() {
         <div class="bg-white/5 rounded-xl p-3 mb-6 flex items-center gap-4 border border-white/10">
             <div class="flex gap-4 text-xs font-black">
                 <span class="text-green-400"><i class="fas fa-check mr-1"></i><span id="kh-hadir-count">0</span> Hadir</span>
-                <span class="text-red-400"><i class="fas fa-times mr-1"></i><span id="kh-alpha-count">0</span> Alpha</span>
+                <span class="text-red-400"><i class="fas fa-times mr-1"></i><span id="kh-Alpa-count">0</span> Alpa</span>
                 <span class="text-yellow-400"><i class="fas fa-clock mr-1"></i><span id="kh-belum-count">0</span> Belum</span>
                 <span class="text-slate-400">Total: <span id="kh-total-count">0</span></span>
             </div>
@@ -1622,7 +1622,7 @@ function renderTabs() {
             <div class="bg-white/5 rounded-xl p-3 mb-6 flex flex-wrap items-center gap-4 border border-white/10">
                 <div class="flex gap-4 text-xs font-black flex-wrap">
                     <span class="text-green-400"><i class="fas fa-check mr-1"></i><span id="ss-hadir-count">0</span> Hadir</span>
-                    <span class="text-red-400"><i class="fas fa-times mr-1"></i><span id="ss-alpha-count">0</span> Alpha</span>
+                    <span class="text-red-400"><i class="fas fa-times mr-1"></i><span id="ss-Alpa-count">0</span> Alpa</span>
                     <span class="text-yellow-400"><i class="fas fa-clock mr-1"></i><span id="ss-belum-count">0</span> Belum</span>
                     <span class="text-slate-400">Total: <span id="ss-total-count">0</span></span>
                 </div>
@@ -1922,7 +1922,7 @@ function renderTabs() {
             ].filter(k => k.include);
 
             // Hitung statistik per kelas
-            let totalHadirGereja = 0, totalAnggotaGereja = 0, totalAlphaGereja = 0;
+            let totalHadirGereja = 0, totalAnggotaGereja = 0, totalAlpaGereja = 0;
             let ringkasanHTML = '';
             let detailHTML = '';
 
@@ -1935,11 +1935,11 @@ function renderTabs() {
                 const displayed = getDisplayedMembers(kls.type, kls.type === 'khotbah' ? null : cat, unitFilter);
                 const histData = attendanceHistory[kls.histKey] || {};
 
-                let hadir = 0, alpha = 0, belum = 0;
+                let hadir = 0, Alpa = 0, belum = 0;
                 displayed.forEach(m => {
                     const st = (histData[m.id] && histData[m.id][dateStr]) ? histData[m.id][dateStr] : '';
                     if (st === 'Hadir') hadir++;
-                    else if (st === 'Alpha') alpha++;
+                    else if (st === 'Alpa') Alpa++;
                     else belum++;
                 });
 
@@ -1953,7 +1953,7 @@ function renderTabs() {
                 const total = displayed.length;
                 const pct = total > 0 ? Math.round((hadir / total) * 100) : 0;
                 totalHadirGereja += hadir + tamuCount;
-                totalAlphaGereja += alpha;
+                totalAlpaGereja += Alpa;
                 totalAnggotaGereja += total;
 
                 // Bar progress
@@ -1965,7 +1965,7 @@ function renderTabs() {
                     <td style="padding:10px 12px; border:1px solid #e5e7eb; font-weight:bold; color:${kls.color}; font-size:13px;">${kls.label}</td>
                     <td style="padding:10px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold; font-size:15px;">${total}</td>
                     <td style="padding:10px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold; font-size:15px; color:#16a34a;">${hadir}${tamuCount > 0 ? ` <span style="font-size:11px; color:#92400e;">(+${tamuCount} tamu)</span>` : ''}</td>
-                    <td style="padding:10px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold; font-size:15px; color:#dc2626;">${alpha}</td>
+                    <td style="padding:10px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold; font-size:15px; color:#dc2626;">${Alpa}</td>
                     <td style="padding:10px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold; font-size:15px; color:#6b7280;">${belum}</td>
                     <td style="padding:10px 12px; border:1px solid #e5e7eb; text-align:center;">
                         <div style="display:flex; align-items:center; gap:8px;">
@@ -1981,7 +1981,7 @@ function renderTabs() {
                     // Tabel detail per kelas
                     let memberRows = displayed.map((m, idx) => {
                         const st = (histData[m.id] && histData[m.id][dateStr]) ? histData[m.id][dateStr] : '';
-                        const stColor = st === 'Hadir' ? '#16a34a' : st === 'Alpha' ? '#dc2626' : '#6b7280';
+                        const stColor = st === 'Hadir' ? '#16a34a' : st === 'Alpa' ? '#dc2626' : '#6b7280';
                         const stText = st || 'Belum Diabsen';
                         return `<tr style="border-bottom:1px solid #f3f4f6;">
                             <td style="padding:6px 10px; font-size:12px; text-align:center;">${idx+1}</td>
@@ -2051,8 +2051,8 @@ function renderTabs() {
                         <div style="font-size:10px; color:#888;">termasuk tamu</div>
                     </div>
                     <div style="flex:1; border:2px solid #dc2626; border-radius:10px; padding:16px; text-align:center; background:#fef2f2;">
-                        <div style="font-size:11px; font-weight:bold; text-transform:uppercase; color:#dc2626;">Total Alpha</div>
-                        <div style="font-size:32px; font-weight:900; margin-top:4px; color:#dc2626;">${totalAlphaGereja}</div>
+                        <div style="font-size:11px; font-weight:bold; text-transform:uppercase; color:#dc2626;">Total Alpa</div>
+                        <div style="font-size:32px; font-weight:900; margin-top:4px; color:#dc2626;">${totalAlpaGereja}</div>
                         <div style="font-size:10px; color:#888;">tidak hadir</div>
                     </div>
                     <div style="flex:1; border:2px solid ${pctGereja>=70?'#16a34a':pctGereja>=50?'#ca8a04':'#dc2626'}; border-radius:10px; padding:16px; text-align:center; background:${pctGereja>=70?'#f0fdf4':pctGereja>=50?'#fefce8':'#fef2f2'};">
@@ -2071,7 +2071,7 @@ function renderTabs() {
                                 <th style="padding:10px 12px; border:1px solid #374151; text-align:left;">Jenis Ibadah / Kelas</th>
                                 <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Terdaftar</th>
                                 <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Hadir</th>
-                                <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Alpha</th>
+                                <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Alpa</th>
                                 <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Belum</th>
                                 <th style="padding:10px 12px; border:1px solid #374151; text-align:center; width:25%;">Persentase</th>
                             </tr>
@@ -2188,9 +2188,9 @@ function renderTabs() {
                         const ds = getYYYYMMDD(sat);
                         const st = histData[m.id] && histData[m.id][ds] ? histData[m.id][ds] : '';
                         if (st === 'Hadir') totalHadir++;
-                        const bg = st === 'Hadir' ? '#dcfce7' : st === 'Alpha' ? '#fee2e2' : '#ffffff';
-                        const color = st === 'Hadir' ? '#16a34a' : st === 'Alpha' ? '#dc2626' : '#9ca3af';
-                        const txt = st === 'Hadir' ? 'H' : st === 'Alpha' ? 'A' : '-';
+                        const bg = st === 'Hadir' ? '#dcfce7' : st === 'Alpa' ? '#fee2e2' : '#ffffff';
+                        const color = st === 'Hadir' ? '#16a34a' : st === 'Alpa' ? '#dc2626' : '#9ca3af';
+                        const txt = st === 'Hadir' ? 'H' : st === 'Alpa' ? 'A' : '-';
                         return `<td style="padding:${tdPad}; border:1px solid #e5e7eb; text-align:center; font-weight:bold; font-size:12px; background:${bg}; color:${color};">${txt}</td>`;
                     }).join('');
                     const pctM = saturdays.length > 0 ? Math.round((totalHadir/saturdays.length)*100) : 0;
@@ -2402,7 +2402,7 @@ function renderTabs() {
             doPrint(printHtml, 'landscape');
         };
 
-        // FUNGSI UNTUK MEMUAT RIWAYAT ABSENSI KE DALAM TOMBOL HADIR/ALPHA
+        // FUNGSI UNTUK MEMUAT RIWAYAT ABSENSI KE DALAM TOMBOL HADIR/Alpa
         window.loadAdminData = function() {
             const valTipe = document.getElementById('admin-tipe').value;
             const valUnit = document.getElementById('unit-filter').value;
@@ -2729,7 +2729,7 @@ function initAdminListToggle() {
 
                     let boxContent = '';
                     if (status.toLowerCase() === 'hadir') { boxContent = 'H'; } 
-                    else if (status.toLowerCase() === 'alpha') { boxContent = 'A'; }
+                    else if (status.toLowerCase() === 'Alpa') { boxContent = 'A'; }
 
                     return `<td style="padding: ${tdPad}; border: 1px solid #000; text-align: center; font-weight: bold;">${boxContent}</td>`;
                 }).join('');
@@ -2838,7 +2838,7 @@ function initAdminListToggle() {
 
             const displayed = getDisplayedMembers(type, type === 'khotbah' ? null : catTitle, unit);
             
-            let hadir = 0, alpha = 0, belum = 0;
+            let hadir = 0, Alpa = 0, belum = 0;
             let dateStr = getYYYYMMDD(tgl);
 
             let isDense = displayed.length > 15;
@@ -2850,7 +2850,7 @@ function initAdminListToggle() {
                 const status = memberAttendance[m.id];
                 let statusText = '<span style="color:#6b7280; font-style:italic;">Belum Diabsen</span>';
                 if (status === 'Hadir') { statusText = 'HADIR'; hadir++; }
-                else if (status === 'Alpha') { statusText = 'ALPHA'; alpha++; }
+                else if (status === 'Alpa') { statusText = 'Alpa'; Alpa++; }
                 else { belum++; }
 
                 return `
@@ -2921,8 +2921,8 @@ function initAdminListToggle() {
                         <div style="font-size: 24px; font-weight: 900;">${hadir}</div>
                     </div>
                     <div style="flex: 1; border: 2px solid black; border-radius: 8px; padding: 15px; text-align: center;">
-                        <div style="font-size: 12px; font-weight: bold; text-transform: uppercase;">Total Alpha</div>
-                        <div style="font-size: 24px; font-weight: 900;">${alpha}</div>
+                        <div style="font-size: 12px; font-weight: bold; text-transform: uppercase;">Total Alpa</div>
+                        <div style="font-size: 24px; font-weight: 900;">${Alpa}</div>
                     </div>
                     <div style="flex: 1; border: 2px solid black; border-radius: 8px; padding: 15px; text-align: center;">
                         <div style="font-size: 12px; font-weight: bold; text-transform: uppercase;">Tamu</div>
@@ -3002,7 +3002,7 @@ function initAdminListToggle() {
                 </div>
                 <div class="flex gap-2 flex-wrap">
                     <button onclick="markUnitAttendance('${unitName}','khotbah','Hadir')" class="bg-green-500/20 border border-green-500/40 text-green-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-green-500 hover:text-white transition-all">&#10003; Semua Hadir</button>
-                    <button onclick="markUnitAttendance('${unitName}','khotbah','Alpha')" class="bg-red-500/20 border border-red-500/40 text-red-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-red-500 hover:text-white transition-all">&#10007; Semua Alpha</button>
+                    <button onclick="markUnitAttendance('${unitName}','khotbah','Alpa')" class="bg-red-500/20 border border-red-500/40 text-red-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-red-500 hover:text-white transition-all">&#10007; Semua Alpa</button>
                     <button onclick="resetUnitAttendance('${unitName}','khotbah')" class="bg-slate-500/20 border border-slate-500/40 text-slate-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-slate-500 hover:text-white transition-all">&#8635; Reset</button>
                 </div>
             </div>
@@ -3061,7 +3061,7 @@ function initAdminListToggle() {
                 </div>
                 <div class="flex gap-2 flex-wrap">
                     <button onclick="markUnitAttendance('${unitName}','${cat}','Hadir')" class="bg-green-500/20 border border-green-500/40 text-green-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-green-500 hover:text-white transition-all">&#10003; Semua Hadir</button>
-                    <button onclick="markUnitAttendance('${unitName}','${cat}','Alpha')" class="bg-red-500/20 border border-red-500/40 text-red-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-red-500 hover:text-white transition-all">&#10007; Semua Alpha</button>
+                    <button onclick="markUnitAttendance('${unitName}','${cat}','Alpa')" class="bg-red-500/20 border border-red-500/40 text-red-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-red-500 hover:text-white transition-all">&#10007; Semua Alpa</button>
                     <button onclick="resetUnitAttendance('${unitName}','${cat}')" class="bg-slate-500/20 border border-slate-500/40 text-slate-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-slate-500 hover:text-white transition-all">&#8635; Reset</button>
                 </div>
             </div>
@@ -3077,8 +3077,8 @@ function initAdminListToggle() {
         function createCardHTML(m) {
             const att = memberAttendance[m.id] || ''; const jab = m.jabatan || 'Anggota';
             const hadirCls = att === 'Hadir' ? 'active' : '';
-            const alphaCls = att === 'Alpha' ? 'active' : '';
-            const cardBorder = att === 'Hadir' ? 'border-green-500/40 bg-green-500/5' : att === 'Alpha' ? 'border-red-500/40 bg-red-500/5' : 'border-white/10';
+            const AlpaCls = att === 'Alpa' ? 'active' : '';
+            const cardBorder = att === 'Hadir' ? 'border-green-500/40 bg-green-500/5' : att === 'Alpa' ? 'border-red-500/40 bg-red-500/5' : 'border-white/10';
             return `
             <div class="p-4 rounded-xl flex flex-col items-center justify-between border-2 ${cardBorder} gap-3 hover:border-gold/30 transition-all text-center" id="card-${m.id}">
                 <div class="w-full">
@@ -3088,7 +3088,7 @@ function initAdminListToggle() {
                 </div>
                 <div class="flex gap-2 w-full">
                     <button id="btn-hadir-${m.id}" onclick="setAttendance('${m.id}', 'Hadir')" class="btn-hadir flex-1 py-2 text-xs ${hadirCls}"><i class="fas fa-check mr-1"></i>Hadir</button>
-                    <button id="btn-alpha-${m.id}" onclick="setAttendance('${m.id}', 'Alpha')" class="btn-alpha flex-1 py-2 text-xs ${alphaCls}"><i class="fas fa-times mr-1"></i>Alpha</button>
+                    <button id="btn-alpa-${m.id}" onclick="setAttendance('${m.id}', 'Alpa')" class="btn-alpa flex-1 py-2 text-xs ${AlpaCls}"><i class="fas fa-times mr-1"></i>Alpa</button>
                 </div>
             </div>`;
         }
@@ -3098,7 +3098,7 @@ function createAdminCardHTML(m) {
     const att = memberAttendance[m.id] || '';
     const jab = m.jabatan || 'Anggota';
     const hadirActive = att === 'Hadir' ? 'bg-green-600 text-white border-green-600' : 'bg-transparent text-green-400 border-green-500/50 hover:bg-green-600/20';
-    const alphaActive = att === 'Alpha' ? 'bg-red-600 text-white border-red-600' : 'bg-transparent text-red-400 border-red-500/50 hover:bg-red-600/20';
+    const AlpaActive = att === 'Alpa' ? 'bg-red-600 text-white border-red-600' : 'bg-transparent text-red-400 border-red-500/50 hover:bg-red-600/20';
     
     return `
     <div class="bg-white/5 p-3 rounded-xl border border-gold/10 hover:border-gold/30 transition-all flex flex-col w-full min-w-0 card-member">
@@ -3111,8 +3111,8 @@ function createAdminCardHTML(m) {
             <button id="btn-hadir-${m.id}" onclick="setAttendance('${m.id}', 'Hadir')" class="btn-hadir-mini flex-1 py-1 rounded-md font-bold uppercase transition-all border text-xs md:text-sm ${hadirActive}">
                 <i class="fas fa-check mr-1 text-[10px] md:text-xs"></i> HADIR
             </button>
-            <button id="btn-alpha-${m.id}" onclick="setAttendance('${m.id}', 'Alpha')" class="btn-alpha-mini flex-1 py-1 rounded-md font-bold uppercase transition-all border text-xs md:text-sm ${alphaActive}">
-                <i class="fas fa-times mr-1 text-[10px] md:text-xs"></i> ALPHA
+            <button id="btn-alpa-${m.id}" onclick="setAttendance('${m.id}', 'Alpa')" class="btn-alpa-mini flex-1 py-1 rounded-md font-bold uppercase transition-all border text-xs md:text-sm ${AlpaActive}">
+                <i class="fas fa-times mr-1 text-[10px] md:text-xs"></i> Alpa
             </button>
         </div>
     </div>`;
@@ -3120,7 +3120,7 @@ function createAdminCardHTML(m) {
 
         function setAttendance(id, status) {
             const btnHadir = document.getElementById(`btn-hadir-${id}`); 
-            const btnAlpha = document.getElementById(`btn-alpha-${id}`);
+            const btnAlpa = document.getElementById(`btn-alpa-${id}`);
             const card = document.getElementById(`card-${id}`);
             
             // Deteksi apakah ini admin card (mini) atau card biasa
@@ -3131,10 +3131,10 @@ function createAdminCardHTML(m) {
                 delete memberAttendance[id];
                 if (isAdminCard) {
                     if (btnHadir) { btnHadir.className = btnHadir.className.replace('bg-green-600 text-white border-green-600', 'bg-transparent text-green-400 border-green-500/50 hover:bg-green-600/20'); }
-                    if (btnAlpha) { btnAlpha.className = btnAlpha.className.replace('bg-red-600 text-white border-red-600', 'bg-transparent text-red-400 border-red-500/50 hover:bg-red-600/20'); }
+                    if (btnAlpa) { btnAlpa.className = btnAlpa.className.replace('bg-red-600 text-white border-red-600', 'bg-transparent text-red-400 border-red-500/50 hover:bg-red-600/20'); }
                 } else {
                     if (btnHadir) btnHadir.classList.remove('active');
-                    if (btnAlpha) btnAlpha.classList.remove('active');
+                    if (btnAlpa) btnAlpa.classList.remove('active');
                     if (card) { 
                         card.classList.remove('border-green-500/40','bg-green-500/5','border-red-500/40','bg-red-500/5'); 
                         card.classList.add('border-white/10'); 
@@ -3145,17 +3145,17 @@ function createAdminCardHTML(m) {
                 if (isAdminCard) {
                     // Reset kedua tombol dulu
                     if (btnHadir) btnHadir.className = `btn-hadir-mini flex-1 py-1 rounded-md font-bold uppercase transition-all border text-xs md:text-sm bg-transparent text-green-400 border-green-500/50 hover:bg-green-600/20`;
-                    if (btnAlpha) btnAlpha.className = `btn-alpha-mini flex-1 py-1 rounded-md font-bold uppercase transition-all border text-xs md:text-sm bg-transparent text-red-400 border-red-500/50 hover:bg-red-600/20`;
+                    if (btnAlpa) btnAlpa.className = `btn-alpa-mini flex-1 py-1 rounded-md font-bold uppercase transition-all border text-xs md:text-sm bg-transparent text-red-400 border-red-500/50 hover:bg-red-600/20`;
                     // Aktifkan yang dipilih
                     if (status === 'Hadir' && btnHadir) btnHadir.className = `btn-hadir-mini flex-1 py-1 rounded-md font-bold uppercase transition-all border text-xs md:text-sm bg-green-600 text-white border-green-600`;
-                    else if (status === 'Alpha' && btnAlpha) btnAlpha.className = `btn-alpha-mini flex-1 py-1 rounded-md font-bold uppercase transition-all border text-xs md:text-sm bg-red-600 text-white border-red-600`;
+                    else if (status === 'Alpa' && btnAlpa) btnAlpa.className = `btn-alpa-mini flex-1 py-1 rounded-md font-bold uppercase transition-all border text-xs md:text-sm bg-red-600 text-white border-red-600`;
                 } else {
                     if (status === 'Hadir') { 
                         if (btnHadir) btnHadir.classList.add('active'); 
-                        if (btnAlpha) btnAlpha.classList.remove('active');
+                        if (btnAlpa) btnAlpa.classList.remove('active');
                         if (card) { card.classList.remove('border-red-500/40','bg-red-500/5','border-white/10'); card.classList.add('border-green-500/40','bg-green-500/5'); }
                     } else { 
-                        if (btnAlpha) btnAlpha.classList.add('active'); 
+                        if (btnAlpa) btnAlpa.classList.add('active'); 
                         if (btnHadir) btnHadir.classList.remove('active');
                         if (card) { card.classList.remove('border-green-500/40','bg-green-500/5','border-white/10'); card.classList.add('border-red-500/40','bg-red-500/5'); }
                     }
@@ -3213,17 +3213,17 @@ function createAdminCardHTML(m) {
 
         function confirmAttendance(type, cat) {
             const displayed = getDisplayedMembers(type, cat);
-            let hadir = 0, alpha = 0;
+            let hadir = 0, Alpa = 0;
             
             displayed.forEach(m => {
                 if(memberAttendance[m.id] === 'Hadir') hadir++;
-                else if(memberAttendance[m.id] === 'Alpha') alpha++;
+                else if(memberAttendance[m.id] === 'Alpa') Alpa++;
             });
-            const belum = displayed.length - hadir - alpha;
+            const belum = displayed.length - hadir - Alpa;
             
             document.getElementById('c-total').innerText = displayed.length;
             document.getElementById('c-hadir').innerText = hadir;
-            document.getElementById('c-alpha').innerText = alpha;
+            document.getElementById('c-alpa').innerText = Alpa;
             document.getElementById('c-belum').innerText = belum;
             
             const subtitle = document.getElementById('confirm-subtitle');
@@ -3713,21 +3713,21 @@ async function syncDataInBackground() {
 
         // ===== HELPER: UPDATE COUNTER KHOTBAH =====
         function updateKhotbahCounter() {
-            let hadir = 0, alpha = 0, total = 0;
+            let hadir = 0, Alpa = 0, total = 0;
             members.forEach(m => {
                 total++;
                 if (memberAttendance[m.id] === 'Hadir') hadir++;
-                else if (memberAttendance[m.id] === 'Alpha') alpha++;
+                else if (memberAttendance[m.id] === 'Alpa') Alpa++;
             });
-            const belum = total - hadir - alpha;
+            const belum = total - hadir - Alpa;
             const pct = total > 0 ? Math.round((hadir/total)*100) : 0;
             const hEl = document.getElementById('kh-hadir-count');
-            const aEl = document.getElementById('kh-alpha-count');
+            const aEl = document.getElementById('kh-Alpa-count');
             const bEl = document.getElementById('kh-belum-count');
             const tEl = document.getElementById('kh-total-count');
             const pb = document.getElementById('kh-progress-bar');
             if (hEl) hEl.textContent = hadir;
-            if (aEl) aEl.textContent = alpha;
+            if (aEl) aEl.textContent = Alpa;
             if (bEl) bEl.textContent = belum;
             if (tEl) tEl.textContent = total;
             if (pb) pb.style.width = pct + '%';
@@ -3754,20 +3754,20 @@ async function syncDataInBackground() {
             if (filter !== 'ALL') {
                 filtered = filtered.filter(m => (m.unit||'Umum').trim().toLowerCase() === filter.trim().toLowerCase());
             }
-            let hadir = 0, alpha = 0, total = filtered.length;
+            let hadir = 0, Alpa = 0, total = filtered.length;
             filtered.forEach(m => {
                 if (memberAttendance[m.id] === 'Hadir') hadir++;
-                else if (memberAttendance[m.id] === 'Alpha') alpha++;
+                else if (memberAttendance[m.id] === 'Alpa') Alpa++;
             });
-            const belum = total - hadir - alpha;
+            const belum = total - hadir - Alpa;
             const pct = total > 0 ? Math.round((hadir/total)*100) : 0;
             const hEl = document.getElementById('ss-hadir-count');
-            const aEl = document.getElementById('ss-alpha-count');
+            const aEl = document.getElementById('ss-Alpa-count');
             const bEl = document.getElementById('ss-belum-count');
             const tEl = document.getElementById('ss-total-count');
             const pb = document.getElementById('ss-progress-bar');
             if (hEl) hEl.textContent = hadir;
-            if (aEl) aEl.textContent = alpha;
+            if (aEl) aEl.textContent = Alpa;
             if (bEl) bEl.textContent = belum;
             if (tEl) tEl.textContent = total;
             if (pb) pb.style.width = pct + '%';
@@ -3801,10 +3801,10 @@ async function syncDataInBackground() {
             targetMembers.forEach(m => {
                 memberAttendance[m.id] = status;
                 const btnH = document.getElementById('btn-hadir-' + m.id);
-                const btnA = document.getElementById('btn-alpha-' + m.id);
+                const btnA = document.getElementById('btn-alpa-' + m.id);
                 const card = document.getElementById('card-' + m.id);
                 if (btnH) { btnH.classList.toggle('active', status === 'Hadir'); }
-                if (btnA) { btnA.classList.toggle('active', status === 'Alpha'); }
+                if (btnA) { btnA.classList.toggle('active', status === 'Alpa'); }
                 if (card) {
                     card.className = card.className.replace(/border-(green|red)-500\/40/g, '');
                     card.className = card.className.replace(/bg-(green|red)-500\/5/g, '');
@@ -3829,7 +3829,7 @@ async function syncDataInBackground() {
             targetMembers.forEach(m => {
                 delete memberAttendance[m.id];
                 const btnH = document.getElementById('btn-hadir-' + m.id);
-                const btnA = document.getElementById('btn-alpha-' + m.id);
+                const btnA = document.getElementById('btn-alpa-' + m.id);
                 const card = document.getElementById('card-' + m.id);
                 if (btnH) btnH.classList.remove('active');
                 if (btnA) btnA.classList.remove('active');
@@ -3847,9 +3847,9 @@ async function syncDataInBackground() {
             members.forEach(m => {
                 memberAttendance[m.id] = status;
                 const btnH = document.getElementById('btn-hadir-' + m.id);
-                const btnA = document.getElementById('btn-alpha-' + m.id);
+                const btnA = document.getElementById('btn-alpa-' + m.id);
                 if (btnH) btnH.classList.toggle('active', status === 'Hadir');
-                if (btnA) btnA.classList.toggle('active', status === 'Alpha');
+                if (btnA) btnA.classList.toggle('active', status === 'Alpa');
             });
             updateKhotbahCounter();
         }
@@ -3865,9 +3865,9 @@ async function syncDataInBackground() {
             filtered.forEach(m => {
                 memberAttendance[m.id] = status;
                 const btnH = document.getElementById('btn-hadir-' + m.id);
-                const btnA = document.getElementById('btn-alpha-' + m.id);
+                const btnA = document.getElementById('btn-alpa-' + m.id);
                 if (btnH) btnH.classList.toggle('active', status === 'Hadir');
-                if (btnA) btnA.classList.toggle('active', status === 'Alpha');
+                if (btnA) btnA.classList.toggle('active', status === 'Alpa');
             });
             updateSSCounter(cat);
         }
