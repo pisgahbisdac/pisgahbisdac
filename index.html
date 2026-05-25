@@ -1778,198 +1778,120 @@ function renderTabs() {
 
                 <!-- ===== PUSAT CETAK LAPORAN ===== -->
                 <div class="glass p-5 md:p-8 mb-6 border-t-4 border-t-[#D4AF37]">
-                    <h3 class="text-2xl font-black text-[#D4AF37] uppercase mb-2"><i class="fas fa-print mr-3"></i>Pusat Cetak Laporan</h3>
-                    <p class="text-sm text-slate-400 mb-8">Hasilkan laporan lengkap kehadiran jemaat dalam berbagai format sesuai kebutuhan administrasi gereja.</p>
+                    <h3 class="text-xl font-black text-[#D4AF37] uppercase mb-1"><i class="fas fa-print mr-3"></i>Cetak Laporan</h3>
+                    <p class="text-xs text-slate-400 mb-6">Pilih jenis laporan yang ingin dicetak.</p>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                        <!-- KARTU 1: Statistik -->
-                        <div class="bg-blue-500/5 border border-blue-500/20 p-5 rounded-2xl hover:border-blue-500/50 transition-all flex flex-col">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-lg"><i class="fas fa-chart-pie"></i></div>
+                        <!-- CETAK 1: Daftar Hadir (satu tanggal, mengikuti panel atas) -->
+                        <div class="bg-green-500/5 border border-green-500/25 p-5 rounded-2xl hover:border-green-500/50 transition-all flex flex-col gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-lg shrink-0"><i class="fas fa-clipboard-list"></i></div>
                                 <div>
-                                    <h5 class="text-blue-400 font-black uppercase text-sm">Laporan Statistik</h5>
-                                    <p class="text-[10px] text-slate-500">Komposisi anggota & kehadiran</p>
+                                    <h5 class="text-green-400 font-black uppercase text-sm">Daftar Hadir</h5>
+                                    <p class="text-[10px] text-slate-400">Satu tanggal — mengikuti pilihan Kelas & Unit di panel atas</p>
                                 </div>
                             </div>
-                            <p class="text-xs text-slate-400 mb-4 flex-grow">Mengikuti pilihan <b class="text-white">Tipe Kelas</b> & <b class="text-white">Filter Unit</b> di panel atas.</p>
-                            <div class="space-y-3">
-                                <div class="flex gap-2">
-                                    <div class="flex-1">
-                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Dari Tanggal</label>
-                                        <input type="date" id="c-stat-start" value="${pastStrFull}" class="!border-white/10 focus:!border-blue-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                    </div>
-                                    <div class="flex-1">
-                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Sampai Tanggal</label>
-                                        <input type="date" id="c-stat-end" value="${todayStrFull}" class="!border-white/10 focus:!border-blue-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                    </div>
-                                </div>
-                                <button onclick="printStatistikFromAdmin()" class="w-full bg-blue-500/20 text-blue-400 border border-blue-500/30 py-3 rounded-xl font-black uppercase text-xs hover:bg-blue-500 hover:text-white transition-all"><i class="fas fa-print mr-2"></i>CETAK STATISTIK</button>
-                            </div>
+                            <button onclick="printAdminAbsen()" class="w-full bg-green-500/20 text-green-400 border border-green-500/30 py-3 rounded-xl font-black uppercase text-sm hover:bg-green-500 hover:text-white transition-all mt-auto">
+                                <i class="fas fa-print mr-2"></i>CETAK DAFTAR HADIR
+                            </button>
                         </div>
 
-                        <!-- KARTU 2: Multi-Tanggal -->
-                        <div class="bg-green-500/5 border border-green-500/20 p-5 rounded-2xl hover:border-green-500/50 transition-all flex flex-col">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-lg"><i class="fas fa-calendar-check"></i></div>
-                                <div>
-                                    <h5 class="text-green-400 font-black uppercase text-sm">Rekap Multi-Tanggal</h5>
-                                    <p class="text-[10px] text-slate-500">Daftar hadir per Sabat dalam rentang</p>
-                                </div>
-                            </div>
-                            <p class="text-xs text-slate-400 mb-4 flex-grow">Mengikuti pilihan <b class="text-white">Tipe Kelas</b> & <b class="text-white">Filter Unit</b> di panel atas. Kolom otomatis untuk setiap Sabtu.</p>
-                            <div class="space-y-3">
-                                <div class="flex gap-2">
-                                    <div class="flex-1">
-                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Dari Tanggal</label>
-                                        <input type="date" id="c-absen-start" value="${pastStrFull}" class="!border-white/10 focus:!border-green-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                    </div>
-                                    <div class="flex-1">
-                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Sampai Tanggal</label>
-                                        <input type="date" id="c-absen-end" value="${todayStrFull}" class="!border-white/10 focus:!border-green-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                    </div>
-                                </div>
-                                <button onclick="printAbsensiFromAdmin()" class="w-full bg-green-500/20 text-green-400 border border-green-500/30 py-3 rounded-xl font-black uppercase text-xs hover:bg-green-500 hover:text-white transition-all"><i class="fas fa-print mr-2"></i>CETAK REKAP MULTI-TANGGAL</button>
-                            </div>
-                        </div>
-
-                        <!-- KARTU 3: Rekap Gabungan Gereja -->
-                        <div class="bg-[#D4AF37]/5 border border-[#D4AF37]/30 p-5 rounded-2xl hover:border-[#D4AF37]/60 transition-all flex flex-col">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 rounded-full bg-[#D4AF37]/20 flex items-center justify-center text-[#D4AF37] text-lg"><i class="fas fa-church"></i></div>
+                        <!-- CETAK 2: Rekap Gabungan Gereja (1 tanggal, semua kelas) -->
+                        <div class="bg-[#D4AF37]/5 border border-[#D4AF37]/30 p-5 rounded-2xl hover:border-[#D4AF37]/60 transition-all flex flex-col gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-[#D4AF37]/20 flex items-center justify-center text-[#D4AF37] text-lg shrink-0"><i class="fas fa-church"></i></div>
                                 <div>
                                     <h5 class="text-[#D4AF37] font-black uppercase text-sm">Rekap Gabungan Gereja</h5>
-                                    <p class="text-[10px] text-slate-500">Semua kelas & unit dalam 1 laporan</p>
+                                    <p class="text-[10px] text-slate-400">Semua kelas dalam 1 laporan — satu tanggal Sabat</p>
                                 </div>
                             </div>
-                            <div class="flex-grow space-y-3 mb-4">
-                                <div class="flex gap-2">
-                                    <div class="flex-1">
-                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Tanggal Sabat</label>
-                                        <input type="date" id="rekap-tanggal" value="${todayStrFull}" class="!border-white/10 focus:!border-[#D4AF37] !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                    </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Tanggal Sabat</label>
+                                    <input type="date" id="rekap-tanggal" value="${todayStrFull}" class="!border-white/10 focus:!border-[#D4AF37] !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
                                 </div>
                                 <div>
-                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-2">Pilih Kelas yang Disertakan</label>
-                                    <div class="grid grid-cols-2 gap-1.5">
-                                        <label class="flex items-center gap-2 cursor-pointer bg-white/5 px-2 py-1.5 rounded-lg hover:bg-white/10 border border-white/5">
-                                            <input type="checkbox" id="rekap-khotbah" class="accent-[#D4AF37] w-4 h-4" checked>
-                                            <span class="text-xs font-bold text-white">Khotbah</span>
-                                        </label>
-                                        <label class="flex items-center gap-2 cursor-pointer bg-white/5 px-2 py-1.5 rounded-lg hover:bg-white/10 border border-white/5">
-                                            <input type="checkbox" id="rekap-ss-dewasa" class="accent-[#D4AF37] w-4 h-4" checked>
-                                            <span class="text-xs font-bold text-white">SS Dewasa</span>
-                                        </label>
-                                        <label class="flex items-center gap-2 cursor-pointer bg-white/5 px-2 py-1.5 rounded-lg hover:bg-white/10 border border-white/5">
-                                            <input type="checkbox" id="rekap-ss-anak" class="accent-[#D4AF37] w-4 h-4" checked>
-                                            <span class="text-xs font-bold text-white">SS Anak</span>
-                                        </label>
-                                        <label class="flex items-center gap-2 cursor-pointer bg-white/5 px-2 py-1.5 rounded-lg hover:bg-white/10 border border-white/5">
-                                            <input type="checkbox" id="rekap-pendalaman" class="accent-[#D4AF37] w-4 h-4" checked>
-                                            <span class="text-xs font-bold text-white">Pendalaman</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-2">Filter Unit (opsional)</label>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Filter Unit</label>
                                     <select id="rekap-unit" class="!border-white/10 focus:!border-[#D4AF37] !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                        <option value="ALL">SEMUA UNIT (GLOBAL)</option>
+                                        <option value="ALL">SEMUA UNIT</option>
                                         ${unitOptionsHTML}
                                     </select>
                                 </div>
-                                <div>
-                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-2">Tampilan Laporan</label>
+                                <div class="col-span-2">
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Pilih Kelas</label>
+                                    <div class="flex gap-2 flex-wrap">
+                                        <label class="flex items-center gap-1.5 cursor-pointer bg-white/5 px-2 py-1 rounded-lg border border-white/5 text-xs font-bold text-white"><input type="checkbox" id="rekap-khotbah" class="accent-[#D4AF37]" checked> Khotbah</label>
+                                        <label class="flex items-center gap-1.5 cursor-pointer bg-white/5 px-2 py-1 rounded-lg border border-white/5 text-xs font-bold text-white"><input type="checkbox" id="rekap-ss-dewasa" class="accent-[#D4AF37]" checked> SS Dewasa</label>
+                                        <label class="flex items-center gap-1.5 cursor-pointer bg-white/5 px-2 py-1 rounded-lg border border-white/5 text-xs font-bold text-white"><input type="checkbox" id="rekap-ss-anak" class="accent-[#D4AF37]" checked> SS Anak</label>
+                                        <label class="flex items-center gap-1.5 cursor-pointer bg-white/5 px-2 py-1 rounded-lg border border-white/5 text-xs font-bold text-white"><input type="checkbox" id="rekap-pendalaman" class="accent-[#D4AF37]" checked> Pendalaman</label>
+                                    </div>
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Tampilan</label>
                                     <div class="flex gap-2">
-                                        <label class="flex-1 flex items-center gap-2 cursor-pointer bg-white/5 px-2 py-1.5 rounded-lg hover:bg-white/10 border border-white/5">
-                                            <input type="radio" name="rekap-mode" value="ringkas" class="accent-[#D4AF37]" checked>
-                                            <span class="text-xs font-bold text-white">Ringkasan</span>
-                                        </label>
-                                        <label class="flex-1 flex items-center gap-2 cursor-pointer bg-white/5 px-2 py-1.5 rounded-lg hover:bg-white/10 border border-white/5">
-                                            <input type="radio" name="rekap-mode" value="lengkap" class="accent-[#D4AF37]">
-                                            <span class="text-xs font-bold text-white">Lengkap</span>
-                                        </label>
+                                        <label class="flex-1 flex items-center gap-1.5 cursor-pointer bg-white/5 px-2 py-1 rounded-lg border border-white/5 text-xs font-bold text-white"><input type="radio" name="rekap-mode" value="ringkas" class="accent-[#D4AF37]" checked> Ringkasan</label>
+                                        <label class="flex-1 flex items-center gap-1.5 cursor-pointer bg-white/5 px-2 py-1 rounded-lg border border-white/5 text-xs font-bold text-white"><input type="radio" name="rekap-mode" value="lengkap" class="accent-[#D4AF37]"> Lengkap</label>
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="printRekapGabungan()" class="w-full bg-[#D4AF37] text-[#0a192f] py-3 rounded-xl font-black uppercase text-sm hover:bg-yellow-400 transition-all shadow-[0_0_15px_rgba(212,175,55,0.3)]">
+                            <button onclick="printRekapGabungan()" class="w-full bg-[#D4AF37] text-[#0a192f] py-3 rounded-xl font-black uppercase text-sm hover:bg-yellow-400 transition-all shadow-[0_0_15px_rgba(212,175,55,0.3)] mt-auto">
                                 <i class="fas fa-file-alt mr-2"></i>CETAK REKAP GABUNGAN
                             </button>
                         </div>
-                    </div>
 
-                    <!-- ROW 2: Rekap Per Unit & Rekap Multi-Tanggal Gabungan -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-
-                        <!-- REKAP PER UNIT -->
-                        <div class="bg-purple-500/5 border border-purple-500/20 p-5 rounded-2xl hover:border-purple-500/50 transition-all flex flex-col">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-lg"><i class="fas fa-sitemap"></i></div>
+                        <!-- CETAK 3: Rekap Multi-Tanggal (rentang, satu kelas+unit) -->
+                        <div class="bg-blue-500/5 border border-blue-500/20 p-5 rounded-2xl hover:border-blue-500/50 transition-all flex flex-col gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-lg shrink-0"><i class="fas fa-calendar-check"></i></div>
                                 <div>
-                                    <h5 class="text-purple-400 font-black uppercase text-sm">Rekap Semua Unit (Gabungan)</h5>
-                                    <p class="text-[10px] text-slate-500">Satu laporan, semua unit tampil terpisah per halaman</p>
+                                    <h5 class="text-blue-400 font-black uppercase text-sm">Rekap Multi-Tanggal</h5>
+                                    <p class="text-[10px] text-slate-400">Daftar hadir per Sabat dalam rentang — mengikuti Kelas & Unit di atas</p>
                                 </div>
                             </div>
-                            <p class="text-xs text-slate-400 mb-4 flex-grow">Setiap unit mendapat halaman tersendiri lengkap dengan statistik kehadiran dan daftar jemaat. Cocok untuk laporan bulanan gereja.</p>
-                            <div class="space-y-3">
+                            <div class="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Pilih Kelas / Ibadah</label>
-                                    <select id="rekap-semua-unit-tipe" class="!border-white/10 focus:!border-purple-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                        <option value="ss_dewasa">Sekolah Sabat Dewasa</option>
-                                        <option value="ss_anak">Sekolah Sabat Anak</option>
-                                        <option value="pendalaman">Pendalaman Alkitab (PA)</option>
-                                        <option value="khotbah">Khotbah Sabat</option>
-                                    </select>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Dari Tanggal</label>
+                                    <input type="date" id="c-absen-start" value="${pastStrFull}" class="!border-white/10 focus:!border-blue-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
                                 </div>
-                                <div class="flex gap-2">
-                                    <div class="flex-1">
-                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Dari Tanggal</label>
-                                        <input type="date" id="rekap-unit-start" value="${pastStrFull}" class="!border-white/10 focus:!border-purple-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                    </div>
-                                    <div class="flex-1">
-                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Sampai Tanggal</label>
-                                        <input type="date" id="rekap-unit-end" value="${todayStrFull}" class="!border-white/10 focus:!border-purple-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                    </div>
+                                <div>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Sampai Tanggal</label>
+                                    <input type="date" id="c-absen-end" value="${todayStrFull}" class="!border-white/10 focus:!border-blue-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
                                 </div>
-                                <button onclick="printRekapSemuaUnit()" class="w-full bg-purple-500/20 text-purple-400 border border-purple-500/30 py-3 rounded-xl font-black uppercase text-xs hover:bg-purple-500 hover:text-white transition-all"><i class="fas fa-print mr-2"></i>CETAK REKAP SEMUA UNIT</button>
                             </div>
+                            <button onclick="printAbsensiFromAdmin()" class="w-full bg-blue-500/20 text-blue-400 border border-blue-500/30 py-3 rounded-xl font-black uppercase text-sm hover:bg-blue-500 hover:text-white transition-all mt-auto">
+                                <i class="fas fa-print mr-2"></i>CETAK REKAP MULTI-TANGGAL
+                            </button>
                         </div>
 
-                        <!-- REKAP MULTI-TANGGAL GABUNGAN -->
-                        <div class="bg-orange-500/5 border border-orange-500/20 p-5 rounded-2xl hover:border-orange-500/50 transition-all flex flex-col">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400 text-lg"><i class="fas fa-calendar-alt"></i></div>
+                        <!-- CETAK 4: Statistik -->
+                        <div class="bg-purple-500/5 border border-purple-500/20 p-5 rounded-2xl hover:border-purple-500/50 transition-all flex flex-col gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-lg shrink-0"><i class="fas fa-chart-bar"></i></div>
                                 <div>
-                                    <h5 class="text-orange-400 font-black uppercase text-sm">Rekap Multi-Tanggal Gabungan</h5>
-                                    <p class="text-[10px] text-slate-500">Semua kelas dalam satu tabel rentang waktu</p>
+                                    <h5 class="text-purple-400 font-black uppercase text-sm">Laporan Statistik</h5>
+                                    <p class="text-[10px] text-slate-400">Tren kehadiran dalam periode — mengikuti Filter Unit di atas</p>
                                 </div>
                             </div>
-                            <p class="text-xs text-slate-400 mb-4 flex-grow">Laporan rekap absensi seluruh kelas (Khotbah, SS Dewasa, SS Anak, Pendalaman) dengan ringkasan jumlah hadir per Sabat dalam satu periode.</p>
-                            <div class="space-y-3">
+                            <div class="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Filter Unit</label>
-                                    <select id="rekap-multi-unit" class="!border-white/10 focus:!border-orange-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                        <option value="ALL">SEMUA UNIT (GLOBAL)</option>
-                                        ${unitOptionsHTML}
-                                    </select>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Dari Tanggal</label>
+                                    <input type="date" id="c-stat-start" value="${pastStrFull}" class="!border-white/10 focus:!border-purple-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
                                 </div>
-                                <div class="flex gap-2">
-                                    <div class="flex-1">
-                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Dari Tanggal</label>
-                                        <input type="date" id="rekap-multi-start" value="${pastStrFull}" class="!border-white/10 focus:!border-orange-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                    </div>
-                                    <div class="flex-1">
-                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Sampai Tanggal</label>
-                                        <input type="date" id="rekap-multi-end" value="${todayStrFull}" class="!border-white/10 focus:!border-orange-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                    </div>
+                                <div>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Sampai Tanggal</label>
+                                    <input type="date" id="c-stat-end" value="${todayStrFull}" class="!border-white/10 focus:!border-purple-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
                                 </div>
-                                <button onclick="printRekapMultiTanggalGabungan()" class="w-full bg-orange-500/20 text-orange-400 border border-orange-500/30 py-3 rounded-xl font-black uppercase text-xs hover:bg-orange-500 hover:text-white transition-all"><i class="fas fa-print mr-2"></i>CETAK REKAP MULTI-TANGGAL GABUNGAN</button>
                             </div>
+                            <button onclick="printStatistikFromAdmin()" class="w-full bg-purple-500/20 text-purple-400 border border-purple-500/30 py-3 rounded-xl font-black uppercase text-sm hover:bg-purple-500 hover:text-white transition-all mt-auto">
+                                <i class="fas fa-print mr-2"></i>CETAK STATISTIK
+                            </button>
                         </div>
 
                     </div>
                 </div>
             `;
-            setTimeout(() => loadAdminData(), 150);
+                        setTimeout(() => loadAdminData(), 150);
             setTimeout(() => { initAdminListToggle(); }, 200);
         }
 
@@ -2509,11 +2431,10 @@ function renderTabs() {
                 }
             });
 
-            // Muat Tamu
+            // Muat Tamu — baca dari attendanceHistory per tipe & tanggal (bukan global)
             let tamuCount = 0;
-            if (statsData.historyByUnit['Tamu']) {
-                const tObj = statsData.historyByUnit['Tamu'].find(h => h.date === dateStr);
-                if (tObj) tamuCount = tObj.count;
+            if (histData['TAMU'] && histData['TAMU'][dateStr]) {
+                tamuCount = parseInt(histData['TAMU'][dateStr]) || 0;
             }
             document.getElementById('tamu').value = tamuCount;
 
