@@ -1775,8 +1775,8 @@ function renderTabs() {
             </div>
         </div>
         <!-- Progress Bar -->
-        <div class="bg-white/5 rounded-xl p-3 mb-6 flex items-center gap-4 border border-white/10">
-            <div class="flex gap-4 text-xs font-black">
+        <div class="bg-white/5 rounded-xl p-3 mb-6 flex flex-wrap items-center gap-4 border border-white/10">
+                <div class="flex gap-4 text-xs font-black flex-wrap">
                 <span class="text-green-400"><i class="fas fa-check mr-1"></i><span id="kh-hadir-count">0</span> Hadir</span>
                 <span class="text-red-400"><i class="fas fa-times mr-1"></i><span id="kh-Alpa-count">0</span> Alpa</span>
                 <span class="text-yellow-400"><i class="fas fa-clock mr-1"></i><span id="kh-belum-count">0</span> Belum</span>
@@ -2646,7 +2646,7 @@ function renderTabs() {
             // Tampilkan Kartu-Kartunya
             const listEl = document.getElementById('admin-absen-list');
             if (displayed.length === 0) {
-                listEl.innerHTML = '<div class="glass p-5 rounded-2xl border border-white/10 col-span-full text-center"><p class="text-slate-400 italic">Tidak ada anggota terdaftar untuk pengaturan ini.</p></div>';
+                listEl.innerHTML = '<div class="glass p-5 rounded-2xl border border-white/10 text-center"><p class="text-slate-400 italic">Tidak ada anggota terdaftar untuk pengaturan ini.</p></div>';
             } else {
                 listEl.innerHTML = displayed.map(m => createAdminCardHTML(m)).join('');
             }
