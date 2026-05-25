@@ -145,7 +145,34 @@
         .activity-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.1); border-radius: 1rem; position: relative; overflow: hidden; }
         .activity-number { position: absolute; right: -10px; bottom: -20px; font-size: 6rem; font-weight: 900; color: rgba(212, 175, 55, 0.05); pointer-events: none; }
         
-        .loading-spinner { border: 5px solid rgba(212, 175, 55, 0.1); width: 50px; height: 50px; border-radius: 50%; border-left-color: var(--gold); animation: spin 1s linear infinite; }
+        .loading-spinner {
+            width: 56px; height: 56px; position: relative;
+        }
+        .loading-spinner::before, .loading-spinner::after {
+            content: ''; position: absolute; border-radius: 50%;
+        }
+        .loading-spinner::before {
+            inset: 0;
+            border: 3px solid rgba(212,175,55,0.12);
+        }
+        .loading-spinner::after {
+            inset: 0;
+            border: 3px solid transparent;
+            border-top-color: var(--gold);
+            border-right-color: rgba(212,175,55,0.4);
+            animation: spin 0.9s cubic-bezier(0.5,0.1,0.5,0.9) infinite;
+        }
+        .loading-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--gold);
+            animation: dotPulse 1.4s ease-in-out infinite;
+        }
+        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dotPulse {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+            40% { transform: scale(1); opacity: 1; }
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -577,8 +604,26 @@ function doPrint(htmlContent, orientation = 'portrait') {
 </script>
 
 <!-- Loading & Toast -->
-<div id="loading" class="fixed inset-0 bg-[#0a192f]/70 flex items-center justify-center z-[400] flex-col">
-    <div class="loading-spinner mb-6"></div>
+<div id="loading" class="fixed inset-0 z-[400] flex items-center justify-center" style="background: rgba(8,18,38,0.92); backdrop-filter: blur(16px);">
+    <div class="flex flex-col items-center gap-6">
+        <!-- Logo pulse ring -->
+        <div class="relative flex items-center justify-center">
+            <div class="absolute w-24 h-24 rounded-full border border-[#D4AF37]/10 animate-ping" style="animation-duration:2s;"></div>
+            <div class="absolute w-16 h-16 rounded-full border border-[#D4AF37]/20"></div>
+            <div class="loading-spinner"></div>
+        </div>
+        <!-- Brand -->
+        <div class="text-center">
+            <div class="text-[#D4AF37] font-black text-lg tracking-[0.3em] uppercase">PISGAH BISDAC</div>
+            <div class="text-slate-500 text-[10px] tracking-widest uppercase mt-1">Memuat data...</div>
+        </div>
+        <!-- Dots -->
+        <div class="flex gap-2">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+        </div>
+    </div>
 </div>
 <div id="toast" class="fixed z-[700] pointer-events-none" style="top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
     <div class="flex items-center gap-4 px-6 py-4 rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.5)] border backdrop-blur-xl min-w-[260px] max-w-[90vw]" id="toast-inner">
@@ -655,9 +700,30 @@ function doPrint(htmlContent, orientation = 'portrait') {
         }
 
         window.renderDashboard = function(area, dropdownHTML) {
+            const isPublic = currentUser.role === 'public';
             area.innerHTML = `
                 <div class="mb-8 animate-[fadeIn_0.5s_ease-out]">
-                    <!-- WELCOME SECTION -->
+                    ${isPublic ? `
+                    <!-- PUBLIC HERO SECTION -->
+                    <div class="relative overflow-hidden rounded-3xl mb-8 border border-[#D4AF37]/20" style="background: linear-gradient(135deg, rgba(17,34,64,0.9) 0%, rgba(10,25,47,0.95) 100%);">
+                        <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at 70% 50%, rgba(212,175,55,0.07) 0%, transparent 70%);"></div>
+                        <div class="relative z-10 px-6 py-10 md:px-12 md:py-14 flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+                            <div class="shrink-0">
+                                <div class="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-[#D4AF37]/40 flex items-center justify-center mx-auto md:mx-0 p-3" style="background: rgba(212,175,55,0.1);">
+                                    <img src="./PisgahColor.png" alt="Logo PISGAH BISDAC" class="w-full h-full object-contain drop-shadow-lg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'">
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-[10px] tracking-[0.3em] text-[#D4AF37]/60 uppercase font-bold mb-2">Batam International Seventh-Day Adventist Church</p>
+                                <h2 class="text-2xl md:text-4xl font-black text-white mb-3 leading-tight">Selamat Datang di<br><span class="text-[#D4AF37]">PISGAH BISDAC</span></h2>
+                                <p class="text-slate-400 text-sm md:text-base max-w-lg mx-auto md:mx-0">Portal informasi kehadiran & kegiatan jemaat. Login sebagai Admin atau Unit untuk mengakses fitur lengkap.</p>
+                            </div>
+                            <div class="w-full md:w-56 shrink-0">
+                                ${dropdownHTML}
+                            </div>
+                        </div>
+                    </div>` : `
+                    <!-- ADMIN/UNIT WELCOME SECTION -->
                     <div class="glass p-6 md:p-8 mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-center gap-6 border-l-4 border-l-[#D4AF37]">
                         <div>
                             <h2 class="text-2xl md:text-3xl font-black text-white mb-2 uppercase">Selamat Datang di PISGAH BISDAC Matrix</h2>
@@ -666,10 +732,10 @@ function doPrint(htmlContent, orientation = 'portrait') {
                         <div class="w-full md:w-64">
                             ${dropdownHTML}
                         </div>
-                    </div>
+                    </div>`}
 
                     <!-- ====== STATISTIK UTAMA (6 KARTU) ====== -->
-                    <h3 class="text-xl md:text-2xl font-black text-[#D4AF37] uppercase mb-4"><i class="fas fa-chart-pie mr-3"></i>Statistik Kehadiran</h3>
+                    ${!isPublic ? `<h3 class="text-xl md:text-2xl font-black text-[#D4AF37] uppercase mb-4"><i class="fas fa-chart-pie mr-3"></i>Statistik Kehadiran</h3>` : `<h3 class="text-sm font-black text-[#D4AF37]/60 uppercase tracking-widest mb-4 text-center md:text-left"><i class="fas fa-chart-bar mr-2"></i>Ringkasan Jemaat</h3>`}
                     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-8">
                         <div class="glass p-4 text-center border-t-4 border-t-blue-500 hover:scale-105 transition-transform duration-300">
                             <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 mx-auto mb-2"><i class="fas fa-users text-sm"></i></div>
@@ -800,42 +866,137 @@ function doPrint(htmlContent, orientation = 'portrait') {
                     </div>
 
                     <!-- ====== PERMOHONAN DOA ====== -->
-                    <div class="glass p-6 md:p-8 mb-8 border-t-4 border-t-purple-500">
-                        <div class="flex items-center gap-4 mb-6">
-                            <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-2xl"><i class="fas fa-praying-hands"></i></div>
+                    <div class="glass mb-8 overflow-hidden" style="border-top: 4px solid #a855f7;">
+                        <!-- Header -->
+                        <div class="px-6 md:px-8 pt-6 md:pt-8 pb-5 flex items-center gap-4" style="background: linear-gradient(135deg, rgba(168,85,247,0.08) 0%, transparent 60%);">
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0" style="background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.3);">
+                                <i class="fas fa-praying-hands text-purple-400"></i>
+                            </div>
                             <div>
                                 <h3 class="text-xl md:text-2xl font-black text-white uppercase">Permohonan Doa</h3>
-                                <p class="text-xs md:text-sm text-slate-400">Kirimkan pokok doa untuk didoakan bersama oleh jemaat.</p>
+                                <p class="text-xs text-slate-400 mt-0.5">Kirimkan pokok doa untuk didoakan bersama oleh jemaat.</p>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Nama Pemohon</label>
-                                <input type="text" id="doa-nama" placeholder="Nama Anda" class="!border-white/10 focus:!border-purple-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2">No. WhatsApp (62XXX..)</label>
-                                <input type="text" id="doa-telp" placeholder="Contoh: 628123456789" inputmode="numeric" pattern="[0-9]*" class="!border-white/10 focus:!border-purple-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-800 text-sm">
+
+                        <!-- Step Indicator -->
+                        <div class="px-6 md:px-8 mb-5">
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2" id="doa-step-1-ind">
+                                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-all" style="background:#a855f7; color:white;">1</div>
+                                    <span class="text-xs font-bold text-purple-400 hidden sm:block">Identitas</span>
+                                </div>
+                                <div class="flex-1 h-px" style="background: rgba(168,85,247,0.3);"></div>
+                                <div class="flex items-center gap-2" id="doa-step-2-ind">
+                                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-all" id="doa-step2-circle" style="background: rgba(168,85,247,0.15); color: rgba(168,85,247,0.5); border: 1px solid rgba(168,85,247,0.3);">2</div>
+                                    <span class="text-xs font-bold text-slate-500 hidden sm:block" id="doa-step2-label">Pokok Doa</span>
+                                </div>
+                                <div class="flex-1 h-px" style="background: rgba(168,85,247,0.3);"></div>
+                                <div class="flex items-center gap-2" id="doa-step-3-ind">
+                                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-all" id="doa-step3-circle" style="background: rgba(168,85,247,0.15); color: rgba(168,85,247,0.5); border: 1px solid rgba(168,85,247,0.3);">3</div>
+                                    <span class="text-xs font-bold text-slate-500 hidden sm:block" id="doa-step3-label">Kirim</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="bg-gray-800/50 border border-white/5 p-4 rounded-xl mb-6">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Pokok Doa (Ketik lalu tekan Enter)</label>
-                            <input type="text" id="doa-input" onkeypress="handleDoaEnter(event)" placeholder="Ketik satu pokok doa & tekan Enter..." class="!border-white/10 focus:!border-purple-500 !text-white py-3 px-4 rounded-lg w-full bg-gray-900 text-sm mb-4">
-                            <div id="doa-list" class="flex flex-wrap gap-2 min-h-[40px]"></div>
+
+                        <div class="px-6 md:px-8 pb-6 md:pb-8">
+                            <!-- STEP 1: Identitas -->
+                            <div id="doa-step-1">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                                    <div class="relative">
+                                        <label class="text-[10px] font-black text-purple-400/70 uppercase tracking-widest block mb-2"><i class="fas fa-user mr-1"></i>Nama Pemohon</label>
+                                        <input type="text" id="doa-nama" placeholder="Nama lengkap Anda" maxlength="60"
+                                            oninput="doaCheckStep1()"
+                                            class="!border-purple-500/30 focus:!border-purple-500 !text-white py-3 px-4 rounded-xl w-full bg-gray-800/80 text-sm transition-all">
+                                        <div class="absolute right-3 bottom-3 text-[10px] text-slate-500" id="doa-nama-count">0/60</div>
+                                    </div>
+                                    <div class="relative">
+                                        <label class="text-[10px] font-black text-purple-400/70 uppercase tracking-widest block mb-2"><i class="fas fa-phone mr-1"></i>No. WhatsApp</label>
+                                        <input type="text" id="doa-telp" placeholder="628xxxxxxxxx" inputmode="numeric" maxlength="15"
+                                            oninput="doaCheckStep1()"
+                                            class="!border-purple-500/30 focus:!border-purple-500 !text-white py-3 px-4 rounded-xl w-full bg-gray-800/80 text-sm transition-all">
+                                        <div class="absolute right-3 bottom-3 text-[10px] text-slate-500" id="doa-telp-hint">62xxx...</div>
+                                    </div>
+                                </div>
+                                <button onclick="doaGoStep2()" id="doa-btn-next1" disabled
+                                    class="w-full py-3 rounded-xl font-black uppercase text-sm transition-all opacity-40 cursor-not-allowed"
+                                    style="background: rgba(168,85,247,0.2); color: #a855f7; border: 1px solid rgba(168,85,247,0.3);">
+                                    Lanjut — Tambah Pokok Doa <i class="fas fa-arrow-right ml-2"></i>
+                                </button>
+                            </div>
+
+                            <!-- STEP 2: Pokok Doa (hidden initially) -->
+                            <div id="doa-step-2" class="hidden">
+                                <div class="rounded-2xl p-4 mb-4" style="background: rgba(168,85,247,0.06); border: 1px solid rgba(168,85,247,0.15);">
+                                    <label class="text-[10px] font-black text-purple-400/70 uppercase tracking-widest block mb-3"><i class="fas fa-list mr-1"></i>Pokok Doa — tekan Enter atau klik +</label>
+                                    <div class="flex gap-2 mb-3">
+                                        <div class="relative flex-1">
+                                            <input type="text" id="doa-input" onkeydown="handleDoaEnter(event)"
+                                                placeholder="Tuliskan satu pokok doa..."
+                                                maxlength="120"
+                                                class="!border-purple-500/30 focus:!border-purple-500 !text-white py-3 pl-4 pr-16 rounded-xl w-full bg-gray-800/80 text-sm">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500" id="doa-input-count">0/120</span>
+                                        </div>
+                                        <button onclick="doaAddPoint()" class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all hover:scale-105 active:scale-95"
+                                            style="background: #a855f7; color: white; border: none;">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <!-- Chips -->
+                                    <div id="doa-list" class="flex flex-wrap gap-2 min-h-[36px]"></div>
+                                    <div class="mt-3 flex justify-between items-center">
+                                        <span class="text-[10px] text-slate-500" id="doa-point-count">0 pokok doa</span>
+                                        <button onclick="doaGoStep3()" id="doa-btn-next2" disabled
+                                            class="px-4 py-2 rounded-xl font-black text-xs uppercase transition-all opacity-40 cursor-not-allowed"
+                                            style="background: rgba(168,85,247,0.2); color: #a855f7; border: 1px solid rgba(168,85,247,0.3);">
+                                            Lanjut <i class="fas fa-arrow-right ml-1"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button onclick="doaGoStep1()" class="w-full py-2 rounded-xl text-xs text-slate-500 hover:text-slate-300 transition-all font-bold">
+                                    <i class="fas fa-arrow-left mr-1"></i> Kembali
+                                </button>
+                            </div>
+
+                            <!-- STEP 3: Review & Kirim (hidden initially) -->
+                            <div id="doa-step-3" class="hidden">
+                                <div class="rounded-2xl p-5 mb-4" style="background: rgba(168,85,247,0.06); border: 1px solid rgba(168,85,247,0.15);">
+                                    <p class="text-[10px] text-purple-400/70 uppercase font-black tracking-widest mb-3">Ringkasan Permohonan</p>
+                                    <div class="flex items-center gap-3 mb-4 pb-4" style="border-bottom: 1px solid rgba(168,85,247,0.1);">
+                                        <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-black text-sm" style="background: rgba(168,85,247,0.2); color: #a855f7;" id="doa-review-avatar"></div>
+                                        <div>
+                                            <div class="text-white font-black text-sm" id="doa-review-nama"></div>
+                                            <div class="text-slate-400 text-xs" id="doa-review-telp"></div>
+                                        </div>
+                                    </div>
+                                    <div id="doa-review-list" class="space-y-2"></div>
+                                </div>
+                                <button onclick="submitDoaForm()" id="doa-submit-btn"
+                                    class="w-full py-4 rounded-xl font-black uppercase text-sm transition-all hover:scale-[1.02] active:scale-[0.98] mb-3 shadow-lg"
+                                    style="background: linear-gradient(135deg, #a855f7, #7c3aed); color: white;">
+                                    <i class="fas fa-paper-plane mr-2"></i>Kirim Permohonan Doa
+                                </button>
+                                <button onclick="doaGoStep2()" class="w-full py-2 rounded-xl text-xs text-slate-500 hover:text-slate-300 transition-all font-bold">
+                                    <i class="fas fa-arrow-left mr-1"></i> Kembali
+                                </button>
+                            </div>
                         </div>
-                        <button onclick="submitDoaForm()" class="w-full bg-purple-500/20 text-purple-400 border border-purple-500/50 py-4 rounded-xl font-black uppercase text-sm hover:bg-purple-500 hover:text-white transition-all shadow-lg"><i class="fas fa-paper-plane mr-2"></i>Kirim Permohonan Doa</button>
                     </div>
 
                     <!-- ====== DAFTAR PERMOHONAN DOA ====== -->
-                    <div class="glass p-5 md:p-8 mb-8 border-t-4 border-t-purple-500">
-                        <div class="flex items-center gap-4 mb-6">
-                            <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-xl">
-                                <i class="fas fa-praying-hands"></i>
+                    <div class="glass p-5 md:p-8 mb-8 overflow-hidden" style="border-top: 4px solid #a855f7;">
+                        <div class="flex items-center justify-between gap-4 mb-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-purple-400" style="background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.3);">
+                                    <i class="fas fa-hands-praying"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg md:text-xl font-black text-white uppercase">Pokok Doa Jemaat</h3>
+                                    <p class="text-[10px] text-slate-400" id="doa-list-count">Memuat...</p>
+                                </div>
                             </div>
-                            <h3 class="text-xl md:text-2xl font-black text-white uppercase">Pokok Doa Jemaat</h3>
                         </div>
-                        <div id="doa-table" class="overflow-x-auto">
-                            <p class="text-slate-400 italic text-center">Memuat data doa...</p>
+                        <div id="doa-table">
+                            <p class="text-slate-400 italic text-center py-6">Memuat data doa...</p>
                         </div>
                     </div>
                 </div>
@@ -1296,38 +1457,67 @@ function doPrint(htmlContent, orientation = 'portrait') {
 
 function renderDoaTable() {
     const container = document.getElementById('doa-table');
+    const countEl = document.getElementById('doa-list-count');
     if (!container) return;
-    
+
     if (!doaList || doaList.length === 0) {
-        container.innerHTML = '<p class="text-slate-400 italic text-center py-4">Belum ada permohonan doa yang tercatat.</p>';
+        if (countEl) countEl.textContent = '0 permohonan';
+        container.innerHTML = `
+            <div class="flex flex-col items-center gap-3 py-10 text-center">
+                <div class="w-14 h-14 rounded-full flex items-center justify-center text-2xl" style="background: rgba(168,85,247,0.1);">
+                    <i class="fas fa-praying-hands text-purple-400/40"></i>
+                </div>
+                <p class="text-slate-500 text-sm italic">Belum ada permohonan doa yang tercatat.</p>
+            </div>`;
         return;
     }
-    
-    let html = '<div class="space-y-4">';
-    doaList.forEach((item, idx) => {
-        // Parsing poin doa (bisa array atau string dengan pemisah ' | ')
+
+    if (countEl) countEl.textContent = doaList.length + ' permohonan';
+
+    const html = doaList.map((item, idx) => {
         let poinArray = [];
-        if (Array.isArray(item.poin)) {
-            poinArray = item.poin;
-        } else if (typeof item.poin === 'string') {
-            poinArray = item.poin.split(' | ').filter(p => p.trim() !== '');
-        } else {
-            poinArray = [String(item.poin)];
-        }
-        
-        html += `
-        <div class="bg-white/5 rounded-xl p-4 border border-purple-500/20 hover:border-purple-500/50 transition-all">
-            <div class="flex justify-between items-start mb-2 flex-wrap gap-2">
-                <div class="font-bold text-purple-300">${escapeHtml(item.nama)}</div>
-                <div class="text-xs text-slate-400">${item.timestamp || '-'}</div>
+        if (Array.isArray(item.poin)) poinArray = item.poin;
+        else if (typeof item.poin === 'string') poinArray = item.poin.split(' | ').filter(p => p.trim() !== '');
+        else poinArray = [String(item.poin)];
+
+        const initials = (item.nama || '?').charAt(0).toUpperCase();
+        const colors = ['#a855f7','#8b5cf6','#7c3aed','#6d28d9'];
+        const color = colors[idx % colors.length];
+
+        return `
+        <div class="rounded-2xl overflow-hidden mb-3 transition-all" style="background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.15);" id="doa-card-${idx}">
+            <button onclick="toggleDoaCard(${idx})" class="w-full flex items-center gap-3 p-4 text-left hover:bg-purple-500/5 transition-all">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 font-black text-sm text-white" style="background: ${color};">${initials}</div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-black text-white text-sm truncate">${escapeHtml(item.nama || '-')}</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">${poinArray.length} pokok doa &nbsp;·&nbsp; ${item.timestamp || '-'}</div>
+                </div>
+                <div class="shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-all" style="background: rgba(168,85,247,0.15);" id="doa-chevron-${idx}">
+                    <i class="fas fa-chevron-down text-purple-400 text-[10px] transition-transform" id="doa-icon-${idx}"></i>
+                </div>
+            </button>
+            <div id="doa-body-${idx}" class="hidden px-4 pb-4">
+                <div class="space-y-2 pt-1" style="border-top: 1px solid rgba(168,85,247,0.1);">
+                    ${poinArray.map((poin, pi) => `
+                    <div class="flex items-start gap-2 pt-2">
+                        <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[9px] font-black mt-0.5" style="background: rgba(168,85,247,0.15); color: #a855f7;">${pi+1}</div>
+                        <p class="text-sm text-slate-300 leading-relaxed">${escapeHtml(poin)}</p>
+                    </div>`).join('')}
+                </div>
             </div>
-            <ul class="list-disc list-inside space-y-1 text-sm text-slate-200 ml-2 mt-2">
-                ${poinArray.map(poin => `<li>${escapeHtml(poin)}</li>`).join('')}
-            </ul>
         </div>`;
-    });
-    html += '</div>';
+    }).join('');
+
     container.innerHTML = html;
+}
+
+function toggleDoaCard(idx) {
+    const body = document.getElementById('doa-body-' + idx);
+    const icon = document.getElementById('doa-icon-' + idx);
+    if (!body) return;
+    const isOpen = !body.classList.contains('hidden');
+    body.classList.toggle('hidden', isOpen);
+    if (icon) icon.style.transform = isOpen ? '' : 'rotate(180deg)';
 }
 
 // Helper escape HTML untuk keamanan
@@ -1471,6 +1661,13 @@ function renderTabs() {
             else el.classList.add('hidden');
         } 
     };
+
+    // Sembunyikan seluruh tab bar untuk public
+    const tabArea = document.querySelector('.relative.flex.items-center.gap-2.mb-10');
+    if (tabArea) {
+        tabArea.style.display = currentUser.role === 'public' ? 'none' : '';
+    }
+
     // Hanya gunakan hasAccess, tanpa tambahan kondisi role
     toggleTab('btn-dashboard', hasAccess('dashboard'));
     toggleTab('btn-khotbah', hasAccess('khotbah'));
@@ -1485,7 +1682,7 @@ function renderTabs() {
     
     setTimeout(() => {
         refreshTabScrollButtons();
-        updateChevronVisibility();  // panggil fungsi untuk menyembunyikan chevron jika perlu
+        updateChevronVisibility();
     }, 50);
 }
 
@@ -3179,29 +3376,139 @@ function createAdminCardHTML(m) {
             }
         }
 
-        function handleDoaEnter(e) { if (e.key === 'Enter') { e.preventDefault(); const val = e.target.value.trim(); if (val) { doaPoints.push(val); e.target.value = ''; renderDoaPoints(); } } }
-        function renderDoaPoints() {
-            const container = document.getElementById('doa-list'); if (!container) return;
-            container.innerHTML = doaPoints.map((p, i) => `<div class="bg-blue-500/20 text-blue-300 px-3 md:px-4 py-1 md:py-2 rounded-full text-xs md:text-sm flex items-center gap-2 border border-blue-500/30 font-bold whitespace-nowrap"><span>${p}</span><button onclick="removeDoaPoint(${i})" class="hover:text-red-400 transition-colors ml-1"><i class="fas fa-times"></i></button></div>`).join('');
+        // ===== DOA WIZARD FUNCTIONS =====
+        function doaCheckStep1() {
+            const nama = (document.getElementById('doa-nama')?.value || '').trim();
+            const telp = (document.getElementById('doa-telp')?.value || '').trim();
+            const namaCount = document.getElementById('doa-nama-count');
+            const telpHint = document.getElementById('doa-telp-hint');
+            const btn = document.getElementById('doa-btn-next1');
+            if (namaCount) namaCount.textContent = nama.length + '/60';
+            const validTelp = /^62\d{7,13}$/.test(telp.replace(/\D/g,'')) || telp.length === 0;
+            if (telpHint) {
+                telpHint.textContent = telp.length === 0 ? '62xxx...' : (validTelp ? '✓' : 'Format: 628xxx');
+                telpHint.style.color = telp.length === 0 ? '' : (validTelp ? '#10b981' : '#ef4444');
+            }
+            const ok = nama.length >= 2 && telp.length >= 8;
+            if (btn) {
+                btn.disabled = !ok;
+                btn.style.opacity = ok ? '1' : '0.4';
+                btn.style.cursor = ok ? 'pointer' : 'not-allowed';
+            }
         }
+
+        function doaGoStep1() {
+            document.getElementById('doa-step-1').classList.remove('hidden');
+            document.getElementById('doa-step-2').classList.add('hidden');
+            document.getElementById('doa-step-3').classList.add('hidden');
+            doaUpdateStepUI(1);
+        }
+
+        function doaGoStep2() {
+            document.getElementById('doa-step-1').classList.add('hidden');
+            document.getElementById('doa-step-2').classList.remove('hidden');
+            document.getElementById('doa-step-3').classList.add('hidden');
+            doaUpdateStepUI(2);
+            setTimeout(() => document.getElementById('doa-input')?.focus(), 100);
+        }
+
+        function doaGoStep3() {
+            document.getElementById('doa-step-1').classList.add('hidden');
+            document.getElementById('doa-step-2').classList.add('hidden');
+            document.getElementById('doa-step-3').classList.remove('hidden');
+            doaUpdateStepUI(3);
+            // Fill review
+            const nama = document.getElementById('doa-nama')?.value.trim() || '';
+            const telp = document.getElementById('doa-telp')?.value.trim() || '';
+            const avatar = document.getElementById('doa-review-avatar');
+            const rNama = document.getElementById('doa-review-nama');
+            const rTelp = document.getElementById('doa-review-telp');
+            const rList = document.getElementById('doa-review-list');
+            if (avatar) avatar.textContent = nama.charAt(0).toUpperCase();
+            if (rNama) rNama.textContent = nama;
+            if (rTelp) rTelp.textContent = telp ? '📱 ' + telp : '';
+            if (rList) rList.innerHTML = doaPoints.map((p, i) =>
+                `<div class="flex items-start gap-2 p-2 rounded-lg" style="background: rgba(168,85,247,0.06);">
+                    <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[10px] font-black mt-0.5" style="background: rgba(168,85,247,0.2); color: #a855f7;">${i+1}</div>
+                    <span class="text-sm text-slate-200">${escapeHtml(p)}</span>
+                </div>`
+            ).join('');
+        }
+
+        function doaUpdateStepUI(active) {
+            [1,2,3].forEach(n => {
+                const circle = document.getElementById(n === 1 ? 'doa-step-1-ind' : `doa-step${n}-circle`);
+                const label = document.getElementById(`doa-step${n}-label`);
+                if (n === 1) {
+                    const c = document.querySelector('#doa-step-1-ind > div');
+                    if (c) { c.style.background = active >= 1 ? '#a855f7' : 'rgba(168,85,247,0.15)'; c.style.color = active >= 1 ? 'white' : 'rgba(168,85,247,0.5)'; }
+                } else {
+                    if (circle) { circle.style.background = active >= n ? '#a855f7' : 'rgba(168,85,247,0.15)'; circle.style.color = active >= n ? 'white' : 'rgba(168,85,247,0.5)'; }
+                }
+                if (label) { label.style.color = active >= n ? '#a855f7' : ''; label.className = label.className.replace('text-purple-400','').replace('text-slate-500','') + (active >= n ? ' text-purple-400' : ' text-slate-500'); }
+            });
+        }
+
+        function doaAddPoint() {
+            const inp = document.getElementById('doa-input');
+            if (!inp) return;
+            const val = inp.value.trim();
+            if (val) { doaPoints.push(val); inp.value = ''; renderDoaPoints(); }
+            inp.focus();
+        }
+
+        function handleDoaEnter(e) {
+            const inp = document.getElementById('doa-input');
+            if (inp) {
+                const cnt = document.getElementById('doa-input-count');
+                if (cnt) cnt.textContent = inp.value.length + '/120';
+            }
+            if (e.key === 'Enter') { e.preventDefault(); doaAddPoint(); }
+        }
+
+        function renderDoaPoints() {
+            const container = document.getElementById('doa-list');
+            if (!container) return;
+            const btn2 = document.getElementById('doa-btn-next2');
+            const countEl = document.getElementById('doa-point-count');
+            if (countEl) countEl.textContent = doaPoints.length + ' pokok doa';
+            if (btn2) {
+                const ok = doaPoints.length > 0;
+                btn2.disabled = !ok;
+                btn2.style.opacity = ok ? '1' : '0.4';
+                btn2.style.cursor = ok ? 'pointer' : 'not-allowed';
+                btn2.onclick = ok ? doaGoStep3 : null;
+            }
+            container.innerHTML = doaPoints.length === 0
+                ? `<p class="text-[11px] text-slate-500 italic py-1">Belum ada pokok doa ditambahkan...</p>`
+                : doaPoints.map((p, i) => `
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold animate-[fadeIn_0.2s_ease]"
+                    style="background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.3); color: #d8b4fe;">
+                    <span class="w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[9px] font-black" style="background: rgba(168,85,247,0.3);">${i+1}</span>
+                    <span class="max-w-[180px] truncate">${escapeHtml(p)}</span>
+                    <button onclick="removeDoaPoint(${i})" class="ml-1 w-4 h-4 rounded-full flex items-center justify-center hover:bg-red-500/30 hover:text-red-400 transition-all shrink-0">
+                        <i class="fas fa-times text-[9px]"></i>
+                    </button>
+                </div>`).join('');
+        }
+
         function removeDoaPoint(index) { doaPoints.splice(index, 1); renderDoaPoints(); }
+
         async function submitDoaForm() {
-    const nama = document.getElementById('doa-nama').value.trim();
-    let telp = document.getElementById('doa-telp').value.trim();
-    if (!nama || !telp) return showToast("NAMA DAN NO TELP WAJIB DIISI!", "error");
-    if (doaPoints.length === 0) return showToast("MASUKKAN MINIMAL 1 POIN DOA!", "error");
-    
-    await send({ action: 'submitDoa', data: { nama, telp, poin: doaPoints } });
-    
-    document.getElementById('doa-nama').value = '';
-    document.getElementById('doa-telp').value = '';
-    doaPoints = [];
-    renderDoaPoints();
-    
-    // Refresh daftar doa
-    await fetchDoa();
-    showToast("Permohonan doa terkirim!", "success");
-}
+            const nama = document.getElementById('doa-nama')?.value.trim();
+            const telp = document.getElementById('doa-telp')?.value.trim();
+            if (!nama || !telp) return showToast("NAMA DAN NO TELP WAJIB DIISI!", "error");
+            if (doaPoints.length === 0) return showToast("MASUKKAN MINIMAL 1 POIN DOA!", "error");
+            const btn = document.getElementById('doa-submit-btn');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mengirim...'; }
+            await send({ action: 'submitDoa', data: { nama, telp, poin: doaPoints } });
+            document.getElementById('doa-nama').value = '';
+            document.getElementById('doa-telp').value = '';
+            doaPoints = [];
+            doaGoStep1();
+            await fetchDoa();
+            showToast("Permohonan doa terkirim!", "success");
+        }
 
         function getDisplayedMembers(type, cat, forceUnit) {
             const filterEl = document.getElementById('unit-filter'); 
