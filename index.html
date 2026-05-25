@@ -408,10 +408,81 @@ function doPrint(htmlContent, orientation = 'portrait') {
 
         // ========== FUNGSI CETAK YANG DIMODIFIKASI MENGGUNAKAN PREVIEW ==========
         function printStatistikFromAdmin() {
-            const selectedUnit = document.getElementById('unit-filter').value;
+            const selectedUnit = document.getElementById('unit-filter') ? document.getElementById('unit-filter').value : 'ALL';
             const startDate = document.getElementById('c-stat-start').value;
             const endDate = document.getElementById('c-stat-end').value;
-            let htmlContent = `<div>Preview Statistik (Unit: ${selectedUnit})</div>`;
+
+            const optionsFormat = { day: 'numeric', month: 'long', year: 'numeric' };
+            const startStr = startDate ? new Date(startDate + 'T00:00:00').toLocaleDateString('id-ID', optionsFormat) : '-';
+            const endStr = endDate ? new Date(endDate + 'T00:00:00').toLocaleDateString('id-ID', optionsFormat) : '-';
+            const periodeText = (startDate === endDate) ? startStr : `${startStr} s/d ${endStr}`;
+            const todayStr = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+            let filteredMembersForPrint = [];
+            if (selectedUnit === 'ALL') {
+                filteredMembersForPrint = members.filter(m => (m.unit || '').toLowerCase() !== 'khotbah');
+            } else {
+                const safeUnitFilter = selectedUnit.trim().toLowerCase();
+                filteredMembersForPrint = members.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeUnitFilter);
+            }
+            const totalJemaat = filteredMembersForPrint.length;
+            const baptisCount = filteredMembersForPrint.filter(m => m.status === 'Baptis').length;
+
+            // Hitung statistik dari statsData
+            let historyData = [];
+            if (selectedUnit === 'ALL') {
+                historyData = statsData.historyByUnit['ALL'] || [];
+            } else {
+                for (let key in statsData.historyByUnit) {
+                    if (key.trim().toLowerCase() === selectedUnit.trim().toLowerCase()) { historyData = statsData.historyByUnit[key]; break; }
+                }
+            }
+            const filtered = historyData.filter(h => (!startDate || h.date >= startDate) && (!endDate || h.date <= endDate));
+            const filteredSorted = [...filtered].sort((a,b) => new Date(a.date)-new Date(b.date));
+            const totalSesi = filteredSorted.length;
+            const totalHadir = filteredSorted.reduce((s,h) => s+h.count, 0);
+            const avgHadir = totalSesi > 0 ? Math.round(totalHadir/totalSesi) : 0;
+            const lastHadir = filteredSorted.length > 0 ? filteredSorted[filteredSorted.length-1].count : 0;
+            const pctHadir = totalJemaat > 0 ? Math.round((lastHadir/totalJemaat)*100) : 0;
+
+            const trendRows = filteredSorted.map((h, idx) => {
+                const pct = totalJemaat > 0 ? Math.round((h.count/totalJemaat)*100) : 0;
+                const alpha = totalJemaat - h.count;
+                const prev = filteredSorted[idx-1];
+                const diff = prev ? h.count - prev.count : null;
+                const trenStr = diff === null ? '-' : (diff > 0 ? `▲ +${diff}` : diff < 0 ? `▼ ${diff}` : '= 0');
+                return `<tr><td style="padding:5px 8px;border:1px solid #ccc;">${formatDate(h.date)}</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:center;color:#137333;font-weight:bold;">${h.count}</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:center;color:#c5221f;font-weight:bold;">${alpha}</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:center;font-weight:bold;">${pct}%</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:center;">${trenStr}</td></tr>`;
+            }).join('');
+
+            const printHtml = `
+            <div style="font-family:Arial,sans-serif;color:black;background:white;padding:20px;">
+                <div style="text-align:center;border-bottom:3px solid black;padding-bottom:15px;margin-bottom:20px;">
+                    <h1 style="margin:0;font-size:24px;font-weight:900;">PISGAH BISDAC</h1>
+                    <p style="margin:2px 0;font-size:12px;font-weight:bold;">Batam International Seventh-Day Adventist Church</p>
+                    <p style="margin:0;font-size:11px;">Laporan Statistik Kehadiran</p>
+                </div>
+                <h2 style="text-align:center;font-size:18px;margin-bottom:5px;">LAPORAN STATISTIK: ${selectedUnit === 'ALL' ? 'GLOBAL (Semua Unit)' : selectedUnit.toUpperCase()}</h2>
+                <p style="text-align:center;font-size:12px;margin:0 0 20px;">Periode: ${periodeText} &nbsp;|&nbsp; Dicetak: ${todayStr}</p>
+                <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+                    <div style="flex:1;border:2px solid black;border-radius:8px;padding:12px;text-align:center;min-width:80px;"><div style="font-size:11px;font-weight:bold;text-transform:uppercase;">Total Jemaat</div><div style="font-size:28px;font-weight:900;">${totalJemaat}</div></div>
+                    <div style="flex:1;border:2px solid black;border-radius:8px;padding:12px;text-align:center;min-width:80px;"><div style="font-size:11px;font-weight:bold;text-transform:uppercase;">Sudah Baptis</div><div style="font-size:28px;font-weight:900;color:#137333;">${baptisCount}</div></div>
+                    <div style="flex:1;border:2px solid black;border-radius:8px;padding:12px;text-align:center;min-width:80px;"><div style="font-size:11px;font-weight:bold;text-transform:uppercase;">Total Sesi</div><div style="font-size:28px;font-weight:900;">${totalSesi}</div></div>
+                    <div style="flex:1;border:2px solid black;border-radius:8px;padding:12px;text-align:center;min-width:80px;"><div style="font-size:11px;font-weight:bold;text-transform:uppercase;">Rata-rata Hadir</div><div style="font-size:28px;font-weight:900;color:#0a5c36;">${avgHadir}</div></div>
+                    <div style="flex:1;border:2px solid black;border-radius:8px;padding:12px;text-align:center;min-width:80px;"><div style="font-size:11px;font-weight:bold;text-transform:uppercase;">% Terakhir</div><div style="font-size:28px;font-weight:900;color:${pctHadir>=70?'#137333':pctHadir>=50?'#b45309':'#c5221f'};">${pctHadir}%</div></div>
+                </div>
+                ${filteredSorted.length > 0 ? `
+                <h3 style="font-size:14px;font-weight:bold;border-bottom:2px solid black;padding-bottom:5px;margin-bottom:10px;text-transform:uppercase;">Riwayat Kehadiran (${totalSesi} Sesi)</h3>
+                <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                    <thead><tr style="background:#f3f4f6;font-weight:bold;">
+                        <th style="padding:6px 8px;border:1px solid #ccc;text-align:left;">Tanggal</th>
+                        <th style="padding:6px 8px;border:1px solid #ccc;text-align:center;">Hadir</th>
+                        <th style="padding:6px 8px;border:1px solid #ccc;text-align:center;">Alpha</th>
+                        <th style="padding:6px 8px;border:1px solid #ccc;text-align:center;">%</th>
+                        <th style="padding:6px 8px;border:1px solid #ccc;text-align:center;">Tren</th>
+                    </tr></thead>
+                    <tbody>${trendRows}</tbody>
+                </table>` : '<p style="text-align:center;color:#666;font-style:italic;">Tidak ada data kehadiran dalam periode ini.</p>'}
+            </div>`;
             doPrint(printHtml, 'portrait');
         }
 
@@ -420,18 +491,88 @@ function doPrint(htmlContent, orientation = 'portrait') {
             const valUnit = document.getElementById('unit-filter').value;
             const valStart = document.getElementById('c-absen-start').value;
             const valEnd = document.getElementById('c-absen-end').value;
-            let htmlContent = `<div>Preview Absensi Multi-Tanggal</div>`;
-            doPrint(printHtml, 'portrait');
-        }
 
-        function printAttendanceSheet(type, catTitle) {
-            let htmlContent = `<div>Preview Daftar Hadir ${catTitle}</div>`;
-            doPrint(printHtml, 'portrait');
-        }
+            let catTitle = '';
+            if (valTipe === 'khotbah') catTitle = 'Khotbah Sabat';
+            else if (valTipe === 'ss_dewasa') catTitle = 'SS Dewasa';
+            else if (valTipe === 'ss_anak') catTitle = 'SS Anak';
+            else if (valTipe === 'pendalaman') catTitle = 'Pendalaman';
 
-        function printBlankoDaftarHadir(type, catTitle, unit, startDate, endDate) {
-            let htmlContent = `<div>Preview Blanko Daftar Hadir</div>`;
-            doPrint(printHtml, 'portrait');
+            const typeParam = valTipe === 'khotbah' ? 'khotbah' : 'kelas';
+            const displayed = getDisplayedMembers(typeParam, catTitle, valUnit);
+
+            const optionsFormat = { day: 'numeric', month: 'long', year: 'numeric' };
+            const startStr = valStart ? new Date(valStart + 'T00:00:00').toLocaleDateString('id-ID', optionsFormat) : '-';
+            const endStr = valEnd ? new Date(valEnd + 'T00:00:00').toLocaleDateString('id-ID', optionsFormat) : '-';
+            const periodeText = (valStart === valEnd) ? startStr : `${startStr} s/d ${endStr}`;
+
+            // Kumpulkan semua Sabtu dalam rentang
+            const saturdays = [];
+            if (valStart && valEnd) {
+                let cur = new Date(valStart + 'T00:00:00');
+                const end = new Date(valEnd + 'T00:00:00');
+                while (cur <= end) {
+                    if (cur.getDay() === 6) saturdays.push(new Date(cur));
+                    cur.setDate(cur.getDate() + 1);
+                }
+            }
+
+            const isVeryDense = displayed.length > 25 || saturdays.length > 8;
+            const isDense = displayed.length > 15 || saturdays.length > 5;
+            const tdPad = isVeryDense ? '3px 4px' : isDense ? '5px 6px' : '7px 8px';
+            const fontSize = isVeryDense ? '9px' : isDense ? '11px' : '13px';
+
+            const colsHeaderHtml = saturdays.map(sat => `<th style="padding:${tdPad};border:1px solid #000;text-align:center;font-size:${isVeryDense?'8px':'10px'};">SAB<br>${sat.getDate()}/${sat.getMonth()+1}</th>`).join('');
+
+            let membersListHTML = '';
+            if (displayed.length === 0) {
+                membersListHTML = `<tr><td colspan="${4+saturdays.length}" style="padding:15px;border:1px solid #000;text-align:center;color:#666;font-style:italic;">Tidak ada data jemaat.</td></tr>`;
+            } else {
+                const reportType = valTipe === 'khotbah' ? 'Khotbah' : catTitle;
+                const histData = attendanceHistory[reportType] || {};
+                membersListHTML = displayed.map((m, idx) => {
+                    const colsHtml = saturdays.map(sat => {
+                        const dStr = getYYYYMMDD(sat);
+                        const status = (histData[m.id] && histData[m.id][dStr]) ? histData[m.id][dStr] : '';
+                        let bg = '', color = '', text = status || '-';
+                        if (status === 'Hadir') { bg='#e6f4ea'; color='#137333'; }
+                        else if (status === 'Alpha') { bg='#fce8e6'; color='#c5221f'; }
+                        return `<td style="padding:${tdPad};border:1px solid #000;text-align:center;font-weight:bold;background:${bg};color:${color||'#888'};font-size:${fontSize};">${text}</td>`;
+                    }).join('');
+                    return `<tr style="${idx%2===1?'background:#fafafa':''}">
+                        <td style="padding:${tdPad};border:1px solid #000;text-align:center;font-size:${fontSize};">${idx+1}</td>
+                        <td style="padding:${tdPad};border:1px solid #000;font-weight:bold;font-size:${fontSize};">${m.nama}</td>
+                        <td style="padding:${tdPad};border:1px solid #000;font-size:${fontSize};">${m.jabatan||'Anggota'}</td>
+                        <td style="padding:${tdPad};border:1px solid #000;text-align:center;font-size:${fontSize};">${m.unit||'Umum'}</td>
+                        ${colsHtml}
+                    </tr>`;
+                }).join('');
+            }
+
+            const printHtml = `
+            <div style="font-family:Arial,sans-serif;color:black;background:white;padding:20px;">
+                <div style="text-align:center;border-bottom:3px solid black;padding-bottom:15px;margin-bottom:20px;">
+                    <h1 style="margin:0;font-size:22px;font-weight:900;">PISGAH BISDAC</h1>
+                    <p style="margin:2px 0;font-size:11px;font-weight:bold;">Batam International Seventh-Day Adventist Church</p>
+                    <p style="margin:0;font-size:10px;">Rekap Absensi Multi-Tanggal</p>
+                </div>
+                <h2 style="text-align:center;font-size:16px;text-transform:uppercase;margin-bottom:5px;">REKAP ABSENSI: ${catTitle}</h2>
+                <p style="text-align:center;font-size:12px;margin:0 0 15px;">Unit: ${valUnit==='ALL'?'Global (Semua Unit)':valUnit} &nbsp;|&nbsp; Periode: ${periodeText}</p>
+                <table style="font-size:${fontSize};width:100%;border-collapse:collapse;margin-bottom:20px;">
+                    <thead><tr style="background:#f3f4f6;font-weight:bold;">
+                        <th style="padding:${tdPad};border:1px solid #000;width:4%;">No</th>
+                        <th style="padding:${tdPad};border:1px solid #000;width:28%;text-align:left;">Nama Jemaat</th>
+                        <th style="padding:${tdPad};border:1px solid #000;width:18%;text-align:left;">Jabatan</th>
+                        <th style="padding:${tdPad};border:1px solid #000;width:12%;">Unit</th>
+                        ${colsHeaderHtml}
+                    </tr></thead>
+                    <tbody>${membersListHTML}</tbody>
+                </table>
+                <div style="display:flex;justify-content:flex-end;margin-top:30px;font-size:13px;">
+                    <div style="text-align:center;width:220px;"><p>Pemimpin / Sekretaris Unit</p><br><br><p style="font-weight:bold;text-decoration:underline;">______________________</p></div>
+                </div>
+            </div>`;
+            doPrint(printHtml, 'landscape');
         }
 </script>
 
@@ -1215,7 +1356,7 @@ function escapeHtml(str) {
                 
                 return false;
             }
-            return tabName === 'dashboard';
+            return tabName === 'dashboard'; // public hanya bisa lihat dashboard
         }
 
         let editingMemberId = null; let editingUnitName = null; let editingRoleName = null; let editingAdminUsername = null; let formSelectedRoles = ['Anggota']; let doaList = [];
@@ -1323,7 +1464,7 @@ function renderTabs() {
         } 
     };
     // Hanya gunakan hasAccess, tanpa tambahan kondisi role
-    toggleTab('btn-dashboard', hasAccess('dashboard') && currentUser.role !== 'public');
+    toggleTab('btn-dashboard', hasAccess('dashboard'));
     toggleTab('btn-khotbah', hasAccess('khotbah'));
     toggleTab('btn-ss_dewasa', hasAccess('ss_dewasa'));
     toggleTab('btn-ss_anak', hasAccess('ss_anak'));
@@ -1345,7 +1486,7 @@ function renderTabs() {
             currentTab = tabId;
             document.querySelectorAll('button[id^="btn-"]').forEach(b => { b.classList.remove('tab-active'); if (b.id !== 'btn-' + tabId) b.classList.add('text-slate-400'); });
             const btn = document.getElementById('btn-' + tabId); if(btn) { btn.classList.remove('text-slate-400'); btn.classList.add('tab-active'); }
-            if(['khotbah', 'ss_dewasa', 'ss_anak', 'pendalaman', 'dashboard'].includes(tabId)) memberAttendance = {};
+            if(['khotbah', 'ss_dewasa', 'ss_anak', 'pendalaman'].includes(tabId)) memberAttendance = {};
             renderUI();
             setTimeout(updateChevronVisibility, 100); // pastikan tab sudah dirender
         }
@@ -1444,7 +1585,7 @@ function renderTabs() {
                 <div class="flex flex-col sm:flex-row flex-wrap gap-4 w-full items-center justify-center">
     <div class="flex-1 min-w-[180px] text-center">
         <label class="text-[10px] font-bold text-gold/60 uppercase block mb-2">Filter Unit</label>
-        ${filterDropdownHTML(`renderFilteredKhotbah()`)}
+        ${filterDropdownHTML(`renderFilteredMembers('${cat}')`)}
     </div>
     <div class="w-28 text-center"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2">Tamu</label>
         <input type="number" id="tamu" value="0" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm md:text-base text-center">
@@ -2238,18 +2379,36 @@ function createAdminCardHTML(m) {
             const btnHadir = document.getElementById(`btn-hadir-${id}`); 
             const btnAlpha = document.getElementById(`btn-alpha-${id}`);
             
+            // Deteksi apakah ini admin card (mini) atau card biasa
+            const isAdminCard = btnHadir && btnHadir.classList.contains('btn-hadir-mini');
+            
             if (memberAttendance[id] === status) {
+                // Toggle off
                 delete memberAttendance[id];
-                if(btnHadir) btnHadir.classList.remove('active');
-                if(btnAlpha) btnAlpha.classList.remove('active');
+                if (isAdminCard) {
+                    if (btnHadir) { btnHadir.className = btnHadir.className.replace('bg-green-600 text-white border-green-600', 'bg-transparent text-green-400 border-green-500/50 hover:bg-green-600/20'); }
+                    if (btnAlpha) { btnAlpha.className = btnAlpha.className.replace('bg-red-600 text-white border-red-600', 'bg-transparent text-red-400 border-red-500/50 hover:bg-red-600/20'); }
+                } else {
+                    if (btnHadir) btnHadir.classList.remove('active');
+                    if (btnAlpha) btnAlpha.classList.remove('active');
+                }
             } else {
-                memberAttendance[id] = status; 
-                if(status === 'Hadir') { 
-                    if(btnHadir) btnHadir.classList.add('active'); 
-                    if(btnAlpha) btnAlpha.classList.remove('active'); 
-                } else { 
-                    if(btnAlpha) btnAlpha.classList.add('active'); 
-                    if(btnHadir) btnHadir.classList.remove('active'); 
+                memberAttendance[id] = status;
+                if (isAdminCard) {
+                    // Reset kedua tombol dulu
+                    if (btnHadir) btnHadir.className = `btn-hadir-mini flex-1 py-1 rounded-md font-bold uppercase transition-all border text-xs md:text-sm bg-transparent text-green-400 border-green-500/50 hover:bg-green-600/20`;
+                    if (btnAlpha) btnAlpha.className = `btn-alpha-mini flex-1 py-1 rounded-md font-bold uppercase transition-all border text-xs md:text-sm bg-transparent text-red-400 border-red-500/50 hover:bg-red-600/20`;
+                    // Aktifkan yang dipilih
+                    if (status === 'Hadir' && btnHadir) btnHadir.className = `btn-hadir-mini flex-1 py-1 rounded-md font-bold uppercase transition-all border text-xs md:text-sm bg-green-600 text-white border-green-600`;
+                    else if (status === 'Alpha' && btnAlpha) btnAlpha.className = `btn-alpha-mini flex-1 py-1 rounded-md font-bold uppercase transition-all border text-xs md:text-sm bg-red-600 text-white border-red-600`;
+                } else {
+                    if (status === 'Hadir') { 
+                        if (btnHadir) btnHadir.classList.add('active'); 
+                        if (btnAlpha) btnAlpha.classList.remove('active'); 
+                    } else { 
+                        if (btnAlpha) btnAlpha.classList.add('active'); 
+                        if (btnHadir) btnHadir.classList.remove('active'); 
+                    }
                 }
             }
         }
@@ -2557,23 +2716,7 @@ function createAdminCardHTML(m) {
                 </div>`;
         }
 
-        // ----- Fungsi renderAdminManager (menampilkan PIN admin secara terbuka) -----
-        function renderAdminManager(area) {
-            area.innerHTML = `
-                <div class="mb-10 md:mb-16">
-                    <div class="flex items-center gap-4 mb-4 md:mb-6"><h3 class="text-2xl md:text-3xl font-black text-[#D4AF37] uppercase"><i class="fas fa-user-shield mr-3"></i>Kelola Administrator</h3></div>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-                        <div class="glass p-5 md:p-8 h-fit"><h3 id="admin-form-title" class="text-xl font-black text-[#D4AF37] mb-6 uppercase text-center">Buat Admin Baru</h3>
-                            <div class="space-y-4 md:space-y-6"><div><input type="text" id="a-username" placeholder="Username (Cth: Admin Utama)" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm md:text-base"></div><div><input type="text" id="a-pin" placeholder="Buat PIN Akses Rahasia" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm md:text-base"></div><div class="pt-2 flex gap-3 md:gap-4"><button onclick="saveAdmin()" id="btn-save-admin" class="flex-1 bg-[#D4AF37] text-[#0a192f] py-3 md:py-4 rounded-xl font-black uppercase shadow-lg hover:bg-yellow-400 transition-all text-sm md:text-base">SIMPAN ADMIN</button><button onclick="cancelEditAdmin()" id="btn-cancel-admin" class="hidden bg-slate-600 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl font-black uppercase shadow-lg hover:bg-slate-500 transition-all"><i class="fas fa-times"></i></button></div></div>
-                        </div>
-                        <div class="glass p-5 md:p-8"><div class="flex justify-between items-end mb-6"><h3 class="text-lg md:text-xl font-black text-[#D4AF37] uppercase">Daftar Master Admin</h3><span class="text-gold font-bold text-xs md:text-sm bg-gold/10 px-3 py-1.5 md:px-4 md:py-2 rounded-lg">${admins.length} Admin</span></div>
-                            <div class="space-y-3 md:space-y-4 max-h-[300px] overflow-y-auto no-scrollbar">${admins.length === 0 ? '<p class="text-slate-400 italic text-center py-6">Belum ada admin.</p>' : admins.map(a => `<div class="p-4 md:p-5 bg-white/5 rounded-2xl flex justify-between items-center group border-2 border-transparent hover:border-gold/30 transition-all gap-4"><div><div class="text-base md:text-lg font-black text-white uppercase">${a.username}</div><div class="text-[10px] md:text-[11px] text-[#D4AF37] font-black tracking-widest mt-1"><i class="fas fa-key mr-1"></i> PIN LOGIN: <span class="text-green-400">${a.pin}</span></div></div><div class="flex gap-2"><button onclick='editAdmin(${JSON.stringify(a.username)})' class="text-yellow-500 bg-yellow-500/10 px-3 py-2 hover:bg-yellow-500 hover:text-[#0a192f] rounded-lg font-bold transition-all text-xs md:text-sm"><i class="fas fa-pen"></i></button><button onclick='deleteAdmin(${JSON.stringify(a.username)})' class="text-red-400 bg-red-400/10 px-3 py-2 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all text-xs md:text-sm"><i class="fas fa-trash"></i></button></div></div>`).join('')}</div>
-                        </div>
-                    </div>
-                </div>`;
-        }
-
-        // ----- Fungsi renderAdminManager (menampilkan PIN admin secara terbuka) -----
+        // ----- Fungsi renderAdminManager -----
         function renderAdminManager(area) {
             area.innerHTML = `
                 <div class="mb-10 md:mb-16">
