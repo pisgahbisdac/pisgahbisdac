@@ -3,935 +3,1578 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pembangunan & Donasi</title>
+    <title>Pembangunan & Donasi — PISGAH BISDAC</title>
 
-    <link rel="icon" type="image/svg+xml" href="./Pisgahpavicon.png">
     <link rel="icon" type="image/png" href="./Pisgahpavicon.png">
     <link rel="apple-touch-icon" href="./Pisgahpavicon.png">
-    
-    <!-- Google Fonts -->
+
+    <!-- Google Fonts: Fraunces (display serif) + DM Sans (clean body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Tailwind & AOS -->
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-    <!-- Tailwind Config -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'], },
-                    colors: { navy: { DEFAULT: '#0B192C', light: '#162b48', dark: '#050c16' }, gold: { DEFAULT: '#FFC107', light: '#ffcd38', dark: '#d39e00' } },
-                    boxShadow: { 'glow': '0 0 30px rgba(255, 193, 7, 0.5)', 'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.15)', }
+                    fontFamily: {
+                        sans: ['DM Sans', 'sans-serif'],
+                        serif: ['Fraunces', 'serif'],
+                    },
+                    colors: {
+                        navy: { DEFAULT: '#0A1628', light: '#142240', dark: '#050e1a', mid: '#1a2f50' },
+                        gold:  { DEFAULT: '#E8A816', light: '#f5c842', dark: '#b8840d', pale: '#fef3d0' },
+                        cream: { DEFAULT: '#FAF7F0', dark: '#f0ead8' },
+                    },
                 }
             }
         }
     </script>
 
     <style>
-        /* PERBAIKAN BACKGROUND SOLID NAVY & TOUCH ACTION KHUSUS IPHONE */
-        html, body { background-color: #0B192C !important; margin: 0; padding: 0; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
-        button, input, textarea, a, .cursor-pointer { touch-action: manipulation; }
+        /* ======== ROOT ======== */
+        :root {
+            --gold: #E8A816;
+            --navy: #0A1628;
+            --navy-mid: #1a2f50;
+            --cream: #FAF7F0;
+        }
 
-        /* KLIK 100% RESPONSIF UNTUK IOS (TANPA LAPISAN PENGHALANG) */
-        .card-btn {
-            cursor: pointer;
+        html, body {
+            background: var(--navy) !important;
+            margin: 0; padding: 0; min-height: 100vh;
             -webkit-tap-highlight-color: transparent;
-            transition: transform 0.2s ease;
-        }
-        .card-btn:active {
-            transform: scale(0.97) !important; /* Efek membal saat disentuh di HP */
-        }
-        .card-btn * {
-            cursor: pointer; /* Memaksa iOS membaca semua area sebagai tombol */
+            overflow-x: hidden;
         }
 
-        /* SHAPE HEXAGON */
-        .hex-shape { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
-        
-        /* PULSE GLOW ANIMATION */
-        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.5); } 70% { box-shadow: 0 0 0 20px rgba(255, 193, 7, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); } }
-        .animate-pulse-glow { animation: pulse-glow 2.5s infinite; }
+        /* ======== TYPOGRAPHY ======== */
+        .font-fraunces { font-family: 'Fraunces', serif; }
+        .font-dm { font-family: 'DM Sans', sans-serif; }
 
-        /* HEX GLOW ANIMATION */
-        @keyframes hex-glow { 0% { filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.4)); } 100% { filter: drop-shadow(0 0 25px rgba(255, 193, 7, 0.9)); } }
-        .animate-hex-glow { animation: hex-glow 2s infinite alternate ease-in-out; }
+        /* ======== ANIMATIONS ======== */
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        @keyframes shimmer { 100%{transform:translateX(100%)} }
+        @keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(232,168,22,.5)} 70%{box-shadow:0 0 0 18px rgba(232,168,22,0)} 100%{box-shadow:0 0 0 0 rgba(232,168,22,0)} }
+        @keyframes wa-ring { 0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)} 70%{box-shadow:0 0 0 14px rgba(34,197,94,0)} 100%{box-shadow:0 0 0 0 rgba(34,197,94,0)} }
+        @keyframes fade-up { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes count-up { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }
+        @keyframes orbit { from{transform:rotate(0deg) translateX(130px) rotate(0deg)} to{transform:rotate(360deg) translateX(130px) rotate(-360deg)} }
+        @keyframes grain { 0%,100%{transform:translate(0,0)} 10%{transform:translate(-1%,-2%)} 30%{transform:translate(2%,1%)} 50%{transform:translate(-1%,2%)} 70%{transform:translate(1%,-1%)} 90%{transform:translate(-2%,1%)} }
 
-        /* KOTAK GLOW */
-        .box-glow { box-shadow: 0 0 35px rgba(255, 193, 7, 0.35) !important; border: 1px solid rgba(255, 193, 7, 0.5) !important; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @media (min-width: 1024px) {
-            .box-glow:hover { box-shadow: 0 15px 40px rgba(255, 193, 7, 0.7) !important; transform: translateY(-8px) scale(1.02); z-index: 20; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-pulse-ring { animation: pulse-ring 2.5s infinite; }
+        .animate-wa-ring { animation: wa-ring 2s infinite; }
+        .animate-fade-up { animation: fade-up .8s ease forwards; }
+
+        /* ======== GLASS & SURFACES ======== */
+        .glass-dark {
+            background: rgba(10,22,40,.82);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,.08);
+        }
+        .glass-cream {
+            background: rgba(250,247,240,.97);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,.5);
+        }
+        .surface-navy {
+            background: linear-gradient(135deg, #0f2144 0%, #0a1628 100%);
+            border: 1px solid rgba(255,255,255,.06);
         }
 
-        /* GLASSMORPHISM UI */
-        .glass-panel { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: var(--shadow-glass); position: relative; z-index: 10; }
-        .glass-dark { background: rgba(11, 25, 44, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); position: relative; z-index: 10; }
+        /* ======== GOLD ACCENTS ======== */
+        .text-gradient-gold {
+            background: linear-gradient(90deg, #E8A816 0%, #fcd96b 50%, #E8A816 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .border-gold-glow {
+            border: 1px solid rgba(232,168,22,.4);
+            box-shadow: 0 0 30px rgba(232,168,22,.15), inset 0 1px 0 rgba(255,255,255,.05);
+        }
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #b8840d 0%, #E8A816 40%, #fcd96b 70%, #E8A816 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2.5s linear infinite;
+        }
 
-        .text-gradient { background: linear-gradient(to right, #FFC107, #ffed4a); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-        .progress-gradient { background: linear-gradient(90deg, #FFC107 0%, #ff8f00 100%); }
-        
-        .input-elegant { background-color: rgba(255,255,255,0.7); border: 1px solid #e2e8f0; transition: all 0.3s ease; position: relative; z-index: 20; }
-        .input-elegant:focus { background-color: #ffffff; border-color: #0B192C; box-shadow: 0 0 0 4px rgba(11, 25, 44, 0.1); outline: none; }
-        
-        @keyframes shimmer { 100% { transform: translateX(100%); } }
-        
-        /* WA PULSE */
-        @keyframes wa-pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
-        .animate-wa-pulse { animation: wa-pulse 2s infinite; }
+        /* ======== CARD HOVER ======== */
+        .card-lift {
+            transition: transform .35s cubic-bezier(.175,.885,.32,1.275), box-shadow .35s ease;
+            cursor: pointer;
+        }
+        @media(hover:hover) {
+            .card-lift:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,.35), 0 0 0 1px rgba(232,168,22,.3); }
+        }
+        .card-lift:active { transform: scale(.97); }
+        .card-lift * { cursor: pointer; }
+
+        /* ======== INPUTS ======== */
+        .inp {
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.12);
+            color: #f1f5f9;
+            border-radius: 12px;
+            transition: all .25s ease;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+        }
+        .inp::placeholder { color: rgba(255,255,255,.3); }
+        .inp:focus {
+            outline: none;
+            background: rgba(255,255,255,.1);
+            border-color: rgba(232,168,22,.6);
+            box-shadow: 0 0 0 3px rgba(232,168,22,.12);
+        }
+
+        .inp-light {
+            background: #fff;
+            border: 1.5px solid #e2e8f0;
+            color: var(--navy);
+            border-radius: 12px;
+            transition: all .25s ease;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+        }
+        .inp-light:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px rgba(232,168,22,.12);
+        }
+
+        /* ======== PILL / BADGE ======== */
+        .pill-gold {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(232,168,22,.12);
+            border: 1px solid rgba(232,168,22,.3);
+            color: #E8A816;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: .15em; text-transform: uppercase;
+            padding: 5px 14px; border-radius: 999px;
+        }
+
+        /* ======== NAV ======== */
+        #navbar { transition: all .3s ease; }
+        #navbar.scrolled {
+            background: rgba(5,14,26,.95) !important;
+            box-shadow: 0 4px 30px rgba(0,0,0,.4);
+        }
+
+        /* ======== HERO ======== */
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(70px);
+            pointer-events: none;
+        }
+
+        /* ======== STATS STRIP ======== */
+        .stat-strip {
+            background: linear-gradient(90deg, rgba(232,168,22,.08), rgba(232,168,22,.04));
+            border-top: 1px solid rgba(232,168,22,.2);
+            border-bottom: 1px solid rgba(232,168,22,.1);
+        }
+
+        /* ======== TIMELINE ======== */
+        .timeline-line {
+            position: absolute;
+            left: 20px;
+            top: 0; bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(232,168,22,.4) 10%, rgba(232,168,22,.4) 90%, transparent);
+        }
+        @media(min-width: 768px) {
+            .timeline-line { left: 50%; transform: translateX(-50%); }
+        }
+
+        .hex-clip { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+
+        /* ======== PANITIA CARD ======== */
+        .panitia-card {
+            background: linear-gradient(145deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+            border: 1px solid rgba(255,255,255,.09);
+            transition: all .3s ease;
+        }
+        @media(hover:hover) {
+            .panitia-card:hover {
+                border-color: rgba(232,168,22,.4);
+                background: linear-gradient(145deg, rgba(232,168,22,.06), rgba(255,255,255,.03));
+                transform: translateY(-4px);
+            }
+        }
+
+        /* ======== MODAL ======== */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(5,14,26,.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 200;
+            display: flex; align-items: center; justify-content: center;
+            padding: 16px;
+            opacity: 0; pointer-events: none;
+            transition: opacity .3s ease;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal-box {
+            transform: scale(.94) translateY(16px);
+            transition: transform .3s cubic-bezier(.175,.885,.32,1.275);
+        }
+        .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
+
+        /* ======== ADMIN TABS ======== */
+        .tab-btn { transition: all .2s ease; border-bottom: 2px solid transparent; }
+        .tab-btn.active { color: var(--navy); border-bottom-color: var(--gold); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ======== DONASI CARD in ADMIN ======== */
+        .konfirmasi-card {
+            background: #fff;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: box-shadow .2s;
+        }
+        .konfirmasi-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+        .konfirmasi-card.confirmed { border-color: #6ee7b7; background: #f0fdf4; }
+        .konfirmasi-card.pending { border-color: #fcd34d; background: #fffbeb; }
+
+        /* ======== TOAST ======== */
+        #toast {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #0f2144; color: #fff;
+            padding: 12px 24px; border-radius: 999px;
+            font-size: 14px; font-weight: 600;
+            border: 1px solid rgba(232,168,22,.4);
+            box-shadow: 0 8px 30px rgba(0,0,0,.4);
+            z-index: 9999;
+            opacity: 0; pointer-events: none;
+            transition: all .4s cubic-bezier(.175,.885,.32,1.275);
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ======== SCROLLBAR ======== */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(232,168,22,.3); border-radius: 3px; }
+
+        /* ======== GRAIN OVERLAY ======== */
+        .grain::after {
+            content: ''; position: absolute; inset: -50%;
+            width: 200%; height: 200%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            opacity: .03; pointer-events: none;
+            animation: grain 3s steps(2) infinite;
+        }
+
+        /* ======== RESPONSIVE ======== */
+        button, a, input, textarea, select { touch-action: manipulation; }
     </style>
 </head>
-<body class="bg-navy font-sans antialiased overflow-x-hidden selection:bg-gold selection:text-navy relative min-h-screen text-slate-200">
-    
-    <nav class="fixed top-0 w-full z-50 glass-dark border-b-0 transition-all duration-300">
-        <div class="container mx-auto px-4 py-3 md:py-4 flex justify-between items-center gap-4">
-            <div class="flex items-center gap-3 md:gap-4 group cursor-pointer">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-gray-300 to-stone-200 flex items-center justify-center shadow-glow animate-pulse-glow transition-transform lg:group-hover:scale-110">
-                    <a href="https://pisgahbisdac.app/">
-                    <img src="./PisgahColor.png" class="text-navy text-lg md:text-xl" alt="Church icon">
-                    </a>
-                </div>
-                <div>
-                    <h1 class="text-xl md:text-3xl font-serif font-black tracking-wide text-white leading-tight">PISGAH<span class="text-gold">.</span></h1>
-                    <p class="text-[10px] md:text-sm text-gray-300 tracking-widest uppercase hidden sm:block font-semibold">Batam International Seventh-Day Adventist Church - BATAM</p>
-                </div>
+
+<body class="font-dm antialiased text-slate-200 overflow-x-hidden relative">
+
+<!-- =================== NAVBAR =================== -->
+<nav id="navbar" class="fixed top-0 w-full z-50 glass-dark">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <!-- Logo -->
+        <a href="https://pisgahbisdac.app/" class="flex items-center gap-3 group">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden bg-gradient-to-br from-white/20 to-white/5 border border-white/20 flex items-center justify-center animate-pulse-ring shadow-lg transition-transform group-hover:scale-105">
+                <img src="./PisgahColor.png" alt="Pisgah" class="w-full h-full object-cover">
             </div>
-            
-            <button id="btn-admin-nav" onclick="openAdminPanel()" class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 md:px-5 py-2 md:py-2.5 rounded-full transition-all duration-300 border border-white/10 backdrop-blur-sm shadow-md hover:shadow-glow relative z-50">
-                <i id="icon-admin-nav" class="fa-solid fa-user-shield text-gold lg:group-hover:scale-125 transition-transform duration-300 text-sm md:text-base"></i>
-                <span id="text-admin-nav" class="text-xs md:text-sm font-bold tracking-wide text-white">Admin</span>
+            <div>
+                <h1 class="font-fraunces font-black text-xl sm:text-2xl text-white leading-none tracking-wide">PISGAH<span class="text-gold-400" style="color:#E8A816">.</span></h1>
+                <p class="text-[9px] sm:text-[10px] text-slate-400 tracking-[.18em] uppercase font-semibold hidden sm:block mt-0.5">Batam International SDA Church</p>
+            </div>
+        </a>
+
+        <!-- Right actions -->
+        <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Live indicator -->
+            <div class="hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-[11px] font-semibold text-slate-300 tracking-wide">LIVE</span>
+            </div>
+
+            <!-- Admin button -->
+            <button id="btn-admin-nav" onclick="openAdminPanel()" class="flex items-center gap-2 bg-white/8 hover:bg-white/15 border border-white/12 px-4 py-2 rounded-full transition-all duration-200 group shadow-md">
+                <i id="icon-admin-nav" class="fa-solid fa-user-shield text-sm" style="color:#E8A816"></i>
+                <span id="text-admin-nav" class="text-xs sm:text-sm font-bold text-white tracking-wide">Admin</span>
             </button>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <main class="container mx-auto px-4 pt-28 md:pt-32 pb-16 max-w-7xl relative z-10">
-        
-        <!-- HERO SECTION -->
-        <section data-aos="zoom-in-up" data-aos-duration="1200" class="glass-dark rounded-3xl md:rounded-[2.5rem] p-5 sm:p-10 md:p-14 mb-10 md:mb-16 shadow-2xl relative overflow-hidden border-t border-l border-white/20">
-            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] z-0 pointer-events-none"></div>
-            
-            <div class="relative z-10 text-center max-w-5xl mx-auto">
-                <span class="inline-block py-1.5 px-4 rounded-full bg-gold/15 text-gold text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase mb-4 md:mb-6 border border-gold/30 shadow-glow backdrop-blur-md">Program Donasi</span>
-                <h2 id="judul-web" class="text-3xl sm:text-5xl md:text-6xl font-serif font-black text-white mb-8 md:mb-12 leading-tight drop-shadow-lg break-words transition-all duration-500">Memuat Data...</h2>
-                
-                <!-- Kotak Dana Terkumpul -->
-                <div class="bg-navy-dark/60 backdrop-blur-xl rounded-3xl md:rounded-[2rem] p-5 sm:p-8 md:p-12 mb-8 md:mb-10 flex flex-col items-center w-full overflow-hidden box-glow relative z-20">
-                    <div class="w-full flex flex-col md:flex-row justify-between items-center mb-6 md:mb-10 gap-4 md:gap-4 text-center md:text-left">
-                        <div class="w-full md:w-auto order-1 md:order-none overflow-hidden">
-                            <p class="text-gray-300 text-xs sm:text-sm md:text-base font-bold mb-1 md:mb-2 uppercase tracking-widest"><i class="fa-solid fa-chart-pie text-gold mr-2"></i>Dana Terkumpul</p>
-                            <p id="terkumpul-val" class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gradient tracking-tighter drop-shadow-md truncate md:overflow-visible transition-all duration-1000">Rp 0</p>
+<!-- =================== MAIN =================== -->
+<main class="relative">
+
+    <!-- ===== HERO SECTION ===== -->
+    <section class="relative min-h-screen flex flex-col justify-center overflow-hidden grain" style="background: linear-gradient(170deg, #0f2144 0%, #0a1628 50%, #050e1a 100%);">
+        <!-- Ambient orbs -->
+        <div class="hero-orb w-[500px] h-[500px] opacity-20" style="background: radial-gradient(#E8A816, transparent 70%); top: -100px; right: -150px;"></div>
+        <div class="hero-orb w-[400px] h-[400px] opacity-10" style="background: radial-gradient(#3b82f6, transparent 70%); bottom: -100px; left: -100px;"></div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-28 pb-16 w-full">
+
+            <!-- Badge -->
+            <div class="flex justify-center mb-6" data-aos="fade-down">
+                <span class="pill-gold"><i class="fa-solid fa-circle-dollar-to-slot"></i> Program Donasi Aktif</span>
+            </div>
+
+            <!-- Title -->
+            <div class="text-center mb-12" data-aos="fade-up" data-aos-delay="100">
+                <h2 id="judul-web" class="font-fraunces font-black text-4xl sm:text-6xl md:text-7xl text-white leading-[1.05] tracking-tight mb-4">
+                    Memuat Data<span style="color:#E8A816">...</span>
+                </h2>
+                <p class="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto font-light leading-relaxed">Bersama kita wujudkan rumah ibadah yang layak. Setiap donasi adalah batu pertama perubahan.</p>
+            </div>
+
+            <!-- ===== DANA TERKUMPUL CARD ===== -->
+            <div class="max-w-4xl mx-auto mb-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="border-gold-glow rounded-3xl p-6 sm:p-10 relative overflow-hidden" style="background: linear-gradient(135deg, rgba(255,255,255,.04) 0%, rgba(255,255,255,.01) 100%);">
+                    <!-- Shimmer line top -->
+                    <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent, rgba(232,168,22,.5), transparent)"></div>
+
+                    <!-- Numbers row -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
+                        <div class="text-center sm:text-left">
+                            <p class="text-xs font-bold tracking-[.15em] uppercase text-slate-400 mb-2 flex items-center gap-2 justify-center sm:justify-start">
+                                <i class="fa-solid fa-sack-dollar" style="color:#E8A816"></i> Dana Terkumpul
+                            </p>
+                            <p id="terkumpul-val" class="font-fraunces font-black text-3xl sm:text-5xl md:text-6xl text-gradient-gold tracking-tight">Rp 0</p>
                         </div>
-                        <div class="hidden md:block w-1 h-16 md:h-20 bg-white/10 mx-4 lg:mx-6 order-none rounded-full"></div>
-                        <div class="w-full h-[1px] bg-white/10 md:hidden order-2 opacity-50 rounded-full my-2"></div>
-                        <div class="w-full md:w-auto md:text-right order-3 md:order-none overflow-hidden">
-                            <p class="text-gray-400 text-[10px] sm:text-xs md:text-sm font-bold mb-1 md:mb-2 uppercase tracking-widest"><i class="fa-solid fa-bullseye text-gold mr-2"></i>Target Pendanaan</p>
-                            <p id="target-val" class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tighter drop-shadow-md truncate md:overflow-visible transition-all duration-1000">Rp 0</p>
+                        <div class="w-px h-14 bg-white/10 hidden sm:block"></div>
+                        <div class="text-center sm:text-right">
+                            <p class="text-xs font-bold tracking-[.15em] uppercase text-slate-400 mb-2 flex items-center gap-2 justify-center sm:justify-end">
+                                <i class="fa-solid fa-bullseye" style="color:#E8A816"></i> Target Pendanaan
+                            </p>
+                            <p id="target-val" class="font-fraunces font-black text-2xl sm:text-4xl text-white/70 tracking-tight">Rp 0</p>
                         </div>
                     </div>
-                    <div class="relative w-full bg-black/50 rounded-full h-5 md:h-8 lg:h-10 shadow-inner overflow-hidden border border-white/10 mb-4 md:mb-6">
-                        <div id="progress-bar" class="progress-gradient h-full rounded-full transition-all duration-1500 relative shadow-glow" style="width: 0%">
-                            <div class="absolute top-0 left-0 w-full h-full overflow-hidden rounded-full"><div class="w-[200%] h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent)] animate-[shimmer_2s_infinite] -translate-x-full pointer-events-none"></div></div>
+
+                    <!-- Progress bar -->
+                    <div class="relative w-full bg-white/8 rounded-full h-3 sm:h-4 overflow-hidden mb-4 border border-white/10">
+                        <div id="progress-bar" class="progress-bar-fill h-full rounded-full transition-all duration-[1500ms] ease-out relative" style="width:0%">
+                            <div class="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent)] animate-[shimmer_1.8s_infinite] -translate-x-full pointer-events-none"></div>
                         </div>
                     </div>
-                    <div class="text-center w-full"><span id="progress-text" class="text-gold font-black text-xl sm:text-2xl md:text-4xl drop-shadow-glow tracking-wide transition-all duration-1000">0% Tercapai</span></div>
-                </div>
 
-                <!-- Kotak Info Transfer -->
-                <div class="flex flex-col items-center justify-center gap-2 md:gap-4 bg-white/95 backdrop-blur-md px-4 py-6 sm:px-8 md:px-14 md:py-10 rounded-3xl md:rounded-[2rem] w-full mx-auto cursor-pointer overflow-hidden group box-glow relative z-30" onclick="copyRekening()" title="Klik untuk menyalin nomor rekening">
-                    <p class="text-xs sm:text-sm md:text-lg text-gray-500 font-bold uppercase tracking-widest flex items-center justify-center gap-2"><i class="fa-solid fa-building-columns text-blue-600 text-lg md:text-2xl lg:group-hover:rotate-12 transition-transform"></i> Transfer Donasi Ke</p>
-                    <p id="bank-val" class="text-xl sm:text-3xl md:text-5xl font-black text-navy mt-1 uppercase truncate w-full text-center">Loading...</p>
-                    <p id="norek-val" class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gradient tracking-widest flex flex-wrap items-center justify-center gap-2 md:gap-5 my-1 md:my-3 break-all text-center leading-tight w-full">0000000000 <i class="fa-regular fa-copy text-xl md:text-4xl text-navy lg:group-hover:text-gold transition flex-shrink-0 lg:group-hover:scale-110"></i></p>
-                    <p class="text-sm sm:text-lg md:text-xl text-gray-600 font-bold truncate w-full text-center">a.n. <span id="atasnama-val" class="font-black text-navy text-base sm:text-xl md:text-3xl uppercase">Loading...</span></p>
+                    <!-- % row -->
+                    <div class="flex items-center justify-between">
+                        <span id="progress-text" class="font-fraunces font-bold text-xl sm:text-3xl text-gradient-gold">0%</span>
+                        <span id="sisa-val" class="text-xs sm:text-sm font-semibold text-slate-400">Kekurangan: menghitung...</span>
+                    </div>
+
+                    <!-- Stats strip -->
+                    <div class="mt-6 pt-6 border-t border-white/8 grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <p id="stat-donatur" class="font-fraunces font-black text-xl sm:text-2xl text-white">—</p>
+                            <p class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Donatur</p>
+                        </div>
+                        <div>
+                            <p id="stat-hari" class="font-fraunces font-black text-xl sm:text-2xl text-white">—</p>
+                            <p class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Hari Kampanye</p>
+                        </div>
+                        <div>
+                            <p id="stat-avg" class="font-fraunces font-black text-xl sm:text-2xl text-white">—</p>
+                            <p class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Rata-rata Donasi</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <!-- KONTEN TENGAH: FORM & GALERI/BERITA -->
-        <div class="flex flex-col lg:flex-row gap-8 lg:gap-14 relative z-20">
-            
-            <div class="w-full lg:w-1/3" data-aos="fade-right" data-aos-delay="200">
-                <!-- Kotak Konfirmasi -->
-                <div class="glass-panel box-glow rounded-3xl md:rounded-[2rem] p-6 md:p-8 sticky top-32">
-                    <div class="flex items-center gap-4 mb-6 md:mb-8 pb-4 border-b border-gray-200/50">
-                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gold/20 flex items-center justify-center text-gold shadow-inner"><i class="fa-solid fa-hand-holding-heart text-xl md:text-2xl"></i></div>
-                        <h3 class="text-2xl md:text-3xl font-serif font-black text-navy">Konfirmasi</h3>
+            <!-- ===== TRANSFER INFO CARD ===== -->
+            <div class="max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="300">
+                <div onclick="copyRekening()" class="glass-cream rounded-3xl p-5 sm:p-8 cursor-pointer group relative overflow-hidden transition-all duration-300 hover:shadow-2xl" style="box-shadow: 0 8px 40px rgba(0,0,0,.2);">
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                    <p class="text-xs font-bold tracking-[.18em] uppercase text-slate-500 text-center mb-4 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-building-columns text-blue-600 text-sm"></i> Transfer Donasi Ke
+                    </p>
+                    <p id="bank-val" class="font-fraunces font-black text-2xl sm:text-4xl text-navy text-center uppercase mb-2 tracking-wide">Loading...</p>
+                    <div class="flex items-center justify-center gap-3 flex-wrap mb-3">
+                        <p id="norek-val" class="font-fraunces font-black text-3xl sm:text-5xl md:text-6xl text-gradient-gold tracking-widest text-center break-all leading-tight">0000000000</p>
+                        <i class="fa-regular fa-copy text-xl sm:text-3xl text-navy/40 group-hover:text-navy transition-colors group-hover:scale-110 transition-transform"></i>
                     </div>
-                    
-                    <form id="form-konfirmasi" onsubmit="handleKonfirmasi(event)" class="space-y-5 md:space-y-6 relative z-30">
-                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Nama Lengkap</label><div class="relative"><i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-30 pointer-events-none"></i><input type="text" id="k-nama" required class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div></div>
-                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Jumlah Donasi</label><div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold group-focus-within:text-navy transition-colors text-base md:text-lg z-30 pointer-events-none">Rp</span><input type="number" id="k-jumlah" required class="input-elegant w-full pl-12 md:pl-14 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div></div>
-                        
-                        <div class="group">
-                            <label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Bukti Transfer (Maks 5MB)</label>
-                            <div class="relative">
-                                <i class="fa-solid fa-receipt absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-30 pointer-events-none"></i>
-                                <input type="file" accept="image/*" id="k-bukti" required class="input-elegant w-full pl-12 md:pl-14 pr-4 py-2 md:py-3 rounded-xl text-xs md:text-sm font-bold file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] md:file:text-xs file:font-black file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer">
+                    <p class="text-sm sm:text-lg text-slate-500 font-semibold text-center">a.n. <span id="atasnama-val" class="font-black text-navy text-base sm:text-xl uppercase">Loading...</span></p>
+                    <p class="text-[11px] text-slate-400 text-center mt-3 font-medium italic group-hover:text-gold transition-colors">Klik untuk menyalin nomor rekening</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll hint -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce opacity-50">
+            <i class="fa-solid fa-chevron-down text-white text-sm"></i>
+        </div>
+    </section>
+
+    <!-- ===== CONTENT AREA ===== -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
+        <div class="flex flex-col lg:flex-row gap-10 lg:gap-16 relative">
+
+            <!-- ===== LEFT: FORM KONFIRMASI ===== -->
+            <aside class="w-full lg:w-[380px] flex-shrink-0">
+                <div class="lg:sticky lg:top-28">
+                    <!-- Form Card -->
+                    <div class="glass-cream rounded-3xl overflow-hidden shadow-2xl">
+                        <!-- Header -->
+                        <div class="px-6 py-5 border-b border-slate-200" style="background: linear-gradient(135deg, #0f2144, #0a1628);">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: rgba(232,168,22,.2); border: 1px solid rgba(232,168,22,.3);">
+                                    <i class="fa-solid fa-hand-holding-heart text-base" style="color:#E8A816"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-fraunces font-black text-xl text-white">Konfirmasi Donasi</h3>
+                                    <p class="text-xs text-slate-400 mt-0.5">Kirim bukti transfer Anda</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="group"><label class="block text-xs md:text-sm font-bold text-navy/70 uppercase tracking-widest mb-2 ml-1 transition-colors group-focus-within:text-navy">Pesan (Opsional)</label><div class="relative"><i class="fa-regular fa-comment absolute left-4 top-4 md:top-5 text-gray-400 group-focus-within:text-navy transition-colors text-lg md:text-xl z-30 pointer-events-none"></i><textarea id="k-ket" rows="3" class="input-elegant w-full pl-12 pr-4 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold resize-none"></textarea></div></div>
-                        <button type="submit" id="btn-konfirmasi" class="group relative w-full overflow-hidden rounded-xl bg-navy text-white font-black py-4 md:py-5 mt-4 md:mt-6 shadow-xl hover:shadow-2xl transition-all duration-300 text-lg md:text-xl tracking-wide z-30"><div class="absolute inset-0 bg-gradient-to-r from-navy-light to-navy transition-transform duration-300 lg:group-hover:scale-105 pointer-events-none"></div><span class="relative flex items-center justify-center gap-3"><span>Kirim Konfirmasi</span><i class="fa-solid fa-paper-plane text-gold lg:group-hover:translate-x-1 lg:group-hover:-translate-y-1 transition-transform"></i></span></button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="w-full lg:w-2/3 space-y-16 md:space-y-24 mt-8 lg:mt-0">
-                
-                <!-- ROADMAP GALERI SECTION -->
-                <section data-aos="fade-up" data-aos-delay="300">
-                    <div class="flex items-center gap-4 mb-10 md:mb-16">
-                        <h3 class="text-2xl sm:text-3xl md:text-5xl font-serif font-black text-white drop-shadow-md flex items-center gap-3"><i class="fa-solid fa-route text-gold"></i> Roadmap Pembangunan</h3>
-                        <div class="h-1 bg-gradient-to-r from-gold to-transparent flex-1 rounded-full opacity-70"></div>
+                        <!-- Form body -->
+                        <form id="form-konfirmasi" onsubmit="handleKonfirmasi(event)" class="p-6 space-y-5">
+                            <!-- Nama -->
+                            <div>
+                                <label class="block text-xs font-bold text-navy/60 uppercase tracking-widest mb-1.5">Nama Lengkap <span class="text-red-400">*</span></label>
+                                <div class="relative">
+                                    <i class="fa-regular fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none"></i>
+                                    <input type="text" id="k-nama" required placeholder="Nama Anda" class="inp-light w-full pl-10 pr-4 py-3 text-sm font-semibold">
+                                </div>
+                            </div>
+                            <!-- Jumlah -->
+                            <div>
+                                <label class="block text-xs font-bold text-navy/60 uppercase tracking-widest mb-1.5">Jumlah Donasi <span class="text-red-400">*</span></label>
+                                <div class="relative">
+                                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm pointer-events-none">Rp</span>
+                                    <input type="number" id="k-jumlah" required placeholder="50000" class="inp-light w-full pl-10 pr-4 py-3 text-sm font-semibold">
+                                </div>
+                            </div>
+                            <!-- Pilihan cepat jumlah -->
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-full">Pilihan Cepat:</span>
+                                <button type="button" onclick="setJumlah(50000)" class="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-navy/20 text-navy hover:bg-navy hover:text-white transition-all">Rp 50.000</button>
+                                <button type="button" onclick="setJumlah(100000)" class="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-navy/20 text-navy hover:bg-navy hover:text-white transition-all">Rp 100.000</button>
+                                <button type="button" onclick="setJumlah(250000)" class="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-navy/20 text-navy hover:bg-navy hover:text-white transition-all">Rp 250.000</button>
+                                <button type="button" onclick="setJumlah(500000)" class="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-navy/20 text-navy hover:bg-navy hover:text-white transition-all">Rp 500.000</button>
+                                <button type="button" onclick="setJumlah(1000000)" class="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-navy/20 text-navy hover:bg-navy hover:text-white transition-all">Rp 1.000.000</button>
+                            </div>
+                            <!-- Bukti -->
+                            <div>
+                                <label class="block text-xs font-bold text-navy/60 uppercase tracking-widest mb-1.5">Bukti Transfer <span class="text-red-400">*</span> <span class="text-slate-400 font-normal normal-case tracking-normal">(maks 5MB)</span></label>
+                                <div class="relative">
+                                    <i class="fa-solid fa-receipt absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none"></i>
+                                    <input type="file" accept="image/*" id="k-bukti" required class="inp-light w-full pl-10 pr-4 py-2.5 text-xs file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-navy/10 file:text-navy cursor-pointer">
+                                </div>
+                            </div>
+                            <!-- Preview bukti -->
+                            <div id="preview-bukti-container" class="hidden">
+                                <img id="preview-bukti" src="" class="w-full rounded-xl object-cover max-h-40 border border-slate-200">
+                            </div>
+                            <!-- Pesan -->
+                            <div>
+                                <label class="block text-xs font-bold text-navy/60 uppercase tracking-widest mb-1.5">Pesan <span class="text-slate-400 font-normal normal-case tracking-normal">(opsional)</span></label>
+                                <div class="relative">
+                                    <i class="fa-regular fa-comment absolute left-3.5 top-3.5 text-slate-400 text-sm pointer-events-none"></i>
+                                    <textarea id="k-ket" rows="2" placeholder="Tuliskan doa atau pesan..." class="inp-light w-full pl-10 pr-4 py-3 text-sm resize-none"></textarea>
+                                </div>
+                            </div>
+                            <!-- Submit -->
+                            <button type="submit" id="btn-konfirmasi" class="w-full py-4 rounded-2xl font-black text-base tracking-wide transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden group shadow-lg" style="background: linear-gradient(135deg, #0f2144, #0a1628); color: white;">
+                                <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="background: linear-gradient(135deg, #1a2f50, #0f2144)"></div>
+                                <span class="relative flex items-center gap-3">
+                                    <span>Kirim Konfirmasi</span>
+                                    <i class="fa-solid fa-paper-plane group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" style="color:#E8A816"></i>
+                                </span>
+                            </button>
+                        </form>
                     </div>
-                    
-                    <!-- Container Roadmap Hexagon -->
-                    <div id="portfolio-container" class="relative w-full pb-10">
-                        <!-- Data Di-inject JS -->
+
+                    <!-- Cara donasi info card -->
+                    <div class="mt-4 rounded-2xl p-4 border border-white/8" style="background: rgba(255,255,255,.03)">
+                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-circle-info" style="color:#E8A816"></i> Cara Berdonasi</p>
+                        <ol class="space-y-2 text-xs text-slate-400 font-medium">
+                            <li class="flex gap-2"><span class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0 mt-0.5" style="background: rgba(232,168,22,.2); color:#E8A816">1</span> Transfer ke rekening di atas</li>
+                            <li class="flex gap-2"><span class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0 mt-0.5" style="background: rgba(232,168,22,.2); color:#E8A816">2</span> Screenshot bukti transfer</li>
+                            <li class="flex gap-2"><span class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0 mt-0.5" style="background: rgba(232,168,22,.2); color:#E8A816">3</span> Isi form konfirmasi di atas</li>
+                            <li class="flex gap-2"><span class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0 mt-0.5" style="background: rgba(232,168,22,.2); color:#E8A816">4</span> Panitia akan memvalidasi donasi Anda</li>
+                        </ol>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ===== RIGHT: CONTENT ===== -->
+            <div class="flex-1 min-w-0 space-y-20 sm:space-y-28">
+
+                <!-- ROADMAP SECTION -->
+                <section>
+                    <div class="flex items-center gap-4 mb-12">
+                        <div>
+                            <span class="pill-gold text-[10px] mb-2 inline-flex"><i class="fa-solid fa-route"></i> Roadmap</span>
+                            <h3 class="font-fraunces font-black text-3xl sm:text-5xl text-white leading-tight">Tahapan Pembangunan</h3>
+                        </div>
+                        <div class="h-px bg-gradient-to-r from-gold/40 to-transparent flex-1 hidden sm:block"></div>
+                    </div>
+
+                    <div id="portfolio-container" class="relative">
+                        <!-- Injected by JS -->
                     </div>
                 </section>
 
-                <section data-aos="fade-up" data-aos-delay="400">
-                    <div class="flex items-center gap-4 mb-6 md:mb-10">
-                        <h3 class="text-2xl sm:text-3xl md:text-5xl font-serif font-black text-white drop-shadow-md flex items-center gap-3"><i class="fa-regular fa-newspaper text-gold"></i> Berita & Update</h3>
-                        <div class="h-1 bg-gradient-to-r from-white/50 to-transparent flex-1 rounded-full"></div>
+                <!-- BERITA SECTION -->
+                <section>
+                    <div class="flex items-center gap-4 mb-10">
+                        <div>
+                            <span class="pill-gold text-[10px] mb-2 inline-flex"><i class="fa-regular fa-newspaper"></i> Update</span>
+                            <h3 class="font-fraunces font-black text-3xl sm:text-5xl text-white leading-tight">Berita & Kabar</h3>
+                        </div>
+                        <div class="h-px bg-gradient-to-r from-white/20 to-transparent flex-1 hidden sm:block"></div>
                     </div>
-                    <div id="artikel-container" class="space-y-6 md:space-y-8 relative z-20"></div>
+                    <div id="artikel-container" class="space-y-5"></div>
                 </section>
             </div>
         </div>
 
-        <!-- SUSUNAN PANITIA -->
-        <section data-aos="fade-up" data-aos-delay="500" class="mt-20 md:mt-28 pt-10 md:pt-16 border-t border-white/10 relative z-20">
-            <div class="flex flex-col items-center mb-10 md:mb-16 text-center">
-                <h3 class="text-3xl sm:text-4xl md:text-6xl font-serif font-black text-white drop-shadow-md mb-3 md:mb-4">Susunan Panitia</h3>
-                <p class="text-gray-300 text-sm md:text-xl max-w-3xl font-medium leading-relaxed px-4">Orang-orang berdedikasi yang mengawal jalannya pembangunan rumah ibadah ini dengan penuh integritas.</p>
+        <!-- PANITIA SECTION -->
+        <section class="mt-24 sm:mt-32 pt-12 border-t border-white/8">
+            <div class="text-center mb-14">
+                <span class="pill-gold text-[10px] mb-4 inline-flex"><i class="fa-solid fa-users"></i> Tim</span>
+                <h3 class="font-fraunces font-black text-3xl sm:text-5xl md:text-6xl text-white mb-4">Susunan Panitia</h3>
+                <p class="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto font-light leading-relaxed">Mereka yang berdedikasi mengawal setiap tahapan pembangunan rumah ibadah ini dengan penuh integritas.</p>
             </div>
-            
-            <div id="panitia-container" class="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-10 max-w-6xl mx-auto relative z-30">
-                <!-- Data di-inject JS -->
-            </div>
+            <div id="panitia-container" class="flex flex-wrap justify-center gap-4 sm:gap-6 max-w-5xl mx-auto"></div>
         </section>
-
-    </main>
-
-    <footer class="glass-dark border-t border-white/10 text-white/60 py-10 md:py-12 text-center text-xs md:text-base mt-10 relative z-10">
-        <div class="container mx-auto px-4 flex flex-col items-center justify-center gap-3 md:gap-4">
-            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 flex items-center justify-center text-gold mb-2 transition-transform lg:hover:scale-110 hover:shadow-glow cursor-pointer"><i class="fa-solid fa-church text-xl md:text-2xl"></i></div>
-            <p class="text-sm md:text-lg">&copy; 2026 Sistem Informasi Pembangunan</p>
-            <p class="font-black text-white/80 tracking-widest text-lg md:text-2xl hover:text-white transition-colors cursor-pointer">PISGAH BISDAC</p>
-        </div>
-    </footer>
-
-    <!-- FLOATING WHATSAPP BUTTON -->
-    <div id="floating-wa-container" class="fixed bottom-6 right-6 z-[90] flex flex-col items-end hidden">
-        <div id="wa-popup" class="bg-white/95 backdrop-blur-md border border-gray-200 rounded-3xl shadow-2xl p-4 md:p-5 mb-4 w-[280px] md:w-[320px] transition-all duration-300 origin-bottom-right scale-0 opacity-0 pointer-events-none">
-            <div class="flex items-center justify-between mb-4 border-b border-gray-100 pb-3 pointer-events-auto">
-                <h4 class="font-black text-navy text-lg flex items-center gap-2"><i class="fa-brands fa-whatsapp text-green-500 text-xl"></i> Hubungi Panitia</h4>
-                <button onclick="toggleWaPopup()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-red-100 hover:text-red-500 lg:hover:rotate-90 transition-all relative z-50"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div id="wa-list-content" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2 pointer-events-auto"></div>
-        </div>
-        <button onclick="toggleWaPopup()" class="w-14 h-14 md:w-16 md:h-16 bg-green-500 text-white rounded-full flex items-center justify-center text-3xl md:text-4xl animate-wa-pulse lg:hover:scale-110 hover:bg-green-600 transition-all z-[90] shadow-xl border-2 border-white relative">
-            <i class="fa-brands fa-whatsapp"></i>
-        </button>
     </div>
+</main>
 
-    <!-- VIEW MODAL -->
-    <div id="view-modal" class="fixed inset-0 bg-navy/95 hidden z-[120] flex items-center justify-center p-4 backdrop-blur-xl transition-opacity duration-300 opacity-0 pointer-events-none">
-        <div class="bg-white rounded-3xl md:rounded-[2.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300 relative pointer-events-auto" id="view-modal-content">
-            <button onclick="closeViewModal()" class="absolute top-3 right-3 md:top-4 md:right-4 z-50 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-red-500 lg:hover:rotate-90 transition-all backdrop-blur-md shadow-lg border border-white/20"><i class="fa-solid fa-xmark text-xl md:text-2xl"></i></button>
-            <div class="overflow-y-auto flex-1 w-full bg-gray-50/50">
-                <div id="view-modal-image-wrapper" class="w-full bg-navy/5 flex justify-center hidden">
-                    <img id="view-modal-image" src="" class="w-full h-auto max-h-[50vh] md:max-h-[60vh] object-cover shadow-sm">
+<!-- =================== FOOTER =================== -->
+<footer class="glass-dark border-t border-white/8 py-10 text-center">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-4" style="background: rgba(232,168,22,.1); border: 1px solid rgba(232,168,22,.2)">
+            <i class="fa-solid fa-church text-lg" style="color:#E8A816"></i>
+        </div>
+        <p class="font-fraunces font-black text-xl sm:text-2xl text-white tracking-widest mb-1">PISGAH BISDAC</p>
+        <p class="text-xs text-slate-500 mb-2">Batam International Seventh-Day Adventist Church</p>
+        <p class="text-xs text-slate-600">&copy; 2026 Sistem Informasi Pembangunan. Semua hak dilindungi.</p>
+    </div>
+</footer>
+
+<!-- =================== FLOATING WA =================== -->
+<div id="floating-wa-container" class="fixed bottom-6 right-5 z-[90] flex flex-col items-end hidden">
+    <!-- Popup -->
+    <div id="wa-popup" class="bg-white/98 rounded-2xl shadow-2xl p-4 mb-3 w-72 sm:w-80 border border-gray-200 origin-bottom-right scale-0 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+            <h4 class="font-bold text-navy text-base flex items-center gap-2"><i class="fa-brands fa-whatsapp text-green-500 text-lg"></i> Hubungi Panitia</h4>
+            <button onclick="toggleWaPopup()" class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-red-100 hover:text-red-500 transition-all text-sm">✕</button>
+        </div>
+        <div id="wa-list-content" class="space-y-2 max-h-[50vh] overflow-y-auto pr-1"></div>
+    </div>
+    <!-- Button -->
+    <button onclick="toggleWaPopup()" class="w-14 h-14 bg-green-500 text-white rounded-full flex items-center justify-center text-3xl animate-wa-ring hover:bg-green-600 transition-all shadow-xl border-2 border-white">
+        <i class="fa-brands fa-whatsapp"></i>
+    </button>
+</div>
+
+<!-- =================== VIEW MODAL =================== -->
+<div id="view-modal" class="modal-overlay" onclick="closeViewModal()">
+    <div class="modal-box bg-white rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden" onclick="e => e.stopPropagation()" id="view-modal-content">
+        <button onclick="closeViewModal()" class="absolute top-3 right-3 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-black/30 text-white hover:bg-red-500 transition-all text-xl">✕</button>
+        <div class="overflow-y-auto flex-1">
+            <div id="view-modal-image-wrapper" class="hidden">
+                <img id="view-modal-image" src="" class="w-full h-56 sm:h-80 object-cover">
+            </div>
+            <div class="p-6 sm:p-12">
+                <div id="view-modal-tag" class="hidden mb-4">
+                    <span class="inline-block bg-amber-100 text-amber-800 text-xs font-black px-3 py-1.5 rounded-lg uppercase tracking-wider">Update Berita</span>
                 </div>
-                <div class="p-6 md:p-14 bg-white relative">
-                    <div id="view-modal-tag" class="flex items-center gap-2 mb-4 md:mb-5 hidden">
-                        <span class="bg-gold/20 text-gold-dark text-xs md:text-sm font-black px-3 md:px-4 py-1.5 md:py-2 rounded-lg uppercase tracking-wider"><i class="fa-solid fa-newspaper mr-1"></i> Update Berita</span>
+                <h2 id="view-modal-title" class="font-fraunces font-black text-2xl sm:text-4xl text-navy mb-4 leading-tight">—</h2>
+                <div class="w-14 h-1 rounded-full mb-6" style="background:#E8A816"></div>
+                <p id="view-modal-desc" class="text-slate-600 text-base sm:text-lg leading-relaxed whitespace-pre-line">—</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =================== ADMIN MODAL =================== -->
+<div id="admin-modal" class="modal-overlay">
+    <div class="modal-box bg-white rounded-3xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl" id="admin-modal-content">
+        <!-- Admin header -->
+        <div class="flex items-center justify-between px-5 sm:px-8 py-5 border-b border-gray-200 flex-shrink-0" style="background: linear-gradient(135deg, #0f2144, #0a1628);">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: rgba(232,168,22,.2); border: 1px solid rgba(232,168,22,.3)">
+                    <i class="fa-solid fa-shield-halved text-base" style="color:#E8A816"></i>
+                </div>
+                <div>
+                    <h2 class="font-fraunces font-black text-xl text-white">Admin Panel</h2>
+                    <p id="admin-subtitle" class="text-xs text-slate-400">Silakan login untuk melanjutkan</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="btn-logout" onclick="logoutAdmin()" class="hidden items-center gap-2 bg-red-50 text-red-600 hover:bg-red-100 font-bold px-4 py-2 rounded-xl transition text-xs border border-red-100">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+                <button onclick="closeAdminModal()" class="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all text-lg">✕</button>
+            </div>
+        </div>
+
+        <!-- Admin body -->
+        <div class="overflow-y-auto flex-1 bg-gray-50">
+
+            <!-- LOGIN -->
+            <div id="admin-login-section" class="flex items-center justify-center min-h-[400px] p-8">
+                <div class="w-full max-w-sm">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: linear-gradient(135deg, #0f2144, #0a1628)">
+                            <i class="fa-solid fa-lock text-2xl" style="color:#E8A816"></i>
+                        </div>
+                        <h3 class="font-fraunces font-black text-2xl text-navy">Masuk Admin</h3>
+                        <p class="text-slate-500 text-sm mt-1">Masukkan kredensial Anda</p>
                     </div>
-                    <h2 id="view-modal-title" class="text-2xl md:text-5xl font-serif font-black text-navy mb-4 md:mb-6 leading-tight break-words">Judul Data</h2>
-                    <div class="w-12 md:w-20 h-1 md:h-1.5 bg-gold rounded-full mb-6 md:mb-8"></div>
-                    <p id="view-modal-desc" class="text-gray-700 text-base md:text-2xl font-medium leading-relaxed whitespace-pre-line break-words">Isi atau deskripsi lengkap akan muncul di sini...</p>
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none"></i>
+                            <input type="text" id="admin-user" placeholder="Username" class="inp-light w-full pl-11 pr-4 py-3.5 font-semibold text-sm">
+                        </div>
+                        <div class="relative">
+                            <i class="fa-solid fa-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none"></i>
+                            <input type="password" id="admin-pass" placeholder="Password" onkeydown="if(event.key==='Enter') loginAdmin()" class="inp-light w-full pl-11 pr-4 py-3.5 font-semibold text-sm">
+                        </div>
+                        <button onclick="loginAdmin()" id="btn-login" class="w-full py-4 rounded-2xl font-black text-white text-sm tracking-wide transition-all flex items-center justify-center gap-2 shadow-lg mt-2" style="background: linear-gradient(135deg, #0f2144, #0a1628)">
+                            <i class="fa-solid fa-arrow-right-to-bracket"></i> LOGIN SEKARANG
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- ADMIN MODAL UTAMA -->
-    <div id="admin-modal" class="fixed inset-0 bg-navy/90 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-xl transition-opacity duration-300 opacity-0 pointer-events-none">
-        <div class="bg-white/95 rounded-3xl md:rounded-[2.5rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col transform scale-95 transition-transform duration-300 pointer-events-auto" id="admin-modal-content">
-            <div class="px-5 md:px-10 py-5 md:py-8 border-b border-gray-200 flex justify-between items-center bg-gray-50/50 relative z-20">
-                <div class="flex items-center gap-3 md:gap-4">
-                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-navy text-white flex items-center justify-center shadow-md"><i class="fa-solid fa-lock text-lg md:text-xl"></i></div>
-                    <h2 class="text-xl md:text-3xl font-serif font-black text-navy">Admin Panel</h2>
-                </div>
-                <div class="flex items-center gap-2 md:gap-5">
-                    <button id="btn-logout" onclick="logoutAdmin()" class="hidden bg-red-50 text-red-600 hover:bg-red-100 font-bold px-4 md:px-6 py-2 md:py-3 rounded-xl transition text-xs md:text-base flex items-center gap-2 shadow-sm border border-red-100 relative z-30">
-                        <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Logout</span>
+            <!-- DASHBOARD -->
+            <div id="admin-dashboard-section" class="hidden p-5 sm:p-8">
+
+                <!-- TABS -->
+                <div class="flex gap-0 border-b border-gray-200 mb-8 overflow-x-auto">
+                    <button onclick="switchTab('info')" class="tab-btn active text-sm font-bold px-5 py-3 text-gray-500 whitespace-nowrap" id="tab-info">
+                        <i class="fa-solid fa-circle-info mr-2"></i>Info Utama
                     </button>
-                    <button onclick="closeAdminModal()" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all shadow-sm lg:hover:rotate-90 relative z-30"><i class="fa-solid fa-xmark text-xl md:text-2xl"></i></button>
+                    <button onclick="switchTab('donasi')" class="tab-btn text-sm font-bold px-5 py-3 text-gray-500 whitespace-nowrap" id="tab-donasi">
+                        <i class="fa-solid fa-money-check-dollar mr-2"></i>Validasi Donasi <span id="badge-donasi" class="hidden ml-1 bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">!</span>
+                    </button>
+                    <button onclick="switchTab('galeri')" class="tab-btn text-sm font-bold px-5 py-3 text-gray-500 whitespace-nowrap" id="tab-galeri">
+                        <i class="fa-solid fa-images mr-2"></i>Galeri
+                    </button>
+                    <button onclick="switchTab('berita')" class="tab-btn text-sm font-bold px-5 py-3 text-gray-500 whitespace-nowrap" id="tab-berita">
+                        <i class="fa-regular fa-newspaper mr-2"></i>Berita
+                    </button>
+                    <button onclick="switchTab('panitia')" class="tab-btn text-sm font-bold px-5 py-3 text-gray-500 whitespace-nowrap" id="tab-panitia">
+                        <i class="fa-solid fa-users mr-2"></i>Panitia
+                    </button>
                 </div>
+
+                <!-- TAB: INFO UTAMA -->
+                <div class="tab-panel active" id="panel-info">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8">
+                        <h4 class="font-bold text-navy text-lg mb-6 flex items-center gap-2"><i class="fa-solid fa-sliders text-blue-500"></i> Pengaturan Informasi Utama</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Judul Website</label>
+                                <input type="text" id="edit-judul" class="inp-light w-full px-4 py-3 text-sm font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Target Dana (Rp)</label>
+                                <input type="number" id="edit-target" class="inp-light w-full px-4 py-3 text-sm font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Dana Terkumpul (Rp) <span class="text-slate-400 font-normal normal-case tracking-normal text-[10px]">— otomatis dari validasi donasi</span></label>
+                                <input type="number" id="edit-terkumpul" class="inp-light w-full px-4 py-3 text-sm font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nama Bank</label>
+                                <input type="text" id="edit-bank" placeholder="Contoh: BCA" class="inp-light w-full px-4 py-3 text-sm font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">No. Rekening</label>
+                                <input type="text" id="edit-norek" placeholder="Contoh: 1234567890" class="inp-light w-full px-4 py-3 text-sm font-semibold">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Atas Nama Rekening</label>
+                                <input type="text" id="edit-atasnama" placeholder="Contoh: Panitia Pembangunan Pisgah" class="inp-light w-full px-4 py-3 text-sm font-semibold">
+                            </div>
+                        </div>
+                        <button onclick="updateInfo()" id="btn-update-info" class="mt-6 w-full py-4 rounded-2xl font-black text-navy text-sm tracking-wide transition-all flex items-center justify-center gap-2 shadow-md" style="background: linear-gradient(135deg, #E8A816, #f5c842)">
+                            <i class="fa-solid fa-floppy-disk"></i> SIMPAN PERUBAHAN
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB: VALIDASI DONASI -->
+                <div class="tab-panel" id="panel-donasi">
+                    <div class="flex items-center justify-between mb-5">
+                        <h4 class="font-bold text-navy text-lg flex items-center gap-2"><i class="fa-solid fa-money-check-dollar text-emerald-600"></i> Konfirmasi Donasi Masuk</h4>
+                        <button onclick="loadKonfirmasiAdmin()" class="text-xs font-bold text-slate-500 hover:text-navy flex items-center gap-1.5 transition-colors">
+                            <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                        </button>
+                    </div>
+                    <div id="admin-konfirmasi-list" class="space-y-3">
+                        <div class="text-center py-10 text-slate-400 italic text-sm"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Memuat...</div>
+                    </div>
+                </div>
+
+                <!-- TAB: GALERI -->
+                <div class="tab-panel" id="panel-galeri">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8">
+                        <h4 class="font-bold text-navy text-lg mb-5 flex items-center gap-2"><i class="fa-solid fa-image text-purple-500"></i> Tambah Tahap / Galeri</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Judul Tahapan</label>
+                                <input type="text" id="add-porto-title" placeholder="Cth: Pengecoran Fondasi Utama" class="inp-light w-full px-4 py-3 text-sm font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Upload Foto <span class="text-slate-400 font-normal normal-case tracking-normal">(maks 5MB)</span></label>
+                                <input type="file" accept="image/*" id="add-porto-image" class="inp-light w-full px-4 py-2.5 text-xs file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-navy/10 file:text-navy cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Narasi / Keterangan</label>
+                                <textarea id="add-porto-desc" rows="3" placeholder="Ceritakan proses di balik foto ini..." class="inp-light w-full px-4 py-3 text-sm resize-none"></textarea>
+                            </div>
+                            <button onclick="tambahPorto()" id="btn-add-porto" class="w-full py-3.5 rounded-2xl font-black text-white text-sm tracking-wide flex items-center justify-center gap-2 shadow-md transition-all" style="background: linear-gradient(135deg, #0f2144, #0a1628)">
+                                <i class="fa-solid fa-upload"></i> UNGGAH GALERI
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: BERITA -->
+                <div class="tab-panel" id="panel-berita">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8">
+                        <h4 class="font-bold text-navy text-lg mb-5 flex items-center gap-2"><i class="fa-regular fa-newspaper text-green-500"></i> Tambah Berita / Update</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Judul Berita</label>
+                                <input type="text" id="add-art-title" placeholder="Cth: Fondasi Selesai Dikerjakan" class="inp-light w-full px-4 py-3 text-sm font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Isi Berita</label>
+                                <textarea id="add-art-content" rows="7" placeholder="Tulis konten berita selengkapnya di sini..." class="inp-light w-full px-4 py-3 text-sm resize-none"></textarea>
+                            </div>
+                            <button onclick="tambahArt()" id="btn-add-art" class="w-full py-3.5 rounded-2xl font-black text-white text-sm tracking-wide flex items-center justify-center gap-2 shadow-md transition-all" style="background: linear-gradient(135deg, #0f2144, #0a1628)">
+                                <i class="fa-solid fa-plus"></i> TERBITKAN BERITA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: PANITIA -->
+                <div class="tab-panel" id="panel-panitia">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8">
+                        <h4 class="font-bold text-navy text-lg mb-5 flex items-center gap-2"><i class="fa-solid fa-user-plus text-amber-500"></i> Tambah Anggota Panitia</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nama Lengkap</label>
+                                <input type="text" id="add-panitia-nama" placeholder="Nama anggota panitia" class="inp-light w-full px-4 py-3 text-sm font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Jabatan</label>
+                                <input type="text" id="add-panitia-jabatan" placeholder="Cth: Ketua Panitia" class="inp-light w-full px-4 py-3 text-sm font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">No. WhatsApp <span class="text-slate-400 font-normal normal-case tracking-normal">(opsional)</span></label>
+                                <input type="text" id="add-panitia-nowa" placeholder="Cth: 628123456789" class="inp-light w-full px-4 py-3 text-sm font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Foto <span class="text-slate-400 font-normal normal-case tracking-normal">(opsional, maks 5MB)</span></label>
+                                <input type="file" accept="image/*" id="add-panitia-image" class="inp-light w-full px-4 py-2.5 text-xs file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-navy/10 file:text-navy cursor-pointer">
+                            </div>
+                        </div>
+                        <button onclick="tambahPanitia()" id="btn-add-panitia" class="mt-5 w-full py-3.5 rounded-2xl font-black text-white text-sm tracking-wide flex items-center justify-center gap-2 shadow-md transition-all" style="background: linear-gradient(135deg, #0f2144, #0a1628)">
+                            <i class="fa-solid fa-upload"></i> TAMBAH PANITIA
+                        </button>
+                    </div>
+                </div>
+
+            </div><!-- end dashboard -->
+        </div><!-- end admin body -->
+    </div>
+</div>
+
+<!-- =================== EDIT MODAL =================== -->
+<div id="edit-modal" class="modal-overlay">
+    <div class="modal-box bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl" id="edit-modal-content">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
+            <h2 class="font-fraunces font-black text-xl text-navy" id="edit-modal-title">Edit Data</h2>
+            <button onclick="closeEditModal()" class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 hover:bg-red-100 hover:text-red-600 transition-all text-sm">✕</button>
+        </div>
+        <div class="p-6 space-y-4">
+            <input type="hidden" id="edit-id">
+            <input type="hidden" id="edit-type">
+            <input type="hidden" id="edit-existing-image">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2" id="label-title">Judul / Nama</label>
+                <input type="text" id="edit-item-title" class="inp-light w-full px-4 py-3 text-sm font-semibold">
             </div>
-            
-            <div class="p-5 md:p-10 overflow-y-auto flex-1 bg-white relative z-10">
-                <div id="admin-login-section" class="max-w-md mx-auto py-10 md:py-20">
-                    <div class="text-center mb-8 md:mb-12"><h3 class="font-serif font-black text-3xl md:text-4xl text-navy">Otorisasi Akses</h3><p class="text-gray-500 text-sm md:text-lg mt-2 md:mt-3">Silakan masukkan data LOG-IN Anda.</p></div>
-                    <div class="space-y-4 md:space-y-6">
-                        <div class="relative"><i class="fa-solid fa-user absolute left-4 md:left-5 top-1/2 -translate-y-1/2 text-gray-400 text-lg md:text-xl pointer-events-none z-30"></i><input type="text" id="admin-user" placeholder="Username" class="input-elegant w-full pl-12 md:pl-14 pr-4 md:pr-5 py-4 md:py-5 rounded-xl text-base md:text-lg font-bold relative z-20"></div>
-                        <div class="relative"><i class="fa-solid fa-key absolute left-4 md:left-5 top-1/2 -translate-y-1/2 text-gray-400 text-lg md:text-xl pointer-events-none z-30"></i><input type="password" id="admin-pass" placeholder="Password" class="input-elegant w-full pl-12 md:pl-14 pr-4 md:pr-5 py-4 md:py-5 rounded-xl text-base md:text-lg font-bold relative z-20"></div>
-                        <button onclick="loginAdmin()" id="btn-login" class="w-full bg-navy text-white py-4 md:py-5 rounded-xl font-black hover:bg-navy-light transition shadow-xl mt-6 md:mt-8 text-lg md:text-xl tracking-wide relative z-20">LOGIN SEKARANG</button>
-                    </div>
-                </div>
-                
-                <div id="admin-dashboard-section" class="hidden space-y-8 md:space-y-10">
-                    <div class="bg-slate-50 p-5 md:p-10 rounded-[2rem] border border-slate-200">
-                        <div class="flex items-center gap-3 md:gap-4 mb-6 md:mb-8"><div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl md:text-2xl"><i class="fa-solid fa-pen-to-square"></i></div><h4 class="font-black text-navy text-xl md:text-2xl">Update Info Utama</h4></div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
-                            <div><label class="text-xs md:text-sm font-bold text-gray-500 uppercase block mb-2 tracking-wide">Judul Website</label><input type="text" id="edit-judul" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div>
-                            <div><label class="text-xs md:text-sm font-bold text-gray-500 uppercase block mb-2 tracking-wide">Target Dana (Angka)</label><input type="number" id="edit-target" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div>
-                            <div><label class="text-xs md:text-sm font-bold text-gray-500 uppercase block mb-2 tracking-wide">Terkumpul (Angka)</label><input type="number" id="edit-terkumpul" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div>
-                            
-                            <div><label class="text-xs md:text-sm font-bold text-gray-500 uppercase block mb-2 tracking-wide">Nama Bank</label><input type="text" id="edit-bank" placeholder="Cth: BCA" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div>
-                            <div><label class="text-xs md:text-sm font-bold text-gray-500 uppercase block mb-2 tracking-wide">No Rekening</label><input type="text" id="edit-norek" placeholder="Cth: 1234567890" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div>
-                            <div class="md:col-span-2"><label class="text-xs md:text-sm font-bold text-gray-500 uppercase block mb-2 tracking-wide">Atas Nama Rekening</label><input type="text" id="edit-atasnama" placeholder="Cth: Panitia" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold"></div>
-                        </div>
-                        <button onclick="updateInfo()" id="btn-update-info" class="mt-8 md:mt-10 bg-gold text-navy font-black px-6 py-4 md:py-5 rounded-xl hover:bg-yellow-400 w-full shadow-lg transition flex justify-center items-center gap-3 text-lg md:text-xl tracking-wide relative z-20"><i class="fa-solid fa-floppy-disk"></i> SIMPAN PERUBAHAN</button>
-                    </div>
-
-                    <!-- BLOK VALIDASI DONASI BARU -->
-                    <div class="bg-slate-50 p-5 md:p-10 rounded-[2rem] border border-slate-200">
-                        <div class="flex items-center gap-3 md:gap-4 mb-6 md:mb-8"><div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl md:text-2xl"><i class="fa-solid fa-money-check-dollar"></i></div><h4 class="font-black text-navy text-xl md:text-2xl">Validasi Donasi Masuk</h4></div>
-                        <div id="admin-konfirmasi-list" class="space-y-4 max-h-[400px] overflow-y-auto pr-2 pb-2">
-                            <p class="text-gray-500 text-center py-4 italic font-medium"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Memuat data konfirmasi...</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-                        <div class="bg-slate-50 p-5 md:p-8 rounded-[2rem] border border-slate-200 flex flex-col">
-                            <div class="flex items-center gap-3 mb-5 md:mb-6"><div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-lg md:text-xl"><i class="fa-solid fa-image"></i></div><h4 class="font-black text-navy text-lg md:text-xl">Tambah Galeri</h4></div>
-                            <div class="space-y-4 md:space-y-5 mb-6 md:mb-8 flex-1">
-                                <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Judul Foto</label><input type="text" id="add-porto-title" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-bold relative z-20"></div>
-                                <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Upload Gambar (< 5MB)</label><input type="file" accept="image/*" id="add-porto-image" class="input-elegant w-full px-3 md:px-4 py-2 md:py-3 rounded-xl text-xs md:text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] md:file:text-xs file:font-black file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer relative z-20"></div>
-                                <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Narasi / Keterangan</label><textarea id="add-porto-desc" rows="3" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-medium resize-none relative z-20"></textarea></div>
-                            </div>
-                            <button onclick="tambahPorto()" id="btn-add-porto" class="bg-navy text-white font-black px-5 md:px-6 py-3 md:py-4 rounded-xl hover:bg-navy-light w-full shadow-lg transition flex justify-center items-center gap-2 mt-auto text-base md:text-lg relative z-20"><i class="fa-solid fa-upload"></i> UNGGAH GALERI</button>
-                        </div>
-
-                        <div class="bg-slate-50 p-5 md:p-8 rounded-[2rem] border border-slate-200 flex flex-col">
-                            <div class="flex items-center gap-3 mb-5 md:mb-6"><div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-lg md:text-xl"><i class="fa-solid fa-newspaper"></i></div><h4 class="font-black text-navy text-lg md:text-xl">Tambah Berita</h4></div>
-                            <div class="space-y-4 md:space-y-5 mb-6 md:mb-8 flex-1">
-                                <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Judul Berita</label><input type="text" id="add-art-title" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-bold relative z-20"></div>
-                                <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Isi Berita</label><textarea id="add-art-content" rows="6" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-medium resize-none relative z-20"></textarea></div>
-                            </div>
-                            <button onclick="tambahArt()" id="btn-add-art" class="bg-navy text-white font-black px-5 md:px-6 py-3 md:py-4 rounded-xl hover:bg-navy-light w-full shadow-lg transition flex justify-center items-center gap-2 mt-auto text-base md:text-lg relative z-20"><i class="fa-solid fa-plus"></i> UNGGAH BERITA</button>
-                        </div>
-
-                        <div class="bg-slate-50 p-5 md:p-8 rounded-[2rem] border border-slate-200 flex flex-col">
-                            <div class="flex items-center gap-3 mb-5 md:mb-6"><div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-lg md:text-xl"><i class="fa-solid fa-users"></i></div><h4 class="font-black text-navy text-lg md:text-xl">Tambah Panitia</h4></div>
-                            <div class="space-y-4 md:space-y-5 mb-6 md:mb-8 flex-1">
-                                <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Nama Lengkap</label><input type="text" id="add-panitia-nama" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-bold relative z-20"></div>
-                                <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Jabatan</label><input type="text" id="add-panitia-jabatan" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-bold relative z-20"></div>
-                                <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">No Handphone / WA (Opsional)</label><input type="text" id="add-panitia-nowa" placeholder="Cth: 628123456789" class="input-elegant w-full px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-bold relative z-20"></div>
-                                <div><label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Upload Foto (Opsional)</label><input type="file" accept="image/*" id="add-panitia-image" class="input-elegant w-full px-3 md:px-4 py-2 md:py-3 rounded-xl text-xs md:text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] md:file:text-xs file:font-black file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer relative z-20"></div>
-                            </div>
-                            <button onclick="tambahPanitia()" id="btn-add-panitia" class="bg-navy text-white font-black px-5 md:px-6 py-3 md:py-4 rounded-xl hover:bg-navy-light w-full shadow-lg transition flex justify-center items-center gap-2 mt-auto text-base md:text-lg relative z-20"><i class="fa-solid fa-upload"></i> UNGGAH PANITIA</button>
-                        </div>
-                    </div>
-                </div>
+            <div id="edit-jabatan-container" class="hidden">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Jabatan</label>
+                <input type="text" id="edit-item-jabatan" class="inp-light w-full px-4 py-3 text-sm font-semibold">
             </div>
+            <div id="edit-nowa-container" class="hidden">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">No. WhatsApp</label>
+                <input type="text" id="edit-item-nowa" placeholder="628123456789" class="inp-light w-full px-4 py-3 text-sm font-semibold">
+            </div>
+            <div id="edit-image-container" class="hidden">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Ganti Gambar <span class="text-slate-400 font-normal normal-case tracking-normal">(maks 5MB)</span></label>
+                <input type="file" accept="image/*" id="edit-item-image" class="inp-light w-full px-4 py-2.5 text-xs file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-navy/10 file:text-navy cursor-pointer">
+            </div>
+            <div id="edit-content-container">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2" id="label-content">Isi / Narasi</label>
+                <textarea id="edit-item-content" rows="5" class="inp-light w-full px-4 py-3 text-sm resize-none"></textarea>
+            </div>
+            <button onclick="submitEdit()" id="btn-submit-edit" class="w-full py-4 rounded-2xl font-black text-navy text-sm tracking-wide flex items-center justify-center gap-2 shadow-md transition-all mt-2" style="background: linear-gradient(135deg, #E8A816, #f5c842)">
+                <i class="fa-solid fa-floppy-disk"></i> SIMPAN PERUBAHAN
+            </button>
         </div>
     </div>
+</div>
 
-    <!-- MODAL EDIT DATA KHUSUS -->
-    <div id="edit-modal" class="fixed inset-0 bg-navy/80 hidden z-[110] flex items-center justify-center p-4 backdrop-blur-md transition-opacity duration-300 opacity-0 pointer-events-none">
-        <div class="bg-white rounded-3xl md:rounded-[2rem] shadow-2xl w-full max-w-lg overflow-hidden flex flex-col transform scale-95 transition-transform duration-300 pointer-events-auto" id="edit-modal-content">
-            <div class="px-5 md:px-8 py-4 md:py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                <h2 class="text-xl md:text-2xl font-serif font-black text-navy" id="edit-modal-title">Edit Data</h2>
-                <button onclick="closeEditModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 hover:bg-red-100 hover:text-red-600 transition-colors relative z-50"><i class="fa-solid fa-xmark text-lg md:text-xl"></i></button>
-            </div>
-            <div class="p-5 md:p-8">
-                <input type="hidden" id="edit-id"><input type="hidden" id="edit-type"><input type="hidden" id="edit-existing-image">
-                <div class="space-y-4 md:space-y-5">
-                    <div><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide" id="label-title">Judul / Nama</label><input type="text" id="edit-item-title" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold relative z-20"></div>
-                    <div id="edit-jabatan-container" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Jabatan</label><input type="text" id="edit-item-jabatan" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold relative z-20"></div>
-                    <div id="edit-nowa-container" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">No Handphone / WA</label><input type="text" id="edit-item-nowa" placeholder="Cth: 628123456789" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-bold relative z-20"></div>
-                    <div id="edit-image-container" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide">Ganti Gambar (Maks 5MB)</label><input type="file" accept="image/*" id="edit-item-image" class="input-elegant w-full px-3 md:px-4 py-2 md:py-3 rounded-xl text-xs md:text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] md:file:text-xs file:font-black file:bg-navy/10 file:text-navy hover:file:bg-navy/20 cursor-pointer relative z-20"></div>
-                    <div id="edit-content-container"><label class="text-xs font-bold text-gray-500 uppercase block mb-2 tracking-wide" id="label-content">Isi / Narasi</label><textarea id="edit-item-content" rows="5" class="input-elegant w-full px-4 md:px-5 py-3 md:py-4 rounded-xl text-base md:text-lg font-medium resize-none relative z-20"></textarea></div>
-                </div>
-                <button onclick="submitEdit()" id="btn-submit-edit" class="w-full bg-gold text-navy font-black py-4 md:py-5 mt-6 md:mt-8 rounded-xl hover:bg-yellow-400 shadow-xl transition flex justify-center items-center gap-2 md:gap-3 text-lg md:text-xl tracking-wide relative z-20"><i class="fa-solid fa-floppy-disk"></i> SIMPAN PERUBAHAN</button>
-            </div>
-        </div>
-    </div>
+<!-- =================== TOAST =================== -->
+<div id="toast"><i class="fa-solid fa-check mr-2"></i><span id="toast-msg">Berhasil!</span></div>
 
-    <script>
-        AOS.init({ once: true, duration: 1000, offset: 50 });
+<!-- =================== SCRIPTS =================== -->
+<script>
+    // ==============================
+    // CONFIG
+    // ==============================
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvNICOilB-oQG3WfI6nrj_kYjG3tGMBZYndE4K3jw_TuvjR7lOMsyyyCyNHTNCKUOOMg/exec';
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvNICOilB-oQG3WfI6nrj_kYjG3tGMBZYndE4K3jw_TuvjR7lOMsyyyCyNHTNCKUOOMg/exec'; 
-        
-        let isAdminMode = false;
-        let globalData = null;
-        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB LIMIT
+    let isAdminMode = false;
+    let globalData = null;
 
-        const api = {
-            req: async (payload) => {
-                if (!SCRIPT_URL.startsWith('http')) {
-                    if(payload.action === 'verifyAdmin') return { success: true };
-                    if(payload.action === 'getKonfirmasi') return { success: true, data: [{rowIdx: 2, date: new Date().toISOString(), nama: 'Budi Santoso', jumlah: 500000, ket: 'Untuk Keramik', bukti: '#', status: 'Pending'}] };
-                    if(payload.action === 'confirmDonasi') return { success: true };
-                    return { success: true };
-                }
-                try {
-                    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-                    return await res.json();
-                } catch (e) { return { error: e.message }; }
-            },
-            get: async () => {
-                if (!SCRIPT_URL.startsWith('http')) {
-                    return {
-                        judul: "Pembangunan Gereja Pisgah", target: 500000000, terkumpul: 325500000, bank: "BCA", norek: "1234567890", atasnama: "Panitia Pembangunan Pisgah",
-                        portfolio: [ 
-                            { id: '1', title: 'Pengecoran Fondasi', desc: 'Gotong royong jemaat.', image: 'https://images.unsplash.com/photo-1541888081688-6c84c1fbb462?auto=format&fit=crop&q=80&w=600' }
-                        ],
-                        artikel: [ { id: '1', title: 'Tahap Struktur Selesai', content: 'Terima kasih jemaat...' } ],
-                        panitia: [ 
-                            { id: '1', nama: 'Budi Santoso', jabatan: 'Ketua Panitia', image: '', nowa: '628123456789' }
-                        ]
-                    };
-                }
-                try { const res = await fetch(SCRIPT_URL + "?t=" + new Date().getTime()); return await res.json(); } catch (e) { return null; }
-            }
-        };
+    // ==============================
+    // TOAST
+    // ==============================
+    function showToast(msg, icon = 'fa-check', duration = 3000) {
+        const t = document.getElementById('toast');
+        const m = document.getElementById('toast-msg');
+        m.innerHTML = `<i class="fa-solid ${icon} mr-2"></i>${msg}`;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), duration);
+    }
 
-        const formatRp = (num) => "Rp " + parseInt(num || 0).toLocaleString('id-ID');
-
-        function getBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve({
-                    base64: reader.result.split(',')[1],
-                    mimeType: file.type,
-                    name: file.name
-                });
-                reader.onerror = error => reject(error);
-            });
+    // ==============================
+    // API
+    // ==============================
+    const api = {
+        req: async (payload) => {
+            try {
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                return await res.json();
+            } catch (e) { return { error: e.message }; }
+        },
+        get: async () => {
+            try {
+                const res = await fetch(SCRIPT_URL + "?t=" + new Date().getTime());
+                return await res.json();
+            } catch (e) { return null; }
         }
+    };
 
-        function copyRekening() {
-            const rekElement = document.getElementById('norek-val');
-            const rek = rekElement.innerText.replace(/[^0-9]/g, '');
-            if(rek && rek !== '0000000000') { 
-                const textArea = document.createElement("textarea");
-                textArea.value = rek;
-                textArea.style.position = "fixed";
-                textArea.style.left = "-9999px";
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    alert('Nomor rekening disalin: ' + rek);
-                } catch (err) {
-                    console.error('Gagal menyalin:', err);
-                    alert('Maaf, fitur salin otomatis tidak didukung di peramban ini.');
-                }
-                document.body.removeChild(textArea);
-            }
+    // ==============================
+    // UTILS
+    // ==============================
+    const formatRp = (num) => "Rp " + parseInt(num || 0).toLocaleString('id-ID');
+
+    function setJumlah(val) {
+        document.getElementById('k-jumlah').value = val;
+    }
+
+    function getBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve({ base64: reader.result.split(',')[1], mimeType: file.type, name: file.name });
+            reader.onerror = reject;
+        });
+    }
+
+    function formatWaNumber(nowa) {
+        if (!nowa) return '';
+        let n = String(nowa).replace(/[^0-9]/g, '');
+        if (n.startsWith('0')) n = '62' + n.substring(1);
+        else if (!n.startsWith('62')) n = '62' + n;
+        return n;
+    }
+
+    // Preview bukti image
+    document.getElementById('k-bukti').addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('preview-bukti').src = e.target.result;
+                document.getElementById('preview-bukti-container').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
         }
+    });
 
-        function updateAdminUI() {
-            const icon = document.getElementById('icon-admin-nav');
-            const text = document.getElementById('text-admin-nav');
-            if(isAdminMode) {
-                icon.className = "fa-solid fa-table-columns text-gold lg:group-hover:scale-125 transition-transform duration-300 text-sm md:text-base";
-                text.innerText = "Dashboard";
-            } else {
-                icon.className = "fa-solid fa-user-shield text-gold lg:group-hover:scale-125 transition-transform duration-300 text-sm md:text-base";
-                text.innerText = "Admin";
-            }
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+        const nav = document.getElementById('navbar');
+        if (window.scrollY > 60) nav.classList.add('scrolled');
+        else nav.classList.remove('scrolled');
+    });
+
+    // Copy rekening
+    function copyRekening() {
+        const rek = document.getElementById('norek-val').innerText.replace(/[^0-9]/g, '');
+        if (!rek || rek === '0000000000') return;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(rek).then(() => showToast('Nomor rekening disalin: ' + rek, 'fa-copy'));
+        } else {
+            const ta = document.createElement('textarea');
+            ta.value = rek; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+            document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); showToast('Nomor rekening disalin!', 'fa-copy'); } catch(e) {}
+            document.body.removeChild(ta);
         }
+    }
 
-        async function loadKonfirmasiAdmin() {
-            const container = document.getElementById('admin-konfirmasi-list');
-            container.innerHTML = '<p class="text-gray-500 text-center py-6 italic font-medium"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Memuat data konfirmasi...</p>';
-            
-            const res = await api.req({ action: 'getKonfirmasi' });
-            
-            if (res && res.success) {
-                if (res.data && res.data.length > 0) {
-                    container.innerHTML = res.data.reverse().map(item => `
-                        <div class="bg-white border ${item.status === 'Confirmed' ? 'border-emerald-200' : 'border-amber-300'} p-4 md:p-5 rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 justify-between items-center transition hover:shadow-md relative z-20">
-                            <div class="flex-1 w-full text-center md:text-left">
-                                <p class="text-[10px] md:text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">${new Date(item.date).toLocaleDateString('id-ID')} • <span class="${item.status === 'Confirmed' ? 'textemerald-500' : 'text-amber-500'}">${item.status === 'Confirmed' ? 'Sudah Dikonfirmasi' : 'Menunggu Validasi'}</span></p>
-                                <h5 class="font-black text-navy text-lg md:text-xl leading-tight">${item.nama}</h5>
-                                <p class="text-gold-dark font-black text-xl md:text-2xl">${formatRp(item.jumlah)}</p>
-                                ${item.ket ? `<p class="text-gray-500 text-sm mt-1 italic">"${item.ket}"</p>` : ''}
-                            </div>
-                            <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto relative z-30">
-                                ${item.bukti ? `<a href="${item.bukti}" target="_blank" class="px-5 py-3 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm hover:bg-blue-100 transition text-center flex justify-center items-center gap-2 relative z-30"><i class="fa-solid fa-receipt"></i> Cek Bukti</a>` : '<span class="text-gray-400 text-xs text-center py-2">Tanpa Bukti</span>'}
-                                ${item.status !== 'Confirmed' ? `<button onclick="confirmDonasiAdmin(event, ${item.rowIdx}, ${item.jumlah})" class="px-5 py-3 bg-emerald-500 text-white rounded-xl font-bold text-sm hover:bg-emerald-600 transition shadow-md flex justify-center items-center gap-2 relative z-30"><i class="fa-solid fa-check"></i> Setujui Donasi</button>` : `<div class="px-5 py-3 bg-gray-100 text-gray-400 rounded-xl font-bold text-sm flex justify-center items-center gap-2"><i class="fa-solid fa-check-double"></i> Selesai</div>`}
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = '<p class="text-gray-500 text-center py-6 font-medium italic">Belum ada data konfirmasi transfer.</p>';
-                }
-            } else {
-                container.innerHTML = `<p class="text-red-600 text-center py-6 font-bold bg-red-50 rounded-xl border border-red-200">Gagal Memuat Data!<br><span class="text-sm font-normal text-red-500 mt-2 block">Pesan Error: ${res.error || 'Action tidak dikenal. Pastikan Anda telah melakukan Deploy New Version di Google Apps Script!'}</span></p>`;
-            }
+    // WA toggle
+    function toggleWaPopup() {
+        const popup = document.getElementById('wa-popup');
+        const isOpen = popup.classList.contains('scale-100');
+        if (isOpen) {
+            popup.classList.remove('scale-100', 'opacity-100');
+            popup.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
+        } else {
+            popup.classList.add('scale-100', 'opacity-100');
+            popup.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
         }
+    }
 
-        async function confirmDonasiAdmin(event, rowIdx, jumlah) {
-            if (!confirm('Yakin ingin menyetujui donasi ini? Dana akan otomatis ditambahkan ke total.')) return;
-            
-            const btn = event.currentTarget;
-            const origText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
+    // ==============================
+    // TAB SYSTEM (ADMIN)
+    // ==============================
+    function switchTab(name) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.add('active');
+        document.getElementById('panel-' + name).classList.add('active');
+        if (name === 'donasi') loadKonfirmasiAdmin();
+    }
 
-            const res = await api.req({ action: 'confirmDonasi', rowIdx: rowIdx, jumlah: jumlah });
-            if (res && res.success) {
-                alert('Donasi berhasil dikonfirmasi dan ditambahkan ke saldo utama!');
-                loadKonfirmasiAdmin(); 
-                refreshAllData(); 
-            } else {
-                alert('Gagal: ' + (res.error || 'Server error'));
-                btn.innerHTML = origText; btn.disabled = false;
-            }
+    // ==============================
+    // ADMIN UI
+    // ==============================
+    function updateAdminUI() {
+        const icon = document.getElementById('icon-admin-nav');
+        const text = document.getElementById('text-admin-nav');
+        if (isAdminMode) {
+            icon.className = "fa-solid fa-table-columns text-sm";
+            text.innerText = "Dashboard";
+        } else {
+            icon.className = "fa-solid fa-user-shield text-sm";
+            text.innerText = "Admin";
         }
+    }
 
-        function toggleWaPopup() {
-            const popup = document.getElementById('wa-popup');
-            if (popup.classList.contains('scale-0')) {
-                popup.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
-                popup.classList.add('scale-100', 'opacity-100');
-            } else {
-                popup.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
-                popup.classList.remove('scale-100', 'opacity-100');
-            }
+    function openAdminPanel() {
+        document.getElementById('admin-modal').classList.add('open');
+    }
+    function closeAdminModal() {
+        document.getElementById('admin-modal').classList.remove('open');
+    }
+
+    async function loginAdmin() {
+        const btn = document.getElementById('btn-login');
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Memverifikasi...';
+        btn.disabled = true;
+        const res = await api.req({
+            action: 'verifyAdmin',
+            username: document.getElementById('admin-user').value,
+            password: document.getElementById('admin-pass').value
+        });
+        if (res && res.success) {
+            isAdminMode = true;
+            updateAdminUI();
+            document.getElementById('btn-logout').classList.remove('hidden');
+            document.getElementById('btn-logout').classList.add('flex');
+            document.getElementById('admin-login-section').classList.add('hidden');
+            document.getElementById('admin-dashboard-section').classList.remove('hidden');
+            document.getElementById('admin-subtitle').innerText = 'Selamat datang, Admin!';
+            refreshAllData();
+            loadKonfirmasiAdmin();
+            showToast('Login berhasil!', 'fa-shield-halved');
+        } else {
+            showToast('Kredensial tidak valid!', 'fa-xmark');
         }
+        btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket mr-2"></i> LOGIN SEKARANG';
+        btn.disabled = false;
+    }
 
-        function formatWaNumber(nowa) {
-            if(!nowa) return '';
-            let formatted = String(nowa).replace(/[^0-9]/g, '');
-            if(formatted.startsWith('0')) formatted = '62' + formatted.substring(1);
-            else if(!formatted.startsWith('62') && formatted.length > 0) formatted = '62' + formatted;
-            return formatted;
-        }
+    function logoutAdmin() {
+        if (!confirm('Yakin ingin keluar dari mode Admin?')) return;
+        isAdminMode = false;
+        updateAdminUI();
+        document.getElementById('btn-logout').classList.add('hidden');
+        document.getElementById('btn-logout').classList.remove('flex');
+        document.getElementById('admin-user').value = '';
+        document.getElementById('admin-pass').value = '';
+        document.getElementById('admin-dashboard-section').classList.add('hidden');
+        document.getElementById('admin-login-section').classList.remove('hidden');
+        document.getElementById('admin-subtitle').innerText = 'Silakan login untuk melanjutkan';
+        closeAdminModal();
+        refreshAllData();
+        showToast('Logout berhasil', 'fa-right-from-bracket');
+    }
 
-        async function refreshAllData() {
-            const data = await api.get();
-            if(!data) { document.getElementById('judul-web').innerText = "Gagal memuat data."; return; }
-            globalData = data;
+    // ==============================
+    // KONFIRMASI DONASI (ADMIN)
+    // ==============================
+    async function loadKonfirmasiAdmin() {
+        const container = document.getElementById('admin-konfirmasi-list');
+        container.innerHTML = '<div class="text-center py-10 text-slate-400 italic text-sm"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Memuat data konfirmasi...</div>';
 
-            document.getElementById('judul-web').innerText = data.judul || 'Pembangunan';
-            document.getElementById('target-val').innerText = formatRp(data.target);
-            document.getElementById('terkumpul-val').innerText = formatRp(data.terkumpul);
-            
-            document.getElementById('bank-val').innerText = data.bank || '-';
-            document.getElementById('norek-val').innerHTML = `${data.norek || '0000000000'} <i class="fa-regular fa-copy text-xl md:text-4xl text-navy lg:group-hover:text-gold transition flex-shrink-0 lg:group-hover:scale-110"></i>`;
-            document.getElementById('atasnama-val').innerText = data.atasnama || '-';
-            
-            let target = parseInt(data.target) || 1;
-            let terkumpul = parseInt(data.terkumpul) || 0;
-            let percent = Math.min((terkumpul / target) * 100, 100).toFixed(1);
-            
-            setTimeout(() => {
-                document.getElementById('progress-bar').style.width = percent + '%';
-                document.getElementById('progress-text').innerText = percent + '% Tercapai';
-            }, 300);
+        const res = await api.req({ action: 'getKonfirmasi' });
 
-            document.getElementById('edit-judul').value = data.judul;
-            document.getElementById('edit-target').value = data.target;
-            document.getElementById('edit-terkumpul').value = data.terkumpul;
-            document.getElementById('edit-bank').value = data.bank;
-            document.getElementById('edit-norek').value = data.norek;
-            document.getElementById('edit-atasnama').value = data.atasnama;
+        if (res && res.success) {
+            if (res.data && res.data.length > 0) {
+                const pending = res.data.filter(d => d.status !== 'Confirmed');
+                const badge = document.getElementById('badge-donasi');
+                if (pending.length > 0) { badge.classList.remove('hidden'); badge.textContent = pending.length; }
+                else badge.classList.add('hidden');
 
-            // RENDER GALERI DENGAN KELAS KHUSUS CARD-BTN (TANPA POINTER-EVENTS HACK!)
-            const portoCont = document.getElementById('portfolio-container');
-            if(data.portfolio && data.portfolio.length > 0) {
-                portoCont.innerHTML = '<div class="absolute left-[20px] md:left-1/2 top-4 bottom-4 w-1.5 bg-white/10 md:-translate-x-1/2 rounded-full hidden sm:block"></div>' + 
-                data.portfolio.map((p, index) => {
-                    const isEven = index % 2 === 0;
-                    return `
-                    <div class="flex flex-col md:flex-row items-center justify-between w-full mb-12 md:mb-20 relative group">
-                        
-                        <div class="hidden sm:flex absolute left-[20px] md:left-1/2 top-1/2 -translate-y-1/2 md:-translate-x-1/2 w-5 h-5 rounded-full bg-gold border-[4px] border-navy z-10 shadow-glow transition-transform duration-500 lg:group-hover:scale-150 lg:group-hover:bg-white"></div>
-                        
-                        <!-- BAGIAN GAMBAR -->
-                        <div onclick="openViewPorto('${p.id}')" class="w-full md:w-5/12 flex justify-center ${isEven ? 'md:justify-end md:order-1' : 'md:justify-start md:order-3'} z-20 pl-0 sm:pl-16 md:pl-0 relative mb-6 md:mb-0 card-btn" title="Lihat Gambar">
-                            <div class="animate-hex-glow transition-all duration-500 lg:group-hover:-translate-y-2">
-                                <div class="relative w-[200px] h-[230px] sm:w-[280px] sm:h-[320px] lg:w-[350px] lg:h-[400px] hex-shape bg-gradient-to-br from-yellow-300 via-gold to-yellow-600 p-1.5 sm:p-[6px] transition-all duration-500">
-                                    <div class="relative w-full h-full hex-shape bg-navy overflow-hidden">
-                                        <img src="${p.image}" onerror="this.src='https://via.placeholder.com/400?text=Sedang+Memuat...'" class="w-full h-full object-cover transition-transform duration-700 lg:group-hover:scale-125 opacity-90 lg:group-hover:opacity-100">
-                                        <div class="absolute inset-0 bg-navy/60 opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center backdrop-blur-[2px]">
-                                            <i class="fa-solid fa-expand text-gold text-4xl md:text-6xl mb-2 drop-shadow-md transition-transform duration-300 lg:group-hover:scale-110"></i>
-                                            <span class="text-gold font-bold tracking-widest text-xs md:text-sm uppercase">Perbesar</span>
-                                        </div>
-                                    </div>
+                container.innerHTML = res.data.slice().reverse().map(item => `
+                    <div class="konfirmasi-card ${item.status === 'Confirmed' ? 'confirmed' : 'pending'}">
+                        <div class="flex flex-col sm:flex-row gap-3 justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${item.status === 'Confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                                        ${item.status === 'Confirmed' ? '✓ Dikonfirmasi' : '⏳ Pending'}
+                                    </span>
+                                    <span class="text-[10px] text-slate-400 font-medium">${new Date(item.date).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' })}</span>
                                 </div>
+                                <h5 class="font-bold text-navy text-base">${item.nama}</h5>
+                                <p class="font-fraunces font-black text-xl text-amber-600">${formatRp(item.jumlah)}</p>
+                                ${item.ket ? `<p class="text-slate-500 text-xs mt-1 italic">"${item.ket}"</p>` : ''}
+                            </div>
+                            <div class="flex sm:flex-col gap-2 justify-start sm:justify-center">
+                                ${item.bukti ? `<a href="${item.bukti}" target="_blank" class="flex items-center gap-1.5 px-3 py-2 bg-blue-50 text-blue-600 rounded-xl font-bold text-xs hover:bg-blue-100 transition-colors"><i class="fa-solid fa-receipt"></i> Bukti</a>` : '<span class="text-slate-300 text-xs">Tanpa bukti</span>'}
+                                ${item.status !== 'Confirmed'
+                                    ? `<button onclick="confirmDonasiAdmin(event, ${item.rowIdx}, ${item.jumlah})" class="flex items-center gap-1.5 px-3 py-2 bg-emerald-500 text-white rounded-xl font-bold text-xs hover:bg-emerald-600 transition-colors shadow-sm"><i class="fa-solid fa-check"></i> Setujui</button>`
+                                    : `<div class="flex items-center gap-1.5 px-3 py-2 bg-gray-100 text-gray-400 rounded-xl font-bold text-xs"><i class="fa-solid fa-check-double"></i> Selesai</div>`
+                                }
                             </div>
                         </div>
-
-                        <!-- BAGIAN TEKS KONTEN -->
-                        <div onclick="openViewPorto('${p.id}')" class="w-full md:w-5/12 z-20 pl-0 sm:pl-16 md:pl-0 ${isEven ? 'md:order-3' : 'md:order-1'} relative card-btn" title="Lihat Detail">
-                            <div class="glass-panel box-glow p-6 md:p-8 rounded-3xl md:rounded-[2rem] relative overflow-hidden text-left ${!isEven ? 'md:text-right' : ''} transition-transform lg:group-hover:scale-[1.02]">
-                                <div class="absolute top-4 ${isEven ? 'right-6 md:right-8' : 'right-6 md:left-8'} text-6xl md:text-8xl font-black text-gray-400/20 z-0 select-none transition-transform duration-700 lg:group-hover:scale-110 lg:group-hover:text-gold/20 leading-none">0${index + 1}</div>
-                                
-                                <div class="relative z-10">
-                                    <span class="inline-block py-1 px-3 rounded-full bg-gold/20 text-gold-dark text-[10px] font-black tracking-widest uppercase mb-3 border border-gold/30"><i class="fa-solid fa-flag-checkered mr-1"></i>Tahap ${index + 1}</span>
-                                    <h4 class="font-serif font-black text-navy text-xl md:text-3xl leading-tight mb-3 line-clamp-2">${p.title}</h4>
-                                    <p class="text-gray-600 text-sm md:text-base font-medium leading-relaxed whitespace-pre-line line-clamp-3">${p.desc || ''}</p>
-                                    
-                                    <div class="inline-flex items-center text-gold-dark text-xs md:text-sm font-black mt-4 lg:group-hover:translate-x-2 ${!isEven ? 'md:lg:group-hover:-translate-x-2' : ''} transition-transform tracking-wide bg-transparent w-auto">
-                                        ${!isEven ? '<i class="fa-solid fa-arrow-left-long mr-2 hidden md:inline-block"></i>' : ''}
-                                        <span>SELENGKAPNYA</span>
-                                        ${isEven ? '<i class="fa-solid fa-arrow-right-long ml-2"></i>' : '<i class="fa-solid fa-arrow-right-long ml-2 md:hidden"></i>'}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        ${isAdminMode ? `
-                        <div class="absolute -bottom-4 md:-bottom-5 left-1/2 -translate-x-1/2 md:translate-x-0 ${isEven ? 'md:left-8' : 'md:right-8 md:left-auto'} flex gap-2 z-[50]">
-                            <button onclick="event.stopPropagation(); openEditPorto('${p.id}')" class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-xl transition-colors lg:hover:scale-110 relative"><i class="fa-solid fa-pen text-sm"></i></button>
-                            <button onclick="event.stopPropagation(); hapusPorto('${p.id}')" class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-xl transition-colors lg:hover:scale-110 relative"><i class="fa-solid fa-trash-can text-sm"></i></button>
-                        </div>` : ''}
-                    </div>
-                    `;
-                }).join('');
-            } else { portoCont.innerHTML = `<p class="col-span-full text-white/50 font-medium italic text-center text-lg md:text-xl">Belum ada tahapan pembangunan.</p>`; }
-
-            // RENDER BERITA DENGAN KELAS KHUSUS CARD-BTN
-            const artCont = document.getElementById('artikel-container');
-            if(data.artikel && data.artikel.length > 0) {
-                artCont.innerHTML = data.artikel.map(a => `
-                    <div onclick="openViewArt('${a.id}')" class="box-glow glass-panel rounded-3xl p-5 sm:p-8 md:p-10 flex flex-col sm:flex-row gap-5 md:gap-10 group relative z-20 transition-transform lg:hover:scale-[1.01] card-btn" title="Baca Berita">
-                        
-                        <div class="flex-1 w-full relative">
-                            <div class="flex items-center gap-2 mb-3 md:mb-4"><span class="bg-gold/20 text-gold-dark text-[10px] md:text-xs font-black px-3 md:px-4 py-1.5 md:py-2 rounded-lg uppercase tracking-widest">Update Terbaru</span></div>
-                            <h4 class="font-serif font-black text-2xl md:text-4xl text-navy mb-3 md:mb-5 leading-snug lg:group-hover:text-gold-dark transition-colors">${a.title}</h4>
-                            <p class="text-gray-600 text-sm md:text-xl font-medium leading-relaxed whitespace-pre-line line-clamp-3">${a.content || ''}</p>
-                            
-                            <div class="inline-flex items-center text-gold-dark text-xs md:text-base font-black mt-4 md:mt-6 lg:group-hover:translate-x-2 transition-transform tracking-wide bg-transparent w-auto">
-                                <span>BACA SELENGKAPNYA</span> <i class="fa-solid fa-arrow-right ml-2"></i>
-                            </div>
-                        </div>
-                        
-                        ${isAdminMode ? `
-                        <div class="flex sm:flex-col justify-end sm:justify-start gap-3 md:gap-4 pt-5 sm:pt-0 sm:border-l sm:pl-8 border-gray-200 relative z-[40]">
-                            <button onclick="event.stopPropagation(); openEditArt('${a.id}')" class="text-sm md:text-base font-black text-blue-600 bg-blue-50 hover:bg-blue-100 px-4 md:px-6 py-3 md:py-4 rounded-xl transition shadow-md flex items-center gap-2 md:gap-3"><i class="fa-solid fa-pen"></i> EDIT</button>
-                            <button onclick="event.stopPropagation(); hapusArt('${a.id}')" class="text-sm md:text-base font-black text-red-600 bg-red-50 hover:bg-red-100 px-4 md:px-6 py-3 md:py-4 rounded-xl transition shadow-md flex items-center gap-2 md:gap-3"><i class="fa-solid fa-trash"></i> HAPUS</button>
-                        </div>` : ''}
                     </div>
                 `).join('');
-            } else { artCont.innerHTML = `<p class="text-white/50 font-medium italic text-center text-lg md:text-xl">Belum ada berita update.</p>`; }
+            } else {
+                container.innerHTML = '<p class="text-center py-10 text-slate-400 italic text-sm">Belum ada data konfirmasi transfer.</p>';
+            }
+        } else {
+            container.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-xl p-5 text-center"><p class="text-red-600 font-bold text-sm">Gagal memuat data!</p><p class="text-red-400 text-xs mt-1">${res.error || 'Error tidak diketahui'}</p></div>`;
+        }
+    }
 
-            // RENDER PANITIA & DAFTAR FLOATING WA
-            const panitiaCont = document.getElementById('panitia-container');
-            const waListCont = document.getElementById('wa-list-content');
-            let waListHtml = '';
-            let waAvailable = false;
+    async function confirmDonasiAdmin(event, rowIdx, jumlah) {
+        if (!confirm('Yakin ingin menyetujui donasi ini? Dana akan otomatis ditambahkan ke total.')) return;
+        const btn = event.currentTarget;
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+        btn.disabled = true;
+        const res = await api.req({ action: 'confirmDonasi', rowIdx, jumlah });
+        if (res && res.success) {
+            showToast('Donasi berhasil dikonfirmasi!', 'fa-check-double');
+            loadKonfirmasiAdmin();
+            refreshAllData();
+        } else {
+            showToast('Gagal: ' + (res.error || 'Server error'), 'fa-xmark');
+            btn.innerHTML = orig;
+            btn.disabled = false;
+        }
+    }
 
-            if(data.panitia && data.panitia.length > 0) {
-                panitiaCont.innerHTML = data.panitia.map(p => {
-                    const formattedWa = formatWaNumber(p.nowa);
-                    if(formattedWa) waAvailable = true;
+    // ==============================
+    // REFRESH DATA UTAMA
+    // ==============================
+    async function refreshAllData() {
+        const data = await api.get();
+        if (!data) { document.getElementById('judul-web').textContent = "Gagal memuat data."; return; }
+        globalData = data;
 
-                    if(formattedWa) {
-                        waListHtml += `
-                            <a href="https://wa.me/${formattedWa}?text=Halo%20Bapak/Ibu%20${encodeURIComponent(p.nama)},%20saya%20ingin%20bertanya%20seputar%20donasi/pembangunan..." target="_blank" class="flex items-center gap-3 p-3 bg-gray-50 hover:bg-green-50 rounded-xl transition-colors group relative z-50">
-                                <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 pointer-events-none">
-                                    ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-user text-xl text-gray-400 mt-2 ml-2.5"></i>`}
+        // Title
+        document.getElementById('judul-web').textContent = data.judul || 'Pembangunan';
+
+        // Numbers
+        document.getElementById('target-val').textContent = formatRp(data.target);
+        document.getElementById('terkumpul-val').textContent = formatRp(data.terkumpul);
+        document.getElementById('bank-val').textContent = data.bank || '-';
+        document.getElementById('norek-val').textContent = data.norek || '0000000000';
+        document.getElementById('atasnama-val').textContent = data.atasnama || '-';
+
+        // Progress
+        const target = parseInt(data.target) || 1;
+        const terkumpul = parseInt(data.terkumpul) || 0;
+        const percent = Math.min((terkumpul / target) * 100, 100);
+        const sisa = Math.max(target - terkumpul, 0);
+        setTimeout(() => {
+            document.getElementById('progress-bar').style.width = percent.toFixed(1) + '%';
+            document.getElementById('progress-text').textContent = percent.toFixed(1) + '% Tercapai';
+            document.getElementById('sisa-val').textContent = 'Kekurangan: ' + formatRp(sisa);
+        }, 400);
+
+        // Stats mini
+        const konfDone = (data.konfirmasiCount !== undefined) ? data.konfirmasiCount : '—';
+        document.getElementById('stat-donatur').textContent = konfDone !== '—' ? konfDone : '—';
+        document.getElementById('stat-hari').textContent = '—';
+        document.getElementById('stat-avg').textContent = '—';
+
+        // Admin inputs
+        document.getElementById('edit-judul').value = data.judul || '';
+        document.getElementById('edit-target').value = data.target || '';
+        document.getElementById('edit-terkumpul').value = data.terkumpul || '';
+        document.getElementById('edit-bank').value = data.bank || '';
+        document.getElementById('edit-norek').value = data.norek || '';
+        document.getElementById('edit-atasnama').value = data.atasnama || '';
+
+        renderPortfolio(data.portfolio);
+        renderArtikel(data.artikel);
+        renderPanitia(data.panitia);
+    }
+
+    // ==============================
+    // RENDER PORTFOLIO (TIMELINE)
+    // ==============================
+    function renderPortfolio(list) {
+        const cont = document.getElementById('portfolio-container');
+        if (!list || list.length === 0) {
+            cont.innerHTML = '<p class="text-white/40 italic text-center py-10">Belum ada tahapan pembangunan.</p>';
+            return;
+        }
+
+        cont.innerHTML = `
+            <div class="timeline-line"></div>
+            ${list.map((p, i) => {
+                const isEven = i % 2 === 0;
+                return `
+                <div class="flex flex-col md:flex-row items-center justify-between w-full mb-14 md:mb-20 relative group pl-14 md:pl-0">
+                    <!-- Dot -->
+                    <div class="hidden md:flex absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 rounded-full border-[3px] border-navy z-10 transition-all duration-300 group-hover:scale-150" style="background: #E8A816; box-shadow: 0 0 0 4px rgba(232,168,22,.2)"></div>
+                    <!-- Mobile dot -->
+                    <div class="md:hidden absolute left-[12px] top-6 w-4 h-4 rounded-full border-[2px] border-navy" style="background: #E8A816; box-shadow: 0 0 0 3px rgba(232,168,22,.2)"></div>
+
+                    <!-- Image side -->
+                    <div onclick="openViewPorto('${p.id}')" class="w-full md:w-[44%] flex justify-center ${isEven ? 'md:justify-end md:order-1' : 'md:justify-start md:order-3'} z-20 mb-5 md:mb-0 card-lift">
+                        <div class="w-[180px] h-[205px] sm:w-[240px] sm:h-[275px] lg:w-[300px] lg:h-[340px] hex-clip relative overflow-hidden shadow-2xl" style="background: linear-gradient(135deg, #E8A816, #b8840d);">
+                            <div class="absolute inset-[5px] hex-clip overflow-hidden">
+                                <img src="${p.image}" onerror="this.parentElement.style.background='#1a2f50'" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300" style="background: rgba(10,22,40,.7)">
+                                    <i class="fa-solid fa-expand text-4xl mb-1" style="color:#E8A816"></i>
+                                    <span class="text-xs font-bold tracking-widest uppercase text-white">Perbesar</span>
                                 </div>
-                                <div class="flex-1 overflow-hidden pointer-events-none">
-                                    <h5 class="text-sm font-black text-navy truncate lg:group-hover:text-green-700 transition-colors">${p.nama}</h5>
-                                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider truncate">${p.jabatan}</p>
-                                </div>
-                                <i class="fa-brands fa-whatsapp text-green-500 text-xl lg:group-hover:scale-125 transition-transform pointer-events-none"></i>
-                            </a>
-                        `;
-                    }
-
-                    return `
-                    <div class="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.5rem)] glass-panel box-glow rounded-3xl p-4 md:p-8 flex flex-col items-center text-center relative group z-20">
-                        <div class="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full mb-3 md:mb-6 bg-gray-100 border-[4px] md:border-[5px] border-white/40 shadow-xl overflow-hidden flex items-center justify-center mx-auto transition-transform duration-500 lg:group-hover:scale-110">
-                            ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<i class="fa-solid fa-user text-3xl md:text-5xl text-gray-400"></i>`}
+                            </div>
                         </div>
-                        <h5 class="font-serif font-black text-navy text-lg sm:text-2xl md:text-3xl leading-tight mb-1 md:mb-2 lg:group-hover:text-gold-dark transition-colors">${p.nama}</h5>
-                        <p class="text-gold-dark font-black text-[10px] sm:text-sm md:text-base uppercase tracking-widest leading-snug">${p.jabatan}</p>
+                    </div>
+
+                    <!-- Text side -->
+                    <div onclick="openViewPorto('${p.id}')" class="w-full md:w-[44%] z-20 ${isEven ? 'md:order-3' : 'md:order-1'} card-lift">
+                        <div class="glass-dark rounded-2xl p-5 sm:p-8 border-gold-glow relative overflow-hidden ${!isEven ? 'md:text-right' : ''}">
+                            <div class="absolute top-3 ${isEven ? 'right-4' : 'right-4 md:left-4'} text-6xl font-black opacity-5 select-none font-fraunces leading-none">0${i+1}</div>
+                            <span class="inline-flex items-center gap-1.5 pill-gold text-[10px] mb-3">
+                                <i class="fa-solid fa-flag-checkered"></i> Tahap ${i+1}
+                            </span>
+                            <h4 class="font-fraunces font-black text-white text-xl sm:text-2xl mb-2 leading-snug line-clamp-2">${p.title}</h4>
+                            <p class="text-slate-400 text-sm leading-relaxed line-clamp-3">${p.desc || ''}</p>
+                            <div class="inline-flex items-center gap-2 text-xs font-bold mt-4 transition-transform group-hover:translate-x-2" style="color:#E8A816">
+                                <span>SELENGKAPNYA</span>
+                                <i class="fa-solid fa-arrow-right-long"></i>
+                            </div>
+                        </div>
                         ${isAdminMode ? `
-                        <div class="absolute top-2 right-2 md:top-3 md:right-3 flex flex-col gap-2 md:gap-3 z-30 pointer-events-auto">
-                            <button onclick="openEditPanitia('${p.id}')" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-xl transition-transform lg:hover:scale-110 relative z-40"><i class="fa-solid fa-pen text-xs md:text-sm pointer-events-none"></i></button>
-                            <button onclick="hapusPanitia('${p.id}')" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow-xl transition-transform lg:hover:scale-110 relative z-40"><i class="fa-solid fa-trash-can text-xs md:text-sm pointer-events-none"></i></button>
+                        <div class="flex gap-2 mt-2 ${!isEven ? 'md:justify-end' : ''}">
+                            <button onclick="event.stopPropagation(); openEditPorto('${p.id}')" class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors shadow">
+                                <i class="fa-solid fa-pen"></i> Edit
+                            </button>
+                            <button onclick="event.stopPropagation(); hapusPorto('${p.id}')" class="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-bold hover:bg-red-600 transition-colors shadow">
+                                <i class="fa-solid fa-trash"></i> Hapus
+                            </button>
                         </div>` : ''}
                     </div>
-                    `;
-                }).join('');
+                </div>
+                `;
+            }).join('')}
+        `;
+    }
 
-                if (waAvailable) {
-                    document.getElementById('floating-wa-container').classList.remove('hidden');
-                    waListCont.innerHTML = waListHtml;
-                } else {
-                    document.getElementById('floating-wa-container').classList.add('hidden');
-                }
+    // ==============================
+    // RENDER ARTIKEL
+    // ==============================
+    function renderArtikel(list) {
+        const cont = document.getElementById('artikel-container');
+        if (!list || list.length === 0) {
+            cont.innerHTML = '<p class="text-white/40 italic text-center py-10">Belum ada berita update.</p>';
+            return;
+        }
+        cont.innerHTML = list.map((a, i) => `
+            <div onclick="openViewArt('${a.id}')" class="glass-dark border-gold-glow rounded-2xl p-5 sm:p-7 group card-lift flex flex-col sm:flex-row gap-4 relative z-20">
+                <div class="w-1 rounded-full flex-shrink-0 hidden sm:block" style="background: linear-gradient(180deg, #E8A816, rgba(232,168,22,.1))"></div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-2 flex-wrap">
+                        <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full" style="background: rgba(232,168,22,.12); color:#E8A816; border: 1px solid rgba(232,168,22,.2)">
+                            Update #${list.length - i}
+                        </span>
+                    </div>
+                    <h4 class="font-fraunces font-black text-white text-xl sm:text-2xl mb-2 leading-snug group-hover:text-gradient-gold transition-colors">${a.title}</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed line-clamp-3">${a.content || ''}</p>
+                    <div class="inline-flex items-center gap-2 text-xs font-bold mt-3 transition-transform group-hover:translate-x-1" style="color:#E8A816">
+                        <span>BACA SELENGKAPNYA</span> <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </div>
+                ${isAdminMode ? `
+                <div class="flex sm:flex-col gap-2 sm:pl-4 sm:border-l sm:border-white/10 justify-end sm:justify-start flex-shrink-0">
+                    <button onclick="event.stopPropagation(); openEditArt('${a.id}')" class="flex items-center gap-1.5 px-3 py-2 bg-blue-500/80 text-white rounded-xl text-xs font-bold hover:bg-blue-500 transition-colors">
+                        <i class="fa-solid fa-pen"></i> Edit
+                    </button>
+                    <button onclick="event.stopPropagation(); hapusArt('${a.id}')" class="flex items-center gap-1.5 px-3 py-2 bg-red-500/80 text-white rounded-xl text-xs font-bold hover:bg-red-500 transition-colors">
+                        <i class="fa-solid fa-trash"></i> Hapus
+                    </button>
+                </div>` : ''}
+            </div>
+        `).join('');
+    }
 
-            } else { 
-                panitiaCont.innerHTML = `<p class="w-full text-white/50 font-medium italic text-center text-lg md:text-xl">Belum ada data kepanitiaan.</p>`; 
-                document.getElementById('floating-wa-container').classList.add('hidden');
-            }
+    // ==============================
+    // RENDER PANITIA
+    // ==============================
+    function renderPanitia(list) {
+        const panitiaCont = document.getElementById('panitia-container');
+        const waListCont = document.getElementById('wa-list-content');
+        let waHtml = ''; let waAvailable = false;
+
+        if (!list || list.length === 0) {
+            panitiaCont.innerHTML = '<p class="text-white/40 italic text-center py-10 w-full">Belum ada data panitia.</p>';
+            document.getElementById('floating-wa-container').classList.add('hidden');
+            return;
         }
 
-        async function handleKonfirmasi(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-konfirmasi'); const orig = btn.innerHTML;
-            
-            const fileInput = document.getElementById('k-bukti');
-            if (fileInput.files.length === 0) {
-                return alert("Mohon unggah bukti transfer!");
+        panitiaCont.innerHTML = list.map(p => {
+            const wa = formatWaNumber(p.nowa);
+            if (wa) { waAvailable = true; }
+
+            if (wa) {
+                waHtml += `
+                    <a href="https://wa.me/${wa}?text=Halo%20${encodeURIComponent(p.nama)},%20saya%20ingin%20bertanya%20seputar%20donasi%20pembangunan..." target="_blank" class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-green-50 transition-colors group">
+                        <div class="w-9 h-9 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
+                            ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-user text-sm text-gray-400"></i>`}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-navy truncate group-hover:text-green-700 transition-colors">${p.nama}</p>
+                            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider truncate">${p.jabatan}</p>
+                        </div>
+                        <i class="fa-brands fa-whatsapp text-green-500 text-lg group-hover:scale-110 transition-transform"></i>
+                    </a>`;
             }
-            if (fileInput.files[0].size > MAX_FILE_SIZE) {
-                return alert("Gagal: Ukuran gambar melebihi batas maksimal 5MB!");
-            }
-            
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin pointer-events-none"></i> Memproses...'; btn.disabled = true;
-            
-            const fileData = await getBase64(fileInput.files[0]);
-            
-            const res = await api.req({ action: 'submitKonfirmasi', payload: { 
-                nama: document.getElementById('k-nama').value, 
-                jumlah: document.getElementById('k-jumlah').value, 
+
+            return `
+            <div class="panitia-card rounded-2xl p-5 flex flex-col items-center text-center relative w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.5rem)]">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full mb-4 overflow-hidden border-2 flex items-center justify-center" style="border-color: rgba(232,168,22,.3); background: rgba(255,255,255,.05)">
+                    ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<i class="fa-solid fa-user text-3xl text-slate-500"></i>`}
+                </div>
+                <h5 class="font-fraunces font-black text-white text-base sm:text-lg leading-snug mb-1">${p.nama}</h5>
+                <p class="text-[10px] sm:text-xs font-bold uppercase tracking-widest" style="color:#E8A816">${p.jabatan}</p>
+                ${p.nowa ? `<a href="https://wa.me/${formatWaNumber(p.nowa)}?text=Halo%20${encodeURIComponent(p.nama)}..." target="_blank" class="mt-3 flex items-center gap-1.5 px-3 py-1.5 bg-green-500/20 text-green-400 rounded-full text-xs font-bold hover:bg-green-500/30 transition-colors"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ''}
+                ${isAdminMode ? `
+                <div class="absolute top-2 right-2 flex flex-col gap-1.5 z-10">
+                    <button onclick="openEditPanitia('${p.id}')" class="w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow transition-all text-xs"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="hapusPanitia('${p.id}')" class="w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 shadow transition-all text-xs"><i class="fa-solid fa-trash"></i></button>
+                </div>` : ''}
+            </div>`;
+        }).join('');
+
+        if (waAvailable) {
+            document.getElementById('floating-wa-container').classList.remove('hidden');
+            waListCont.innerHTML = waHtml;
+        } else {
+            document.getElementById('floating-wa-container').classList.add('hidden');
+        }
+    }
+
+    // ==============================
+    // FORM KONFIRMASI
+    // ==============================
+    async function handleKonfirmasi(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-konfirmasi');
+        const orig = btn.innerHTML;
+        const fileInput = document.getElementById('k-bukti');
+
+        if (fileInput.files.length === 0) return showToast('Mohon unggah bukti transfer!', 'fa-xmark');
+        if (fileInput.files[0].size > MAX_FILE_SIZE) return showToast('Gambar melebihi batas 5MB!', 'fa-xmark');
+
+        btn.innerHTML = '<span class="relative flex items-center gap-2"><i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...</span>';
+        btn.disabled = true;
+
+        const fileData = await getBase64(fileInput.files[0]);
+        const res = await api.req({
+            action: 'submitKonfirmasi',
+            payload: {
+                nama: document.getElementById('k-nama').value,
+                jumlah: document.getElementById('k-jumlah').value,
                 keterangan: document.getElementById('k-ket').value,
                 bukti: fileData
-            }});
-            
-            if(res && res.success) {
-                alert("Bukti donasi terkirim dan sedang menunggu verifikasi Panitia. Terima kasih!"); 
-                document.getElementById('form-konfirmasi').reset(); 
-                if(isAdminMode) loadKonfirmasiAdmin();
-            } else {
-                alert("Gagal mengirim konfirmasi: " + (res.error || "Server Error"));
             }
-            
-            btn.innerHTML = orig; btn.disabled = false;
+        });
+
+        if (res && res.success) {
+            showToast('Bukti terkirim! Menunggu verifikasi panitia.', 'fa-check');
+            document.getElementById('form-konfirmasi').reset();
+            document.getElementById('preview-bukti-container').classList.add('hidden');
+        } else {
+            showToast('Gagal: ' + (res.error || 'Server Error'), 'fa-xmark');
         }
+        btn.innerHTML = orig;
+        btn.disabled = false;
+    }
 
-        function openAdminPanel() {
-            const modal = document.getElementById('admin-modal'), content = document.getElementById('admin-modal-content');
-            modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.remove('opacity-0', 'pointer-events-none'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
+    // ==============================
+    // UPDATE INFO (ADMIN)
+    // ==============================
+    async function updateInfo() {
+        const btn = document.getElementById('btn-update-info');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Menyimpan...';
+        btn.disabled = true;
+        await api.req({
+            action: 'updateInfoWebsite',
+            target: document.getElementById('edit-target').value,
+            terkumpul: document.getElementById('edit-terkumpul').value,
+            bank: document.getElementById('edit-bank').value,
+            norek: document.getElementById('edit-norek').value,
+            atasnama: document.getElementById('edit-atasnama').value,
+            judul: document.getElementById('edit-judul').value
+        });
+        showToast('Informasi berhasil diperbarui!', 'fa-check');
+        btn.innerHTML = orig; btn.disabled = false;
+        refreshAllData();
+    }
+
+    // ==============================
+    // TAMBAH DATA (ADMIN)
+    // ==============================
+    async function tambahPorto() {
+        const title = document.getElementById('add-porto-title').value;
+        const fileInput = document.getElementById('add-porto-image');
+        const desc = document.getElementById('add-porto-desc').value;
+        if (!title || fileInput.files.length === 0) return showToast('Isi judul dan pilih gambar!', 'fa-xmark');
+        if (fileInput.files[0].size > MAX_FILE_SIZE) return showToast('Gambar melebihi 5MB!', 'fa-xmark');
+        const btn = document.getElementById('btn-add-porto');
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Mengunggah...'; btn.disabled = true;
+        const fileData = await getBase64(fileInput.files[0]);
+        const res = await api.req({ action: 'tambahPortofolio', title, imageData: fileData, desc });
+        if (res && res.success) {
+            showToast('Galeri berhasil ditambahkan!', 'fa-check');
+            document.getElementById('add-porto-title').value = '';
+            document.getElementById('add-porto-image').value = '';
+            document.getElementById('add-porto-desc').value = '';
+            refreshAllData();
+        } else { showToast('Gagal: ' + (res.error || ''), 'fa-xmark'); }
+        btn.innerHTML = '<i class="fa-solid fa-upload mr-2"></i> UNGGAH GALERI'; btn.disabled = false;
+    }
+
+    async function tambahArt() {
+        const title = document.getElementById('add-art-title').value;
+        const content = document.getElementById('add-art-content').value;
+        if (!title || !content) return showToast('Isi judul dan konten berita!', 'fa-xmark');
+        const btn = document.getElementById('btn-add-art');
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Memproses...'; btn.disabled = true;
+        const res = await api.req({ action: 'tambahArtikel', title, content });
+        if (res && res.success) {
+            showToast('Berita berhasil diterbitkan!', 'fa-check');
+            document.getElementById('add-art-title').value = '';
+            document.getElementById('add-art-content').value = '';
+            refreshAllData();
+        } else { showToast('Gagal: ' + (res.error || ''), 'fa-xmark'); }
+        btn.innerHTML = '<i class="fa-solid fa-plus mr-2"></i> TERBITKAN BERITA'; btn.disabled = false;
+    }
+
+    async function tambahPanitia() {
+        const nama = document.getElementById('add-panitia-nama').value;
+        const jabatan = document.getElementById('add-panitia-jabatan').value;
+        const nowa = document.getElementById('add-panitia-nowa').value;
+        const fileInput = document.getElementById('add-panitia-image');
+        if (!nama || !jabatan) return showToast('Isi nama dan jabatan!', 'fa-xmark');
+        let fileData = null;
+        if (fileInput.files.length > 0) {
+            if (fileInput.files[0].size > MAX_FILE_SIZE) return showToast('Foto melebihi 5MB!', 'fa-xmark');
+            fileData = await getBase64(fileInput.files[0]);
         }
+        const btn = document.getElementById('btn-add-panitia');
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Menambahkan...'; btn.disabled = true;
+        const res = await api.req({ action: 'tambahPanitia', nama, jabatan, nowa, imageData: fileData });
+        if (res && res.success) {
+            showToast('Panitia berhasil ditambahkan!', 'fa-check');
+            ['add-panitia-nama','add-panitia-jabatan','add-panitia-nowa','add-panitia-image'].forEach(id => document.getElementById(id).value = '');
+            refreshAllData();
+        } else { showToast('Gagal: ' + (res.error || ''), 'fa-xmark'); }
+        btn.innerHTML = '<i class="fa-solid fa-upload mr-2"></i> TAMBAH PANITIA'; btn.disabled = false;
+    }
 
-        function closeAdminModal() {
-            const modal = document.getElementById('admin-modal'), content = document.getElementById('admin-modal-content');
-            modal.classList.add('opacity-0', 'pointer-events-none'); content.classList.remove('scale-100'); content.classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+    // ==============================
+    // HAPUS DATA
+    // ==============================
+    async function hapusPorto(id) {
+        if (!confirm('Hapus tahap ini dari galeri?')) return;
+        await api.req({ action: 'hapusPortofolio', id });
+        showToast('Galeri dihapus', 'fa-trash');
+        refreshAllData();
+    }
+    async function hapusArt(id) {
+        if (!confirm('Hapus berita ini?')) return;
+        await api.req({ action: 'hapusArtikel', id });
+        showToast('Berita dihapus', 'fa-trash');
+        refreshAllData();
+    }
+    async function hapusPanitia(id) {
+        if (!confirm('Hapus panitia ini?')) return;
+        await api.req({ action: 'hapusPanitia', id });
+        showToast('Panitia dihapus', 'fa-trash');
+        refreshAllData();
+    }
+
+    // ==============================
+    // EDIT MODAL
+    // ==============================
+    function showEditModal() {
+        document.getElementById('edit-modal').classList.add('open');
+    }
+    function closeEditModal() {
+        document.getElementById('edit-modal').classList.remove('open');
+        document.getElementById('edit-item-image').value = '';
+    }
+
+    function openEditPorto(id) {
+        const item = globalData.portfolio.find(p => p.id === id); if (!item) return;
+        document.getElementById('edit-modal-title').textContent = 'Edit Tahap / Galeri';
+        document.getElementById('edit-id').value = item.id;
+        document.getElementById('edit-type').value = 'porto';
+        document.getElementById('label-title').textContent = 'Judul Tahapan';
+        document.getElementById('edit-item-title').value = item.title;
+        document.getElementById('edit-jabatan-container').classList.add('hidden');
+        document.getElementById('edit-nowa-container').classList.add('hidden');
+        document.getElementById('edit-image-container').classList.remove('hidden');
+        document.getElementById('edit-existing-image').value = item.image || '';
+        document.getElementById('edit-content-container').classList.remove('hidden');
+        document.getElementById('label-content').textContent = 'Narasi / Keterangan';
+        document.getElementById('edit-item-content').value = item.desc || '';
+        showEditModal();
+    }
+
+    function openEditArt(id) {
+        const item = globalData.artikel.find(a => a.id === id); if (!item) return;
+        document.getElementById('edit-modal-title').textContent = 'Edit Berita';
+        document.getElementById('edit-id').value = item.id;
+        document.getElementById('edit-type').value = 'art';
+        document.getElementById('label-title').textContent = 'Judul Berita';
+        document.getElementById('edit-item-title').value = item.title;
+        document.getElementById('edit-jabatan-container').classList.add('hidden');
+        document.getElementById('edit-nowa-container').classList.add('hidden');
+        document.getElementById('edit-image-container').classList.add('hidden');
+        document.getElementById('edit-content-container').classList.remove('hidden');
+        document.getElementById('label-content').textContent = 'Isi Berita';
+        document.getElementById('edit-item-content').value = item.content || '';
+        showEditModal();
+    }
+
+    function openEditPanitia(id) {
+        const item = globalData.panitia.find(p => p.id === id); if (!item) return;
+        document.getElementById('edit-modal-title').textContent = 'Edit Panitia';
+        document.getElementById('edit-id').value = item.id;
+        document.getElementById('edit-type').value = 'panitia';
+        document.getElementById('label-title').textContent = 'Nama Lengkap';
+        document.getElementById('edit-item-title').value = item.nama;
+        document.getElementById('edit-jabatan-container').classList.remove('hidden');
+        document.getElementById('edit-item-jabatan').value = item.jabatan;
+        document.getElementById('edit-nowa-container').classList.remove('hidden');
+        document.getElementById('edit-item-nowa').value = item.nowa || '';
+        document.getElementById('edit-image-container').classList.remove('hidden');
+        document.getElementById('edit-existing-image').value = item.image || '';
+        document.getElementById('edit-content-container').classList.add('hidden');
+        showEditModal();
+    }
+
+    async function submitEdit() {
+        const id = document.getElementById('edit-id').value;
+        const type = document.getElementById('edit-type').value;
+        const title = document.getElementById('edit-item-title').value;
+        const content = document.getElementById('edit-item-content').value;
+        const jabatan = document.getElementById('edit-item-jabatan').value;
+        const nowa = document.getElementById('edit-item-nowa').value;
+        const fileInput = document.getElementById('edit-item-image');
+        let fileData = null;
+        if (fileInput && fileInput.files.length > 0) {
+            if (fileInput.files[0].size > MAX_FILE_SIZE) return showToast('File melebihi 5MB!', 'fa-xmark');
+            fileData = await getBase64(fileInput.files[0]);
         }
+        const existingImage = document.getElementById('edit-existing-image').value;
+        const btn = document.getElementById('btn-submit-edit');
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Menyimpan...'; btn.disabled = true;
 
-        function logoutAdmin() {
-            if(confirm("Anda yakin ingin keluar dari mode Admin?")) {
-                isAdminMode = false;
-                updateAdminUI(); 
-                document.getElementById('btn-logout').classList.add('hidden');
-                document.getElementById('admin-user').value = '';
-                document.getElementById('admin-pass').value = '';
-                document.getElementById('admin-dashboard-section').classList.add('hidden');
-                document.getElementById('admin-login-section').classList.remove('hidden');
-                closeAdminModal();
-                refreshAllData(); 
-            }
-        }
+        let res;
+        if (type === 'porto') res = await api.req({ action: 'editPortofolio', id, title, imageData: fileData, existingImage, desc: content });
+        else if (type === 'art') res = await api.req({ action: 'editArtikel', id, title, content });
+        else if (type === 'panitia') res = await api.req({ action: 'editPanitia', id, nama: title, jabatan, nowa, imageData: fileData, existingImage });
 
-        async function loginAdmin() {
-            const btn = document.getElementById('btn-login'); btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin pointer-events-none"></i> MEMVERIFIKASI...';
-            const res = await api.req({ action: 'verifyAdmin', username: document.getElementById('admin-user').value, password: document.getElementById('admin-pass').value });
-            if(res.success) { 
-                isAdminMode = true; 
-                updateAdminUI();
-                document.getElementById('btn-logout').classList.remove('hidden'); 
-                document.getElementById('admin-login-section').classList.add('hidden'); 
-                document.getElementById('admin-dashboard-section').classList.remove('hidden'); 
-                refreshAllData(); 
-                loadKonfirmasiAdmin(); // Panggil Data Konfirmasi Donasi
-            } 
-            else { alert("Kredensial tidak valid!"); }
-            btn.innerHTML = 'LOGIN SEKARANG';
-        }
+        if (res && res.success) {
+            showToast('Perubahan berhasil disimpan!', 'fa-check');
+            closeEditModal();
+            refreshAllData();
+        } else { showToast('Gagal: ' + (res.error || ''), 'fa-xmark'); }
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-2"></i> SIMPAN PERUBAHAN'; btn.disabled = false;
+    }
 
-        async function updateInfo() {
-            const btn = document.getElementById('btn-update-info'); const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin pointer-events-none"></i> MENYIMPAN...';
-            await api.req({ 
-                action: 'updateInfoWebsite', target: document.getElementById('edit-target').value, terkumpul: document.getElementById('edit-terkumpul').value, 
-                bank: document.getElementById('edit-bank').value, norek: document.getElementById('edit-norek').value, 
-                atasnama: document.getElementById('edit-atasnama').value, judul: document.getElementById('edit-judul').value 
-            });
-            alert("Berhasil diperbarui!"); btn.innerHTML = orig; refreshAllData();
-        }
+    // ==============================
+    // VIEW MODAL
+    // ==============================
+    function showViewModal() {
+        document.getElementById('view-modal').classList.add('open');
+    }
+    function closeViewModal() {
+        document.getElementById('view-modal').classList.remove('open');
+    }
+    document.getElementById('view-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeViewModal();
+    });
 
-        async function tambahPorto() {
-            const title = document.getElementById('add-porto-title').value;
-            const fileInput = document.getElementById('add-porto-image');
-            const desc = document.getElementById('add-porto-desc').value;
-            if(!title || fileInput.files.length === 0) return alert('Mohon isi Judul Foto dan Pilih Gambar untuk diupload!');
-            if(fileInput.files[0].size > MAX_FILE_SIZE) return alert('Gagal: Ukuran gambar melebihi batas maksimal 5MB!');
-            const btn = document.getElementById('btn-add-porto'); const orig = btn.innerHTML; 
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin pointer-events-none"></i> MENGUNGGAH FILE...'; btn.disabled = true;
-            const fileData = await getBase64(fileInput.files[0]);
-            const res = await api.req({ action: 'tambahPortofolio', title: title, imageData: fileData, desc: desc });
-            if(res && res.success) { alert('Galeri berhasil ditambahkan!'); document.getElementById('add-porto-title').value = ''; document.getElementById('add-porto-image').value = ''; document.getElementById('add-porto-desc').value = ''; refreshAllData(); } 
-            else { alert('Server Error: ' + (res.error || 'Gagal menyinkronkan data.')); }
-            btn.innerHTML = orig; btn.disabled = false;
-        }
+    function openViewPorto(id) {
+        const item = globalData.portfolio.find(p => p.id === id); if (!item) return;
+        document.getElementById('view-modal-image').src = item.image;
+        document.getElementById('view-modal-image-wrapper').classList.remove('hidden');
+        document.getElementById('view-modal-tag').classList.add('hidden');
+        document.getElementById('view-modal-title').textContent = item.title;
+        document.getElementById('view-modal-desc').textContent = item.desc || '';
+        showViewModal();
+    }
 
-        async function tambahArt() {
-            const title = document.getElementById('add-art-title').value, content = document.getElementById('add-art-content').value;
-            if(!title || !content) return alert('Mohon isi Judul dan Konten!');
-            const btn = document.getElementById('btn-add-art'); const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin pointer-events-none"></i> MEMPROSES...'; btn.disabled = true;
-            const res = await api.req({ action: 'tambahArtikel', title: title, content: content });
-            if(res && res.success) { alert('Berita berhasil ditambahkan!'); document.getElementById('add-art-title').value = ''; document.getElementById('add-art-content').value = ''; refreshAllData(); } 
-            else { alert('Server Error: ' + (res.error || 'Gagal menyinkronkan data.')); }
-            btn.innerHTML = orig; btn.disabled = false;
-        }
+    function openViewArt(id) {
+        const item = globalData.artikel.find(a => a.id === id); if (!item) return;
+        document.getElementById('view-modal-image-wrapper').classList.add('hidden');
+        document.getElementById('view-modal-image').src = '';
+        document.getElementById('view-modal-tag').classList.remove('hidden');
+        document.getElementById('view-modal-title').textContent = item.title;
+        document.getElementById('view-modal-desc').textContent = item.content || '';
+        showViewModal();
+    }
 
-        async function tambahPanitia() {
-            const nama = document.getElementById('add-panitia-nama').value;
-            const jabatan = document.getElementById('add-panitia-jabatan').value;
-            const nowa = document.getElementById('add-panitia-nowa').value;
-            const fileInput = document.getElementById('add-panitia-image');
-            if(!nama || !jabatan) return alert('Mohon isi Nama dan Jabatan!');
-            let fileData = null;
-            if(fileInput.files.length > 0) {
-                if(fileInput.files[0].size > MAX_FILE_SIZE) return alert('Gagal: Ukuran foto melebihi batas maksimal 5MB!');
-                fileData = await getBase64(fileInput.files[0]);
-            }
-            const btn = document.getElementById('btn-add-panitia'); const orig = btn.innerHTML; 
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin pointer-events-none"></i> MENGUNGGAH...'; btn.disabled = true;
-            const res = await api.req({ action: 'tambahPanitia', nama: nama, jabatan: jabatan, nowa: nowa, imageData: fileData });
-            if(res && res.success) { 
-                alert('Panitia berhasil ditambahkan!'); 
-                document.getElementById('add-panitia-nama').value = ''; 
-                document.getElementById('add-panitia-jabatan').value = ''; 
-                document.getElementById('add-panitia-nowa').value = ''; 
-                document.getElementById('add-panitia-image').value = ''; 
-                refreshAllData(); 
-            } 
-            else { alert('Server Error: ' + (res.error || 'Gagal menyinkronkan data.')); }
-            btn.innerHTML = orig; btn.disabled = false;
-        }
-
-        async function hapusPorto(id) { if(confirm('Hapus foto dari galeri?')) { await api.req({ action: 'hapusPortofolio', id: id }); refreshAllData(); } }
-        async function hapusArt(id) { if(confirm('Hapus berita ini?')) { await api.req({ action: 'hapusArtikel', id: id }); refreshAllData(); } }
-        async function hapusPanitia(id) { if(confirm('Hapus panitia ini?')) { await api.req({ action: 'hapusPanitia', id: id }); refreshAllData(); } }
-
-        function closeEditModal() {
-            const modal = document.getElementById('edit-modal'), content = document.getElementById('edit-modal-content');
-            modal.classList.add('opacity-0', 'pointer-events-none'); content.classList.remove('scale-100'); content.classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); }, 300);
-            document.getElementById('edit-item-image').value = ''; 
-        }
-
-        function openEditPorto(id) {
-            const item = globalData.portfolio.find(p => p.id === id); if(!item) return;
-            document.getElementById('edit-modal-title').innerText = "Edit Galeri"; document.getElementById('edit-id').value = item.id; document.getElementById('edit-type').value = "porto";
-            document.getElementById('label-title').innerText = "Judul Foto"; document.getElementById('edit-item-title').value = item.title;
-            document.getElementById('edit-jabatan-container').classList.add('hidden');
-            document.getElementById('edit-nowa-container').classList.add('hidden');
-            document.getElementById('edit-image-container').classList.remove('hidden'); document.getElementById('edit-existing-image').value = item.image || ''; 
-            document.getElementById('edit-content-container').classList.remove('hidden'); document.getElementById('label-content').innerText = "Narasi / Keterangan"; document.getElementById('edit-item-content').value = item.desc || '';
-            showEditModal();
-        }
-
-        function openEditArt(id) {
-            const item = globalData.artikel.find(p => p.id === id); if(!item) return;
-            document.getElementById('edit-modal-title').innerText = "Edit Berita"; document.getElementById('edit-id').value = item.id; document.getElementById('edit-type').value = "art";
-            document.getElementById('label-title').innerText = "Judul Berita"; document.getElementById('edit-item-title').value = item.title;
-            document.getElementById('edit-jabatan-container').classList.add('hidden'); 
-            document.getElementById('edit-nowa-container').classList.add('hidden');
-            document.getElementById('edit-image-container').classList.add('hidden');
-            document.getElementById('edit-content-container').classList.remove('hidden'); document.getElementById('label-content').innerText = "Isi Berita"; document.getElementById('edit-item-content').value = item.content || '';
-            showEditModal();
-        }
-
-        function openEditPanitia(id) {
-            const item = globalData.panitia.find(p => p.id === id); if(!item) return;
-            document.getElementById('edit-modal-title').innerText = "Edit Panitia"; document.getElementById('edit-id').value = item.id; document.getElementById('edit-type').value = "panitia";
-            document.getElementById('label-title').innerText = "Nama Lengkap"; document.getElementById('edit-item-title').value = item.nama;
-            document.getElementById('edit-jabatan-container').classList.remove('hidden'); document.getElementById('edit-item-jabatan').value = item.jabatan;
-            document.getElementById('edit-nowa-container').classList.remove('hidden'); document.getElementById('edit-item-nowa').value = item.nowa || '';
-            document.getElementById('edit-image-container').classList.remove('hidden'); document.getElementById('edit-existing-image').value = item.image || ''; 
-            document.getElementById('edit-content-container').classList.add('hidden');
-            showEditModal();
-        }
-
-        function showEditModal() {
-            const modal = document.getElementById('edit-modal'), content = document.getElementById('edit-modal-content');
-            modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.remove('opacity-0', 'pointer-events-none'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
-        }
-
-        async function submitEdit() {
-            const id = document.getElementById('edit-id').value, type = document.getElementById('edit-type').value;
-            const title = document.getElementById('edit-item-title').value, content = document.getElementById('edit-item-content').value;
-            const jabatan = document.getElementById('edit-item-jabatan').value;
-            const nowa = document.getElementById('edit-item-nowa').value;
-            const fileInput = document.getElementById('edit-item-image');
-            let fileData = null;
-            if(fileInput && fileInput.files.length > 0) {
-                if(fileInput.files[0].size > MAX_FILE_SIZE) return alert('Gagal: Ukuran file foto melebihi batas maksimal 5MB!');
-                fileData = await getBase64(fileInput.files[0]);
-            }
-            const existingImage = document.getElementById('edit-existing-image').value;
-            const btn = document.getElementById('btn-submit-edit'); const orig = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin pointer-events-none"></i> MENYIMPAN...'; btn.disabled = true;
-
-            let res;
-            if(type === 'porto') { res = await api.req({ action: 'editPortofolio', id: id, title: title, imageData: fileData, existingImage: existingImage, desc: content }); } 
-            else if(type === 'art') { res = await api.req({ action: 'editArtikel', id: id, title: title, content: content }); } 
-            else if(type === 'panitia') { res = await api.req({ action: 'editPanitia', id: id, nama: title, jabatan: jabatan, nowa: nowa, imageData: fileData, existingImage: existingImage }); }
-
-            if(res && res.success) { alert('Perubahan berhasil disimpan!'); closeEditModal(); refreshAllData(); } 
-            else { alert('Server Error: ' + (res.error || 'Gagal mengubah data.')); }
-            btn.innerHTML = orig; btn.disabled = false;
-        }
-
-        // FUNGSI UNTUK VIEW (EXPAND) GALERI & BERITA
-        function openViewPorto(id) {
-            const item = globalData.portfolio.find(p => p.id === id); if(!item) return;
-            document.getElementById('view-modal-image').src = item.image;
-            document.getElementById('view-modal-image-wrapper').classList.remove('hidden');
-            document.getElementById('view-modal-tag').classList.add('hidden');
-            document.getElementById('view-modal-title').innerText = item.title;
-            document.getElementById('view-modal-desc').innerText = item.desc || '';
-            showViewModal();
-        }
-
-        function openViewArt(id) {
-            const item = globalData.artikel.find(p => p.id === id); if(!item) return;
-            document.getElementById('view-modal-image-wrapper').classList.add('hidden');
-            document.getElementById('view-modal-image').src = ''; 
-            document.getElementById('view-modal-tag').classList.remove('hidden');
-            document.getElementById('view-modal-title').innerText = item.title;
-            document.getElementById('view-modal-desc').innerText = item.content || '';
-            showViewModal();
-        }
-
-        function showViewModal() {
-            const modal = document.getElementById('view-modal'), content = document.getElementById('view-modal-content');
-            modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.remove('opacity-0', 'pointer-events-none'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
-        }
-
-        function closeViewModal() {
-            const modal = document.getElementById('view-modal'), content = document.getElementById('view-modal-content');
-            modal.classList.add('opacity-0', 'pointer-events-none'); content.classList.remove('scale-100'); content.classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); }, 300);
-        }
-
-        window.onload = refreshAllData;
-    </script>
+    // ==============================
+    // INIT
+    // ==============================
+    window.onload = refreshAllData;
+</script>
 </body>
 </html>
