@@ -216,9 +216,9 @@
                 <button onclick="switchTab('ss_anak')" id="btn-ss_anak" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">SS Anak</button>
                 <button onclick="switchTab('pendalaman')" id="btn-pendalaman" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Pendalaman</button>
                 <button onclick="switchTab('kegiatan')" id="btn-kegiatan" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Kegiatan</button>
+                <button onclick="switchTab('cetak')" id="btn-cetak" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black text-red-400">Pusat Cetak</button>
                 <button onclick="switchTab('anggota')" id="btn-anggota" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Data Jemaat</button>
                 <button onclick="switchTab('unit')" id="btn-unit" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Unit & Jabatan</button>
-                <button onclick="switchTab('cetak')" id="btn-cetak" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black text-red-400">Pusat Cetak</button>
                 <button onclick="switchTab('admin')" id="btn-admin" class="hidden pb-4 px-2 whitespace-nowrap text-slate-400 text-lg uppercase font-black">Kelola Admin</button>
             </div>
         </div>
@@ -1553,24 +1553,41 @@ function renderTabs() {
             else if(currentTab === 'khotbah') {
     area.innerHTML = `
     <div class="glass p-5 md:p-8">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 md:mb-10 gap-6">
-            <h3 class="text-2xl md:text-3xl font-black text-[#D4AF37] uppercase">Khotbah Sabat</h3>
-            <div class="flex flex-col sm:flex-row flex-wrap gap-4 w-full items-center justify-center">
-                <!-- Filter unit dihilangkan -->
-                <div class="w-28 text-center">
-                    <label class="text-[10px] font-bold text-gold/60 uppercase block mb-2">Tamu</label>
-                    <input type="number" id="tamu" value="0" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-center">
+        <div class="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
+            <div>
+                <h3 class="text-2xl md:text-3xl font-black text-[#D4AF37] uppercase">Khotbah Sabat</h3>
+                <p class="text-xs text-slate-400 mt-1">Semua anggota terdaftar dikelompokkan per unit</p>
+            </div>
+            <div class="flex flex-wrap gap-3 w-full md:w-auto items-end justify-end">
+                <div class="text-center">
+                    <label class="text-[10px] font-bold text-gold/60 uppercase block mb-1">Tamu</label>
+                    <input type="number" id="tamu" value="0" min="0" class="!border-gold/50 focus:!border-gold !text-white py-2 px-3 rounded-lg bg-gray-800 text-center w-20">
                 </div>
-                <div class="w-40 text-center">
-                    <label class="text-[10px] font-bold text-gold/60 uppercase block mb-2">Tanggal</label>
-                    <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-center">
+                <div class="text-center">
+                    <label class="text-[10px] font-bold text-gold/60 uppercase block mb-1">Tanggal Ibadah</label>
+                    <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-2 px-3 rounded-lg bg-gray-800 text-center w-44">
                 </div>
             </div>
         </div>
-        <div id="khotbah-list" class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8 md:mb-10"></div>
-        <div class="flex flex-col sm:flex-row gap-4">
+        <!-- Progress Bar -->
+        <div class="bg-white/5 rounded-xl p-3 mb-6 flex items-center gap-4 border border-white/10">
+            <div class="flex gap-4 text-xs font-black">
+                <span class="text-green-400"><i class="fas fa-check mr-1"></i><span id="kh-hadir-count">0</span> Hadir</span>
+                <span class="text-red-400"><i class="fas fa-times mr-1"></i><span id="kh-alpha-count">0</span> Alpha</span>
+                <span class="text-yellow-400"><i class="fas fa-clock mr-1"></i><span id="kh-belum-count">0</span> Belum</span>
+                <span class="text-slate-400">Total: <span id="kh-total-count">0</span></span>
+            </div>
+            <div class="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div id="kh-progress-bar" class="h-full bg-green-400 rounded-full transition-all duration-300" style="width:0%"></div>
+            </div>
+            <button onclick="markAllKhotbah('Hadir')" class="bg-green-500/20 border border-green-500/40 text-green-400 px-3 py-1.5 rounded-lg text-xs font-black hover:bg-green-500 hover:text-white transition-all whitespace-nowrap">
+                <i class="fas fa-check-double mr-1"></i>Semua Hadir
+            </button>
+        </div>
+        <div id="khotbah-list" class="space-y-6 mb-6"></div>
+        <div class="flex flex-col sm:flex-row gap-3">
             <button onclick="printAttendanceSheet('khotbah', 'Khotbah Sabat')" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-3 rounded-xl font-black uppercase text-xs hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"><i class="fas fa-print mr-2"></i>CETAK DAFTAR HADIR</button>
-            <button onclick="submitKhotbah()" class="flex-[2] bg-[#D4AF37] text-[#0a192f] py-3 rounded-xl font-black uppercase text-xs hover:bg-yellow-400 transition-all"><i class="fas fa-save mr-2"></i>SIMPAN ABSENSI</button>
+            <button onclick="submitKhotbah()" class="flex-[2] bg-[#D4AF37] text-[#0a192f] py-3 rounded-xl font-black uppercase text-sm hover:bg-yellow-400 transition-all shadow-lg"><i class="fas fa-save mr-2"></i>SIMPAN ABSENSI KHOTBAH</button>
         </div>
     </div>`;
     renderFilteredKhotbah();
@@ -1578,27 +1595,48 @@ function renderTabs() {
 
             else if(['ss_dewasa', 'ss_anak', 'pendalaman'].includes(currentTab)) {
     const cat = currentTab === 'ss_dewasa' ? 'SS Dewasa' : (currentTab === 'ss_anak' ? 'SS Anak' : 'Pendalaman');
+    const catDesc = currentTab === 'ss_dewasa' ? 'Kelas Dewasa - dikelompokkan per unit' : (currentTab === 'ss_anak' ? 'Kelas Anak - dikelompokkan per unit' : 'Pendalaman Alkitab - dikelompokkan per unit');
     area.innerHTML = `
         <div class="glass p-5 md:p-8">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-8 md:mb-10 gap-6">
-                <h3 class="text-2xl md:text-3xl font-black text-[#D4AF37] uppercase">${cat}</h3>
-                <div class="flex flex-col sm:flex-row flex-wrap gap-4 w-full items-center justify-center">
-    <div class="flex-1 min-w-[180px] text-center">
-        <label class="text-[10px] font-bold text-gold/60 uppercase block mb-2">Filter Unit</label>
-        ${filterDropdownHTML(`renderFilteredMembers('${cat}')`)}
-    </div>
-    <div class="w-28 text-center"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2">Tamu</label>
-        <input type="number" id="tamu" value="0" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm md:text-base text-center">
-    </div>
-    <div class="w-40 text-center"><label class="text-[10px] font-bold text-gold/60 uppercase block mb-2">Tanggal</label>
-        <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm md:text-base text-center">
-    </div>
-</div>
+            <div class="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
+                <div>
+                    <h3 class="text-2xl md:text-3xl font-black text-[#D4AF37] uppercase">${cat}</h3>
+                    <p class="text-xs text-slate-400 mt-1">${catDesc}</p>
+                </div>
+                <div class="flex flex-wrap gap-3 w-full md:w-auto items-end justify-end">
+                    <div class="text-center">
+                        <label class="text-[10px] font-bold text-gold/60 uppercase block mb-1">Filter Unit</label>
+                        ${filterDropdownHTML(`renderFilteredMembers('${cat}')`)}
+                    </div>
+                    <div class="text-center">
+                        <label class="text-[10px] font-bold text-gold/60 uppercase block mb-1">Tamu</label>
+                        <input type="number" id="tamu" value="0" min="0" class="!border-gold/50 focus:!border-gold !text-white py-2 px-3 rounded-lg bg-gray-800 text-center w-20">
+                    </div>
+                    <div class="text-center">
+                        <label class="text-[10px] font-bold text-gold/60 uppercase block mb-1">Tanggal Ibadah</label>
+                        <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-2 px-3 rounded-lg bg-gray-800 text-center w-44">
+                    </div>
+                </div>
             </div>
-            <div id="unit-list" class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8 md:mb-10"></div>
-            <div class="flex flex-col sm:flex-row gap-4">
+            <!-- Progress Bar -->
+            <div class="bg-white/5 rounded-xl p-3 mb-6 flex flex-wrap items-center gap-4 border border-white/10">
+                <div class="flex gap-4 text-xs font-black flex-wrap">
+                    <span class="text-green-400"><i class="fas fa-check mr-1"></i><span id="ss-hadir-count">0</span> Hadir</span>
+                    <span class="text-red-400"><i class="fas fa-times mr-1"></i><span id="ss-alpha-count">0</span> Alpha</span>
+                    <span class="text-yellow-400"><i class="fas fa-clock mr-1"></i><span id="ss-belum-count">0</span> Belum</span>
+                    <span class="text-slate-400">Total: <span id="ss-total-count">0</span></span>
+                </div>
+                <div class="flex-1 h-2 bg-white/10 rounded-full overflow-hidden min-w-[80px]">
+                    <div id="ss-progress-bar" class="h-full bg-green-400 rounded-full transition-all duration-300" style="width:0%"></div>
+                </div>
+                <button onclick="markAllSS('${cat}', 'Hadir')" class="bg-green-500/20 border border-green-500/40 text-green-400 px-3 py-1.5 rounded-lg text-xs font-black hover:bg-green-500 hover:text-white transition-all whitespace-nowrap">
+                    <i class="fas fa-check-double mr-1"></i>Semua Hadir
+                </button>
+            </div>
+            <div id="unit-list" class="space-y-6 mb-6"></div>
+            <div class="flex flex-col sm:flex-row gap-3">
                 <button onclick="printAttendanceSheet('kelas', '${cat}')" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-3 rounded-xl font-black uppercase text-xs hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"><i class="fas fa-print mr-2"></i>CETAK DAFTAR HADIR</button>
-                <button onclick="submitKelas('${cat}')" class="flex-[2] bg-[#D4AF37] text-[#0a192f] py-3 rounded-xl font-black uppercase text-xs hover:bg-yellow-400 transition-all"><i class="fas fa-save mr-2"></i>SIMPAN ABSENSI</button>
+                <button onclick="submitKelas('${cat}')" class="flex-[2] bg-[#D4AF37] text-[#0a192f] py-3 rounded-xl font-black uppercase text-sm hover:bg-yellow-400 transition-all shadow-lg"><i class="fas fa-save mr-2"></i>SIMPAN ABSENSI ${cat.toUpperCase()}</button>
             </div>
         </div>`;
     renderFilteredMembers(cat);
@@ -1616,14 +1654,46 @@ function renderTabs() {
                                 <input type="date" id="tgl" value="${today}" class="!border-gold/50 focus:!border-gold !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800"></div>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-10">${actList.map((it, i) => `
-                            <div class="bg-[#112240] border border-white/5 rounded-xl p-5 md:p-6 flex flex-col justify-between">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-10">${actList.map((it, i) => {
+                            const isAuto = i === 0;
+                            return `
+                            <div class="bg-[#112240] border ${isAuto ? 'border-blue-500/40' : 'border-white/5'} rounded-xl p-5 md:p-6 flex flex-col justify-between relative">
+                                ${isAuto ? `<div class="absolute top-3 right-3 bg-blue-500/20 border border-blue-500/40 text-blue-300 text-[9px] font-black uppercase px-2 py-1 rounded-full flex items-center gap-1"><i class="fas fa-magic text-[8px]"></i>Auto Absensi</div>` : ''}
                                 <div class="text-[#D4AF37]/50 font-black text-xl md:text-2xl mb-2">#${i+1}</div>
                                 <div class="text-xs md:text-sm font-bold text-white uppercase mb-4 md:mb-6 leading-relaxed min-h-[3rem] md:min-h-[4rem] flex-grow">${it}</div>
-                                <input type="number" id="k-${i}" value="0" class="text-center text-2xl md:text-3xl py-3 md:py-4 bg-gray-800 rounded-lg border-gold/50 focus:border-gold outline-none text-white font-black">
-                            </div>`).join('')}</div>
+                                ${isAuto
+                                    ? `<div class="relative">
+                                        <div id="k-0-display" class="text-center text-2xl md:text-3xl py-3 md:py-4 bg-blue-900/30 rounded-lg border border-blue-500/30 text-blue-300 font-black flex items-center justify-center gap-2">
+                                            <i class="fas fa-sync-alt text-sm text-blue-400"></i>
+                                            <span id="k-0-val">—</span>
+                                        </div>
+                                        <input type="hidden" id="k-0" value="auto">
+                                        <p class="text-[10px] text-blue-400/70 text-center mt-2 font-bold uppercase tracking-widest">Diisi otomatis dari data absensi</p>
+                                       </div>`
+                                    : `<input type="number" id="k-${i}" value="0" min="0" class="text-center text-2xl md:text-3xl py-3 md:py-4 bg-gray-800 rounded-lg border-gold/50 focus:border-gold outline-none text-white font-black">`
+                                }
+                            </div>`;
+                        }).join('')}</div>
                         <button onclick="submitKegiatan()" class="w-full bg-[#D4AF37] text-[#0a192f] py-4 md:py-6 rounded-2xl font-black text-xl md:text-2xl hover:bg-yellow-400 transition-all">SIMPAN LAPORAN KEGIATAN</button>
                     </div>`;
+                // Setelah render, isi nilai poin 1 dari kegiatanHistory (jika ada)
+                setTimeout(() => {
+                    const tglEl = document.getElementById('tgl');
+                    const unitEl = document.getElementById('unit-filter');
+                    function refreshKegiatanPoin1() {
+                        const tgl = tglEl ? tglEl.value : '';
+                        const unit = unitEl ? unitEl.value : 'ALL';
+                        const actData = getActivityData(unit, tgl);
+                        const poin1Val = actData[0];
+                        const displayEl = document.getElementById('k-0-val');
+                        if (displayEl) {
+                            displayEl.textContent = (poin1Val !== '-' && poin1Val !== '' && poin1Val !== null && poin1Val !== undefined) ? poin1Val : '—';
+                        }
+                    }
+                    refreshKegiatanPoin1();
+                    if (tglEl) tglEl.addEventListener('change', refreshKegiatanPoin1);
+                    if (unitEl) unitEl.addEventListener('change', refreshKegiatanPoin1);
+                }, 100);
             } 
             else if(currentTab === 'anggota') renderMemberManager(area);
             else if(currentTab === 'unit') renderManagerAll(area);
@@ -1636,8 +1706,6 @@ function renderTabs() {
 
         function renderCetakAdmin(area) {
             const todayStrFull = new Date().toISOString().split('T')[0];
-            
-            // Rentang 1 bulan terakhir untuk default cetak multi-tanggal
             const past = new Date(); past.setDate(past.getDate() - 30);
             const pastStrFull = past.toISOString().split('T')[0];
 
@@ -1646,16 +1714,25 @@ function renderTabs() {
                 return `<option value="${String(uName)}">${String(uName).toUpperCase()}</option>`;
             }).join('');
 
-            area.innerHTML = `
-                <div class="glass p-5 md:p-8 mb-8 border-t-4 border-t-red-500 animate-[fadeIn_0.5s_ease-out]">
-                    <h3 class="text-2xl md:text-3xl font-black text-white uppercase mb-3 md:mb-4"><i class="fas fa-edit mr-3 text-red-400"></i>Pusat Kelola & Cetak Absensi</h3>
-                    <p class="text-sm md:text-base text-slate-300 mb-6 md:mb-8 font-medium">Panel khusus Admin: Pilih jenis ibadah, unit, dan tanggal untuk <b>melihat riwayat, mengubah (simpan ulang)</b>, serta mencetak laporan daftar hadir.</p>
+            // Checkbox unit untuk rekap gabungan
+            const unitNames = [...new Set(members.filter(m => (m.unit||'').toLowerCase() !== 'khotbah').map(m => m.unit || 'Umum'))].sort();
+            const unitCheckboxHTML = unitNames.map(u => `
+                <label class="flex items-center gap-2 cursor-pointer bg-white/5 px-3 py-2 rounded-lg hover:bg-white/10 transition-all border border-white/5">
+                    <input type="checkbox" class="rekap-unit-check accent-[#D4AF37] w-4 h-4" value="${u}" checked>
+                    <span class="text-xs font-bold text-white uppercase">${u}</span>
+                </label>`).join('');
 
-                    <div class="bg-white/5 border border-white/10 p-5 rounded-2xl mb-6 shadow-inner">
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            area.innerHTML = `
+                <!-- ===== PANEL ABSENSI AKTIF ===== -->
+                <div class="glass p-5 md:p-8 mb-6 border-t-4 border-t-red-500 animate-[fadeIn_0.5s_ease-out]">
+                    <h3 class="text-2xl md:text-3xl font-black text-white uppercase mb-2"><i class="fas fa-edit mr-3 text-red-400"></i>Kelola Absensi Aktif</h3>
+                    <p class="text-sm text-slate-400 mb-6">Pilih tipe ibadah, unit, dan tanggal untuk melihat, mengubah, atau mencetak daftar hadir.</p>
+
+                    <div class="bg-white/5 border border-white/10 p-5 rounded-2xl mb-6">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Tipe Kelas / Ibadah</label>
-                                <select id="admin-tipe" onchange="loadAdminData()" class="!border-white/10 focus:!border-red-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm font-bold">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Tipe Ibadah / Kelas</label>
+                                <select id="admin-tipe" onchange="loadAdminData()" class="!border-white/10 focus:!border-red-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-sm font-bold">
                                     <option value="khotbah">Khotbah Sabat</option>
                                     <option value="ss_dewasa">Sekolah Sabat Dewasa</option>
                                     <option value="ss_anak">Sekolah Sabat Anak</option>
@@ -1663,96 +1740,745 @@ function renderTabs() {
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Filter Unit</label>
-                                <select id="unit-filter" onchange="loadAdminData()" class="!border-white/10 focus:!border-red-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm font-bold">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Filter Unit</label>
+                                <select id="unit-filter" onchange="loadAdminData()" class="!border-white/10 focus:!border-red-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-sm font-bold">
                                     <option value="ALL">SEMUA JEMAAT (GLOBAL)</option>
                                     ${unitOptionsHTML}
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Tanggal (Riwayat / Ubah)</label>
-                                <input type="date" id="tgl" value="${todayStrFull}" onchange="loadAdminData()" class="!border-white/10 focus:!border-red-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm font-bold">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Tanggal Sabat</label>
+                                <input type="date" id="tgl" value="${todayStrFull}" onchange="loadAdminData()" class="!border-white/10 focus:!border-red-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-sm font-bold">
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2 pl-2">Jumlah Tamu</label>
-                                <input type="number" id="tamu" value="0" class="!border-white/10 focus:!border-red-500 !text-white py-2 md:py-3 px-3 md:px-4 rounded-lg w-full bg-gray-800 text-sm font-bold text-center">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Jumlah Tamu</label>
+                                <input type="number" id="tamu" value="0" class="!border-white/10 focus:!border-red-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-sm font-bold text-center">
                             </div>
                         </div>
                     </div>
 
-                    <!-- KARTU JEMAAT SAMA SEPERTI DI UNIT -->
-                    <!-- BARIS JUDUL + TOMBOL MINIMIZE -->
                     <div class="flex justify-between items-center mb-4">
-                        <h4 class="text-md font-bold text-white uppercase tracking-wider">
-                            <i class="fas fa-users mr-2"></i> Daftar Jemaat
-                        </h4>
-                        <button id="toggle-jemaat-list" class="bg-gold/10 hover:bg-gold/30 text-gold p-2 rounded-full transition-all w-8 h-8 flex items-center justify-center">
+                        <h4 class="text-sm font-bold text-white uppercase tracking-wider"><i class="fas fa-users mr-2 text-[#D4AF37]"></i>Daftar Jemaat</h4>
+                        <button id="toggle-jemaat-list" class="bg-[#D4AF37]/10 hover:bg-[#D4AF37]/30 text-[#D4AF37] p-2 rounded-full transition-all w-8 h-8 flex items-center justify-center">
                             <i id="toggle-icon" class="fas fa-chevron-up"></i>
                         </button>
                     </div>
+                    <div id="admin-absen-list" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mb-6">
+                        <p class="text-slate-400 italic text-center col-span-full">Memuat data absensi...</p>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <button onclick="printAdminAbsen()" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-3 rounded-xl font-black uppercase text-xs hover:bg-red-500 hover:text-white transition-all">
+                            <i class="fas fa-print mr-2"></i>CETAK DAFTAR HADIR
+                        </button>
+                        <button onclick="submitAdminFormAbsen()" class="flex-[2] bg-[#D4AF37] text-[#0a192f] py-3 rounded-xl font-black uppercase text-xs hover:bg-yellow-400 transition-all">
+                            <i class="fas fa-save mr-2"></i>SIMPAN ULANG ABSENSI
+                        </button>
+                    </div>
+                </div>
 
-                    <div id="admin-absen-list" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mb-8 md:mb-10">
-                            <p class="text-slate-400 italic text-center col-span-full">Memuat data absensi...</p>
+                <!-- ===== PUSAT CETAK LAPORAN ===== -->
+                <div class="glass p-5 md:p-8 mb-6 border-t-4 border-t-[#D4AF37]">
+                    <h3 class="text-2xl font-black text-[#D4AF37] uppercase mb-2"><i class="fas fa-print mr-3"></i>Pusat Cetak Laporan</h3>
+                    <p class="text-sm text-slate-400 mb-8">Hasilkan laporan lengkap kehadiran jemaat dalam berbagai format sesuai kebutuhan administrasi gereja.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                        <!-- KARTU 1: Statistik -->
+                        <div class="bg-blue-500/5 border border-blue-500/20 p-5 rounded-2xl hover:border-blue-500/50 transition-all flex flex-col">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-lg"><i class="fas fa-chart-pie"></i></div>
+                                <div>
+                                    <h5 class="text-blue-400 font-black uppercase text-sm">Laporan Statistik</h5>
+                                    <p class="text-[10px] text-slate-500">Komposisi anggota & kehadiran</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-4 flex-grow">Mengikuti pilihan <b class="text-white">Tipe Kelas</b> & <b class="text-white">Filter Unit</b> di panel atas.</p>
+                            <div class="space-y-3">
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Dari Tanggal</label>
+                                        <input type="date" id="c-stat-start" value="${pastStrFull}" class="!border-white/10 focus:!border-blue-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Sampai Tanggal</label>
+                                        <input type="date" id="c-stat-end" value="${todayStrFull}" class="!border-white/10 focus:!border-blue-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+                                    </div>
+                                </div>
+                                <button onclick="printStatistikFromAdmin()" class="w-full bg-blue-500/20 text-blue-400 border border-blue-500/30 py-3 rounded-xl font-black uppercase text-xs hover:bg-blue-500 hover:text-white transition-all"><i class="fas fa-print mr-2"></i>CETAK STATISTIK</button>
+                            </div>
+                        </div>
+
+                        <!-- KARTU 2: Multi-Tanggal -->
+                        <div class="bg-green-500/5 border border-green-500/20 p-5 rounded-2xl hover:border-green-500/50 transition-all flex flex-col">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-lg"><i class="fas fa-calendar-check"></i></div>
+                                <div>
+                                    <h5 class="text-green-400 font-black uppercase text-sm">Rekap Multi-Tanggal</h5>
+                                    <p class="text-[10px] text-slate-500">Daftar hadir per Sabat dalam rentang</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-4 flex-grow">Mengikuti pilihan <b class="text-white">Tipe Kelas</b> & <b class="text-white">Filter Unit</b> di panel atas. Kolom otomatis untuk setiap Sabtu.</p>
+                            <div class="space-y-3">
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Dari Tanggal</label>
+                                        <input type="date" id="c-absen-start" value="${pastStrFull}" class="!border-white/10 focus:!border-green-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Sampai Tanggal</label>
+                                        <input type="date" id="c-absen-end" value="${todayStrFull}" class="!border-white/10 focus:!border-green-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+                                    </div>
+                                </div>
+                                <button onclick="printAbsensiFromAdmin()" class="w-full bg-green-500/20 text-green-400 border border-green-500/30 py-3 rounded-xl font-black uppercase text-xs hover:bg-green-500 hover:text-white transition-all"><i class="fas fa-print mr-2"></i>CETAK REKAP MULTI-TANGGAL</button>
+                            </div>
+                        </div>
+
+                        <!-- KARTU 3: Rekap Gabungan Gereja -->
+                        <div class="bg-[#D4AF37]/5 border border-[#D4AF37]/30 p-5 rounded-2xl hover:border-[#D4AF37]/60 transition-all flex flex-col">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 rounded-full bg-[#D4AF37]/20 flex items-center justify-center text-[#D4AF37] text-lg"><i class="fas fa-church"></i></div>
+                                <div>
+                                    <h5 class="text-[#D4AF37] font-black uppercase text-sm">Rekap Gabungan Gereja</h5>
+                                    <p class="text-[10px] text-slate-500">Semua kelas & unit dalam 1 laporan</p>
+                                </div>
+                            </div>
+                            <div class="flex-grow space-y-3 mb-4">
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Tanggal Sabat</label>
+                                        <input type="date" id="rekap-tanggal" value="${todayStrFull}" class="!border-white/10 focus:!border-[#D4AF37] !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-2">Pilih Kelas yang Disertakan</label>
+                                    <div class="grid grid-cols-2 gap-1.5">
+                                        <label class="flex items-center gap-2 cursor-pointer bg-white/5 px-2 py-1.5 rounded-lg hover:bg-white/10 border border-white/5">
+                                            <input type="checkbox" id="rekap-khotbah" class="accent-[#D4AF37] w-4 h-4" checked>
+                                            <span class="text-xs font-bold text-white">Khotbah</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer bg-white/5 px-2 py-1.5 rounded-lg hover:bg-white/10 border border-white/5">
+                                            <input type="checkbox" id="rekap-ss-dewasa" class="accent-[#D4AF37] w-4 h-4" checked>
+                                            <span class="text-xs font-bold text-white">SS Dewasa</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer bg-white/5 px-2 py-1.5 rounded-lg hover:bg-white/10 border border-white/5">
+                                            <input type="checkbox" id="rekap-ss-anak" class="accent-[#D4AF37] w-4 h-4" checked>
+                                            <span class="text-xs font-bold text-white">SS Anak</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer bg-white/5 px-2 py-1.5 rounded-lg hover:bg-white/10 border border-white/5">
+                                            <input type="checkbox" id="rekap-pendalaman" class="accent-[#D4AF37] w-4 h-4" checked>
+                                            <span class="text-xs font-bold text-white">Pendalaman</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-2">Filter Unit (opsional)</label>
+                                    <select id="rekap-unit" class="!border-white/10 focus:!border-[#D4AF37] !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+                                        <option value="ALL">SEMUA UNIT (GLOBAL)</option>
+                                        ${unitOptionsHTML}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-2">Tampilan Laporan</label>
+                                    <div class="flex gap-2">
+                                        <label class="flex-1 flex items-center gap-2 cursor-pointer bg-white/5 px-2 py-1.5 rounded-lg hover:bg-white/10 border border-white/5">
+                                            <input type="radio" name="rekap-mode" value="ringkas" class="accent-[#D4AF37]" checked>
+                                            <span class="text-xs font-bold text-white">Ringkasan</span>
+                                        </label>
+                                        <label class="flex-1 flex items-center gap-2 cursor-pointer bg-white/5 px-2 py-1.5 rounded-lg hover:bg-white/10 border border-white/5">
+                                            <input type="radio" name="rekap-mode" value="lengkap" class="accent-[#D4AF37]">
+                                            <span class="text-xs font-bold text-white">Lengkap</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="printRekapGabungan()" class="w-full bg-[#D4AF37] text-[#0a192f] py-3 rounded-xl font-black uppercase text-sm hover:bg-yellow-400 transition-all shadow-[0_0_15px_rgba(212,175,55,0.3)]">
+                                <i class="fas fa-file-alt mr-2"></i>CETAK REKAP GABUNGAN
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="flex flex-col md:flex-row gap-4 mb-10">
-    <button onclick="printAdminAbsen()" class="flex-1 bg-red-500/20 border border-red-500/50 text-red-400 py-3 rounded-xl font-black uppercase text-xs shadow-md hover:bg-red-500 hover:text-white transition-all whitespace-nowrap">
-        <i class="fas fa-print mr-2"></i>CETAK DAFTAR HADIR
-    </button>
-    <button onclick="submitAdminFormAbsen()" class="flex-[2] bg-[#D4AF37] text-[#0a192f] py-3 rounded-xl font-black uppercase text-xs shadow-md hover:bg-yellow-400 transition-all">
-        <i class="fas fa-save mr-2"></i>SIMPAN ULANG ABSENSI
-    </button>
-</div>
-                    
-                    <hr class="border-white/10 my-8">
-                    
-                    <h4 class="text-xl font-black text-white uppercase mb-6"><i class="fas fa-print mr-2 text-gold"></i>Fitur Cetak Spesifik (Rentang Tanggal)</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
-                        <!-- KOTAK STATISTIK -->
-                        <div class="bg-blue-500/5 border border-blue-500/20 p-5 md:p-6 rounded-2xl hover:border-blue-500/50 transition-all">
-                            <h5 class="text-blue-400 font-black mb-4 uppercase"><i class="fas fa-chart-pie mr-2"></i>Cetak Laporan Statistik</h5>
-                            <p class="text-xs text-slate-400 mb-4">Statistik ini akan mengikuti pilihan <b class="text-white">Tipe Kelas</b> & <b class="text-white">Filter Unit</b> yang sedang Anda pilih di atas.</p>
-                            <div class="flex flex-col md:flex-row gap-3 mb-4">
-                                <div class="w-full">
-                                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Dari Tanggal</label>
-                                    <input type="date" id="c-stat-start" value="${pastStrFull}" class="!border-white/10 focus:!border-blue-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                </div>
-                                <div class="w-full">
-                                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Sampai Tanggal</label>
-                                    <input type="date" id="c-stat-end" value="${todayStrFull}" class="!border-white/10 focus:!border-blue-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+                    <!-- ROW 2: Rekap Per Unit & Rekap Multi-Tanggal Gabungan -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+
+                        <!-- REKAP PER UNIT -->
+                        <div class="bg-purple-500/5 border border-purple-500/20 p-5 rounded-2xl hover:border-purple-500/50 transition-all flex flex-col">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-lg"><i class="fas fa-sitemap"></i></div>
+                                <div>
+                                    <h5 class="text-purple-400 font-black uppercase text-sm">Rekap Semua Unit (Gabungan)</h5>
+                                    <p class="text-[10px] text-slate-500">Satu laporan, semua unit tampil terpisah per halaman</p>
                                 </div>
                             </div>
-                            <button onclick="printStatistikFromAdmin()" class="w-full bg-blue-500/20 text-blue-400 border border-blue-500/30 py-3 rounded-xl font-black uppercase text-xs hover:bg-blue-500 hover:text-white transition-all"><i class="fas fa-print mr-2"></i>CETAK STATISTIK</button>
+                            <p class="text-xs text-slate-400 mb-4 flex-grow">Setiap unit mendapat halaman tersendiri lengkap dengan statistik kehadiran dan daftar jemaat. Cocok untuk laporan bulanan gereja.</p>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Pilih Kelas / Ibadah</label>
+                                    <select id="rekap-semua-unit-tipe" class="!border-white/10 focus:!border-purple-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+                                        <option value="ss_dewasa">Sekolah Sabat Dewasa</option>
+                                        <option value="ss_anak">Sekolah Sabat Anak</option>
+                                        <option value="pendalaman">Pendalaman Alkitab (PA)</option>
+                                        <option value="khotbah">Khotbah Sabat</option>
+                                    </select>
+                                </div>
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Dari Tanggal</label>
+                                        <input type="date" id="rekap-unit-start" value="${pastStrFull}" class="!border-white/10 focus:!border-purple-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Sampai Tanggal</label>
+                                        <input type="date" id="rekap-unit-end" value="${todayStrFull}" class="!border-white/10 focus:!border-purple-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+                                    </div>
+                                </div>
+                                <button onclick="printRekapSemuaUnit()" class="w-full bg-purple-500/20 text-purple-400 border border-purple-500/30 py-3 rounded-xl font-black uppercase text-xs hover:bg-purple-500 hover:text-white transition-all"><i class="fas fa-print mr-2"></i>CETAK REKAP SEMUA UNIT</button>
+                            </div>
                         </div>
-                        
-                        <!-- KOTAK MULTI TANGGAL -->
-                        <div class="bg-green-500/5 border border-green-500/20 p-5 md:p-6 rounded-2xl hover:border-green-500/50 transition-all">
-                            <h5 class="text-green-400 font-black mb-4 uppercase"><i class="fas fa-calendar-check mr-2"></i>Cetak Rekap Multi-Tanggal</h5>
-                            <p class="text-xs text-slate-400 mb-4">Tabel memanjang ke kanan ini juga mengikuti <b class="text-white">Tipe Kelas</b> & <b class="text-white">Filter Unit</b> yang sedang Anda pilih di atas.</p>
-                            <div class="flex flex-col md:flex-row gap-3 mb-4">
-                                <div class="w-full">
-                                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Dari Tanggal</label>
-                                    <input type="date" id="c-absen-start" value="${pastStrFull}" class="!border-white/10 focus:!border-green-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
-                                </div>
-                                <div class="w-full">
-                                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Sampai Tanggal</label>
-                                    <input type="date" id="c-absen-end" value="${todayStrFull}" class="!border-white/10 focus:!border-green-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+
+                        <!-- REKAP MULTI-TANGGAL GABUNGAN -->
+                        <div class="bg-orange-500/5 border border-orange-500/20 p-5 rounded-2xl hover:border-orange-500/50 transition-all flex flex-col">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400 text-lg"><i class="fas fa-calendar-alt"></i></div>
+                                <div>
+                                    <h5 class="text-orange-400 font-black uppercase text-sm">Rekap Multi-Tanggal Gabungan</h5>
+                                    <p class="text-[10px] text-slate-500">Semua kelas dalam satu tabel rentang waktu</p>
                                 </div>
                             </div>
-                            <button onclick="printAbsensiFromAdmin()" class="w-full bg-green-500/20 text-green-400 border border-green-500/30 py-3 rounded-xl font-black uppercase text-xs hover:bg-green-500 hover:text-white transition-all"><i class="fas fa-print mr-2"></i>CETAK MULTI-TANGGAL</button>
+                            <p class="text-xs text-slate-400 mb-4 flex-grow">Laporan rekap absensi seluruh kelas (Khotbah, SS Dewasa, SS Anak, Pendalaman) dengan ringkasan jumlah hadir per Sabat dalam satu periode.</p>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Filter Unit</label>
+                                    <select id="rekap-multi-unit" class="!border-white/10 focus:!border-orange-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+                                        <option value="ALL">SEMUA UNIT (GLOBAL)</option>
+                                        ${unitOptionsHTML}
+                                    </select>
+                                </div>
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Dari Tanggal</label>
+                                        <input type="date" id="rekap-multi-start" value="${pastStrFull}" class="!border-white/10 focus:!border-orange-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Sampai Tanggal</label>
+                                        <input type="date" id="rekap-multi-end" value="${todayStrFull}" class="!border-white/10 focus:!border-orange-500 !text-white py-2 px-3 rounded-lg w-full bg-gray-800 text-xs font-bold">
+                                    </div>
+                                </div>
+                                <button onclick="printRekapMultiTanggalGabungan()" class="w-full bg-orange-500/20 text-orange-400 border border-orange-500/30 py-3 rounded-xl font-black uppercase text-xs hover:bg-orange-500 hover:text-white transition-all"><i class="fas fa-print mr-2"></i>CETAK REKAP MULTI-TANGGAL GABUNGAN</button>
+                            </div>
                         </div>
 
                     </div>
                 </div>
             `;
-            setTimeout(() => loadAdminData(), 150); 
-
-            setTimeout(() => {
-    initAdminListToggle();   // mengikat tombol toggle
-}, 200);
-
+            setTimeout(() => loadAdminData(), 150);
+            setTimeout(() => { initAdminListToggle(); }, 200);
         }
+
+        // ==========================================
+        // FUNGSI REKAP GABUNGAN GEREJA (SATU TANGGAL)
+        // ==========================================
+        window.printRekapGabungan = function() {
+            const tgl = document.getElementById('rekap-tanggal').value;
+            const unitFilter = document.getElementById('rekap-unit').value;
+            const mode = document.querySelector('input[name="rekap-mode"]:checked').value;
+            const inclKhotbah = document.getElementById('rekap-khotbah').checked;
+            const inclSsDewasa = document.getElementById('rekap-ss-dewasa').checked;
+            const inclSsAnak = document.getElementById('rekap-ss-anak').checked;
+            const inclPendalaman = document.getElementById('rekap-pendalaman').checked;
+
+            if (!tgl) return showToast("Pilih tanggal terlebih dahulu!", "error");
+            if (!inclKhotbah && !inclSsDewasa && !inclSsAnak && !inclPendalaman) return showToast("Pilih minimal 1 kelas!", "error");
+
+            const dateStr = getYYYYMMDD(tgl);
+            const tglFmt = new Date(tgl).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const cetakFmt = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            const kelasConfig = [
+                { key: 'khotbah', label: 'Khotbah Sabat', histKey: 'Khotbah', include: inclKhotbah, color: '#dc2626', type: 'khotbah' },
+                { key: 'ss_dewasa', label: 'Sekolah Sabat Dewasa', histKey: 'SS Dewasa', include: inclSsDewasa, color: '#2563eb', type: 'kelas' },
+                { key: 'ss_anak', label: 'Sekolah Sabat Anak', histKey: 'SS Anak', include: inclSsAnak, color: '#16a34a', type: 'kelas' },
+                { key: 'pendalaman', label: 'Pendalaman Alkitab (PA)', histKey: 'Pendalaman', include: inclPendalaman, color: '#9333ea', type: 'kelas' }
+            ].filter(k => k.include);
+
+            // Hitung statistik per kelas
+            let totalHadirGereja = 0, totalAnggotaGereja = 0, totalAlphaGereja = 0;
+            let ringkasanHTML = '';
+            let detailHTML = '';
+
+            kelasConfig.forEach(kls => {
+                let cat = kls.label;
+                if (kls.key === 'ss_dewasa') cat = 'SS Dewasa';
+                if (kls.key === 'ss_anak') cat = 'SS Anak';
+                if (kls.key === 'pendalaman') cat = 'Pendalaman';
+
+                const displayed = getDisplayedMembers(kls.type, kls.type === 'khotbah' ? null : cat, unitFilter);
+                const histData = attendanceHistory[kls.histKey] || {};
+
+                let hadir = 0, alpha = 0, belum = 0;
+                displayed.forEach(m => {
+                    const st = (histData[m.id] && histData[m.id][dateStr]) ? histData[m.id][dateStr] : '';
+                    if (st === 'Hadir') hadir++;
+                    else if (st === 'Alpha') alpha++;
+                    else belum++;
+                });
+
+                // Hitung tamu untuk khotbah
+                let tamuCount = 0;
+                if (kls.key === 'khotbah' && statsData.historyByUnit['Tamu']) {
+                    const tObj = statsData.historyByUnit['Tamu'].find(h => h.date === dateStr);
+                    if (tObj) tamuCount = tObj.count;
+                }
+
+                const total = displayed.length;
+                const pct = total > 0 ? Math.round((hadir / total) * 100) : 0;
+                totalHadirGereja += hadir + tamuCount;
+                totalAlphaGereja += alpha;
+                totalAnggotaGereja += total;
+
+                // Bar progress
+                const barW = pct;
+                const barColor = pct >= 70 ? '#16a34a' : pct >= 50 ? '#ca8a04' : '#dc2626';
+
+                ringkasanHTML += `
+                <tr>
+                    <td style="padding:10px 12px; border:1px solid #e5e7eb; font-weight:bold; color:${kls.color}; font-size:13px;">${kls.label}</td>
+                    <td style="padding:10px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold; font-size:15px;">${total}</td>
+                    <td style="padding:10px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold; font-size:15px; color:#16a34a;">${hadir}${tamuCount > 0 ? ` <span style="font-size:11px; color:#92400e;">(+${tamuCount} tamu)</span>` : ''}</td>
+                    <td style="padding:10px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold; font-size:15px; color:#dc2626;">${alpha}</td>
+                    <td style="padding:10px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold; font-size:15px; color:#6b7280;">${belum}</td>
+                    <td style="padding:10px 12px; border:1px solid #e5e7eb; text-align:center;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div style="flex:1; background:#f3f4f6; border-radius:999px; height:10px; overflow:hidden;">
+                                <div style="width:${barW}%; background:${barColor}; height:100%; border-radius:999px;"></div>
+                            </div>
+                            <span style="font-weight:900; font-size:13px; color:${barColor}; min-width:40px;">${pct}%</span>
+                        </div>
+                    </td>
+                </tr>`;
+
+                if (mode === 'lengkap') {
+                    // Tabel detail per kelas
+                    let memberRows = displayed.map((m, idx) => {
+                        const st = (histData[m.id] && histData[m.id][dateStr]) ? histData[m.id][dateStr] : '';
+                        const stColor = st === 'Hadir' ? '#16a34a' : st === 'Alpha' ? '#dc2626' : '#6b7280';
+                        const stText = st || 'Belum Diabsen';
+                        return `<tr style="border-bottom:1px solid #f3f4f6;">
+                            <td style="padding:6px 10px; font-size:12px; text-align:center;">${idx+1}</td>
+                            <td style="padding:6px 10px; font-size:12px; font-weight:bold;">${m.nama}</td>
+                            <td style="padding:6px 10px; font-size:11px;">${m.jabatan || 'Anggota'}</td>
+                            <td style="padding:6px 10px; font-size:11px;">${m.unit || 'Umum'}</td>
+                            <td style="padding:6px 10px; font-size:12px; font-weight:bold; text-align:center; color:${stColor};">${stText}</td>
+                        </tr>`;
+                    }).join('');
+
+                    if (displayed.length === 0) memberRows = `<tr><td colspan="5" style="text-align:center; padding:15px; color:#9ca3af; font-style:italic;">Tidak ada anggota terdaftar di kelas ini.</td></tr>`;
+
+                    detailHTML += `
+                    <div style="margin-top:30px; page-break-inside:avoid;">
+                        <div style="background:${kls.color}; color:white; padding:10px 15px; border-radius:8px 8px 0 0; font-weight:900; font-size:15px; text-transform:uppercase; letter-spacing:1px;">
+                            <i>▶</i> ${kls.label} — ${hadir} Hadir / ${total} Terdaftar (${pct}%)
+                        </div>
+                        <table style="width:100%; border-collapse:collapse; font-family:Arial,sans-serif; border:1px solid #e5e7eb; border-top:none;">
+                            <thead>
+                                <tr style="background:#f9fafb; font-size:11px; text-transform:uppercase; color:#6b7280;">
+                                    <th style="padding:8px 10px; border:1px solid #e5e7eb; width:5%;">No</th>
+                                    <th style="padding:8px 10px; border:1px solid #e5e7eb; text-align:left;">Nama Jemaat</th>
+                                    <th style="padding:8px 10px; border:1px solid #e5e7eb; text-align:left;">Jabatan</th>
+                                    <th style="padding:8px 10px; border:1px solid #e5e7eb; text-align:left;">Unit</th>
+                                    <th style="padding:8px 10px; border:1px solid #e5e7eb; width:20%;">Status Hadir</th>
+                                </tr>
+                            </thead>
+                            <tbody>${memberRows}</tbody>
+                        </table>
+                    </div>`;
+                }
+            });
+
+            const pctGereja = totalAnggotaGereja > 0 ? Math.round((totalHadirGereja / totalAnggotaGereja) * 100) : 0;
+            const unitLabel = unitFilter === 'ALL' ? 'Global (Semua Unit)' : 'Unit: ' + unitFilter.toUpperCase();
+
+            const printHtml = `
+            <div style="font-family:Arial,sans-serif; color:black; background:white; padding:24px;">
+
+                <!-- KOP SURAT -->
+                <div style="display:flex; align-items:center; gap:20px; border-bottom:4px solid black; padding-bottom:16px; margin-bottom:20px;">
+                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width:75px; height:75px; object-fit:contain;">
+                    <div>
+                        <div style="font-size:26px; font-weight:900; letter-spacing:1px;">PISGAH BISDAC</div>
+                        <div style="font-size:13px; font-weight:bold; text-transform:uppercase;">Batam International Seventh-Day Adventist Church</div>
+                        <div style="font-size:11px; color:#555; margin-top:2px;">Laporan Rekap Kehadiran Gabungan Jemaat</div>
+                    </div>
+                </div>
+
+                <!-- JUDUL LAPORAN -->
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="font-size:20px; font-weight:900; text-transform:uppercase; letter-spacing:1px;">REKAP KEHADIRAN IBADAH SABAT</div>
+                    <div style="font-size:14px; font-weight:bold; color:#444; margin-top:4px;">${tglFmt}</div>
+                    <div style="font-size:12px; color:#666;">${unitLabel} &nbsp;|&nbsp; Dicetak: ${cetakFmt}</div>
+                </div>
+
+                <!-- KARTU RINGKASAN GEREJA -->
+                <div style="display:flex; gap:12px; margin-bottom:24px;">
+                    <div style="flex:1; border:2px solid #000; border-radius:10px; padding:16px; text-align:center;">
+                        <div style="font-size:11px; font-weight:bold; text-transform:uppercase; color:#555;">Total Terdaftar</div>
+                        <div style="font-size:32px; font-weight:900; margin-top:4px;">${totalAnggotaGereja}</div>
+                        <div style="font-size:10px; color:#888;">jemaat aktif</div>
+                    </div>
+                    <div style="flex:1; border:2px solid #16a34a; border-radius:10px; padding:16px; text-align:center; background:#f0fdf4;">
+                        <div style="font-size:11px; font-weight:bold; text-transform:uppercase; color:#16a34a;">Total Hadir</div>
+                        <div style="font-size:32px; font-weight:900; margin-top:4px; color:#16a34a;">${totalHadirGereja}</div>
+                        <div style="font-size:10px; color:#888;">termasuk tamu</div>
+                    </div>
+                    <div style="flex:1; border:2px solid #dc2626; border-radius:10px; padding:16px; text-align:center; background:#fef2f2;">
+                        <div style="font-size:11px; font-weight:bold; text-transform:uppercase; color:#dc2626;">Total Alpha</div>
+                        <div style="font-size:32px; font-weight:900; margin-top:4px; color:#dc2626;">${totalAlphaGereja}</div>
+                        <div style="font-size:10px; color:#888;">tidak hadir</div>
+                    </div>
+                    <div style="flex:1; border:2px solid ${pctGereja>=70?'#16a34a':pctGereja>=50?'#ca8a04':'#dc2626'}; border-radius:10px; padding:16px; text-align:center; background:${pctGereja>=70?'#f0fdf4':pctGereja>=50?'#fefce8':'#fef2f2'};">
+                        <div style="font-size:11px; font-weight:bold; text-transform:uppercase; color:${pctGereja>=70?'#16a34a':pctGereja>=50?'#ca8a04':'#dc2626'};">Persentase</div>
+                        <div style="font-size:32px; font-weight:900; margin-top:4px; color:${pctGereja>=70?'#16a34a':pctGereja>=50?'#ca8a04':'#dc2626'};">${pctGereja}%</div>
+                        <div style="font-size:10px; color:#888;">${pctGereja>=70?'Sangat Baik':pctGereja>=50?'Cukup':'Perlu Perhatian'}</div>
+                    </div>
+                </div>
+
+                <!-- TABEL RINGKASAN PER KELAS -->
+                <div style="margin-bottom:24px;">
+                    <div style="font-size:15px; font-weight:900; text-transform:uppercase; border-bottom:2px solid black; padding-bottom:6px; margin-bottom:10px;">Ringkasan Per Kelas / Jenis Ibadah</div>
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <thead>
+                            <tr style="background:#1e293b; color:white; font-size:11px; text-transform:uppercase;">
+                                <th style="padding:10px 12px; border:1px solid #374151; text-align:left;">Jenis Ibadah / Kelas</th>
+                                <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Terdaftar</th>
+                                <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Hadir</th>
+                                <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Alpha</th>
+                                <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Belum</th>
+                                <th style="padding:10px 12px; border:1px solid #374151; text-align:center; width:25%;">Persentase</th>
+                            </tr>
+                        </thead>
+                        <tbody>${ringkasanHTML}</tbody>
+                    </table>
+                </div>
+
+                ${mode === 'lengkap' ? detailHTML : ''}
+
+                <!-- TTD -->
+                <div style="display:flex; justify-content:space-between; margin-top:40px; font-size:13px; page-break-inside:avoid;">
+                    <div style="text-align:center; width:220px;">
+                        <p>Sekretaris Jemaat</p>
+                        <br><br><br>
+                        <p style="font-weight:bold; text-decoration:underline;">______________________</p>
+                        <p style="font-size:11px;">PISGAH BISDAC</p>
+                    </div>
+                    <div style="text-align:center; width:220px;">
+                        <p>Mengetahui,</p>
+                        <br><br><br>
+                        <p style="font-weight:bold; text-decoration:underline;">______________________</p>
+                        <p style="font-size:11px;">Ketua / Pimpinan Jemaat</p>
+                    </div>
+                </div>
+
+            </div>`;
+            doPrint(printHtml, 'portrait');
+        };
+
+        // ==========================================
+        // REKAP SEMUA UNIT (SATU KELAS, MULTI-UNIT, MULTI-TANGGAL)
+        // ==========================================
+        window.printRekapSemuaUnit = function() {
+            const tipe = document.getElementById('rekap-semua-unit-tipe').value;
+            const startDate = document.getElementById('rekap-unit-start').value;
+            const endDate = document.getElementById('rekap-unit-end').value;
+
+            if (!startDate || !endDate) return showToast("Pilih rentang tanggal!", "error");
+
+            let catTitle = '';
+            let histKey = '';
+            if (tipe === 'khotbah') { catTitle = 'Khotbah Sabat'; histKey = 'Khotbah'; }
+            else if (tipe === 'ss_dewasa') { catTitle = 'Sekolah Sabat Dewasa'; histKey = 'SS Dewasa'; }
+            else if (tipe === 'ss_anak') { catTitle = 'Sekolah Sabat Anak'; histKey = 'SS Anak'; }
+            else if (tipe === 'pendalaman') { catTitle = 'Pendalaman Alkitab (PA)'; histKey = 'Pendalaman'; }
+
+            // Hitung Sabtu dalam rentang
+            let saturdays = [];
+            let d = new Date(startDate); let eDate = new Date(endDate);
+            while (d <= eDate) {
+                if (d.getDay() === 6) saturdays.push(new Date(d));
+                d.setDate(d.getDate() + 1);
+            }
+            if (saturdays.length === 0) saturdays = [new Date(startDate)];
+
+            const histData = attendanceHistory[histKey] || {};
+            const unitNames = [...new Set(members.filter(m => (m.unit||'').toLowerCase() !== 'khotbah').map(m => m.unit || 'Umum'))].sort();
+            const startFmt = new Date(startDate).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+            const endFmt = new Date(endDate).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+            const cetakFmt = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+
+            let allUnitsHTML = '';
+
+            // Summary table per unit
+            let summaryRows = '';
+            unitNames.forEach(unitName => {
+                let unitMembers = members.filter(m => {
+                    if (tipe === 'khotbah') return (m.unit || 'Umum').trim().toLowerCase() === unitName.trim().toLowerCase();
+                    const catMatch = tipe === 'ss_dewasa' ? 'SS Dewasa' : tipe === 'ss_anak' ? 'SS Anak' : 'Pendalaman';
+                    return (m.unit || 'Umum').trim().toLowerCase() === unitName.trim().toLowerCase() && (m.kelasTetap === catMatch || (tipe === 'pendalaman' && m.kelasTetap === 'PA'));
+                });
+                if (unitMembers.length === 0) return;
+
+                let totalHadirUnit = 0;
+                saturdays.forEach(sat => {
+                    const ds = getYYYYMMDD(sat);
+                    unitMembers.forEach(m => { if (histData[m.id] && histData[m.id][ds] === 'Hadir') totalHadirUnit++; });
+                });
+                const avgHadir = saturdays.length > 0 ? Math.round(totalHadirUnit / saturdays.length) : 0;
+                const pct = unitMembers.length > 0 ? Math.round((avgHadir / unitMembers.length) * 100) : 0;
+
+                summaryRows += `
+                <tr>
+                    <td style="padding:9px 12px; border:1px solid #e5e7eb; font-weight:bold;">${unitName.toUpperCase()}</td>
+                    <td style="padding:9px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold;">${unitMembers.length}</td>
+                    <td style="padding:9px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold;">${saturdays.length}</td>
+                    <td style="padding:9px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold; color:#16a34a;">${totalHadirUnit}</td>
+                    <td style="padding:9px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold; color:#2563eb;">${avgHadir}</td>
+                    <td style="padding:9px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:900; color:${pct>=70?'#16a34a':pct>=50?'#ca8a04':'#dc2626'};">${pct}%</td>
+                </tr>`;
+            });
+
+            // Detail per unit (halaman per unit)
+            const unitColors = ['#dc2626','#2563eb','#16a34a','#9333ea','#ea580c','#0891b2','#db2777','#65a30d'];
+            unitNames.forEach((unitName, uidx) => {
+                const uColor = unitColors[uidx % unitColors.length];
+                let unitMembers = members.filter(m => {
+                    if (tipe === 'khotbah') return (m.unit || 'Umum').trim().toLowerCase() === unitName.trim().toLowerCase();
+                    const catMatch = tipe === 'ss_dewasa' ? 'SS Dewasa' : tipe === 'ss_anak' ? 'SS Anak' : 'Pendalaman';
+                    return (m.unit || 'Umum').trim().toLowerCase() === unitName.trim().toLowerCase() && (m.kelasTetap === catMatch || (tipe === 'pendalaman' && m.kelasTetap === 'PA'));
+                });
+                if (unitMembers.length === 0) return;
+
+                const isDense = unitMembers.length > 20;
+                const tdPad = isDense ? '5px' : '8px';
+                const fSize = isDense ? '11px' : '13px';
+
+                const colsHeader = saturdays.map(sat => `<th style="padding:${tdPad}; border:1px solid #e5e7eb; text-align:center; font-size:10px; background:#1e293b; color:white;">SAB<br>${sat.getDate()}/${sat.getMonth()+1}</th>`).join('');
+
+                const memberRows = unitMembers.map((m, idx) => {
+                    let totalHadir = 0;
+                    const cols = saturdays.map(sat => {
+                        const ds = getYYYYMMDD(sat);
+                        const st = histData[m.id] && histData[m.id][ds] ? histData[m.id][ds] : '';
+                        if (st === 'Hadir') totalHadir++;
+                        const bg = st === 'Hadir' ? '#dcfce7' : st === 'Alpha' ? '#fee2e2' : '#ffffff';
+                        const color = st === 'Hadir' ? '#16a34a' : st === 'Alpha' ? '#dc2626' : '#9ca3af';
+                        const txt = st === 'Hadir' ? 'H' : st === 'Alpha' ? 'A' : '-';
+                        return `<td style="padding:${tdPad}; border:1px solid #e5e7eb; text-align:center; font-weight:bold; font-size:12px; background:${bg}; color:${color};">${txt}</td>`;
+                    }).join('');
+                    const pctM = saturdays.length > 0 ? Math.round((totalHadir/saturdays.length)*100) : 0;
+                    return `<tr>
+                        <td style="padding:${tdPad}; border:1px solid #e5e7eb; text-align:center; font-size:${fSize};">${idx+1}</td>
+                        <td style="padding:${tdPad}; border:1px solid #e5e7eb; font-weight:bold; font-size:${fSize};">${m.nama}</td>
+                        <td style="padding:${tdPad}; border:1px solid #e5e7eb; font-size:${isDense?'10px':'12px'};">${m.jabatan||'Anggota'}</td>
+                        ${cols}
+                        <td style="padding:${tdPad}; border:1px solid #e5e7eb; text-align:center; font-weight:900; font-size:${fSize}; color:${pctM>=70?'#16a34a':pctM>=50?'#ca8a04':'#dc2626'};">${pctM}%</td>
+                    </tr>`;
+                }).join('');
+
+                allUnitsHTML += `
+                <div style="page-break-before:${uidx===0?'avoid':'always'}; margin-top:${uidx===0?'0':'0'};">
+                    <div style="background:${uColor}; color:white; padding:12px 16px; border-radius:8px 8px 0 0; margin-bottom:0;">
+                        <div style="font-size:18px; font-weight:900; text-transform:uppercase;">UNIT: ${unitName.toUpperCase()}</div>
+                        <div style="font-size:12px; opacity:0.9;">${catTitle} &nbsp;|&nbsp; ${startFmt} s/d ${endFmt}</div>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse; font-size:${fSize}; margin-bottom:16px; border:1px solid #e5e7eb; border-top:none;">
+                        <thead>
+                            <tr style="background:#f9fafb;">
+                                <th style="padding:${tdPad}; border:1px solid #e5e7eb; width:4%;">No</th>
+                                <th style="padding:${tdPad}; border:1px solid #e5e7eb; text-align:left; min-width:160px;">Nama Jemaat</th>
+                                <th style="padding:${tdPad}; border:1px solid #e5e7eb; text-align:left;">Jabatan</th>
+                                ${colsHeader}
+                                <th style="padding:${tdPad}; border:1px solid #e5e7eb; text-align:center; background:#1e293b; color:white;">%</th>
+                            </tr>
+                        </thead>
+                        <tbody>${memberRows}</tbody>
+                    </table>
+                    <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:30px;">
+                        <div style="padding:8px 16px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px;">Total Anggota: <b>${unitMembers.length}</b></div>
+                        <div style="padding:8px 16px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px;">Total Sabtu: <b>${saturdays.length}</b></div>
+                        <div style="text-align:center; width:220px;">
+                            <div style="font-size:11px;">Pemimpin / Sekretaris Unit</div>
+                            <br><br>
+                            <div style="font-weight:bold; text-decoration:underline;">______________________</div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+
+            const printHtml = `
+            <div style="font-family:Arial,sans-serif; color:black; background:white; padding:24px;">
+                <!-- KOP -->
+                <div style="display:flex; align-items:center; gap:20px; border-bottom:4px solid black; padding-bottom:16px; margin-bottom:20px;">
+                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width:70px; height:70px; object-fit:contain;">
+                    <div>
+                        <div style="font-size:24px; font-weight:900;">PISGAH BISDAC</div>
+                        <div style="font-size:13px; font-weight:bold; text-transform:uppercase;">Batam International Seventh-Day Adventist Church</div>
+                        <div style="font-size:11px; color:#555;">Rekap Kehadiran Per Unit — ${catTitle}</div>
+                    </div>
+                </div>
+                <div style="text-align:center; margin-bottom:24px;">
+                    <div style="font-size:18px; font-weight:900; text-transform:uppercase;">REKAP ${catTitle.toUpperCase()} — SEMUA UNIT</div>
+                    <div style="font-size:13px; color:#555; margin-top:4px;">Periode: ${startFmt} s/d ${endFmt} &nbsp;|&nbsp; Dicetak: ${cetakFmt}</div>
+                </div>
+                <!-- Tabel Ringkasan -->
+                <div style="margin-bottom:24px;">
+                    <div style="font-size:14px; font-weight:900; text-transform:uppercase; border-bottom:2px solid black; padding-bottom:5px; margin-bottom:10px;">Ringkasan Kehadiran Per Unit</div>
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <thead>
+                            <tr style="background:#1e293b; color:white; font-size:11px; text-transform:uppercase;">
+                                <th style="padding:10px 12px; border:1px solid #374151; text-align:left;">Unit</th>
+                                <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Anggota</th>
+                                <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Juml. Sabat</th>
+                                <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Total Hadir</th>
+                                <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Rata-rata</th>
+                                <th style="padding:10px 12px; border:1px solid #374151; text-align:center;">Persentase</th>
+                            </tr>
+                        </thead>
+                        <tbody>${summaryRows}</tbody>
+                    </table>
+                </div>
+                <!-- Detail per unit -->
+                ${allUnitsHTML}
+            </div>`;
+
+            doPrint(printHtml, 'landscape');
+        };
+
+        // ==========================================
+        // REKAP MULTI-TANGGAL GABUNGAN SEMUA KELAS
+        // ==========================================
+        window.printRekapMultiTanggalGabungan = function() {
+            const unitFilter = document.getElementById('rekap-multi-unit').value;
+            const startDate = document.getElementById('rekap-multi-start').value;
+            const endDate = document.getElementById('rekap-multi-end').value;
+
+            if (!startDate || !endDate) return showToast("Pilih rentang tanggal!", "error");
+
+            let saturdays = [];
+            let d = new Date(startDate); let eDate = new Date(endDate);
+            while (d <= eDate) {
+                if (d.getDay() === 6) saturdays.push(new Date(d));
+                d.setDate(d.getDate() + 1);
+            }
+            if (saturdays.length === 0) saturdays = [new Date(startDate)];
+
+            const startFmt = new Date(startDate).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+            const endFmt = new Date(endDate).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+            const cetakFmt = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+            const unitLabel = unitFilter === 'ALL' ? 'Global (Semua Unit)' : 'Unit: ' + unitFilter;
+
+            const kelasConfig = [
+                { label: 'Khotbah Sabat', histKey: 'Khotbah', color: '#dc2626', type: 'khotbah' },
+                { label: 'SS Dewasa', histKey: 'SS Dewasa', color: '#2563eb', type: 'kelas', cat: 'SS Dewasa' },
+                { label: 'SS Anak', histKey: 'SS Anak', color: '#16a34a', type: 'kelas', cat: 'SS Anak' },
+                { label: 'Pendalaman', histKey: 'Pendalaman', color: '#9333ea', type: 'kelas', cat: 'Pendalaman' }
+            ];
+
+            const colHeaders = saturdays.map(sat => `<th style="padding:8px; border:1px solid #e5e7eb; text-align:center; font-size:10px; background:#1e293b; color:white; min-width:45px;">SAB<br>${sat.getDate()}/${sat.getMonth()+1}</th>`).join('');
+
+            let tableRows = '';
+            kelasConfig.forEach(kls => {
+                const displayed = getDisplayedMembers(kls.type, kls.cat || null, unitFilter);
+                const histData = attendanceHistory[kls.histKey] || {};
+
+                const cols = saturdays.map(sat => {
+                    const ds = getYYYYMMDD(sat);
+                    let hadir = 0;
+                    displayed.forEach(m => { if (histData[m.id] && histData[m.id][ds] === 'Hadir') hadir++; });
+                    // Tambah tamu untuk khotbah
+                    if (kls.type === 'khotbah' && statsData.historyByUnit['Tamu']) {
+                        const tObj = statsData.historyByUnit['Tamu'].find(h => h.date === ds);
+                        if (tObj) hadir += tObj.count;
+                    }
+                    const total = displayed.length;
+                    const pct = total > 0 ? Math.round((hadir / total) * 100) : 0;
+                    const bg = pct >= 70 ? '#dcfce7' : pct >= 50 ? '#fefce8' : pct > 0 ? '#fee2e2' : '#f9fafb';
+                    const color = pct >= 70 ? '#16a34a' : pct >= 50 ? '#ca8a04' : pct > 0 ? '#dc2626' : '#9ca3af';
+                    return `<td style="padding:8px; border:1px solid #e5e7eb; text-align:center; font-weight:bold; background:${bg}; color:${color}; font-size:12px;">${hadir > 0 ? hadir : '-'}</td>`;
+                }).join('');
+
+                tableRows += `
+                <tr>
+                    <td style="padding:10px 12px; border:1px solid #e5e7eb; font-weight:bold; color:${kls.color}; font-size:13px;">${kls.label}</td>
+                    <td style="padding:10px 12px; border:1px solid #e5e7eb; text-align:center; font-weight:bold;">${displayed.length}</td>
+                    ${cols}
+                </tr>`;
+            });
+
+            // Baris total
+            const totalCols = saturdays.map(sat => {
+                const ds = getYYYYMMDD(sat);
+                let total = 0;
+                kelasConfig.forEach(kls => {
+                    const displayed = getDisplayedMembers(kls.type, kls.cat || null, unitFilter);
+                    const histData = attendanceHistory[kls.histKey] || {};
+                    displayed.forEach(m => { if (histData[m.id] && histData[m.id][ds] === 'Hadir') total++; });
+                    if (kls.type === 'khotbah' && statsData.historyByUnit['Tamu']) {
+                        const tObj = statsData.historyByUnit['Tamu'].find(h => h.date === ds);
+                        if (tObj) total += tObj.count;
+                    }
+                });
+                return `<td style="padding:10px; border:1px solid #374151; text-align:center; font-weight:900; font-size:14px; background:#1e293b; color:white;">${total > 0 ? total : '-'}</td>`;
+            }).join('');
+
+            tableRows += `
+            <tr style="background:#1e293b; color:white;">
+                <td style="padding:10px 12px; border:1px solid #374151; font-weight:900; color:#D4AF37;">TOTAL GABUNGAN</td>
+                <td style="padding:10px 12px; border:1px solid #374151; text-align:center; font-weight:900;">${kelasConfig.reduce((s, kls) => s + getDisplayedMembers(kls.type, kls.cat||null, unitFilter).length, 0)}</td>
+                ${totalCols}
+            </tr>`;
+
+            const printHtml = `
+            <div style="font-family:Arial,sans-serif; color:black; background:white; padding:24px;">
+                <!-- KOP -->
+                <div style="display:flex; align-items:center; gap:20px; border-bottom:4px solid black; padding-bottom:16px; margin-bottom:20px;">
+                    <img src="./PisgahColor.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1004/1004944.png'" alt="Logo" style="width:70px; height:70px; object-fit:contain;">
+                    <div>
+                        <div style="font-size:24px; font-weight:900;">PISGAH BISDAC</div>
+                        <div style="font-size:13px; font-weight:bold; text-transform:uppercase;">Batam International Seventh-Day Adventist Church</div>
+                        <div style="font-size:11px; color:#555;">Rekap Multi-Tanggal Gabungan Semua Kelas</div>
+                    </div>
+                </div>
+                <div style="text-align:center; margin-bottom:24px;">
+                    <div style="font-size:18px; font-weight:900; text-transform:uppercase;">REKAP KEHADIRAN GABUNGAN SEMUA KELAS</div>
+                    <div style="font-size:13px; color:#555; margin-top:4px;">${unitLabel} &nbsp;|&nbsp; ${startFmt} s/d ${endFmt}</div>
+                    <div style="font-size:11px; color:#888;">Dicetak: ${cetakFmt}</div>
+                </div>
+                <div style="font-size:12px; color:#555; background:#fefce8; border:1px solid #ca8a04; border-radius:6px; padding:8px 12px; margin-bottom:16px;">
+                    <b>Keterangan:</b> Angka menunjukkan jumlah hadir pada tanggal tersebut. Warna hijau = ≥70%, kuning = 50–69%, merah = &lt;50%.
+                </div>
+                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                    <thead>
+                        <tr style="background:#f9fafb;">
+                            <th style="padding:10px 12px; border:1px solid #e5e7eb; text-align:left; font-size:11px; text-transform:uppercase; min-width:150px;">Kelas / Ibadah</th>
+                            <th style="padding:10px 12px; border:1px solid #e5e7eb; text-align:center; font-size:11px; background:#f3f4f6;">Anggota</th>
+                            ${colHeaders}
+                        </tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+                <div style="display:flex; justify-content:space-between; margin-top:40px; font-size:13px;">
+                    <div style="text-align:center; width:220px;">
+                        <p>Sekretaris Jemaat</p><br><br>
+                        <p style="font-weight:bold; text-decoration:underline;">______________________</p>
+                        <p style="font-size:11px;">PISGAH BISDAC</p>
+                    </div>
+                    <div style="text-align:center; width:220px;">
+                        <p>Mengetahui,</p><br><br>
+                        <p style="font-weight:bold; text-decoration:underline;">______________________</p>
+                        <p style="font-size:11px;">Ketua / Pimpinan Jemaat</p>
+                    </div>
+                </div>
+            </div>`;
+
+            doPrint(printHtml, 'landscape');
+        };
 
         // FUNGSI UNTUK MEMUAT RIWAYAT ABSENSI KE DALAM TOMBOL HADIR/ALPHA
         window.loadAdminData = function() {
@@ -2318,14 +3044,54 @@ function initAdminListToggle() {
         }
 
         function renderFilteredKhotbah() {
-    const filterEl = document.getElementById('unit-filter'); 
-    let filter = filterEl ? filterEl.value : 'ALL';
     let filtered = members; 
-    if(filter !== 'ALL') {
-        const safeFilter = filter.trim().toLowerCase();
-        filtered = filtered.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeFilter);
+    const listEl = document.getElementById('khotbah-list');
+    if (!listEl) return;
+
+    if (filtered.length === 0) {
+        listEl.innerHTML = '<p class="text-slate-400 italic text-center py-10">Belum ada anggota terdaftar.</p>';
+        return;
     }
-    document.getElementById('khotbah-list').innerHTML = filtered.map(m => createCardHTML(m)).join('');
+
+    const unitMap = {};
+    filtered.forEach(m => {
+        const u = m.unit || 'Umum';
+        if (!unitMap[u]) unitMap[u] = [];
+        unitMap[u].push(m);
+    });
+
+    const unitColors = ['border-cyan-500/50','border-orange-500/50','border-teal-500/50','border-indigo-500/50','border-rose-500/50','border-lime-500/50','border-amber-500/50','border-sky-500/50'];
+    const unitBg = ['bg-cyan-500/5','bg-orange-500/5','bg-teal-500/5','bg-indigo-500/5','bg-rose-500/5','bg-lime-500/5','bg-amber-500/5','bg-sky-500/5'];
+    const unitTextColors = ['text-cyan-400','text-orange-400','text-teal-400','text-indigo-400','text-rose-400','text-lime-400','text-amber-400','text-sky-400'];
+
+    let colorIdx = 0;
+    listEl.innerHTML = Object.entries(unitMap).sort((a,b)=>a[0].localeCompare(b[0])).map(([unitName, unitMembers]) => {
+        const ci = colorIdx++ % unitColors.length;
+        const memberCards = unitMembers.map(m => createCardHTML(m)).join('');
+        const unitId = 'kh-unit-' + unitName.replace(/\s/g,'_');
+        const dotColor = unitTextColors[ci].replace('text-','bg-');
+        return `
+        <div class="border ${unitColors[ci]} ${unitBg[ci]} rounded-2xl overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-3 border-b border-white/10 flex-wrap gap-2">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="w-2 h-2 rounded-full ${dotColor}"></div>
+                    <span class="font-black uppercase tracking-widest text-sm ${unitTextColors[ci]}">${unitName}</span>
+                    <span class="text-xs text-slate-400 font-bold">${unitMembers.length} anggota</span>
+                    <span class="text-xs font-black text-green-400" id="${unitId}-stat">0 hadir</span>
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="markUnitAttendance('${unitName}','khotbah','Hadir')" class="bg-green-500/20 border border-green-500/40 text-green-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-green-500 hover:text-white transition-all">&#10003; Semua Hadir</button>
+                    <button onclick="markUnitAttendance('${unitName}','khotbah','Alpha')" class="bg-red-500/20 border border-red-500/40 text-red-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-red-500 hover:text-white transition-all">&#10007; Semua Alpha</button>
+                    <button onclick="resetUnitAttendance('${unitName}','khotbah')" class="bg-slate-500/20 border border-slate-500/40 text-slate-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-slate-500 hover:text-white transition-all">&#8635; Reset</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4">
+                ${memberCards}
+            </div>
+        </div>`;
+    }).join('');
+
+    updateKhotbahCounter();
 }
 
        function renderFilteredMembers(cat) {
@@ -2336,20 +3102,76 @@ function initAdminListToggle() {
         const safeFilter = filter.trim().toLowerCase();
         filtered = filtered.filter(m => (m.unit || 'Umum').trim().toLowerCase() === safeFilter);
     }
-    document.getElementById('unit-list').innerHTML = filtered.map(m => createCardHTML(m)).join('');
+
+    const listEl = document.getElementById('unit-list');
+    if (!listEl) return;
+
+    if (filtered.length === 0) {
+        listEl.innerHTML = '<p class="text-slate-400 italic text-center py-10">Tidak ada anggota di kelas ini untuk unit yang dipilih.</p>';
+        updateSSCounter(cat);
+        return;
+    }
+
+    const unitMap = {};
+    filtered.forEach(m => {
+        const u = m.unit || 'Umum';
+        if (!unitMap[u]) unitMap[u] = [];
+        unitMap[u].push(m);
+    });
+
+    const unitColors = ['border-blue-500/50','border-purple-500/50','border-green-500/50','border-pink-500/50','border-yellow-500/50','border-red-500/50','border-teal-500/50','border-orange-500/50'];
+    const unitBg = ['bg-blue-500/5','bg-purple-500/5','bg-green-500/5','bg-pink-500/5','bg-yellow-500/5','bg-red-500/5','bg-teal-500/5','bg-orange-500/5'];
+    const unitTextColors = ['text-blue-400','text-purple-400','text-green-400','text-pink-400','text-yellow-400','text-red-400','text-teal-400','text-orange-400'];
+
+    let colorIdx = 0;
+    listEl.innerHTML = Object.entries(unitMap).sort((a,b)=>a[0].localeCompare(b[0])).map(([unitName, unitMembers]) => {
+        const ci = colorIdx++ % unitColors.length;
+        const memberCards = unitMembers.map(m => createCardHTML(m)).join('');
+        const unitId = 'ss-unit-' + unitName.replace(/\s/g,'_');
+        const dotColor = unitTextColors[ci].replace('text-','bg-');
+        return `
+        <div class="border ${unitColors[ci]} ${unitBg[ci]} rounded-2xl overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-3 border-b border-white/10 flex-wrap gap-2">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="w-2 h-2 rounded-full ${dotColor}"></div>
+                    <span class="font-black uppercase tracking-widest text-sm ${unitTextColors[ci]}">${unitName}</span>
+                    <span class="text-xs text-slate-400 font-bold">${unitMembers.length} anggota</span>
+                    <span class="text-xs font-black text-green-400" id="${unitId}-stat">0 hadir</span>
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="markUnitAttendance('${unitName}','${cat}','Hadir')" class="bg-green-500/20 border border-green-500/40 text-green-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-green-500 hover:text-white transition-all">&#10003; Semua Hadir</button>
+                    <button onclick="markUnitAttendance('${unitName}','${cat}','Alpha')" class="bg-red-500/20 border border-red-500/40 text-red-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-red-500 hover:text-white transition-all">&#10007; Semua Alpha</button>
+                    <button onclick="resetUnitAttendance('${unitName}','${cat}')" class="bg-slate-500/20 border border-slate-500/40 text-slate-400 px-2 py-1 rounded-lg text-[10px] font-black hover:bg-slate-500 hover:text-white transition-all">&#8635; Reset</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4">
+                ${memberCards}
+            </div>
+        </div>`;
+    }).join('');
+
+    updateSSCounter(cat);
 }
 
         function createCardHTML(m) {
             const att = memberAttendance[m.id] || ''; const jab = m.jabatan || 'Anggota';
+            const hadirCls = att === 'Hadir' ? 'active' : '';
+            const alphaCls = att === 'Alpha' ? 'active' : '';
+            const cardBorder = att === 'Hadir' ? 'border-green-500/40 bg-green-500/5' : att === 'Alpha' ? 'border-red-500/40 bg-red-500/5' : 'border-white/10';
             return `
-            <div class="bg-white/5 p-6 rounded-2xl flex flex-col items-center justify-between border-2 border-gold/10 gap-5 hover:border-gold/30 transition-all text-center">
-                <div class="w-full"><div class="text-2xl font-black text-white uppercase">${m.nama}</div><div class="text-[13px] text-[#D4AF37] uppercase font-black tracking-widest mt-2">${jab}</div><div class="text-[11px] text-gold font-bold uppercase tracking-widest mt-1">${m.unit} | ${m.status}</div></div>
-                <div class="flex flex-col w-full gap-4"><div class="flex gap-3 w-full">
-                        <button id="btn-hadir-${m.id}" onclick="setAttendance('${m.id}', 'Hadir')" class="btn-hadir flex-1 ${att === 'Hadir' ? 'active' : ''}"><i class="fas fa-check mr-2"></i>HADIR</button>
-                        <button id="btn-alpha-${m.id}" onclick="setAttendance('${m.id}', 'Alpha')" class="btn-alpha flex-1 ${att === 'Alpha' ? 'active' : ''}"><i class="fas fa-times mr-2"></i>ALPHA</button>
-                </div></div>
+            <div class="p-4 rounded-xl flex flex-col items-center justify-between border-2 ${cardBorder} gap-3 hover:border-gold/30 transition-all text-center" id="card-${m.id}">
+                <div class="w-full">
+                    <div class="text-sm font-black text-white uppercase leading-tight">${m.nama}</div>
+                    <div class="text-[10px] text-[#D4AF37] uppercase font-bold tracking-wider mt-1">${jab}</div>
+                    <div class="text-[9px] text-slate-400 font-bold mt-0.5">${m.status}</div>
+                </div>
+                <div class="flex gap-2 w-full">
+                    <button id="btn-hadir-${m.id}" onclick="setAttendance('${m.id}', 'Hadir')" class="btn-hadir flex-1 py-2 text-xs ${hadirCls}"><i class="fas fa-check mr-1"></i>Hadir</button>
+                    <button id="btn-alpha-${m.id}" onclick="setAttendance('${m.id}', 'Alpha')" class="btn-alpha flex-1 py-2 text-xs ${alphaCls}"><i class="fas fa-times mr-1"></i>Alpha</button>
+                </div>
             </div>`;
         }
+
 
 function createAdminCardHTML(m) {
     const att = memberAttendance[m.id] || '';
@@ -2378,6 +3200,7 @@ function createAdminCardHTML(m) {
         function setAttendance(id, status) {
             const btnHadir = document.getElementById(`btn-hadir-${id}`); 
             const btnAlpha = document.getElementById(`btn-alpha-${id}`);
+            const card = document.getElementById(`card-${id}`);
             
             // Deteksi apakah ini admin card (mini) atau card biasa
             const isAdminCard = btnHadir && btnHadir.classList.contains('btn-hadir-mini');
@@ -2391,6 +3214,10 @@ function createAdminCardHTML(m) {
                 } else {
                     if (btnHadir) btnHadir.classList.remove('active');
                     if (btnAlpha) btnAlpha.classList.remove('active');
+                    if (card) { 
+                        card.classList.remove('border-green-500/40','bg-green-500/5','border-red-500/40','bg-red-500/5'); 
+                        card.classList.add('border-white/10'); 
+                    }
                 }
             } else {
                 memberAttendance[id] = status;
@@ -2404,11 +3231,21 @@ function createAdminCardHTML(m) {
                 } else {
                     if (status === 'Hadir') { 
                         if (btnHadir) btnHadir.classList.add('active'); 
-                        if (btnAlpha) btnAlpha.classList.remove('active'); 
+                        if (btnAlpha) btnAlpha.classList.remove('active');
+                        if (card) { card.classList.remove('border-red-500/40','bg-red-500/5','border-white/10'); card.classList.add('border-green-500/40','bg-green-500/5'); }
                     } else { 
                         if (btnAlpha) btnAlpha.classList.add('active'); 
-                        if (btnHadir) btnHadir.classList.remove('active'); 
+                        if (btnHadir) btnHadir.classList.remove('active');
+                        if (card) { card.classList.remove('border-green-500/40','bg-green-500/5','border-white/10'); card.classList.add('border-red-500/40','bg-red-500/5'); }
                     }
+                }
+            }
+            // Update counter
+            if (!isAdminCard) {
+                if (document.getElementById('kh-hadir-count')) updateKhotbahCounter();
+                else if (document.getElementById('ss-hadir-count')) {
+                    const cat = currentTab === 'ss_dewasa' ? 'SS Dewasa' : currentTab === 'ss_anak' ? 'SS Anak' : 'Pendalaman';
+                    updateSSCounter(cat);
                 }
             }
         }
@@ -2509,7 +3346,12 @@ function createAdminCardHTML(m) {
             const data = [];
             for(let i=0; i<10; i++) {
                 const inputEl = document.getElementById(`k-${i}`);
-                data.push(inputEl ? inputEl.value : 0);
+                if (i === 0) {
+                    // Poin 1 selalu 'auto' — diisi dari absensi, tidak boleh ditimpa form
+                    data.push('auto');
+                } else {
+                    data.push(inputEl ? (parseInt(inputEl.value) || 0) : 0);
+                }
             }
             await send({
                 action: 'submitKegiatan',
@@ -2946,6 +3788,168 @@ async function syncDataInBackground() {
         console.warn("Sync background gagal", e);
     }
 }
+
+
+        // ===== HELPER: UPDATE COUNTER KHOTBAH =====
+        function updateKhotbahCounter() {
+            let hadir = 0, alpha = 0, total = 0;
+            members.forEach(m => {
+                total++;
+                if (memberAttendance[m.id] === 'Hadir') hadir++;
+                else if (memberAttendance[m.id] === 'Alpha') alpha++;
+            });
+            const belum = total - hadir - alpha;
+            const pct = total > 0 ? Math.round((hadir/total)*100) : 0;
+            const hEl = document.getElementById('kh-hadir-count');
+            const aEl = document.getElementById('kh-alpha-count');
+            const bEl = document.getElementById('kh-belum-count');
+            const tEl = document.getElementById('kh-total-count');
+            const pb = document.getElementById('kh-progress-bar');
+            if (hEl) hEl.textContent = hadir;
+            if (aEl) aEl.textContent = alpha;
+            if (bEl) bEl.textContent = belum;
+            if (tEl) tEl.textContent = total;
+            if (pb) pb.style.width = pct + '%';
+
+            // Update per-unit stats
+            const unitMap = {};
+            members.forEach(m => {
+                const u = m.unit || 'Umum';
+                if (!unitMap[u]) unitMap[u] = { hadir: 0, total: 0 };
+                unitMap[u].total++;
+                if (memberAttendance[m.id] === 'Hadir') unitMap[u].hadir++;
+            });
+            for (const [u, data] of Object.entries(unitMap)) {
+                const el = document.getElementById('kh-unit-' + u.replace(/\s/g,'_') + '-stat');
+                if (el) el.textContent = data.hadir + '/' + data.total + ' hadir';
+            }
+        }
+
+        // ===== HELPER: UPDATE COUNTER SS/PENDALAMAN =====
+        function updateSSCounter(cat) {
+            let filtered = members.filter(m => m.kelasTetap === cat || (cat === 'Pendalaman' && m.kelasTetap === 'PA'));
+            const filterEl = document.getElementById('unit-filter');
+            const filter = filterEl ? filterEl.value : 'ALL';
+            if (filter !== 'ALL') {
+                filtered = filtered.filter(m => (m.unit||'Umum').trim().toLowerCase() === filter.trim().toLowerCase());
+            }
+            let hadir = 0, alpha = 0, total = filtered.length;
+            filtered.forEach(m => {
+                if (memberAttendance[m.id] === 'Hadir') hadir++;
+                else if (memberAttendance[m.id] === 'Alpha') alpha++;
+            });
+            const belum = total - hadir - alpha;
+            const pct = total > 0 ? Math.round((hadir/total)*100) : 0;
+            const hEl = document.getElementById('ss-hadir-count');
+            const aEl = document.getElementById('ss-alpha-count');
+            const bEl = document.getElementById('ss-belum-count');
+            const tEl = document.getElementById('ss-total-count');
+            const pb = document.getElementById('ss-progress-bar');
+            if (hEl) hEl.textContent = hadir;
+            if (aEl) aEl.textContent = alpha;
+            if (bEl) bEl.textContent = belum;
+            if (tEl) tEl.textContent = total;
+            if (pb) pb.style.width = pct + '%';
+
+            // Update per-unit stats
+            const unitMap = {};
+            filtered.forEach(m => {
+                const u = m.unit || 'Umum';
+                if (!unitMap[u]) unitMap[u] = { hadir: 0, total: 0 };
+                unitMap[u].total++;
+                if (memberAttendance[m.id] === 'Hadir') unitMap[u].hadir++;
+            });
+            for (const [u, data] of Object.entries(unitMap)) {
+                const el = document.getElementById('ss-unit-' + u.replace(/\s/g,'_') + '-stat');
+                if (el) el.textContent = data.hadir + '/' + data.total + ' hadir';
+            }
+        }
+
+        // ===== MARK SEMUA ANGGOTA UNIT (KHOTBAH ATAU SS) =====
+        function markUnitAttendance(unitName, type, status) {
+            let targetMembers;
+            if (type === 'khotbah') {
+                targetMembers = members.filter(m => (m.unit||'Umum') === unitName);
+            } else {
+                // type = cat (SS Dewasa, SS Anak, Pendalaman)
+                targetMembers = members.filter(m => 
+                    (m.kelasTetap === type || (type === 'Pendalaman' && m.kelasTetap === 'PA')) &&
+                    (m.unit||'Umum') === unitName
+                );
+            }
+            targetMembers.forEach(m => {
+                memberAttendance[m.id] = status;
+                const btnH = document.getElementById('btn-hadir-' + m.id);
+                const btnA = document.getElementById('btn-alpha-' + m.id);
+                const card = document.getElementById('card-' + m.id);
+                if (btnH) { btnH.classList.toggle('active', status === 'Hadir'); }
+                if (btnA) { btnA.classList.toggle('active', status === 'Alpha'); }
+                if (card) {
+                    card.className = card.className.replace(/border-(green|red)-500\/40/g, '');
+                    card.className = card.className.replace(/bg-(green|red)-500\/5/g, '');
+                    card.className += status === 'Hadir' ? ' border-green-500/40 bg-green-500/5' : ' border-red-500/40 bg-red-500/5';
+                }
+            });
+            if (type === 'khotbah') updateKhotbahCounter();
+            else updateSSCounter(type);
+        }
+
+        // ===== RESET ABSENSI UNIT =====
+        function resetUnitAttendance(unitName, type) {
+            let targetMembers;
+            if (type === 'khotbah') {
+                targetMembers = members.filter(m => (m.unit||'Umum') === unitName);
+            } else {
+                targetMembers = members.filter(m => 
+                    (m.kelasTetap === type || (type === 'Pendalaman' && m.kelasTetap === 'PA')) &&
+                    (m.unit||'Umum') === unitName
+                );
+            }
+            targetMembers.forEach(m => {
+                delete memberAttendance[m.id];
+                const btnH = document.getElementById('btn-hadir-' + m.id);
+                const btnA = document.getElementById('btn-alpha-' + m.id);
+                const card = document.getElementById('card-' + m.id);
+                if (btnH) btnH.classList.remove('active');
+                if (btnA) btnA.classList.remove('active');
+                if (card) {
+                    card.className = card.className.replace(/border-(green|red)-500\/40/g, 'border-white/10');
+                    card.className = card.className.replace(/bg-(green|red)-500\/5/g, '');
+                }
+            });
+            if (type === 'khotbah') updateKhotbahCounter();
+            else updateSSCounter(type);
+        }
+
+        // ===== MARK SEMUA KHOTBAH =====
+        function markAllKhotbah(status) {
+            members.forEach(m => {
+                memberAttendance[m.id] = status;
+                const btnH = document.getElementById('btn-hadir-' + m.id);
+                const btnA = document.getElementById('btn-alpha-' + m.id);
+                if (btnH) btnH.classList.toggle('active', status === 'Hadir');
+                if (btnA) btnA.classList.toggle('active', status === 'Alpha');
+            });
+            updateKhotbahCounter();
+        }
+
+        // ===== MARK SEMUA SS =====
+        function markAllSS(cat, status) {
+            let filtered = members.filter(m => m.kelasTetap === cat || (cat === 'Pendalaman' && m.kelasTetap === 'PA'));
+            const filterEl = document.getElementById('unit-filter');
+            const filter = filterEl ? filterEl.value : 'ALL';
+            if (filter !== 'ALL') {
+                filtered = filtered.filter(m => (m.unit||'Umum').trim().toLowerCase() === filter.trim().toLowerCase());
+            }
+            filtered.forEach(m => {
+                memberAttendance[m.id] = status;
+                const btnH = document.getElementById('btn-hadir-' + m.id);
+                const btnA = document.getElementById('btn-alpha-' + m.id);
+                if (btnH) btnH.classList.toggle('active', status === 'Hadir');
+                if (btnA) btnA.classList.toggle('active', status === 'Alpha');
+            });
+            updateSSCounter(cat);
+        }
 
         window.onload = init;
     </script>
