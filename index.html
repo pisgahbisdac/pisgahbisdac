@@ -1827,23 +1827,23 @@
                         </div>
                         <div className="bg-navy-50/30 p-5 md:p-6 rounded-2xl border border-navy-100/50 space-y-6 shadow-sm">
                             <div>
-                                <h3 className="font-bold text-navy-900 text-sm mb-1.5 flex items-center"><span className="bg-gold-400/20 text-gold-600 w-5 h-5 rounded-full inline-flex items-center justify-center text-xs mr-2 border border-gold-400/30 font-bold">1</span>Hubungi Bendahara</h3>
+                                <h3 className="font-bold text-navy-900 text-sm mb-1.5 flex items-center"><span className="bg-gold-400/40 text-gold-600 w-5 h-5 rounded-full inline-flex items-center justify-center text-xs mr-2 border border-gold-600/30 font-bold">1</span>Hubungi Bendahara</h3>
                                 <p className="text-xs text-navy-600 mb-3 pl-7 font-medium">Kirim bukti transfer ke Bendahara kami:</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-0 md:pl-7">
                                     {bendahara.map((p, idx) => (
-                                        <a key={idx} href={`https://wa.me/${p.wa}`} target="_blank" rel="noopener noreferrer" className="flex items-center p-2.5 rounded-xl border border-navy-100 bg-white hover:bg-gold-50 hover:border-gold-200 transition group shadow-sm"><img src={p.img} alt={p.nama} className="w-10 h-10 rounded-full object-cover mr-3 border-2 border-transparent group-hover:border-gold-400 transition" /><div><p className="text-[9px] font-bold text-navy-500 group-hover:text-gold-600 transition-colors uppercase tracking-widest">{p.jabatan}</p><p className="font-bold text-navy-900 text-sm">{p.nama}</p></div></a>
+                                        <a key={idx} href={`https://wa.me/${p.wa}`} target="_blank" rel="noopener noreferrer" className="flex items-center p-2.5 rounded-xl border border-gold-200 bg-white hover:bg-gold-50 hover:border-gold-200 transition group shadow-sm"><img src={p.img} alt={p.nama} className="w-10 h-10 rounded-full object-cover mr-3 border-2 border-transparent group-hover:border-gold-400 transition" /><div><p className="text-[9px] font-bold text-navy-500 group-hover:text-gold-600 transition-colors uppercase tracking-widest">{p.jabatan}</p><p className="font-bold text-navy-900 text-sm">{p.nama}</p></div></a>
                                     ))}
                                 </div>
                             </div>
                             <div>
-                                <h3 className="font-bold text-navy-900 text-sm mb-1.5 flex items-center"><span className="bg-navy-900/10 text-navy-800 w-5 h-5 rounded-full inline-flex items-center justify-center text-xs mr-2 font-bold">2</span>Sertakan Keterangan</h3>
+                                <h3 className="font-bold text-navy-900 text-sm mb-1.5 flex items-center"><span className="bg-red-400/40 text-red-600 w-5 h-5 rounded-full inline-flex items-center justify-center text-xs mr-2 border border-gold-600/30 font-bold">2</span>Sertakan Keterangan</h3>
                                 <p className="text-xs text-navy-600 mb-4 pl-7 font-medium">Sebutkan rincian nominal persembahan Anda pada chat WhatsApp:</p>
                                 <div className="flex flex-wrap gap-2 pl-0 md:pl-7">
                                     {['Perpuluhan', 'Persembahan Terpadu', 'Persembahan Khusus', 'Persembahan Syukur', 'Donasi Kas Gereja', 'Donasi Kas Departemen', 'Lain-lain'].map((item, i) => { const colors = ['bg-gold-500', 'bg-navy-500', 'bg-red-500', 'bg-green-500', 'bg-purple-500', 'bg-teal-500', 'bg-gray-500']; return (<span key={i} className="flex items-center bg-white border border-navy-100 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-bold text-navy-700 shadow-sm"><span className={`w-1.5 h-1.5 rounded-full ${colors[i]} mr-2`}></span>{item}</span>); })}
                                 </div>
                             </div>
                             <div>
-                                <h3 className="font-bold text-navy-900 text-sm mb-1.5 flex items-center"><span className="bg-navy-400/20 text-navy-600 w-5 h-5 rounded-full inline-flex items-center justify-center text-xs mr-2 font-bold">3</span>Ada 2 waktu pengumpulan persembahan</h3>
+                                <h3 className="font-bold text-navy-900 text-sm mb-1.5 flex items-center"><span className="bg-navy-400/40 text-navy-600 w-5 h-5 rounded-full inline-flex items-center justify-center text-xs mr-2 border border-gold-600/30 font-bold">3</span>Ada 2 waktu pengumpulan persembahan</h3>
                                 <p className="text-xs text-navy-600 mb-4 pl-7 font-medium">1. Pada Saat Jam Khotbah (Persembahan)</p>
                                 <p className="text-xs text-navy-600 mb-4 pl-7 font-medium">2. Pada Saat Lagu Tutup Jam Khotbah (Pembangunan)</p>
                                 <div className="flex flex-wrap gap-2 pl-0 md:pl-7">
