@@ -52,6 +52,8 @@
             overflow-x: hidden;
         }
 
+        .hidden { display: none !important; }
+        
         /* ======== TYPOGRAPHY ======== */
         .font-fraunces { font-family: 'Fraunces', serif; }
         .font-dm { font-family: 'DM Sans', sans-serif; }
@@ -68,7 +70,6 @@
 
         .animate-float { animation: float 6s ease-in-out infinite; }
         .animate-pulse-ring { animation: pulse-ring 2.5s infinite; }
-        .animate-wa-ring { animation: wa-ring 2s infinite; }
         .animate-fade-up { animation: fade-up .8s ease forwards; }
 
         /* ======== GLASS & SURFACES ======== */
@@ -568,22 +569,6 @@
     </div>
 </footer>
 
-<!-- =================== FLOATING WA =================== -->
-<div id="floating-wa-container" class="fixed bottom-6 right-5 z-[90] flex flex-col items-end hidden">
-    <!-- Popup -->
-    <div id="wa-popup" class="bg-white/98 rounded-2xl shadow-2xl p-4 mb-3 w-72 sm:w-80 border border-gray-200 origin-bottom-right scale-0 opacity-0 pointer-events-none transition-all duration-300">
-        <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
-            <h4 class="font-bold text-navy text-base flex items-center gap-2"><i class="fa-brands fa-whatsapp text-green-500 text-lg"></i> Hubungi Panitia</h4>
-            <button onclick="toggleWaPopup()" class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-red-100 hover:text-red-500 transition-all text-sm">✕</button>
-        </div>
-        <div id="wa-list-content" class="space-y-2 max-h-[50vh] overflow-y-auto pr-1"></div>
-    </div>
-    <!-- Button -->
-    <button onclick="toggleWaPopup()" class="w-14 h-14 bg-green-500 text-white rounded-full flex items-center justify-center text-3xl animate-wa-ring hover:bg-green-600 transition-all shadow-xl border-2 border-white">
-        <i class="fa-brands fa-whatsapp"></i>
-    </button>
-</div>
-
 <!-- =================== VIEW MODAL =================== -->
 <div id="view-modal" class="modal-overlay" onclick="closeViewModal()">
     <div class="modal-box bg-white rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden" onclick="e => e.stopPropagation()" id="view-modal-content">
@@ -945,19 +930,6 @@
         }
     }
 
-    // WA toggle
-    function toggleWaPopup() {
-        const popup = document.getElementById('wa-popup');
-        const isOpen = popup.classList.contains('scale-100');
-        if (isOpen) {
-            popup.classList.remove('scale-100', 'opacity-100');
-            popup.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
-        } else {
-            popup.classList.add('scale-100', 'opacity-100');
-            popup.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
-        }
-    }
-
     // ==============================
     // TAB SYSTEM (ADMIN)
     // ==============================
@@ -1254,39 +1226,18 @@
     // ==============================
     function renderPanitia(list) {
         const panitiaCont = document.getElementById('panitia-container');
-        const waListCont = document.getElementById('wa-list-content');
-        let waHtml = ''; let waAvailable = false;
-
         if (!list || list.length === 0) {
             panitiaCont.innerHTML = '<p class="text-white/40 italic text-center py-10 w-full">Belum ada data panitia.</p>';
-            document.getElementById('floating-wa-container').classList.add('hidden');
             return;
         }
 
         panitiaCont.innerHTML = list.map(p => {
-            const wa = formatWaNumber(p.nowa);
-            if (wa) { waAvailable = true; }
-
-            if (wa) {
-                waHtml += `
-                    <a href="https://wa.me/${wa}?text=Halo%20${encodeURIComponent(p.nama)},%20saya%20ingin%20bertanya%20seputar%20donasi%20pembangunan..." target="_blank" class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-green-50 transition-colors group">
-                        <div class="w-9 h-9 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
-                            ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-user text-sm text-gray-400"></i>`}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-bold text-navy truncate group-hover:text-green-700 transition-colors">${p.nama}</p>
-                            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider truncate">${p.jabatan}</p>
-                        </div>
-                        <i class="fa-brands fa-whatsapp text-green-500 text-lg group-hover:scale-110 transition-transform"></i>
-                    </a>`;
-            }
-
             return `
             <div class="panitia-card rounded-2xl p-5 flex flex-col items-center text-center relative w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.5rem)]">
-                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full mb-4 overflow-hidden border-2 flex items-center justify-center" style="border-color: rgba(232,168,22,.3); background: rgba(255,255,255,.05)">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full mb-4 overflow-hidden border-2 flex items-center justify-center" style="border-color: rgba(232,168,22,.3); background: #0B1A30;">
                     ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<i class="fa-solid fa-user text-3xl text-slate-500"></i>`}
                 </div>
-                <h5 class="font-fraunces font-black text-white text-base sm:text-lg leading-snug mb-1">${p.nama}</h5>
+                <h5 class="font-fraunces font-black text-base sm:text-lg leading-snug mb-1" style="color: #D4A017;">${p.nama}</h5>
                 <p class="text-[10px] sm:text-xs font-bold uppercase tracking-widest" style="color:#E8A816">${p.jabatan}</p>
                 ${p.nowa ? `<a href="https://wa.me/${formatWaNumber(p.nowa)}?text=Halo%20${encodeURIComponent(p.nama)}..." target="_blank" class="mt-3 flex items-center gap-1.5 px-3 py-1.5 bg-green-500/20 text-green-400 rounded-full text-xs font-bold hover:bg-green-500/30 transition-colors"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ''}
                 ${isAdminMode ? `
@@ -1296,13 +1247,6 @@
                 </div>` : ''}
             </div>`;
         }).join('');
-
-        if (waAvailable) {
-            document.getElementById('floating-wa-container').classList.remove('hidden');
-            waListCont.innerHTML = waHtml;
-        } else {
-            document.getElementById('floating-wa-container').classList.add('hidden');
-        }
     }
 
     // ==============================
