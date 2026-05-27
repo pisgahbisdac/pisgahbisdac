@@ -1132,14 +1132,14 @@
             return (
                 <div className="min-h-screen flex flex-col relative">
                     {toast.show && (
-                        <div className="fixed bottom-5 right-5 z-50 px-5 py-3 rounded-xl shadow-2xl text-white font-medium bg-slate-900/90 border border-amber-500/30 backdrop-blur flex items-center gap-3 animate-fadeIn">
+                        <div className="z-50 px-5 py-3 rounded-xl shadow-2xl text-white font-medium bg-slate-900/90 border border-amber-500/30 backdrop-blur flex items-center gap-3 animate-fadeIn">
                             <i className="fas fa-circle-info text-amber-400 animate-pulse"></i>
                             <span>{toast.message}</span>
                         </div>
                     )}
 
                     {isSyncing && (
-                        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-full px-6 py-3 shadow-xl flex items-center gap-3 animate-fadeIn">
+                        <div className="z-50 bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-full px-6 py-3 shadow-xl flex items-center gap-3 animate-fadeIn">
                             <i className="fa-solid fa-spinner fa-spin text-amber-400 text-base"></i>
                             <span className="text-white text-sm font-medium">proses sync...</span>
                         </div>
