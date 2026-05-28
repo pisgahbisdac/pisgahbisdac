@@ -94,14 +94,6 @@
             return `${year}-${month}-${day}`;
         };
 
-        const formatLocalDDMMYYYY = (dateObj) => {
-            if (!dateObj) return "";
-            const day   = String(dateObj.getDate()).padStart(2, '0');
-            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-            const year  = dateObj.getFullYear();
-            return `${day}/${month}/${year}`;
-        };
-
         const maskNoHp = (noHp) => {
             if (!noHp) return "-";
             const str = String(noHp).replace(/\s/g, "");
@@ -208,7 +200,6 @@
                 ? totalHadirPerSabbat[totalHadirPerSabbat.length-1] - totalHadirPerSabbat[totalHadirPerSabbat.length-2]
                 : 0;
 
-            // ── Chart: Trend ──
             useEffect(() => {
                 if (!window.Chart || !trendRef.current || sabbatList.length === 0) return;
                 destroyChart("trend");
@@ -246,7 +237,6 @@
                 });
             }, [trendMode, sabbatList, totalHadirPerSabbat, khotbahPerSabbat, jemaat.length]);
 
-            // ── Chart: Donut ──
             useEffect(() => {
                 if (!window.Chart || !donutRef.current) return;
                 destroyChart("donut");
@@ -261,7 +251,6 @@
                 });
             }, [jemaat]);
 
-            // ── Chart: Usia ──
             useEffect(() => {
                 if (!window.Chart || !ageRef.current) return;
                 destroyChart("age");
@@ -272,7 +261,6 @@
                 });
             }, [ageGroups]);
 
-            // ── Chart: Gender & Baptis ──
             useEffect(() => {
                 if (!window.Chart || !genderRef.current) return;
                 destroyChart("gender");
@@ -287,7 +275,6 @@
                 });
             }, [genderBaptis]);
 
-            // ── Chart: Sub-kelas ──
             useEffect(() => {
                 if (!window.Chart || !subkelasRef.current || SUBKELAS_NAMES.length === 0) return;
                 destroyChart("subkelas");
@@ -303,12 +290,10 @@
                 });
             }, [sabbatList, hadirPerSubPerSabbat, subKelas]);
 
-            // ── Cleanup ──
             useEffect(() => { return () => { Object.values(chartsRef.current).forEach(c => c.destroy()); }; }, []);
 
             return (
                 <div className="space-y-6">
-                    {/* Metric row */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         {[
                             { label: "Hadir SS Terakhir", val: totalHadirPerSabbat[totalHadirPerSabbat.length-1] || 0, sub: `${jemaat.length > 0 ? Math.round((totalHadirPerSabbat[totalHadirPerSabbat.length-1]||0)/jemaat.length*100) : 0}% dari total`, diff: trendLastDiff },
@@ -331,7 +316,6 @@
                         ))}
                     </div>
 
-                    {/* Trend chart */}
                     <div className="bg-slate-900/40 border border-white/10 p-4 md:p-5 rounded-2xl shadow-xl backdrop-blur">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                             <div>
@@ -357,7 +341,6 @@
                         </div>
                     </div>
 
-                    {/* Sub-kelas trend */}
                     <div className="bg-slate-900/40 border border-white/10 p-4 md:p-5 rounded-2xl shadow-xl backdrop-blur">
                         <h4 className="font-extrabold text-white text-sm md:text-xs mb-1 uppercase tracking-wider"><i className="fa-solid fa-layer-group text-amber-400 mr-1"></i> Kehadiran per Sub-Kelas</h4>
                         <p className="text-xs md:text-[10px] text-slate-500 mb-4">4 Sabat terakhir</p>
@@ -371,9 +354,7 @@
                         </div>
                     </div>
 
-                    {/* Sebaran data */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Donut */}
                         <div className="bg-slate-900/40 border border-white/10 p-4 md:p-5 rounded-2xl shadow-xl backdrop-blur space-y-4 md:space-y-3">
                             <h4 className="font-extrabold text-white text-sm md:text-xs uppercase tracking-wider"><i className="fa-solid fa-circle-info text-amber-400 mr-1"></i> Status Keanggotaan</h4>
                             <div className="flex items-center gap-4">
@@ -403,14 +384,12 @@
                             </div>
                         </div>
 
-                        {/* Usia */}
                         <div className="bg-slate-900/40 border border-white/10 p-4 md:p-5 rounded-2xl shadow-xl backdrop-blur">
                             <h4 className="font-extrabold text-white text-sm md:text-xs mb-1 uppercase tracking-wider"><i className="fa-solid fa-people-group text-amber-400 mr-1"></i> Distribusi Usia</h4>
                             <p className="text-xs md:text-[10px] text-slate-500 mb-4">Kelompok umur</p>
                             <div style={{ position:"relative", height:"180px" }}><canvas ref={ageRef}></canvas></div>
                         </div>
 
-                        {/* Gender & Baptis */}
                         <div className="bg-slate-900/40 border border-white/10 p-4 md:p-5 rounded-2xl shadow-xl backdrop-blur">
                             <h4 className="font-extrabold text-white text-sm md:text-xs mb-1 uppercase tracking-wider"><i className="fa-solid fa-venus-mars text-amber-400 mr-1"></i> Gender & Baptis</h4>
                             <p className="text-xs md:text-[10px] text-slate-500 mb-4">Laki-laki vs Perempuan</p>
@@ -425,7 +404,6 @@
                         </div>
                     </div>
 
-                    {/* Kehadiran per anggota */}
                     {currentUserRole !== "public" && (
                     <div className="bg-slate-900/40 border border-white/10 p-4 md:p-5 rounded-2xl shadow-xl backdrop-blur">
                         <h4 className="font-extrabold text-white text-sm md:text-xs mb-1 uppercase tracking-wider">
@@ -454,8 +432,6 @@
             </div>
         );
         }
-
-        // ─── App Component ────────────────────────────────────────────────────────
 
         function App() {
             const [jemaat, setJemaat]               = useState([]);
@@ -540,12 +516,7 @@
                 const now = new Date();
                 let lastMonth = now.getMonth();
                 let year = now.getFullYear();
-                if (lastMonth === 0) {
-                    lastMonth = 11;
-                    year--;
-                } else {
-                    lastMonth--;
-                }
+                if (lastMonth === 0) { lastMonth = 11; year--; } else { lastMonth--; }
                 const targetMonth = lastMonth + 1;
                 return jemaat.filter(j => {
                     if (!j.tglLahir) return false;
@@ -561,45 +532,27 @@
                 try {
                     const activeAdminPin = overrideAdminPin !== null ? overrideAdminPin : adminPin;
                     const payload = {};
-
-                    if (overrideData.jemaat !== undefined)
-                        payload.jemaat = overrideData.jemaat.map(j => ({ ...j, tglLahir: cleanDateString(j.tglLahir) }));
-                    if (overrideData.kelas !== undefined)
-                        payload.kelas = overrideData.kelas;
-                    if (overrideData.subKelas !== undefined)
-                        payload.subKelas = overrideData.subKelas;
+                    if (overrideData.jemaat !== undefined) payload.jemaat = overrideData.jemaat.map(j => ({ ...j, tglLahir: cleanDateString(j.tglLahir) }));
+                    if (overrideData.kelas !== undefined) payload.kelas = overrideData.kelas;
+                    if (overrideData.subKelas !== undefined) payload.subKelas = overrideData.subKelas;
                     if (overrideData.users !== undefined || overrideAdminPin !== null) {
-                        payload.users = [
-                            ...(overrideData.users || users),
-                            { nama: "Admin Utama (Backup PIN)", subKelasNama: "Kebaktian Khotbah (Umum)", pin: activeAdminPin }
-                        ];
+                        payload.users = [...(overrideData.users || users), { nama: "Admin Utama (Backup PIN)", subKelasNama: "Kebaktian Khotbah (Umum)", pin: activeAdminPin }];
                     }
-                    if (overrideData.absen !== undefined)
-                        payload.absen = overrideData.absen;
-                    if (overrideData.keterlibatan !== undefined)
-                        payload.keterlibatan = overrideData.keterlibatan;
-                    if (overrideData.tamuTambahan !== undefined)
-                        payload.tamuTambahan = overrideData.tamuTambahan;
-                    if (overrideData.doaList !== undefined)
-                        payload.doaList = overrideData.doaList;
+                    if (overrideData.absen !== undefined) payload.absen = overrideData.absen;
+                    if (overrideData.keterlibatan !== undefined) payload.keterlibatan = overrideData.keterlibatan;
+                    if (overrideData.tamuTambahan !== undefined) payload.tamuTambahan = overrideData.tamuTambahan;
+                    if (overrideData.doaList !== undefined) payload.doaList = overrideData.doaList;
 
                     const res = await fetch(APPS_SCRIPT_URL, {
                         method: 'POST', redirect: 'follow',
-                        body: JSON.stringify(payload),
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                        body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                     });
-
                     const json = await res.json();
-                    if (json.success) {
-                        showToast("Data tersimpan di Database Cloud!", "success");
-                    } else {
-                        showToast("Gagal menyimpan: " + json.error, "error");
-                    }
+                    if (json.success) showToast("Data tersimpan di Database Cloud!", "success");
+                    else showToast("Gagal menyimpan: " + json.error, "error");
                 } catch (err) {
                     showToast("Gagal terhubung ke Cloud. Tersimpan di lokal.", "warning");
-                } finally {
-                    setIsSyncing(false);
-                }
+                } finally { setIsSyncing(false); }
             };
 
             const handlePullFromCloud = async (silent = false) => {
@@ -612,14 +565,8 @@
                     const json = await res.json();
                     if (json.success && json.data) {
                         const d = json.data;
-                        if (d.jemaat) {
-                            setJemaat(d.jemaat.map((j, idx) => ({
-                                ...j,
-                                id: j.id || `J_${Date.now()}_${idx}_${Math.random().toString(36).substr(2, 4)}`,
-                                tglLahir: cleanDateString(j.tglLahir)
-                            })));
-                        }
-                        if (d.kelas)    setKelas(d.kelas);
+                        if (d.jemaat) setJemaat(d.jemaat.map((j, idx) => ({ ...j, id: j.id || `J_${Date.now()}_${idx}_${Math.random().toString(36).substr(2, 4)}`, tglLahir: cleanDateString(j.tglLahir) })));
+                        if (d.kelas) setKelas(d.kelas);
                         if (d.subKelas) setSubKelas(d.subKelas);
                         if (d.users) {
                             const adminRecord = d.users.find(u => u.nama === "Admin Utama (Backup PIN)");
@@ -649,11 +596,9 @@
 
                             for (const t of tamuRows) {
                                 const jumlah = parseInt(t.status) || 0;
-                                if (t.sesi === "Khotbah") {
-                                    resolvedTamu.push({ tanggal: t.tanggal, sesi: "Khotbah", subKelasNama: "Kebaktian Khotbah (Umum)", jumlah });
-                                } else if (t.subKelasNama && t.subKelasNama !== "_ALL_") {
-                                    resolvedTamu.push({ tanggal: t.tanggal, sesi: t.sesi, subKelasNama: t.subKelasNama, jumlah });
-                                } else {
+                                if (t.sesi === "Khotbah") resolvedTamu.push({ tanggal: t.tanggal, sesi: "Khotbah", subKelasNama: "Kebaktian Khotbah (Umum)", jumlah });
+                                else if (t.subKelasNama && t.subKelasNama !== "_ALL_") resolvedTamu.push({ tanggal: t.tanggal, sesi: t.sesi, subKelasNama: t.subKelasNama, jumlah });
+                                else {
                                     if (!tamuSSByDate[t.tanggal]) tamuSSByDate[t.tanggal] = [];
                                     tamuSSByDate[t.tanggal].push(jumlah);
                                 }
@@ -662,9 +607,7 @@
                             for (const [tgl, jumlahList] of Object.entries(tamuSSByDate)) {
                                 const activeForDate = subKelasOrder.filter(s => activeSubs[tgl] && activeSubs[tgl].has(s));
                                 if (activeForDate.length === jumlahList.length) {
-                                    jumlahList.forEach((jumlah, i) => {
-                                        if (jumlah > 0) resolvedTamu.push({ tanggal: tgl, sesi: "Sekolah Sabat", subKelasNama: activeForDate[i], jumlah });
-                                    });
+                                    jumlahList.forEach((jumlah, i) => { if (jumlah > 0) resolvedTamu.push({ tanggal: tgl, sesi: "Sekolah Sabat", subKelasNama: activeForDate[i], jumlah }); });
                                 } else {
                                     activeForDate.forEach((subNama, i) => {
                                         const jumlah = jumlahList[i] !== undefined ? jumlahList[i] : jumlahList[0];
@@ -672,59 +615,35 @@
                                     });
                                 }
                             }
-                            setAbsen(absenBiasa);
-                            setTamuTambahan(resolvedTamu);
+                            setAbsen(absenBiasa); setTamuTambahan(resolvedTamu);
                         }
-                        if (d.keterlibatan)
-                            setKeterlibatan(d.keterlibatan.map(k => ({ ...k, tanggal: cleanDateString(k.tanggal) })));
-                        if (d.doaList)
-                            setDoaList(d.doaList.map(doa => ({
-                                ...doa,
-                                tanggal: cleanDateString(doa.tanggal) || doa.tanggal,
-                                permohonan: (doa.permohonan || "").replace(/ \| /g, "\n").replace(/\|/g, "\n")
-                            })).sort((a, b) => {
-                                const idA = String(a.id || "").replace("D", "");
-                                const idB = String(b.id || "").replace("D", "");
-                                return Number(idB) - Number(idA);
-                            }));
-                        
+                        if (d.keterlibatan) setKeterlibatan(d.keterlibatan.map(k => ({ ...k, tanggal: cleanDateString(k.tanggal) })));
+                        if (d.doaList) setDoaList(d.doaList.map(doa => ({ ...doa, tanggal: cleanDateString(doa.tanggal) || doa.tanggal, permohonan: (doa.permohonan || "").replace(/ \| /g, "\n").replace(/\|/g, "\n") })).sort((a, b) => Number(String(b.id || "").replace("D", "")) - Number(String(a.id || "").replace("D", ""))));
                         if (!silent) showToast("Sinkronisasi Berhasil!", "success");
                     }
                 } catch (err) {
                     if (!silent) showToast("Gagal memuat dari Cloud.", "error");
-                } finally {
-                    setIsSyncing(false);
-                }
+                } finally { setIsSyncing(false); }
             };
 
             useEffect(() => { if (!userModal.isOpen) setShowUserModalPin(false); }, [userModal.isOpen]);
             useEffect(() => { handlePullFromCloud(false); }, []);
-            useEffect(() => {
-                if (currentUserRole !== "public") handlePullFromCloud(true);
-            }, [selectedSabbatDate]);
+            useEffect(() => { if (currentUserRole !== "public") handlePullFromCloud(true); }, [selectedSabbatDate]);
 
             const handleLogin = (e) => {
                 e.preventDefault();
-                const inputPin      = adminPassword.trim();
-                const activeAdminPin = String(adminPin).trim();
-
+                const inputPin = adminPassword.trim(), activeAdminPin = String(adminPin).trim();
                 if (inputPin === activeAdminPin) {
                     setCurrentUserRole("admin"); setLoggedInUser(null);
                     setAuthError(""); setAdminPassword(""); setShowLoginPassword(false);
-                    setActiveTab("dashboard");
-                    showToast("Login Admin Berhasil!", "success");
+                    setActiveTab("dashboard"); showToast("Login Admin Berhasil!", "success");
                 } else {
                     const matchedUser = users.find(u => String(u.pin).trim() === inputPin);
                     if (matchedUser) {
                         setCurrentUserRole("user"); setLoggedInUser(matchedUser);
                         setAuthError(""); setAdminPassword(""); setShowLoginPassword(false);
-                        setSelectedSubKelasNama(matchedUser.subKelasNama);
-                        setActiveTab("input-absen");
-                        if (matchedUser.subKelasNama === "Kebaktian Khotbah (Umum)") {
-                            showToast(`Selamat datang ${matchedUser.nama}! Anda bertugas mencatat Khotbah.`, "success");
-                        } else {
-                            showToast(`Selamat datang ${matchedUser.nama}! Anda bertugas di ${matchedUser.subKelasNama}.`, "success");
-                        }
+                        setSelectedSubKelasNama(matchedUser.subKelasNama); setActiveTab("input-absen");
+                        showToast(`Selamat datang ${matchedUser.nama}! Anda bertugas di ${matchedUser.subKelasNama}.`, "success");
                     } else {
                         setAuthError("Sandi Admin atau PIN salah!"); showToast("PIN atau Sandi salah!", "error");
                     }
@@ -732,48 +651,35 @@
             };
 
             const handleLogout = () => {
-                setCurrentUserRole("public"); setLoggedInUser(null);
-                setActiveTab("dashboard"); setAdminPassword(""); setShowLoginPassword(false);
-                showToast("Anda telah keluar.", "info");
+                setCurrentUserRole("public"); setLoggedInUser(null); setActiveTab("dashboard");
+                setAdminPassword(""); setShowLoginPassword(false); showToast("Anda telah keluar.", "info");
             };
 
             useEffect(() => {
                 if (currentUserRole === "user" && loggedInUser) {
                     setSelectedSubKelasNama(loggedInUser.subKelasNama);
-                    if (loggedInUser.subKelasNama === "Kebaktian Khotbah (Umum)") {
-                        setSelectedSession("Khotbah");
-                    } else {
-                        setSelectedSession("Sekolah Sabat");
-                    }
+                    if (loggedInUser.subKelasNama === "Kebaktian Khotbah (Umum)") setSelectedSession("Khotbah");
+                    else setSelectedSession("Sekolah Sabat");
                 } else if (subKelas.length > 0 && !selectedSubKelasNama) {
                     setSelectedSubKelasNama(subKelas[0].nama);
                 }
             }, [subKelas, selectedSubKelasNama, currentUserRole, loggedInUser]);
 
-            useEffect(() => {
-                if (subKelas.length > 0 && !reportSubKelasFilter) {
-                    setReportSubKelasFilter(subKelas[0].nama);
-                }
-            }, [subKelas, reportSubKelasFilter]);
+            useEffect(() => { if (subKelas.length > 0 && !reportSubKelasFilter) setReportSubKelasFilter(subKelas[0].nama); }, [subKelas, reportSubKelasFilter]);
 
-            const isSabbat = (dateString) => {
-                const date = parseLocalDate(dateString);
-                return date ? date.getDay() === 6 : false;
-            };
+            const isSabbat = (dateString) => { const date = parseLocalDate(dateString); return date ? date.getDay() === 6 : false; };
 
             const getSabbatsInRange = (monthStart, monthEnd, isMulti) => {
                 if (!isMulti) return getSabbatsInMonth(monthStart);
                 const [sy, sm] = monthStart.split('-').map(Number);
                 const [ey, em] = monthEnd.split('-').map(Number);
                 if (ey < sy || (ey === sy && em < sm)) return getSabbatsInMonth(monthStart);
-
                 const sabbats = [];
                 let cy = sy, cm = sm;
                 while (cy < ey || (cy === ey && cm <= em)) {
                     const month = String(cm).padStart(2, '0');
                     getSabbatsInMonth(`${cy}-${month}`).forEach(s => sabbats.push(s));
-                    cm++;
-                    if (cm > 12) { cm = 1; cy++; }
+                    cm++; if (cm > 12) { cm = 1; cy++; }
                 }
                 return sabbats;
             };
@@ -786,217 +692,153 @@
             const saveJemaat = (e) => {
                 e.preventDefault();
                 const fd = new FormData(e.target);
-                const rawBirth  = fd.get('tglLahir');
-                const subNama   = fd.get('subKelasNama');
-                const subK      = subKelas.find(s => s.nama === subNama);
-                const kelNama   = subK ? subK.kelasNama : (subNama === "Kebaktian Khotbah (Umum)" ? "UMUM" : (kelas[0]?.nama || ""));
-
-                const statusJemaatArray = fd.getAll('statusJemaat');
-                const statusJemaatStr   = statusJemaatArray.length > 0 ? statusJemaatArray.join(', ') : 'Jemaat';
-
-                let generatedId = jemaatModal.mode === 'create' ? "J" + Date.now().toString().slice(-4) : jemaatModal.data.id;
-
+                const subNama = fd.get('subKelasNama');
+                const subK = subKelas.find(s => s.nama === subNama);
+                const kelNama = subK ? subK.kelasNama : (subNama === "Kebaktian Khotbah (Umum)" ? "UMUM" : (kelas[0]?.nama || ""));
+                const statusArray = fd.getAll('statusJemaat');
+                const generatedId = jemaatModal.mode === 'create' ? "J" + Date.now().toString().slice(-4) : jemaatModal.data.id;
+                
                 const newJemaatData = {
-                    id: generatedId,
-                    nama: fd.get('nama').trim(),
-                    gender: fd.get('gender'),
-                    tglLahir: cleanDateString(rawBirth),
-                    statusBaptis: fd.get('statusBaptis'),
-                    statusJemaat: statusJemaatStr,
-                    kelasNama: kelNama,
-                    subKelasNama: subNama,
+                    id: generatedId, nama: fd.get('nama').trim(), gender: fd.get('gender'),
+                    tglLahir: cleanDateString(fd.get('tglLahir')), statusBaptis: fd.get('statusBaptis'),
+                    statusJemaat: statusArray.length > 0 ? statusArray.join(', ') : 'Jemaat',
+                    kelasNama: kelNama, subKelasNama: subNama,
                 };
+                if (!newJemaatData.nama || !newJemaatData.subKelasNama) { showToast("Mohon lengkapi field nama dan sub-kelas!", "error"); return; }
 
-                if (!newJemaatData.nama || !newJemaatData.subKelasNama) {
-                    showToast("Mohon lengkapi field nama dan sub-kelas!", "error"); return;
-                }
-
-                const isNameTaken = jemaat.some(j =>
-                    j.nama.toLowerCase() === newJemaatData.nama.toLowerCase() &&
-                    (jemaatModal.mode === 'create' || j.id !== generatedId)
-                );
+                const isNameTaken = jemaat.some(j => j.nama.toLowerCase() === newJemaatData.nama.toLowerCase() && (jemaatModal.mode === 'create' || j.id !== generatedId));
                 if (isNameTaken) { showToast("Nama jemaat sudah terdaftar!", "error"); return; }
 
-                let nextJemaat = [...jemaat];
-                let nextAbsen  = [...absen];
-                let isCascade  = false;
-
+                let nextJemaat = [...jemaat], nextAbsen = [...absen], isCascade = false;
                 if (jemaatModal.mode === 'create') {
-                    nextJemaat = [...jemaat, newJemaatData];
-                    showToast("Data Jemaat baru ditambahkan!");
+                    nextJemaat = [...jemaat, newJemaatData]; showToast("Data Jemaat baru ditambahkan!");
                 } else {
                     const oldNama = jemaatModal.data?.nama || "";
                     nextJemaat = jemaat.map(j => j.id === generatedId ? newJemaatData : j);
                     if (oldNama && oldNama !== newJemaatData.nama) {
-                        isCascade  = true;
-                        nextAbsen  = absen.map(a => a.jemaatNama === oldNama ? { ...a, jemaatNama: newJemaatData.nama } : a);
-                        setAbsen(nextAbsen);
+                        isCascade = true; nextAbsen = absen.map(a => a.jemaatNama === oldNama ? { ...a, jemaatNama: newJemaatData.nama } : a); setAbsen(nextAbsen);
                     }
                     showToast("Data Jemaat diperbarui!");
                 }
-
-                setJemaat(nextJemaat);
-                setJemaatModal({ isOpen: false, mode: 'create', data: null });
+                setJemaat(nextJemaat); setJemaatModal({ isOpen: false, mode: 'create', data: null });
                 pushDataToCloud({ jemaat: nextJemaat, absen: isCascade ? nextAbsen : absen });
             };
 
             const deleteJemaat = (id) => {
-                const jemaatToDelete = jemaat.find(j => j.id === id);
-                if (!jemaatToDelete) return;
+                const toDelete = jemaat.find(j => j.id === id); if (!toDelete) return;
                 triggerConfirm("Hapus Data Jemaat", "Apakah Anda yakin? Riwayat kehadiran terkait juga akan dihapus.", () => {
-                    const nextJemaat = jemaat.filter(j => j.id !== id);
-                    const nextAbsen  = absen.filter(a => a.jemaatNama !== jemaatToDelete.nama);
-                    setJemaat(nextJemaat); setAbsen(nextAbsen);
+                    const nextJ = jemaat.filter(j => j.id !== id);
+                    const nextA = absen.filter(a => a.jemaatNama !== toDelete.nama);
+                    setJemaat(nextJ); setAbsen(nextA);
                     showToast("Data jemaat telah dihapus.", "warning");
-                    pushDataToCloud({ jemaat: nextJemaat, absen: nextAbsen });
+                    pushDataToCloud({ jemaat: nextJ, absen: nextA });
                 });
             };
 
             const saveUser = (e) => {
                 e.preventDefault();
-                const fd       = new FormData(e.target);
-                const inputPin = String(fd.get('pin')).trim();
+                const fd = new FormData(e.target), inputPin = String(fd.get('pin')).trim();
                 const newUserData = { nama: fd.get('nama').trim(), subKelasNama: fd.get('subKelasNama'), pin: inputPin };
                 if (!newUserData.nama || !newUserData.subKelasNama || !newUserData.pin) { showToast("Mohon lengkapi seluruh field!", "error"); return; }
-                
                 const isNameTaken = users.some(u => u.nama.toLowerCase() === newUserData.nama.toLowerCase() && (userModal.mode === 'create' || u.nama !== userModal.data.nama));
                 if (isNameTaken) { showToast("Nama Petugas sudah ada!", "error"); return; }
                 const isPinTaken = users.some(u => String(u.pin).trim() === inputPin && (userModal.mode === 'create' || u.nama !== userModal.data.nama));
                 if (isPinTaken || inputPin === String(adminPin).trim()) { showToast("PIN sudah digunakan!", "error"); return; }
 
                 let nextUsers = [...users];
-                if (userModal.mode === 'create') {
-                    nextUsers = [...users, newUserData];
-                    showToast("User baru ditambahkan!");
-                } else {
-                    const oldNama = userModal.data.nama;
-                    nextUsers = users.map(u => u.nama === oldNama ? newUserData : u);
-                    showToast("User berhasil diperbarui!");
-                }
-                setUsers(nextUsers);
-                setUserModal({ isOpen: false, mode: 'create', data: null });
+                if (userModal.mode === 'create') { nextUsers = [...users, newUserData]; showToast("User baru ditambahkan!"); }
+                else { nextUsers = users.map(u => u.nama === userModal.data.nama ? newUserData : u); showToast("User berhasil diperbarui!"); }
+                setUsers(nextUsers); setUserModal({ isOpen: false, mode: 'create', data: null });
                 pushDataToCloud({ users: nextUsers });
             };
 
             const deleteUser = (nama) => {
                 triggerConfirm("Hapus Petugas", "Apakah Anda yakin ingin menghapus akun guru ini?", () => {
                     const nextUsers = users.filter(u => u.nama !== nama);
-                    setUsers(nextUsers);
-                    showToast("User telah dihapus.", "warning");
-                    pushDataToCloud({ users: nextUsers });
+                    setUsers(nextUsers); showToast("User telah dihapus.", "warning"); pushDataToCloud({ users: nextUsers });
                 });
             };
 
             const saveKelasOrSubKelas = (e) => {
                 e.preventDefault();
                 const fd = new FormData(e.target);
-                let nextKelas = [...kelas], nextSubKelas = [...subKelas], nextJemaat = [...jemaat], nextUsers = [...users], nextKeterlibatan = [...keterlibatan], nextTamu = [...tamuTambahan];
+                let nextK = [...kelas], nextS = [...subKelas], nextJ = [...jemaat], nextU = [...users], nextKet = [...keterlibatan], nextTamu = [...tamuTambahan];
                 let isCascade = false;
 
                 if (kelasModal.type === 'kelas') {
-                    const kelasNama = fd.get('namaKelas').trim();
-                    if (!kelasNama) return;
-                    const isTaken = kelas.some(k => k.nama.toLowerCase() === kelasNama.toLowerCase() && (kelasModal.mode === 'create' || k.nama !== kelasModal.data.nama));
-                    if (isTaken) { showToast("Nama Kelas sudah ada!", "error"); return; }
-
-                    if (kelasModal.mode === 'create') {
-                        nextKelas = [...kelas, { nama: kelasNama }];
-                        showToast(`Kelas "${kelasNama}" dibuat!`);
-                    } else {
-                        const oldNama = kelasModal.data.nama;
-                        nextKelas = kelas.map(k => k.nama === oldNama ? { nama: kelasNama } : k);
+                    const kelasNama = fd.get('namaKelas').trim(); if (!kelasNama) return;
+                    if (kelas.some(k => k.nama.toLowerCase() === kelasNama.toLowerCase() && (kelasModal.mode === 'create' || k.nama !== kelasModal.data.nama))) { showToast("Nama Kelas sudah ada!", "error"); return; }
+                    if (kelasModal.mode === 'create') { nextK = [...kelas, { nama: kelasNama }]; showToast(`Kelas "${kelasNama}" dibuat!`); }
+                    else {
+                        const oldNama = kelasModal.data.nama; nextK = kelas.map(k => k.nama === oldNama ? { nama: kelasNama } : k);
                         if (oldNama !== kelasNama) {
-                            isCascade = true;
-                            nextSubKelas = subKelas.map(s => s.kelasNama === oldNama ? { ...s, kelasNama: kelasNama } : s);
-                            nextJemaat   = jemaat.map(j => j.kelasNama === oldNama ? { ...j, kelasNama: kelasNama } : j);
-                            setSubKelas(nextSubKelas); setJemaat(nextJemaat);
+                            isCascade = true; nextS = subKelas.map(s => s.kelasNama === oldNama ? { ...s, kelasNama: kelasNama } : s);
+                            nextJ = jemaat.map(j => j.kelasNama === oldNama ? { ...j, kelasNama: kelasNama } : j);
+                            setSubKelas(nextS); setJemaat(nextJ);
                         }
                         showToast("Kelas diperbarui!");
                     }
-                    setKelas(nextKelas);
+                    setKelas(nextK);
                 } else {
                     const subNama = fd.get('namaSubKelas').trim(), parentKelasNama = fd.get('parentKelasNama');
                     if (!subNama || !parentKelasNama) return;
-                    const isTaken = subKelas.some(s => s.nama.toLowerCase() === subNama.toLowerCase() && (kelasModal.mode === 'create' || s.nama !== kelasModal.data.nama));
-                    if (isTaken) { showToast("Nama Sub-Kelas sudah ada!", "error"); return; }
-
-                    if (kelasModal.mode === 'create') {
-                        nextSubKelas = [...subKelas, { nama: subNama, kelasNama: parentKelasNama }];
-                        showToast(`Sub-kelas "${subNama}" dibuat!`);
-                    } else {
-                        const oldNama = kelasModal.data.nama;
-                        nextSubKelas  = subKelas.map(s => s.nama === oldNama ? { nama: subNama, kelasNama: parentKelasNama } : s);
+                    if (subKelas.some(s => s.nama.toLowerCase() === subNama.toLowerCase() && (kelasModal.mode === 'create' || s.nama !== kelasModal.data.nama))) { showToast("Nama Sub-Kelas sudah ada!", "error"); return; }
+                    if (kelasModal.mode === 'create') { nextS = [...subKelas, { nama: subNama, kelasNama: parentKelasNama }]; showToast(`Sub-kelas "${subNama}" dibuat!`); }
+                    else {
+                        const oldNama = kelasModal.data.nama; nextS = subKelas.map(s => s.nama === oldNama ? { nama: subNama, kelasNama: parentKelasNama } : s);
                         if (oldNama !== subNama || kelasModal.data.kelasNama !== parentKelasNama) {
                             isCascade = true;
-                            nextJemaat       = jemaat.map(j => j.subKelasNama === oldNama ? { ...j, subKelasNama: subNama, kelasNama: parentKelasNama } : j);
-                            nextUsers        = users.map(u => u.subKelasNama === oldNama ? { ...u, subKelasNama: subNama } : u);
-                            nextKeterlibatan = keterlibatan.map(k => k.subKelasNama === oldNama ? { ...k, subKelasNama: subNama } : k);
-                            nextTamu         = tamuTambahan.map(t => t.subKelasNama === oldNama ? { ...t, subKelasNama: subNama } : t);
-                            setJemaat(nextJemaat); setUsers(nextUsers); setKeterlibatan(nextKeterlibatan); setTamuTambahan(nextTamu);
+                            nextJ = jemaat.map(j => j.subKelasNama === oldNama ? { ...j, subKelasNama: subNama, kelasNama: parentKelasNama } : j);
+                            nextU = users.map(u => u.subKelasNama === oldNama ? { ...u, subKelasNama: subNama } : u);
+                            nextKet = keterlibatan.map(k => k.subKelasNama === oldNama ? { ...k, subKelasNama: subNama } : k);
+                            nextTamu = tamuTambahan.map(t => t.subKelasNama === oldNama ? { ...t, subKelasNama: subNama } : t);
+                            setJemaat(nextJ); setUsers(nextU); setKeterlibatan(nextKet); setTamuTambahan(nextTamu);
                         }
                         showToast("Sub-kelas diperbarui!");
                     }
-                    setSubKelas(nextSubKelas);
+                    setSubKelas(nextS);
                 }
-
                 setKelasModal({ isOpen: false, mode: 'create', data: null, type: 'kelas' });
-                if (isCascade) pushDataToCloud({ kelas: nextKelas, subKelas: nextSubKelas, jemaat: nextJemaat, users: nextUsers, keterlibatan: nextKeterlibatan, tamuTambahan: nextTamu });
-                else pushDataToCloud({ kelas: nextKelas, subKelas: nextSubKelas });
+                if (isCascade) pushDataToCloud({ kelas: nextK, subKelas: nextS, jemaat: nextJ, users: nextU, keterlibatan: nextKet, tamuTambahan: nextTamu });
+                else pushDataToCloud({ kelas: nextK, subKelas: nextS });
             };
 
             const deleteKelas = (nama, type) => {
                 triggerConfirm(`Hapus Kategori`, `Yakin ingin menghapus kategori kelas ini?`, () => {
-                    let nextKelas = [...kelas], nextSubKelas = [...subKelas];
-                    if (type === 'kelas') {
-                        nextKelas = kelas.filter(k => k.nama !== nama);
-                        nextSubKelas = subKelas.filter(s => s.kelasNama !== nama);
-                        setKelas(nextKelas); setSubKelas(nextSubKelas);
-                    } else {
-                        nextSubKelas = subKelas.filter(s => s.nama !== nama);
-                        setSubKelas(nextSubKelas);
-                    }
-                    showToast("Kategori kelas dihapus.", "warning");
-                    pushDataToCloud({ kelas: nextKelas, subKelas: nextSubKelas });
+                    let nextK = [...kelas], nextS = [...subKelas];
+                    if (type === 'kelas') { nextK = kelas.filter(k => k.nama !== nama); nextS = subKelas.filter(s => s.kelasNama !== nama); setKelas(nextK); setSubKelas(nextS); }
+                    else { nextS = subKelas.filter(s => s.nama !== nama); setSubKelas(nextS); }
+                    showToast("Kategori kelas dihapus.", "warning"); pushDataToCloud({ kelas: nextK, subKelas: nextS });
                 });
             };
 
             const handleAddDoa = (e) => {
-                e.preventDefault();
-                const fd = new FormData(e.target);
+                e.preventDefault(); const fd = new FormData(e.target);
                 const nama = fd.get('doaNama'), noHp = fd.get('doaNoHp'), permohonan = fd.get('doaPermohonan');
                 if (!nama || !noHp || !permohonan) { showToast("Harap isi semua kolom!", "error"); return; }
                 const newDoa = { id: "D" + Date.now(), nama, noHp, permohonan: permohonan.replace(/\r\n/g, " | ").replace(/[\r\n]/g, " | "), tanggal: formatLocalYYYYMMDD(new Date()) };
-                const nextDoaList = [newDoa, ...doaList];
-                setDoaList(nextDoaList);
-                showToast("Permohonan doa Anda berhasil disimpan!", "success");
-                e.target.reset();
-                pushDataToCloud({ doaList: nextDoaList });
+                const nextDoaList = [newDoa, ...doaList]; setDoaList(nextDoaList);
+                showToast("Permohonan doa Anda berhasil disimpan!", "success"); e.target.reset(); pushDataToCloud({ doaList: nextDoaList });
             };
 
             const handleDeleteDoa = (id) => {
                 triggerConfirm("Hapus Permohonan Doa", "Yakin menghapus permohonan doa ini?", () => {
-                    const nextDoaList = doaList.filter(d => d.id !== id);
-                    setDoaList(nextDoaList);
-                    showToast("Permohonan dihapus.", "warning");
-                    pushDataToCloud({ doaList: nextDoaList });
+                    const nextDoaList = doaList.filter(d => d.id !== id); setDoaList(nextDoaList);
+                    showToast("Permohonan dihapus.", "warning"); pushDataToCloud({ doaList: nextDoaList });
                 });
             };
 
             const handleMarkAllSabbat = (status) => {
                 const activeSubNama = currentUserRole === "user" ? loggedInUser.subKelasNama : selectedSubKelasNama;
-                const jemaatInActiveSub = jemaat.filter(j => j.subKelasNama === activeSubNama);
                 const updatedDraft = { ...absenDraft };
-                jemaatInActiveSub.forEach(j => { updatedDraft[j.nama] = status; });
-                setAbsenDraft(updatedDraft);
-                showToast(`Semua jemaat kelas ditandai ${status}!`);
+                jemaat.filter(j => j.subKelasNama === activeSubNama).forEach(j => { updatedDraft[j.nama] = status; });
+                setAbsenDraft(updatedDraft); showToast(`Semua jemaat kelas ditandai ${status}!`);
             };
 
             const handleMarkAllKhotbah = (status) => {
-                const filteredJemaat = jemaat.filter(j => (j.nama || "").toLowerCase().includes((searchSermonJemaat || "").toLowerCase()));
                 const updatedDraft = { ...absenDraft };
-                filteredJemaat.forEach(j => { updatedDraft[j.nama] = status; });
-                setAbsenDraft(updatedDraft);
-                showToast(`Semua jemaat ditandai ${status}!`);
+                jemaat.filter(j => (j.nama || "").toLowerCase().includes((searchSermonJemaat || "").toLowerCase())).forEach(j => { updatedDraft[j.nama] = status; });
+                setAbsenDraft(updatedDraft); showToast(`Semua jemaat ditandai ${status}!`);
             };
 
             useEffect(() => {
@@ -1020,14 +862,12 @@
             }, [selectedSabbatDate, selectedSubKelasNama, keterlibatan, absenDraft, jemaat, currentUserRole, loggedInUser]);
 
             useEffect(() => {
-                const activeSubNama = selectedSession === "Khotbah"
-                    ? "Kebaktian Khotbah (Umum)" : (currentUserRole === "user" ? loggedInUser.subKelasNama : selectedSubKelasNama);
+                const activeSubNama = selectedSession === "Khotbah" ? "Kebaktian Khotbah (Umum)" : (currentUserRole === "user" ? loggedInUser.subKelasNama : selectedSubKelasNama);
                 const found = tamuTambahan.find(t => t.tanggal === selectedSabbatDate && t.sesi === selectedSession && (t.subKelasNama === activeSubNama || t.subKelasNama === "_ALL_"));
                 setTamuDraft(found ? found.jumlah : 0);
             }, [selectedSabbatDate, selectedSession, selectedSubKelasNama, tamuTambahan, currentUserRole, loggedInUser]);
 
             const handleAbsenChange = (jemaatNama, status) => { setAbsenDraft(prev => ({ ...prev, [jemaatNama]: status })); };
-
             const handleKeterlibatanValueChange = (id, val) => {
                 const activeSubNama = currentUserRole === "user" ? loggedInUser.subKelasNama : selectedSubKelasNama;
                 const totalMembers = jemaat.filter(j => j.subKelasNama === activeSubNama).length;
@@ -1041,23 +881,17 @@
                     if (selectedSession === "Khotbah") {
                         const filteredAbsen = absen.filter(a => !(a.tanggal === selectedSabbatDate && a.sesi === "Khotbah"));
                         deltaAbsen = jemaat.map(j => ({ tanggal: selectedSabbatDate, jemaatNama: j.nama, status: absenDraft[j.nama] || "Alpa", sesi: "Khotbah" }));
-                        nextAbsen = [...filteredAbsen, ...deltaAbsen];
-                        setAbsen(nextAbsen);
-                        showToast(`Presensi Khotbah tanggal ${selectedSabbatDate} disimpan.`);
+                        nextAbsen = [...filteredAbsen, ...deltaAbsen]; setAbsen(nextAbsen); showToast(`Presensi Khotbah tanggal ${selectedSabbatDate} disimpan.`);
                     } else {
                         const jemaatInActiveSub = jemaat.filter(j => j.subKelasNama === activeSubNama);
-                        const jemaatInActiveSubNames = jemaatInActiveSub.map(j => j.nama);
-                        if (jemaatInActiveSubNames.length === 0 && (parseInt(tamuDraft) || 0) === 0) { showToast("Tidak ada jemaat di sub-kelas ini.", "warning"); return; }
-                        const filteredAbsen = absen.filter(a => !(a.tanggal === selectedSabbatDate && a.sesi === "Sekolah Sabat" && jemaatInActiveSubNames.includes(a.jemaatNama)));
+                        if (jemaatInActiveSub.length === 0 && (parseInt(tamuDraft) || 0) === 0) { showToast("Tidak ada jemaat di sub-kelas ini.", "warning"); return; }
+                        const filteredAbsen = absen.filter(a => !(a.tanggal === selectedSabbatDate && a.sesi === "Sekolah Sabat" && jemaatInActiveSub.map(j=>j.nama).includes(a.jemaatNama)));
                         deltaAbsen = jemaatInActiveSub.map(j => ({ tanggal: selectedSabbatDate, jemaatNama: j.nama, status: absenDraft[j.nama] || "Alpa", sesi: "Sekolah Sabat" }));
-                        nextAbsen = [...filteredAbsen, ...deltaAbsen];
-                        setAbsen(nextAbsen);
-                        showToast(`Absen Sekolah Sabat ${activeSubNama} disimpan.`);
+                        nextAbsen = [...filteredAbsen, ...deltaAbsen]; setAbsen(nextAbsen); showToast(`Absen Sekolah Sabat ${activeSubNama} disimpan.`);
                     }
                     const filteredTamu = tamuTambahan.filter(t => !(t.tanggal === selectedSabbatDate && t.sesi === selectedSession && (t.subKelasNama === activeSubNama || t.subKelasNama === "_ALL_")));
                     const tamuRecord = { tanggal: selectedSabbatDate, sesi: selectedSession, subKelasNama: activeSubNama, jumlah: parseInt(tamuDraft) || 0 };
-                    const nextTamu = [...filteredTamu, tamuRecord];
-                    setTamuTambahan(nextTamu);
+                    setTamuTambahan([...filteredTamu, tamuRecord]);
                     pushDataToCloud({ absen: deltaAbsen, tamuTambahan: [tamuRecord] });
                 };
                 if (!isSabbat(selectedSabbatDate)) triggerConfirm("Konfirmasi Tanggal", "Tanggal terpilih bukan Sabat. Tetap simpan?", () => performSave());
@@ -1069,60 +903,44 @@
                 const performSave = () => {
                     const filteredKeterlibatan = keterlibatan.filter(k => !(k.tanggal === selectedSabbatDate && k.subKelasNama === activeSubNama));
                     const deltaRecord = { tanggal: selectedSabbatDate, subKelasNama: activeSubNama, values: { ...keterlibatanDraft } };
-                    const nextKeterlibatan = [...filteredKeterlibatan, deltaRecord];
-                    setKeterlibatan(nextKeterlibatan);
-                    showToast(`10 Indikator Keterlibatan Kelas diperbarui.`);
+                    setKeterlibatan([...filteredKeterlibatan, deltaRecord]); showToast(`10 Indikator Keterlibatan Kelas diperbarui.`);
                     pushDataToCloud({ keterlibatan: [deltaRecord] });
                 };
-                if (!isSabbat(selectedSabbatDate)) triggerConfirm("Konfirmasi Tanggal", "Tanggal terpilih bukan Sabat. Tetap simpan draf?", () => performSave());
+                if (!isSabbat(selectedSabbatDate)) triggerConfirm("Konfirmasi Tanggal", "Tanggal bukan Sabat. Tetap simpan draf?", () => performSave());
                 else performSave();
             };
 
-            const handleSort = (column) => {
-                if (sortBy === column) setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                else { setSortBy(column); setSortOrder("asc"); }
-            };
+            const handleSort = (col) => { if (sortBy === col) setSortOrder(sortOrder === "asc" ? "desc" : "asc"); else { setSortBy(col); setSortOrder("asc"); } };
 
             const filteredJemaatList = useMemo(() => {
-                let filtered = jemaat.filter(j => {
-                    const jNama = j.nama || "", search = searchJemaat || "";
-                    return jNama.toLowerCase().includes(search.toLowerCase()) &&
-                        (filterKelas  === "all" || j.kelasNama    === filterKelas)  &&
-                        (filterGender === "all" || j.gender       === filterGender) &&
+                return jemaat.filter(j => {
+                    return (j.nama || "").toLowerCase().includes((searchJemaat || "").toLowerCase()) &&
+                        (filterKelas === "all" || j.kelasNama === filterKelas) &&
+                        (filterGender === "all" || j.gender === filterGender) &&
                         (filterBaptis === "all" || j.statusBaptis === filterBaptis);
-                });
-                filtered.sort((a, b) => {
-                    let aVal, bVal;
-                    switch (sortBy) {
-                        case "nama":         aVal = a.nama.toLowerCase();    bVal = b.nama.toLowerCase();    break;
-                        case "gender":       aVal = a.gender;                bVal = b.gender;                break;
-                        case "statusBaptis": aVal = a.statusBaptis;          bVal = b.statusBaptis;          break;
-                        case "subKelas":     aVal = a.subKelasNama;          bVal = b.subKelasNama;          break;
-                        default:             aVal = a.nama;                  bVal = b.nama;
-                    }
+                }).sort((a, b) => {
+                    let aVal = a.nama.toLowerCase(), bVal = b.nama.toLowerCase();
+                    if (sortBy === "gender") { aVal = a.gender; bVal = b.gender; }
+                    else if (sortBy === "statusBaptis") { aVal = a.statusBaptis; bVal = b.statusBaptis; }
+                    else if (sortBy === "subKelas") { aVal = a.subKelasNama; bVal = b.subKelasNama; }
                     if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
-                    if (aVal > bVal) return sortOrder === "asc" ?  1 : -1;
+                    if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
                     return 0;
                 });
-                return filtered;
             }, [jemaat, searchJemaat, filterKelas, filterGender, filterBaptis, sortBy, sortOrder]);
 
             const metrics = useMemo(() => {
-                const total = jemaat.length;
-                const baptisCount = jemaat.filter(j => j.statusBaptis === "Sudah Baptis").length;
+                const total = jemaat.length, baptisCount = jemaat.filter(j => j.statusBaptis === "Sudah Baptis").length;
                 const jemaatAktif = jemaat.filter(j => (j.statusJemaat || "").includes("Jemaat") || (j.statusJemaat || "").includes("Anggota Sekolah Sabat")).length;
                 const uniqueSabbaths = [...new Set(absen.map(a => a.tanggal))].sort();
                 const lastSabbat = uniqueSabbaths[uniqueSabbaths.length - 1];
                 const registeredTamuCount = jemaat.filter(j => (j.statusJemaat || "").includes("Tamu")).length;
-                const extraGuestsCount = lastSabbat
-                    ? tamuTambahan.filter(t => t.tanggal === lastSabbat && t.sesi === "Sekolah Sabat").reduce((sum, g) => sum + (g.jumlah || 0), 0) : 0;
+                const extraGuestsCount = lastSabbat ? tamuTambahan.filter(t => t.tanggal === lastSabbat && t.sesi === "Sekolah Sabat").reduce((sum, g) => sum + (g.jumlah || 0), 0) : 0;
                 let avgRate = 0;
                 const uniqueSabbatSess = [...new Set(absen.filter(a => a.sesi === "Sekolah Sabat").map(a => a.tanggal))].sort().slice(-3);
                 if (uniqueSabbatSess.length > 0) {
                     let totalPresents = 0;
-                    uniqueSabbatSess.forEach(sabDate => {
-                        totalPresents += (absen.filter(a => a.tanggal === sabDate && a.status === "Hadir" && a.sesi === "Sekolah Sabat").length / (total || 1)) * 100;
-                    });
+                    uniqueSabbatSess.forEach(sabDate => { totalPresents += (absen.filter(a => a.tanggal === sabDate && a.status === "Hadir" && a.sesi === "Sekolah Sabat").length / (total || 1)) * 100; });
                     avgRate = Math.round(totalPresents / uniqueSabbatSess.length);
                 }
                 return { total, baptisPersen: total > 0 ? Math.round((baptisCount / total) * 100) : 0, jemaatAktif, tamuCount: { registered: registeredTamuCount, extra: extraGuestsCount, total: registeredTamuCount + extraGuestsCount }, avgRate };
@@ -1146,6 +964,8 @@
                         : (reportKelasFilter === 'all' ? jemaat : jemaat.filter(j => j.kelasNama === reportKelasFilter));
 
                     const sortedJemaat = [...reportJemaatList].sort((a, b) => a.nama.localeCompare(b.nama));
+                    
+                    // BASE ROWS (Hanya Anggota Asli)
                     const baseRows = sortedJemaat.map((j, idx) => {
                         let th = 0, ta = 0;
                         const statusList = sabbatDates.map(date => {
@@ -1157,6 +977,7 @@
                         return { no: idx + 1, nama: j.nama, status: j.statusJemaat || "Jemaat", statusList, hadirCount: th, alpaCount: ta, isTamuTambahan: false };
                     });
 
+                    // ROW TAMU (Selalu di atas)
                     let totalTamuBulanIni = 0;
                     const guestStatusList = sabbatDates.map(date => {
                         const count = tamuTambahan.filter(t => {
@@ -1171,9 +992,47 @@
                         return count || 0;
                     });
 
-                    const rowTamu = { no: 1, nama: "Tamu Tambahan (Angka)", status: "Tamu", statusList: guestStatusList, hadirCount: totalTamuBulanIni, alpaCount: "-", isTamuTambahan: true };
+                    const rowTamu = {
+                        no: 1, nama: "Tamu (Angka)", status: "Tamu",
+                        statusList: guestStatusList, hadirCount: totalTamuBulanIni, alpaCount: "-", isTamuTambahan: true
+                    };
+
                     const finalRows = [rowTamu];
                     baseRows.forEach((r, i) => finalRows.push({ ...r, no: i + 2 }));
+
+                    // PERHITUNGAN TOTAL DI BAWAH
+                    const totalHadirAnggotaList = sabbatDates.map((date, dateIndex) => {
+                        let count = 0;
+                        baseRows.forEach(row => { if (row.statusList[dateIndex] === 'Hadir') count++; });
+                        return count;
+                    });
+
+                    const totalAlpaList = sabbatDates.map((date, dateIndex) => {
+                        let count = 0;
+                        baseRows.forEach(row => { if (row.statusList[dateIndex] === 'Alpa') count++; });
+                        return count;
+                    });
+
+                    finalRows.push({
+                        no: "", nama: "TOTAL HADIR (Hanya Anggota)", status: "",
+                        statusList: totalHadirAnggotaList, hadirCount: totalHadirAnggotaList.reduce((a,b)=>a+b,0), alpaCount: "-", isTotalRow: true, totalType: "hadir-anggota"
+                    });
+
+                    finalRows.push({
+                        no: "", nama: "TOTAL TAMU", status: "",
+                        statusList: guestStatusList, hadirCount: totalTamuBulanIni, alpaCount: "-", isTotalRow: true, totalType: "tamu-bawah"
+                    });
+
+                    const totalSemuaList = totalHadirAnggotaList.map((hadirAnggota, i) => hadirAnggota + guestStatusList[i]);
+                    finalRows.push({
+                        no: "", nama: "TOTAL KESELURUHAN (Anggota + Tamu)", status: "",
+                        statusList: totalSemuaList, hadirCount: totalSemuaList.reduce((a,b)=>a+b,0), alpaCount: "-", isTotalRow: true, totalType: "hadir-semua"
+                    });
+
+                    finalRows.push({
+                        no: "", nama: "TOTAL ALPA (Anggota)", status: "",
+                        statusList: totalAlpaList, hadirCount: "-", alpaCount: totalAlpaList.reduce((a,b)=>a+b,0), isTotalRow: true, totalType: "alpa"
+                    });
 
                     const headers = ["No", "Nama Jemaat", "Status"];
                     sabbatDates.forEach(date => {
@@ -1189,16 +1048,12 @@
                         const statusList = sabbatDates.map(date => {
                             const rec = keterlibatan.find(k => k.tanggal === date && k.subKelasNama === activeSubNama);
                             const val = rec?.values?.[keg.id] !== undefined ? rec.values[keg.id] : 0;
-                            tot += val;
-                            return val;
+                            tot += val; return val;
                         });
                         return { no: keg.id, kegiatan: keg.text, statusList, total: tot };
                     });
                     const headers = ["NO", "KEGIATAN UTAMA KETERLIBATAN"];
-                    sabbatDates.forEach(date => {
-                        const d = parseLocalDate(date);
-                        headers.push(d ? `Sabat (${d.getDate()})` : '');
-                    });
+                    sabbatDates.forEach(date => { const d = parseLocalDate(date); headers.push(d ? `Sabat (${d.getDate()})` : ''); });
                     headers.push("TOTAL");
                     return { headers, rows, targetCategoryName, sabbatDates };
                 }
@@ -1214,14 +1069,10 @@
                 let logoDataUrl = null;
                 try {
                     logoDataUrl = await new Promise((resolve, reject) => {
-                        const img = new Image();
-                        img.crossOrigin = "Anonymous";
-                        img.src = "./PisgahColor.png";
+                        const img = new Image(); img.crossOrigin = "Anonymous"; img.src = "./PisgahColor.png";
                         img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            canvas.width = img.width; canvas.height = img.height;
-                            canvas.getContext('2d').drawImage(img, 0, 0);
-                            resolve(canvas.toDataURL('image/png'));
+                            const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height;
+                            canvas.getContext('2d').drawImage(img, 0, 0); resolve(canvas.toDataURL('image/png'));
                         };
                         img.onerror = () => reject(new Error('Logo gagal dimuat'));
                     });
@@ -1230,8 +1081,7 @@
                 const logoX = 10, logoY = 6, logoW = 18, logoH = 18;
                 if (logoDataUrl) doc.addImage(logoDataUrl, 'PNG', logoX, logoY, logoW, logoH);
                 else {
-                    doc.setDrawColor(200, 200, 200); doc.setFillColor(240, 240, 240);
-                    doc.circle(logoX + logoW / 2, logoY + logoH / 2, 9, 'FD');
+                    doc.setDrawColor(200, 200, 200); doc.setFillColor(240, 240, 240); doc.circle(logoX + logoW / 2, logoY + logoH / 2, 9, 'FD');
                     doc.setTextColor(100, 100, 100); doc.setFontSize(12); doc.text('⛪', logoX + logoW / 2 - 3, logoY + logoH / 2 + 3);
                 }
 
@@ -1248,7 +1098,13 @@
                 const fileSuffix = isMultiMonth ? `${reportMonth}_sd_${reportMonthEnd}` : reportMonth;
 
                 if (reportType === "presensi") {
-                    const tableBody = liveReportPreview.rows.map(row => [row.no, row.nama, row.status, ...row.statusList, row.hadirCount, row.alpaCount]);
+                    const tableBody = liveReportPreview.rows.map(row => {
+                        if (row.isTotalRow) {
+                            return [{ content: row.nama, colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } }, ...row.statusList, row.hadirCount, row.alpaCount];
+                        }
+                        return [row.no, row.nama, row.status, ...row.statusList, row.hadirCount, row.alpaCount];
+                    });
+
                     doc.autoTable({
                         startY: 32, head: [liveReportPreview.headers], body: tableBody, theme: 'grid',
                         headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold', halign: 'center' },
@@ -1257,7 +1113,27 @@
                         columnStyles: { 0: { cellWidth: 10 }, 1: { cellWidth: 55 }, 2: { cellWidth: 32 } },
                         styles: { fontSize: 8.5, cellPadding: 2 },
                         didParseCell: (data) => {
-                            if (data.row.raw && data.row.raw[1] === "Tamu Tambahan (Angka)") {
+                            const rawRow = data.row.raw;
+                            const isTotalRow = rawRow[0] && typeof rawRow[0] === 'object';
+                            
+                            if (isTotalRow) {
+                                const rowName = String(rawRow[0].content).toUpperCase();
+                                data.cell.styles.fontStyle = 'bold';
+                                
+                                if (rowName.includes("KESELURUHAN")) {
+                                    data.cell.styles.fillColor = [210, 240, 210];
+                                    data.cell.styles.textColor = [0, 80, 30];
+                                } else if (rowName.includes("TAMU TAMBAHAN")) {
+                                    data.cell.styles.fillColor = [255, 225, 180];
+                                    data.cell.styles.textColor = [120, 60, 0];
+                                } else if (rowName.includes("HADIR")) {
+                                    data.cell.styles.fillColor = [235, 248, 235];
+                                    data.cell.styles.textColor = [0, 120, 50];
+                                } else if (rowName.includes("ALPA")) {
+                                    data.cell.styles.fillColor = [250, 230, 230];
+                                    data.cell.styles.textColor = [180, 40, 40];
+                                }
+                            } else if (rawRow[1] === "Tamu (Angka)") {
                                 data.cell.styles.fillColor = [255, 225, 180]; data.cell.styles.textColor = [120, 60, 0]; data.cell.styles.fontStyle = 'bold';
                             } else {
                                 if (data.column.index >= 3 && data.column.index < 3 + sabbatDates.length) {
@@ -1283,8 +1159,6 @@
                 showToast("Laporan PDF Berhasil Diunduh!");
             };
 
-            // ─── Render ──────────────────────────────────────────────────────────
-
             return (
                 <div className="min-h-screen flex flex-col relative pb-safe">
                     {toast.show && (
@@ -1307,14 +1181,11 @@
                         </div>
                     )}
 
-                    {/* ── Header ── */}
                     <header className="bg-slate-950/80 backdrop-blur-md border-b border-amber-500/20 shadow-lg relative z-20">
                         <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex items-center gap-3 w-full justify-center md:justify-start md:w-auto">
                                 <div className="bg-slate-950 border border-amber-500/30 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center p-1.5 shadow-[0_0_15px_rgba(245,158,11,0.3)] shrink-0">
-                                    {!logoError
-                                        ? <img src="./PisgahColor.png" alt="Logo PISGAH" className="w-full h-full object-contain" onError={() => setLogoError(true)} />
-                                        : <i className="fa-solid fa-church text-amber-400 text-lg md:text-xl"></i>}
+                                    {!logoError ? <img src="./PisgahColor.png" alt="Logo PISGAH" className="w-full h-full object-contain" onError={() => setLogoError(true)} /> : <i className="fa-solid fa-church text-amber-400 text-lg md:text-xl"></i>}
                                 </div>
                                 <div className="text-center md:text-left">
                                     <h1 className="text-lg md:text-xl font-black tracking-wider bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-500 bg-clip-text text-transparent">PISGAH BISDAC</h1>
@@ -1344,7 +1215,6 @@
                         </div>
                     </header>
 
-                    {/* ── Navigasi Responsif (Geser horizontal di Mobile, rapi di Desktop) ── */}
                     {currentUserRole !== "public" && (
                         <nav className="bg-slate-950/90 backdrop-blur-md border-b border-white/5 sticky top-0 z-40">
                             <div className="max-w-7xl mx-auto px-2 md:px-4 flex space-x-1 md:space-x-2 py-2 md:py-3 text-[11px] md:text-xs font-extrabold text-slate-400 overflow-x-auto no-scrollbar snap-x">
@@ -1363,7 +1233,6 @@
                     )}
 
                     <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 md:py-8 mb-8 md:mb-0">
-
                         {/* ══════════ DASHBOARD ══════════ */}
                         {activeTab === "dashboard" && (
                             <section className="space-y-6 md:space-y-8 animate-fadeIn">
@@ -1373,33 +1242,21 @@
                                     </div>
                                     <div className="space-y-3 relative z-10 flex-1 text-center md:text-left">
                                         <h2 className="text-2xl md:text-4xl font-black bg-gradient-to-r from-amber-200 to-yellow-500 bg-clip-text text-transparent leading-tight">Dashboard Jemaat <br className="hidden md:block"/>PISGAH BISDAC</h2>
-                                        <p className="text-slate-300 text-sm md:text-base max-w-xl font-medium mx-auto md:mx-0">
-                                            Kelola presensi kebaktian Khotbah, Sekolah Sabat, dan pantau 10 indikator kegiatan.
-                                        </p>
+                                        <p className="text-slate-300 text-sm md:text-base max-w-xl font-medium mx-auto md:mx-0">Kelola presensi kebaktian Khotbah, Sekolah Sabat, dan pantau 10 indikator kegiatan.</p>
                                     </div>
                                     {currentUserRole !== "public" && (
-                                        <button onClick={() => setActiveTab("input-absen")} className="bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 font-black text-sm md:text-sm px-6 py-4 md:px-5 md:py-3 rounded-2xl md:rounded-xl shadow-lg shadow-amber-500/20 active:scale-95 transition w-full md:w-auto z-10">
-                                            <i className="fa-solid fa-pen-to-square mr-2"></i> Mulai Absen Sabat
-                                        </button>
+                                        <button onClick={() => setActiveTab("input-absen")} className="bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 font-black text-sm md:text-sm px-6 py-4 md:px-5 md:py-3 rounded-2xl md:rounded-xl shadow-lg shadow-amber-500/20 active:scale-95 transition w-full md:w-auto z-10"><i className="fa-solid fa-pen-to-square mr-2"></i> Mulai Absen Sabat</button>
                                     )}
                                 </div>
 
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                                    {/* Ulang Tahun Bulan Ini */}
                                     <div className="bg-slate-900/40 border border-white/10 p-4 md:p-5 rounded-2xl shadow-xl backdrop-blur-sm">
                                         <h4 className="font-extrabold text-white text-sm md:text-xs mb-4 uppercase tracking-wider flex items-center justify-between">
-                                            <span className="flex items-center gap-2">
-                                                <i className="fa-solid fa-cake-candles text-amber-400"></i> Ultah Bulan Ini
-                                            </span>
-                                            <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider">
-                                                {new Date().toLocaleString('id-ID', { month: 'long' })}
-                                            </span>
+                                            <span className="flex items-center gap-2"><i className="fa-solid fa-cake-candles text-amber-400"></i> Ultah Bulan Ini</span>
+                                            <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider">{new Date().toLocaleString('id-ID', { month: 'long' })}</span>
                                         </h4>
                                         {ultahBulanIni.length === 0 ? (
-                                            <div className="text-center py-12 text-slate-500 space-y-2">
-                                                <i className="fa-solid fa-calendar-minus text-3xl text-slate-600 mb-1"></i>
-                                                <p className="text-xs">Tidak ada yang berulang tahun bulan ini.</p>
-                                            </div>
+                                            <div className="text-center py-12 text-slate-500 space-y-2"><i className="fa-solid fa-calendar-minus text-3xl text-slate-600 mb-1"></i><p className="text-xs">Tidak ada yang berulang tahun bulan ini.</p></div>
                                         ) : (
                                             <div className="space-y-3 max-h-[250px] md:max-h-[300px] overflow-y-auto pr-1 no-scrollbar">
                                                 {ultahBulanIni.map(j => {
@@ -1412,10 +1269,7 @@
                                                                 <div className="w-10 h-10 md:w-9 md:h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-sm md:text-xs font-black shrink-0">{day}</div>
                                                                 <div>
                                                                     <h5 className="font-extrabold text-sm md:text-xs text-white leading-snug">{j.nama}</h5>
-                                                                    <p className="text-xs md:text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5 font-semibold">
-                                                                        <span>{j.subKelasNama}</span>
-                                                                        {age && <span className="text-slate-600 font-bold">&bull; {age} Thn</span>}
-                                                                    </p>
+                                                                    <p className="text-xs md:text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5 font-semibold"><span>{j.subKelasNama}</span>{age && <span className="text-slate-600 font-bold">&bull; {age} Thn</span>}</p>
                                                                 </div>
                                                             </div>
                                                             <div className="text-sm md:text-xs text-amber-400 animate-pulse shrink-0"><i className="fa-solid fa-gift"></i></div>
@@ -1425,22 +1279,13 @@
                                             </div>
                                         )}
                                     </div>
-
-                                    {/* Ulang Tahun Bulan Lalu */}
                                     <div className="bg-slate-900/40 border border-white/10 p-4 md:p-5 rounded-2xl shadow-xl backdrop-blur-sm">
                                         <h4 className="font-extrabold text-white text-sm md:text-xs mb-4 uppercase tracking-wider flex items-center justify-between">
-                                            <span className="flex items-center gap-2">
-                                                <i className="fa-solid fa-calendar-week text-slate-400"></i> Ultah Bulan Lalu
-                                            </span>
-                                            <span className="text-[10px] bg-slate-600/20 text-slate-300 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider">
-                                                {new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleString('id-ID', { month: 'short' })}
-                                            </span>
+                                            <span className="flex items-center gap-2"><i className="fa-solid fa-calendar-week text-slate-400"></i> Ultah Bulan Lalu</span>
+                                            <span className="text-[10px] bg-slate-600/20 text-slate-300 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider">{new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleString('id-ID', { month: 'short' })}</span>
                                         </h4>
                                         {ultahBulanLalu.length === 0 ? (
-                                            <div className="text-center py-12 text-slate-500 space-y-2">
-                                                <i className="fa-solid fa-calendar-minus text-3xl text-slate-600 mb-1"></i>
-                                                <p className="text-xs">Tidak ada yang berulang tahun pada bulan lalu.</p>
-                                            </div>
+                                            <div className="text-center py-12 text-slate-500 space-y-2"><i className="fa-solid fa-calendar-minus text-3xl text-slate-600 mb-1"></i><p className="text-xs">Tidak ada yang berulang tahun pada bulan lalu.</p></div>
                                         ) : (
                                             <div className="space-y-3 max-h-[250px] md:max-h-[300px] overflow-y-auto pr-1 no-scrollbar">
                                                 {ultahBulanLalu.map(j => {
@@ -1453,10 +1298,7 @@
                                                                 <div className="w-10 h-10 md:w-9 md:h-9 rounded-xl bg-slate-700/30 border border-slate-600/30 flex items-center justify-center text-slate-400 text-sm md:text-xs font-black shrink-0">{day}</div>
                                                                 <div>
                                                                     <h5 className="font-extrabold text-sm md:text-xs text-white leading-snug">{j.nama}</h5>
-                                                                    <p className="text-xs md:text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5 font-semibold">
-                                                                        <span>{j.subKelasNama}</span>
-                                                                        {age && <span className="text-slate-600 font-bold">&bull; {age} Thn</span>}
-                                                                    </p>
+                                                                    <p className="text-xs md:text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5 font-semibold"><span>{j.subKelasNama}</span>{age && <span className="text-slate-600 font-bold">&bull; {age} Thn</span>}</p>
                                                                 </div>
                                                             </div>
                                                             <div className="text-sm md:text-xs text-slate-500 shrink-0"><i className="fa-regular fa-calendar"></i></div>
@@ -1468,13 +1310,9 @@
                                     </div>
                                 </div>
 
-                                {/* Statistik Overview */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <div className="bg-slate-900/60 border border-white/5 p-5 md:p-4 rounded-2xl shadow-lg space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-slate-500 text-xs md:text-[9px] font-black uppercase tracking-wider">Total Keanggotaan</p>
-                                            <i className="fa-solid fa-users text-amber-400/40 text-xl md:text-lg"></i>
-                                        </div>
+                                        <div className="flex items-center justify-between"><p className="text-slate-500 text-xs md:text-[9px] font-black uppercase tracking-wider">Total Keanggotaan</p><i className="fa-solid fa-users text-amber-400/40 text-xl md:text-lg"></i></div>
                                         <h3 className="text-3xl md:text-2xl font-black text-white">{metrics.total} <span className="text-xs md:text-[10px] font-normal text-slate-400">Jiwa</span></h3>
                                         <div className="space-y-2 md:space-y-1.5 border-t border-white/5 pt-3 md:pt-2.5 text-xs md:text-[10px]">
                                             <div className="flex justify-between"><span className="text-slate-500">Sudah Baptis</span><span className="text-emerald-400 font-bold">{jemaat.filter(j => j.statusBaptis === "Sudah Baptis").length}</span></div>
@@ -1482,10 +1320,7 @@
                                         </div>
                                     </div>
                                     <div className="bg-slate-900/60 border border-white/5 p-5 md:p-4 rounded-2xl shadow-lg space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-slate-500 text-xs md:text-[9px] font-black uppercase tracking-wider">Persentase Baptis</p>
-                                            <i className="fa-solid fa-water text-emerald-400/40 text-xl md:text-lg"></i>
-                                        </div>
+                                        <div className="flex items-center justify-between"><p className="text-slate-500 text-xs md:text-[9px] font-black uppercase tracking-wider">Persentase Baptis</p><i className="fa-solid fa-water text-emerald-400/40 text-xl md:text-lg"></i></div>
                                         <h3 className="text-3xl md:text-2xl font-black text-emerald-400">{metrics.baptisPersen}%</h3>
                                         <div className="w-full bg-slate-950 h-2 md:h-1.5 rounded-full overflow-hidden"><div className="bg-emerald-500 h-full rounded-full" style={{ width: `${metrics.baptisPersen}%` }}></div></div>
                                         <div className="space-y-2 md:space-y-1.5 border-t border-white/5 pt-3 md:pt-2.5 text-xs md:text-[10px]">
@@ -1493,20 +1328,14 @@
                                         </div>
                                     </div>
                                     <div className="bg-slate-900/60 border border-white/5 p-5 md:p-4 rounded-2xl shadow-lg space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-slate-500 text-xs md:text-[9px] font-black uppercase tracking-wider">Tamu & Kehadiran</p>
-                                            <i className="fa-solid fa-person-walking-luggage text-amber-400/40 text-xl md:text-lg"></i>
-                                        </div>
+                                        <div className="flex items-center justify-between"><p className="text-slate-500 text-xs md:text-[9px] font-black uppercase tracking-wider">Tamu & Kehadiran</p><i className="fa-solid fa-person-walking-luggage text-amber-400/40 text-xl md:text-lg"></i></div>
                                         <h3 className="text-3xl md:text-2xl font-black text-amber-400">{metrics.tamuCount.total} <span className="text-xs md:text-[10px] font-normal text-slate-400">Tamu</span></h3>
                                         <div className="space-y-2 md:space-y-1.5 border-t border-white/5 pt-3 md:pt-2.5 text-xs md:text-[10px]">
                                             <div className="flex justify-between"><span className="text-slate-500">Tamu Sabat Ini</span><span className="text-yellow-400 font-bold">{metrics.tamuCount.extra} org</span></div>
                                         </div>
                                     </div>
                                     <div className="bg-slate-900/60 border border-white/5 p-5 md:p-4 rounded-2xl shadow-lg space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-slate-500 text-xs md:text-[9px] font-black uppercase tracking-wider">Rata-rata Presensi</p>
-                                            <i className="fa-solid fa-chart-line text-indigo-400/40 text-xl md:text-lg"></i>
-                                        </div>
+                                        <div className="flex items-center justify-between"><p className="text-slate-500 text-xs md:text-[9px] font-black uppercase tracking-wider">Rata-rata Presensi</p><i className="fa-solid fa-chart-line text-indigo-400/40 text-xl md:text-lg"></i></div>
                                         <h3 className="text-3xl md:text-2xl font-black text-indigo-400">{metrics.avgRate}% <span className="text-xs md:text-[10px] font-normal text-slate-400">Hadir</span></h3>
                                         <div className="w-full bg-slate-950 h-2 md:h-1.5 rounded-full overflow-hidden"><div className="bg-indigo-500 h-full rounded-full" style={{ width: `${metrics.avgRate}%` }}></div></div>
                                         <div className="space-y-2 md:space-y-1.5 border-t border-white/5 pt-3 md:pt-2.5 text-xs md:text-[10px]">
@@ -1517,37 +1346,18 @@
 
                                 <DashboardCharts jemaat={jemaat} absen={absen} tamuTambahan={tamuTambahan} subKelas={subKelas} metrics={metrics} parseLocalDate={parseLocalDate} currentUserRole={currentUserRole} />
 
-                                {/* Permohonan Doa */}
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                                     <div className="bg-slate-900/40 border border-white/10 p-5 md:p-5 rounded-2xl shadow-xl backdrop-blur-sm">
-                                        <h4 className="font-extrabold text-white text-sm md:text-xs mb-4 uppercase tracking-wider flex items-center gap-2">
-                                            <i className="fa-solid fa-hands-praying text-amber-400 animate-bounce"></i> Form Doa Jemaat
-                                        </h4>
+                                        <h4 className="font-extrabold text-white text-sm md:text-xs mb-4 uppercase tracking-wider flex items-center gap-2"><i className="fa-solid fa-hands-praying text-amber-400 animate-bounce"></i> Form Doa Jemaat</h4>
                                         <form onSubmit={handleAddDoa} className="space-y-4 text-sm md:text-xs font-medium">
-                                            <div>
-                                                <label className="block text-slate-400 mb-1.5 md:mb-1">Nama Pemohon *</label>
-                                                <input type="text" name="doaNama" required className="w-full bg-slate-950 border border-slate-700 p-3 md:p-2.5 text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500" placeholder="Keluarga..." />
-                                            </div>
-                                            <div>
-                                                <label className="block text-slate-400 mb-1.5 md:mb-1">No. HP / WA *</label>
-                                                <input type="text" name="doaNoHp" required className="w-full bg-slate-950 border border-slate-700 p-3 md:p-2.5 text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500" placeholder="0812..." />
-                                            </div>
-                                            <div>
-                                                <label className="block text-slate-400 mb-1.5 md:mb-1">Pokok Doa *</label>
-                                                <textarea name="doaPermohonan" rows="4" required className="w-full bg-slate-950 border border-slate-700 p-3 md:p-2.5 text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500 resize-y"></textarea>
-                                            </div>
-                                            <div className="flex justify-end pt-2">
-                                                <button type="submit" className="w-full md:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-5 py-3 md:py-2.5 rounded-xl transition flex items-center justify-center gap-2 active:scale-95">
-                                                    <i className="fa-solid fa-paper-plane"></i> Kirim Doa
-                                                </button>
-                                            </div>
+                                            <div><label className="block text-slate-400 mb-1.5 md:mb-1">Nama Pemohon *</label><input type="text" name="doaNama" required className="w-full bg-slate-950 border border-slate-700 p-3 md:p-2.5 text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500" placeholder="Keluarga..." /></div>
+                                            <div><label className="block text-slate-400 mb-1.5 md:mb-1">No. HP / WA *</label><input type="text" name="doaNoHp" required className="w-full bg-slate-950 border border-slate-700 p-3 md:p-2.5 text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500" placeholder="0812..." /></div>
+                                            <div><label className="block text-slate-400 mb-1.5 md:mb-1">Pokok Doa *</label><textarea name="doaPermohonan" rows="4" required className="w-full bg-slate-950 border border-slate-700 p-3 md:p-2.5 text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500 resize-y"></textarea></div>
+                                            <div className="flex justify-end pt-2"><button type="submit" className="w-full md:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-5 py-3 md:py-2.5 rounded-xl transition flex items-center justify-center gap-2 active:scale-95"><i className="fa-solid fa-paper-plane"></i> Kirim Doa</button></div>
                                         </form>
                                     </div>
-
                                     <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur-sm">
-                                        <h4 className="font-extrabold text-white text-sm md:text-xs mb-4 uppercase tracking-wider flex items-center gap-2">
-                                            <i className="fa-solid fa-list-check text-amber-400"></i> Daftar Pokok Doa
-                                        </h4>
+                                        <h4 className="font-extrabold text-white text-sm md:text-xs mb-4 uppercase tracking-wider flex items-center gap-2"><i className="fa-solid fa-list-check text-amber-400"></i> Daftar Pokok Doa</h4>
                                         {doaList.length === 0 ? (
                                             <p className="text-slate-500 text-sm md:text-xs text-center py-8 italic">Belum ada pokok permohonan doa.</p>
                                         ) : (
@@ -1555,18 +1365,13 @@
                                                 {doaList.map(d => (
                                                     <div key={d.id} className="bg-slate-950/50 border border-white/5 p-4 rounded-xl flex justify-between items-start gap-4 hover:border-amber-500/30 transition-colors">
                                                         <div className="space-y-2 md:space-y-1.5 flex-1">
-                                                            <div className="flex flex-wrap items-center gap-2">
-                                                                <span className="font-extrabold text-amber-400 text-sm md:text-xs">{d.nama}</span>
-                                                                <span className="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full font-bold">{d.tanggal ? d.tanggal.split('-').reverse().join('/') : '-'}</span>
-                                                            </div>
+                                                            <div className="flex flex-wrap items-center gap-2"><span className="font-extrabold text-amber-400 text-sm md:text-xs">{d.nama}</span><span className="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full font-bold">{d.tanggal ? d.tanggal.split('-').reverse().join('/') : '-'}</span></div>
                                                             <div className="text-xs md:text-[10px] text-slate-500"><i className="fa-solid fa-phone text-[10px] md:text-[9px] mr-1"></i>{maskNoHp(d.noHp)}</div>
                                                             <ul className="text-slate-300 text-sm md:text-xs leading-relaxed italic list-disc list-inside space-y-1 md:space-y-0.5 pt-1">
                                                                 {(d.permohonan || "").split(/\n| \| /).filter(line => line.trim()).map((line, i) => <li key={i}>{line.trim()}</li>)}
                                                             </ul>
                                                         </div>
-                                                        {currentUserRole !== "public" && (
-                                                            <button onClick={() => handleDeleteDoa(d.id)} className="text-rose-400 hover:text-white hover:bg-rose-500 transition p-2.5 md:p-1.5 rounded-lg bg-rose-500/10 md:bg-transparent shrink-0"><i className="fa-solid fa-trash text-sm md:text-xs"></i></button>
-                                                        )}
+                                                        {currentUserRole !== "public" && <button onClick={() => handleDeleteDoa(d.id)} className="text-rose-400 hover:text-white hover:bg-rose-500 transition p-2.5 md:p-1.5 rounded-lg bg-rose-500/10 md:bg-transparent shrink-0"><i className="fa-solid fa-trash text-sm md:text-xs"></i></button>}
                                                     </div>
                                                 ))}
                                             </div>
@@ -1580,68 +1385,40 @@
                         {activeTab === "jemaat" && currentUserRole === "admin" && (
                             <section className="space-y-5 md:space-y-4 animate-fadeIn">
                                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                                    <div>
-                                        <h2 className="text-xl md:text-base font-black text-amber-400">Database Jemaat</h2>
-                                        <p className="text-xs md:text-[11px] text-slate-500 mt-1 md:mt-0.5">{filteredJemaatList.length} dari {jemaat.length} anggota</p>
-                                    </div>
-                                    <button onClick={() => setJemaatModal({ isOpen: true, mode: 'create', data: null })} className="w-full md:w-auto flex justify-center items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black text-sm md:text-xs px-5 py-3 md:py-2.5 rounded-xl shadow-lg active:scale-95 transition">
-                                        <i className="fa-solid fa-user-plus text-base md:text-sm"></i> <span>Tambah Anggota</span>
-                                    </button>
+                                    <div><h2 className="text-xl md:text-base font-black text-amber-400">Database Jemaat</h2><p className="text-xs md:text-[11px] text-slate-500 mt-1 md:mt-0.5">{filteredJemaatList.length} dari {jemaat.length} anggota</p></div>
+                                    <button onClick={() => setJemaatModal({ isOpen: true, mode: 'create', data: null })} className="w-full md:w-auto flex justify-center items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black text-sm md:text-xs px-5 py-3 md:py-2.5 rounded-xl shadow-lg active:scale-95 transition"><i className="fa-solid fa-user-plus text-base md:text-sm"></i> <span>Tambah Anggota</span></button>
                                 </div>
-
                                 <div className="relative">
                                     <i className="fa-solid fa-magnifying-glass absolute left-4 md:left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm md:text-xs"></i>
                                     <input type="text" placeholder="Cari nama jemaat..." value={searchJemaat} onChange={(e) => setSearchJemaat(e.target.value)} className="w-full bg-slate-900/70 border border-white/10 pl-10 pr-4 py-3.5 md:py-3 rounded-2xl text-white text-base md:text-sm placeholder-slate-500 focus:outline-none focus:border-amber-500/50" />
                                     {searchJemaat && <button onClick={() => setSearchJemaat("")} className="absolute right-4 md:right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1"><i className="fa-solid fa-xmark"></i></button>}
                                 </div>
-
                                 <div className="flex gap-2 overflow-x-auto pb-2 md:pb-1 text-xs md:text-[11px] font-bold no-scrollbar snap-x">
                                     <div className="flex gap-2 md:gap-1 shrink-0 snap-start">
                                         {[{ key: "nama", label: "Nama" }, { key: "subKelas", label: "Kelas" }, { key: "gender", label: "Gender" }].map(s => (
-                                            <button key={s.key} onClick={() => handleSort(s.key)} className={`px-4 md:px-3 py-2 md:py-1.5 rounded-full border transition flex items-center gap-1.5 md:gap-1 ${sortBy === s.key ? "bg-amber-500/20 border-amber-500/40 text-amber-400" : "bg-slate-900/60 border-white/10 text-slate-400"}`}>
-                                                {s.label} {sortBy === s.key && <i className={`fa-solid fa-arrow-${sortOrder === "asc" ? "up" : "down"} text-[10px] md:text-[9px]`}></i>}
-                                            </button>
+                                            <button key={s.key} onClick={() => handleSort(s.key)} className={`px-4 md:px-3 py-2 md:py-1.5 rounded-full border transition flex items-center gap-1.5 md:gap-1 ${sortBy === s.key ? "bg-amber-500/20 border-amber-500/40 text-amber-400" : "bg-slate-900/60 border-white/10 text-slate-400"}`}>{s.label} {sortBy === s.key && <i className={`fa-solid fa-arrow-${sortOrder === "asc" ? "up" : "down"} text-[10px] md:text-[9px]`}></i>}</button>
                                         ))}
                                     </div>
                                     <div className="w-px bg-white/10 shrink-0 mx-1 md:mx-0"></div>
-                                    <select value={filterKelas} onChange={(e) => setFilterKelas(e.target.value)} className="bg-slate-900/60 border border-white/10 text-slate-300 rounded-full px-4 md:px-3 py-2 md:py-1.5 text-xs md:text-[11px] font-bold focus:outline-none shrink-0 snap-start">
-                                        <option value="all">Semua Kelas</option>
-                                        {kelas.map(k => <option key={k.nama} value={k.nama}>{k.nama}</option>)}
-                                    </select>
+                                    <select value={filterKelas} onChange={(e) => setFilterKelas(e.target.value)} className="bg-slate-900/60 border border-white/10 text-slate-300 rounded-full px-4 md:px-3 py-2 md:py-1.5 text-xs md:text-[11px] font-bold focus:outline-none shrink-0 snap-start"><option value="all">Semua Kelas</option>{kelas.map(k => <option key={k.nama} value={k.nama}>{k.nama}</option>)}</select>
                                     <select value={filterGender} onChange={(e) => setFilterGender(e.target.value)} className="bg-slate-900/60 border border-white/10 text-slate-300 rounded-full px-4 md:px-3 py-2 md:py-1.5 text-xs md:text-[11px] font-bold focus:outline-none shrink-0 snap-start"><option value="all">Gender</option><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select>
                                     <select value={filterBaptis} onChange={(e) => setFilterBaptis(e.target.value)} className="bg-slate-900/60 border border-white/10 text-slate-300 rounded-full px-4 md:px-3 py-2 md:py-1.5 text-xs md:text-[11px] font-bold focus:outline-none shrink-0 snap-start"><option value="all">Status Baptis</option><option value="Sudah Baptis">Sudah</option><option value="Belum Baptis">Belum</option></select>
                                 </div>
-
                                 {filteredJemaatList.length === 0 ? (
                                     <div className="text-center py-16 space-y-3"><i className="fa-solid fa-users-slash text-4xl text-slate-700"></i><p className="text-slate-500 text-sm">Tidak ada jemaat ditemukan.</p></div>
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:space-y-2.5 md:block">
                                         {filteredJemaatList.map((j) => {
-                                            const birthDate = parseLocalDate(j.tglLahir);
-                                            const age = birthDate ? new Date().getFullYear() - birthDate.getFullYear() : null;
-                                            const isMale = j.gender === "Laki-laki", isBaptis = j.statusBaptis === "Sudah Baptis";
-                                            const initials = (j.nama || "?").split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
-
+                                            const birthDate = parseLocalDate(j.tglLahir), age = birthDate ? new Date().getFullYear() - birthDate.getFullYear() : null;
+                                            const isMale = j.gender === "Laki-laki", isBaptis = j.statusBaptis === "Sudah Baptis", initials = (j.nama || "?").split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
                                             return (
                                                 <div key={j.id} className="bg-slate-900/50 border border-white/10 rounded-2xl p-4 md:p-4 flex flex-col md:flex-row items-start md:items-center gap-4 hover:bg-slate-800/50 hover:border-amber-500/30 transition shadow-sm">
                                                     <div className="flex items-center gap-4 w-full md:w-auto flex-1 min-w-0">
                                                         <div className={`w-12 h-12 md:w-11 md:h-11 rounded-2xl flex items-center justify-center font-black text-base md:text-sm shrink-0 ${isMale ? "bg-blue-500/15 text-blue-400 border-blue-500/20" : "bg-pink-500/15 text-pink-400 border-pink-500/20"}`}>{initials}</div>
                                                         <div className="flex-1 min-w-0 space-y-1 md:space-y-0.5">
-                                                            <div className="flex items-center gap-2 flex-wrap">
-                                                                <span className="font-extrabold text-white text-base md:text-sm truncate">{j.nama}</span>
-                                                                {isBaptis ? <span className="text-[10px] md:text-[9px] font-black bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full shrink-0 border border-emerald-500/20">✓ BAPTIS</span> : <span className="text-[10px] md:text-[9px] font-black bg-slate-700/60 text-slate-400 px-2 py-0.5 rounded-full shrink-0 border border-slate-600/30">BELUM</span>}
-                                                            </div>
-                                                            <div className="flex items-center gap-2 flex-wrap text-xs md:text-[10px]">
-                                                                <span className={`font-bold ${isMale ? "text-blue-400" : "text-pink-400"}`}><i className={`fa-solid ${isMale ? "fa-mars" : "fa-venus"} mr-1`}></i>{j.gender}</span>
-                                                                <span className="text-slate-600">•</span>
-                                                                <span className="text-slate-400 font-semibold truncate">{j.subKelasNama}</span>
-                                                                {age && <><span className="text-slate-600">•</span><span className="text-slate-500 font-semibold">{age} thn</span></>}
-                                                            </div>
-                                                            {j.statusJemaat && (
-                                                                <div className="flex flex-wrap gap-1 md:mt-1.5">
-                                                                    {(j.statusJemaat || "").split(",").map(s => s.trim()).filter(Boolean).map(s => <span key={s} className="text-[10px] md:text-[9px] font-bold bg-amber-500/10 text-amber-400/80 px-2 md:px-1.5 py-0.5 md:py-0.5 rounded-full border border-amber-500/15">{s}</span>)}
-                                                                </div>
-                                                            )}
+                                                            <div className="flex items-center gap-2 flex-wrap"><span className="font-extrabold text-white text-base md:text-sm truncate">{j.nama}</span>{isBaptis ? <span className="text-[10px] md:text-[9px] font-black bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full shrink-0 border border-emerald-500/20">✓ BAPTIS</span> : <span className="text-[10px] md:text-[9px] font-black bg-slate-700/60 text-slate-400 px-2 py-0.5 rounded-full shrink-0 border border-slate-600/30">BELUM</span>}</div>
+                                                            <div className="flex items-center gap-2 flex-wrap text-xs md:text-[10px]"><span className={`font-bold ${isMale ? "text-blue-400" : "text-pink-400"}`}><i className={`fa-solid ${isMale ? "fa-mars" : "fa-venus"} mr-1`}></i>{j.gender}</span><span className="text-slate-600">•</span><span className="text-slate-400 font-semibold truncate">{j.subKelasNama}</span>{age && <><span className="text-slate-600">•</span><span className="text-slate-500 font-semibold">{age} thn</span></>}</div>
+                                                            {j.statusJemaat && <div className="flex flex-wrap gap-1 md:mt-1.5">{(j.statusJemaat || "").split(",").map(s => s.trim()).filter(Boolean).map(s => <span key={s} className="text-[10px] md:text-[9px] font-bold bg-amber-500/10 text-amber-400/80 px-2 md:px-1.5 py-0.5 md:py-0.5 rounded-full border border-amber-500/15">{s}</span>)}</div>}
                                                         </div>
                                                     </div>
                                                     <div className="flex md:flex-col w-full md:w-auto gap-2 shrink-0 border-t border-white/5 pt-3 md:pt-0 md:border-0 mt-2 md:mt-0">
@@ -1687,10 +1464,7 @@
                                         <div className="space-y-2">
                                             {subKelas.map(s => (
                                                 <div key={s.nama} className="py-3 md:py-2.5 flex justify-between items-center border border-white/5 bg-slate-950/40 px-3 md:px-2 rounded-xl transition">
-                                                    <div>
-                                                        <span className="font-bold text-slate-200 text-sm md:text-xs block">{s.nama}</span>
-                                                        <span className="text-[11px] md:text-[10px] text-slate-500 flex items-center gap-1 mt-0.5"><i className="fa-solid fa-arrow-turn-up rotate-90 text-[9px]"></i> {s.kelasNama}</span>
-                                                    </div>
+                                                    <div><span className="font-bold text-slate-200 text-sm md:text-xs block">{s.nama}</span><span className="text-[11px] md:text-[10px] text-slate-500 flex items-center gap-1 mt-0.5"><i className="fa-solid fa-arrow-turn-up rotate-90 text-[9px]"></i> {s.kelasNama}</span></div>
                                                     <div className="flex gap-4 md:gap-3">
                                                         <button onClick={() => setKelasModal({ isOpen: true, mode: 'edit', data: s, type: 'subkelas' })} className="text-amber-400 hover:text-amber-300 p-1"><i className="fa-solid fa-pen"></i></button>
                                                         <button onClick={() => deleteKelas(s.nama, 'subkelas')} className="text-rose-400 hover:text-rose-300 p-1"><i className="fa-solid fa-trash"></i></button>
@@ -1708,18 +1482,12 @@
                         {activeTab === "users" && currentUserRole === "admin" && (
                             <section className="space-y-6 animate-fadeIn">
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                                    <div>
-                                        <h2 className="text-xl md:text-lg font-black text-amber-400">Akses PIN Guru</h2>
-                                        <p className="text-sm md:text-xs text-slate-400">Kelola akun dan PIN petugas pencatat absen.</p>
-                                    </div>
+                                    <div><h2 className="text-xl md:text-lg font-black text-amber-400">Akses PIN Guru</h2><p className="text-sm md:text-xs text-slate-400">Kelola akun dan PIN petugas pencatat absen.</p></div>
                                     <button onClick={() => setUserModal({ isOpen: true, mode: 'create', data: null })} className="w-full md:w-auto bg-amber-500 text-slate-950 text-sm md:text-xs px-5 py-3 md:py-2 rounded-xl font-bold hover:bg-amber-400 shadow-lg active:scale-95 transition"><i className="fa-solid fa-plus mr-1"></i> Tambah Guru Baru</button>
                                 </div>
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                    {/* Mobile: Card List, Desktop: Table/Cards */}
                                     <div className="lg:col-span-2 space-y-4">
-                                        <h3 className="font-bold text-slate-300 border-b border-white/10 pb-2 flex justify-between items-center">
-                                            <span>Daftar Guru / Petugas</span> <span className="bg-slate-800 text-xs px-2 py-0.5 rounded-lg">{users.length}</span>
-                                        </h3>
+                                        <h3 className="font-bold text-slate-300 border-b border-white/10 pb-2 flex justify-between items-center"><span>Daftar Guru / Petugas</span> <span className="bg-slate-800 text-xs px-2 py-0.5 rounded-lg">{users.length}</span></h3>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             {users.map(u => (
                                                 <div key={u.nama} className="bg-slate-900/60 border border-white/10 p-4 md:p-5 rounded-2xl flex justify-between items-center shadow-md hover:border-amber-500/30 transition">
@@ -1741,20 +1509,15 @@
                                         <div>
                                             <h3 className="font-extrabold text-amber-400 text-sm md:text-xs uppercase tracking-wider flex items-center"><i className="fa-solid fa-key mr-2"></i> Akses Admin Utama</h3>
                                             <p className="text-slate-400 text-xs md:text-[11px] mt-1.5">Sandi bawaan adalah <code className="bg-slate-800 text-amber-300 font-mono px-1 rounded">admin123</code>.</p>
-                                            <div className="mt-3 bg-slate-950/60 border border-emerald-500/20 p-3 rounded-xl flex items-center justify-between">
-                                                <span className="text-slate-500 text-xs">PIN Admin saat ini:</span>
-                                                <code className="text-lg md:text-base text-emerald-400 font-mono font-black">{adminPin}</code>
-                                            </div>
+                                            <div className="mt-3 bg-slate-950/60 border border-emerald-500/20 p-3 rounded-xl flex items-center justify-between"><span className="text-slate-500 text-xs">PIN Admin saat ini:</span><code className="text-lg md:text-base text-emerald-400 font-mono font-black">{adminPin}</code></div>
                                         </div>
                                         <form onSubmit={(e) => {
-                                            e.preventDefault();
-                                            const fd = new FormData(e.target), pinBaru = String(fd.get('pinBaru')).trim(), konfirmasiPin = String(fd.get('konfirmasiPin')).trim();
+                                            e.preventDefault(); const fd = new FormData(e.target), pinBaru = String(fd.get('pinBaru')).trim(), konfirmasiPin = String(fd.get('konfirmasiPin')).trim();
                                             if (!pinBaru || !konfirmasiPin) { showToast("Harap isi semua kolom!", "error"); return; }
                                             if (pinBaru !== konfirmasiPin)  { showToast("Konfirmasi sandi tidak cocok!", "error"); return; }
                                             if (pinBaru.length < 4)         { showToast("Sandi minimal 4 karakter!", "error"); return; }
                                             if (users.some(u => String(u.pin).trim() === pinBaru)) { showToast("Sandi sama dengan PIN Guru lain!", "error"); return; }
-                                            setAdminPin(pinBaru); showToast("Sandi/PIN Admin diperbarui!", "success");
-                                            e.target.reset(); pushDataToCloud({ users }, pinBaru);
+                                            setAdminPin(pinBaru); showToast("Sandi/PIN Admin diperbarui!", "success"); e.target.reset(); pushDataToCloud({ users }, pinBaru);
                                         }} className="space-y-4 md:space-y-3 pt-2 border-t border-white/10">
                                             <div><label className="block text-slate-400 mb-1.5 md:mb-1 text-sm md:text-xs">Sandi Admin Baru</label><input type={showAdminPinForm ? "text" : "password"} name="pinBaru" required className="w-full bg-slate-950 border border-slate-700 p-3 md:p-2 text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500 font-mono text-base md:text-sm" placeholder="••••••••" /></div>
                                             <div><label className="block text-slate-400 mb-1.5 md:mb-1 text-sm md:text-xs">Konfirmasi Sandi Baru</label><input type={showAdminPinForm ? "text" : "password"} name="konfirmasiPin" required className="w-full bg-slate-950 border border-slate-700 p-3 md:p-2 text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500 font-mono text-base md:text-sm" placeholder="••••••••" /></div>
@@ -1801,9 +1564,7 @@
                                     <div className="space-y-4">
                                         {currentUserRole === "admin" && (
                                             <div className="flex gap-2 overflow-x-auto pb-2 text-sm md:text-xs font-bold no-scrollbar snap-x">
-                                                {subKelas.map(s => (
-                                                    <button key={s.nama} onClick={() => setSelectedSubKelasNama(s.nama)} className={`snap-start shrink-0 px-5 md:px-4 py-2.5 md:py-2 rounded-xl border whitespace-nowrap transition-all ${selectedSubKelasNama === s.nama ? "bg-amber-500 border-amber-400 text-slate-950 shadow-md" : "bg-slate-900/60 border-white/10 text-slate-400 hover:text-white"}`}>{s.nama}</button>
-                                                ))}
+                                                {subKelas.map(s => <button key={s.nama} onClick={() => setSelectedSubKelasNama(s.nama)} className={`snap-start shrink-0 px-5 md:px-4 py-2.5 md:py-2 rounded-xl border whitespace-nowrap transition-all ${selectedSubKelasNama === s.nama ? "bg-amber-500 border-amber-400 text-slate-950 shadow-md" : "bg-slate-900/60 border-white/10 text-slate-400 hover:text-white"}`}>{s.nama}</button>)}
                                             </div>
                                         )}
 
@@ -1818,7 +1579,7 @@
                                                     <span className="text-slate-300 font-extrabold text-xs md:text-[11px] uppercase tracking-wider flex items-center gap-1.5"><i className="fa-solid fa-bolt text-amber-500 animate-pulse"></i> Aksi Cepat</span>
                                                     <div className="flex gap-2 w-full sm:w-auto">
                                                         <button onClick={() => handleMarkAllSabbat("Hadir")} className="flex-1 sm:flex-none bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-black px-4 py-2 rounded-xl text-xs md:text-[11px] transition active:scale-95"><i className="fa-solid fa-check-double mr-1"></i> Hadir Semua</button>
-                                                        <button onClick={() => handleMarkAllSabbat("Alpa")}  className="flex-1 sm:flex-none bg-rose-500/10    hover:bg-rose-500/20    text-rose-400    border border-rose-500/30    font-black px-4 py-2 rounded-xl text-xs md:text-[11px] transition active:scale-95"><i className="fa-solid fa-xmark mr-1"></i> Alpa Semua</button>
+                                                        <button onClick={() => handleMarkAllSabbat("Alpa")}  className="flex-1 sm:flex-none bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-black px-4 py-2 rounded-xl text-xs md:text-[11px] transition active:scale-95"><i className="fa-solid fa-xmark mr-1"></i> Alpa Semua</button>
                                                     </div>
                                                 </div>
                                                 <div className="divide-y divide-white/5 max-h-[60vh] overflow-y-auto">
@@ -1896,24 +1657,14 @@
                         {/* ══════════ REKAP PDF ══════════ */}
                         {activeTab === "rekap" && currentUserRole !== "public" && (
                             <section className="space-y-6 animate-fadeIn">
-
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center shrink-0"><i className="fa-solid fa-file-pdf text-xl"></i></div>
-                                    <div>
-                                        <h2 className="text-xl md:text-lg font-black text-amber-400">Pusat Laporan</h2>
-                                        <p className="text-xs text-slate-400">Pratinjau & Unduh PDF Rekapitulasi</p>
-                                    </div>
+                                    <div><h2 className="text-xl md:text-lg font-black text-amber-400">Pusat Laporan</h2><p className="text-xs text-slate-400">Pratinjau & Unduh PDF Rekapitulasi</p></div>
                                 </div>
-
                                 <div className="grid grid-cols-2 gap-3 md:gap-4 text-sm md:text-xs font-black">
-                                    <button onClick={() => setReportType("presensi")} className={`py-4 md:py-3 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${reportType === "presensi" ? "bg-amber-500/15 border-amber-500/40 text-amber-400 shadow-inner" : "bg-slate-900/50 border-white/8 text-slate-500 hover:bg-slate-800"}`}>
-                                        <i className="fa-solid fa-clipboard-user text-2xl md:text-xl"></i><span>Laporan Presensi</span>
-                                    </button>
-                                    <button onClick={() => setReportType("keterlibatan")} className={`py-4 md:py-3 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${reportType === "keterlibatan" ? "bg-teal-500/15 border-teal-500/40 text-teal-400 shadow-inner" : "bg-slate-900/50 border-white/8 text-slate-500 hover:bg-slate-800"}`}>
-                                        <i className="fa-solid fa-list-check text-2xl md:text-xl"></i><span>Laporan 10 Kegiatan</span>
-                                    </button>
+                                    <button onClick={() => setReportType("presensi")} className={`py-4 md:py-3 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${reportType === "presensi" ? "bg-amber-500/15 border-amber-500/40 text-amber-400 shadow-inner" : "bg-slate-900/50 border-white/8 text-slate-500 hover:bg-slate-800"}`}><i className="fa-solid fa-clipboard-user text-2xl md:text-xl"></i><span>Laporan Presensi</span></button>
+                                    <button onClick={() => setReportType("keterlibatan")} className={`py-4 md:py-3 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${reportType === "keterlibatan" ? "bg-teal-500/15 border-teal-500/40 text-teal-400 shadow-inner" : "bg-slate-900/50 border-white/8 text-slate-500 hover:bg-slate-800"}`}><i className="fa-solid fa-list-check text-2xl md:text-xl"></i><span>Laporan 10 Kegiatan</span></button>
                                 </div>
-
                                 <div className="bg-slate-900/50 border border-white/8 rounded-3xl p-5 md:p-6 space-y-5 md:space-y-4 shadow-lg">
                                     <div>
                                         <p className="text-[11px] md:text-[10px] font-black text-slate-500 uppercase tracking-wider mb-2">Pilih Mode Periode</p>
@@ -1922,7 +1673,6 @@
                                             <button onClick={() => setIsMultiMonth(true)}  className={`py-3 md:py-2.5 rounded-xl font-black text-xs md:text-[11px] border transition-all flex items-center justify-center gap-2 ${isMultiMonth  ? "bg-amber-500/15 border-amber-500/40 text-amber-400" : "bg-slate-950/80 border-white/5 text-slate-500 hover:text-white"}`}><i className="fa-solid fa-calendar-week"></i> Multi-Bulan</button>
                                         </div>
                                     </div>
-
                                     <div className={`grid gap-4 ${isMultiMonth ? "grid-cols-2" : "grid-cols-1"}`}>
                                         <div>
                                             <label className="block text-[11px] md:text-[10px] font-black text-slate-500 uppercase tracking-wider mb-2">{isMultiMonth ? "Dari Bulan" : "Pilih Bulan"}</label>
@@ -1966,8 +1716,7 @@
 
                                     {isMultiMonth && (
                                         <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl px-4 py-3 text-xs md:text-[11px] text-blue-300 font-bold flex items-center gap-2">
-                                            <i className="fa-solid fa-circle-info shrink-0"></i>
-                                            <span>Sistem mendeteksi {getSabbatsInRange(reportMonth, reportMonthEnd, true).length} hari Sabat dalam periode {reportMonth} s/d {reportMonthEnd}</span>
+                                            <i className="fa-solid fa-circle-info shrink-0"></i><span>Sistem mendeteksi {getSabbatsInRange(reportMonth, reportMonthEnd, true).length} hari Sabat dalam periode {reportMonth} s/d {reportMonthEnd}</span>
                                         </div>
                                     )}
 
@@ -1976,14 +1725,13 @@
                                     </button>
                                 </div>
 
-                                {/* ── Pratinjau ── */}
+                                {/* ── Pratinjau Tabel ── */}
                                 {liveReportPreview && (
                                     <div className="space-y-4 animate-fadeIn pt-4">
                                         <div className="flex items-center justify-between">
                                             <h3 className="text-sm font-black text-amber-400 flex items-center gap-2 uppercase tracking-wider"><i className="fa-solid fa-eye animate-pulse"></i> Pratinjau Tabel</h3>
                                             <span className="text-[10px] md:text-xs text-slate-500 italic px-2 py-1 bg-white/5 rounded-md"><i className="fa-solid fa-arrows-left-right text-slate-600 mr-1"></i> Geser horisontal</span>
                                         </div>
-
                                         <div className="bg-slate-900/50 border border-white/8 rounded-2xl p-4 md:p-5 flex items-center gap-4">
                                             <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 text-xl"><i className="fa-solid fa-file-lines"></i></div>
                                             <div className="min-w-0">
@@ -2006,15 +1754,47 @@
                                                     <tbody className="divide-y divide-white/5">
                                                         {reportType === "presensi" ? (
                                                             liveReportPreview.rows.map((row, idx) => (
-                                                                <tr key={idx} className={`hover:bg-white/5 transition-colors ${row.isTamuTambahan ? "bg-amber-500/10" : idx % 2 === 0 ? "" : "bg-slate-900/30"}`}>
-                                                                    <td className="px-4 md:px-3 py-3 text-center text-slate-500 font-bold border-r border-white/5">{row.no}</td>
-                                                                    <td className={`px-4 md:px-3 py-3 font-bold border-r border-white/5 whitespace-nowrap max-w-[200px] truncate ${row.isTamuTambahan ? "text-amber-300" : "text-slate-100"}`}>{row.nama}</td>
-                                                                    <td className={`px-4 md:px-3 py-3 border-r border-white/5 whitespace-nowrap text-[10px] font-semibold ${row.isTamuTambahan ? "text-amber-400/60" : "text-slate-500"}`}>{row.status}</td>
-                                                                    {row.statusList.map((stat, i) => (
-                                                                        <td key={i} className={`px-4 md:px-3 py-3 text-center font-black border-r border-white/5 whitespace-nowrap ${row.isTamuTambahan ? (stat > 0 ? "text-amber-400" : "text-slate-700") : stat === "Hadir" ? "text-emerald-400" : stat === "Alpa" ? "text-rose-400" : "text-slate-600"}`}>{stat}</td>
-                                                                    ))}
-                                                                    <td className={`px-4 md:px-3 py-3 text-center font-black border-r border-white/5 ${row.isTamuTambahan ? "text-amber-400 bg-amber-500/5" : "text-emerald-400 bg-emerald-500/5"}`}>{row.hadirCount}</td>
-                                                                    <td className={`px-4 md:px-3 py-3 text-center font-bold ${row.isTamuTambahan ? "text-slate-600" : "text-rose-400 bg-rose-500/5"}`}>{row.alpaCount}</td>
+                                                                <tr key={idx} className={`hover:bg-white/5 transition-colors ${row.isTotalRow ? "bg-slate-800/80 border-t border-white/20" : row.isTamuTambahan ? "bg-amber-500/10" : idx % 2 === 0 ? "" : "bg-slate-900/30"}`}>
+                                                                    {row.isTotalRow ? (
+                                                                        <td colSpan="3" className="px-4 md:px-3 py-3 text-right font-black border-r border-white/5 whitespace-nowrap text-white">
+                                                                            {row.nama}
+                                                                        </td>
+                                                                    ) : (
+                                                                        <>
+                                                                            <td className="px-4 md:px-3 py-3 text-center text-slate-500 font-bold border-r border-white/5">{row.no}</td>
+                                                                            <td className={`px-4 md:px-3 py-3 font-bold border-r border-white/5 whitespace-nowrap max-w-[200px] truncate ${row.isTamuTambahan ? "text-amber-300" : "text-slate-100"}`}>{row.nama}</td>
+                                                                            <td className={`px-4 md:px-3 py-3 border-r border-white/5 whitespace-nowrap text-[10px] font-semibold ${row.isTamuTambahan ? "text-amber-400/60" : "text-slate-500"}`}>{row.status}</td>
+                                                                        </>
+                                                                    )}
+                                                                    
+                                                                    {row.statusList.map((stat, i) => {
+                                                                        let cellColor = "text-slate-600";
+                                                                        if (row.isTotalRow) {
+                                                                            if (row.totalType === 'hadir-anggota') cellColor = "text-emerald-400/90";
+                                                                            else if (row.totalType === 'tamu-bawah') cellColor = stat > 0 ? "text-amber-400" : "text-slate-700";
+                                                                            else if (row.totalType === 'hadir-semua') cellColor = "text-emerald-400 font-extrabold";
+                                                                            else if (row.totalType === 'alpa') cellColor = "text-rose-400";
+                                                                        } else {
+                                                                            if (row.isTamuTambahan) cellColor = stat > 0 ? "text-amber-400" : "text-slate-700";
+                                                                            else if (stat === "Hadir") cellColor = "text-emerald-400";
+                                                                            else if (stat === "Alpa") cellColor = "text-rose-400";
+                                                                        }
+                                                                        return (
+                                                                            <td key={i} className={`px-4 md:px-3 py-3 text-center font-black border-r border-white/5 whitespace-nowrap ${cellColor}`}>{stat}</td>
+                                                                        );
+                                                                    })}
+
+                                                                    <td className={`px-4 md:px-3 py-3 text-center font-black border-r border-white/5 ${
+                                                                        row.isTotalRow 
+                                                                        ? (row.totalType === 'alpa' ? 'text-slate-600' : row.totalType === 'hadir-semua' ? 'text-emerald-300 bg-emerald-500/20' : row.totalType === 'tamu-bawah' ? 'text-amber-400 bg-amber-500/10' : 'text-emerald-400/90 bg-emerald-500/5')
+                                                                        : (row.isTamuTambahan ? 'text-amber-400 bg-amber-500/10' : 'text-emerald-400 bg-emerald-500/5')
+                                                                    }`}>{row.hadirCount}</td>
+
+                                                                    <td className={`px-4 md:px-3 py-3 text-center font-bold ${
+                                                                        row.isTotalRow
+                                                                        ? (row.totalType === 'alpa' ? 'text-rose-400 bg-rose-500/10' : 'text-slate-600')
+                                                                        : (row.isTamuTambahan ? 'text-slate-600' : 'text-rose-400 bg-rose-500/5')
+                                                                    }`}>{row.alpaCount}</td>
                                                                 </tr>
                                                             ))
                                                         ) : (
@@ -2049,7 +1829,6 @@
                         </div>
                     </footer>
 
-                    {/* ── Floating Sync Button ── */}
                     <button onClick={() => handlePullFromCloud(false)} disabled={isSyncing} title={isSyncing ? "Menyinkronkan..." : "Sinkronisasi Data"}
                         className={`fixed z-50 flex items-center justify-center p-3.5 md:p-3 rounded-full text-lg md:text-base font-black shadow-2xl transition-all duration-200 border backdrop-blur-md bottom-6 md:bottom-8 right-4 md:right-8 ${
                             isSyncing ? "bg-slate-900/80 border-slate-700/40 text-slate-400 cursor-not-allowed" : "bg-amber-500 border-amber-400 text-slate-950 hover:bg-amber-400 active:scale-90 shadow-amber-500/30"
@@ -2059,7 +1838,6 @@
                     </button>
 
                     {/* ── Modals ── */}
-                    {/* Modal Jemaat */}
                     {jemaatModal.isOpen && (
                         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-[100] p-4">
                             <div className="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl animate-fadeIn max-h-[90vh] overflow-y-auto no-scrollbar">
@@ -2082,12 +1860,11 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-slate-400 mb-2 text-xs font-bold uppercase tracking-wider">Peran (Bisa Pilih lebih dari 1)</label>
+                                        <label className="block text-slate-400 mb-2 text-xs font-bold uppercase tracking-wider">Peran (Bisa Pilih > 1)</label>
                                         <div className="grid grid-cols-2 gap-3 bg-slate-950/50 p-4 rounded-xl border border-slate-800">
                                             {['Jemaat', 'Guru SS', 'Anggota SS', 'Koordinator SS', 'Pemimpin SS', 'Tamu'].map(status => (
                                                 <label key={status} className="flex items-center gap-3 text-slate-300 text-sm md:text-xs cursor-pointer hover:text-amber-300">
-                                                    <input type="checkbox" name="statusJemaat" value={status} defaultChecked={jemaatModal.mode === 'edit' && (jemaatModal.data?.statusJemaat || '').includes(status)} className="w-5 h-5 md:w-4 md:h-4 rounded accent-amber-500" />
-                                                    {status}
+                                                    <input type="checkbox" name="statusJemaat" value={status} defaultChecked={jemaatModal.mode === 'edit' && (jemaatModal.data?.statusJemaat || '').includes(status)} className="w-5 h-5 md:w-4 md:h-4 rounded accent-amber-500" />{status}
                                                 </label>
                                             ))}
                                         </div>
@@ -2101,7 +1878,6 @@
                         </div>
                     )}
 
-                    {/* Modal User */}
                     {userModal.isOpen && (
                         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-[100] p-4">
                             <div className="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl animate-fadeIn">
@@ -2127,7 +1903,6 @@
                         </div>
                     )}
 
-                    {/* Modal Kelas/SubKelas */}
                     {kelasModal.isOpen && (
                         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-[100] p-4">
                             <div className="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-sm p-6 space-y-5 shadow-2xl animate-fadeIn">
