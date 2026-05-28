@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistem Kehadiran Jemaat - PISGAH BISDAC</title>
     <link rel="icon" type="image/png" href="./PisgahWhite.png">
+    
+    <!-- Memuat Tailwind CSS di awal -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -13,13 +15,7 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
     <style>
         body { font-family: 'Inter', sans-serif; }
         
@@ -53,15 +49,48 @@
             100% { transform: translateY(0px); }
         }
         .animate-float { animation: float 3s ease-in-out infinite; }
+
+        /* Preloader Styles */
+        #app-preloader {
+            position: fixed; inset: 0; z-index: 99999;
+            background-color: #050814;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+        .spinner {
+            width: 50px; height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #f59e0b; /* Amber 500 */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="antialiased min-h-screen relative overflow-x-hidden bg-slate-50 dark:bg-[#050814] text-slate-900 dark:text-slate-100 transition-colors duration-300">
+    
+    <!-- Preloader Instan -->
+    <div id="app-preloader">
+        <div class="spinner"></div>
+        <h2 style="color: #f59e0b; font-weight: 800; font-size: 1.25rem; margin-top: 1.5rem; letter-spacing: 0.05em; font-family: 'Inter', sans-serif;">PISGAH BISDAC</h2>
+        <p style="color: #64748b; font-size: 0.875rem; margin-top: 0.5rem; font-family: 'Inter', sans-serif;">Menyiapkan Sistem...</p>
+    </div>
+
     <div class="fixed inset-0 bg-slate-100 dark:bg-[#040712] overflow-hidden -z-10 transition-colors duration-300">
         <div class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-blue-400/20 dark:bg-blue-900/15 blur-[140px]"></div>
         <div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-amber-400/20 dark:bg-amber-500/10 blur-[140px]"></div>
     </div>
 
     <div id="root"></div>
+
+    <!-- Script Library Berat Dipindah Ke Bawah (Mengoptimalkan Tampilan Awal) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef } = React;
@@ -438,6 +467,17 @@
         }
 
         function App() {
+            // Tampilan Loading Screen (Menghilangkan layar blank di awal)
+            useEffect(() => {
+                const preloader = document.getElementById('app-preloader');
+                if (preloader) {
+                    setTimeout(() => {
+                        preloader.style.opacity = '0';
+                        setTimeout(() => preloader.remove(), 500);
+                    }, 200);
+                }
+            }, []);
+
             const [isDarkMode, setIsDarkMode] = useState(() => {
                 if (typeof window !== 'undefined') {
                     const stored = localStorage.getItem('theme');
@@ -578,8 +618,75 @@
                 } finally { setIsSyncing(false); }
             };
 
+            // Fungsi Helper untuk memproses Data JSON menjadi State React
+            const processAndSetData = (d) => {
+                if (d.jemaat) setJemaat(d.jemaat.map((j, idx) => ({ ...j, id: j.id || `J_${Date.now()}_${idx}_${Math.random().toString(36).substr(2, 4)}`, tglLahir: cleanDateString(j.tglLahir) })));
+                if (d.kelas) setKelas(d.kelas);
+                if (d.subKelas) setSubKelas(d.subKelas);
+                if (d.users) {
+                    const adminRecord = d.users.find(u => u.nama === "Admin Utama (Backup PIN)");
+                    if (adminRecord) setAdminPin(adminRecord.pin);
+                    setUsers(d.users.filter(u => u.nama !== "Admin Utama (Backup PIN)"));
+                }
+                if (d.absen) {
+                    const rawAbsen = d.absen.map(a => ({ ...a, tanggal: cleanDateString(a.tanggal) }));
+                    const jSubMap = {};
+                    if (d.jemaat) d.jemaat.forEach(j => { if (j.nama) jSubMap[j.nama] = j.subKelasNama; });
+                    
+                    const absenBiasa = rawAbsen.filter(a => a.jemaatNama !== "Tamu Tambahan");
+                    const tamuRows   = rawAbsen.filter(a => a.jemaatNama === "Tamu Tambahan" && (parseInt(a.status) || 0) > 0);
+
+                    const subKelasOrder = (d.subKelas || []).map(s => s.nama);
+                    const activeSubs = {};
+                    for (const a of absenBiasa) {
+                        if (a.sesi !== "Sekolah Sabat") continue;
+                        const key = a.tanggal;
+                        if (!activeSubs[key]) activeSubs[key] = new Set();
+                        const sub = jSubMap[a.jemaatNama];
+                        if (sub) activeSubs[key].add(sub);
+                    }
+
+                    const tamuSSByDate = {};
+                    const resolvedTamu = [];
+
+                    for (const t of tamuRows) {
+                        const jumlah = parseInt(t.status) || 0;
+                        if (t.sesi === "Khotbah") resolvedTamu.push({ tanggal: t.tanggal, sesi: "Khotbah", subKelasNama: "Kebaktian Khotbah (Umum)", jumlah });
+                        else if (t.subKelasNama && t.subKelasNama !== "_ALL_") resolvedTamu.push({ tanggal: t.tanggal, sesi: t.sesi, subKelasNama: t.subKelasNama, jumlah });
+                        else {
+                            if (!tamuSSByDate[t.tanggal]) tamuSSByDate[t.tanggal] = [];
+                            tamuSSByDate[t.tanggal].push(jumlah);
+                        }
+                    }
+
+                    for (const [tgl, jumlahList] of Object.entries(tamuSSByDate)) {
+                        const activeForDate = subKelasOrder.filter(s => activeSubs[tgl] && activeSubs[tgl].has(s));
+                        if (activeForDate.length === jumlahList.length) {
+                            jumlahList.forEach((jumlah, i) => { if (jumlah > 0) resolvedTamu.push({ tanggal: tgl, sesi: "Sekolah Sabat", subKelasNama: activeForDate[i], jumlah }); });
+                        } else {
+                            activeForDate.forEach((subNama, i) => {
+                                const jumlah = jumlahList[i] !== undefined ? jumlahList[i] : jumlahList[0];
+                                if (jumlah > 0) resolvedTamu.push({ tanggal: tgl, sesi: "Sekolah Sabat", subKelasNama: subNama, jumlah });
+                            });
+                        }
+                    }
+                    setAbsen(absenBiasa); setTamuTambahan(resolvedTamu);
+                }
+                if (d.keterlibatan) setKeterlibatan(d.keterlibatan.map(k => ({ ...k, tanggal: cleanDateString(k.tanggal) })));
+                if (d.doaList) setDoaList(d.doaList.map(doa => ({ ...doa, tanggal: cleanDateString(doa.tanggal) || doa.tanggal, permohonan: (doa.permohonan || "").replace(/ \| /g, "\n").replace(/\|/g, "\n") })).sort((a, b) => Number(String(b.id || "").replace("D", "")) - Number(String(a.id || "").replace("D", ""))));
+            };
+
             const handlePullFromCloud = async (silent = false) => {
                 if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("ISI_DENGAN_URL")) return;
+
+                // FITUR SPEED BOOST: Load dari Memory Local (Cache) terlebih dahulu jika ada
+                if (!silent && jemaat.length === 0) {
+                    try {
+                        const cached = localStorage.getItem('pisgah_data_cache');
+                        if (cached) { processAndSetData(JSON.parse(cached)); }
+                    } catch(e) {}
+                }
+
                 setIsSyncing(true);
                 if (!silent) showToast("Sinkronisasi... Menarik data terbaru", "info");
                 try {
@@ -587,61 +694,9 @@
                     const res  = await fetch(bypassUrl);
                     const json = await res.json();
                     if (json.success && json.data) {
-                        const d = json.data;
-                        if (d.jemaat) setJemaat(d.jemaat.map((j, idx) => ({ ...j, id: j.id || `J_${Date.now()}_${idx}_${Math.random().toString(36).substr(2, 4)}`, tglLahir: cleanDateString(j.tglLahir) })));
-                        if (d.kelas) setKelas(d.kelas);
-                        if (d.subKelas) setSubKelas(d.subKelas);
-                        if (d.users) {
-                            const adminRecord = d.users.find(u => u.nama === "Admin Utama (Backup PIN)");
-                            if (adminRecord) setAdminPin(adminRecord.pin);
-                            setUsers(d.users.filter(u => u.nama !== "Admin Utama (Backup PIN)"));
-                        }
-                        if (d.absen) {
-                            const rawAbsen = d.absen.map(a => ({ ...a, tanggal: cleanDateString(a.tanggal) }));
-                            const jSubMap = {};
-                            if (d.jemaat) d.jemaat.forEach(j => { if (j.nama) jSubMap[j.nama] = j.subKelasNama; });
-                            
-                            const absenBiasa = rawAbsen.filter(a => a.jemaatNama !== "Tamu Tambahan");
-                            const tamuRows   = rawAbsen.filter(a => a.jemaatNama === "Tamu Tambahan" && (parseInt(a.status) || 0) > 0);
-
-                            const subKelasOrder = (d.subKelas || []).map(s => s.nama);
-                            const activeSubs = {};
-                            for (const a of absenBiasa) {
-                                if (a.sesi !== "Sekolah Sabat") continue;
-                                const key = a.tanggal;
-                                if (!activeSubs[key]) activeSubs[key] = new Set();
-                                const sub = jSubMap[a.jemaatNama];
-                                if (sub) activeSubs[key].add(sub);
-                            }
-
-                            const tamuSSByDate = {};
-                            const resolvedTamu = [];
-
-                            for (const t of tamuRows) {
-                                const jumlah = parseInt(t.status) || 0;
-                                if (t.sesi === "Khotbah") resolvedTamu.push({ tanggal: t.tanggal, sesi: "Khotbah", subKelasNama: "Kebaktian Khotbah (Umum)", jumlah });
-                                else if (t.subKelasNama && t.subKelasNama !== "_ALL_") resolvedTamu.push({ tanggal: t.tanggal, sesi: t.sesi, subKelasNama: t.subKelasNama, jumlah });
-                                else {
-                                    if (!tamuSSByDate[t.tanggal]) tamuSSByDate[t.tanggal] = [];
-                                    tamuSSByDate[t.tanggal].push(jumlah);
-                                }
-                            }
-
-                            for (const [tgl, jumlahList] of Object.entries(tamuSSByDate)) {
-                                const activeForDate = subKelasOrder.filter(s => activeSubs[tgl] && activeSubs[tgl].has(s));
-                                if (activeForDate.length === jumlahList.length) {
-                                    jumlahList.forEach((jumlah, i) => { if (jumlah > 0) resolvedTamu.push({ tanggal: tgl, sesi: "Sekolah Sabat", subKelasNama: activeForDate[i], jumlah }); });
-                                } else {
-                                    activeForDate.forEach((subNama, i) => {
-                                        const jumlah = jumlahList[i] !== undefined ? jumlahList[i] : jumlahList[0];
-                                        if (jumlah > 0) resolvedTamu.push({ tanggal: tgl, sesi: "Sekolah Sabat", subKelasNama: subNama, jumlah });
-                                    });
-                                }
-                            }
-                            setAbsen(absenBiasa); setTamuTambahan(resolvedTamu);
-                        }
-                        if (d.keterlibatan) setKeterlibatan(d.keterlibatan.map(k => ({ ...k, tanggal: cleanDateString(k.tanggal) })));
-                        if (d.doaList) setDoaList(d.doaList.map(doa => ({ ...doa, tanggal: cleanDateString(doa.tanggal) || doa.tanggal, permohonan: (doa.permohonan || "").replace(/ \| /g, "\n").replace(/\|/g, "\n") })).sort((a, b) => Number(String(b.id || "").replace("D", "")) - Number(String(a.id || "").replace("D", ""))));
+                        processAndSetData(json.data);
+                        // Simpan data terbaru ke Memory Local (Cache)
+                        localStorage.setItem('pisgah_data_cache', JSON.stringify(json.data));
                         if (!silent) showToast("Sinkronisasi Berhasil!", "success");
                     }
                 } catch (err) {
@@ -1146,7 +1201,7 @@
                                 if (rowName.includes("KESELURUHAN")) {
                                     data.cell.styles.fillColor = [210, 240, 210];
                                     data.cell.styles.textColor = [0, 80, 30];
-                                } else if (rowName.includes("TAMU TAMBAHAN")) {
+                                } else if (rowName.includes("TAMU TAMBAHAN") || rowName.includes("TOTAL TAMU")) {
                                     data.cell.styles.fillColor = [255, 225, 180];
                                     data.cell.styles.textColor = [120, 60, 0];
                                 } else if (rowName.includes("HADIR")) {
@@ -1312,7 +1367,7 @@
                     )}
 
                     <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 md:py-8 mb-8 md:mb-0">
-                        {}
+                        
                         {activeTab === "dashboard" && (
                             <section className="space-y-6 md:space-y-8 animate-fadeIn">
                                 <div className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 rounded-3xl p-6 md:p-8 shadow-xl flex flex-col md:flex-row justify-between items-center gap-6 backdrop-blur relative overflow-hidden transition-colors">
@@ -1448,13 +1503,7 @@
                                             </div>
                                             <div>
                                                 <label className="block text-slate-500 dark:text-slate-400 mb-1.5 md:mb-1">Pokok Doa *</label>
-                                                <textarea
-  name="doaPermohonan"
-  rows="4"
-  required
-  placeholder="Tulis Permohonan Doa - Enter untuk Poin doa..."
-  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 md:p-2.5 text-slate-900 dark:text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500 resize-y"
-></textarea>
+                                                <textarea name="doaPermohonan" rows="4" required placeholder="Tulis Permohonan Doa - Enter untuk Poin doa..." className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 md:p-2.5 text-slate-900 dark:text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500 resize-y"></textarea>
                                             </div>
                                             <div className="flex justify-end pt-2">
                                                 <button type="submit" className="w-full md:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-5 py-3 md:py-2.5 rounded-xl transition flex items-center justify-center gap-2 active:scale-95"><i className="fa-solid fa-paper-plane"></i> Kirim Permohonan Doa</button>
@@ -1486,7 +1535,7 @@
                             </section>
                         )}
 
-                        {}
+                        
                         {activeTab === "jemaat" && currentUserRole === "admin" && (
                             <section className="space-y-5 md:space-y-4 animate-fadeIn">
                                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -1538,7 +1587,7 @@
                             </section>
                         )}
 
-                        {}
+                        
                         {activeTab === "kelas" && currentUserRole === "admin" && (
                             <section className="space-y-6 animate-fadeIn">
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -1583,7 +1632,7 @@
                             </section>
                         )}
 
-                        {}
+                        
                         {activeTab === "users" && currentUserRole === "admin" && (
                             <section className="space-y-6 animate-fadeIn">
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -1634,7 +1683,7 @@
                             </section>
                         )}
 
-                        {}
+                        
                         {activeTab === "input-absen" && currentUserRole !== "public" && (
                             <section className="space-y-5 md:space-y-6 animate-fadeIn">
                                 <div className="bg-white dark:bg-slate-900/50 p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-lg">
@@ -1759,7 +1808,7 @@
                             </section>
                         )}
 
-                        {}
+                        
                         {activeTab === "rekap" && currentUserRole !== "public" && (
                             <section className="space-y-6 animate-fadeIn">
                                 <div className="flex items-center gap-4">
@@ -1779,14 +1828,18 @@
                                         </div>
                                     </div>
                                     <div className={`grid gap-4 ${isMultiMonth ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
-                                        <div className="min-w-0">
+                                        <div className="min-w-0 w-full overflow-hidden">
                                             <label className="block text-[11px] md:text-[10px] font-black text-slate-500 uppercase tracking-wider mb-2">{isMultiMonth ? "Dari Bulan" : "Pilih Bulan"}</label>
-                                            <input type="month" value={reportMonth} onChange={(e) => setReportMonth(e.target.value)} className="w-full max-w-full box-border bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 px-3 py-2.5 text-slate-900 dark:text-white font-bold rounded-xl focus:outline-none focus:border-amber-500/50 text-sm md:text-sm" />
+                                            <div className="w-full max-w-full box-border bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl focus-within:border-amber-500/50">
+                                                <input type="month" value={reportMonth} onChange={(e) => setReportMonth(e.target.value)} style={{maxWidth: '100%'}} className="w-full bg-transparent px-3 py-2.5 text-slate-900 dark:text-white font-bold focus:outline-none text-sm md:text-sm" />
+                                            </div>
                                         </div>
                                         {isMultiMonth && (
-                                            <div className="min-w-0">
+                                            <div className="min-w-0 w-full overflow-hidden">
                                                 <label className="block text-[11px] md:text-[10px] font-black text-slate-500 uppercase tracking-wider mb-2">Sampai Bulan</label>
-                                                <input type="month" value={reportMonthEnd} min={reportMonth} onChange={(e) => setReportMonthEnd(e.target.value)} className="w-full max-w-full box-border bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 px-3 py-2.5 text-slate-900 dark:text-white font-bold rounded-xl focus:outline-none focus:border-amber-500/50 text-sm md:text-sm" />
+                                                <div className="w-full max-w-full box-border bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl focus-within:border-amber-500/50">
+                                                    <input type="month" value={reportMonthEnd} min={reportMonth} onChange={(e) => setReportMonthEnd(e.target.value)} style={{maxWidth: '100%'}} className="w-full bg-transparent px-3 py-2.5 text-slate-900 dark:text-white font-bold focus:outline-none text-sm md:text-sm" />
+                                                </div>
                                             </div>
                                         )}
                                     </div>
@@ -1826,16 +1879,16 @@
                                     )}
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                        <button onClick={handleExportPDF} className="w-full bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-black text-sm py-4 md:py-3.5 rounded-2xl transition active:scale-95 flex items-center justify-center gap-3 shadow-lg shadow-rose-500/25">
-                            <i className="fa-solid fa-file-pdf text-lg"></i> Unduh PDF
-                        </button>
-                        <button onClick={handleExportExcel} className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-sm py-4 md:py-3.5 rounded-2xl transition active:scale-95 flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/25">
-                            <i className="fa-solid fa-file-excel text-lg"></i> Unduh Excel
-                        </button>
-                    </div>
-                </div>
+                                        <button onClick={handleExportPDF} className="w-full bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-black text-sm py-4 md:py-3.5 rounded-2xl transition active:scale-95 flex items-center justify-center gap-3 shadow-lg shadow-rose-500/25">
+                                            <i className="fa-solid fa-file-pdf text-lg"></i> Unduh PDF
+                                        </button>
+                                        <button onClick={handleExportExcel} className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-sm py-4 md:py-3.5 rounded-2xl transition active:scale-95 flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/25">
+                                            <i className="fa-solid fa-file-excel text-lg"></i> Unduh Excel
+                                        </button>
+                                    </div>
+                                </div>
 
-                {/* PRATINJAU TABEL LAPORAN */}
+                                {/* PRATINJAU TABEL LAPORAN */}
                                 {liveReportPreview && (
                                     <div className="space-y-4 animate-fadeIn pt-4">
                                         <div className="flex items-center justify-between">
@@ -1954,16 +2007,21 @@
                             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl animate-fadeIn max-h-[90vh] overflow-y-auto no-scrollbar">
                                 <h3 className="font-extrabold text-amber-600 dark:text-amber-400 text-lg flex items-center gap-2"><i className="fa-solid fa-user-pen"></i> {jemaatModal.mode === 'create' ? 'Tambah Anggota' : 'Edit Anggota'}</h3>
                                 <form onSubmit={saveJemaat} className="space-y-4">
-                                    <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Nama Lengkap *</label><input type="text" name="nama" required defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.nama : ''} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-amber-500 text-base md:text-sm" placeholder="Nama sesuai KTP/Kartu Jemaat"/></div>
+                                    <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Nama Lengkap *</label><input type="text" name="nama" required defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.nama : ''} className="w-full max-w-full box-border bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-amber-500 text-base md:text-sm" placeholder="Nama sesuai KTP/Kartu Jemaat"/></div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Gender</label><select name="gender" defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.gender : 'Laki-laki'} className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-3 rounded-xl border border-slate-300 dark:border-slate-700 text-base md:text-sm focus:outline-none focus:border-amber-500"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
                                         <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Baptis</label><select name="statusBaptis" defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.statusBaptis : 'Sudah Baptis'} className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-3 rounded-xl border border-slate-300 dark:border-slate-700 text-base md:text-sm focus:outline-none focus:border-amber-500"><option value="Sudah Baptis">Sudah</option><option value="Belum Baptis">Belum</option></select></div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        <div className="min-w-0"><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Tanggal Lahir</label><input type="date" name="tglLahir" defaultValue={jemaatModal.mode === 'edit' ? cleanDateString(jemaatModal.data?.tglLahir) : ''} className="w-full max-w-full box-border bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 px-3 py-2.5 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-amber-500 text-sm md:text-sm" /></div>
-                                        <div className="min-w-0">
+                                        <div className="min-w-0 w-full overflow-hidden">
+                                            <label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Tanggal Lahir</label>
+                                            <div className="w-full max-w-full box-border bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl focus-within:border-amber-500/50">
+                                                <input type="date" name="tglLahir" defaultValue={jemaatModal.mode === 'edit' ? cleanDateString(jemaatModal.data?.tglLahir) : ''} style={{maxWidth: '100%'}} className="w-full bg-transparent px-3 py-2.5 text-slate-900 dark:text-white focus:outline-none text-sm md:text-sm" />
+                                            </div>
+                                        </div>
+                                        <div className="min-w-0 w-full">
                                             <label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Sub-Kelas *</label>
-                                            <select name="subKelasNama" required defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.subKelasNama : ''} className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-3 rounded-xl border border-slate-300 dark:border-slate-700 text-base md:text-sm focus:outline-none focus:border-amber-500">
+                                            <select name="subKelasNama" required defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.subKelasNama : ''} className="w-full max-w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-3 rounded-xl border border-slate-300 dark:border-slate-700 text-base md:text-sm focus:outline-none focus:border-amber-500">
                                                 <option value="" disabled hidden>Pilih Kelas...</option>
                                                 <option value="Kebaktian Khotbah (Umum)">Khotbah (Umum)</option>
                                                 {subKelas.map(s => <option key={s.nama} value={s.nama}>{s.nama}</option>)}
