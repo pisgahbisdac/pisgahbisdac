@@ -118,7 +118,7 @@
             return sabbats;
         };
 
-        function DashboardCharts({ jemaat, absen, tamuTambahan, subKelas, metrics, parseLocalDate }) {
+        function DashboardCharts({ jemaat, absen, tamuTambahan, subKelas, metrics, parseLocalDate, currentUserRole }) {
     const trendRef    = useRef(null);
     const donutRef    = useRef(null);
     const ageRef      = useRef(null);
@@ -408,8 +408,11 @@
             </div>
 
             {/* Kehadiran per anggota */}
+            {currentUserRole !== "public" && (
             <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur">
-                <h4 className="font-extrabold text-white text-xs mb-1 uppercase tracking-wider"><i className="fa-solid fa-user-check text-amber-400 mr-1"></i> Kehadiran per Anggota</h4>
+                <h4 className="font-extrabold text-white text-xs mb-1 uppercase tracking-wider">
+                    <i className="fa-solid fa-user-check text-amber-400 mr-1"></i> Kehadiran per Anggota
+                </h4>
                 <p className="text-[10px] text-slate-500 mb-4">4 Sabat terakhir · SS saja</p>
                 <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                     {memberAttendance.map((m) => {
@@ -429,8 +432,9 @@
                     {memberAttendance.length === 0 && <p className="text-slate-600 text-xs italic text-center py-4">Belum ada data absen.</p>}
                 </div>
             </div>
-        </div>
-    );
+        )}
+    </div>
+);
 }
 
         // ─── App Component ────────────────────────────────────────────────────────
@@ -1661,6 +1665,7 @@ pushDataToCloud({ doaList: nextDoaList });
     subKelas={subKelas}
     metrics={metrics}
     parseLocalDate={parseLocalDate}
+    currentUserRole={currentUserRole}
 />
 
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
