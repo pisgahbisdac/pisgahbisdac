@@ -1778,15 +1778,15 @@
                                             <button onClick={() => setIsMultiMonth(true)}  className={`py-3 md:py-2.5 rounded-xl font-black text-xs md:text-[11px] border transition-all flex items-center justify-center gap-2 ${isMultiMonth  ? "bg-amber-50 dark:bg-amber-500/15 border-amber-300 dark:border-amber-500/40 text-amber-600 dark:text-amber-400" : "bg-slate-50 dark:bg-slate-950/80 border-slate-200 dark:border-white/5 text-slate-500 hover:text-slate-900 dark:hover:text-white"}`}><i className="fa-solid fa-calendar-week"></i> Multi-Bulan</button>
                                         </div>
                                     </div>
-                                    <div className={`grid gap-4 ${isMultiMonth ? "grid-cols-2" : "grid-cols-1"}`}>
-                                        <div>
+                                    <div className={`grid gap-4 ${isMultiMonth ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
+                                        <div className="min-w-0">
                                             <label className="block text-[11px] md:text-[10px] font-black text-slate-500 uppercase tracking-wider mb-2">{isMultiMonth ? "Dari Bulan" : "Pilih Bulan"}</label>
-                                            <input type="month" value={reportMonth} onChange={(e) => setReportMonth(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 px-4 py-3 md:py-2.5 text-slate-900 dark:text-white font-bold rounded-xl focus:outline-none focus:border-amber-500/50 text-base md:text-sm" />
+                                            <input type="month" value={reportMonth} onChange={(e) => setReportMonth(e.target.value)} className="w-full max-w-full box-border bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 px-3 py-2.5 text-slate-900 dark:text-white font-bold rounded-xl focus:outline-none focus:border-amber-500/50 text-sm md:text-sm" />
                                         </div>
                                         {isMultiMonth && (
-                                            <div>
+                                            <div className="min-w-0">
                                                 <label className="block text-[11px] md:text-[10px] font-black text-slate-500 uppercase tracking-wider mb-2">Sampai Bulan</label>
-                                                <input type="month" value={reportMonthEnd} min={reportMonth} onChange={(e) => setReportMonthEnd(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 px-4 py-3 md:py-2.5 text-slate-900 dark:text-white font-bold rounded-xl focus:outline-none focus:border-amber-500/50 text-base md:text-sm" />
+                                                <input type="month" value={reportMonthEnd} min={reportMonth} onChange={(e) => setReportMonthEnd(e.target.value)} className="w-full max-w-full box-border bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 px-3 py-2.5 text-slate-900 dark:text-white font-bold rounded-xl focus:outline-none focus:border-amber-500/50 text-sm md:text-sm" />
                                             </div>
                                         )}
                                     </div>
@@ -1826,16 +1826,16 @@
                                     )}
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                                        <button onClick={handleExportPDF} className="w-full bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-black text-sm py-4 md:py-3.5 rounded-2xl transition active:scale-95 flex items-center justify-center gap-3 shadow-lg shadow-rose-500/25">
-                                            <i className="fa-solid fa-file-pdf text-lg"></i> Unduh PDF
-                                        </button>
-                                        <button onClick={handleExportExcel} className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-sm py-4 md:py-3.5 rounded-2xl transition active:scale-95 flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/25">
-                                            <i className="fa-solid fa-file-excel text-lg"></i> Unduh Excel
-                                        </button>
-                                    </div>
-                                </div>
+                        <button onClick={handleExportPDF} className="w-full bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-black text-sm py-4 md:py-3.5 rounded-2xl transition active:scale-95 flex items-center justify-center gap-3 shadow-lg shadow-rose-500/25">
+                            <i className="fa-solid fa-file-pdf text-lg"></i> Unduh PDF
+                        </button>
+                        <button onClick={handleExportExcel} className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-sm py-4 md:py-3.5 rounded-2xl transition active:scale-95 flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/25">
+                            <i className="fa-solid fa-file-excel text-lg"></i> Unduh Excel
+                        </button>
+                    </div>
+                </div>
 
-                                {/* PRATINJAU TABEL LAPORAN */}
+                {/* PRATINJAU TABEL LAPORAN */}
                                 {liveReportPreview && (
                                     <div className="space-y-4 animate-fadeIn pt-4">
                                         <div className="flex items-center justify-between">
@@ -1960,8 +1960,8 @@
                                         <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Baptis</label><select name="statusBaptis" defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.statusBaptis : 'Sudah Baptis'} className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-3 rounded-xl border border-slate-300 dark:border-slate-700 text-base md:text-sm focus:outline-none focus:border-amber-500"><option value="Sudah Baptis">Sudah</option><option value="Belum Baptis">Belum</option></select></div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Tanggal Lahir</label><input type="date" name="tglLahir" defaultValue={jemaatModal.mode === 'edit' ? cleanDateString(jemaatModal.data?.tglLahir) : ''} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-amber-500 text-base md:text-sm" /></div>
-                                        <div>
+                                        <div className="min-w-0"><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Tanggal Lahir</label><input type="date" name="tglLahir" defaultValue={jemaatModal.mode === 'edit' ? cleanDateString(jemaatModal.data?.tglLahir) : ''} className="w-full max-w-full box-border bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 px-3 py-2.5 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-amber-500 text-sm md:text-sm" /></div>
+                                        <div className="min-w-0">
                                             <label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Sub-Kelas *</label>
                                             <select name="subKelasNama" required defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.subKelasNama : ''} className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-3 rounded-xl border border-slate-300 dark:border-slate-700 text-base md:text-sm focus:outline-none focus:border-amber-500">
                                                 <option value="" disabled hidden>Pilih Kelas...</option>
