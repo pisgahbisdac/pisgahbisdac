@@ -1284,7 +1284,7 @@
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                                     <div className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 p-4 md:p-5 rounded-2xl shadow-xl backdrop-blur-sm">
                                         <h4 className="font-extrabold text-slate-900 dark:text-white text-sm md:text-xs mb-4 uppercase tracking-wider flex items-center justify-between">
-                                            <span className="flex items-center gap-2"><i className="fa-solid fa-cake-candles text-amber-500 dark:text-amber-400"></i> Ultah Bulan Ini</span>
+                                            <span className="flex items-center gap-2"><i className="fa-solid fa-cake-candles text-amber-500 dark:text-amber-400"></i> Ulang Tahun Bulan Ini</span>
                                             <span className="text-[10px] bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider">{new Date().toLocaleString('id-ID', { month: 'long' })}</span>
                                         </h4>
                                         {ultahBulanIni.length === 0 ? (
@@ -1313,7 +1313,7 @@
                                     </div>
                                     <div className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 p-4 md:p-5 rounded-2xl shadow-xl backdrop-blur-sm">
                                         <h4 className="font-extrabold text-slate-900 dark:text-white text-sm md:text-xs mb-4 uppercase tracking-wider flex items-center justify-between">
-                                            <span className="flex items-center gap-2"><i className="fa-solid fa-calendar-week text-slate-500 dark:text-slate-400"></i> Ultah Bulan Lalu</span>
+                                            <span className="flex items-center gap-2"><i className="fa-solid fa-calendar-week text-slate-500 dark:text-slate-400"></i> Ulang Tahun Bulan Lalu</span>
                                             <span className="text-[10px] bg-slate-100 dark:bg-slate-600/20 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider">{new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleString('id-ID', { month: 'short' })}</span>
                                         </h4>
                                         {ultahBulanLalu.length === 0 ? (
@@ -1383,9 +1383,9 @@
                                         <h4 className="font-extrabold text-slate-900 dark:text-white text-sm md:text-xs mb-4 uppercase tracking-wider flex items-center gap-2"><i className="fa-solid fa-hands-praying text-amber-500 dark:text-amber-400 animate-bounce"></i> Form Doa Jemaat</h4>
                                         <form onSubmit={handleAddDoa} className="space-y-4 text-sm md:text-xs font-medium">
                                             <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 md:mb-1">Nama Pemohon *</label><input type="text" name="doaNama" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 md:p-2.5 text-slate-900 dark:text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500" placeholder="Keluarga..." /></div>
-                                            <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 md:mb-1">No. HP / WA *</label><input type="text" name="doaNoHp" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 md:p-2.5 text-slate-900 dark:text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500" placeholder="0812..." /></div>
+                                            <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 md:mb-1">No. HP / WA *</label><input type="text" name="doaNoHp" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 md:p-2.5 text-slate-900 dark:text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500" placeholder="62812..." /></div>
                                             <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 md:mb-1">Pokok Doa *</label><textarea name="doaPermohonan" rows="4" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 md:p-2.5 text-slate-900 dark:text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500 resize-y"></textarea></div>
-                                            <div className="flex justify-end pt-2"><button type="submit" className="w-full md:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-5 py-3 md:py-2.5 rounded-xl transition flex items-center justify-center gap-2 active:scale-95"><i className="fa-solid fa-paper-plane"></i> Kirim Doa</button></div>
+                                            <div className="flex justify-end pt-2"><button type="submit" className="w-full md:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-5 py-3 md:py-2.5 rounded-xl transition flex items-center justify-center gap-2 active:scale-95"><i className="fa-solid fa-paper-plane"></i> Kirim Pokok Doa</button></div>
                                         </form>
                                     </div>
                                     <div className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur-sm">
