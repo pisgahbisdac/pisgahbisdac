@@ -28,6 +28,14 @@
             animation: fadeIn 0.3s ease-out forwards;
         }
 
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen relative overflow-x-hidden">
@@ -515,6 +523,24 @@
                     if (!j.tglLahir) return false;
                     const parts = j.tglLahir.split('-');
                     return parts.length === 3 && parseInt(parts[1]) === currentMonth;
+                }).sort((a, b) => parseInt(a.tglLahir.split('-')[2]) - parseInt(b.tglLahir.split('-')[2]));
+            }, [jemaat]);
+
+            const ultahBulanLalu = useMemo(() => {
+                const now = new Date();
+                let lastMonth = now.getMonth(); // 0-11
+                let year = now.getFullYear();
+                if (lastMonth === 0) {
+                lastMonth = 11;
+                year--;
+            } else {
+            lastMonth--;
+            }
+            const targetMonth = lastMonth + 1; // 1-12
+                return jemaat.filter(j => {
+                if (!j.tglLahir) return false;
+                const parts = j.tglLahir.split('-');
+                return parts.length === 3 && parseInt(parts[1]) === targetMonth;
                 }).sort((a, b) => parseInt(a.tglLahir.split('-')[2]) - parseInt(b.tglLahir.split('-')[2]));
             }, [jemaat]);
 
@@ -1541,15 +1567,109 @@ pushDataToCloud({ doaList: nextDoaList });
                         {/* ══════════ DASHBOARD ══════════ */}
                         {activeTab === "dashboard" && (
                             <section className="space-y-8 animate-fadeIn">
-                                <div className="bg-slate-900/40 border border-white/10 rounded-3xl p-6 text-white shadow-xl flex flex-col md:flex-row justify-between items-center gap-4 backdrop-blur">
-                                    <div className="space-y-1">
-                                        <h2 className="text-xl md:text-2xl font-black bg-gradient-to-r from-amber-200 to-yellow-500 bg-clip-text text-transparent">PISGAH BISDAC</h2>
-                                        <p className="text-slate-300 text-xs max-w-xl font-medium">Kelola data presensi kebaktian utama, sekolah sabat, dan pelaporan parameter 10 kegiatan triwulan.</p>
-                                    </div>
-                                    {currentUserRole !== "public" && (
-                                        <button onClick={() => setActiveTab("input-absen")} className="bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 font-black text-xs px-5 py-3 rounded-xl shadow-md hover:scale-[1.02] active:scale-95 transition duration-150"><i className="fa-solid fa-pen-to-square mr-1"></i> Mulai Absen Sabat</button>
-                                    )}
+                                <div className="bg-slate-900/40 border border-white/10 rounded-3xl p-4 text-white shadow-xl flex flex-col md:flex-row justify-between items-center gap-4 backdrop-blur relative overflow-hidden">
+    {/* Logo Floating di pojok kanan bawah */}
+    <div className="absolute bottom-[0px] right-2 w-48 h-48 opacity-30 pointer-events-none animate-float">
+        <img src="./PisgahWhite.png" alt="Logo PISGAH" className="w-full h-full object-contain" />
+    </div>
+    <div className="space-y-1 relative z-10 flex-1 text-center">
+        <h2 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-amber-200 to-yellow-500 bg-clip-text text-transparent">Dashboard Jemaat <br/>PISGAH BISDAC</h2>
+        <p className="text-slate-300 text-l max-w-xl font-medium mx-auto">
+            Kelola data presensi kebaktian utama, sekolah sabat, dan pelaporan parameter 10 kegiatan triwulan.<br/>
+            Ketahui statistik Kehadiran dan keanggotaan dalam Gereja Anda
+        </p>
+    </div>
+    {currentUserRole !== "public" && (
+        <button onClick={() => setActiveTab("input-absen")} className="bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 font-black text-xs px-5 py-3 rounded-xl shadow-md hover:scale-[1.02] active:scale-95 transition duration-150 z-10">
+            <i className="fa-solid fa-pen-to-square mr-1"></i> Mulai Absen Sabat
+        </button>
+    )}
+</div>
+
+                                {/* ── Dua Kolom: Ulang Tahun Bulan Ini & Bulan Lalu ── */}
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+    {/* Ulang Tahun Bulan Ini */}
+    <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur-sm">
+        <h4 className="font-extrabold text-white text-xs mb-4 uppercase tracking-wider flex items-center justify-between">
+            <span className="flex items-center gap-2">
+                <i className="fa-solid fa-cake-candles text-amber-400"></i> Ulang Tahun Bulan Ini
+            </span>
+            <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider">
+                {new Date().toLocaleString('id-ID', { month: 'long' })}
+            </span>
+        </h4>
+        {ultahBulanIni.length === 0 ? (
+            <div className="text-center py-12 text-slate-500 space-y-2">
+                <i className="fa-solid fa-calendar-minus text-3xl text-slate-600 mb-1"></i>
+                <p className="text-xs">Tidak ada anggota yang berulang tahun di bulan ini.</p>
+            </div>
+        ) : (
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+                {ultahBulanIni.map(j => {
+                    const birthDate = parseLocalDate(j.tglLahir);
+                    const age = birthDate ? new Date().getFullYear() - birthDate.getFullYear() : null;
+                    const day = birthDate ? birthDate.getDate() : '';
+                    return (
+                        <div key={j.id} className="bg-slate-950/40 border border-white/5 p-3.5 rounded-xl flex items-center justify-between gap-3 hover:bg-white/5 transition-all duration-200">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xs font-black">{day}</div>
+                                <div>
+                                    <h5 className="font-extrabold text-xs text-white leading-snug">{j.nama}</h5>
+                                    <p className="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5 font-semibold">
+                                        <span>{j.subKelasNama}</span>
+                                        {age && <span className="text-slate-600 font-bold">&bull; {age} Thn</span>}
+                                    </p>
                                 </div>
+                            </div>
+                            <div className="text-xs text-amber-400 animate-pulse"><i className="fa-solid fa-gift"></i></div>
+                        </div>
+                    );
+                })}
+            </div>
+        )}
+    </div>
+
+    {/* Ulang Tahun Bulan Lalu */}
+    <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur-sm">
+        <h4 className="font-extrabold text-white text-xs mb-4 uppercase tracking-wider flex items-center justify-between">
+            <span className="flex items-center gap-2">
+                <i className="fa-solid fa-calendar-week text-slate-400"></i> Ulang Tahun Bulan Lalu
+            </span>
+            <span className="text-[10px] bg-slate-600/20 text-slate-300 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider">
+                {new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleString('id-ID', { month: 'long', year: 'numeric' })}
+            </span>
+        </h4>
+        {ultahBulanLalu.length === 0 ? (
+            <div className="text-center py-12 text-slate-500 space-y-2">
+                <i className="fa-solid fa-calendar-minus text-3xl text-slate-600 mb-1"></i>
+                <p className="text-xs">Tidak ada anggota yang berulang tahun pada bulan lalu.</p>
+            </div>
+        ) : (
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+                {ultahBulanLalu.map(j => {
+                    const birthDate = parseLocalDate(j.tglLahir);
+                    const age = birthDate ? new Date().getFullYear() - birthDate.getFullYear() : null;
+                    const day = birthDate ? birthDate.getDate() : '';
+                    return (
+                        <div key={j.id} className="bg-slate-950/40 border border-white/5 p-3.5 rounded-xl flex items-center justify-between gap-3 hover:bg-white/5 transition-all duration-200">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-slate-700/30 border border-slate-600/30 flex items-center justify-center text-slate-400 text-xs font-black">{day}</div>
+                                <div>
+                                    <h5 className="font-extrabold text-xs text-white leading-snug">{j.nama}</h5>
+                                    <p className="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5 font-semibold">
+                                        <span>{j.subKelasNama}</span>
+                                        {age && <span className="text-slate-600 font-bold">&bull; {age} Thn</span>}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="text-xs text-slate-500"><i className="fa-regular fa-calendar"></i></div>
+                        </div>
+                    );
+                })}
+            </div>
+        )}
+    </div>
+</div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     {/* Total Keanggotaan */}
@@ -1668,87 +1788,77 @@ pushDataToCloud({ doaList: nextDoaList });
     currentUserRole={currentUserRole}
 />
 
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                    <div className="lg:col-span-2 space-y-6">
-                                        {/* Formulir Doa */}
-                                        <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur-sm">
-                                            <h4 className="font-extrabold text-white text-xs mb-4 uppercase tracking-wider flex items-center gap-2"><i className="fa-solid fa-hands-praying text-amber-400 animate-bounce"></i> Formulir Permohonan Doa Jemaat</h4>
-                                            <form onSubmit={handleAddDoa} className="space-y-4 text-xs font-medium">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div><label className="block text-slate-400 mb-1">Nama Pemohon *</label><input type="text" name="doaNama" required className="w-full bg-slate-950 border border-slate-700 p-2.5 text-white rounded-lg focus:outline-none focus:border-amber-500" placeholder="Contoh: Keluarga Aditya" /></div>
-                                                    <div><label className="block text-slate-400 mb-1">No. Handphone / WhatsApp *</label><input type="text" name="doaNoHp" required className="w-full bg-slate-950 border border-slate-700 p-2.5 text-white rounded-lg focus:outline-none focus:border-amber-500" placeholder="Contoh: 62812xxxxxxxx" /></div>
-                                                </div>
-                                                <div><label className="block text-slate-400 mb-1">Pokok Permohonan Doa *</label>
-                                                    <textarea name="doaPermohonan" rows="4" required className="w-full bg-slate-950 border border-slate-700 p-2.5 text-white rounded-lg focus:outline-none focus:border-amber-500 resize-y" placeholder="Tuliskan setiap pokok doa di baris baru..."></textarea>
-                                                </div>
-                                                <div className="flex justify-end"><button type="submit" className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-5 py-2.5 rounded-xl transition flex items-center gap-2 active:scale-95 duration-100"><i className="fa-solid fa-paper-plane"></i> Kirim Permohonan Doa</button></div>
-                                            </form>
-                                        </div>
+                                {/* ── Dua Kolom: Formulir Doa (kiri) & Daftar Doa (kanan) ── */}
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    {/* Formulir Permohonan Doa */}
+    <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur-sm">
+        <h4 className="font-extrabold text-white text-xs mb-4 uppercase tracking-wider flex items-center gap-2">
+            <i className="fa-solid fa-hands-praying text-amber-400 animate-bounce"></i> 
+            Formulir Permohonan Doa Jemaat
+        </h4>
+        <form onSubmit={handleAddDoa} className="space-y-4 text-xs font-medium">
+            <div className="grid grid-cols-1 gap-4">
+                <div>
+                    <label className="block text-slate-400 mb-1">Nama Pemohon *</label>
+                    <input type="text" name="doaNama" required className="w-full bg-slate-950 border border-slate-700 p-2.5 text-white rounded-lg focus:outline-none focus:border-amber-500" placeholder="Contoh: Keluarga Aditya" />
+                </div>
+                <div>
+                    <label className="block text-slate-400 mb-1">No. Handphone / WhatsApp *</label>
+                    <input type="text" name="doaNoHp" required className="w-full bg-slate-950 border border-slate-700 p-2.5 text-white rounded-lg focus:outline-none focus:border-amber-500" placeholder="Contoh: 62812xxxxxxxx" />
+                </div>
+            </div>
+            <div>
+                <label className="block text-slate-400 mb-1">Pokok Permohonan Doa *</label>
+                <textarea name="doaPermohonan" rows="4" required className="w-full bg-slate-950 border border-slate-700 p-2.5 text-white rounded-lg focus:outline-none focus:border-amber-500 resize-y" placeholder="Tuliskan setiap pokok doa di baris baru..."></textarea>
+            </div>
+            <div className="flex justify-end">
+                <button type="submit" className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-5 py-2.5 rounded-xl transition flex items-center gap-2 active:scale-95 duration-100">
+                    <i className="fa-solid fa-paper-plane"></i> Kirim Permohonan Doa
+                </button>
+            </div>
+        </form>
+    </div>
 
-                                        {/* Daftar Doa */}
-                                        <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur-sm">
-                                            <h4 className="font-extrabold text-white text-xs mb-4 uppercase tracking-wider flex items-center gap-2"><i className="fa-solid fa-list-check text-amber-400"></i> Daftar Pokok Doa Jemaat Pekan Ini</h4>
-                                            {doaList.length === 0 ? (
-                                                <p className="text-slate-500 text-xs text-center py-6 italic">Belum ada pokok permohonan doa minggu ini.</p>
-                                            ) : (
-                                                <div className="space-y-3 max-h-[320px] overflow-y-auto pr-1">
-                                                    {doaList.map(d => (
-                                                        <div key={d.id} className="bg-slate-950/50 border border-white/5 p-4 rounded-xl flex justify-between items-start gap-4 hover:border-amber-500/20 transition-all duration-200">
-                                                            <div className="space-y-1.5 flex-1">
-                                                                <div className="flex flex-wrap items-center gap-2">
-                                                                    <span className="font-extrabold text-amber-400 text-xs">{d.nama}</span>
-                                                                    <span className="text-[10px] text-slate-500 bg-slate-900 px-2 py-0.5 rounded-full font-bold"> {d.tanggal ? d.tanggal.split('-').reverse().join('/') : '-'} </span>
-                                                                    <span className="text-[10px] text-slate-400 flex items-center gap-1"><i className="fa-solid fa-phone text-[9px] text-amber-500"></i> {maskNoHp(d.noHp)}</span>
-                                                                </div>
-                                                                <ul className="text-slate-300 text-xs leading-relaxed italic list-disc list-inside space-y-0.5">
-                                                                    {(d.permohonan || "").split(/\n| \| /).filter(line => line.trim()).map((line, i) => (
-                                                                        <li key={i}>{line.trim()}</li>
-                                                                    ))}
-                                                                </ul>
-                                                            </div>
-                                                            {currentUserRole !== "public" && (
-                                                                <button onClick={() => handleDeleteDoa(d.id)} className="text-rose-400 hover:text-rose-300 transition p-1.5 hover:bg-rose-500/10 rounded-lg">
-                                                                    <i className="fa-solid fa-trash text-xs"></i>
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
+    {/* Daftar Pokok Doa */}
+    <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur-sm">
+        <h4 className="font-extrabold text-white text-xs mb-4 uppercase tracking-wider flex items-center gap-2">
+            <i className="fa-solid fa-list-check text-amber-400"></i> 
+            Daftar Pokok Doa Jemaat Pekan Ini
+        </h4>
+        {doaList.length === 0 ? (
+            <p className="text-slate-500 text-xs text-center py-6 italic">Belum ada pokok permohonan doa minggu ini.</p>
+        ) : (
+            <div className="space-y-3 max-h-[320px] overflow-y-auto pr-1">
+                {doaList.map(d => (
+                    <div key={d.id} className="bg-slate-950/50 border border-white/5 p-4 rounded-xl flex justify-between items-start gap-4 hover:border-amber-500/20 transition-all duration-200">
+                        <div className="space-y-1.5 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-extrabold text-amber-400 text-xs">{d.nama}</span>
+                                <span className="text-[10px] text-slate-500 bg-slate-900 px-2 py-0.5 rounded-full font-bold">
+                                    {d.tanggal ? d.tanggal.split('-').reverse().join('/') : '-'}
+                                </span>
+                                <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                                    <i className="fa-solid fa-phone text-[9px] text-amber-500"></i> {maskNoHp(d.noHp)}
+                                </span>
+                            </div>
+                            <ul className="text-slate-300 text-xs leading-relaxed italic list-disc list-inside space-y-0.5">
+                                {(d.permohonan || "").split(/\n| \| /).filter(line => line.trim()).map((line, i) => (
+                                    <li key={i}>{line.trim()}</li>
+                                ))}
+                            </ul>
+                        </div>
+                        {currentUserRole !== "public" && (
+                            <button onClick={() => handleDeleteDoa(d.id)} className="text-rose-400 hover:text-rose-300 transition p-1.5 hover:bg-rose-500/10 rounded-lg">
+                                <i className="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        )}
+                    </div>
+                ))}
+            </div>
+        )}
+    </div>
+</div>
 
-                                    {/* Ulang Tahun */}
-                                    <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur-sm h-max">
-                                        <h4 className="font-extrabold text-white text-xs mb-4 uppercase tracking-wider flex items-center justify-between">
-                                            <span className="flex items-center gap-2"><i className="fa-solid fa-cake-candles text-amber-400"></i> Ulang Tahun Bulan Ini</span>
-                                            <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider">{new Date().toLocaleString('id-ID', { month: 'long' })}</span>
-                                        </h4>
-                                        {ultahBulanIni.length === 0 ? (
-                                            <div className="text-center py-12 text-slate-500 space-y-2"><i className="fa-solid fa-calendar-minus text-3xl text-slate-600 mb-1"></i><p className="text-xs">Tidak ada anggota yang berulang tahun di bulan ini.</p></div>
-                                        ) : (
-                                            <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
-                                                {ultahBulanIni.map(j => {
-                                                    const birthDate = parseLocalDate(j.tglLahir);
-                                                    const age  = birthDate ? new Date().getFullYear() - birthDate.getFullYear() : null;
-                                                    const day  = birthDate ? birthDate.getDate() : '';
-                                                    return (
-                                                        <div key={j.id} className="bg-slate-950/40 border border-white/5 p-3.5 rounded-xl flex items-center justify-between gap-3 hover:bg-white/5 transition-all duration-200">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xs font-black">{day}</div>
-                                                                <div>
-                                                                    <h5 className="font-extrabold text-xs text-white leading-snug">{j.nama}</h5>
-                                                                    <p className="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5 font-semibold"><span>{j.subKelasNama}</span>{age && <span className="text-slate-600 font-bold">&bull; {age} Thn</span>}</p>
-                                                                </div>
-                                                            </div>
-                                                            <div className="text-xs text-amber-400 animate-pulse"><i className="fa-solid fa-gift"></i></div>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
                             </section>
                         )}
 
