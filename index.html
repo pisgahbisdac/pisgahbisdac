@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Kehadiran Jemaat - PISGAH BISDAC</title>
-    <link rel="icon" type="image/png" href="PisgahWhite.png">
+    <link rel="icon" type="image/png" href="./PisgahWhite.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,6 +13,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #050814; color: #f1f5f9; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -116,6 +117,321 @@
             }
             return sabbats;
         };
+
+        function DashboardCharts({ jemaat, absen, tamuTambahan, subKelas, metrics, parseLocalDate }) {
+    const trendRef    = useRef(null);
+    const donutRef    = useRef(null);
+    const ageRef      = useRef(null);
+    const genderRef   = useRef(null);
+    const subkelasRef = useRef(null);
+    const chartsRef   = useRef({});
+    const [trendMode, setTrendMode] = useState("jumlah");
+
+    const PALETTE = ["#378ADD","#1D9E75","#BA7517","#D4537E","#7F77DD","#639922","#D85A30"];
+    const gridColor = () => "rgba(255,255,255,0.08)";
+    const textColor = () => "rgba(255,255,255,0.55)";
+    const destroyChart = (key) => { if (chartsRef.current[key]) { chartsRef.current[key].destroy(); delete chartsRef.current[key]; } };
+
+    const SUBKELAS_NAMES = subKelas.map(s => s.nama);
+
+    const sabbatList = useMemo(() => {
+        const dates = [...new Set(absen.filter(a => a.sesi === "Sekolah Sabat").map(a => a.tanggal))].sort();
+        return dates.slice(-6);
+    }, [absen]);
+
+    const hadirPerSubPerSabbat = useMemo(() =>
+        SUBKELAS_NAMES.map(sub =>
+            sabbatList.map(tgl =>
+                absen.filter(a => a.tanggal === tgl && a.sesi === "Sekolah Sabat" && a.status === "Hadir" &&
+                    jemaat.find(j => j.nama === a.jemaatNama)?.subKelasNama === sub).length
+            )
+        ), [sabbatList, absen, jemaat, subKelas]);
+
+    const totalHadirPerSabbat = useMemo(() =>
+        sabbatList.map((_, i) => hadirPerSubPerSabbat.reduce((sum, arr) => sum + (arr[i] || 0), 0)),
+        [hadirPerSubPerSabbat, sabbatList]);
+
+    const khotbahPerSabbat = useMemo(() =>
+        sabbatList.map(tgl => absen.filter(a => a.tanggal === tgl && a.sesi === "Khotbah" && a.status === "Hadir").length),
+        [sabbatList, absen]);
+
+    const ageGroups = useMemo(() => {
+        const groups = { "<12": 0, "12–17": 0, "18–25": 0, "26–35": 0, "36–50": 0, "51–65": 0, "66+": 0 };
+        const now = new Date().getFullYear();
+        jemaat.forEach(j => {
+            if (!j.tglLahir) return;
+            const age = now - parseInt(j.tglLahir.split("-")[0]);
+            if (age < 12) groups["<12"]++;
+            else if (age <= 17) groups["12–17"]++;
+            else if (age <= 25) groups["18–25"]++;
+            else if (age <= 35) groups["26–35"]++;
+            else if (age <= 50) groups["36–50"]++;
+            else if (age <= 65) groups["51–65"]++;
+            else groups["66+"]++;
+        });
+        return groups;
+    }, [jemaat]);
+
+    const genderBaptis = useMemo(() => ({
+        lk_baptis: jemaat.filter(j => j.gender === "Laki-laki"  && j.statusBaptis === "Sudah Baptis").length,
+        lk_belum:  jemaat.filter(j => j.gender === "Laki-laki"  && j.statusBaptis !== "Sudah Baptis").length,
+        pr_baptis: jemaat.filter(j => j.gender === "Perempuan"  && j.statusBaptis === "Sudah Baptis").length,
+        pr_belum:  jemaat.filter(j => j.gender === "Perempuan"  && j.statusBaptis !== "Sudah Baptis").length,
+    }), [jemaat]);
+
+    const memberAttendance = useMemo(() => {
+        const last4 = sabbatList.slice(-4);
+        return jemaat.map(j => ({
+            nama: j.nama,
+            hadir: last4.filter(tgl => absen.find(a => a.tanggal === tgl && a.jemaatNama === j.nama && a.sesi === "Sekolah Sabat" && a.status === "Hadir")).length,
+            total: last4.length,
+        })).sort((a, b) => b.hadir - a.hadir);
+    }, [jemaat, absen, sabbatList]);
+
+    const trendLastDiff = totalHadirPerSabbat.length >= 2
+        ? totalHadirPerSabbat[totalHadirPerSabbat.length-1] - totalHadirPerSabbat[totalHadirPerSabbat.length-2]
+        : 0;
+
+    // ── Chart: Trend ──
+    useEffect(() => {
+        if (!window.Chart || !trendRef.current || sabbatList.length === 0) return;
+        destroyChart("trend");
+        const labels = sabbatList.map(d => { const p = parseLocalDate(d); return p ? `${p.getDate()}/${p.getMonth()+1}` : d; });
+        const pctSS = totalHadirPerSabbat.map(v => jemaat.length > 0 ? Math.round(v/jemaat.length*100) : 0);
+        const pctKh = khotbahPerSabbat.map(v => jemaat.length > 0 ? Math.round(v/jemaat.length*100) : 0);
+        let datasets = [];
+        if (trendMode === "jumlah") {
+            datasets = [
+                { label: "Sekolah Sabat", data: totalHadirPerSabbat, borderColor: "#378ADD", backgroundColor: "rgba(55,138,221,0.12)", borderWidth: 2, pointRadius: 4, tension: 0.35, fill: true },
+                { label: "Khotbah", data: khotbahPerSabbat, borderColor: "#1D9E75", backgroundColor: "rgba(29,158,117,0.10)", borderWidth: 2, pointRadius: 4, tension: 0.35, fill: true, borderDash: [5,3] },
+            ];
+        } else if (trendMode === "persen") {
+            datasets = [
+                { label: "SS (%)", data: pctSS, borderColor: "#378ADD", backgroundColor: "rgba(55,138,221,0.12)", borderWidth: 2, pointRadius: 4, tension: 0.35, fill: true },
+                { label: "Khotbah (%)", data: pctKh, borderColor: "#1D9E75", backgroundColor: "rgba(29,158,117,0.10)", borderWidth: 2, pointRadius: 4, tension: 0.35, fill: true, borderDash: [5,3] },
+            ];
+        } else {
+            datasets = [
+                { label: "Hadir SS", data: totalHadirPerSabbat, type: "bar", backgroundColor: "rgba(55,138,221,0.6)", borderColor: "#378ADD", borderWidth: 1, yAxisID: "y" },
+                { label: "% Khotbah", data: pctKh, type: "line", borderColor: "#1D9E75", backgroundColor: "transparent", borderWidth: 2, pointRadius: 4, tension: 0.35, yAxisID: "y2", borderDash: [4,3] },
+            ];
+        }
+        const scalesObj = {
+            x: { grid: { color: gridColor() }, ticks: { color: textColor(), font: { size: 10 }, autoSkip: false } },
+            y: { grid: { color: gridColor() }, ticks: { color: textColor(), font: { size: 10 } }, beginAtZero: true }
+        };
+        if (trendMode === "combined") {
+            scalesObj.y2 = { position: "right", grid: { display: false }, ticks: { color: textColor(), font: { size: 10 }, callback: v => v+"%" }, beginAtZero: true, max: 100 };
+        }
+        chartsRef.current.trend = new Chart(trendRef.current, {
+            type: trendMode === "combined" ? "bar" : "line",
+            data: { labels, datasets },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: scalesObj }
+        });
+    }, [trendMode, sabbatList, totalHadirPerSabbat, khotbahPerSabbat, jemaat.length]);
+
+    // ── Chart: Donut ──
+    useEffect(() => {
+        if (!window.Chart || !donutRef.current) return;
+        destroyChart("donut");
+        const statusMap = {};
+        jemaat.forEach(j => {
+            (j.statusJemaat || "Jemaat").split(",").map(s => s.trim()).forEach(s => { statusMap[s] = (statusMap[s] || 0) + 1; });
+        });
+        chartsRef.current.donut = new Chart(donutRef.current, {
+            type: "doughnut",
+            data: { labels: Object.keys(statusMap), datasets: [{ data: Object.values(statusMap), backgroundColor: PALETTE, borderWidth: 0, hoverOffset: 4 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: "68%", plugins: { legend: { display: false } } }
+        });
+    }, [jemaat]);
+
+    // ── Chart: Usia ──
+    useEffect(() => {
+        if (!window.Chart || !ageRef.current) return;
+        destroyChart("age");
+        chartsRef.current.age = new Chart(ageRef.current, {
+            type: "bar",
+            data: { labels: Object.keys(ageGroups), datasets: [{ data: Object.values(ageGroups), backgroundColor: PALETTE, borderWidth: 0, borderRadius: 3 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: textColor(), font: { size: 10 } } }, y: { grid: { color: gridColor() }, ticks: { color: textColor(), font: { size: 10 } }, beginAtZero: true } } }
+        });
+    }, [ageGroups]);
+
+    // ── Chart: Gender & Baptis ──
+    useEffect(() => {
+        if (!window.Chart || !genderRef.current) return;
+        destroyChart("gender");
+        const { lk_baptis, lk_belum, pr_baptis, pr_belum } = genderBaptis;
+        chartsRef.current.gender = new Chart(genderRef.current, {
+            type: "bar",
+            data: { labels: ["Laki-laki","Perempuan"], datasets: [
+                { label: "Sudah baptis", data: [lk_baptis, pr_baptis], backgroundColor: "#1D9E75", borderWidth: 0, borderRadius: 3 },
+                { label: "Belum baptis", data: [lk_belum, pr_belum],   backgroundColor: "#E24B4A", borderWidth: 0, borderRadius: 3 },
+            ]},
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: textColor(), font: { size: 11 } } }, y: { grid: { color: gridColor() }, ticks: { color: textColor(), font: { size: 10 } }, beginAtZero: true } } }
+        });
+    }, [genderBaptis]);
+
+    // ── Chart: Sub-kelas ──
+    useEffect(() => {
+        if (!window.Chart || !subkelasRef.current || SUBKELAS_NAMES.length === 0) return;
+        destroyChart("subkelas");
+        const last4 = sabbatList.slice(-4);
+        const labels = last4.map(d => { const p = parseLocalDate(d); return p ? `${p.getDate()}/${p.getMonth()+1}` : d; });
+        chartsRef.current.subkelas = new Chart(subkelasRef.current, {
+            type: "bar",
+            data: { labels, datasets: SUBKELAS_NAMES.map((sub, i) => ({
+                label: sub, data: hadirPerSubPerSabbat[i]?.slice(-4) || [],
+                backgroundColor: PALETTE[i % PALETTE.length], borderWidth: 0, borderRadius: 3,
+            }))},
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: textColor(), font: { size: 10 } } }, y: { grid: { color: gridColor() }, ticks: { color: textColor(), font: { size: 10 } }, beginAtZero: true } } }
+        });
+    }, [sabbatList, hadirPerSubPerSabbat, subKelas]);
+
+    // ── Cleanup ──
+    useEffect(() => { return () => { Object.values(chartsRef.current).forEach(c => c.destroy()); }; }, []);
+
+    return (
+        <div className="space-y-6">
+            {/* Metric row */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                    { label: "Hadir SS Terakhir", val: totalHadirPerSabbat[totalHadirPerSabbat.length-1] || 0, sub: `${jemaat.length > 0 ? Math.round((totalHadirPerSabbat[totalHadirPerSabbat.length-1]||0)/jemaat.length*100) : 0}% dari total`, diff: trendLastDiff },
+                    { label: "Hadir Khotbah",     val: khotbahPerSabbat[khotbahPerSabbat.length-1] || 0,     sub: "Sabat terakhir" },
+                    { label: "Rata-rata Hadir SS", val: totalHadirPerSabbat.length > 0 ? Math.round(totalHadirPerSabbat.reduce((a,b)=>a+b,0)/totalHadirPerSabbat.length) : 0, sub: `${sabbatList.length} Sabat terakhir` },
+                    { label: "Tamu Sabat Ini",    val: tamuTambahan.filter(t => t.tanggal === sabbatList[sabbatList.length-1] && t.sesi === "Sekolah Sabat").reduce((s,t)=>s+t.jumlah,0), sub: "semua sub-kelas" },
+                ].map((m, i) => (
+                    <div key={i} className="bg-slate-900/60 border border-white/5 p-3 rounded-xl">
+                        <p className="text-slate-500 text-[9px] font-black uppercase tracking-wider mb-1">{m.label}</p>
+                        <p className="text-xl font-black text-white">{m.val}</p>
+                        <p className="text-[10px] text-slate-500 mt-0.5">{m.sub}</p>
+                        {m.diff !== undefined && (
+                            <span className={`text-[10px] font-bold ${m.diff >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                                {m.diff >= 0 ? "↑" : "↓"} {Math.abs(m.diff)} vs sebelumnya
+                            </span>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            {/* Trend chart */}
+            <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h4 className="font-extrabold text-white text-xs uppercase tracking-wider"><i className="fa-solid fa-chart-simple text-amber-400 mr-1 animate-pulse"></i> Tren Kehadiran</h4>
+                        <p className="text-[10px] text-slate-500 mt-0.5">{sabbatList.length} Sabat terakhir · SS & Khotbah</p>
+                    </div>
+                    <div className="flex gap-1 text-[10px] font-black">
+                        {[["jumlah","Jumlah"],["persen","Persentase"],["combined","Kombinasi"]].map(([key, label]) => (
+                            <button key={key} onClick={() => setTrendMode(key)}
+                                className={`px-3 py-1.5 rounded-lg transition ${trendMode === key ? "bg-amber-500 text-slate-950" : "bg-slate-800 text-slate-400 hover:text-white"}`}>
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                <div style={{ position:"relative", height:"220px" }}><canvas ref={trendRef}></canvas></div>
+                <div className="flex flex-wrap gap-4 mt-3">
+                    {[["#378ADD","Sekolah Sabat"],["#1D9E75","Khotbah"]].map(([c, l]) => (
+                        <span key={l} className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                            <span style={{ width:10, height:10, borderRadius:2, background:c, display:"inline-block" }}></span>{l}
+                        </span>
+                    ))}
+                </div>
+            </div>
+
+            {/* Sub-kelas trend */}
+            <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur">
+                <h4 className="font-extrabold text-white text-xs mb-1 uppercase tracking-wider"><i className="fa-solid fa-layer-group text-amber-400 mr-1"></i> Kehadiran per Sub-Kelas</h4>
+                <p className="text-[10px] text-slate-500 mb-4">4 Sabat terakhir</p>
+                <div style={{ position:"relative", height:"200px" }}><canvas ref={subkelasRef}></canvas></div>
+                <div className="flex flex-wrap gap-3 mt-3">
+                    {SUBKELAS_NAMES.map((s, i) => (
+                        <span key={s} className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                            <span style={{ width:10, height:10, borderRadius:2, background:PALETTE[i%PALETTE.length], display:"inline-block" }}></span>{s}
+                        </span>
+                    ))}
+                </div>
+            </div>
+
+            {/* Sebaran data */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Donut */}
+                <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur space-y-3">
+                    <h4 className="font-extrabold text-white text-xs uppercase tracking-wider"><i className="fa-solid fa-circle-info text-amber-400 mr-1"></i> Status Keanggotaan</h4>
+                    <div className="flex items-center gap-4">
+                        <div style={{ position:"relative", width:90, height:90, flexShrink:0 }}>
+                            <canvas ref={donutRef}></canvas>
+                            <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", textAlign:"center", pointerEvents:"none" }}>
+                                <div className="text-base font-black text-white">{jemaat.length}</div>
+                                <div className="text-[9px] text-slate-500">jiwa</div>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2 flex-1 text-[11px]">
+                            {["Jemaat","Guru SS","Anggota SS","Koordinator SS"].map((s, i) => (
+                                <div key={s} className="flex items-center justify-between">
+                                    <span className="flex items-center gap-1.5 text-slate-400">
+                                        <span style={{ width:8, height:8, borderRadius:2, background:PALETTE[i], display:"inline-block" }}></span>{s}
+                                    </span>
+                                    <span className="font-bold text-white">{jemaat.filter(j => (j.statusJemaat||"").includes(s)).length}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="border-t border-white/5 pt-3 space-y-2">
+                        <div className="flex justify-between text-[10px] mb-1"><span className="text-slate-400">Sudah Baptis</span><span className="text-emerald-400 font-bold">{metrics.baptisPersen}%</span></div>
+                        <div className="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden"><div className="bg-emerald-500 h-full rounded-full" style={{ width:`${metrics.baptisPersen}%` }}></div></div>
+                        <div className="flex justify-between text-[10px] mb-1"><span className="text-slate-400">Jemaat Aktif</span><span className="text-blue-400 font-bold">{metrics.total > 0 ? Math.round(metrics.jemaatAktif/metrics.total*100) : 0}%</span></div>
+                        <div className="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden"><div className="bg-blue-500 h-full rounded-full" style={{ width:`${metrics.total > 0 ? (metrics.jemaatAktif/metrics.total)*100 : 0}%` }}></div></div>
+                    </div>
+                </div>
+
+                {/* Usia */}
+                <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur">
+                    <h4 className="font-extrabold text-white text-xs mb-1 uppercase tracking-wider"><i className="fa-solid fa-people-group text-amber-400 mr-1"></i> Distribusi Usia</h4>
+                    <p className="text-[10px] text-slate-500 mb-4">Kelompok umur</p>
+                    <div style={{ position:"relative", height:"180px" }}><canvas ref={ageRef}></canvas></div>
+                </div>
+
+                {/* Gender & Baptis */}
+                <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur">
+                    <h4 className="font-extrabold text-white text-xs mb-1 uppercase tracking-wider"><i className="fa-solid fa-venus-mars text-amber-400 mr-1"></i> Gender & Baptis</h4>
+                    <p className="text-[10px] text-slate-500 mb-4">Laki-laki vs Perempuan</p>
+                    <div style={{ position:"relative", height:"180px" }}><canvas ref={genderRef}></canvas></div>
+                    <div className="flex gap-4 mt-3">
+                        {[["#1D9E75","Sudah baptis"],["#E24B4A","Belum baptis"]].map(([c, l]) => (
+                            <span key={l} className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                                <span style={{ width:8, height:8, borderRadius:2, background:c, display:"inline-block" }}></span>{l}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Kehadiran per anggota */}
+            <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl backdrop-blur">
+                <h4 className="font-extrabold text-white text-xs mb-1 uppercase tracking-wider"><i className="fa-solid fa-user-check text-amber-400 mr-1"></i> Kehadiran per Anggota</h4>
+                <p className="text-[10px] text-slate-500 mb-4">4 Sabat terakhir · SS saja</p>
+                <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                    {memberAttendance.map((m) => {
+                        const pct = m.total > 0 ? Math.round(m.hadir / m.total * 100) : 0;
+                        const color = pct >= 100 ? "#1D9E75" : pct >= 50 ? "#BA7517" : "#E24B4A";
+                        return (
+                            <div key={m.nama} className="flex items-center gap-2 text-[11px]">
+                                <span className="text-slate-400 w-[120px] text-right shrink-0 truncate">{m.nama}</span>
+                                <div className="flex-1 bg-slate-950 h-2.5 rounded-full overflow-hidden">
+                                    <div className="h-full rounded-full" style={{ width:`${pct}%`, background:color }}></div>
+                                </div>
+                                <span className="font-bold text-white w-8 text-right shrink-0">{m.hadir}/{m.total}</span>
+                                <span className="text-[10px] font-bold w-7 shrink-0" style={{ color }}>{pct}%</span>
+                            </div>
+                        );
+                    })}
+                    {memberAttendance.length === 0 && <p className="text-slate-600 text-xs italic text-center py-4">Belum ada data absen.</p>}
+                </div>
+            </div>
+        </div>
+    );
+}
 
         // ─── App Component ────────────────────────────────────────────────────────
 
@@ -889,7 +1205,7 @@ pushDataToCloud({ doaList: nextDoaList });
 
             const metrics = useMemo(() => {
                 const total        = jemaat.length;
-                const baptisCount  = jemaat.filter(j => j.statusBaptis === "Baptis").length;
+                const baptisCount  = jemaat.filter(j => j.statusBaptis === "Sudah Baptis").length;
                 const jemaatAktif  = jemaat.filter(j => (j.statusJemaat || "").includes("Jemaat") || (j.statusJemaat || "").includes("Anggota Sekolah Sabat")).length;
                 const uniqueSabbaths = [...new Set(absen.map(a => a.tanggal))].sort();
                 const lastSabbat   = uniqueSabbaths[uniqueSabbaths.length - 1];
@@ -1037,7 +1353,7 @@ pushDataToCloud({ doaList: nextDoaList });
                     logoDataUrl = await new Promise((resolve, reject) => {
                         const img   = new Image();
                         img.crossOrigin = "Anonymous";
-                        img.src    = "PisgahWhite.png";
+                        img.src    = "./PisgahColor.png";
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
                             canvas.width  = img.width;
@@ -1168,7 +1484,7 @@ pushDataToCloud({ doaList: nextDoaList });
                             <div className="flex items-center gap-4">
                                 <div className="bg-slate-950 border border-amber-500/30 w-12 h-12 rounded-full flex items-center justify-center p-1.5 shadow-[0_0_15px_rgba(245,158,11,0.3)]">
                                     {!logoError
-                                        ? <img src="PisgahWhite.png" alt="Logo PISGAH" className="w-full h-full object-contain" onError={() => setLogoError(true)} />
+                                        ? <img src="./PisgahColor.png" alt="Logo PISGAH" className="w-full h-full object-contain" onError={() => setLogoError(true)} />
                                         : <i className="fa-solid fa-church text-amber-400 text-xl"></i>}
                                 </div>
                                 <div>
@@ -1223,52 +1539,129 @@ pushDataToCloud({ doaList: nextDoaList });
                             <section className="space-y-8 animate-fadeIn">
                                 <div className="bg-slate-900/40 border border-white/10 rounded-3xl p-6 text-white shadow-xl flex flex-col md:flex-row justify-between items-center gap-4 backdrop-blur">
                                     <div className="space-y-1">
-                                        <h2 className="text-xl md:text-2xl font-black bg-gradient-to-r from-amber-200 to-yellow-500 bg-clip-text text-transparent">Beranda GMAHK PISGAH</h2>
-                                        <p className="text-slate-300 text-xs max-w-xl font-medium">Kelola data presensi kebaktian utama, sekolah sabat, dan pelaporan parameter 10 kegiatan triwulan terintegrasi Google Sheets.</p>
+                                        <h2 className="text-xl md:text-2xl font-black bg-gradient-to-r from-amber-200 to-yellow-500 bg-clip-text text-transparent">PISGAH BISDAC</h2>
+                                        <p className="text-slate-300 text-xs max-w-xl font-medium">Kelola data presensi kebaktian utama, sekolah sabat, dan pelaporan parameter 10 kegiatan triwulan.</p>
                                     </div>
                                     {currentUserRole !== "public" && (
                                         <button onClick={() => setActiveTab("input-absen")} className="bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 font-black text-xs px-5 py-3 rounded-xl shadow-md hover:scale-[1.02] active:scale-95 transition duration-150"><i className="fa-solid fa-pen-to-square mr-1"></i> Mulai Absen Sabat</button>
                                     )}
                                 </div>
 
-                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <div className="bg-slate-900/60 border border-white/5 p-4 rounded-xl flex items-center justify-between shadow-lg"><div><p className="text-slate-500 text-[9px] font-bold uppercase tracking-wider">Total Keanggotaan</p><h3 className="text-xl font-black text-white">{metrics.total} <span className="text-[10px] font-normal text-slate-400">Jiwa</span></h3></div><i className="fa-solid fa-users text-amber-500/20 text-2xl"></i></div>
-                                    <div className="bg-slate-900/60 border border-white/5 p-4 rounded-xl flex items-center justify-between shadow-lg"><div><p className="text-slate-500 text-[9px] font-bold uppercase tracking-wider">Rasio Baptis</p><h3 className="text-xl font-black text-emerald-400">{metrics.baptisPersen}% <span className="text-[10px] font-normal text-slate-400">Sudah</span></h3></div><i className="fa-solid fa-water text-emerald-500/20 text-2xl"></i></div>
-                                    <div className="bg-slate-900/60 border border-white/5 p-4 rounded-xl flex items-center justify-between shadow-lg"><div><p className="text-slate-500 text-[9px] font-bold uppercase tracking-wider">Tamu Sabat Ini</p><h3 className="text-xl font-black text-amber-400">{metrics.tamuCount.total} <span className="text-[10px] font-normal text-slate-400">Tamu</span></h3></div><i className="fa-solid fa-person-walking-luggage text-amber-500/20 text-2xl"></i></div>
-                                    <div className="bg-slate-900/60 border border-white/5 p-4 rounded-xl flex items-center justify-between shadow-lg"><div><p className="text-slate-500 text-[9px] font-bold uppercase tracking-wider">Rata-rata Presensi</p><h3 className="text-xl font-black text-indigo-400">{metrics.avgRate}% <span className="text-[10px] font-normal text-slate-400">Hadir</span></h3></div><i className="fa-solid fa-chart-line text-indigo-500/20 text-2xl"></i></div>
-                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    {/* Total Keanggotaan */}
+    <div className="bg-slate-900/60 border border-white/5 p-4 rounded-2xl shadow-lg space-y-3">
+        <div className="flex items-center justify-between">
+            <p className="text-slate-500 text-[9px] font-black uppercase tracking-wider">Total Keanggotaan</p>
+            <i className="fa-solid fa-users text-amber-400/40 text-lg"></i>
+        </div>
+        <h3 className="text-2xl font-black text-white">{metrics.total} <span className="text-[10px] font-normal text-slate-400">Jiwa</span></h3>
+        <div className="space-y-1.5 border-t border-white/5 pt-2.5">
+            <div className="flex justify-between text-[10px]">
+                <span className="text-slate-500">Sudah Baptis</span>
+                <span className="text-emerald-400 font-bold">{jemaat.filter(j => j.statusBaptis === "Sudah Baptis").length} jiwa</span>
+            </div>
+            <div className="flex justify-between text-[10px]">
+                <span className="text-slate-500">Belum Baptis</span>
+                <span className="text-rose-400 font-bold">{jemaat.filter(j => j.statusBaptis !== "Sudah Baptis").length} jiwa</span>
+            </div>
+            <div className="flex justify-between text-[10px]">
+                <span className="text-slate-500">Laki-laki</span>
+                <span className="text-blue-400 font-bold">{jemaat.filter(j => j.gender === "Laki-laki").length} jiwa</span>
+            </div>
+            <div className="flex justify-between text-[10px]">
+                <span className="text-slate-500">Perempuan</span>
+                <span className="text-pink-400 font-bold">{jemaat.filter(j => j.gender === "Perempuan").length} jiwa</span>
+            </div>
+        </div>
+    </div>
 
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                    <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl lg:col-span-2 backdrop-blur">
-                                        <h4 className="font-extrabold text-white text-xs mb-4 uppercase tracking-wider"><i className="fa-solid fa-chart-simple text-amber-400 mr-1 animate-pulse"></i> Riwayat Kehadiran Grafis (Sekolah Sabat)</h4>
-                                        <div className="flex justify-between items-end h-40 border-b border-white/10 pb-2 gap-4 px-2">
-                                            {chartData.map((data, idx) => {
-                                                const pd = parseLocalDate(data.date);
-                                                return (
-                                                    <div key={idx} className="flex-1 flex flex-col items-center h-full justify-end group">
-                                                        <div style={{ height: `${data.rate || 5}%` }} className="w-full bg-gradient-to-t from-amber-500/80 to-amber-600 rounded-t-md relative flex items-center justify-center transition-all duration-300 hover:opacity-90">
-                                                            <span className="absolute -top-5 text-[10px] font-bold text-white bg-slate-950 px-1 py-0.5 rounded border border-white/10 opacity-0 group-hover:opacity-100 transition duration-150">{data.hadir}</span>
-                                                        </div>
-                                                        <div className="text-[9px] font-bold text-slate-400 mt-2">{pd ? pd.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : ''}</div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                    <div className="bg-slate-900/40 border border-white/10 p-5 rounded-2xl shadow-xl space-y-4 backdrop-blur">
-                                        <h4 className="font-extrabold text-white text-xs uppercase tracking-wider"><i className="fa-solid fa-circle-info text-amber-400 mr-1"></i> Sebaran Data Jemaat</h4>
-                                        <div className="space-y-4 text-xs font-bold">
-                                            <div>
-                                                <div className="flex justify-between mb-1"><span>Anggota Dibaptis</span><span>{metrics.baptisPersen}%</span></div>
-                                                <div className="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden"><div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${metrics.baptisPersen}%` }}></div></div>
-                                            </div>
-                                            <div>
-                                                <div className="flex justify-between mb-1"><span>Rasio Jemaat Aktif</span><span>{metrics.total > 0 ? Math.round((metrics.jemaatAktif / metrics.total) * 100) : 0}%</span></div>
-                                                <div className="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden"><div className="bg-blue-500 h-full rounded-full transition-all duration-500" style={{ width: `${metrics.total > 0 ? (metrics.jemaatAktif / metrics.total) * 100 : 0}%` }}></div></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+    {/* Baptis */}
+    <div className="bg-slate-900/60 border border-white/5 p-4 rounded-2xl shadow-lg space-y-3">
+        <div className="flex items-center justify-between">
+            <p className="text-slate-500 text-[9px] font-black uppercase tracking-wider">Status Baptis</p>
+            <i className="fa-solid fa-water text-emerald-400/40 text-lg"></i>
+        </div>
+        <h3 className="text-2xl font-black text-emerald-400">{metrics.baptisPersen}% <span className="text-[10px] font-normal text-slate-400">Dibaptis</span></h3>
+        <div className="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden">
+            <div className="bg-emerald-500 h-full rounded-full transition-all duration-700" style={{ width: `${metrics.baptisPersen}%` }}></div>
+        </div>
+        <div className="space-y-1.5 border-t border-white/5 pt-2.5">
+            {kelas.map(k => {
+                const total = jemaat.filter(j => j.kelasNama === k.nama).length;
+                const baptis = jemaat.filter(j => j.kelasNama === k.nama && j.statusBaptis === "Sudah Baptis").length;
+                return (
+                    <div key={k.nama} className="flex justify-between text-[10px]">
+                        <span className="text-slate-500 truncate max-w-[110px]">{k.nama}</span>
+                        <span className="text-emerald-400 font-bold shrink-0">{baptis}/{total}</span>
+                    </div>
+                );
+            })}
+        </div>
+    </div>
+
+    {/* Tamu */}
+    <div className="bg-slate-900/60 border border-white/5 p-4 rounded-2xl shadow-lg space-y-3">
+        <div className="flex items-center justify-between">
+            <p className="text-slate-500 text-[9px] font-black uppercase tracking-wider">Tamu & Pengunjung</p>
+            <i className="fa-solid fa-person-walking-luggage text-amber-400/40 text-lg"></i>
+        </div>
+        <h3 className="text-2xl font-black text-amber-400">{metrics.tamuCount.total} <span className="text-[10px] font-normal text-slate-400">Tamu</span></h3>
+        <div className="space-y-1.5 border-t border-white/5 pt-2.5">
+            <div className="flex justify-between text-[10px]">
+                <span className="text-slate-500">Tamu Terdaftar</span>
+                <span className="text-amber-400 font-bold">{metrics.tamuCount.registered} orang</span>
+            </div>
+            <div className="flex justify-between text-[10px]">
+                <span className="text-slate-500">Tamu Tambahan (Sabat Ini)</span>
+                <span className="text-yellow-400 font-bold">{metrics.tamuCount.extra} orang</span>
+            </div>
+            <div className="flex justify-between text-[10px]">
+                <span className="text-slate-500">Total Sub-Kelas</span>
+                <span className="text-slate-300 font-bold">{subKelas.length} kelas</span>
+            </div>
+            <div className="flex justify-between text-[10px]">
+                <span className="text-slate-500">Total Petugas</span>
+                <span className="text-slate-300 font-bold">{users.length} guru</span>
+            </div>
+        </div>
+    </div>
+
+    {/* Presensi */}
+    <div className="bg-slate-900/60 border border-white/5 p-4 rounded-2xl shadow-lg space-y-3">
+        <div className="flex items-center justify-between">
+            <p className="text-slate-500 text-[9px] font-black uppercase tracking-wider">Rata-rata Presensi</p>
+            <i className="fa-solid fa-chart-line text-indigo-400/40 text-lg"></i>
+        </div>
+        <h3 className="text-2xl font-black text-indigo-400">{metrics.avgRate}% <span className="text-[10px] font-normal text-slate-400">Hadir</span></h3>
+        <div className="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden">
+            <div className="bg-indigo-500 h-full rounded-full transition-all duration-700" style={{ width: `${metrics.avgRate}%` }}></div>
+        </div>
+        <div className="space-y-1.5 border-t border-white/5 pt-2.5">
+            {lastSabbaths.slice(-3).map(date => {
+                const hadir = absen.filter(a => a.tanggal === date && a.status === "Hadir" && a.sesi === "Sekolah Sabat").length;
+                const rate  = jemaat.length > 0 ? Math.round((hadir / jemaat.length) * 100) : 0;
+                const d     = parseLocalDate(date);
+                return (
+                    <div key={date} className="flex justify-between text-[10px]">
+                        <span className="text-slate-500">{d ? d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : date}</span>
+                        <span className={`font-bold ${rate >= 75 ? "text-emerald-400" : rate >= 50 ? "text-amber-400" : "text-rose-400"}`}>{hadir} ({rate}%)</span>
+                    </div>
+                );
+            })}
+            {lastSabbaths.length === 0 && <p className="text-slate-600 text-[10px] italic">Belum ada data presensi.</p>}
+        </div>
+    </div>
+</div>
+
+                                {/* ── Dashboard Charts ── */}
+<DashboardCharts
+    jemaat={jemaat}
+    absen={absen}
+    tamuTambahan={tamuTambahan}
+    subKelas={subKelas}
+    metrics={metrics}
+    parseLocalDate={parseLocalDate}
+/>
 
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                     <div className="lg:col-span-2 space-y-6">
@@ -1600,6 +1993,7 @@ pushDataToCloud({ doaList: nextDoaList });
                                     <div className="bg-slate-900/40 p-5 rounded-xl border border-white/10 space-y-4 text-xs h-max">
                                         <h3 className="font-extrabold text-amber-400 text-xs uppercase tracking-wider"><i className="fa-solid fa-key mr-1.5"></i> Ganti Sandi/PIN Admin</h3>
                                         <p className="text-slate-400 text-[11px]">Sandi bawaan adalah <code className="text-amber-300 font-mono font-bold">admin123</code>.</p>
+                                        <p className="text-slate-400 text-[11px] mt-1">Sandi/PIN Admin saat ini: <code className="text-2xl text-emerald-400 font-mono font-bold">{adminPin}</code></p>
                                         <form onSubmit={(e) => {
                                             e.preventDefault();
                                             const fd           = new FormData(e.target);
@@ -1936,7 +2330,7 @@ pushDataToCloud({ doaList: nextDoaList });
                     <footer className="bg-slate-950/80 text-slate-500 py-6 border-t border-white/10 mt-12 text-xs">
                         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-3">
                             <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-full border border-slate-700 p-0.5"><img src="PisgahWhite.png" alt="Logo" className="w-full h-full object-contain" onError={(e) => e.target.style.display = 'none'} /></div>
+                                <div className="w-6 h-6 rounded-full border border-slate-700 p-0.5"><img src="./PisgahWhite.png" alt="Logo" className="w-full h-full object-contain" onError={(e) => e.target.style.display = 'none'} /></div>
                                 <h5 className="text-white font-bold">GMAHK PISGAH BISDAC</h5>
                             </div>
                             <p>&copy; 2026 PISGAH BISDAC. Cloud Direct-Save Edition.</p>
