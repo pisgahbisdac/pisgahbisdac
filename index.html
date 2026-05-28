@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Kehadiran Jemaat - PISGAH BISDAC</title>
-    <link rel="icon" type="image/png" href="./PisgahWhite.png">
+    <link rel="icon" type="image/png" href="PisgahWhite.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -39,7 +39,7 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef } = React;
 
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW-Km_huyHl-RZ18MSjVXTF46bNJGDb634-hqqhGCwRgV2VsCqx6vG3dmQSqStJhE-/exec";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMZkNRJGtlEPVe8t3AuEGtKoOaUQ_kJwekR3uCJVxNbgGwcWJss5ReYOWFqC-f6RvM/exec";
 
         const KEGIATAN_KETERLIBATAN = [
             { id: 1, text: "Jumlah Anggota yang datang tepat waktu di Kebaktian Sekolah Sabat", autoFill: true },
@@ -355,7 +355,11 @@
                         // d.tamuTambahan: backend tidak mengirimnya (sudah di-embed di d.absen),
                         // jadi blok ini tidak diperlukan lagi — tamu sudah di-set di atas.
                         if (d.doaList)
-                            setDoaList(d.doaList.map(doa => ({ ...doa, tanggal: cleanDateString(doa.tanggal) || doa.tanggal })));
+                            setDoaList(d.doaList.map(doa => ({
+                                ...doa,
+                                tanggal: cleanDateString(doa.tanggal) || doa.tanggal,
+                                permohonan: (doa.permohonan || "").replace(/ \| /g, "\n").replace(/\|/g, "\n")
+                            })));
                         if (!silent) showToast("Sinkronisasi Berhasil!", "success");
                     }
                 } catch (err) {
@@ -1026,7 +1030,7 @@
                     logoDataUrl = await new Promise((resolve, reject) => {
                         const img   = new Image();
                         img.crossOrigin = "Anonymous";
-                        img.src    = "./PisgahColor.png";
+                        img.src    = "PisgahWhite.png";
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
                             canvas.width  = img.width;
@@ -1132,14 +1136,14 @@
             return (
                 <div className="min-h-screen flex flex-col relative">
                     {toast.show && (
-                        <div className="z-50 px-5 py-3 rounded-xl shadow-2xl text-white font-medium bg-slate-900/90 border border-amber-500/30 backdrop-blur flex items-center gap-3 animate-fadeIn">
+                        <div className="fixed bottom-5 right-5 z-50 px-5 py-3 rounded-xl shadow-2xl text-white font-medium bg-slate-900/90 border border-amber-500/30 backdrop-blur flex items-center gap-3 animate-fadeIn">
                             <i className="fas fa-circle-info text-amber-400 animate-pulse"></i>
                             <span>{toast.message}</span>
                         </div>
                     )}
 
                     {isSyncing && (
-                        <div className="z-50 bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-full px-6 py-3 shadow-xl flex items-center gap-3 animate-fadeIn">
+                        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-full px-6 py-3 shadow-xl flex items-center gap-3 animate-fadeIn">
                             <i className="fa-solid fa-spinner fa-spin text-amber-400 text-base"></i>
                             <span className="text-white text-sm font-medium">proses sync...</span>
                         </div>
@@ -1164,7 +1168,7 @@
                             <div className="flex items-center gap-4">
                                 <div className="bg-slate-950 border border-amber-500/30 w-12 h-12 rounded-full flex items-center justify-center p-1.5 shadow-[0_0_15px_rgba(245,158,11,0.3)]">
                                     {!logoError
-                                        ? <img src="./PisgahColor.png" alt="Logo PISGAH" className="w-full h-full object-contain" onError={() => setLogoError(true)} />
+                                        ? <img src="PisgahWhite.png" alt="Logo PISGAH" className="w-full h-full object-contain" onError={() => setLogoError(true)} />
                                         : <i className="fa-solid fa-church text-amber-400 text-xl"></i>}
                                 </div>
                                 <div>
@@ -1314,7 +1318,7 @@
                                                                     <span className="text-[10px] text-slate-400 flex items-center gap-1"><i className="fa-solid fa-phone text-[9px] text-amber-500"></i> {maskNoHp(d.noHp)}</span>
                                                                 </div>
                                                                 <ul className="text-slate-300 text-xs leading-relaxed italic list-disc list-inside space-y-0.5">
-                                                                    {d.permohonan.split('\n').filter(line => line.trim()).map((line, i) => (
+                                                                    {(d.permohonan || "").split(/\n| \| /).filter(line => line.trim()).map((line, i) => (
                                                                         <li key={i}>{line.trim()}</li>
                                                                     ))}
                                                                 </ul>
@@ -1889,7 +1893,7 @@
                     <footer className="bg-slate-950/80 text-slate-500 py-6 border-t border-white/10 mt-12 text-xs">
                         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-3">
                             <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-full border border-slate-700 p-0.5"><img src="./PisgahWhite.png" alt="Logo" className="w-full h-full object-contain" onError={(e) => e.target.style.display = 'none'} /></div>
+                                <div className="w-6 h-6 rounded-full border border-slate-700 p-0.5"><img src="PisgahWhite.png" alt="Logo" className="w-full h-full object-contain" onError={(e) => e.target.style.display = 'none'} /></div>
                                 <h5 className="text-white font-bold">GMAHK PISGAH BISDAC</h5>
                             </div>
                             <p>&copy; 2026 PISGAH BISDAC. Cloud Direct-Save Edition.</p>
