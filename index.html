@@ -26,6 +26,7 @@
         .animate-fadeIn {
             animation: fadeIn 0.3s ease-out forwards;
         }
+
     </style>
 </head>
 <body class="antialiased min-h-screen relative overflow-x-hidden">
@@ -39,7 +40,7 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef } = React;
 
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMZkNRJGtlEPVe8t3AuEGtKoOaUQ_kJwekR3uCJVxNbgGwcWJss5ReYOWFqC-f6RvM/exec";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW-Km_huyHl-RZ18MSjVXTF46bNJGDb634-hqqhGCwRgV2VsCqx6vG3dmQSqStJhE-/exec";
 
         const KEGIATAN_KETERLIBATAN = [
             { id: 1, text: "Jumlah Anggota yang datang tepat waktu di Kebaktian Sekolah Sabat", autoFill: true },
@@ -355,11 +356,15 @@
                         // d.tamuTambahan: backend tidak mengirimnya (sudah di-embed di d.absen),
                         // jadi blok ini tidak diperlukan lagi — tamu sudah di-set di atas.
                         if (d.doaList)
-                            setDoaList(d.doaList.map(doa => ({
-                                ...doa,
-                                tanggal: cleanDateString(doa.tanggal) || doa.tanggal,
-                                permohonan: (doa.permohonan || "").replace(/ \| /g, "\n").replace(/\|/g, "\n")
-                            })));
+    setDoaList(d.doaList.map(doa => ({
+        ...doa,
+        tanggal: cleanDateString(doa.tanggal) || doa.tanggal,
+        permohonan: (doa.permohonan || "").replace(/ \| /g, "\n").replace(/\|/g, "\n")
+    })).sort((a, b) => {
+        const idA = String(a.id || "").replace("D", "");
+        const idB = String(b.id || "").replace("D", "");
+        return Number(idB) - Number(idA);
+    }));
                         if (!silent) showToast("Sinkronisasi Berhasil!", "success");
                     }
                 } catch (err) {
@@ -684,17 +689,18 @@
 
                 // FIX: formatLocalDDMMYYYY sekarang sudah didefinisikan di atas
                 const newDoa = {
-                    id: "D" + Date.now(),
-                    nama,
-                    noHp,
-                    permohonan,
-                    tanggal: formatLocalDDMMYYYY(new Date())
-                };
+    id: "D" + Date.now(),
+    nama,
+    noHp,
+    permohonan: permohonan.replace(/\r\n/g, " | ").replace(/[\r\n]/g, " | "),
+    tanggal: formatLocalYYYYMMDD(new Date())
+};
                 const nextDoaList = [newDoa, ...doaList];
                 setDoaList(nextDoaList);
                 showToast("Permohonan doa Anda berhasil disimpan!", "success");
                 e.target.reset();
-                pushDataToCloud({ doaList: nextDoaList });
+                console.log("Mengirim doaList:", nextDoaList);
+pushDataToCloud({ doaList: nextDoaList });
             };
 
             const handleDeleteDoa = (id) => {
@@ -702,7 +708,8 @@
                     const nextDoaList = doaList.filter(d => d.id !== id);
                     setDoaList(nextDoaList);
                     showToast("Permohonan dihapus.", "warning");
-                    pushDataToCloud({ doaList: nextDoaList });
+                    console.log("Mengirim doaList:", nextDoaList);
+pushDataToCloud({ doaList: nextDoaList });
                 });
             };
 
@@ -1136,18 +1143,11 @@
             return (
                 <div className="min-h-screen flex flex-col relative">
                     {toast.show && (
-                            <div className="fixed z-50 px-5 py-3 rounded-xl shadow-2xl text-white font-medium bg-slate-900/90 border border-amber-500/30 backdrop-blur flex items-center gap-3 animate-fadeIn whitespace-nowrap" style={{ top: "60%", left: "50%", transform: "translate(-50%, -50%)" }}>
-                            <i className="fas fa-circle-info text-amber-400 animate-pulse"></i>
-                            <span>{toast.message}</span>
-                        </div>
-                    )}
-
-                    {isSyncing && (
-                        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-full px-6 py-3 shadow-xl flex items-center gap-3 animate-fadeIn">
-                            <i className="fa-solid fa-spinner fa-spin text-amber-400 text-base"></i>
-                            <span className="text-white text-sm font-medium">proses sync...</span>
-                        </div>
-                    )}
+    <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-md border border-amber-500/30 rounded-full px-6 py-3 shadow-xl flex items-center gap-3 animate-fadeIn">
+        <i className="fas fa-circle-info text-amber-400 animate-pulse"></i>
+        <span>{toast.message}</span>
+    </div>
+)}
 
                     {confirmModal.isOpen && (
                         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-[100] p-4">
@@ -1299,7 +1299,7 @@
                                                             <div className="space-y-1.5 flex-1">
                                                                 <div className="flex flex-wrap items-center gap-2">
                                                                     <span className="font-extrabold text-amber-400 text-xs">{d.nama}</span>
-                                                                    <span className="text-[10px] text-slate-500 bg-slate-900 px-2 py-0.5 rounded-full font-bold">{d.tanggal}</span>
+                                                                    <span className="text-[10px] text-slate-500 bg-slate-900 px-2 py-0.5 rounded-full font-bold"> {d.tanggal ? d.tanggal.split('-').reverse().join('/') : '-'} </span>
                                                                     <span className="text-[10px] text-slate-400 flex items-center gap-1"><i className="fa-solid fa-phone text-[9px] text-amber-500"></i> {maskNoHp(d.noHp)}</span>
                                                                 </div>
                                                                 <ul className="text-slate-300 text-xs leading-relaxed italic list-disc list-inside space-y-0.5">
@@ -1943,17 +1943,19 @@
                         </div>
                     </footer>
 
-                     {/* ── Floating Sync Button (tampil untuk semua role) ── */}
-                                    <button onClick={() => handlePullFromCloud(false)} disabled={isSyncing} title={isSyncing ? "Menyinkronkan..." : "Sinkronisasi Data"}
-                                        style={{ bottom: "24px", right: "24px" }}
-                                        className={`fixed z-50 flex items-center gap-2 px-4 py-3 rounded-2xl text-xs font-black shadow-2xl transition-all duration-200 border backdrop-blur-md ${
-                                        isSyncing ? "bg-slate-900/80 border-slate-700/40 text-slate-400 cursor-not-allowed"
-                                        : "bg-sky-500/15 border-sky-500/40 text-sky-300 hover:bg-sky-500/25 active:scale-95 shadow-sky-500/20"
-                                        }`}
-                                        >
-                                        <i className={`fa-solid fa-rotate text-sm ${isSyncing ? "fa-spin" : ""}`}></i>
-                                        <span>{isSyncing ? "Syncing..." : "Sync"}</span>
-                                    </button>
+                     {/* ── Floating Sync Button (hanya ikon) ── */}
+<button 
+  onClick={() => handlePullFromCloud(false)} 
+  disabled={isSyncing} 
+  title={isSyncing ? "Menyinkronkan..." : "Sinkronisasi Data"}
+  className={`fixed z-50 flex items-center justify-center p-3 rounded-full text-base font-black shadow-2xl transition-all duration-200 border backdrop-blur-md bottom-6 right-6 ${
+    isSyncing 
+      ? "bg-slate-900/80 border-slate-700/40 text-slate-400 cursor-not-allowed" 
+      : "bg-amber-500/15 border-amber-400 text-amber-300 hover:bg-amber-500/25 active:scale-95 shadow-amber-500/20"
+  }`}
+>
+  <i className={`fa-solid fa-rotate ${isSyncing ? "fa-spin" : ""}`}></i>
+</button>
 
                     {/* ── Modal Jemaat ── */}
                     {jemaatModal.isOpen && (
