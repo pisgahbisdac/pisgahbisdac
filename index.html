@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -482,9 +482,9 @@
                 if (typeof window !== 'undefined') {
                     const stored = localStorage.getItem('theme');
                     if (stored) return stored === 'dark';
-                    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    return false;
                 }
-                return true;
+                return false;
             });
 
             useEffect(() => {
@@ -1556,7 +1556,7 @@
                                     <div className="w-px bg-slate-200 dark:bg-white/10 shrink-0 mx-1 md:mx-0"></div>
                                     <select value={filterKelas} onChange={(e) => setFilterKelas(e.target.value)} className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-full px-4 md:px-3 py-2 md:py-1.5 text-xs md:text-[11px] font-bold focus:outline-none shrink-0 snap-start"><option value="all">Semua Kelas</option>{kelas.map(k => <option key={k.nama} value={k.nama}>{k.nama}</option>)}</select>
                                     <select value={filterGender} onChange={(e) => setFilterGender(e.target.value)} className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-full px-4 md:px-3 py-2 md:py-1.5 text-xs md:text-[11px] font-bold focus:outline-none shrink-0 snap-start"><option value="all">Gender</option><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select>
-                                    <select value={filterBaptis} onChange={(e) => setFilterBaptis(e.target.value)} className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-full px-4 md:px-3 py-2 md:py-1.5 text-xs md:text-[11px] font-bold focus:outline-none shrink-0 snap-start"><option value="all">Status Baptis</option><option value="Sudah Baptis">Sudah</option><option value="Belum Baptis">Belum</option></select>
+                                    <select value={filterBaptis} onChange={(e) => setFilterBaptis(e.target.value)} className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-full px-4 md:px-3 py-2 md:py-1.5 text-xs md:text-[11px] font-bold focus:outline-none shrink-0 snap-start"><option value="all">Status Baptis</option><option value="Sudah Baptis">Sudah Baptis</option><option value="Belum Baptis">Belum Baptis</option></select>
                                 </div>
                                 {filteredJemaatList.length === 0 ? (
                                     <div className="text-center py-16 space-y-3"><i className="fa-solid fa-users-slash text-4xl text-slate-300 dark:text-slate-700"></i><p className="text-slate-500 text-sm">Tidak ada jemaat ditemukan.</p></div>
@@ -1985,10 +1985,23 @@
                     {}
                     <footer className="bg-white dark:bg-slate-950 text-slate-500 py-8 border-t border-slate-200 dark:border-white/5 mt-auto text-xs pb-12 md:pb-8 transition-colors duration-300">
                         <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center md:flex-row md:justify-between gap-4 text-center md:text-left">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-700/50 p-1 bg-slate-100 dark:bg-slate-900"><img src="./PisgahWhite.png" alt="Logo" className="w-full h-full object-contain" onError={(e) => e.target.style.display = 'none'} /></div>
-                                <h5 className="text-slate-900 dark:text-white font-black tracking-widest text-[11px]">PISGAH BISDAC</h5>
-                            </div>
+                            <div className="flex flex-col gap-1">
+  {/* Baris 1: Logo + Nama Singkat */}
+  <div className="flex items-center gap-3">
+    <div className="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-700/50 p-1 bg-slate-100 dark:bg-slate-900">
+      <img 
+        src="./PisgahWhite.png" 
+        alt="Logo" 
+        className="w-full h-full object-contain" 
+        onError={(e) => e.target.style.display = 'none'} 
+      />
+    </div>
+    <h5 className="text-slate-900 dark:text-white font-black tracking-widest text-[11px]">
+      PISGAH BISDAC <br/>
+      Batam International Seventh-Day Adventist Church
+    </h5>
+  </div>
+</div>
                             <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500">&copy; 2026 Hak Cipta Dilindungi. Sistem Presensi Cloud.</p>
                         </div>
                     </footer>
@@ -2010,7 +2023,7 @@
                                     <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Nama Lengkap *</label><input type="text" name="nama" required defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.nama : ''} className="w-full max-w-full box-border bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-amber-500 text-base md:text-sm" placeholder="Nama sesuai KTP/Kartu Jemaat"/></div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Gender</label><select name="gender" defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.gender : 'Laki-laki'} className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-3 rounded-xl border border-slate-300 dark:border-slate-700 text-base md:text-sm focus:outline-none focus:border-amber-500"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
-                                        <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Baptis</label><select name="statusBaptis" defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.statusBaptis : 'Sudah Baptis'} className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-3 rounded-xl border border-slate-300 dark:border-slate-700 text-base md:text-sm focus:outline-none focus:border-amber-500"><option value="Sudah Baptis">Sudah</option><option value="Belum Baptis">Belum</option></select></div>
+                                        <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Baptis</label><select name="statusBaptis" defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.statusBaptis : 'Sudah Baptis'} className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-3 rounded-xl border border-slate-300 dark:border-slate-700 text-base md:text-sm focus:outline-none focus:border-amber-500"><option value="Sudah Baptis">Sudah Baptis</option><option value="Belum Baptis">Belum Baptis</option></select></div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div className="min-w-0 w-full overflow-hidden">
