@@ -1233,7 +1233,7 @@
             return (
                 <div className="min-h-screen flex flex-col relative pb-safe">
                     {toast.show && (
-                        <div className="fixed bottom-24 md:bottom-20 left-1/2 transform -translate-x-1/2 z-[150] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-full px-5 py-2.5 shadow-2xl flex items-center gap-3 animate-fadeIn w-[90%] md:w-max max-w-sm text-sm">
+                        <div className="fixed bottom-24 md:bottom-20 transform -translate-x-1/2 z-[150] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-full px-5 py-2.5 shadow-2xl flex items-center gap-3 animate-fadeIn w-[90%] md:w-max max-w-sm text-sm">
                             <i className="fas fa-circle-info text-amber-500 dark:text-amber-400 animate-pulse text-lg"></i>
                             <span className="text-slate-900 dark:text-slate-100 truncate font-bold">{toast.message}</span>
                         </div>
@@ -1306,7 +1306,7 @@
                                     </>
                                 )}
                                 <button onClick={() => { setActiveTab("input-absen"); setSchoolSabbatSubTab("absen-jemaat"); }} className={`snap-start shrink-0 px-4 md:px-5 py-2.5 md:py-2 rounded-xl md:rounded-full transition-all flex items-center gap-2 ${activeTab === "input-absen" ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 scale-[1.02]" : "bg-slate-100 dark:bg-slate-900/50 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"}`}><i className="fa-solid fa-clipboard-user"></i> Catat Absen</button>
-                                <button onClick={() => setActiveTab("rekap")} className={`snap-start shrink-0 px-4 md:px-5 py-2.5 md:py-2 rounded-xl md:rounded-full transition-all flex items-center gap-2 ${activeTab === "rekap" ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 scale-[1.02]" : "bg-slate-100 dark:bg-slate-900/50 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"}`}><i className="fa-solid fa-file-invoice"></i> Rekap PDF</button>
+                                <button onClick={() => setActiveTab("rekap")} className={`snap-start shrink-0 px-4 md:px-5 py-2.5 md:py-2 rounded-xl md:rounded-full transition-all flex items-center gap-2 ${activeTab === "rekap" ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 scale-[1.02]" : "bg-slate-100 dark:bg-slate-900/50 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"}`}><i className="fa-solid fa-file-invoice"></i> Cetak Rekap</button>
                             </div>
                         </nav>
                     )}
@@ -1331,7 +1331,7 @@
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                                     <div className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 p-4 md:p-5 rounded-2xl shadow-xl backdrop-blur-sm">
                                         <h4 className="font-extrabold text-slate-900 dark:text-white text-sm md:text-xs mb-4 uppercase tracking-wider flex items-center justify-between">
-                                            <span className="flex items-center gap-2"><i className="fa-solid fa-cake-candles text-amber-500 dark:text-amber-400"></i> Ultah Bulan Ini</span>
+                                            <span className="flex items-center gap-2"><i className="fa-solid fa-cake-candles text-amber-500 dark:text-amber-400"></i> Ulang Tahun Bulan Ini</span>
                                             <span className="text-[10px] bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider">{new Date().toLocaleString('id-ID', { month: 'long' })}</span>
                                         </h4>
                                         {ultahBulanIni.length === 0 ? (
@@ -1360,7 +1360,7 @@
                                     </div>
                                     <div className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 p-4 md:p-5 rounded-2xl shadow-xl backdrop-blur-sm">
                                         <h4 className="font-extrabold text-slate-900 dark:text-white text-sm md:text-xs mb-4 uppercase tracking-wider flex items-center justify-between">
-                                            <span className="flex items-center gap-2"><i className="fa-solid fa-calendar-week text-slate-500 dark:text-slate-400"></i> Ultah Bulan Lalu</span>
+                                            <span className="flex items-center gap-2"><i className="fa-solid fa-calendar-week text-slate-500 dark:text-slate-400"></i> Ulang Tahun Bulan Lalu</span>
                                             <span className="text-[10px] bg-slate-100 dark:bg-slate-600/20 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider">{new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleString('id-ID', { month: 'short' })}</span>
                                         </h4>
                                         {ultahBulanLalu.length === 0 ? (
@@ -1442,16 +1442,22 @@
                                                     name="doaNoHp" 
                                                     required 
                                                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 md:p-2.5 text-slate-900 dark:text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500" 
-                                                    placeholder="0812..." 
+                                                    placeholder="62812..." 
                                                     onInput={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, ''); }} 
                                                 />
                                             </div>
                                             <div>
                                                 <label className="block text-slate-500 dark:text-slate-400 mb-1.5 md:mb-1">Pokok Doa *</label>
-                                                <textarea name="doaPermohonan" rows="4" required className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 md:p-2.5 text-slate-900 dark:text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500 resize-y"></textarea>
+                                                <textarea
+  name="doaPermohonan"
+  rows="4"
+  required
+  placeholder="Tulis Permohonan Doa - Enter untuk Poin doa..."
+  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 md:p-2.5 text-slate-900 dark:text-white rounded-xl md:rounded-lg focus:outline-none focus:border-amber-500 resize-y"
+></textarea>
                                             </div>
                                             <div className="flex justify-end pt-2">
-                                                <button type="submit" className="w-full md:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-5 py-3 md:py-2.5 rounded-xl transition flex items-center justify-center gap-2 active:scale-95"><i className="fa-solid fa-paper-plane"></i> Kirim Doa</button>
+                                                <button type="submit" className="w-full md:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-5 py-3 md:py-2.5 rounded-xl transition flex items-center justify-center gap-2 active:scale-95"><i className="fa-solid fa-paper-plane"></i> Kirim Permohonan Doa</button>
                                             </div>
                                         </form>
                                     </div>
