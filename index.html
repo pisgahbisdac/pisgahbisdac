@@ -616,8 +616,13 @@ function getIcon(name, sizeClass = 'lucide-sm') {
             </div>
             <div class="form-group">
               <label class="form-label">Jenis Pemasukan</label>
-              <select class="form-select" id="incType" onchange="updateIncomeAlloc()">
+              <select class="form-select" id="incType" onchange="handleTypeChange()">
                 <option value="">-- Pilih Kategori --</option>
+              </select>
+            </div>
+            <div class="form-group" id="incSubGroup" style="display:none; padding-left:12px; border-left:2px solid var(--moss-300);">
+              <label class="form-label">Rincian Kategori Perpuluhan</label>
+              <select class="form-select" id="incSubType" onchange="updateIncomeAlloc()">
               </select>
             </div>
             <div class="form-row">
@@ -639,24 +644,6 @@ function getIcon(name, sizeClass = 'lucide-sm') {
             <div class="form-group">
               <label class="form-label">Nominal Setoran (Rp)</label>
               <input class="form-input" id="incAmount" type="number" placeholder="0" oninput="updateIncomeAlloc()">
-            </div>
-
-            <div class="form-group" id="incKhususGroup" style="display:none">
-              <label class="form-label">Set Alokasi Manual (%)</label>
-              <div class="form-row">
-                <div>
-                  <label class="form-label" style="font-size:11px">% Daerah</label>
-                  <input class="form-input" id="incAllocDaerah" type="number" value="0" min="0" max="100" oninput="updateIncomeAlloc()">
-                </div>
-                <div>
-                  <label class="form-label" style="font-size:11px">% Jemaat</label>
-                  <input class="form-input" id="incAllocJemaat" type="number" value="0" min="0" max="100" oninput="updateIncomeAlloc()">
-                </div>
-                <div>
-                  <label class="form-label" style="font-size:11px">% Pembangunan</label>
-                  <input class="form-input" id="incAllocBangun" type="number" value="100" min="0" max="100" oninput="updateIncomeAlloc()">
-                </div>
-              </div>
             </div>
 
             <div class="alloc-display" id="incAllocDisplay">
@@ -1051,7 +1038,12 @@ function getIcon(name, sizeClass = 'lucide-sm') {
 
     <div class="form-group">
       <label class="form-label" id="editTransCatLabel">Kategori / Departemen</label>
-      <select class="form-select" id="editTransCat"></select>
+      <select class="form-select" id="editTransCat" onchange="handleEditTypeChange()"></select>
+    </div>
+
+    <div class="form-group" id="editTransSubCatGroup" style="display:none; padding-left:12px; border-left:2px solid var(--moss-300);">
+      <label class="form-label">Rincian Kategori Perpuluhan</label>
+      <select class="form-select" id="editTransSubCat"></select>
     </div>
 
     <div class="form-group" id="editTransUnitGroup" style="display:none;">
@@ -1375,8 +1367,28 @@ function initForms() {
   document.getElementById('bulkDate').value = todayStr();
 
   const incSel = document.getElementById('incType');
-  incSel.innerHTML = '<option value="">-- Pilih Kategori --</option>' + 
-    (masterData.incomeTypes || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
+  const incSubSel = document.getElementById('incSubType');
+  
+  // Memilah grup Perpuluhan dan menyembunyikan Persembahan Khusus
+  const perpuluhanGroup = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'];
+  const excludeList = ['Persembahan Khusus', ...perpuluhanGroup];
+  
+  let parentOptions = '<option value="">-- Pilih Kategori --</option>';
+  parentOptions += '<option value="Perpuluhan">Perpuluhan (Grup)</option>';
+  
+  let subOptions = '';
+
+  (masterData.incomeTypes || []).forEach(x => {
+    if (!excludeList.includes(x.name)) {
+      parentOptions += `<option value="${x.name}">${x.name}</option>`;
+    }
+    if (perpuluhanGroup.includes(x.name)) {
+      subOptions += `<option value="${x.name}">${x.name}</option>`;
+    }
+  });
+  
+  incSel.innerHTML = parentOptions;
+  if (incSubSel) incSubSel.innerHTML = subOptions;
 
   const unitOptions = '<option value="">-- Pilih Unit (Tanpa Unit) --</option>' + 
     (masterData.units || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
@@ -1388,14 +1400,25 @@ function initForms() {
   deptSel.innerHTML = '<option value="">-- Pilih Bidang Kerja --</option>' + 
     (masterData.departments || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
     
-  // Build bulk item fields dynamically based on active Income Types
+  // Build bulk item fields (Tanpa Persembahan Khusus)
   const bulkContainer = document.getElementById('bulkItemsContainer');
-  bulkContainer.innerHTML = (masterData.incomeTypes || []).map(type => `
+  bulkContainer.innerHTML = (masterData.incomeTypes || [])
+    .filter(type => type.name !== 'Persembahan Khusus')
+    .map(type => `
     <div class="bulk-item-row">
       <div class="bulk-item-label">${type.name}</div>
       <input type="number" class="bulk-item-input bulk-amount" data-type="${type.name}" placeholder="Rp 0" min="0">
     </div>
   `).join('');
+}
+
+function handleTypeChange() {
+  const type = document.getElementById('incType').value;
+  const subGroup = document.getElementById('incSubGroup');
+  if (subGroup) {
+    subGroup.style.display = (type === 'Perpuluhan') ? 'block' : 'none';
+  }
+  updateIncomeAlloc();
 }
 
 function switchIncomeTab(tabName) {
@@ -1567,21 +1590,14 @@ function getIncomeTypeConfig(name) { return masterData.incomeTypes.find(x => x.n
 
 function updateIncomeAlloc() {
   const type = document.getElementById('incType').value;
+  const subType = document.getElementById('incSubType') ? document.getElementById('incSubType').value : '';
   const amount = parseFloat(document.getElementById('incAmount').value) || 0;
-  const khususGroup = document.getElementById('incKhususGroup');
-
+  
+  let actualType = type === 'Perpuluhan' ? subType : type;
   let pctD = 0, pctJ = 0, pctB = 0;
 
-  if (type === 'Persembahan Khusus') {
-    khususGroup.style.display = 'block';
-    pctD = parseFloat(document.getElementById('incAllocDaerah').value) || 0;
-    pctJ = parseFloat(document.getElementById('incAllocJemaat').value) || 0;
-    pctB = parseFloat(document.getElementById('incAllocBangun').value) || 0;
-  } else {
-    khususGroup.style.display = 'none';
-    const cfg = getIncomeTypeConfig(type);
-    if (cfg) { pctD = cfg.pct_daerah; pctJ = cfg.pct_jemaat; pctB = cfg.pct_bangun; }
-  }
+  const cfg = getIncomeTypeConfig(actualType);
+  if (cfg) { pctD = cfg.pct_daerah; pctJ = cfg.pct_jemaat; pctB = cfg.pct_bangun; }
 
   const allocD = amount * pctD / 100;
   const allocJ = amount * pctJ / 100;
@@ -1594,7 +1610,8 @@ function updateIncomeAlloc() {
 
 async function saveIncomeForm() {
   const date = document.getElementById('incDate').value;
-  const type = document.getElementById('incType').value;
+  const parentType = document.getElementById('incType').value;
+  const type = parentType === 'Perpuluhan' ? document.getElementById('incSubType').value : parentType;
   const unit = document.getElementById('incUnit').value;
   const giver = document.getElementById('incGiver').value.trim();
   const receipt = document.getElementById('incReceipt').value.trim();
@@ -1609,9 +1626,7 @@ async function saveIncomeForm() {
 
   const data = {
     date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount, note,
-    alloc_pct_daerah: type === 'Persembahan Khusus' ? (parseFloat(document.getElementById('incAllocDaerah').value) || 0) : 0,
-    alloc_pct_jemaat: type === 'Persembahan Khusus' ? (parseFloat(document.getElementById('incAllocJemaat').value) || 0) : 0,
-    alloc_pct_bangun: type === 'Persembahan Khusus' ? (parseFloat(document.getElementById('incAllocBangun').value) || 0) : 0
+    alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0
   };
 
   try {
@@ -1619,6 +1634,7 @@ async function saveIncomeForm() {
     notify('Setoran pemasukan berhasil dibukukan!', 'success');
     
     document.getElementById('incType').value = '';
+    if(document.getElementById('incSubGroup')) document.getElementById('incSubGroup').style.display = 'none';
     document.getElementById('incUnit').value = '';
     document.getElementById('incGiver').value = '';
     document.getElementById('incReceipt').value = '';
@@ -1869,6 +1885,14 @@ function renderHistory() {
 
 let currentEditTransaction = null;
 
+function handleEditTypeChange() {
+  const type = document.getElementById('editTransCat').value;
+  const subCatGroup = document.getElementById('editTransSubCatGroup');
+  if(subCatGroup) {
+    subCatGroup.style.display = (type === 'Perpuluhan' && currentEditTransaction && currentEditTransaction.type === 'income') ? 'block' : 'none';
+  }
+}
+
 function openEditTrans(type, id) {
   const list = type === 'income' ? cachedIncome : cachedExpense;
   const trx = list.find(x => (x.transaction_id || x.receipt_no) === id);
@@ -1883,12 +1907,32 @@ function openEditTrans(type, id) {
   document.getElementById('editTransReceipt').value = trx.receipt_no || '';
 
   const catSelect = document.getElementById('editTransCat');
+  const subCatSelect = document.getElementById('editTransSubCat');
+  const subCatGroup = document.getElementById('editTransSubCatGroup');
+  
   catSelect.innerHTML = '';
+  if (subCatSelect) subCatSelect.innerHTML = '';
   
   if(type === 'income') {
       document.getElementById('editTransCatLabel').textContent = 'Kategori Pemasukan';
-      (masterData.incomeTypes || []).forEach(x => catSelect.add(new Option(x.name, x.name)));
-      catSelect.value = trx.income_type;
+      
+      const perpuluhanGroup = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'];
+      const excludeList = ['Persembahan Khusus', ...perpuluhanGroup];
+      
+      catSelect.add(new Option('Perpuluhan (Grup)', 'Perpuluhan'));
+      (masterData.incomeTypes || []).forEach(x => {
+        if (perpuluhanGroup.includes(x.name) && subCatSelect) subCatSelect.add(new Option(x.name, x.name));
+        if (!excludeList.includes(x.name)) catSelect.add(new Option(x.name, x.name));
+      });
+      
+      if (perpuluhanGroup.includes(trx.income_type)) {
+        catSelect.value = 'Perpuluhan';
+        if (subCatSelect) subCatSelect.value = trx.income_type;
+        if (subCatGroup) subCatGroup.style.display = 'block';
+      } else {
+        catSelect.value = trx.income_type;
+        if (subCatGroup) subCatGroup.style.display = 'none';
+      }
       
       document.getElementById('editTransUnitGroup').style.display = 'block';
       document.getElementById('editTransSourceGroup').style.display = 'none';
@@ -1903,6 +1947,7 @@ function openEditTrans(type, id) {
       (masterData.departments || []).forEach(x => catSelect.add(new Option(x.name, x.name)));
       catSelect.value = trx.department;
       
+      if (subCatGroup) subCatGroup.style.display = 'none';
       document.getElementById('editTransUnitGroup').style.display = 'none';
       document.getElementById('editTransSourceGroup').style.display = 'block';
 
@@ -1927,7 +1972,8 @@ async function saveEditTransaction() {
     };
 
     if (currentEditTransaction.type === 'income') {
-      payload.income_type = document.getElementById('editTransCat').value;
+      const parentType = document.getElementById('editTransCat').value;
+      payload.income_type = (parentType === 'Perpuluhan') ? document.getElementById('editTransSubCat').value : parentType;
       payload.unit_name = document.getElementById('editTransUnit').value;
     } else {
       payload.department = document.getElementById('editTransCat').value;
