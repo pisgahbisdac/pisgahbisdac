@@ -345,8 +345,8 @@ const svgStore = {
   church: '<path d="M18 22V10l-6-6-6 6v12"/><path d="M12 4v4"/><path d="M10 6h4"/><path d="M14 22v-4a2 2 0 0 0-4 0v4"/>',
   mappin: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
   hammer: '<path d="M14 14l6 6"/><path d="M15 13l-4-4 2-2 4 4-2 2z"/><path d="M11 9L6.5 4.5a2.12 2.12 0 0 0-3 0L2 6a2.12 2.12 0 0 0 0 3l4.5 4.5"/>',
-  trendUp: '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
-  trendDown: '<polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>',
+  trendDown: '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
+  trendUp: '<polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>',
   check: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
   alert: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
   info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
@@ -497,7 +497,7 @@ function getIcon(name, sizeClass = 'lucide-sm') {
         <span class="topbar-title" id="pageTitle">Dashboard</span>
       </div>
       <div class="topbar-actions">
-        <div class="status-bar" style="margin:0; padding:6px 12px; font-size:11px;">
+        <div class="status-bar" style="margin:0; padding:6px 12px; font-size:11px; cursor:pointer;" onclick="handleManualSync()" title="Klik untuk sinkronisasi">
           <div class="status-dot online" id="appStatusDot"></div>
           <span id="appStatusText">Koneksi Aktif</span>
         </div>
@@ -532,7 +532,7 @@ function getIcon(name, sizeClass = 'lucide-sm') {
         <div class="card" style="margin-bottom:0">
           <div class="card-header">
             <div>
-              <div class="card-title">Proporsi Pembagian Saldo</div>
+              <div class="card-title">Proporsi Pembagian Saldo</div>svg viewBox
               <div class="card-subtitle">Sesuai porsi alokasi kas saat ini</div>
             </div>
           </div>
@@ -1255,11 +1255,17 @@ async function syncAllData() {
 
 async function handleManualSync() {
   const btn = document.getElementById('btnSyncData');
+  const statusTxt = document.getElementById('appStatusText');
+  const statusDot = document.getElementById('appStatusDot');
+  
   if(btn) {
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Sinkronisasi...';
   }
+  if(statusTxt) statusTxt.textContent = 'Menyinkronkan...';
+  if(statusDot) statusDot.className = 'status-dot loading';
   
+  await checkAPIConnection();
   await syncAllData();
   
   if(btn) {
