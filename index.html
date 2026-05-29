@@ -1522,7 +1522,7 @@ function renderDashboard() {
   const categoryBreakdownIn = {};
   filteredInc.forEach(x => { categoryBreakdownIn[x.income_type] = (categoryBreakdownIn[x.income_type] || 0) + x.amount; });
 
-  let catInTable = '<table style="font-size:12px;"><thead><tr><th>Pemasukan Kategori</th><th style="text-align:right">Total</th></tr></thead><tbody>';
+  let catInTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th>Pemasukan Kategori</th><th style="text-align:right">Total</th></tr></thead><tbody>';
   if (Object.keys(categoryBreakdownIn).length === 0) {
     catInTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state" style="padding:15px"><p>Tidak ada pemasukan.</p></div></td></tr>';
   } else {
@@ -1530,13 +1530,13 @@ function renderDashboard() {
       catInTable += `<tr><td><span class="badge badge-moss">${k}</span></td><td class="amount-pos" style="text-align:right">${fmt(v)}</td></tr>`;
     });
   }
-  catInTable += '</tbody></table>';
+  catInTable += '</tbody></table></div>';
   document.getElementById('kategoriInTable').innerHTML = catInTable;
 
   const categoryBreakdownOut = {};
   filteredExp.forEach(x => { categoryBreakdownOut[x.department] = (categoryBreakdownOut[x.department] || 0) + x.amount; });
 
-  let catOutTable = '<table style="font-size:12px; margin-top:10px;"><thead><tr><th>Pengeluaran Departemen</th><th style="text-align:right">Total</th></tr></thead><tbody>';
+  let catOutTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th>Pengeluaran Departemen</th><th style="text-align:right">Total</th></tr></thead><tbody>';
   if (Object.keys(categoryBreakdownOut).length === 0) {
     catOutTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state" style="padding:15px"><p>Tidak ada pengeluaran.</p></div></td></tr>';
   } else {
@@ -1544,7 +1544,7 @@ function renderDashboard() {
       catOutTable += `<tr><td><span class="badge badge-gold">${k}</span></td><td class="amount-neg" style="text-align:right">-${fmt(v)}</td></tr>`;
     });
   }
-  catOutTable += '</tbody></table>';
+  catOutTable += '</tbody></table></div>';
   document.getElementById('kategoriOutTable').innerHTML = catOutTable;
 
   const recent = [
