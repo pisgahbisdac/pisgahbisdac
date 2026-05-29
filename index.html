@@ -1677,9 +1677,24 @@ function renderReportView(data) {
             <strong style="color:var(--text)">${category}</strong><strong class="amount-pos">${fmt(tot)}</strong>
           </div>
           <div class="table-wrap">
-            <table><thead><tr><th>Tgl</th><th>Giver / Sektor</th><th>Referensi No.</th><th>Keterangan</th><th style="text-align:right">Subtotal</th></tr></thead>
-              <tbody>${items.map(x => `<tr><td>${x.date.split('T')[0]}</td><td>${x.nama_pemberi || 'Umum'} (${x.unit_name})</td><td><span style="font-family:monospace">${x.receipt_no}</span></td><td>${x.note || '-'}</td><td class="amount-pos" style="text-align:right">${fmt(x.amount)}</td></tr>`).join('')}</tbody>
-            </table></div></div>`;
+            <table>
+              <thead>
+                <tr><th>Tgl</th><th>Pemberi</th><th>Referensi No.</th><th>Keterangan</th><th style="text-align:right">Subtotal</th></tr>
+              </thead>
+              <tbody>
+                ${items.map(x => `
+                  <tr>
+                    <td>${x.date.split('T')[0]}</td>
+                    <td>-</td>
+                    <td><span style="font-family:monospace">${x.receipt_no}</span></td>
+                    <td>${x.note || '-'}</td>
+                    <td class="amount-pos" style="text-align:right">${fmt(x.amount)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
     });
   }
   html += '</div>';
@@ -1695,9 +1710,24 @@ function renderReportView(data) {
             <strong style="color:var(--text)">${dept}</strong><strong class="amount-neg">-${fmt(tot)}</strong>
           </div>
           <div class="table-wrap">
-            <table><thead><tr><th>Tgl</th><th>Sumber Kas</th><th>Referensi No.</th><th>Keperluan</th><th style="text-align:right">Subtotal</th></tr></thead>
-              <tbody>${items.map(x => `<tr><td>${x.date.split('T')[0]}</td><td><span class="badge badge-gold">${x.source_balance}</span></td><td><span style="font-family:monospace">${x.receipt_no}</span></td><td>${x.note || '-'}</td><td class="amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('')}</tbody>
-            </table></div></div>`;
+            <table>
+              <thead>
+                <tr><th>Tgl</th><th>Sumber Kas</th><th>Referensi No.</th><th>Keperluan</th><th style="text-align:right">Subtotal</th></tr>
+              </thead>
+              <tbody>
+                ${items.map(x => `
+                  <tr>
+                    <td>${x.date.split('T')[0]}</td>
+                    <td><span class="badge badge-gold">${x.source_balance}</span></td>
+                    <td><span style="font-family:monospace">${x.receipt_no}</span></td>
+                    <td>${x.note || '-'}</td>
+                    <td class="amount-neg" style="text-align:right">-${fmt(x.amount)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
     });
   }
   html += '</div>';
