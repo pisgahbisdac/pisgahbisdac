@@ -601,15 +601,9 @@ function getIcon(name, sizeClass = 'lucide-sm') {
     <div class="page" id="page-pemasukan">
       <div class="grid-2">
         <div class="card">
-          <div class="form-section-title" style="margin-bottom: 0; padding-bottom: 0; border: none;">Form Catat Pemasukan</div>
+          <div class="form-section-title">Form Catat Pemasukan</div>
           
-          <div class="tabs-container">
-            <button class="tab-btn active" onclick="switchIncomeTab('satuan')">Input Satuan</button>
-            <button class="tab-btn" onclick="switchIncomeTab('kolektif')">Kolektif per Unit</button>
-          </div>
-
-          <!-- TAB: SATUAN -->
-          <div id="tabSatuan">
+          <div>
             <div class="form-group">
               <label class="form-label">Tanggal Transaksi</label>
               <input class="form-input" id="incDate" type="date">
@@ -618,11 +612,6 @@ function getIcon(name, sizeClass = 'lucide-sm') {
               <label class="form-label">Jenis Pemasukan</label>
               <select class="form-select" id="incType" onchange="handleTypeChange()">
                 <option value="">-- Pilih Kategori --</option>
-              </select>
-            </div>
-            <div class="form-group" id="incSubGroup" style="display:none; padding-left:12px; border-left:2px solid var(--moss-300);">
-              <label class="form-label">Rincian Kategori Perpuluhan</label>
-              <select class="form-select" id="incSubType" onchange="updateIncomeAlloc()">
               </select>
             </div>
             <div class="form-row">
@@ -641,9 +630,36 @@ function getIcon(name, sizeClass = 'lucide-sm') {
               <label class="form-label">Nama Pemberi (Tulis Perorangan/Kolektif)</label>
               <input class="form-input" id="incGiver" type="text" placeholder="Contoh: Keluarga Sitorus / Jemaat Umum">
             </div>
-            <div class="form-group">
+
+            <!-- GRUP NOMINAL TUNGGAL (DEFAULT) -->
+            <div class="form-group" id="incAmountSingleGroup">
               <label class="form-label">Nominal Setoran (Rp)</label>
               <input class="form-input" id="incAmount" type="number" placeholder="0" oninput="updateIncomeAlloc()">
+            </div>
+
+            <!-- GRUP NOMINAL MULTIPEL (KHUSUS PERPULUHAN) -->
+            <div class="form-group" id="incPerpuluhanGroup" style="display:none; padding:16px; background:rgba(0,0,0,0.2); border-radius:var(--radius); border:1px dashed var(--glass-border);">
+              <label class="form-label" style="border-bottom:1px solid var(--glass-border); padding-bottom:8px; margin-bottom:12px; color:var(--moss-100)">Rincian Setoran Grup Perpuluhan (Rp)</label>
+              <div class="form-row" style="margin-bottom:10px;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:11px">Perpuluhan</label>
+                  <input class="form-input" id="incAmtPerpuluhan" type="number" placeholder="0" oninput="updateIncomeAlloc()">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:11px">Terpadu</label>
+                  <input class="form-input" id="incAmtTerpadu" type="number" placeholder="0" oninput="updateIncomeAlloc()">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:11px">Khusus Jemaat</label>
+                  <input class="form-input" id="incAmtKhususJemaat" type="number" placeholder="0" oninput="updateIncomeAlloc()">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:11px">Khusus Daerah</label>
+                  <input class="form-input" id="incAmtKhususDaerah" type="number" placeholder="0" oninput="updateIncomeAlloc()">
+                </div>
+              </div>
             </div>
 
             <div class="alloc-display" id="incAllocDisplay">
@@ -667,31 +683,6 @@ function getIcon(name, sizeClass = 'lucide-sm') {
             </div>
             <button class="btn btn-success" style="width:100%; padding:12px; font-weight:600" id="savIncBtn" onclick="saveIncomeForm()">
               <script>document.write(getIcon('save', 'lucide-md'))</script> Posting Pemasukan
-            </button>
-          </div>
-
-          <!-- TAB: KOLEKTIF -->
-          <div id="tabKolektif" style="display:none;">
-            <div class="form-group">
-              <label class="form-label">Tanggal Setoran</label>
-              <input class="form-input" id="bulkDate" type="date">
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Unit Penyetor Kolektif</label>
-                <select class="form-select" id="bulkUnit"></select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">No. Referensi Kolektif</label>
-                <input class="form-input" id="bulkReceipt" type="text" placeholder="Kuitansi...">
-              </div>
-            </div>
-            <div class="form-group" style="margin-top:20px;">
-              <label class="form-label" style="border-bottom:1px dashed var(--glass-border); padding-bottom:8px; margin-bottom:12px;">Rincian Total Per Kategori (Rp)</label>
-              <div id="bulkItemsContainer"></div>
-            </div>
-            <button class="btn btn-primary" style="width:100%; padding:12px; font-weight:600" id="savBulkBtn" onclick="saveBulkIncomeForm()">
-              <script>document.write(getIcon('save', 'lucide-md'))</script> Posting Setoran Kolektif
             </button>
           </div>
 
@@ -1364,68 +1355,48 @@ function initForms() {
   if (!masterData) return;
   document.getElementById('incDate').value = todayStr();
   document.getElementById('expDate').value = todayStr();
-  document.getElementById('bulkDate').value = todayStr();
 
   const incSel = document.getElementById('incType');
-  const incSubSel = document.getElementById('incSubType');
   
   // Memilah grup Perpuluhan dan menyembunyikan Persembahan Khusus
   const perpuluhanGroup = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'];
   const excludeList = ['Persembahan Khusus', ...perpuluhanGroup];
   
   let parentOptions = '<option value="">-- Pilih Kategori --</option>';
-  parentOptions += '<option value="Perpuluhan">Perpuluhan (Grup)</option>';
+  parentOptions += '<option value="Perpuluhan">Grup Perpuluhan (Otomatis Dibagi)</option>';
   
-  let subOptions = '';
-
   (masterData.incomeTypes || []).forEach(x => {
     if (!excludeList.includes(x.name)) {
       parentOptions += `<option value="${x.name}">${x.name}</option>`;
     }
-    if (perpuluhanGroup.includes(x.name)) {
-      subOptions += `<option value="${x.name}">${x.name}</option>`;
-    }
   });
   
   incSel.innerHTML = parentOptions;
-  if (incSubSel) incSubSel.innerHTML = subOptions;
 
   const unitOptions = '<option value="">-- Pilih Unit (Tanpa Unit) --</option>' + 
     (masterData.units || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
   document.getElementById('incUnit').innerHTML = unitOptions;
-  document.getElementById('bulkUnit').innerHTML = '<option value="">-- Pilih Unit Penyetor --</option>' + 
-    (masterData.units || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
 
   const deptSel = document.getElementById('expDept');
   deptSel.innerHTML = '<option value="">-- Pilih Bidang Kerja --</option>' + 
     (masterData.departments || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
-    
-  // Build bulk item fields (Tanpa Persembahan Khusus)
-  const bulkContainer = document.getElementById('bulkItemsContainer');
-  bulkContainer.innerHTML = (masterData.incomeTypes || [])
-    .filter(type => type.name !== 'Persembahan Khusus')
-    .map(type => `
-    <div class="bulk-item-row">
-      <div class="bulk-item-label">${type.name}</div>
-      <input type="number" class="bulk-item-input bulk-amount" data-type="${type.name}" placeholder="Rp 0" min="0">
-    </div>
-  `).join('');
 }
 
 function handleTypeChange() {
   const type = document.getElementById('incType').value;
-  const subGroup = document.getElementById('incSubGroup');
-  if (subGroup) {
-    subGroup.style.display = (type === 'Perpuluhan') ? 'block' : 'none';
+  const singleGrp = document.getElementById('incAmountSingleGroup');
+  const perpGrp = document.getElementById('incPerpuluhanGroup');
+  
+  if (singleGrp && perpGrp) {
+    if (type === 'Perpuluhan') {
+      singleGrp.style.display = 'none';
+      perpGrp.style.display = 'block';
+    } else {
+      singleGrp.style.display = 'block';
+      perpGrp.style.display = 'none';
+    }
   }
   updateIncomeAlloc();
-}
-
-function switchIncomeTab(tabName) {
-  document.getElementById('tabSatuan').style.display = tabName === 'satuan' ? 'block' : 'none';
-  document.getElementById('tabKolektif').style.display = tabName === 'kolektif' ? 'block' : 'none';
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
 }
 
 async function loadAllTransactions() {
@@ -1598,97 +1569,100 @@ function getIncomeTypeConfig(name) { return masterData.incomeTypes.find(x => x.n
 
 function updateIncomeAlloc() {
   const type = document.getElementById('incType').value;
-  const subType = document.getElementById('incSubType') ? document.getElementById('incSubType').value : '';
-  const amount = parseFloat(document.getElementById('incAmount').value) || 0;
-  
-  let actualType = type === 'Perpuluhan' ? subType : type;
-  let pctD = 0, pctJ = 0, pctB = 0;
+  let allocD = 0, allocJ = 0, allocB = 0;
 
-  const cfg = getIncomeTypeConfig(actualType);
-  if (cfg) { pctD = cfg.pct_daerah; pctJ = cfg.pct_jemaat; pctB = cfg.pct_bangun; }
+  if (type === 'Perpuluhan') {
+    const amtP = parseFloat(document.getElementById('incAmtPerpuluhan').value) || 0;
+    const amtT = parseFloat(document.getElementById('incAmtTerpadu').value) || 0;
+    const amtKJ = parseFloat(document.getElementById('incAmtKhususJemaat').value) || 0;
+    const amtKD = parseFloat(document.getElementById('incAmtKhususDaerah').value) || 0;
 
-  const allocD = amount * pctD / 100;
-  const allocJ = amount * pctJ / 100;
-  const allocB = amount * pctB / 100;
+    const getPct = (name) => {
+      const cfg = getIncomeTypeConfig(name);
+      return cfg ? { d: cfg.pct_daerah, j: cfg.pct_jemaat, b: cfg.pct_bangun } : { d: 0, j: 0, b: 0 };
+    };
 
-  document.getElementById('allocDaerahVal').textContent = `${pctD}% → ${fmt(allocD)}`;
-  document.getElementById('allocJemaatVal').textContent = `${pctJ}% → ${fmt(allocJ)}`;
-  document.getElementById('allocBangunVal').textContent = `${pctB}% → ${fmt(allocB)}`;
+    const cp = getPct('Perpuluhan'), ct = getPct('Terpadu'), ckj = getPct('Khusus Jemaat'), ckd = getPct('Khusus Daerah');
+
+    allocD = (amtP * cp.d/100) + (amtT * ct.d/100) + (amtKJ * ckj.d/100) + (amtKD * ckd.d/100);
+    allocJ = (amtP * cp.j/100) + (amtT * ct.j/100) + (amtKJ * ckj.j/100) + (amtKD * ckd.j/100);
+    allocB = (amtP * cp.b/100) + (amtT * ct.b/100) + (amtKJ * ckj.b/100) + (amtKD * ckd.b/100);
+  } else {
+    const amount = parseFloat(document.getElementById('incAmount').value) || 0;
+    const cfg = getIncomeTypeConfig(type);
+    if (cfg) { 
+      allocD = amount * cfg.pct_daerah / 100; 
+      allocJ = amount * cfg.pct_jemaat / 100; 
+      allocB = amount * cfg.pct_bangun / 100; 
+    }
+  }
+
+  document.getElementById('allocDaerahVal').textContent = fmt(allocD);
+  document.getElementById('allocJemaatVal').textContent = fmt(allocJ);
+  document.getElementById('allocBangunVal').textContent = fmt(allocB);
 }
 
 async function saveIncomeForm() {
   const date = document.getElementById('incDate').value;
-  const parentType = document.getElementById('incType').value;
-  const type = parentType === 'Perpuluhan' ? document.getElementById('incSubType').value : parentType;
+  const type = document.getElementById('incType').value;
   const unit = document.getElementById('incUnit').value;
   const giver = document.getElementById('incGiver').value.trim();
   const receipt = document.getElementById('incReceipt').value.trim();
-  const amount = parseFloat(document.getElementById('incAmount').value) || 0;
   const note = document.getElementById('incNote').value.trim();
 
-  if (!date || !type || !receipt || amount <= 0) { notify('Harap isi kolom tanggal, kategori, referensi, dan nominal!', 'error'); return; }
+  if (!date || !type || !receipt) { notify('Harap isi kolom tanggal, kategori, dan referensi!', 'error'); return; }
 
   const btn = document.getElementById('savIncBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Memproses Setoran...';
 
-  const data = {
-    date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount, note,
-    alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0
-  };
-
   try {
-    await apiPost('saveIncome', data);
+    if (type === 'Perpuluhan') {
+      const items = [];
+      ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'].forEach(k => {
+        const val = parseFloat(document.getElementById(`incAmt${k.replace(/\s/g, '')}`).value) || 0;
+        if (val > 0) items.push({ income_type: k, amount: val });
+      });
+
+      if (items.length === 0) throw new Error('Harap isi minimal satu nominal perpuluhan!');
+      
+      // Kirim array sebagai transaksi terpisah bersamaan
+      await Promise.all(items.map(item => 
+        apiPost('saveIncome', { 
+          date, income_type: item.income_type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', 
+          receipt_no: receipt, amount: item.amount, note, alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0 
+        })
+      ));
+
+    } else {
+      const amount = parseFloat(document.getElementById('incAmount').value) || 0;
+      if (amount <= 0) throw new Error('Harap isi nominal!');
+      
+      await apiPost('saveIncome', { 
+        date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', 
+        receipt_no: receipt, amount, note, alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0 
+      });
+    }
+
     notify('Setoran pemasukan berhasil dibukukan!', 'success');
     
     document.getElementById('incType').value = '';
-    if(document.getElementById('incSubGroup')) document.getElementById('incSubGroup').style.display = 'none';
+    handleTypeChange();
     document.getElementById('incUnit').value = '';
     document.getElementById('incGiver').value = '';
     document.getElementById('incReceipt').value = '';
     document.getElementById('incAmount').value = '';
+    document.getElementById('incAmtPerpuluhan').value = '';
+    document.getElementById('incAmtTerpadu').value = '';
+    document.getElementById('incAmtKhususJemaat').value = '';
+    document.getElementById('incAmtKhususDaerah').value = '';
     document.getElementById('incNote').value = '';
     updateIncomeAlloc();
 
     await syncAllData();
     renderIncomeList();
   } catch (err) { notify(err.message, 'error'); } 
-  finally { btn.disabled = false; btn.innerHTML = `${getIcon('save')} Posting Pemasukan`; }
-}
-
-async function saveBulkIncomeForm() {
-  const date = document.getElementById('bulkDate').value;
-  const unit = document.getElementById('bulkUnit').value;
-  const receipt = document.getElementById('bulkReceipt').value.trim();
-  
-  if (!date || !unit || !receipt) { notify('Tanggal, Unit Penyetor, dan Nomor Referensi wajib diisi!', 'error'); return; }
-
-  const items = [];
-  document.querySelectorAll('.bulk-amount').forEach(input => {
-    const amount = parseFloat(input.value) || 0;
-    if(amount > 0) {
-      items.push({ income_type: input.getAttribute('data-type'), amount: amount, note: 'Kolektif ' + unit });
-    }
-  });
-
-  if (items.length === 0) { notify('Tidak ada nominal yang diisi sama sekali.', 'error'); return; }
-
-  const btn = document.getElementById('savBulkBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Memproses Kolektif...';
-
-  try {
-    await apiPost('saveBulkIncome', { date, unit_name: unit, receipt_no: receipt, items });
-    notify('Semua setoran kolektif berhasil dibukukan!', 'success');
-    
-    document.getElementById('bulkUnit').value = '';
-    document.getElementById('bulkReceipt').value = '';
-    document.querySelectorAll('.bulk-amount').forEach(input => input.value = '');
-
-    await syncAllData();
-    renderIncomeList();
-  } catch (err) { notify(err.message, 'error'); } 
-  finally { btn.disabled = false; btn.innerHTML = `${getIcon('save')} Posting Setoran Kolektif`; }
+  finally { btn.disabled = false; btn.innerHTML = `${getIcon('save', 'lucide-md')} Posting Pemasukan`; }
 }
 
 function renderIncomeList() {
