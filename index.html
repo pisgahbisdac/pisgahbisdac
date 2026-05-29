@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PiKaChu — Sistem Keuangan Jemaat</title>
+<!-- Menambahkan Favicon Putih -->
+<link rel="icon" type="image/png" href="./putih.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
 <style>
 /* Base Style & Pilihan Palet Warna Moss Green */
@@ -188,7 +190,9 @@ body::before {
 .login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; position: relative; z-index: 10; width: 100%; }
 .login-card { background: linear-gradient(145deg, rgba(18, 32, 22, 0.85), rgba(12, 22, 16, 0.92)); backdrop-filter: blur(40px) saturate(1.5); border: 1px solid var(--glass-border2); border-radius: var(--radius-xl); padding: 44px 40px; width: 100%; max-width: 400px; box-shadow: 0 32px 64px rgba(0,0,0,0.6); }
 .login-logo { text-align: center; margin-bottom: 32px; }
-.login-logo-icon { width: 68px; height: 68px; background: linear-gradient(135deg, var(--moss-600), var(--moss-400), var(--gold)); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; margin: 0 auto 16px; box-shadow: 0 8px 32px rgba(45, 96, 56, 0.5); }
+
+/* Mengganti CSS Ikon Logo Login untuk menampung gambar hijau.png */
+.login-logo img { width: 80px; height: 80px; object-fit: contain; margin: 0 auto 16px; display: block; }
 .login-logo h1 { font-family: 'Playfair Display', serif; font-size: 30px; color: var(--text); }
 
 .form-group { margin-bottom: 18px; }
@@ -394,9 +398,8 @@ function getIcon(name, sizeClass = 'lucide-sm') {
       </button>
     </div>
     <div class="login-logo">
-      <div class="login-logo-icon">
-        <svg class="lucide lucide-lg" style="width:36px;height:36px" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><line x1="7" y1="9" x2="17" y2="9"/></svg>
-      </div>
+      <!-- Mengganti Ikon Default dengan Gambar Hijau.png -->
+      <img src="./hijau.png" alt="Logo PiKaChu GMAHK">
       <h1>PiKaChu</h1>
       <p style="color:var(--text2); font-size: 13px;">Sistem Keuangan Jemaat</p>
     </div>
