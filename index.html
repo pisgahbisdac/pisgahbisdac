@@ -5807,6 +5807,21 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
     <Icon name="ListOrdered" className="w-[1.15rem] h-[1.15rem]" />
     <span className="text-sm">Kehadiran</span>
 </button>
+        {/* 👇 TEMPATKAN LINK LAPORAN DI SINI (setelah mapping, tanpa garis pemisah) */}
+    <button 
+    onClick={(e) => {
+        e.preventDefault(); // Mencegah aksi default jika ada
+        const userConfirmed = window.confirm("Buka halaman Laporan sekarang?");
+        if (userConfirmed) {
+            window.location.href = 'https://pikachu.pisgahbisdac.app'; // Buka di tab yang sama (_self)
+        }
+        setIsMobileMenuOpen(false);
+    }} 
+    className="w-full text-left px-4 py-3 flex items-center space-x-3 hover:bg-navy-50/70 transition-colors text-navy-700 font-medium"
+>
+    <Icon name="ListOrdered" className="w-[1.15rem] h-[1.15rem]" />
+    <span className="text-sm">Laporan</span>
+</button>
 
 {/* Logout Button - Hanya tampil saat user sudah login sebagai admin */}
 {isAdminLoggedIn && (
