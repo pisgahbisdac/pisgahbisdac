@@ -257,11 +257,32 @@ body::before {
 }
 
 @media print {
-  .sidebar, .topbar, .filter-bar, .btn, .hamburger { display: none !important; }
-  .main { margin-left: 0; }
-  .page { display: block !important; }
-  body { background: white; color: black; }
-  .card { border: 1px solid #ccc; background: white; color: black; }
+  @page {
+    size: auto; /* Membiarkan browser/printer mendeteksi otomatis (default ke portrait) */
+    margin: 1.2cm; /* Margin standar kertas cetak */
+  }
+  .sidebar, .topbar, .filter-bar, .btn, .hamburger, .bottom-bar { display: none !important; }
+  .main { margin-left: 0; padding: 0; width: 100%; }
+  .page { display: none !important; }
+  #page-laporan { display: block !important; padding: 0; margin: 0; width: 100%; max-width: 100%; }
+  body { background: white; color: black; font-size: 11pt; }
+  body::before { display: none; }
+  
+  /* Mengubah break-inside menjadi auto agar konten mengalir bersambung dari halaman 1 */
+  .card { border: none !important; background: transparent !important; color: black !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 15px !important; break-inside: auto; page-break-inside: auto; }
+  .form-section-title { border-bottom: 2px solid #ccc !important; color: black !important; padding-bottom: 4px !important; margin-bottom: 8px !important; }
+  
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .amount-pos { color: #166534 !important; font-weight: bold; }
+  .amount-neg { color: #991b1b !important; font-weight: bold; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; table-layout: auto; page-break-inside: auto; }
+  tr { page-break-inside: avoid; page-break-after: auto; }
+  th, td { border: 1px solid #ddd !important; padding: 8px !important; color: black !important; font-size: 10pt !important; word-wrap: break-word; }
+  th { background-color: #f5f5f5 !important; font-weight: bold; }
+  .report-summary { display: flex !important; gap: 10px !important; background: transparent !important; border: none !important; margin: 0 0 15px 0 !important; padding: 0 !important; page-break-inside: avoid; }
+  .report-card { flex: 1; border: 1px solid #ddd !important; padding: 12px !important; background: #fafafa !important; }
+  .report-card-label { color: #555 !important; font-size: 9pt !important; }
+  .report-card-val { color: black !important; font-size: 14pt !important; }
 }
 
 /* Utilitas UI Canvas */
@@ -532,7 +553,7 @@ function getIcon(name, sizeClass = 'lucide-sm') {
         <div class="card" style="margin-bottom:0">
           <div class="card-header">
             <div>
-              <div class="card-title">Proporsi Pembagian Saldo</div>svg viewBox
+              <div class="card-title">Proporsi Pembagian Saldo</div>
               <div class="card-subtitle">Sesuai porsi alokasi kas saat ini</div>
             </div>
           </div>
@@ -541,11 +562,14 @@ function getIcon(name, sizeClass = 'lucide-sm') {
         <div class="card" style="margin-bottom:0">
           <div class="card-header">
             <div>
-              <div class="card-title">Masukan Berdasarkan Kategori</div>
-              <div class="card-subtitle">Perincian total masukan bulan terpilih</div>
+              <div class="card-title">Transaksi Berdasarkan Kategori</div>
+              <div class="card-subtitle">Rincian total masukan & keluaran bulan terpilih</div>
             </div>
           </div>
-          <div id="kategoriTable"></div>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div id="kategoriInTable"></div>
+            <div id="kategoriOutTable"></div>
+          </div>
         </div>
       </div>
 
@@ -1006,6 +1030,63 @@ function getIcon(name, sizeClass = 'lucide-sm') {
   </div>
 </div>
 
+<!-- MODAL EDIT TRANSAKSI -->
+<div id="editTransModal" class="sidebar-overlay" style="display:none; justify-content:center; align-items:center; z-index:1200;">
+  <div class="card" style="max-width:450px; width: 100%; padding:28px; background:#0d1410; border:1px solid var(--glass-border2); margin: 0 16px;">
+    <h3 style="margin-bottom:16px; font-family:'Playfair Display', serif; color: var(--text); display:flex; align-items:center;">
+      <script>document.write(getIcon('edit', 'lucide-lg'))</script> 
+      <span style="margin-left: 8px;">Edit Transaksi</span>
+    </h3>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Tanggal</label>
+        <input class="form-input" id="editTransDate" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Referensi</label>
+        <input class="form-input" id="editTransReceipt" type="text">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" id="editTransCatLabel">Kategori / Departemen</label>
+      <select class="form-select" id="editTransCat"></select>
+    </div>
+
+    <div class="form-group" id="editTransUnitGroup" style="display:none;">
+      <label class="form-label">Unit / Sektor</label>
+      <select class="form-select" id="editTransUnit"></select>
+    </div>
+
+    <div class="form-group" id="editTransSourceGroup" style="display:none;">
+      <label class="form-label">Sumber Kas</label>
+      <select class="form-select" id="editTransSource">
+        <option value="Daerah">Saldo Daerah</option>
+        <option value="Kas Jemaat">Kas Jemaat</option>
+        <option value="Pembangunan">Saldo Pembangunan</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Nominal (Rp)</label>
+      <input class="form-input" id="editTransAmount" type="number">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Keterangan Tambahan</label>
+      <input class="form-input" id="editTransNote" type="text">
+    </div>
+    
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top: 24px;">
+      <button class="btn btn-primary" id="btnSaveEditTrans" onclick="saveEditTransaction()">
+        <script>document.write(getIcon('save', 'lucide-sm'))</script> Simpan Perubahan
+      </button>
+      <button class="btn btn-ghost" onclick="document.getElementById('editTransModal').style.display='none'">Batal</button>
+    </div>
+  </div>
+</div>
+
 <!-- CONTAINER NOTIFIKASI DI TENGAH LAYAR -->
 <div class="notification" id="notification">
   <span id="notifIcon" style="display:flex; align-items:center;">
@@ -1103,7 +1184,13 @@ let editingUser = null;
 let editingUnit = null;
 
 function fmt(n) { return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID'); }
-function todayStr() { return new Date().toISOString().split('T')[0]; }
+function fmtDate(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return String(iso).split('T')[0];
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function todayStr() { return fmtDate(new Date()); }
 
 function setStatus(state, text) {
   const dot = document.getElementById('statusDot');
@@ -1432,19 +1519,33 @@ function renderDashboard() {
     </div>
   `;
 
-  const categoryBreakdown = {};
-  filteredInc.forEach(x => { categoryBreakdown[x.income_type] = (categoryBreakdown[x.income_type] || 0) + x.amount; });
+  const categoryBreakdownIn = {};
+  filteredInc.forEach(x => { categoryBreakdownIn[x.income_type] = (categoryBreakdownIn[x.income_type] || 0) + x.amount; });
 
-  let catTable = '<table><thead><tr><th>Jenis Masukan</th><th>Total Kas</th></tr></thead><tbody>';
-  if (Object.keys(categoryBreakdown).length === 0) {
-    catTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state"><p>Tidak ada transaksi pemasukan pada periode ini.</p></div></td></tr>';
+  let catInTable = '<table style="font-size:12px;"><thead><tr><th>Pemasukan Kategori</th><th style="text-align:right">Total</th></tr></thead><tbody>';
+  if (Object.keys(categoryBreakdownIn).length === 0) {
+    catInTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state" style="padding:15px"><p>Tidak ada pemasukan.</p></div></td></tr>';
   } else {
-    Object.entries(categoryBreakdown).forEach(([k, v]) => {
-      catTable += `<tr><td><span class="badge badge-moss">${k}</span></td><td class="amount-pos">${fmt(v)}</td></tr>`;
+    Object.entries(categoryBreakdownIn).forEach(([k, v]) => {
+      catInTable += `<tr><td><span class="badge badge-moss">${k}</span></td><td class="amount-pos" style="text-align:right">${fmt(v)}</td></tr>`;
     });
   }
-  catTable += '</tbody></table>';
-  document.getElementById('kategoriTable').innerHTML = catTable;
+  catInTable += '</tbody></table>';
+  document.getElementById('kategoriInTable').innerHTML = catInTable;
+
+  const categoryBreakdownOut = {};
+  filteredExp.forEach(x => { categoryBreakdownOut[x.department] = (categoryBreakdownOut[x.department] || 0) + x.amount; });
+
+  let catOutTable = '<table style="font-size:12px; margin-top:10px;"><thead><tr><th>Pengeluaran Departemen</th><th style="text-align:right">Total</th></tr></thead><tbody>';
+  if (Object.keys(categoryBreakdownOut).length === 0) {
+    catOutTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state" style="padding:15px"><p>Tidak ada pengeluaran.</p></div></td></tr>';
+  } else {
+    Object.entries(categoryBreakdownOut).forEach(([k, v]) => {
+      catOutTable += `<tr><td><span class="badge badge-gold">${k}</span></td><td class="amount-neg" style="text-align:right">-${fmt(v)}</td></tr>`;
+    });
+  }
+  catOutTable += '</tbody></table>';
+  document.getElementById('kategoriOutTable').innerHTML = catOutTable;
 
   const recent = [
     ...filteredInc.map(x => ({ ...x, style: 'amount-pos', sign: '+', badge: 'badge-green', label: 'Masuk' })),
@@ -1453,7 +1554,7 @@ function renderDashboard() {
 
   document.getElementById('recentTrans').innerHTML = recent.map(x => `
     <tr>
-      <td>${x.date.split('T')[0]}</td>
+      <td>${fmtDate(x.date)}</td>
       <td><span class="badge ${x.badge}">${x.label}</span></td>
       <td><strong>${x.income_type || x.department}</strong><br><span style="font-size:11px; color:var(--text3)">${x.note || '-'}</span></td>
       <td class="${x.style}">${x.sign}${fmt(x.amount)}</td>
@@ -1570,7 +1671,7 @@ function renderIncomeList() {
   const list = [...cachedIncome].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
   document.getElementById('incomeList').innerHTML = list.map(x => `
     <tr>
-      <td>${x.date.split('T')[0]}</td>
+      <td>${fmtDate(x.date)}</td>
       <td><span class="badge badge-moss">${x.income_type}</span></td>
       <td><span style="font-family:monospace">${x.receipt_no}</span></td>
       <td class="amount-pos">+${fmt(x.amount)}</td>
@@ -1626,7 +1727,7 @@ function renderExpenseList() {
   const list = [...cachedExpense].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
   document.getElementById('expenseList').innerHTML = list.map(x => `
     <tr>
-      <td>${x.date.split('T')[0]}</td>
+      <td>${fmtDate(x.date)}</td>
       <td><strong>${x.department}</strong></td>
       <td><span class="badge badge-gold">${x.source_balance}</span></td>
       <td class="amount-neg">-${fmt(x.amount)}</td>
@@ -1679,12 +1780,12 @@ function renderReportView(data) {
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Tgl</th><th>Pemberi</th><th>Referensi No.</th><th>Keterangan</th><th style="text-align:right">Subtotal</th></tr>
+                <tr><th>Tanggal</th><th>Pemberi</th><th>Referensi No.</th><th>Keterangan</th><th style="text-align:right">Subtotal</th></tr>
               </thead>
               <tbody>
                 ${items.map(x => `
                   <tr>
-                    <td>${x.date.split('T')[0]}</td>
+                    <td>${fmtDate(x.date)}</td>
                     <td>-</td>
                     <td><span style="font-family:monospace">${x.receipt_no}</span></td>
                     <td>${x.note || '-'}</td>
@@ -1712,12 +1813,12 @@ function renderReportView(data) {
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Tgl</th><th>Sumber Kas</th><th>Referensi No.</th><th>Keperluan</th><th style="text-align:right">Subtotal</th></tr>
+                <tr><th>Tanggal</th><th>Sumber Kas</th><th>Referensi No.</th><th>Keperluan</th><th style="text-align:right">Subtotal</th></tr>
               </thead>
               <tbody>
                 ${items.map(x => `
                   <tr>
-                    <td>${x.date.split('T')[0]}</td>
+                    <td>${fmtDate(x.date)}</td>
                     <td><span class="badge badge-gold">${x.source_balance}</span></td>
                     <td><span style="font-family:monospace">${x.receipt_no}</span></td>
                     <td>${x.note || '-'}</td>
@@ -1746,20 +1847,113 @@ function renderHistory() {
   if (q) list = list.filter(x => `${x.income_type || x.department} ${x.note || ''} ${x.receipt_no}`.toLowerCase().includes(q));
 
   const isAdmin = currentUser.role === 'Admin';
+  const isBendahara = currentUser.role === 'Bendahara';
+  const canEdit = isAdmin || isBendahara;
+
   document.getElementById('historyList').innerHTML = list.map(x => {
     const deleteId = x.transaction_id || x.receipt_no || '';
     return `
     <tr>
-      <td>${(x.date || '').toString().split('T')[0]}</td>
+      <td>${fmtDate(x.date)}</td>
       <td><span class="badge ${x.badge}">${x.label}</span></td>
       <td><strong>${x.income_type || x.department || '-'}</strong><br><span style="font-size:11px; color:var(--text3)">${x.note || '-'}</span></td>
       <td><span class="badge badge-gray">${x.receipt_no || '-'}</span></td>
       <td>${x.nama_pemberi || '-'}</td>
       <td class="${x.style}"><strong>${x.sign}${fmt(x.amount)}</strong></td>
-      <td style="text-align:right">
-        ${isAdmin && deleteId ? `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteTransaction('${x.type}', '${deleteId}')">${getIcon('trash')} Hapus</button>` : '<span style="color:var(--text4)">No Akses</span>'}
+      <td style="text-align:right; min-width:140px;">
+        ${canEdit && deleteId ? `<button class="btn btn-ghost" style="padding:4px 8px; font-size:11px; margin-right:4px;" onclick="openEditTrans('${x.type}', '${deleteId}')">${getIcon('edit')} Edit</button>` : ''}
+        ${isAdmin && deleteId ? `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteTransaction('${x.type}', '${deleteId}')">${getIcon('trash')} Hapus</button>` : (!canEdit ? '<span style="color:var(--text4)">No Akses</span>' : '')}
       </td>
     </tr>`}).join('') || '<tr><td colspan="7" style="text-align:center"><div class="empty-state"><p>Belum ada rekaman arsip transaksi di sistem.</p></div></td></tr>';
+}
+
+let currentEditTransaction = null;
+
+function openEditTrans(type, id) {
+  const list = type === 'income' ? cachedIncome : cachedExpense;
+  const trx = list.find(x => (x.transaction_id || x.receipt_no) === id);
+  if(!trx) { notify('Transaksi tidak ditemukan di cache.', 'error'); return; }
+
+  currentEditTransaction = { type, id, original: trx };
+
+  document.getElementById('editTransModal').style.display = 'flex';
+  document.getElementById('editTransDate').value = fmtDate(trx.date);
+  document.getElementById('editTransAmount').value = trx.amount;
+  document.getElementById('editTransNote').value = trx.note || '';
+  document.getElementById('editTransReceipt').value = trx.receipt_no || '';
+
+  const catSelect = document.getElementById('editTransCat');
+  catSelect.innerHTML = '';
+  
+  if(type === 'income') {
+      document.getElementById('editTransCatLabel').textContent = 'Kategori Pemasukan';
+      (masterData.incomeTypes || []).forEach(x => catSelect.add(new Option(x.name, x.name)));
+      catSelect.value = trx.income_type;
+      
+      document.getElementById('editTransUnitGroup').style.display = 'block';
+      document.getElementById('editTransSourceGroup').style.display = 'none';
+
+      const unitSelect = document.getElementById('editTransUnit');
+      unitSelect.innerHTML = '<option value="">-- Tanpa Unit --</option>';
+      (masterData.units || []).forEach(x => unitSelect.add(new Option(x.name, x.name)));
+      unitSelect.value = trx.unit_name || '';
+
+  } else {
+      document.getElementById('editTransCatLabel').textContent = 'Departemen Pengeluaran';
+      (masterData.departments || []).forEach(x => catSelect.add(new Option(x.name, x.name)));
+      catSelect.value = trx.department;
+      
+      document.getElementById('editTransUnitGroup').style.display = 'none';
+      document.getElementById('editTransSourceGroup').style.display = 'block';
+
+      document.getElementById('editTransSource').value = trx.source_balance || 'Kas Jemaat';
+  }
+}
+
+async function saveEditTransaction() {
+  if(!currentEditTransaction) return;
+  const btn = document.getElementById('btnSaveEditTrans');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Menyimpan...';
+
+  try {
+    const payload = {
+      type: currentEditTransaction.type,
+      transaction_id: currentEditTransaction.id,
+      date: document.getElementById('editTransDate').value,
+      receipt_no: document.getElementById('editTransReceipt').value.trim(),
+      amount: parseFloat(document.getElementById('editTransAmount').value) || 0,
+      note: document.getElementById('editTransNote').value.trim()
+    };
+
+    if (currentEditTransaction.type === 'income') {
+      payload.income_type = document.getElementById('editTransCat').value;
+      payload.unit_name = document.getElementById('editTransUnit').value;
+    } else {
+      payload.department = document.getElementById('editTransCat').value;
+      payload.source_balance = document.getElementById('editTransSource').value;
+    }
+
+    if(!payload.date || !payload.amount) {
+      throw new Error("Tanggal dan Nominal wajib diisi!");
+    }
+
+    // Melakukan panggilan fungsi 'editRecord' ke Apps Script
+    await apiPost('editRecord', payload);
+    
+    notify('Transaksi berhasil diperbarui!', 'success');
+    document.getElementById('editTransModal').style.display = 'none';
+    
+    await syncAllData();
+    renderHistory();
+    if(currentEditTransaction.type === 'income') renderIncomeList();
+    if(currentEditTransaction.type === 'expense') renderExpenseList();
+  } catch(e) {
+    notify(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `${getIcon('save', 'lucide-sm')} Simpan Perubahan`;
+  }
 }
 
 async function deleteTransaction(type, id) {
