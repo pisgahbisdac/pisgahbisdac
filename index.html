@@ -1483,12 +1483,20 @@ function renderDashboard() {
       });
   }
 
+  const saldoAccrued = (cachedSaldo.total || 0) - (cachedSaldo.daerah || 0);
+
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card">
       <div class="stat-icon c-teal">${getIcon('shield', 'lucide-lg')}</div>
       <div class="stat-label">Total Saldo Terkonsolidasi</div>
       <div class="stat-value">${fmt(cachedSaldo.total)}</div>
       <div class="stat-sub">Semua Kategori Kas Bank</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon c-moss">${getIcon('log', 'lucide-lg')}</div>
+      <div class="stat-label">Total Saldo Accrued</div>
+      <div class="stat-value" style="color:var(--moss-100)">${fmt(saldoAccrued)}</div>
+      <div class="stat-sub">Terkonsolidasi - Daerah</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon c-gold">${getIcon('church', 'lucide-lg')}</div>
