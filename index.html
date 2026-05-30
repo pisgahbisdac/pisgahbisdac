@@ -1422,15 +1422,48 @@ function renderDashboard() {
   const month = parseInt(document.getElementById('dashMonth').value);
   const year = parseInt(document.getElementById('dashYear').value);
 
+  // 1. Tentukan batas tanggal akhir (End of Date) untuk bulan terpilih
+  let targetDateEnd;
+  if (month === 0) {
+    targetDateEnd = new Date(year, 11, 31, 23, 59, 59);
+  } else {
+    targetDateEnd = new Date(year, month, 0, 23, 59, 59);
+  }
+
+  // 2. Filter Transaksi Khusus Bulan Terpilih (Untuk kotak Pemasukan/Pengeluaran bulan ini)
   const filteredInc = (cachedIncome || []).filter(x => {
     const d = new Date(x.date);
-    return (month === 0 || d.getMonth() + 1 === month) && d.getFullYear() === year;
+    return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month);
   });
 
   const filteredExp = (cachedExpense || []).filter(x => {
     const d = new Date(x.date);
-    return (month === 0 || d.getMonth() + 1 === month) && d.getFullYear() === year;
+    return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month);
   });
+
+  // 3. Filter Transaksi Historis (Dari awal sistem mulai s/d akhir bulan terpilih)
+  const historicalInc = (cachedIncome || []).filter(x => new Date(x.date) <= targetDateEnd);
+  const historicalExp = (cachedExpense || []).filter(x => new Date(x.date) <= targetDateEnd);
+
+  // 4. Hitung Ulang Saldo Aktual di Akhir Bulan Terpilih (Saldo Awal + Mutasi Historis)
+  let calcDaerah = cachedSaldo.initDaerah || 0;
+  let calcJemaat = cachedSaldo.initJemaat || 0;
+  let calcBangun = cachedSaldo.initBangun || 0;
+
+  historicalInc.forEach(i => {
+    calcDaerah += (i.alloc_daerah || 0);
+    calcJemaat += (i.alloc_jemaat || 0);
+    calcBangun += (i.alloc_bangun || 0);
+  });
+
+  historicalExp.forEach(e => {
+    if (e.source_balance === 'Daerah') calcDaerah -= e.amount;
+    else if (e.source_balance === 'Kas Jemaat') calcJemaat -= e.amount;
+    else if (e.source_balance === 'Pembangunan') calcBangun -= e.amount;
+  });
+
+  const calcTotal = calcDaerah + calcJemaat + calcBangun;
+  const saldoAccrued = calcTotal - calcDaerah;
 
   const totalIn = filteredInc.reduce((s, x) => s + x.amount, 0);
   const totalOut = filteredExp.reduce((s, x) => s + x.amount, 0);
@@ -1457,13 +1490,11 @@ function renderDashboard() {
       });
   }
 
-  const saldoAccrued = (cachedSaldo.total || 0) - (cachedSaldo.daerah || 0);
-
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card">
       <div class="stat-icon c-teal">${getIcon('shield', 'lucide-lg')}</div>
       <div class="stat-label">Total Saldo Terkonsolidasi</div>
-      <div class="stat-value">${fmt(cachedSaldo.total)}</div>
+      <div class="stat-value">${fmt(calcTotal)}</div>
       <div class="stat-sub">Semua Kategori Kas Bank</div>
     </div>
     <div class="stat-card">
@@ -1475,19 +1506,19 @@ function renderDashboard() {
     <div class="stat-card">
       <div class="stat-icon c-gold">${getIcon('church', 'lucide-lg')}</div>
       <div class="stat-label">Saldo Kas Jemaat</div>
-      <div class="stat-value" style="color:var(--teal-pop)">${fmt(cachedSaldo.jemaat)}</div>
+      <div class="stat-value" style="color:var(--teal-pop)">${fmt(calcJemaat)}</div>
       <div class="stat-sub">Kas Operasional Jemaat</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon c-moss">${getIcon('mappin', 'lucide-lg')}</div>
       <div class="stat-label">Saldo Daerah</div>
-      <div class="stat-value" style="color:var(--sage)">${fmt(cachedSaldo.daerah)}</div>
+      <div class="stat-value" style="color:var(--sage)">${fmt(calcDaerah)}</div>
       <div class="stat-sub">Persepuluhan & Alokasi Wilayah</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon c-green">${getIcon('hammer', 'lucide-lg')}</div>
       <div class="stat-label">Dana Pembangunan</div>
-      <div class="stat-value" style="color:var(--gold)">${fmt(cachedSaldo.bangun)}</div>
+      <div class="stat-value" style="color:var(--gold)">${fmt(calcBangun)}</div>
       <div class="stat-sub">Dana Investasi & Gedung</div>
     </div>
     <div class="stat-card">
@@ -1508,19 +1539,19 @@ function renderDashboard() {
     </div>
   `;
 
-  const maxVal = Math.max(cachedSaldo.daerah, cachedSaldo.jemaat, cachedSaldo.bangun, 1);
+  const maxVal = Math.max(calcDaerah, calcJemaat, calcBangun, 1);
   document.getElementById('saldoBars').innerHTML = `
     <div class="saldo-bar-wrap">
-      <div class="saldo-bar-label"><span>Kas Jemaat</span><span>${fmt(cachedSaldo.jemaat)}</span></div>
-      <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(cachedSaldo.jemaat/maxVal*100).toFixed(0)}%; background:linear-gradient(90deg, var(--teal-pop), var(--moss-200))"></div></div>
+      <div class="saldo-bar-label"><span>Kas Jemaat</span><span>${fmt(calcJemaat)}</span></div>
+      <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcJemaat/maxVal*100).toFixed(0)}%; background:linear-gradient(90deg, var(--teal-pop), var(--moss-200))"></div></div>
     </div>
     <div class="saldo-bar-wrap">
-      <div class="saldo-bar-label"><span>Kas Daerah</span><span>${fmt(cachedSaldo.daerah)}</span></div>
-      <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(cachedSaldo.daerah/maxVal*100).toFixed(0)}%; background:linear-gradient(90deg, var(--sage), var(--moss-300))"></div></div>
+      <div class="saldo-bar-label"><span>Kas Daerah</span><span>${fmt(calcDaerah)}</span></div>
+      <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcDaerah/maxVal*100).toFixed(0)}%; background:linear-gradient(90deg, var(--sage), var(--moss-300))"></div></div>
     </div>
     <div class="saldo-bar-wrap">
-      <div class="saldo-bar-label"><span>Dana Pembangunan</span><span>${fmt(cachedSaldo.bangun)}</span></div>
-      <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(cachedSaldo.bangun/maxVal*100).toFixed(0)}%; background:linear-gradient(90deg, var(--gold), var(--gold-light))"></div></div>
+      <div class="saldo-bar-label"><span>Dana Pembangunan</span><span>${fmt(calcBangun)}</span></div>
+      <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcBangun/maxVal*100).toFixed(0)}%; background:linear-gradient(90deg, var(--gold), var(--gold-light))"></div></div>
     </div>
   `;
 
