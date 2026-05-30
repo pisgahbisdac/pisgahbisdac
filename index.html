@@ -587,11 +587,11 @@ function getIcon(name, sizeClass = 'lucide-sm') {
         <div class="card-header" style="margin-bottom: 14px;">
           <div>
             <div class="card-title">Verifikasi Transaksi Jemaat</div>
-            <div class="card-subtitle">Cek status setoran atau pengeluaran Anda dengan memasukkan nomor kuitansi persis.</div>
+            <div class="card-subtitle">Cek status setoran atau pengeluaran Anda dengan memasukkan nomor kuitansi (bisa ketik sebagian, contoh: "1234").</div>
           </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
-          <input class="form-input" id="searchReceiptInput" type="text" placeholder="No. Kuitansi (Contoh: INC-1234)" onkeydown="if(event.key==='Enter') searchByReceipt()">
+          <input class="form-input" id="searchReceiptInput" type="text" placeholder="Ketik No. Kuitansi..." onkeydown="if(event.key==='Enter') searchByReceipt()">
           <button class="btn btn-primary" onclick="searchByReceipt()" style="white-space: nowrap; padding: 11px 20px;">
             <script>document.write(getIcon('search', 'lucide-sm'))</script> Cari
           </button>
@@ -1505,7 +1505,7 @@ async function loadAllTransactions() {
   } catch (e) { }
 }
 
-// LOGIKA PENCARIAN BERDASARKAN KUITANSI (KHUSUS JEMAAT)
+// LOGIKA PENCARIAN BERDASARKAN KUITANSI (FLEKSIBEL MENGGUNAKAN INCLUDES)
 function searchByReceipt() {
   const q = document.getElementById('searchReceiptInput').value.trim().toLowerCase();
   const resultDiv = document.getElementById('receiptSearchResult');
@@ -1515,35 +1515,48 @@ function searchByReceipt() {
     return;
   }
 
-  // Cari yang HANYA cocok persis dengan receipt_no
-  const foundInc = cachedIncome.find(x => (x.receipt_no || '').toLowerCase() === q);
-  const foundExp = cachedExpense.find(x => (x.receipt_no || '').toLowerCase() === q);
+  // Gunakan 'includes' agar kata kunci sebagian pun tetap terdeteksi
+  const foundIncomes = cachedIncome.filter(x => (x.receipt_no || '').toLowerCase().includes(q)).map(x => ({...x, isInc: true}));
+  const foundExpenses = cachedExpense.filter(x => (x.receipt_no || '').toLowerCase().includes(q)).map(x => ({...x, isInc: false}));
 
-  const found = foundInc || foundExp;
+  const allFound = [...foundIncomes, ...foundExpenses];
 
   resultDiv.style.display = 'block';
-  if (found) {
-    const isInc = !!foundInc;
-    const sign = isInc ? '+' : '-';
-    const style = isInc ? 'amount-pos' : 'amount-neg';
-    const cat = isInc ? found.income_type : found.department;
-    const label = isInc ? 'Pemasukan' : 'Pengeluaran';
-    const badge = isInc ? 'badge-green' : 'badge-red';
+  
+  if (allFound.length > 0) {
+    let html = '';
+    // Tampilkan maksimal 5 hasil agar tidak membanjiri layar
+    const displayList = allFound.slice(0, 5);
+    
+    displayList.forEach(found => {
+      const sign = found.isInc ? '+' : '-';
+      const style = found.isInc ? 'amount-pos' : 'amount-neg';
+      const cat = found.isInc ? found.income_type : found.department;
+      const label = found.isInc ? 'Pemasukan' : 'Pengeluaran';
+      const badge = found.isInc ? 'badge-green' : 'badge-red';
 
-    resultDiv.innerHTML = `
-      <div style="padding: 16px; border: 1px solid var(--glass-border2); border-radius: var(--radius); background: var(--empty-bg);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <span class="badge badge-gray" style="font-family: monospace;">${found.receipt_no}</span>
-          <span class="badge ${badge}">${label}</span>
+      html += `
+        <div style="padding: 16px; border: 1px solid var(--glass-border2); border-radius: var(--radius); background: var(--empty-bg); margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span class="badge badge-gray" style="font-family: monospace;">${found.receipt_no}</span>
+            <span class="badge ${badge}">${label}</span>
+          </div>
+          <div style="font-size: 13px; color: var(--text2); margin-bottom: 4px;">Tanggal Bukukan: <strong style="color: var(--text)">${fmtDate(found.date)}</strong></div>
+          <div style="font-size: 13px; color: var(--text2); margin-bottom: 8px;">Kategori: <strong style="color: var(--text)">${cat}</strong></div>
+          <div class="form-section-title" style="margin: 12px 0 8px 0; border: none; padding: 0;">Nominal Tercatat</div>
+          <div class="${style}" style="font-size: 20px; font-weight: 700;">${sign}${fmt(found.amount)}</div>
         </div>
-        <div style="font-size: 13px; color: var(--text2); margin-bottom: 4px;">Tanggal Bukukan: <strong style="color: var(--text)">${fmtDate(found.date)}</strong></div>
-        <div style="font-size: 13px; color: var(--text2); margin-bottom: 8px;">Kategori: <strong style="color: var(--text)">${cat}</strong></div>
-        <div class="form-section-title" style="margin: 12px 0 8px 0; border: none; padding: 0;">Nominal Tercatat</div>
-        <div class="${style}" style="font-size: 20px; font-weight: 700;">${sign}${fmt(found.amount)}</div>
-      </div>
-    `;
+      `;
+    });
+
+    if(allFound.length > 5) {
+      html += `<div style="text-align:center; font-size:12px; color:var(--text3); margin-top:8px;">Dan ${allFound.length - 5} transaksi lainnya...</div>`;
+    }
+
+    resultDiv.innerHTML = html;
+
   } else {
-    resultDiv.innerHTML = `<div class="empty-state" style="padding: 15px;"><p>Transaksi dengan kuitansi <strong>${q.toUpperCase()}</strong> tidak ditemukan.</p></div>`;
+    resultDiv.innerHTML = `<div class="empty-state" style="padding: 15px;"><p>Transaksi dengan kuitansi yang mengandung <strong>"${document.getElementById('searchReceiptInput').value}"</strong> tidak ditemukan.</p></div>`;
   }
 }
 
