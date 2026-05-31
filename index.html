@@ -1656,6 +1656,12 @@ function renderDashboard() {
       });
   }
 
+  // --- LOGIKA TARGET PEMBANGUNAN ---
+  const targetPembangunan = 2500000000; // Rp 2,5 Miliar
+  const persentaseBangun = (calcBangun / targetPembangunan) * 100;
+  // Batasi lebar visual progress bar maksimal 100% jika dana sudah melampaui target
+  const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
+
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card">
       <div class="stat-icon c-teal">${safeIcon('shield', 'lucide-lg')}</div>
@@ -1685,7 +1691,15 @@ function renderDashboard() {
       <div class="stat-icon c-green">${safeIcon('hammer', 'lucide-lg')}</div>
       <div class="stat-label">Dana Pembangunan</div>
       <div class="stat-value" style="color:var(--gold)">${fmt(calcBangun)}</div>
-      <div class="stat-sub">Dana Investasi & Gedung</div>
+      <div class="stat-sub" style="margin-top: 8px;">
+        <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 5px; font-weight: 700; color: var(--text3);">
+          <span>TARGET: RP 2,5 MILIAR</span>
+          <span style="color: var(--moss-600);">${persentaseBangun.toFixed(2)}%</span>
+        </div>
+        <div class="saldo-bar-track" style="height: 6px; background: rgba(184, 148, 53, 0.15); box-shadow: none;">
+          <div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: linear-gradient(90deg, var(--gold), var(--gold-light));"></div>
+        </div>
+      </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon c-green">${safeIcon('trendUp', 'lucide-lg')}</div>
