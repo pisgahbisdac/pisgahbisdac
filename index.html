@@ -583,9 +583,7 @@ function getIcon(name, sizeClass = 'lucide-sm') {
           </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
-          <!-- Placeholder diperbarui agar sesuai konteks -->
           <input class="form-input" id="searchReceiptInput" type="text" placeholder="No. Kuitansi atau Unit ID (contoh: UNIT-178...)" onkeydown="if(event.key==='Enter') searchByReceipt()">
-          <!-- Menghindari Document Write Error dengan memasukkan SVG inline atau memastikan script dimuat aman -->
           <button class="btn btn-primary" onclick="searchByReceipt()" style="white-space: nowrap; padding: 11px 20px;">
             <svg class="lucide lucide-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Cari
           </button>
@@ -639,7 +637,7 @@ function getIcon(name, sizeClass = 'lucide-sm') {
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="recentTransCard">
         <div class="card-header">
           <div class="card-title">Jurnal Transaksi Terakhir</div>
           <button class="btn btn-ghost" id="btnJurnalDashboard" onclick="showPage('riwayat')" style="font-size:12px">
@@ -1218,7 +1216,7 @@ function getCurrentUser() {
 
 <script>
 // ============================================================
-//  FRONTEND LIVE DATABASE LOGIC
+//  FRONTEND LIVE DATABASE LOGIC & PRIVACY FILTER
 // ============================================================
 let currentUser = null;
 let masterData = null;
@@ -1228,6 +1226,14 @@ let cachedSaldo = { daerah: 0, jemaat: 0, bangun: 0, total: 0 };
 let isServerOnline = false;
 let editingUser = null;
 let editingUnit = null;
+
+// Fungsi helper penentu kategori privasi (hanya 5 kategori ini yang disembunyikan nama penyetornya untuk Viewer)
+function isPrivateCategory(category) {
+  if (!category) return false;
+  const cat = category.toLowerCase();
+  const privateCats = ['perpuluhan', 'persepuluhan', 'khusus jemaat', 'khusus daerah', 'terpadu', 'pembangunan'];
+  return privateCats.some(c => cat.includes(c));
+}
 
 // Keamanan pemanggilan SVG jika getIcon belum dimuat sempurna
 function safeIcon(name, size) {
@@ -1395,6 +1401,9 @@ function applyRoleAccess() {
   const btnJurnal = document.getElementById('btnJurnalDashboard');
   if (btnJurnal) btnJurnal.style.display = isBen ? '' : 'none';
 
+  const recentTransCard = document.getElementById('recentTransCard');
+  if (recentTransCard) recentTransCard.style.display = isBen ? '' : 'none';
+
   document.getElementById('adminNavLabel').style.display = isAdm ? '' : 'none';
   document.getElementById('navMasterDept').style.display = isAdm ? '' : 'none';
   document.getElementById('navMasterUnit').style.display = isAdm ? '' : 'none';
@@ -1505,13 +1514,14 @@ async function loadAllTransactions() {
 function searchByReceipt() {
   const q = document.getElementById('searchReceiptInput').value.trim().toLowerCase();
   const resultDiv = document.getElementById('receiptSearchResult');
+  const isViewer = currentUser && currentUser.role === 'Viewer';
 
   if (!q) {
     resultDiv.style.display = 'none';
     return;
   }
 
-  // 1. Cek apakah query yang diketik cocok dengan "Unit ID" di database (Background check)
+  // 1. Cek apakah query yang diketik cocok dengan "Unit ID" di database
   let validUnitNames = [];
   if (masterData && masterData.units) {
     validUnitNames = masterData.units
@@ -1543,10 +1553,7 @@ function searchByReceipt() {
   resultDiv.style.display = 'block';
   
   if (allFound.length > 0) {
-    // Menambahkan styling scroll agar bisa memuat banyak hasil pencarian dengan rapi
     let html = '<div style="max-height: 380px; overflow-y: auto; padding-right: 6px;">';
-    
-    // Tampilkan 100 hasil agar semua riwayat transaksi Unit tersebut selama setahun terlihat
     const displayList = allFound.slice(0, 100);
     
     displayList.forEach(found => {
@@ -1556,7 +1563,21 @@ function searchByReceipt() {
       const label = found.isInc ? 'Pemasukan' : 'Pengeluaran';
       const badge = found.isInc ? 'badge-green' : 'badge-red';
 
-      // Nama disembunyikan total untuk menjaga privasi antar jemaat
+      // PENGECEKAN PRIVASI UNTUK PENCARIAN (HANYA BERLAKU UNTUK 5 KATEGORI BAGI VIEWER)
+      const isPrivCategory = isViewer && found.isInc && isPrivateCategory(cat);
+      
+      let pemberiHtml = '';
+      if (found.isInc) {
+        if (isPrivCategory) {
+          pemberiHtml = `<div style="font-size: 13px; color: var(--text2); margin-bottom: 4px;">Pemberi/Unit: <strong style="color: var(--text)">*** (Privasi)</strong></div>`;
+        } else {
+          const pemberiStr = found.unit_name && found.unit_name !== '-' ? found.unit_name : (found.nama_pemberi || '-');
+          pemberiHtml = `<div style="font-size: 13px; color: var(--text2); margin-bottom: 4px;">Pemberi/Unit: <strong style="color: var(--text)">${pemberiStr}</strong></div>`;
+        }
+      }
+
+      const displayNote = isPrivCategory ? '*** (Privasi)' : (found.note || '-');
+
       html += `
         <div style="padding: 16px; border: 1px solid var(--glass-border2); border-radius: var(--radius); background: var(--empty-bg); margin-bottom: 10px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -1564,7 +1585,8 @@ function searchByReceipt() {
             <span class="badge ${badge}">${label}</span>
           </div>
           <div style="font-size: 13px; color: var(--text2); margin-bottom: 4px;">Tanggal Bukukan: <strong style="color: var(--text)">${fmtDate(found.date)}</strong></div>
-          <div style="font-size: 13px; color: var(--text2); margin-bottom: 8px;">Kategori: <strong style="color: var(--text)">${cat}</strong></div>
+          ${pemberiHtml}
+          <div style="font-size: 13px; color: var(--text2); margin-bottom: 8px;">Kategori: <strong style="color: var(--text)">${cat}</strong><br><span style="font-size:11px; color:var(--text3)">${displayNote}</span></div>
           <div class="form-section-title" style="margin: 12px 0 8px 0; border: none; padding: 0;">Nominal Tercatat</div>
           <div class="${style}" style="font-size: 20px; font-weight: 700;">${sign}${fmt(found.amount)}</div>
         </div>
@@ -1587,6 +1609,7 @@ function renderDashboard() {
   if (!cachedSaldo) return;
   const month = parseInt(document.getElementById('dashMonth').value);
   const year = parseInt(document.getElementById('dashYear').value);
+  const isViewer = currentUser && currentUser.role === 'Viewer';
 
   // 1. Tentukan batas tanggal akhir (End of Date) untuk bulan terpilih
   let targetDateEnd;
@@ -1596,7 +1619,7 @@ function renderDashboard() {
     targetDateEnd = new Date(year, month, 0, 23, 59, 59);
   }
 
-  // 2. Filter Transaksi Khusus Bulan Terpilih (Untuk kotak Pemasukan/Pengeluaran bulan ini)
+  // 2. Filter Transaksi Khusus Bulan Terpilih
   const filteredInc = (cachedIncome || []).filter(x => {
     const d = new Date(x.date);
     return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month);
@@ -1607,11 +1630,11 @@ function renderDashboard() {
     return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month);
   });
 
-  // 3. Filter Transaksi Historis (Dari awal sistem mulai s/d akhir bulan terpilih)
+  // 3. Filter Transaksi Historis
   const historicalInc = (cachedIncome || []).filter(x => new Date(x.date) <= targetDateEnd);
   const historicalExp = (cachedExpense || []).filter(x => new Date(x.date) <= targetDateEnd);
 
-  // 4. Hitung Ulang Saldo Aktual di Akhir Bulan Terpilih (Saldo Awal + Mutasi Historis)
+  // 4. Hitung Ulang Saldo Aktual
   let calcDaerah = cachedSaldo.initDaerah || 0;
   let calcJemaat = cachedSaldo.initJemaat || 0;
   let calcBangun = cachedSaldo.initBangun || 0;
@@ -1659,7 +1682,6 @@ function renderDashboard() {
   // --- LOGIKA TARGET PEMBANGUNAN ---
   const targetPembangunan = 2500000000; // Rp 2,5 Miliar
   const persentaseBangun = (calcBangun / targetPembangunan) * 100;
-  // Batasi lebar visual progress bar maksimal 100% jika dana sudah melampaui target
   const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
 
   document.getElementById('statsGrid').innerHTML = `
@@ -1764,19 +1786,25 @@ function renderDashboard() {
   document.getElementById('kategoriOutTable').innerHTML = catOutTable;
 
   const recent = [
-    ...filteredInc.map(x => ({ ...x, style: 'amount-pos', sign: '+', badge: 'badge-green', label: 'Masuk' })),
-    ...filteredExp.map(x => ({ ...x, style: 'amount-neg', sign: '-', badge: 'badge-red', label: 'Keluar' }))
+    ...filteredInc.map(x => ({ ...x, kind: 'income', style: 'amount-pos', sign: '+', badge: 'badge-green', label: 'Masuk' })),
+    ...filteredExp.map(x => ({ ...x, kind: 'expense', style: 'amount-neg', sign: '-', badge: 'badge-red', label: 'Keluar' }))
   ].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
-  document.getElementById('recentTrans').innerHTML = recent.map(x => `
-    <tr>
-      <td>${fmtDate(x.date)}</td>
-      <td><span class="badge ${x.badge}">${x.label}</span></td>
-      <td><strong>${x.income_type || x.department}</strong><br><span style="font-size:11px; color:var(--text3)">${x.note || '-'}</span></td>
-      <td class="${x.style}">${x.sign}${fmt(x.amount)}</td>
-      <td><span class="badge badge-gray">${x.receipt_no}</span></td>
-    </tr>
-  `).join('') || '<tr><td colspan="5" style="text-align:center"><div class="empty-state"><p>Belum ada aktivitas jurnal masuk/keluar.</p></div></td></tr>';
+  document.getElementById('recentTrans').innerHTML = recent.map(x => {
+    // PENGECEKAN PRIVASI UNTUK DASHBOARD TRANSAKSI TERBARU (KHUSUS VIEWER + KATEGORI PRIVATE)
+    const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
+    const displayNote = isPrivCategory ? '*** (Privasi)' : (x.note || '-');
+
+    return `
+      <tr>
+        <td>${fmtDate(x.date)}</td>
+        <td><span class="badge ${x.badge}">${x.label}</span></td>
+        <td><strong>${x.income_type || x.department}</strong><br><span style="font-size:11px; color:var(--text3)">${displayNote}</span></td>
+        <td class="${x.style}">${x.sign}${fmt(x.amount)}</td>
+        <td><span class="badge badge-gray">${x.receipt_no}</span></td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="5" style="text-align:center"><div class="empty-state"><p>Belum ada aktivitas jurnal masuk/keluar.</p></div></td></tr>';
 }
 
 function getIncomeTypeConfig(name) { return masterData.incomeTypes.find(x => x.name === name) || null; }
@@ -1961,6 +1989,7 @@ async function loadReport() {
 function renderReportView(data) {
   const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
   const s = data.summary; const bal = s.balances || cachedSaldo;
+  const isViewer = currentUser && currentUser.role === 'Viewer';
 
   let html = `
     <div class="card" style="margin-top:20px">
@@ -1982,6 +2011,9 @@ function renderReportView(data) {
   if (Object.keys(data.incByCategory).length === 0) html += '<div class="empty-state"><p>Tidak ada pemasukan kas.</p></div>';
   else {
     Object.entries(data.incByCategory).forEach(([category, items]) => {
+      // PENGECEKAN PRIVASI UNTUK LAPORAN (HANYA BERLAKU UNTUK 5 KATEGORI BAGI VIEWER)
+      const isPrivCategory = isViewer && isPrivateCategory(category);
+      
       const tot = items.reduce((sum, x) => sum + x.amount, 0);
       html += `
         <div style="margin-bottom:20px">
@@ -1994,15 +2026,22 @@ function renderReportView(data) {
                 <tr><th>Tanggal</th><th>Pemberi</th><th>Referensi No.</th><th>Keterangan</th><th style="text-align:right">Subtotal</th></tr>
               </thead>
               <tbody>
-                ${items.map(x => `
+                ${items.map(x => {
+                  const displayNote = isPrivCategory ? '*** (Privasi)' : (x.note || '-');
+                  let rawPemberi = (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') ? x.nama_pemberi : (x.unit_name || '-');
+                  
+                  // Hanya sembunyikan jika kondisinya Private Category dan role-nya Viewer
+                  const displayPemberi = isPrivCategory ? '*** (Privasi)' : rawPemberi;
+                  
+                  return `
                   <tr>
                     <td>${fmtDate(x.date)}</td>
-                    <td>-</td>
+                    <td>${displayPemberi}</td>
                     <td><span style="font-family:monospace">${x.receipt_no}</span></td>
-                    <td>${x.note || '-'}</td>
+                    <td>${displayNote}</td>
                     <td class="amount-pos" style="text-align:right">${fmt(x.amount)}</td>
                   </tr>
-                `).join('')}
+                `}).join('')}
               </tbody>
             </table>
           </div>
@@ -2060,16 +2099,23 @@ function renderHistory() {
   const isAdmin = currentUser.role === 'Admin';
   const isBendahara = currentUser.role === 'Bendahara';
   const canEdit = isAdmin || isBendahara;
+  const isViewer = currentUser.role === 'Viewer';
 
   document.getElementById('historyList').innerHTML = list.map(x => {
+    // PENGECEKAN PRIVASI UNTUK BUKU JURNAL (KHUSUS VIEWER + KATEGORI PRIVATE)
+    const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
+    
+    const displayNote = isPrivCategory ? '*** (Privasi)' : (x.note || '-');
+    const displayPemberi = isPrivCategory ? '*** (Privasi)' : (x.nama_pemberi || '-');
     const deleteId = x.transaction_id || x.receipt_no || '';
+
     return `
     <tr>
       <td>${fmtDate(x.date)}</td>
       <td><span class="badge ${x.badge}">${x.label}</span></td>
-      <td><strong>${x.income_type || x.department || '-'}</strong><br><span style="font-size:11px; color:var(--text3)">${x.note || '-'}</span></td>
+      <td><strong>${x.income_type || x.department || '-'}</strong><br><span style="font-size:11px; color:var(--text3)">${displayNote}</span></td>
       <td><span class="badge badge-gray">${x.receipt_no || '-'}</span></td>
-      <td>${x.nama_pemberi || '-'}</td>
+      <td>${displayPemberi}</td>
       <td class="${x.style}"><strong>${x.sign}${fmt(x.amount)}</strong></td>
       <td style="text-align:right; min-width:140px;">
         ${canEdit && deleteId ? `<button class="btn btn-ghost" style="padding:4px 8px; font-size:11px; margin-right:4px;" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit')} Edit</button>` : ''}
