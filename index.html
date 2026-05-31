@@ -2382,7 +2382,12 @@ function cancelEditUser() {
   document.getElementById('userFormTitle').textContent = 'Tambah Akun Sistem Baru';
   document.getElementById('userName').value = ''; document.getElementById('userName').disabled = false;
   document.getElementById('userFullName').value = ''; document.getElementById('userRole').value = 'Viewer';
-  document.getElementById('userPassword').value = '';
+  
+  const passInput = document.getElementById('userPassword');
+  passInput.value = ''; passInput.type = 'password';
+  const passBtn = document.getElementById('toggleUserPassBtn');
+  if(passBtn) { passBtn.innerHTML = safeIcon('eye', 'lucide-md'); passBtn.style.color = 'var(--text3)'; }
+  
   document.getElementById('saveUserBtn').innerHTML = `${safeIcon('save')} Simpan User`;
   document.getElementById('cancelEditUserBtn').style.display = 'none';
 }
@@ -2467,6 +2472,20 @@ function showPage(name) {
 
 function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
 function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+
+function togglePassword(inputId, btnId) {
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.innerHTML = safeIcon('eyeOff', 'lucide-md');
+    btn.style.color = 'var(--moss-600)';
+  } else {
+    input.type = 'password';
+    btn.innerHTML = safeIcon('eye', 'lucide-md');
+    btn.style.color = 'var(--text3)';
+  }
+}
 
 let notifTimer;
 function notify(msg, type = 'success') {
