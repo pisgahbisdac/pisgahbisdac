@@ -401,7 +401,6 @@ tr:hover td { background: var(--table-hover); }
 </head>
 <body>
 
-<!-- JS HANYA UNTUK PENYIMPANAN STRING SVG MURNI -->
 <script>
 (function() {
   const savedTheme = localStorage.getItem('PiKaChu_theme') || 'light';
@@ -437,9 +436,6 @@ function getIcon(name, sizeClass = 'lucide-sm') {
 }
 </script>
 
-<!-- ============================================================
-     LOGIN PAGE
-     ============================================================ -->
 <div id="loginPage" class="login-page">
   <div class="login-card">
     <div style="display: flex; justify-content: flex-end; margin-top: -20px; margin-bottom: 10px; gap: 8px;">
@@ -475,9 +471,6 @@ function getIcon(name, sizeClass = 'lucide-sm') {
 
 <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
 
-<!-- ============================================================
-     SISTEM UTAMA (SHELL)
-     ============================================================ -->
 <div id="app" style="display:none; width:100%; min-height:100vh;">
 
   <!-- SIDEBAR -->
@@ -579,7 +572,6 @@ function getIcon(name, sizeClass = 'lucide-sm') {
       </div>
     </div>
 
-    <!-- ── PAGE: DASHBOARD ── -->
     <div class="page active" id="page-dashboard">
       
       <!-- KARTU CARI KUITANSI (KHUSUS UNTUK VERIFIKASI JEMAAT) -->
@@ -591,9 +583,11 @@ function getIcon(name, sizeClass = 'lucide-sm') {
           </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
-          <input class="form-input" id="searchReceiptInput" type="text" placeholder="Ketik No. Kuitansi..." onkeydown="if(event.key==='Enter') searchByReceipt()">
+          <!-- Placeholder diperbarui agar sesuai konteks -->
+          <input class="form-input" id="searchReceiptInput" type="text" placeholder="No. Kuitansi atau Unit ID (contoh: UNIT-178...)" onkeydown="if(event.key==='Enter') searchByReceipt()">
+          <!-- Menghindari Document Write Error dengan memasukkan SVG inline atau memastikan script dimuat aman -->
           <button class="btn btn-primary" onclick="searchByReceipt()" style="white-space: nowrap; padding: 11px 20px;">
-            <script>document.write(getIcon('search', 'lucide-sm'))</script> Cari
+            <svg class="lucide lucide-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Cari
           </button>
         </div>
         <div id="receiptSearchResult" style="margin-top: 16px; display: none;"></div>
@@ -615,7 +609,7 @@ function getIcon(name, sizeClass = 'lucide-sm') {
           <option value="2025">2025</option>
         </select>
         <button class="btn btn-ghost" id="btnSyncData" onclick="handleManualSync()" style="font-size:12px">
-          <script>document.write(getIcon('refresh', 'lucide-sm'))</script> Sinkronisasi Data
+          <svg class="lucide lucide-sm" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg> Sinkronisasi Data
         </button>
       </div>
 
@@ -669,7 +663,6 @@ function getIcon(name, sizeClass = 'lucide-sm') {
       </div>
     </div>
 
-    <!-- ── PAGE: PEMASUKAN ── -->
     <div class="page" id="page-pemasukan">
       <div class="grid-2">
         <div class="card">
@@ -779,7 +772,6 @@ function getIcon(name, sizeClass = 'lucide-sm') {
       </div>
     </div>
 
-    <!-- ── PAGE: PENGELUARAN ── -->
     <div class="page" id="page-pengeluaran">
       <div class="grid-2">
         <div class="card">
@@ -848,7 +840,6 @@ function getIcon(name, sizeClass = 'lucide-sm') {
       </div>
     </div>
 
-    <!-- ── PAGE: LAPORAN BULANAN ── -->
     <div class="page" id="page-laporan">
       <div class="filter-bar">
         <span class="filter-label" style="font-size:13px">Pilih Periode Laporan:</span>
@@ -1238,10 +1229,15 @@ let isServerOnline = false;
 let editingUser = null;
 let editingUnit = null;
 
+// Keamanan pemanggilan SVG jika getIcon belum dimuat sempurna
+function safeIcon(name, size) {
+  return typeof getIcon === 'function' ? getIcon(name, size) : '';
+}
+
 // --- LOGIKA TEMA (DARK/LIGHT MODE) ---
 function updateThemeIcons(theme) {
   document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
-    btn.innerHTML = theme === 'dark' ? getIcon('sun', 'lucide-md') : getIcon('moon', 'lucide-md');
+    btn.innerHTML = theme === 'dark' ? safeIcon('sun', 'lucide-md') : safeIcon('moon', 'lucide-md');
   });
 }
 
@@ -1432,7 +1428,7 @@ async function handleManualSync() {
   
   if(btn) {
     btn.disabled = false;
-    btn.innerHTML = getIcon('refresh', 'lucide-sm') + ' Sinkronisasi Data';
+    btn.innerHTML = safeIcon('refresh', 'lucide-sm') + ' Sinkronisasi Data';
   }
   notify('Data berhasil disinkronkan ke versi terbaru!', 'success');
 }
@@ -1505,7 +1501,7 @@ async function loadAllTransactions() {
   } catch (e) { }
 }
 
-// LOGIKA PENCARIAN BERDASARKAN KUITANSI (FLEKSIBEL MENGGUNAKAN INCLUDES)
+// LOGIKA PENCARIAN BERDASARKAN KUITANSI & UNIT ID (DIPERBARUI)
 function searchByReceipt() {
   const q = document.getElementById('searchReceiptInput').value.trim().toLowerCase();
   const resultDiv = document.getElementById('receiptSearchResult');
@@ -1515,18 +1511,43 @@ function searchByReceipt() {
     return;
   }
 
-  // Gunakan 'includes' agar kata kunci sebagian pun tetap terdeteksi
-  const foundIncomes = cachedIncome.filter(x => (x.receipt_no || '').toLowerCase().includes(q)).map(x => ({...x, isInc: true}));
-  const foundExpenses = cachedExpense.filter(x => (x.receipt_no || '').toLowerCase().includes(q)).map(x => ({...x, isInc: false}));
+  // 1. Cek apakah query yang diketik cocok dengan "Unit ID" di database (Background check)
+  let validUnitNames = [];
+  if (masterData && masterData.units) {
+    validUnitNames = masterData.units
+      .filter(u => String(u.id).toLowerCase().includes(q))
+      .map(u => String(u.name).toLowerCase());
+  }
+
+  // Cari di Pemasukan: HANYA mencakup Nomor Kuitansi, Transaction ID, atau kecocokan Unit ID
+  const foundIncomes = cachedIncome.filter(x => {
+    const receiptMatch = String(x.receipt_no || '').toLowerCase().includes(q);
+    const transMatch = String(x.transaction_id || '').toLowerCase().includes(q);
+    const unitIdMatch = validUnitNames.includes(String(x.unit_name || '').toLowerCase());
+    
+    return receiptMatch || transMatch || unitIdMatch;
+  }).map(x => ({...x, isInc: true}));
+
+  // Cari di Pengeluaran: HANYA mencakup Nomor Kuitansi atau Transaction ID
+  const foundExpenses = cachedExpense.filter(x => {
+    const receiptMatch = String(x.receipt_no || '').toLowerCase().includes(q);
+    const transMatch = String(x.transaction_id || '').toLowerCase().includes(q);
+    return receiptMatch || transMatch;
+  }).map(x => ({...x, isInc: false}));
 
   const allFound = [...foundIncomes, ...foundExpenses];
+  
+  // Urutkan dari yang terbaru ke terlama
+  allFound.sort((a,b) => new Date(b.date) - new Date(a.date));
 
   resultDiv.style.display = 'block';
   
   if (allFound.length > 0) {
-    let html = '';
-    // Tampilkan maksimal 5 hasil agar tidak membanjiri layar
-    const displayList = allFound.slice(0, 5);
+    // Menambahkan styling scroll agar bisa memuat banyak hasil pencarian dengan rapi
+    let html = '<div style="max-height: 380px; overflow-y: auto; padding-right: 6px;">';
+    
+    // Tampilkan 100 hasil agar semua riwayat transaksi Unit tersebut selama setahun terlihat
+    const displayList = allFound.slice(0, 100);
     
     displayList.forEach(found => {
       const sign = found.isInc ? '+' : '-';
@@ -1535,6 +1556,7 @@ function searchByReceipt() {
       const label = found.isInc ? 'Pemasukan' : 'Pengeluaran';
       const badge = found.isInc ? 'badge-green' : 'badge-red';
 
+      // Nama disembunyikan total untuk menjaga privasi antar jemaat
       html += `
         <div style="padding: 16px; border: 1px solid var(--glass-border2); border-radius: var(--radius); background: var(--empty-bg); margin-bottom: 10px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -1549,14 +1571,15 @@ function searchByReceipt() {
       `;
     });
 
-    if(allFound.length > 5) {
-      html += `<div style="text-align:center; font-size:12px; color:var(--text3); margin-top:8px;">Dan ${allFound.length - 5} transaksi lainnya...</div>`;
+    if(allFound.length > 100) {
+      html += `<div style="text-align:center; font-size:12px; color:var(--text3); margin-top:8px;">Dan ${allFound.length - 100} transaksi lainnya...</div>`;
     }
-
+    
+    html += '</div>';
     resultDiv.innerHTML = html;
 
   } else {
-    resultDiv.innerHTML = `<div class="empty-state" style="padding: 15px;"><p>Transaksi dengan kuitansi yang mengandung <strong>"${document.getElementById('searchReceiptInput').value}"</strong> tidak ditemukan.</p></div>`;
+    resultDiv.innerHTML = `<div class="empty-state" style="padding: 15px;"><p>Transaksi dengan kata kunci <strong>"${document.getElementById('searchReceiptInput').value}"</strong> tidak ditemukan.</p></div>`;
   }
 }
 
@@ -1565,6 +1588,7 @@ function renderDashboard() {
   const month = parseInt(document.getElementById('dashMonth').value);
   const year = parseInt(document.getElementById('dashYear').value);
 
+  // 1. Tentukan batas tanggal akhir (End of Date) untuk bulan terpilih
   let targetDateEnd;
   if (month === 0) {
     targetDateEnd = new Date(year, 11, 31, 23, 59, 59);
@@ -1572,6 +1596,7 @@ function renderDashboard() {
     targetDateEnd = new Date(year, month, 0, 23, 59, 59);
   }
 
+  // 2. Filter Transaksi Khusus Bulan Terpilih (Untuk kotak Pemasukan/Pengeluaran bulan ini)
   const filteredInc = (cachedIncome || []).filter(x => {
     const d = new Date(x.date);
     return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month);
@@ -1582,9 +1607,11 @@ function renderDashboard() {
     return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month);
   });
 
+  // 3. Filter Transaksi Historis (Dari awal sistem mulai s/d akhir bulan terpilih)
   const historicalInc = (cachedIncome || []).filter(x => new Date(x.date) <= targetDateEnd);
   const historicalExp = (cachedExpense || []).filter(x => new Date(x.date) <= targetDateEnd);
 
+  // 4. Hitung Ulang Saldo Aktual di Akhir Bulan Terpilih (Saldo Awal + Mutasi Historis)
   let calcDaerah = cachedSaldo.initDaerah || 0;
   let calcJemaat = cachedSaldo.initJemaat || 0;
   let calcBangun = cachedSaldo.initBangun || 0;
@@ -1631,47 +1658,47 @@ function renderDashboard() {
 
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card">
-      <div class="stat-icon c-teal">${getIcon('shield', 'lucide-lg')}</div>
+      <div class="stat-icon c-teal">${safeIcon('shield', 'lucide-lg')}</div>
       <div class="stat-label">Total Saldo Terkonsolidasi</div>
       <div class="stat-value">${fmt(calcTotal)}</div>
       <div class="stat-sub">Semua Kategori Kas Bank</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon c-moss">${getIcon('log', 'lucide-lg')}</div>
+      <div class="stat-icon c-moss">${safeIcon('log', 'lucide-lg')}</div>
       <div class="stat-label">Total Saldo Accrued</div>
       <div class="stat-value" style="color:var(--moss-700)">${fmt(saldoAccrued)}</div>
       <div class="stat-sub">Terkonsolidasi - Daerah</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon c-gold">${getIcon('church', 'lucide-lg')}</div>
+      <div class="stat-icon c-gold">${safeIcon('church', 'lucide-lg')}</div>
       <div class="stat-label">Saldo Kas Jemaat</div>
       <div class="stat-value" style="color:var(--teal-pop)">${fmt(calcJemaat)}</div>
       <div class="stat-sub">Kas Operasional Jemaat</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon c-moss">${getIcon('mappin', 'lucide-lg')}</div>
+      <div class="stat-icon c-moss">${safeIcon('mappin', 'lucide-lg')}</div>
       <div class="stat-label">Saldo Daerah</div>
       <div class="stat-value" style="color:var(--sage)">${fmt(calcDaerah)}</div>
       <div class="stat-sub">Persepuluhan & Alokasi Wilayah</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon c-green">${getIcon('hammer', 'lucide-lg')}</div>
+      <div class="stat-icon c-green">${safeIcon('hammer', 'lucide-lg')}</div>
       <div class="stat-label">Dana Pembangunan</div>
       <div class="stat-value" style="color:var(--gold)">${fmt(calcBangun)}</div>
       <div class="stat-sub">Dana Investasi & Gedung</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon c-green">${getIcon('trendUp', 'lucide-lg')}</div>
+      <div class="stat-icon c-green">${safeIcon('trendUp', 'lucide-lg')}</div>
       <div class="stat-label">Masuk Periode Terpilih</div>
       <div class="stat-value amount-pos">+${fmt(totalIn)}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon c-red">${getIcon('trendDown', 'lucide-lg')}</div>
+      <div class="stat-icon c-red">${safeIcon('trendDown', 'lucide-lg')}</div>
       <div class="stat-label">Keluar Periode Terpilih</div>
       <div class="stat-value amount-neg">-${fmt(totalOut)}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon c-moss">${getIcon('users', 'lucide-lg')}</div>
+      <div class="stat-icon c-moss">${safeIcon('users', 'lucide-lg')}</div>
       <div class="stat-label">Partisipasi Persepuluhan</div>
       <div class="stat-value" style="color:var(--text)">${totalPemberiPersepuluhan} <span style="font-size:14px; color:var(--text3)">/ ${totalAnggotaSistem}</span></div>
       <div class="stat-sub">Total anggota dari unit yang setor</div>
@@ -1834,7 +1861,7 @@ async function saveIncomeForm() {
     await syncAllData();
     renderIncomeList();
   } catch (err) { notify(err.message, 'error'); } 
-  finally { btn.disabled = false; btn.innerHTML = `${getIcon('save', 'lucide-md')} Posting Pemasukan`; }
+  finally { btn.disabled = false; btn.innerHTML = `${safeIcon('save', 'lucide-md')} Posting Pemasukan`; }
 }
 
 function renderIncomeList() {
@@ -1890,7 +1917,7 @@ async function saveExpenseForm() {
     document.getElementById('expAmount').value = ''; document.getElementById('expNote').value = '';
     await syncAllData(); renderExpenseList();
   } catch (err) { notify(err.message, 'error'); } 
-  finally { btn.disabled = false; btn.innerHTML = `${getIcon('save')} Posting Pengeluaran`; }
+  finally { btn.disabled = false; btn.innerHTML = `${safeIcon('save')} Posting Pengeluaran`; }
 }
 
 function renderExpenseList() {
@@ -2031,8 +2058,8 @@ function renderHistory() {
       <td>${x.nama_pemberi || '-'}</td>
       <td class="${x.style}"><strong>${x.sign}${fmt(x.amount)}</strong></td>
       <td style="text-align:right; min-width:140px;">
-        ${canEdit && deleteId ? `<button class="btn btn-ghost" style="padding:4px 8px; font-size:11px; margin-right:4px;" onclick="openEditTrans('${x.type}', '${deleteId}')">${getIcon('edit')} Edit</button>` : ''}
-        ${isAdmin && deleteId ? `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteTransaction('${x.type}', '${deleteId}')">${getIcon('trash')} Hapus</button>` : (!canEdit ? '<span style="color:var(--text4)">No Akses</span>' : '')}
+        ${canEdit && deleteId ? `<button class="btn btn-ghost" style="padding:4px 8px; font-size:11px; margin-right:4px;" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit')} Edit</button>` : ''}
+        ${isAdmin && deleteId ? `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash')} Hapus</button>` : (!canEdit ? '<span style="color:var(--text4)">No Akses</span>' : '')}
       </td>
     </tr>`}).join('') || '<tr><td colspan="7" style="text-align:center"><div class="empty-state"><p>Belum ada rekaman arsip transaksi di sistem.</p></div></td></tr>';
 }
@@ -2151,7 +2178,7 @@ async function saveEditTransaction() {
     notify(e.message, 'error');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `${getIcon('save', 'lucide-sm')} Simpan Perubahan`;
+    btn.innerHTML = `${safeIcon('save', 'lucide-sm')} Simpan Perubahan`;
   }
 }
 
@@ -2191,8 +2218,8 @@ function renderMasterDepts() {
   const depts = (masterData && masterData.departments) ? masterData.departments : [];
   document.getElementById('deptList').innerHTML = depts.map(x => `
     <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--glass-border)">
-      <span style="color:var(--text); display:flex; align-items:center; gap:8px;">${getIcon('building')} ${x.name}</span>
-      <button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteDept('${x.name}')">${getIcon('trash')} Hapus</button>
+      <span style="color:var(--text); display:flex; align-items:center; gap:8px;">${safeIcon('building')} ${x.name}</span>
+      <button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteDept('${x.name}')">${safeIcon('trash')} Hapus</button>
     </div>
   `).join('') || '<div class="empty-state">Belum ada data Departemen terdaftar.</div>';
 }
@@ -2202,7 +2229,7 @@ function editUnit(name, note, jumlah) {
   document.getElementById('unitName').value = name;
   document.getElementById('unitNote').value = note || '';
   document.getElementById('unitJumlah').value = jumlah || 0;
-  document.getElementById('unitSaveBtn').innerHTML = `${getIcon('edit')} Update Unit`;
+  document.getElementById('unitSaveBtn').innerHTML = `${safeIcon('edit')} Update Unit`;
   document.getElementById('unitCancelBtn').style.display = 'inline-flex';
   document.getElementById('unitFormTitle').textContent = 'Ubah Data Unit';
 }
@@ -2212,7 +2239,7 @@ function cancelEditUnit() {
   document.getElementById('unitName').value = '';
   document.getElementById('unitNote').value = '';
   document.getElementById('unitJumlah').value = '';
-  document.getElementById('unitSaveBtn').innerHTML = `${getIcon('plus')} Simpan Unit Baru`;
+  document.getElementById('unitSaveBtn').innerHTML = `${safeIcon('plus')} Simpan Unit Baru`;
   document.getElementById('unitCancelBtn').style.display = 'none';
   document.getElementById('unitFormTitle').textContent = 'Tambah Unit/Sektor Pemberi';
 }
@@ -2250,13 +2277,13 @@ function renderMasterUnits() {
     return `
     <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--glass-border)">
       <div>
-        <strong style="color:var(--text); display:flex; align-items:center; gap:8px;">${getIcon('users')} ${x.name}</strong>
+        <strong style="color:var(--text); display:flex; align-items:center; gap:8px;">${safeIcon('users')} ${x.name}</strong>
         ${jumlah > 0 ? `<span class="badge badge-moss" style="margin:4px 0 0 26px;">${jumlah} Pemberi</span>` : ''}
         ${x.note ? `<br><small style="color:var(--text3); margin-left:26px;">${x.note}</small>` : ''}
       </div>
       <div style="display:flex; gap:6px;">
-        <button class="btn btn-ghost" style="padding:4px 8px; font-size:11px" onclick="editUnit('${safeName}', '${safeNote}', ${jumlah})">${getIcon('edit')} Edit</button>
-        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteUnit('${safeName}')">${getIcon('trash')} Hapus</button>
+        <button class="btn btn-ghost" style="padding:4px 8px; font-size:11px" onclick="editUnit('${safeName}', '${safeNote}', ${jumlah})">${safeIcon('edit')} Edit</button>
+        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteUnit('${safeName}')">${safeIcon('trash')} Hapus</button>
       </div>
     </div>
   `}).join('') || '<div class="empty-state">Belum ada Unit Pemberi terdaftar.</div>';
@@ -2273,8 +2300,8 @@ async function renderUsers() {
       <td><span class="badge ${x.role === 'Admin' ? 'badge-moss' : x.role === 'Bendahara' ? 'badge-gold' : 'badge-gray'}">${x.role}</span></td>
       <td><span style="font-family:monospace; color:var(--text2);">${x.password || '(Tersembunyi)'}</span></td>
       <td style="text-align:right">
-        <button class="btn btn-ghost" style="padding:4px 8px; font-size:11px; margin-right:4px;" onclick="editUser('${x.username}', '${x.nama}', '${x.role}')">${getIcon('edit')} Edit</button>
-        ${x.username === 'admin' ? '' : `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteUser('${x.username}')">${getIcon('trash')}</button>`}
+        <button class="btn btn-ghost" style="padding:4px 8px; font-size:11px; margin-right:4px;" onclick="editUser('${x.username}', '${x.nama}', '${x.role}')">${safeIcon('edit')} Edit</button>
+        ${x.username === 'admin' ? '' : `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteUser('${x.username}')">${safeIcon('trash')}</button>`}
       </td>
     </tr>
   `).join('') || '<tr><td colspan="5" style="text-align:center; padding:12px">Belum ada operator terdaftar.</td></tr>';
@@ -2286,7 +2313,7 @@ function editUser(username, nama, role) {
   document.getElementById('userName').value = username; document.getElementById('userName').disabled = true;
   document.getElementById('userFullName').value = nama; document.getElementById('userRole').value = role;
   document.getElementById('userPassword').value = '';
-  document.getElementById('saveUserBtn').innerHTML = `${getIcon('edit')} Update User`;
+  document.getElementById('saveUserBtn').innerHTML = `${safeIcon('edit')} Update User`;
   document.getElementById('cancelEditUserBtn').style.display = 'inline-flex';
 }
 
@@ -2296,7 +2323,7 @@ function cancelEditUser() {
   document.getElementById('userName').value = ''; document.getElementById('userName').disabled = false;
   document.getElementById('userFullName').value = ''; document.getElementById('userRole').value = 'Viewer';
   document.getElementById('userPassword').value = '';
-  document.getElementById('saveUserBtn').innerHTML = `${getIcon('save')} Simpan User`;
+  document.getElementById('saveUserBtn').innerHTML = `${safeIcon('save')} Simpan User`;
   document.getElementById('cancelEditUserBtn').style.display = 'none';
 }
 
@@ -2384,7 +2411,7 @@ function closeSidebar() { document.getElementById('sidebar').classList.remove('o
 let notifTimer;
 function notify(msg, type = 'success') {
   const el = document.getElementById('notification');
-  document.getElementById('notifIcon').innerHTML = type === 'success' ? getIcon('check', 'lucide-md') : type === 'error' ? getIcon('alert', 'lucide-md') : getIcon('info', 'lucide-md');
+  document.getElementById('notifIcon').innerHTML = type === 'success' ? safeIcon('check', 'lucide-md') : type === 'error' ? safeIcon('alert', 'lucide-md') : safeIcon('info', 'lucide-md');
   document.getElementById('notifMsg').textContent = msg;
   el.className = `notification show ${type}`;
   clearTimeout(notifTimer);
