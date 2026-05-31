@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 <title>PiKaChu — Sistem Keuangan Jemaat</title>
 <!-- Menambahkan Favicon -->
-<link rel="icon" type="image/png" href="./putih.png">
+<link class="favicon" rel="icon" type="image/png" href="./putih.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
 <style>
 /* Base Style & Pilihan Palet Warna Elegant Light Mode (Default) */
@@ -512,6 +512,9 @@ function getIcon(name, sizeClass = 'lucide-sm') {
         <span class="nav-icon"><script>document.write(getIcon('info', 'lucide-md'))</script></span> Histori Jurnal
       </div>
       <div class="nav-section-title" id="adminNavLabel">Kontrol Administrasi</div>
+      <div class="nav-item" onclick="showPage('masterIncType')" id="navMasterIncType">
+        <span class="nav-icon"><script>document.write(getIcon('plus', 'lucide-md'))</script></span> Kategori Masukan
+      </div>
       <div class="nav-item" onclick="showPage('masterDept')" id="navMasterDept">
         <span class="nav-icon"><script>document.write(getIcon('hammer', 'lucide-md'))</script></span> Departemen
       </div>
@@ -567,23 +570,27 @@ function getIcon(name, sizeClass = 'lucide-sm') {
         <button class="btn btn-ghost theme-toggle-btn" style="padding: 8px; border-radius: 50%;" title="Ubah Tema" onclick="toggleTheme()"></button>
         <div class="status-bar" style="margin:0; padding:6px 12px; font-size:11px; cursor:pointer;" onclick="handleManualSync()" title="Klik untuk sinkronisasi">
           <div class="status-dot online" id="appStatusDot"></div>
-          <span id="appStatusText">Koneksi Aktif</span>
+          <span id="appStatusText">Koneksi Hack</span>
         </div>
       </div>
     </div>
 
+    <!-- ── PAGE: DASHBOARD ── -->
     <div class="page active" id="page-dashboard">
       
       <!-- KARTU CARI KUITANSI (KHUSUS UNTUK VERIFIKASI JEMAAT) -->
       <div class="card" style="margin-bottom: 24px;">
         <div class="card-header" style="margin-bottom: 14px;">
           <div>
-            <div class="card-title">Verifikasi Transaksi Jemaat</div>
-            <div class="card-subtitle">Cek status setoran atau pengeluaran Anda dengan memasukkan nomor kuitansi (bisa ketik sebagian, contoh: "1234").</div>
+            <div class="card-title" style="color: var(--moss-600); display: flex; align-items: center; gap: 8px;">
+              <svg class="lucide" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Verifikasi Transaksi Jemaat
+            </div>
+            <div class="card-subtitle">Ketik nomor kuitansi (bisa sebagian, misal: "1234") untuk memverifikasi setoran/pengeluaran.</div>
           </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
-          <input class="form-input" id="searchReceiptInput" type="text" placeholder="No. Kuitansi atau Unit ID (contoh: UNIT-178...)" onkeydown="if(event.key==='Enter') searchByReceipt()">
+          <input class="form-input" id="searchReceiptInput" type="text" placeholder="Ketik No. Kuitansi..." onkeydown="if(event.key==='Enter') searchByReceipt()">
           <button class="btn btn-primary" onclick="searchByReceipt()" style="white-space: nowrap; padding: 11px 20px;">
             <svg class="lucide lucide-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Cari
           </button>
@@ -607,7 +614,7 @@ function getIcon(name, sizeClass = 'lucide-sm') {
           <option value="2025">2025</option>
         </select>
         <button class="btn btn-ghost" id="btnSyncData" onclick="handleManualSync()" style="font-size:12px">
-          <svg class="lucide lucide-sm" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg> Sinkronisasi Data
+          <script>document.write(getIcon('refresh', 'lucide-sm'))</script> Sinkronisasi Data
         </button>
       </div>
 
@@ -661,6 +668,7 @@ function getIcon(name, sizeClass = 'lucide-sm') {
       </div>
     </div>
 
+    <!-- ── PAGE: PEMASUKAN ── -->
     <div class="page" id="page-pemasukan">
       <div class="grid-2">
         <div class="card">
@@ -892,6 +900,49 @@ function getIcon(name, sizeClass = 'lucide-sm') {
             </thead>
             <tbody id="historyList"></tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PAGE: MASTER KATEGORI MASUKAN ── -->
+    <div class="page" id="page-masterIncType">
+      <div class="grid-2">
+        <div class="card">
+          <div class="form-section-title" id="incTypeFormTitle">Tambah Kategori Masukan Baru</div>
+          <div class="form-group">
+            <label class="form-label">Nama Kategori Masukan</label>
+            <input class="form-input" id="newIncTypeName" type="text" placeholder="Contoh: Persembahan Ucapan Syukur">
+          </div>
+          <div style="padding:12px; background:rgba(45,96,56,0.03); border-radius:var(--radius); border:1px solid var(--glass-border); margin-bottom:18px;">
+            <label class="form-label" style="margin-bottom:10px; color:var(--moss-600)">Proporsi Alokasi Dana (%)</label>
+            <div class="form-row" style="margin-bottom:10px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="font-size:11px">Kas Daerah (%)</label>
+                <input class="form-input" id="newIncTypePctDaerah" type="number" placeholder="0" min="0" max="100" value="0">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="font-size:11px">Kas Jemaat (%)</label>
+                <input class="form-input" id="newIncTypePctJemaat" type="number" placeholder="0" min="0" max="100" value="100">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:11px">Dana Pembangunan (%)</label>
+              <input class="form-input" id="newIncTypePctBangun" type="number" placeholder="0" min="0" max="100" value="0">
+            </div>
+            <div style="font-size:11px; color:var(--text3); margin-top:8px;">
+              * Total pembagian alokasi persentase harus bernilai tepat 100%.
+            </div>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-success" id="incTypeSaveBtn" onclick="saveIncTypeForm()" style="flex:1">
+              <script>document.write(getIcon('plus', 'lucide-sm'))</script> Simpan Kategori
+            </button>
+            <button class="btn btn-ghost" id="incTypeCancelBtn" onclick="cancelEditIncType()" style="display:none">Batal</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="form-section-title">Daftar Kategori Masukan Aktif</div>
+          <div id="incTypeList"></div>
         </div>
       </div>
     </div>
@@ -1226,6 +1277,7 @@ let cachedSaldo = { daerah: 0, jemaat: 0, bangun: 0, total: 0 };
 let isServerOnline = false;
 let editingUser = null;
 let editingUnit = null;
+let editingIncType = null; // Menyimpan status edit Kategori Pemasukan
 
 // Fungsi helper penentu kategori privasi (hanya 5 kategori ini yang disembunyikan nama penyetornya untuk Viewer)
 function isPrivateCategory(category) {
@@ -1405,6 +1457,7 @@ function applyRoleAccess() {
   if (recentTransCard) recentTransCard.style.display = isBen ? '' : 'none';
 
   document.getElementById('adminNavLabel').style.display = isAdm ? '' : 'none';
+  document.getElementById('navMasterIncType').style.display = isAdm ? '' : 'none';
   document.getElementById('navMasterDept').style.display = isAdm ? '' : 'none';
   document.getElementById('navMasterUnit').style.display = isAdm ? '' : 'none';
   document.getElementById('navUsers').style.display = isAdm ? '' : 'none';
@@ -1510,7 +1563,7 @@ async function loadAllTransactions() {
   } catch (e) { }
 }
 
-// LOGIKA PENCARIAN BERDASARKAN KUITANSI & UNIT ID (DIPERBARUI)
+// LOGIKA PENCARIAN BERDASARKAN KUITANSI & UNIT ID
 function searchByReceipt() {
   const q = document.getElementById('searchReceiptInput').value.trim().toLowerCase();
   const resultDiv = document.getElementById('receiptSearchResult');
@@ -1521,7 +1574,6 @@ function searchByReceipt() {
     return;
   }
 
-  // 1. Cek apakah query yang diketik cocok dengan "Unit ID" di database
   let validUnitNames = [];
   if (masterData && masterData.units) {
     validUnitNames = masterData.units
@@ -1529,7 +1581,6 @@ function searchByReceipt() {
       .map(u => String(u.name).toLowerCase());
   }
 
-  // Cari di Pemasukan: HANYA mencakup Nomor Kuitansi, Transaction ID, atau kecocokan Unit ID
   const foundIncomes = cachedIncome.filter(x => {
     const receiptMatch = String(x.receipt_no || '').toLowerCase().includes(q);
     const transMatch = String(x.transaction_id || '').toLowerCase().includes(q);
@@ -1538,7 +1589,6 @@ function searchByReceipt() {
     return receiptMatch || transMatch || unitIdMatch;
   }).map(x => ({...x, isInc: true}));
 
-  // Cari di Pengeluaran: HANYA mencakup Nomor Kuitansi atau Transaction ID
   const foundExpenses = cachedExpense.filter(x => {
     const receiptMatch = String(x.receipt_no || '').toLowerCase().includes(q);
     const transMatch = String(x.transaction_id || '').toLowerCase().includes(q);
@@ -1547,7 +1597,6 @@ function searchByReceipt() {
 
   const allFound = [...foundIncomes, ...foundExpenses];
   
-  // Urutkan dari yang terbaru ke terlama
   allFound.sort((a,b) => new Date(b.date) - new Date(a.date));
 
   resultDiv.style.display = 'block';
@@ -1563,7 +1612,6 @@ function searchByReceipt() {
       const label = found.isInc ? 'Pemasukan' : 'Pengeluaran';
       const badge = found.isInc ? 'badge-green' : 'badge-red';
 
-      // PENGECEKAN PRIVASI UNTUK PENCARIAN (HANYA BERLAKU UNTUK 5 KATEGORI BAGI VIEWER)
       const isPrivCategory = isViewer && found.isInc && isPrivateCategory(cat);
       
       let pemberiHtml = '';
@@ -1611,7 +1659,6 @@ function renderDashboard() {
   const year = parseInt(document.getElementById('dashYear').value);
   const isViewer = currentUser && currentUser.role === 'Viewer';
 
-  // 1. Tentukan batas tanggal akhir (End of Date) untuk bulan terpilih
   let targetDateEnd;
   if (month === 0) {
     targetDateEnd = new Date(year, 11, 31, 23, 59, 59);
@@ -1619,7 +1666,6 @@ function renderDashboard() {
     targetDateEnd = new Date(year, month, 0, 23, 59, 59);
   }
 
-  // 2. Filter Transaksi Khusus Bulan Terpilih
   const filteredInc = (cachedIncome || []).filter(x => {
     const d = new Date(x.date);
     return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month);
@@ -1630,11 +1676,9 @@ function renderDashboard() {
     return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month);
   });
 
-  // 3. Filter Transaksi Historis
   const historicalInc = (cachedIncome || []).filter(x => new Date(x.date) <= targetDateEnd);
   const historicalExp = (cachedExpense || []).filter(x => new Date(x.date) <= targetDateEnd);
 
-  // 4. Hitung Ulang Saldo Aktual
   let calcDaerah = cachedSaldo.initDaerah || 0;
   let calcJemaat = cachedSaldo.initJemaat || 0;
   let calcBangun = cachedSaldo.initBangun || 0;
@@ -1679,7 +1723,6 @@ function renderDashboard() {
       });
   }
 
-  // --- LOGIKA TARGET PEMBANGUNAN ---
   const targetPembangunan = 2500000000; // Rp 2,5 Miliar
   const persentaseBangun = (calcBangun / targetPembangunan) * 100;
   const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
@@ -1791,7 +1834,6 @@ function renderDashboard() {
   ].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
   document.getElementById('recentTrans').innerHTML = recent.map(x => {
-    // PENGECEKAN PRIVASI UNTUK DASHBOARD TRANSAKSI TERBARU (KHUSUS VIEWER + KATEGORI PRIVATE)
     const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
     const displayNote = isPrivCategory ? '*** (Privasi)' : (x.note || '-');
 
@@ -2011,7 +2053,6 @@ function renderReportView(data) {
   if (Object.keys(data.incByCategory).length === 0) html += '<div class="empty-state"><p>Tidak ada pemasukan kas.</p></div>';
   else {
     Object.entries(data.incByCategory).forEach(([category, items]) => {
-      // PENGECEKAN PRIVASI UNTUK LAPORAN (HANYA BERLAKU UNTUK 5 KATEGORI BAGI VIEWER)
       const isPrivCategory = isViewer && isPrivateCategory(category);
       
       const tot = items.reduce((sum, x) => sum + x.amount, 0);
@@ -2030,7 +2071,6 @@ function renderReportView(data) {
                   const displayNote = isPrivCategory ? '*** (Privasi)' : (x.note || '-');
                   let rawPemberi = (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') ? x.nama_pemberi : (x.unit_name || '-');
                   
-                  // Hanya sembunyikan jika kondisinya Private Category dan role-nya Viewer
                   const displayPemberi = isPrivCategory ? '*** (Privasi)' : rawPemberi;
                   
                   return `
@@ -2102,7 +2142,6 @@ function renderHistory() {
   const isViewer = currentUser.role === 'Viewer';
 
   document.getElementById('historyList').innerHTML = list.map(x => {
-    // PENGECEKAN PRIVASI UNTUK BUKU JURNAL (KHUSUS VIEWER + KATEGORI PRIVATE)
     const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
     
     const displayNote = isPrivCategory ? '*** (Privasi)' : (x.note || '-');
@@ -2252,6 +2291,102 @@ async function deleteTransaction(type, id) {
   } catch(e) { notify(e.message, 'error'); }
 }
 
+// --- MASTER KATEGORI PEMASUKAN CRUD ---
+function editIncType(name, pctDaerah, pctJemaat, pctBangun) {
+  editingIncType = name;
+  document.getElementById('incTypeFormTitle').textContent = `Ubah Kategori: ${name}`;
+  document.getElementById('newIncTypeName').value = name;
+  document.getElementById('newIncTypePctDaerah').value = pctDaerah;
+  document.getElementById('newIncTypePctJemaat').value = pctJemaat;
+  document.getElementById('newIncTypePctBangun').value = pctBangun;
+  document.getElementById('incTypeSaveBtn').innerHTML = `${safeIcon('edit')} Update Kategori`;
+  document.getElementById('incTypeCancelBtn').style.display = 'inline-flex';
+}
+
+function cancelEditIncType() {
+  editingIncType = null;
+  document.getElementById('incTypeFormTitle').textContent = 'Tambah Kategori Masukan Baru';
+  document.getElementById('newIncTypeName').value = '';
+  document.getElementById('newIncTypePctDaerah').value = '0';
+  document.getElementById('newIncTypePctJemaat').value = '100';
+  document.getElementById('newIncTypePctBangun').value = '0';
+  document.getElementById('incTypeSaveBtn').innerHTML = `${safeIcon('plus')} Simpan Kategori`;
+  document.getElementById('incTypeCancelBtn').style.display = 'none';
+}
+
+async function saveIncTypeForm() {
+  const name = document.getElementById('newIncTypeName').value.trim();
+  const pctDaerah = parseFloat(document.getElementById('newIncTypePctDaerah').value) || 0;
+  const pctJemaat = parseFloat(document.getElementById('newIncTypePctJemaat').value) || 0;
+  const pctBangun = parseFloat(document.getElementById('newIncTypePctBangun').value) || 0;
+
+  if (!name) { notify('Nama kategori masukan wajib diisi!', 'error'); return; }
+  if ((pctDaerah + pctJemaat + pctBangun) !== 100) { notify('Gagal! Total proporsi alokasi pembagian harus tepat 100%!', 'error'); return; }
+
+  const btn = document.getElementById('incTypeSaveBtn'); btn.disabled = true;
+  try {
+    await apiPost('saveIncomeType', {
+      name,
+      pct_daerah: pctDaerah,
+      pct_jemaat: pctJemaat,
+      pct_bangun: pctBangun,
+      oldName: editingIncType,
+      isUpdate: !!editingIncType
+    });
+    notify(editingIncType ? 'Kategori masukan berhasil diperbarui.' : 'Kategori masukan baru berhasil ditambahkan.', 'success');
+    cancelEditIncType();
+    await syncAllData();
+    renderMasterIncTypes();
+    initForms();
+  } catch(e) {
+    notify(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function deleteIncType(name) {
+  const isConfirm = await showCustomConfirm('Hapus Kategori', `Yakin ingin menghapus kategori "${name}"? Kategori yang sudah memiliki transaksi sebaiknya tidak dihapus.`);
+  if (!isConfirm) return;
+  try {
+    await apiPost('deleteIncomeType', { name });
+    notify('Kategori masukan berhasil dihapus.', 'success');
+    await syncAllData();
+    renderMasterIncTypes();
+    initForms();
+  } catch(e) {
+    notify(e.message, 'error');
+  }
+}
+
+function renderMasterIncTypes() {
+  const types = (masterData && masterData.incomeTypes) ? masterData.incomeTypes : [];
+  // Daftar kategori sistem yang tidak boleh dihapus atau diubah demi integritas data utama
+  const systemReserved = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah', 'Persembahan Khusus'];
+
+  document.getElementById('incTypeList').innerHTML = types.map(x => {
+    const isReserved = systemReserved.includes(x.name);
+    const safeName = x.name.replace(/'/g, "\\'");
+    return `
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:12.5px 0; border-bottom:1px solid var(--glass-border)">
+      <div>
+        <strong style="color:var(--text); display:flex; align-items:center; gap:8px;">${safeIcon('plus')} ${x.name}</strong>
+        <div style="margin-left: 26px; margin-top: 4px; display:flex; gap:6px; flex-wrap:wrap;">
+          <span class="badge badge-moss" style="font-size:10px;">Daerah: ${x.pct_daerah}%</span>
+          <span class="badge badge-gold" style="font-size:10px;">Jemaat: ${x.pct_jemaat}%</span>
+          <span class="badge badge-green" style="font-size:10px;">Bangunan: ${x.pct_bangun}%</span>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px;">
+        ${isReserved ? '<span style="font-size:11px; color:var(--text3); font-weight:600; padding:4px 8px;">Kunci Sistem</span>' : `
+          <button class="btn btn-ghost" style="padding:4px 8px; font-size:11px" onclick="editIncType('${safeName}', ${x.pct_daerah}, ${x.pct_jemaat}, ${x.pct_bangun})">${safeIcon('edit')} Edit</button>
+          <button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteIncType('${safeName}')">${safeIcon('trash')} Hapus</button>
+        `}
+      </div>
+    </div>
+  `}).join('') || '<div class="empty-state">Belum ada Kategori Masukan terdaftar.</div>';
+}
+
 async function saveDeptForm() {
   const name = document.getElementById('deptName').value.trim();
   if (!name) return;
@@ -2385,8 +2520,6 @@ function cancelEditUser() {
   
   const passInput = document.getElementById('userPassword');
   passInput.value = ''; passInput.type = 'password';
-  const passBtn = document.getElementById('toggleUserPassBtn');
-  if(passBtn) { passBtn.innerHTML = safeIcon('eye', 'lucide-md'); passBtn.style.color = 'var(--text3)'; }
   
   document.getElementById('saveUserBtn').innerHTML = `${safeIcon('save')} Simpan User`;
   document.getElementById('cancelEditUserBtn').style.display = 'none';
@@ -2438,7 +2571,7 @@ async function renderLogs() {
 
 const pageTitles = {
   dashboard: 'Dashboard Utama', pemasukan: 'Entri Setoran Masuk', pengeluaran: 'Entri Pengeluaran Dana', laporan: 'Arsip Laporan Keuangan',
-  riwayat: 'Buku Jurnal Umum', masterDept: 'Kelola Departemen', masterUnit: 'Kelola Sektor & Unit Jemaat', users: 'Kelola Hak Akses Pengguna', logs: 'Audit Keamanan & Log'
+  riwayat: 'Buku Jurnal Umum', masterIncType: 'Kelola Kategori Pemasukan', masterDept: 'Kelola Departemen', masterUnit: 'Kelola Sektor & Unit Jemaat', users: 'Kelola Hak Akses Pengguna', logs: 'Audit Keamanan & Log'
 };
 
 function showPage(name) {
@@ -2446,7 +2579,7 @@ function showPage(name) {
     if (!['dashboard', 'laporan'].includes(name)) { notify('Akses Ditolak: Anda hanya dapat melihat halaman publik.', 'error'); return; }
   }
   if (currentUser && currentUser.role === 'Bendahara') {
-    if (['masterDept', 'masterUnit', 'users', 'logs'].includes(name)) { notify('Akses Ditolak: Halaman ini khusus Admin.', 'error'); return; }
+    if (['masterIncType', 'masterDept', 'masterUnit', 'users', 'logs'].includes(name)) { notify('Akses Ditolak: Halaman ini khusus Admin.', 'error'); return; }
   }
 
   document.querySelectorAll('.page, .nav-item, .bottom-nav-item').forEach(x => x.classList.remove('active'));
@@ -2463,6 +2596,7 @@ function showPage(name) {
   if (name === 'pemasukan') renderIncomeList();
   if (name === 'pengeluaran') { renderExpenseList(); checkSaldo(); }
   if (name === 'riwayat') renderHistory();
+  if (name === 'masterIncType') renderMasterIncTypes();
   if (name === 'masterDept') renderMasterDepts();
   if (name === 'masterUnit') renderMasterUnits();
   if (name === 'users') renderUsers();
@@ -2472,20 +2606,6 @@ function showPage(name) {
 
 function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
 function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
-
-function togglePassword(inputId, btnId) {
-  const input = document.getElementById(inputId);
-  const btn = document.getElementById(btnId);
-  if (input.type === 'password') {
-    input.type = 'text';
-    btn.innerHTML = safeIcon('eyeOff', 'lucide-md');
-    btn.style.color = 'var(--moss-600)';
-  } else {
-    input.type = 'password';
-    btn.innerHTML = safeIcon('eye', 'lucide-md');
-    btn.style.color = 'var(--text3)';
-  }
-}
 
 let notifTimer;
 function notify(msg, type = 'success') {
