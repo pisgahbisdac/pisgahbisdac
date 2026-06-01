@@ -160,7 +160,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a {
 
 .sidebar {
   width: 256px;
-  height: 100vh; /* DIPERBARUI: Diubah agar tinggi sidebar tidak bablas melewati batas bawah layar */
+  height: 100vh; 
   background: var(--sidebar-bg);
   backdrop-filter: blur(30px);
   border-right: 1px solid var(--glass-border);
@@ -342,7 +342,15 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a {
 .form-row > * { flex: 1; }
 .form-section-title { font-size: 15px; font-weight: 700; color: var(--moss-600); margin-bottom: 18px; padding-bottom: 8px; border-bottom: 1px solid var(--glass-border); }
 
+/* CLASS UNTUK MEMBUAT KOLOM FIT (MENGECIL SESUAI ISI) */
+.fit-col { width: 1%; white-space: nowrap; }
+
 .table-wrap { overflow-x: auto; margin-top: 10px; border-radius: var(--radius); width: 100%; -webkit-overflow-scrolling: touch; }
+.table-wrap.scrollable { max-height: 60vh; overflow-y: auto; padding-right: 6px; }
+.table-wrap.scrollable::-webkit-scrollbar { width: 6px; height: 6px; }
+.table-wrap.scrollable::-webkit-scrollbar-track { background: transparent; }
+.table-wrap.scrollable::-webkit-scrollbar-thumb { background: var(--glass-border2); border-radius: 10px; }
+.table-wrap.scrollable th { position: sticky; top: 0; z-index: 10; background: var(--bg-dark); box-shadow: 0 2px 0 var(--glass-border); border-bottom: none; }
 table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 13.5px; }
 th { text-align: left; padding: 14px 16px; font-weight: 700; color: var(--text2); border-bottom: 2px solid var(--glass-border); background: var(--table-th-bg); white-space: nowrap; }
 td { padding: 14px 16px; border-bottom: 1px solid var(--glass-border); color: var(--text); vertical-align: middle; }
@@ -654,11 +662,11 @@ function getIcon(name, sizeClass = 'lucide-sm') {
           <table>
             <thead>
               <tr>
-                <th>Tanggal</th>
-                <th>Tipe</th>
+                <th class="fit-col">Tanggal</th>
+                <th class="fit-col">Tipe</th>
                 <th>Kategori & Keterangan</th>
-                <th>Nominal</th>
-                <th>Dokumen</th>
+                <th class="fit-col" style="text-align:right">Nominal</th>
+                <th class="fit-col">Dokumen</th>
               </tr>
             </thead>
             <tbody id="recentTrans"></tbody>
@@ -764,10 +772,10 @@ function getIcon(name, sizeClass = 'lucide-sm') {
             <table>
               <thead>
                 <tr>
-                  <th>Tanggal</th>
+                  <th class="fit-col">Tanggal</th>
                   <th>Kategori</th>
-                  <th>Nomor</th>
-                  <th>Nominal</th>
+                  <th class="fit-col">Nomor</th>
+                  <th class="fit-col" style="text-align:right">Nominal</th>
                 </tr>
               </thead>
               <tbody id="incomeList"></tbody>
@@ -832,10 +840,10 @@ function getIcon(name, sizeClass = 'lucide-sm') {
             <table>
               <thead>
                 <tr>
-                  <th>Tanggal</th>
+                  <th class="fit-col">Tanggal</th>
                   <th>Bidang</th>
-                  <th>Sumber Kas</th>
-                  <th>Nominal</th>
+                  <th class="fit-col">Sumber Kas</th>
+                  <th class="fit-col" style="text-align:right">Nominal</th>
                 </tr>
               </thead>
               <tbody id="expenseList"></tbody>
@@ -873,10 +881,28 @@ function getIcon(name, sizeClass = 'lucide-sm') {
     <!-- ── PAGE: HISTORI TRANSAKSI ── -->
     <div class="page" id="page-riwayat">
       <div class="filter-bar">
-        <div style="position:relative">
+        <div style="position:relative; flex:1; min-width:200px;">
           <svg class="lucide lucide-sm" style="position:absolute; left:10px; top:11px; color:var(--text3)" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="form-input" id="searchTrans" style="max-width:240px; padding:8px 12px 8px 32px; font-size:16px" type="text" placeholder="Cari transaksi..." oninput="renderHistory()">
+          <input class="form-input" id="searchTrans" style="width:100%; padding:8px 12px 8px 32px; font-size:14px" type="text" placeholder="Cari referensi/keterangan..." oninput="renderHistory()">
         </div>
+        <div style="position:relative; flex:1; min-width:180px;">
+          <svg class="lucide lucide-sm" style="position:absolute; left:10px; top:11px; color:var(--text3)" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <input class="form-input" id="filterGiver" style="width:100%; padding:8px 12px 8px 32px; font-size:14px" type="text" placeholder="Cari nama pemberi/unit..." oninput="renderHistory()">
+        </div>
+        <select class="select-sm" id="filterMonth" onchange="renderHistory()">
+          <option value="0">Semua Bulan</option>
+          <option value="1">Januari</option><option value="2">Februari</option>
+          <option value="3">Maret</option><option value="4">April</option>
+          <option value="5">Mei</option><option value="6">Juni</option>
+          <option value="7">Juli</option><option value="8">Agustus</option>
+          <option value="9">September</option><option value="10">Oktober</option>
+          <option value="11">November</option><option value="12">Desember</option>
+        </select>
+        <select class="select-sm" id="filterYear" onchange="renderHistory()">
+          <option value="0">Semua Tahun</option>
+          <option value="2026">2026</option>
+          <option value="2025">2025</option>
+        </select>
         <select class="select-sm" id="filterType" onchange="renderHistory()">
           <option value="">Semua Transaksi</option>
           <option value="income">Hanya Pemasukan</option>
@@ -884,17 +910,17 @@ function getIcon(name, sizeClass = 'lucide-sm') {
         </select>
       </div>
       <div class="card">
-        <div class="table-wrap">
+        <div class="table-wrap scrollable">
           <table>
             <thead>
               <tr>
-                <th>Tanggal</th>
-                <th>Alur</th>
+                <th class="fit-col">Tanggal</th>
+                <th class="fit-col">Alur</th>
                 <th>Kategori & Keterangan</th>
-                <th>Referensi</th>
+                <th class="fit-col">Referensi</th>
                 <th>Pemberi/Penerima</th>
-                <th>Nominal</th>
-                <th style="text-align:right">Aksi</th>
+                <th class="fit-col" style="text-align:right">Nominal</th>
+                <th class="fit-col" style="text-align:right">Aksi</th>
               </tr>
             </thead>
             <tbody id="historyList"></tbody>
@@ -1040,9 +1066,9 @@ function getIcon(name, sizeClass = 'lucide-sm') {
                 <tr>
                   <th>Username</th>
                   <th>Nama</th>
-                  <th>Akses</th>
+                  <th class="fit-col">Akses</th>
                   <th>Kata Sandi</th>
-                  <th style="text-align:right">Modifikasi</th>
+                  <th class="fit-col" style="text-align:right">Modifikasi</th>
                 </tr>
               </thead>
               <tbody id="userList"></tbody>
@@ -1064,13 +1090,13 @@ function getIcon(name, sizeClass = 'lucide-sm') {
             <script>document.write(getIcon('refresh', 'lucide-sm'))</script> Segarkan Log
           </button>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap scrollable">
           <table>
             <thead>
               <tr>
-                <th>Waktu (UTC)</th>
+                <th class="fit-col">Waktu (UTC)</th>
                 <th>Pengguna</th>
-                <th>Tindakan (Action)</th>
+                <th class="fit-col">Tindakan (Action)</th>
                 <th>Keterangan Aksi</th>
               </tr>
             </thead>
@@ -1237,19 +1263,15 @@ async function apiPostWithFallback(action, payload = {}) {
   try {
     return await apiPost(action, payload);
   } catch (error) {
-    // Jika Google Sheets Apps Script mengembalikan error action tidak dikenal
     if (error.message && (error.message.includes("tidak dikenali") || error.message.includes("not found") || error.message.includes("Action"))) {
       console.warn(`Aksi '${action}' ditolak server. Mencoba penanganan adaptif lokal.`);
       
-      // Adaptif untuk 'editRecord' -> Jika tidak dikenali, lakukan simulasi hapus & simpan ulang
       if (action === 'editRecord') {
         const type = payload.type;
         const oldId = payload.transaction_id;
         
-        // 1. Hapus transaksi lama
         await apiPost('deleteRecord', { type: type, transaction_id: oldId });
         
-        // 2. Simpan sebagai transaksi baru
         if (type === 'income') {
           return await apiPost('saveIncome', {
             date: payload.date,
@@ -1273,7 +1295,6 @@ async function apiPostWithFallback(action, payload = {}) {
         }
       }
       
-      // Adaptif untuk manajemen Kategori 'saveIncomeType' -> Simulasikan lokal jika ditolak
       if (action === 'saveIncomeType' || action === 'deleteIncomeType') {
         throw new Error(`Server Apps Script Anda perlu diperbarui untuk mendukung manajemen kategori dinamis. Silakan hubungi pengembang untuk memperbarui file kode GAS Google Sheets Anda.`);
       }
@@ -1326,7 +1347,7 @@ let cachedSaldo = { daerah: 0, jemaat: 0, bangun: 0, total: 0 };
 let isServerOnline = false;
 let editingUser = null;
 let editingUnit = null;
-let editingIncType = null; // Menyimpan status edit Kategori Pemasukan
+let editingIncType = null;
 
 function isPrivateCategory(category) {
   if (!category) return false;
@@ -1610,7 +1631,6 @@ async function loadAllTransactions() {
   } catch (e) { }
 }
 
-// LOGIKA PENCARIAN BERDASARKAN KUITANSI & UNIT ID
 function searchByReceipt() {
   const q = document.getElementById('searchReceiptInput').value.trim().toLowerCase();
   const resultDiv = document.getElementById('receiptSearchResult');
@@ -1770,7 +1790,7 @@ function renderDashboard() {
       });
   }
 
-  const targetPembangunan = 2500000000; // Rp 2,5 Miliar
+  const targetPembangunan = 2500000000;
   const persentaseBangun = (calcBangun / targetPembangunan) * 100;
   const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
 
@@ -1778,13 +1798,13 @@ function renderDashboard() {
     <div class="stat-card">
       <div class="stat-icon c-teal">${safeIcon('shield', 'lucide-lg')}</div>
       <div class="stat-label">Total Saldo Terkonsolidasi</div>
-      <div class="stat-value">${fmt(calcTotal)}</div>
+      <div class="stat-value" style="color:var(--moss-700)">${fmt(calcTotal)}</div>
       <div class="stat-sub">Semua Kategori Kas Bank</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon c-moss">${safeIcon('log', 'lucide-lg')}</div>
       <div class="stat-label">Total Saldo Accrued</div>
-      <div class="stat-value" style="color:var(--moss-700)">${fmt(saldoAccrued)}</div>
+      <div class="stat-value">${fmt(saldoAccrued)}</div>
       <div class="stat-sub">Terkonsolidasi - Daerah</div>
     </div>
     <div class="stat-card">
@@ -1850,12 +1870,12 @@ function renderDashboard() {
   const categoryBreakdownIn = {};
   filteredInc.forEach(x => { categoryBreakdownIn[x.income_type] = (categoryBreakdownIn[x.income_type] || 0) + x.amount; });
 
-  let catInTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th>Pemasukan Kategori</th><th style="text-align:right">Total</th></tr></thead><tbody>';
+  let catInTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th>Pemasukan Kategori</th><th class="fit-col" style="text-align:right">Total</th></tr></thead><tbody>';
   if (Object.keys(categoryBreakdownIn).length === 0) {
     catInTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state" style="padding:15px"><p>Tidak ada pemasukan.</p></div></td></tr>';
   } else {
     Object.entries(categoryBreakdownIn).forEach(([k, v]) => {
-      catInTable += `<tr><td><span class="badge badge-moss">${k}</span></td><td class="amount-pos" style="text-align:right">${fmt(v)}</td></tr>`;
+      catInTable += `<tr><td><span class="badge badge-moss">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`;
     });
   }
   catInTable += '</tbody></table></div>';
@@ -1864,12 +1884,12 @@ function renderDashboard() {
   const categoryBreakdownOut = {};
   filteredExp.forEach(x => { categoryBreakdownOut[x.department] = (categoryBreakdownOut[x.department] || 0) + x.amount; });
 
-  let catOutTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th>Pengeluaran Departemen</th><th style="text-align:right">Total</th></tr></thead><tbody>';
+  let catOutTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th>Pengeluaran Departemen</th><th class="fit-col" style="text-align:right">Total</th></tr></thead><tbody>';
   if (Object.keys(categoryBreakdownOut).length === 0) {
     catOutTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state" style="padding:15px"><p>Tidak ada pengeluaran.</p></div></td></tr>';
   } else {
     Object.entries(categoryBreakdownOut).forEach(([k, v]) => {
-      catOutTable += `<tr><td><span class="badge badge-gold">${k}</span></td><td class="amount-neg" style="text-align:right">-${fmt(v)}</td></tr>`;
+      catOutTable += `<tr><td><span class="badge badge-gold">${k}</span></td><td class="fit-col amount-neg" style="text-align:right">-${fmt(v)}</td></tr>`;
     });
   }
   catOutTable += '</tbody></table></div>';
@@ -1886,11 +1906,11 @@ function renderDashboard() {
 
     return `
       <tr>
-        <td>${fmtDate(x.date)}</td>
-        <td><span class="badge ${x.badge}">${x.label}</span></td>
+        <td class="fit-col">${fmtDate(x.date)}</td>
+        <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
         <td><strong>${x.income_type || x.department}</strong><br><span style="font-size:11px; color:var(--text3)">${displayNote}</span></td>
-        <td class="${x.style}">${x.sign}${fmt(x.amount)}</td>
-        <td><span class="badge badge-gray">${x.receipt_no}</span></td>
+        <td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td>
+        <td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span></td>
       </tr>
     `;
   }).join('') || '<tr><td colspan="5" style="text-align:center"><div class="empty-state"><p>Belum ada aktivitas jurnal masuk/keluar.</p></div></td></tr>';
@@ -1999,10 +2019,10 @@ function renderIncomeList() {
   const list = [...cachedIncome].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
   document.getElementById('incomeList').innerHTML = list.map(x => `
     <tr>
-      <td>${fmtDate(x.date)}</td>
+      <td class="fit-col">${fmtDate(x.date)}</td>
       <td><span class="badge badge-moss">${x.income_type}</span></td>
-      <td><span style="font-family:monospace">${x.receipt_no}</span></td>
-      <td class="amount-pos">+${fmt(x.amount)}</td>
+      <td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td>
+      <td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td>
     </tr>
   `).join('') || '<tr><td colspan="4" style="text-align:center; padding:12px">Belum ada transaksi.</td></tr>';
 }
@@ -2055,10 +2075,10 @@ function renderExpenseList() {
   const list = [...cachedExpense].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
   document.getElementById('expenseList').innerHTML = list.map(x => `
     <tr>
-      <td>${fmtDate(x.date)}</td>
+      <td class="fit-col">${fmtDate(x.date)}</td>
       <td><strong>${x.department}</strong></td>
-      <td><span class="badge badge-gold">${x.source_balance}</span></td>
-      <td class="amount-neg">-${fmt(x.amount)}</td>
+      <td class="fit-col"><span class="badge badge-gold">${x.source_balance}</span></td>
+      <td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td>
     </tr>
   `).join('') || '<tr><td colspan="4" style="text-align:center; padding:12px">Belum ada transaksi.</td></tr>';
 }
@@ -2111,7 +2131,7 @@ function renderReportView(data) {
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Tanggal</th><th>Pemberi</th><th>Referensi No.</th><th>Keterangan</th><th style="text-align:right">Subtotal</th></tr>
+                <tr><th class="fit-col">Tanggal</th><th>Pemberi</th><th class="fit-col">Referensi No.</th><th>Keterangan</th><th class="fit-col" style="text-align:right">Subtotal</th></tr>
               </thead>
               <tbody>
                 ${items.map(x => {
@@ -2122,11 +2142,11 @@ function renderReportView(data) {
                   
                   return `
                   <tr>
-                    <td>${fmtDate(x.date)}</td>
+                    <td class="fit-col">${fmtDate(x.date)}</td>
                     <td>${displayPemberi}</td>
-                    <td><span style="font-family:monospace">${x.receipt_no}</span></td>
+                    <td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td>
                     <td>${displayNote}</td>
-                    <td class="amount-pos" style="text-align:right">${fmt(x.amount)}</td>
+                    <td class="fit-col amount-pos" style="text-align:right">${fmt(x.amount)}</td>
                   </tr>
                 `}).join('')}
               </tbody>
@@ -2150,16 +2170,16 @@ function renderReportView(data) {
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Tanggal</th><th>Sumber Kas</th><th>Referensi No.</th><th>Keperluan</th><th style="text-align:right">Subtotal</th></tr>
+                <tr><th class="fit-col">Tanggal</th><th class="fit-col">Sumber Kas</th><th class="fit-col">Referensi No.</th><th>Keperluan</th><th class="fit-col" style="text-align:right">Subtotal</th></tr>
               </thead>
               <tbody>
                 ${items.map(x => `
                   <tr>
-                    <td>${fmtDate(x.date)}</td>
-                    <td><span class="badge badge-gold">${x.source_balance}</span></td>
-                    <td><span style="font-family:monospace">${x.receipt_no}</span></td>
+                    <td class="fit-col">${fmtDate(x.date)}</td>
+                    <td class="fit-col"><span class="badge badge-gold">${x.source_balance}</span></td>
+                    <td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td>
                     <td>${x.note || '-'}</td>
-                    <td class="amount-neg" style="text-align:right">-${fmt(x.amount)}</td>
+                    <td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -2174,14 +2194,38 @@ function renderReportView(data) {
 
 function renderHistory() {
   const q = document.getElementById('searchTrans').value.toLowerCase();
+  const giverQ = (document.getElementById('filterGiver')?.value || '').toLowerCase();
   const type = document.getElementById('filterType').value;
+  const month = parseInt(document.getElementById('filterMonth')?.value || 0);
+  const year = parseInt(document.getElementById('filterYear')?.value || 0);
+  
   let list = [];
   
   if (type !== 'expense') (cachedIncome || []).forEach(x => list.push({ ...x, type: 'income', badge: 'badge-green', label: 'Masuk', style: 'amount-pos', sign: '+' }));
   if (type !== 'income') (cachedExpense || []).forEach(x => list.push({ ...x, type: 'expense', badge: 'badge-red', label: 'Keluar', style: 'amount-neg', sign: '-' }));
   
   list.sort((a,b) => new Date(b.date) - new Date(a.date));
-  if (q) list = list.filter(x => `${x.income_type || x.department} ${x.note || ''} ${x.receipt_no}`.toLowerCase().includes(q));
+  
+  list = list.filter(x => {
+    let match = true;
+    const d = new Date(x.date);
+    
+    if (year !== 0 && d.getFullYear() !== year) match = false;
+    if (month !== 0 && (d.getMonth() + 1) !== month) match = false;
+    
+    if (q && !`${x.income_type || x.department} ${x.note || ''} ${x.receipt_no}`.toLowerCase().includes(q)) match = false;
+    
+    if (giverQ) {
+      if (x.type === 'expense') {
+        match = false;
+      } else {
+        const giverStr = `${x.nama_pemberi || ''} ${x.unit_name || ''}`.toLowerCase();
+        if (!giverStr.includes(giverQ)) match = false;
+      }
+    }
+    
+    return match;
+  });
 
   const isAdmin = currentUser.role === 'Admin';
   const isBendahara = currentUser.role === 'Bendahara';
@@ -2197,13 +2241,13 @@ function renderHistory() {
 
     return `
     <tr>
-      <td>${fmtDate(x.date)}</td>
-      <td><span class="badge ${x.badge}">${x.label}</span></td>
+      <td class="fit-col">${fmtDate(x.date)}</td>
+      <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
       <td><strong>${x.income_type || x.department || '-'}</strong><br><span style="font-size:11px; color:var(--text3)">${displayNote}</span></td>
-      <td><span class="badge badge-gray">${x.receipt_no || '-'}</span></td>
+      <td class="fit-col"><span class="badge badge-gray">${x.receipt_no || '-'}</span></td>
       <td>${displayPemberi}</td>
-      <td class="${x.style}"><strong>${x.sign}${fmt(x.amount)}</strong></td>
-      <td style="text-align:right; min-width:140px;">
+      <td class="fit-col ${x.style}" style="text-align:right"><strong>${x.sign}${fmt(x.amount)}</strong></td>
+      <td class="fit-col" style="text-align:right; min-width:140px;">
         ${canEdit && deleteId ? `<button class="btn btn-ghost" style="padding:4px 8px; font-size:11px; margin-right:4px;" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit')} Edit</button>` : ''}
         ${isAdmin && deleteId ? `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash')} Hapus</button>` : (!canEdit ? '<span style="color:var(--text4)">No Akses</span>' : '')}
       </td>
@@ -2302,7 +2346,6 @@ async function saveEditTransaction() {
       const parentType = document.getElementById('editTransCat').value;
       payload.income_type = (parentType === 'Perpuluhan') ? document.getElementById('editTransSubCat').value : parentType;
       payload.unit_name = document.getElementById('editTransUnit').value;
-      // Mengirimkan kembali nama pemberi agar tidak tertimpa/kosong
       payload.nama_pemberi = currentEditTransaction.original.nama_pemberi;
     } else {
       payload.department = document.getElementById('editTransCat').value;
@@ -2313,7 +2356,6 @@ async function saveEditTransaction() {
       throw new Error("Tanggal dan Nominal wajib diisi!");
     }
 
-    // Menggunakan penanganan fallback adaptif jika Apps Script belum di-update dengan editRecord
     await apiPostWithFallback('editRecord', payload);
     
     notify('Transaksi berhasil diperbarui!', 'success');
@@ -2541,9 +2583,9 @@ async function renderUsers() {
     <tr>
       <td><strong style="color:var(--text)">${x.username}</strong></td>
       <td>${x.nama}</td>
-      <td><span class="badge ${x.role === 'Admin' ? 'badge-moss' : x.role === 'Bendahara' ? 'badge-gold' : 'badge-gray'}">${x.role}</span></td>
+      <td class="fit-col"><span class="badge ${x.role === 'Admin' ? 'badge-moss' : x.role === 'Bendahara' ? 'badge-gold' : 'badge-gray'}">${x.role}</span></td>
       <td><span style="font-family:monospace; color:var(--text2);">${x.password || '(Tersembunyi)'}</span></td>
-      <td style="text-align:right">
+      <td class="fit-col" style="text-align:right">
         <button class="btn btn-ghost" style="padding:4px 8px; font-size:11px; margin-right:4px;" onclick="editUser('${x.username}', '${x.nama}', '${x.role}')">${safeIcon('edit')} Edit</button>
         ${x.username === 'admin' ? '' : `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteUser('${x.username}')">${safeIcon('trash')}</button>`}
       </td>
@@ -2608,9 +2650,9 @@ async function renderLogs() {
     if (res.success) {
       tbody.innerHTML = res.data.map(x => `
         <tr>
-          <td><small style="font-family:monospace">${new Date(x.timestamp).toLocaleString('id-ID')}</small></td>
+          <td class="fit-col"><small style="font-family:monospace">${new Date(x.timestamp).toLocaleString('id-ID')}</small></td>
           <td><strong>${x.user}</strong></td>
-          <td><span class="badge badge-moss">${x.action}</span></td>
+          <td class="fit-col"><span class="badge badge-moss">${x.action}</span></td>
           <td><span style="font-family:monospace; font-size:11px; color:var(--text2)">${x.detail}</span></td>
         </tr>
       `).join('') || '<tr><td colspan="4" style="text-align:center">Belum ada catatan aktivitas logs.</td></tr>';
