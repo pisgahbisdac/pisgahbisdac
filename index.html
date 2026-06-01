@@ -160,7 +160,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a {
 
 .sidebar {
   width: 256px;
-  min-height: 100vh;
+  height: 100vh; /* DIPERBARUI: Diubah agar tinggi sidebar tidak bablas melewati batas bawah layar */
   background: var(--sidebar-bg);
   backdrop-filter: blur(30px);
   border-right: 1px solid var(--glass-border);
@@ -570,12 +570,11 @@ function getIcon(name, sizeClass = 'lucide-sm') {
         <button class="btn btn-ghost theme-toggle-btn" style="padding: 8px; border-radius: 50%;" title="Ubah Tema" onclick="toggleTheme()"></button>
         <div class="status-bar" style="margin:0; padding:6px 12px; font-size:11px; cursor:pointer;" onclick="handleManualSync()" title="Klik untuk sinkronisasi">
           <div class="status-dot online" id="appStatusDot"></div>
-          <span id="appStatusText">Koneksi Hack</span>
+          <span id="appStatusText">Koneksi Aktif</span>
         </div>
       </div>
     </div>
 
-    <!-- ── PAGE: DASHBOARD ── -->
     <div class="page active" id="page-dashboard">
       
       <!-- KARTU CARI KUITANSI (KHUSUS UNTUK VERIFIKASI JEMAAT) -->
@@ -583,14 +582,14 @@ function getIcon(name, sizeClass = 'lucide-sm') {
         <div class="card-header" style="margin-bottom: 14px;">
           <div>
             <div class="card-title" style="color: var(--moss-600); display: flex; align-items: center; gap: 8px;">
-              <svg class="lucide" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <svg class="lucide lucide-md" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               Verifikasi Transaksi Jemaat
             </div>
-            <div class="card-subtitle">Ketik nomor kuitansi (bisa sebagian, misal: "1234") untuk memverifikasi setoran/pengeluaran.</div>
+            <div class="card-subtitle">Cek status setoran atau pengeluaran Anda dengan memasukkan nomor kuitansi (bisa ketik sebagian, contoh: "1234").</div>
           </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
-          <input class="form-input" id="searchReceiptInput" type="text" placeholder="Ketik No. Kuitansi..." onkeydown="if(event.key==='Enter') searchByReceipt()">
+          <input class="form-input" id="searchReceiptInput" type="text" placeholder="No. Kuitansi atau Unit ID (contoh: UNIT-178...)" onkeydown="if(event.key==='Enter') searchByReceipt()">
           <button class="btn btn-primary" onclick="searchByReceipt()" style="white-space: nowrap; padding: 11px 20px;">
             <svg class="lucide lucide-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Cari
           </button>
@@ -1233,6 +1232,56 @@ async function apiPost(action, payload = {}) {
   return data;
 }
 
+// FUNGSI SINKRON TANGGUH (Jika backend lama tidak mengenal editRecord, kita sediakan Smart Fallback)
+async function apiPostWithFallback(action, payload = {}) {
+  try {
+    return await apiPost(action, payload);
+  } catch (error) {
+    // Jika Google Sheets Apps Script mengembalikan error action tidak dikenal
+    if (error.message && (error.message.includes("tidak dikenali") || error.message.includes("not found") || error.message.includes("Action"))) {
+      console.warn(`Aksi '${action}' ditolak server. Mencoba penanganan adaptif lokal.`);
+      
+      // Adaptif untuk 'editRecord' -> Jika tidak dikenali, lakukan simulasi hapus & simpan ulang
+      if (action === 'editRecord') {
+        const type = payload.type;
+        const oldId = payload.transaction_id;
+        
+        // 1. Hapus transaksi lama
+        await apiPost('deleteRecord', { type: type, transaction_id: oldId });
+        
+        // 2. Simpan sebagai transaksi baru
+        if (type === 'income') {
+          return await apiPost('saveIncome', {
+            date: payload.date,
+            income_type: payload.income_type,
+            unit_name: payload.unit_name || '-',
+            nama_pemberi: payload.original?.nama_pemberi || 'Umum',
+            receipt_no: payload.receipt_no,
+            amount: payload.amount,
+            note: payload.note,
+            alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0
+          });
+        } else {
+          return await apiPost('saveExpense', {
+            date: payload.date,
+            department: payload.department,
+            source_balance: payload.source_balance,
+            receipt_no: payload.receipt_no,
+            amount: payload.amount,
+            note: payload.note
+          });
+        }
+      }
+      
+      // Adaptif untuk manajemen Kategori 'saveIncomeType' -> Simulasikan lokal jika ditolak
+      if (action === 'saveIncomeType' || action === 'deleteIncomeType') {
+        throw new Error(`Server Apps Script Anda perlu diperbarui untuk mendukung manajemen kategori dinamis. Silakan hubungi pengembang untuk memperbarui file kode GAS Google Sheets Anda.`);
+      }
+    }
+    throw error;
+  }
+}
+
 async function login(username, password) {
   const url = new URL(getActiveApiUrl());
   url.searchParams.set('action', 'login');
@@ -1279,7 +1328,6 @@ let editingUser = null;
 let editingUnit = null;
 let editingIncType = null; // Menyimpan status edit Kategori Pemasukan
 
-// Fungsi helper penentu kategori privasi (hanya 5 kategori ini yang disembunyikan nama penyetornya untuk Viewer)
 function isPrivateCategory(category) {
   if (!category) return false;
   const cat = category.toLowerCase();
@@ -1287,7 +1335,6 @@ function isPrivateCategory(category) {
   return privateCats.some(c => cat.includes(c));
 }
 
-// Keamanan pemanggilan SVG jika getIcon belum dimuat sempurna
 function safeIcon(name, size) {
   return typeof getIcon === 'function' ? getIcon(name, size) : '';
 }
@@ -2255,6 +2302,8 @@ async function saveEditTransaction() {
       const parentType = document.getElementById('editTransCat').value;
       payload.income_type = (parentType === 'Perpuluhan') ? document.getElementById('editTransSubCat').value : parentType;
       payload.unit_name = document.getElementById('editTransUnit').value;
+      // Mengirimkan kembali nama pemberi agar tidak tertimpa/kosong
+      payload.nama_pemberi = currentEditTransaction.original.nama_pemberi;
     } else {
       payload.department = document.getElementById('editTransCat').value;
       payload.source_balance = document.getElementById('editTransSource').value;
@@ -2264,7 +2313,8 @@ async function saveEditTransaction() {
       throw new Error("Tanggal dan Nominal wajib diisi!");
     }
 
-    await apiPost('editRecord', payload);
+    // Menggunakan penanganan fallback adaptif jika Apps Script belum di-update dengan editRecord
+    await apiPostWithFallback('editRecord', payload);
     
     notify('Transaksi berhasil diperbarui!', 'success');
     document.getElementById('editTransModal').style.display = 'none';
@@ -2325,7 +2375,7 @@ async function saveIncTypeForm() {
 
   const btn = document.getElementById('incTypeSaveBtn'); btn.disabled = true;
   try {
-    await apiPost('saveIncomeType', {
+    await apiPostWithFallback('saveIncomeType', {
       name,
       pct_daerah: pctDaerah,
       pct_jemaat: pctJemaat,
@@ -2349,7 +2399,7 @@ async function deleteIncType(name) {
   const isConfirm = await showCustomConfirm('Hapus Kategori', `Yakin ingin menghapus kategori "${name}"? Kategori yang sudah memiliki transaksi sebaiknya tidak dihapus.`);
   if (!isConfirm) return;
   try {
-    await apiPost('deleteIncomeType', { name });
+    await apiPostWithFallback('deleteIncomeType', { name });
     notify('Kategori masukan berhasil dihapus.', 'success');
     await syncAllData();
     renderMasterIncTypes();
@@ -2361,7 +2411,6 @@ async function deleteIncType(name) {
 
 function renderMasterIncTypes() {
   const types = (masterData && masterData.incomeTypes) ? masterData.incomeTypes : [];
-  // Daftar kategori sistem yang tidak boleh dihapus atau diubah demi integritas data utama
   const systemReserved = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah', 'Persembahan Khusus'];
 
   document.getElementById('incTypeList').innerHTML = types.map(x => {
