@@ -133,9 +133,7 @@ body::before {
 }
 
 /* Optimasi iOS Touch Action */
-button, .btn, input, select, .nav-item, .bottom-nav-item, a {
-  touch-action: manipulation;
-}
+button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: manipulation; }
 
 .lucide {
   fill: none;
@@ -182,6 +180,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a {
   color: white;
   box-shadow: 0 4px 16px rgba(45, 96, 56, 0.25);
   flex-shrink: 0;
+  overflow: hidden;
 }
 .logo-text { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); letter-spacing: -0.3px; font-weight: 700; }
 .logo-sub { font-size: 10px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
@@ -234,10 +233,10 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a {
 .login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; position: relative; z-index: 10; width: 100%; }
 .login-card { background: var(--login-card-bg); backdrop-filter: blur(40px) saturate(1.5); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); padding: 44px 40px; width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(22, 38, 26, 0.08); }
 .login-logo { text-align: center; margin-bottom: 32px; }
-.login-logo img { width: 80px; height: 80px; object-fit: contain; margin: 0 auto 16px; display: block; filter: drop-shadow(0 4px 10px rgba(45,96,56,0.15)); }
+.login-logo img { width: 80px; height: 80px; object-fit: contain; margin: 0 auto 16px; display: block; filter: drop-shadow(0 4px 10px rgba(45,96,56,0.15)); border-radius: 16px; }
 .login-logo h1 { font-family: 'Playfair Display', serif; font-size: 30px; color: var(--text); font-weight: 700; }
 
-.form-group { margin-bottom: 18px; }
+.form-group { margin-bottom: 18px; position: relative; }
 .form-label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 7px; font-weight: 600; }
 
 .form-input, .form-select { 
@@ -253,6 +252,10 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a {
 
 .login-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--moss-600), var(--moss-500)); color: #fff; border: none; border-radius: var(--radius); font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 6px; transition: all 0.2s; box-shadow: 0 6px 16px rgba(45,96,56,0.25); }
 .login-btn:hover { background: linear-gradient(135deg, var(--moss-500), var(--moss-400)); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(45,96,56,0.3); }
+
+/* TOMBOL EYE UNTUK PASSWORD */
+.eye-btn { position: absolute; right: 12px; top: 35px; cursor: pointer; color: var(--text3); display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; transition: color 0.2s; }
+.eye-btn:hover { color: var(--moss-600); background: rgba(45, 96, 56, 0.05); }
 
 .card { background: var(--bg-glass); backdrop-filter: blur(20px) saturate(1.3); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-glass); position: relative; overflow: hidden; margin-bottom: 24px; }
 .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
@@ -346,7 +349,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a {
 .fit-col { width: 1%; white-space: nowrap; }
 
 .table-wrap { overflow-x: auto; margin-top: 10px; border-radius: var(--radius); width: 100%; -webkit-overflow-scrolling: touch; }
-.table-wrap.scrollable { max-height: 60vh; overflow-y: auto; padding-right: 6px; }
+.table-wrap.scrollable { max-height: 78vh; overflow-y: auto; padding-right: 6px; }
 .table-wrap.scrollable::-webkit-scrollbar { width: 6px; height: 6px; }
 .table-wrap.scrollable::-webkit-scrollbar-track { background: transparent; }
 .table-wrap.scrollable::-webkit-scrollbar-thumb { background: var(--glass-border2); border-radius: 10px; }
@@ -405,6 +408,9 @@ tr:hover td { background: var(--table-hover); }
 .report-card { text-align: center; background: var(--report-card-bg); padding: 16px; border-radius: var(--radius); border: 1px solid var(--glass-border); box-shadow: 0 2px 8px rgba(22,38,26,0.02);}
 .report-card-label { font-size: 11px; color: var(--text2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
 .report-card-val { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+
+.settings-upload-box { border: 2px dashed var(--moss-300); background: rgba(45,96,56,0.02); border-radius: var(--radius-lg); padding: 32px; text-align: center; cursor: pointer; transition: 0.3s; }
+.settings-upload-box:hover { background: rgba(45,96,56,0.05); border-color: var(--moss-500); }
 </style>
 </head>
 <body>
@@ -436,12 +442,37 @@ const svgStore = {
   save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
   plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
   refresh: '<path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>',
-  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>'
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff: '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/>'
 };
 
 function getIcon(name, sizeClass = 'lucide-sm') {
   return `<svg class="lucide ${sizeClass}" viewBox="0 0 24 24">${svgStore[name] || ''}</svg>`;
 }
+
+// ============================================================
+// FUNGSI TEMA (LIGHT / DARK MODE)
+// ============================================================
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('PiKaChu_theme', newTheme);
+  updateThemeIcons();
+}
+
+function updateThemeIcons() {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  // Jika sedang mode dark, tampilkan ikon matahari (untuk beralih ke light) dan sebaliknya
+  const iconName = currentTheme === 'dark' ? 'sun' : 'moon'; 
+  document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+    btn.innerHTML = getIcon(iconName, 'lucide-md');
+  });
+}
+
+// Panggil fungsi saat halaman selesai dimuat agar ikon tombol langsung muncul
+document.addEventListener('DOMContentLoaded', updateThemeIcons);
 </script>
 
 <div id="loginPage" class="login-page">
@@ -452,8 +483,16 @@ function getIcon(name, sizeClass = 'lucide-sm') {
         <script>document.write(getIcon('settings', 'lucide-md'))</script>
       </button>
     </div>
+    
+    <!-- AREA LOGO -->
     <div class="login-logo">
-      <img src="./hijau.png" alt="Logo PiKaChu GMAHK" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%232d6038\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\' ry=\'2\'></rect><line x1=\'3\' y1=\'9\' x2=\'21\' y2=\'9\'></line><line x1=\'9\' y1=\'21\' x2=\'9\' y2=\'9\'></line></svg>'">
+      <img id="login-custom-logo" src="" class="app-logo-img" alt="Logo PiKaChu" style="display:none; width:80px; height:80px; object-fit:contain; margin:0 auto 16px; filter:drop-shadow(0 4px 10px rgba(45,96,56,0.15)); border-radius:16px;">
+      
+      <!-- Default SVG jika logo belum diupload -->
+      <svg id="login-default-logo" class="app-logo-default" xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='var(--moss-500)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style="margin: 0 auto 16px; display: block; filter: drop-shadow(0 4px 10px rgba(45,96,56,0.15));">
+        <rect x='3' y='3' width='18' height='18' rx='2' ry='2'></rect><line x1='3' y1='9' x2='21' y2='9'></line><line x1='9' y1='21' x2='9' y2='9'></line>
+      </svg>
+      
       <h1>PiKaChu</h1>
       <p style="color:var(--text2); font-size: 13px; font-weight: 500;">Sistem Keuangan Jemaat</p>
     </div>
@@ -469,7 +508,10 @@ function getIcon(name, sizeClass = 'lucide-sm') {
     </div>
     <div class="form-group">
       <label class="form-label">Password</label>
-      <input class="form-input" id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
+      <input class="form-input" id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()" style="padding-right:40px;">
+      <span class="eye-btn" id="loginEye" onclick="togglePassword('loginPass', 'loginEye')" title="Lihat Password">
+        <script>document.write(getIcon('eyeOff', 'lucide-md'))</script>
+      </span>
     </div>
     <button class="login-btn" id="loginBtn" onclick="doLogin()">
       <span id="loginBtnText">Masuk Ke Sistem</span>
@@ -486,7 +528,9 @@ function getIcon(name, sizeClass = 'lucide-sm') {
     <div class="sidebar-logo">
       <div class="logo-badge">
         <div class="logo-icon">
-          <svg class="lucide lucide-lg" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><line x1="7" y1="9" x2="17" y2="9"/></svg>
+          <!-- Logo sidebar yang responsif terhadap uplaod -->
+          <img id="sidebar-custom-logo" src="" class="app-logo-img" style="display:none; width:100%; height:100%; object-fit:cover;">
+          <svg id="sidebar-default-logo" class="lucide lucide-lg app-logo-default" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><line x1="7" y1="9" x2="17" y2="9"/></svg>
         </div>
         <div>
           <div class="logo-text">PiKaChu</div>
@@ -531,6 +575,9 @@ function getIcon(name, sizeClass = 'lucide-sm') {
       </div>
       <div class="nav-item" onclick="showPage('users')" id="navUsers">
         <span class="nav-icon"><script>document.write(getIcon('shield', 'lucide-md'))</script></span> Manajemen User
+      </div>
+      <div class="nav-item" onclick="showPage('settings')" id="navSettings">
+        <span class="nav-icon"><script>document.write(getIcon('settings', 'lucide-md'))</script></span> Pengaturan
       </div>
       <div class="nav-item" onclick="showPage('logs')" id="navLogs">
         <span class="nav-icon"><script>document.write(getIcon('mappin', 'lucide-md'))</script></span> Audit Log
@@ -583,9 +630,9 @@ function getIcon(name, sizeClass = 'lucide-sm') {
       </div>
     </div>
 
+    <!-- ── PAGE: DASHBOARD ── -->
     <div class="page active" id="page-dashboard">
       
-      <!-- KARTU CARI KUITANSI (KHUSUS UNTUK VERIFIKASI JEMAAT) -->
       <div class="card" style="margin-bottom: 24px;">
         <div class="card-header" style="margin-bottom: 14px;">
           <div>
@@ -709,13 +756,11 @@ function getIcon(name, sizeClass = 'lucide-sm') {
               <input class="form-input" id="incGiver" type="text" placeholder="Contoh: Keluarga Sitorus / Jemaat Umum">
             </div>
 
-            <!-- GRUP NOMINAL TUNGGAL (DEFAULT) -->
             <div class="form-group" id="incAmountSingleGroup">
               <label class="form-label">Nominal Setoran (Rp)</label>
               <input class="form-input" id="incAmount" type="number" placeholder="0" oninput="updateIncomeAlloc()">
             </div>
 
-            <!-- GRUP NOMINAL MULTIPEL (KHUSUS PERPULUHAN) -->
             <div class="form-group" id="incPerpuluhanGroup" style="display:none; padding:16px; background:rgba(45,96,56,0.03); border-radius:var(--radius); border:1px dashed var(--glass-border);">
               <label class="form-label" style="border-bottom:1px solid var(--glass-border); padding-bottom:8px; margin-bottom:12px; color:var(--moss-600)">Rincian Setoran Grup Perpuluhan (Rp)</label>
               <div class="form-row" style="margin-bottom:10px;">
@@ -763,7 +808,6 @@ function getIcon(name, sizeClass = 'lucide-sm') {
               <script>document.write(getIcon('save', 'lucide-md'))</script> Posting Pemasukan
             </button>
           </div>
-
         </div>
 
         <div class="card">
@@ -785,6 +829,7 @@ function getIcon(name, sizeClass = 'lucide-sm') {
       </div>
     </div>
 
+    <!-- ── PAGE: PENGELUARAN ── -->
     <div class="page" id="page-pengeluaran">
       <div class="grid-2">
         <div class="card">
@@ -853,6 +898,7 @@ function getIcon(name, sizeClass = 'lucide-sm') {
       </div>
     </div>
 
+    <!-- ── PAGE: LAPORAN BULANAN ── -->
     <div class="page" id="page-laporan">
       <div class="filter-bar">
         <span class="filter-label" style="font-size:13px">Pilih Periode Laporan:</span>
@@ -1046,7 +1092,10 @@ function getIcon(name, sizeClass = 'lucide-sm') {
           </div>
           <div class="form-group">
             <label class="form-label">Kata Sandi (Password)</label>
-            <input class="form-input" id="userPassword" type="text" placeholder="Min. 4 Karakter">
+            <input class="form-input" id="userPassword" type="password" placeholder="Min. 4 Karakter" style="padding-right:40px;">
+            <span class="eye-btn" id="userEye" onclick="togglePassword('userPassword', 'userEye')" title="Lihat Password">
+              <script>document.write(getIcon('eyeOff', 'lucide-md'))</script>
+            </span>
             <div style="font-size:11px; color:var(--text3); margin-top:5px">
               Jika melakukan edit user, biarkan kolom password kosong jika tidak ingin mengubah sandi lama.
             </div>
@@ -1075,6 +1124,39 @@ function getIcon(name, sizeClass = 'lucide-sm') {
             </table>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ── PAGE: PENGATURAN LOGO ── -->
+    <div class="page" id="page-settings">
+      <div class="card" style="max-width:500px; margin:0 auto;">
+        <div class="form-section-title">Pengaturan Aplikasi PiKaChu</div>
+        <p style="font-size:13px; color:var(--text2); margin-bottom:20px; line-height:1.5;">
+          Di sini Anda dapat mengkustomisasi logo yang akan ditampilkan pada Sidebar dan Halaman Login untuk seluruh pengguna sistem.
+        </p>
+
+        <div style="display:flex; align-items:center; justify-content:center; gap:20px; margin-bottom:24px;">
+          <!-- Preview Logo -->
+          <div style="width:100px; height:100px; border-radius:var(--radius); border:1px solid var(--glass-border); background:var(--bg-mid); display:flex; align-items:center; justify-content:center; overflow:hidden;">
+            <img id="preview-logo-settings" src="" class="app-logo-img" style="display:none; width:100%; height:100%; object-fit:contain;">
+            <svg id="default-logo-settings" class="app-logo-default" xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='var(--text3)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
+              <rect x='3' y='3' width='18' height='18' rx='2' ry='2'></rect><line x1='3' y1='9' x2='21' y2='9'></line><line x1='9' y1='21' x2='9' y2='9'></line>
+            </svg>
+          </div>
+          
+          <div style="flex:1;">
+            <label for="logoUpload" class="settings-upload-box" style="display:block;">
+              <script>document.write(getIcon('edit', 'lucide-md'))</script>
+              <div style="font-weight:600; color:var(--text); margin-top:8px;">Pilih Gambar Baru</div>
+              <div style="font-size:11px; color:var(--text3); margin-top:4px;">Rekomendasi: PNG/JPG (Kotak)</div>
+            </label>
+            <input type="file" id="logoUpload" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)">
+          </div>
+        </div>
+
+        <button class="btn btn-ghost" style="width:100%; color:var(--red-pop);" onclick="resetLogo()">
+          <script>document.write(getIcon('trash', 'lucide-sm'))</script> Kembalikan Logo ke Bawaan (Default)
+        </button>
       </div>
     </div>
 
@@ -1295,8 +1377,8 @@ async function apiPostWithFallback(action, payload = {}) {
         }
       }
       
-      if (action === 'saveIncomeType' || action === 'deleteIncomeType') {
-        throw new Error(`Server Apps Script Anda perlu diperbarui untuk mendukung manajemen kategori dinamis. Silakan hubungi pengembang untuk memperbarui file kode GAS Google Sheets Anda.`);
+      if (action === 'saveIncomeType' || action === 'deleteIncomeType' || action === 'saveConfig') {
+        throw new Error(`Server Apps Script Anda perlu diperbarui. Silakan terapkan ulang (New Deployment) kode Backend terbaru Anda.`);
       }
     }
     throw error;
@@ -1348,6 +1430,7 @@ let isServerOnline = false;
 let editingUser = null;
 let editingUnit = null;
 let editingIncType = null;
+let systemConfig = {};
 
 function isPrivateCategory(category) {
   if (!category) return false;
@@ -1360,25 +1443,103 @@ function safeIcon(name, size) {
   return typeof getIcon === 'function' ? getIcon(name, size) : '';
 }
 
-// --- LOGIKA TEMA (DARK/LIGHT MODE) ---
-function updateThemeIcons(theme) {
-  document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
-    btn.innerHTML = theme === 'dark' ? safeIcon('sun', 'lucide-md') : safeIcon('moon', 'lucide-md');
-  });
+// TOGGLE MATA PASSWORD
+function togglePassword(inputId, eyeId) {
+  const input = document.getElementById(inputId);
+  const eyeBtn = document.getElementById(eyeId);
+  if (input.type === "password") {
+    input.type = "text";
+    eyeBtn.innerHTML = safeIcon('eye', 'lucide-md');
+  } else {
+    input.type = "password";
+    eyeBtn.innerHTML = safeIcon('eyeOff', 'lucide-md');
+  }
 }
 
-function toggleTheme() {
-  const currentTheme = document.documentElement.getAttribute('data-theme');
-  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', newTheme);
-  localStorage.setItem('PiKaChu_theme', newTheme);
-  updateThemeIcons(newTheme);
+// LOGO & PENGATURAN CONFIG
+async function loadSystemConfig() {
+  try {
+    // 1. Coba muat dari cache lokal dulu (sangat berguna untuk halaman Login yang belum punya token)
+    const cached = localStorage.getItem('PiKaChu_config');
+    if (cached) {
+      systemConfig = JSON.parse(cached);
+      applyConfig();
+    }
+
+    // 2. Coba ambil versi terbaru dari server 
+    const res = await apiGet('getConfig');
+    if (res && res.success) {
+      systemConfig = res.data || {};
+      localStorage.setItem('PiKaChu_config', JSON.stringify(systemConfig)); // Simpan ke cache
+      applyConfig();
+    }
+  } catch (e) { 
+    // Sembunyikan error token di console saat berada di halaman login agar tidak mengganggu
+    if (e.message && !e.message.toLowerCase().includes('token') && !e.message.toLowerCase().includes('session')) {
+      console.warn('Config fetch info:', e.message); 
+    }
+  }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  updateThemeIcons(document.documentElement.getAttribute('data-theme') || 'light');
-});
-// ------------------------------------
+function applyConfig() {
+  const logoElements = document.querySelectorAll('.app-logo-img');
+  const defaultLogos = document.querySelectorAll('.app-logo-default');
+  
+  if (systemConfig.logo && systemConfig.logo.trim() !== '') {
+    logoElements.forEach(el => { el.src = systemConfig.logo; el.style.display = 'block'; });
+    defaultLogos.forEach(el => { el.style.display = 'none'; });
+  } else {
+    logoElements.forEach(el => { el.style.display = 'none'; el.src = ''; });
+    defaultLogos.forEach(el => { el.style.display = 'block'; });
+  }
+}
+
+function handleLogoUpload(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  
+  notify('Memproses dan memperkecil gambar...', 'info');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = async function() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      const MAX = 150;
+      let w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } 
+      else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+      
+      canvas.width = w; canvas.height = h;
+      ctx.drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/png', 0.8);
+      
+      systemConfig.logo = dataUrl;
+      localStorage.setItem('PiKaChu_config', JSON.stringify(systemConfig)); // Update cache
+      applyConfig();
+      
+      try {
+        const res = await apiPostWithFallback('saveConfig', { key: 'logo', value: dataUrl });
+        if(res.success) notify('Logo berhasil diubah untuk semua pengguna!', 'success');
+        else throw new Error(res.message);
+      } catch (err) { notify('Gagal menyimpan logo: ' + err.message, 'error'); }
+    }
+    img.src = e.target.result;
+  }
+  reader.readAsDataURL(file);
+}
+
+async function resetLogo() {
+  systemConfig.logo = '';
+  localStorage.setItem('PiKaChu_config', JSON.stringify(systemConfig)); // Update cache
+  applyConfig();
+  try {
+    const res = await apiPostWithFallback('saveConfig', { key: 'logo', value: '' });
+    if(res.success) notify('Logo dikembalikan ke versi bawaan.', 'success');
+  } catch (err) { notify('Gagal reset: ' + err.message, 'error'); }
+}
+
 
 function fmt(n) { return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID'); }
 function fmtDate(iso) {
@@ -1502,6 +1663,7 @@ async function launchApp() {
   document.getElementById('userAvatar').textContent = currentUser.nama.split(' ').map(x=>x[0]).join('').substring(0,2).toUpperCase();
 
   applyRoleAccess();
+  await loadSystemConfig();
   await syncAllData();
   initForms();
   showPage('dashboard');
@@ -1529,6 +1691,7 @@ function applyRoleAccess() {
   document.getElementById('navMasterDept').style.display = isAdm ? '' : 'none';
   document.getElementById('navMasterUnit').style.display = isAdm ? '' : 'none';
   document.getElementById('navUsers').style.display = isAdm ? '' : 'none';
+  document.getElementById('navSettings').style.display = isAdm ? '' : 'none';
   document.getElementById('navLogs').style.display = isAdm ? '' : 'none';
 }
 
@@ -2598,7 +2761,11 @@ function editUser(username, nama, role) {
   document.getElementById('userFormTitle').textContent = `Ubah Akun: ${username}`;
   document.getElementById('userName').value = username; document.getElementById('userName').disabled = true;
   document.getElementById('userFullName').value = nama; document.getElementById('userRole').value = role;
-  document.getElementById('userPassword').value = '';
+  
+  const passInput = document.getElementById('userPassword');
+  passInput.value = ''; passInput.type = 'password';
+  document.getElementById('userEye').innerHTML = safeIcon('eyeOff', 'lucide-md');
+  
   document.getElementById('saveUserBtn').innerHTML = `${safeIcon('edit')} Update User`;
   document.getElementById('cancelEditUserBtn').style.display = 'inline-flex';
 }
@@ -2611,6 +2778,7 @@ function cancelEditUser() {
   
   const passInput = document.getElementById('userPassword');
   passInput.value = ''; passInput.type = 'password';
+  document.getElementById('userEye').innerHTML = safeIcon('eyeOff', 'lucide-md');
   
   document.getElementById('saveUserBtn').innerHTML = `${safeIcon('save')} Simpan User`;
   document.getElementById('cancelEditUserBtn').style.display = 'none';
@@ -2662,7 +2830,7 @@ async function renderLogs() {
 
 const pageTitles = {
   dashboard: 'Dashboard Utama', pemasukan: 'Entri Setoran Masuk', pengeluaran: 'Entri Pengeluaran Dana', laporan: 'Arsip Laporan Keuangan',
-  riwayat: 'Buku Jurnal Umum', masterIncType: 'Kelola Kategori Pemasukan', masterDept: 'Kelola Departemen', masterUnit: 'Kelola Sektor & Unit Jemaat', users: 'Kelola Hak Akses Pengguna', logs: 'Audit Keamanan & Log'
+  riwayat: 'Buku Jurnal Umum', masterIncType: 'Kelola Kategori Pemasukan', masterDept: 'Kelola Departemen', masterUnit: 'Kelola Sektor & Unit Jemaat', users: 'Kelola Hak Akses Pengguna', settings: 'Pengaturan Sistem', logs: 'Audit Keamanan & Log'
 };
 
 function showPage(name) {
@@ -2670,7 +2838,7 @@ function showPage(name) {
     if (!['dashboard', 'laporan'].includes(name)) { notify('Akses Ditolak: Anda hanya dapat melihat halaman publik.', 'error'); return; }
   }
   if (currentUser && currentUser.role === 'Bendahara') {
-    if (['masterIncType', 'masterDept', 'masterUnit', 'users', 'logs'].includes(name)) { notify('Akses Ditolak: Halaman ini khusus Admin.', 'error'); return; }
+    if (['masterIncType', 'masterDept', 'masterUnit', 'users', 'settings', 'logs'].includes(name)) { notify('Akses Ditolak: Halaman ini khusus Admin.', 'error'); return; }
   }
 
   document.querySelectorAll('.page, .nav-item, .bottom-nav-item').forEach(x => x.classList.remove('active'));
@@ -2723,6 +2891,11 @@ function updateAppStatus() {
   const isOnline = await checkAPIConnection();
   if (!isOnline) {
     notify('PiKaChu terdeteksi dalam status luring (Offline). Klik ikon gerigi di halaman login untuk mengonfigurasi URL Apps Script Anda.', 'error');
+  }
+
+  // Tarik config publik (logo) untuk halaman login
+  if(isOnline && getActiveApiUrl().trim() !== '') {
+      loadSystemConfig();
   }
 
   setInterval(async () => { await checkAPIConnection(); updateAppStatus(); }, 30000);
