@@ -106,6 +106,8 @@
   --select-arrow: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fb896' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
 }
 
+[data-theme="dark"] .logo-icon { color: var(--moss-100); }
+
 [data-theme="dark"] .badge-moss { background: rgba(168, 221, 178, 0.1); color: var(--moss-100); border-color: rgba(168, 221, 178, 0.2); }
 [data-theme="dark"] .badge-gold { background: rgba(212, 180, 85, 0.1); color: var(--gold-light); border-color: rgba(212, 180, 85, 0.2); }
 [data-theme="dark"] .badge-red { background: rgba(224, 96, 96, 0.1); color: var(--red-pop); border-color: rgba(224, 96, 96, 0.2); }
@@ -203,13 +205,9 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .logo-badge { display: flex; align-items: center; gap: 12px; }
 .logo-icon {
   width: 42px; height: 42px;
-  background: linear-gradient(135deg, var(--moss-500) 0%, var(--moss-400) 60%, var(--gold-light) 100%);
-  border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  color: white;
-  box-shadow: 0 4px 16px rgba(45, 96, 56, 0.25);
+  color: var(--moss-600);
   flex-shrink: 0;
-  overflow: hidden;
 }
 .logo-text { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); letter-spacing: -0.3px; font-weight: 700; }
 .logo-sub { font-size: 10px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
@@ -262,7 +260,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; position: relative; z-index: 10; width: 100%; }
 .login-card { background: var(--login-card-bg); backdrop-filter: blur(40px) saturate(1.5); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); padding: 44px 40px; width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(22, 38, 26, 0.08); }
 .login-logo { text-align: center; margin-bottom: 32px; }
-.login-logo img { width: 80px; height: 80px; object-fit: contain; margin: 0 auto 16px; display: block; filter: drop-shadow(0 4px 10px rgba(45,96,56,0.15)); border-radius: 16px; }
+.login-logo img { width: 80px; height: 80px; object-fit: contain; margin: 0 auto 16px; display: block; filter: drop-shadow(0 4px 10px rgba(45,96,56,0.15)); }
 .login-logo h1 { font-family: 'Playfair Display', serif; font-size: 30px; color: var(--text); font-weight: 700; }
 
 .form-group { margin-bottom: 18px; position: relative; }
@@ -510,7 +508,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
     </div>
     
     <div class="login-logo">
-      <img id="login-custom-logo" src="" class="app-logo-login-img" alt="Logo PiKaChu" style="display:none; width:80px; height:80px; object-fit:contain; margin:0 auto 16px; filter:drop-shadow(0 4px 10px rgba(45,96,56,0.15)); border-radius:16px;">
+      <img id="login-custom-logo" src="" class="app-logo-login-img" alt="Logo PiKaChu" style="display:none; width:80px; height:80px; object-fit:contain; margin:0 auto 16px; filter:drop-shadow(0 4px 10px rgba(45,96,56,0.15));">
       
       <svg id="login-default-logo" class="app-logo-login-default" xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='var(--moss-500)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style="margin: 0 auto 16px; display: block; filter: drop-shadow(0 4px 10px rgba(45,96,56,0.15));">
         <rect x='3' y='3' width='18' height='18' rx='2' ry='2'></rect><line x1='3' y1='9' x2='21' y2='9'></line><line x1='9' y1='21' x2='9' y2='9'></line>
@@ -549,7 +547,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
     <div class="sidebar-logo">
       <div class="logo-badge">
         <div class="logo-icon">
-          <img id="sidebar-custom-logo" src="" class="app-logo-sidebar-img" style="display:none; width:100%; height:100%; object-fit:cover;">
+          <img id="sidebar-custom-logo" src="" class="app-logo-sidebar-img" style="display:none; width:100%; height:100%; object-fit:contain;">
           <svg id="sidebar-default-logo" class="lucide lucide-lg app-logo-sidebar-default" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><line x1="7" y1="9" x2="17" y2="9"/></svg>
         </div>
         <div>
@@ -1147,7 +1145,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
           <div style="background: var(--bg-mid); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px;">
             <div style="font-weight:700; font-size:14px; color:var(--text); margin-bottom:16px; text-align:center;">Logo Halaman Login</div>
             <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
-              <div style="width:100px; height:100px; border-radius:var(--radius); border:1px solid var(--glass-border2); background:var(--bg-dark); display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+              <div style="width:100px; height:100px; display:flex; align-items:center; justify-content:center;">
                 <img id="preview-logo-login" src="" class="app-logo-login-img" style="display:none; width:100%; height:100%; object-fit:contain;">
                 <svg id="default-logo-login" class="app-logo-login-default" xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='var(--text3)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
                   <rect x='3' y='3' width='18' height='18' rx='2' ry='2'></rect><line x1='3' y1='9' x2='21' y2='9'></line><line x1='9' y1='21' x2='9' y2='9'></line>
@@ -1166,7 +1164,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
           <div style="background: var(--bg-mid); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px;">
             <div style="font-weight:700; font-size:14px; color:var(--text); margin-bottom:16px; text-align:center;">Logo Sidebar Menu</div>
             <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
-              <div style="width:100px; height:100px; border-radius:var(--radius); border:1px solid var(--glass-border2); background:var(--bg-dark); display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+              <div style="width:100px; height:100px; display:flex; align-items:center; justify-content:center;">
                 <img id="preview-logo-sidebar" src="" class="app-logo-sidebar-img" style="display:none; width:100%; height:100%; object-fit:contain;">
                 <svg id="default-logo-sidebar" class="app-logo-sidebar-default" xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='var(--text3)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
                   <rect x='3' y='3' width='18' height='18' rx='2' ry='2'></rect><line x1='3' y1='9' x2='21' y2='9'></line><line x1='9' y1='21' x2='9' y2='9'></line>
