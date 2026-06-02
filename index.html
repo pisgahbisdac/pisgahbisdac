@@ -188,13 +188,21 @@
                     )
                 ), [sabbatList, absen, jemaat, subKelas]);
 
-            const totalHadirPerSabbat = useMemo(() =>
-                sabbatList.map((_, i) => hadirPerSubPerSabbat.reduce((sum, arr) => sum + (arr[i] || 0), 0)),
-                [hadirPerSubPerSabbat, sabbatList]);
+            const totalHadirPerSabbat = useMemo(() => {
+                return sabbatList.map((tgl, i) => {
+                    const fromAbsen = hadirPerSubPerSabbat.reduce((sum, arr) => sum + (arr[i] || 0), 0);
+                    const fromTamu = tamuTambahan.filter(t => t.tanggal === tgl && t.sesi === "Sekolah Sabat").reduce((sum, g) => sum + (g.jumlah || 0), 0);
+                    return fromAbsen + fromTamu;
+                });
+            }, [sabbatList, hadirPerSubPerSabbat, tamuTambahan]);
 
-            const khotbahPerSabbat = useMemo(() =>
-                sabbatList.map(tgl => absen.filter(a => a.tanggal === tgl && a.sesi === "Khotbah" && a.status === "Hadir").length),
-                [sabbatList, absen]);
+            const khotbahPerSabbat = useMemo(() => {
+                return sabbatList.map(tgl => {
+                    const fromAbsen = absen.filter(a => a.tanggal === tgl && a.sesi === "Khotbah" && a.status === "Hadir").length;
+                    const fromTamu = tamuTambahan.filter(t => t.tanggal === tgl && t.sesi === "Khotbah").reduce((sum, g) => sum + (g.jumlah || 0), 0);
+                    return fromAbsen + fromTamu;
+                });
+            }, [sabbatList, absen, tamuTambahan]);
 
             const ageGroups = useMemo(() => {
                 const groups = { "<12": 0, "12–17": 0, "18–25": 0, "26–35": 0, "36–50": 0, "51–65": 0, "66+": 0 };
@@ -332,7 +340,7 @@
                             { label: "Hadir SS Terakhir", val: totalHadirPerSabbat[totalHadirPerSabbat.length-1] || 0, sub: `${jemaat.length > 0 ? Math.round((totalHadirPerSabbat[totalHadirPerSabbat.length-1]||0)/jemaat.length*100) : 0}% dari total`, diff: trendLastDiff },
                             { label: "Hadir Khotbah",     val: khotbahPerSabbat[khotbahPerSabbat.length-1] || 0,     sub: "Sabat terakhir" },
                             { label: "Rata-rata Hadir SS", val: totalHadirPerSabbat.length > 0 ? Math.round(totalHadirPerSabbat.reduce((a,b)=>a+b,0)/totalHadirPerSabbat.length) : 0, sub: `${sabbatList.length} Sabat terakhir` },
-                            { label: "Tamu Sabat Ini",    val: tamuTambahan.filter(t => t.tanggal === sabbatList[sabbatList.length-1] && t.sesi === "Sekolah Sabat").reduce((s,t)=>s+t.jumlah,0), sub: "semua sub-kelas" },
+                            { label: "Tamu Sabat Ini",    val: metrics.tamuCount.hadirSabatIni, sub: "semua sub-kelas" },
                         ].map((m, i) => (
                             <div key={i} className="bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-white/5 p-4 rounded-xl flex flex-col justify-between shadow-sm">
                                 <p className="text-slate-500 dark:text-slate-500 text-[10px] md:text-[9px] font-black uppercase tracking-wider mb-1 leading-tight">{m.label}</p>
@@ -1012,16 +1020,24 @@
                 const jemaatAktif = jemaat.filter(j => (j.statusJemaat || "").includes("Jemaat") || (j.statusJemaat || "").includes("Anggota Sekolah Sabat")).length;
                 const uniqueSabbaths = [...new Set(absen.map(a => a.tanggal))].sort();
                 const lastSabbat = uniqueSabbaths[uniqueSabbaths.length - 1];
-                const registeredTamuCount = jemaat.filter(j => (j.statusJemaat || "").includes("Tamu")).length;
+                
+                const registeredTamuCount = jemaat.filter(j => (j.statusJemaat || "").toLowerCase().includes("tamu")).length;
                 const extraGuestsCount = lastSabbat ? tamuTambahan.filter(t => t.tanggal === lastSabbat && t.sesi === "Sekolah Sabat").reduce((sum, g) => sum + (g.jumlah || 0), 0) : 0;
+                const registeredGuestsHadir = lastSabbat ? absen.filter(a => a.tanggal === lastSabbat && a.sesi === "Sekolah Sabat" && a.status === "Hadir" && jemaat.some(j => j.nama === a.jemaatNama && (j.statusJemaat || "").toLowerCase().includes("tamu"))).length : 0;
+                const totalTamuSabatIni = extraGuestsCount + registeredGuestsHadir;
+
                 let avgRate = 0;
                 const uniqueSabbatSess = [...new Set(absen.filter(a => a.sesi === "Sekolah Sabat").map(a => a.tanggal))].sort().slice(-3);
                 if (uniqueSabbatSess.length > 0) {
                     let totalPresents = 0;
-                    uniqueSabbatSess.forEach(sabDate => { totalPresents += (absen.filter(a => a.tanggal === sabDate && a.status === "Hadir" && a.sesi === "Sekolah Sabat").length / (total || 1)) * 100; });
+                    uniqueSabbatSess.forEach(sabDate => { 
+                        const fromAbsen = absen.filter(a => a.tanggal === sabDate && a.status === "Hadir" && a.sesi === "Sekolah Sabat").length;
+                        const fromTamu = tamuTambahan.filter(t => t.tanggal === sabDate && t.sesi === "Sekolah Sabat").reduce((sum, g) => sum + (g.jumlah || 0), 0);
+                        totalPresents += ((fromAbsen + fromTamu) / (total || 1)) * 100; 
+                    });
                     avgRate = Math.round(totalPresents / uniqueSabbatSess.length);
                 }
-                return { total, baptisPersen: total > 0 ? Math.round((baptisCount / total) * 100) : 0, jemaatAktif, tamuCount: { registered: registeredTamuCount, extra: extraGuestsCount, total: registeredTamuCount + extraGuestsCount }, avgRate };
+                return { total, baptisPersen: total > 0 ? Math.round((baptisCount / total) * 100) : 0, jemaatAktif, tamuCount: { registered: registeredTamuCount, extra: extraGuestsCount, hadirSabatIni: totalTamuSabatIni, total: registeredTamuCount + extraGuestsCount }, avgRate };
             }, [jemaat, absen, tamuTambahan]);
 
             const liveReportPreview = useMemo(() => {
@@ -1042,20 +1058,25 @@
                         : (reportKelasFilter === 'all' ? jemaat : jemaat.filter(j => j.kelasNama === reportKelasFilter));
 
                     const sortedJemaat = [...reportJemaatList].sort((a, b) => a.nama.localeCompare(b.nama));
+                    const anggotaAsli = sortedJemaat.filter(j => !(j.statusJemaat || "").toLowerCase().includes("tamu"));
+                    const tamuTerdaftar = sortedJemaat.filter(j => (j.statusJemaat || "").toLowerCase().includes("tamu"));
                     
-                    // BASE ROWS (Hanya Anggota Asli)
-                    const baseRows = sortedJemaat.map((j, idx) => {
-                        let th = 0, ta = 0;
-                        const statusList = sabbatDates.map(date => {
-                            const att = absen.find(a => a.tanggal === date && a.jemaatNama === j.nama && a.sesi === reportSession);
-                            const s   = att ? att.status : '-';
-                            if (s === 'Hadir') th++; else if (s === 'Alpa') ta++;
-                            return s;
+                    const processJemaatToRow = (jemaatArray, isGuestFlag) => {
+                        return jemaatArray.map((j) => {
+                            let th = 0, ta = 0;
+                            const statusList = sabbatDates.map(date => {
+                                const att = absen.find(a => a.tanggal === date && a.jemaatNama === j.nama && a.sesi === reportSession);
+                                const s   = att ? att.status : '-';
+                                if (s === 'Hadir') th++; else if (s === 'Alpa') ta++;
+                                return s;
+                            });
+                            return { nama: j.nama, status: j.statusJemaat || "Jemaat", statusList, hadirCount: th, alpaCount: ta, isRegisteredGuest: isGuestFlag };
                         });
-                        return { no: idx + 1, nama: j.nama, status: j.statusJemaat || "Jemaat", statusList, hadirCount: th, alpaCount: ta, isTamuTambahan: false };
-                    });
+                    };
 
-                    // ROW TAMU (Selalu di atas)
+                    const baseRows = processJemaatToRow(anggotaAsli, false);
+                    const guestRows = processJemaatToRow(tamuTerdaftar, true);
+
                     let totalTamuBulanIni = 0;
                     const guestStatusList = sabbatDates.map(date => {
                         const count = tamuTambahan.filter(t => {
@@ -1070,13 +1091,22 @@
                         return count || 0;
                     });
 
-                    const rowTamu = {
-                        no: 1, nama: "Tamu (Angka)", status: "Tamu",
-                        statusList: guestStatusList, hadirCount: totalTamuBulanIni, alpaCount: "-", isTamuTambahan: true
-                    };
+                    const finalRows = [];
+                    baseRows.forEach((r, i) => finalRows.push({ ...r, no: i + 1 }));
 
-                    const finalRows = [rowTamu];
-                    baseRows.forEach((r, i) => finalRows.push({ ...r, no: i + 2 }));
+                    // Sisipkan area khusus tamu jika ada tamu
+                    if (guestRows.length > 0 || Math.max(...guestStatusList) > 0) {
+                        finalRows.push({
+                            no: "", nama: "--- DAFTAR TAMU ---", status: "",
+                            statusList: Array(sabbatDates.length).fill(""), hadirCount: "", alpaCount: "", isSeparatorRow: true
+                        });
+                        guestRows.forEach((r, i) => finalRows.push({ ...r, no: baseRows.length + i + 1 }));
+
+                        finalRows.push({
+                            no: baseRows.length + guestRows.length + 1, nama: "Tamu (Angka Tambahan)", status: "Tamu",
+                            statusList: guestStatusList, hadirCount: totalTamuBulanIni, alpaCount: "-", isTamuTambahan: true
+                        });
+                    }
 
                     // PERHITUNGAN TOTAL DI BAWAH
                     const totalHadirAnggotaList = sabbatDates.map((date, dateIndex) => {
@@ -1085,7 +1115,13 @@
                         return count;
                     });
 
-                    const totalAlpaList = sabbatDates.map((date, dateIndex) => {
+                    const totalHadirTamuList = sabbatDates.map((date, dateIndex) => {
+                        let count = 0;
+                        guestRows.forEach(row => { if (row.statusList[dateIndex] === 'Hadir') count++; });
+                        return count + guestStatusList[dateIndex];
+                    });
+
+                    const totalAlpaAnggotaList = sabbatDates.map((date, dateIndex) => {
                         let count = 0;
                         baseRows.forEach(row => { if (row.statusList[dateIndex] === 'Alpa') count++; });
                         return count;
@@ -1097,11 +1133,11 @@
                     });
 
                     finalRows.push({
-                        no: "", nama: "TOTAL TAMU", status: "",
-                        statusList: guestStatusList, hadirCount: totalTamuBulanIni, alpaCount: "-", isTotalRow: true, totalType: "tamu-bawah"
+                        no: "", nama: "TOTAL TAMU (Terdaftar + Angka)", status: "",
+                        statusList: totalHadirTamuList, hadirCount: totalHadirTamuList.reduce((a,b)=>a+b,0), alpaCount: "-", isTotalRow: true, totalType: "tamu-bawah"
                     });
 
-                    const totalSemuaList = totalHadirAnggotaList.map((hadirAnggota, i) => hadirAnggota + guestStatusList[i]);
+                    const totalSemuaList = totalHadirAnggotaList.map((val, i) => val + totalHadirTamuList[i]);
                     finalRows.push({
                         no: "", nama: "TOTAL KESELURUHAN (Anggota + Tamu)", status: "",
                         statusList: totalSemuaList, hadirCount: totalSemuaList.reduce((a,b)=>a+b,0), alpaCount: "-", isTotalRow: true, totalType: "hadir-semua"
@@ -1109,7 +1145,7 @@
 
                     finalRows.push({
                         no: "", nama: "TOTAL ALPA (Anggota)", status: "",
-                        statusList: totalAlpaList, hadirCount: "-", alpaCount: totalAlpaList.reduce((a,b)=>a+b,0), isTotalRow: true, totalType: "alpa"
+                        statusList: totalAlpaAnggotaList, hadirCount: "-", alpaCount: totalAlpaAnggotaList.reduce((a,b)=>a+b,0), isTotalRow: true, totalType: "alpa"
                     });
 
                     const headers = ["No", "Nama Jemaat", "Status"];
@@ -1180,6 +1216,9 @@
                         if (row.isTotalRow) {
                             return [{ content: row.nama, colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } }, ...row.statusList, row.hadirCount, row.alpaCount];
                         }
+                        if (row.isSeparatorRow) {
+                            return [{ content: row.nama, colSpan: 3 + sabbatDates.length + 2, styles: { halign: 'center', fontStyle: 'bold', fillColor: [255, 245, 230], textColor: [150, 100, 0] } }];
+                        }
                         return [row.no, row.nama, row.status, ...row.statusList, row.hadirCount, row.alpaCount];
                     });
 
@@ -1192,7 +1231,7 @@
                         styles: { fontSize: 8.5, cellPadding: 2 },
                         didParseCell: (data) => {
                             const rawRow = data.row.raw;
-                            const isTotalRow = rawRow[0] && typeof rawRow[0] === 'object';
+                            const isTotalRow = rawRow[0] && typeof rawRow[0] === 'object' && rawRow[0].styles && rawRow[0].styles.halign === 'right';
                             
                             if (isTotalRow) {
                                 const rowName = String(rawRow[0].content).toUpperCase();
@@ -1201,7 +1240,7 @@
                                 if (rowName.includes("KESELURUHAN")) {
                                     data.cell.styles.fillColor = [210, 240, 210];
                                     data.cell.styles.textColor = [0, 80, 30];
-                                } else if (rowName.includes("TAMU TAMBAHAN") || rowName.includes("TOTAL TAMU")) {
+                                } else if (rowName.includes("TOTAL TAMU")) {
                                     data.cell.styles.fillColor = [255, 225, 180];
                                     data.cell.styles.textColor = [120, 60, 0];
                                 } else if (rowName.includes("HADIR")) {
@@ -1211,9 +1250,9 @@
                                     data.cell.styles.fillColor = [250, 230, 230];
                                     data.cell.styles.textColor = [180, 40, 40];
                                 }
-                            } else if (rawRow[1] === "Tamu (Angka)") {
+                            } else if (rawRow[1] === "Tamu (Angka Tambahan)") {
                                 data.cell.styles.fillColor = [255, 225, 180]; data.cell.styles.textColor = [120, 60, 0]; data.cell.styles.fontStyle = 'bold';
-                            } else {
+                            } else if (rawRow[0] && typeof rawRow[0] !== 'object') {
                                 if (data.column.index >= 3 && data.column.index < 3 + sabbatDates.length) {
                                     const status = data.cell.text[0];
                                     if (status === "Hadir") data.cell.styles.textColor = [0, 140, 60];
@@ -1263,6 +1302,8 @@
                     rows.forEach(row => {
                         if (row.isTotalRow) {
                             aoa.push([row.nama, "", "", ...row.statusList, row.hadirCount, row.alpaCount]);
+                        } else if (row.isSeparatorRow) {
+                            aoa.push([row.nama]);
                         } else {
                             aoa.push([row.no, row.nama, row.status, ...row.statusList, row.hadirCount, row.alpaCount]);
                         }
@@ -1465,7 +1506,7 @@
                                         <div className="flex items-center justify-between"><p className="text-slate-500 text-xs md:text-[9px] font-black uppercase tracking-wider">Tamu & Kehadiran</p><i className="fa-solid fa-person-walking-luggage text-amber-500/40 text-xl md:text-lg"></i></div>
                                         <h3 className="text-3xl md:text-2xl font-black text-amber-600 dark:text-amber-400">{metrics.tamuCount.total} <span className="text-xs md:text-[10px] font-normal text-slate-400">Tamu</span></h3>
                                         <div className="space-y-2 md:space-y-1.5 border-t border-slate-100 dark:border-white/5 pt-3 md:pt-2.5 text-xs md:text-[10px]">
-                                            <div className="flex justify-between"><span className="text-slate-500">Tamu Sabat Ini</span><span className="text-yellow-600 dark:text-yellow-400 font-bold">{metrics.tamuCount.extra} org</span></div>
+                                            <div className="flex justify-between"><span className="text-slate-500">Tamu Sabat Ini</span><span className="text-yellow-600 dark:text-yellow-400 font-bold">{metrics.tamuCount.hadirSabatIni} org</span></div>
                                         </div>
                                     </div>
                                     <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/5 p-5 md:p-4 rounded-2xl shadow-md dark:shadow-lg space-y-3">
@@ -1917,16 +1958,18 @@
                                                     <tbody className="divide-y divide-slate-200 dark:divide-white/5">
                                                         {reportType === "presensi" ? (
                                                             liveReportPreview.rows.map((row, idx) => (
-                                                                <tr key={idx} className={`hover:bg-slate-50 dark:hover:bg-white/5 transition-colors ${row.isTotalRow ? "bg-slate-100 dark:bg-slate-800/80 border-t border-slate-300 dark:border-white/20" : row.isTamuTambahan ? "bg-amber-50 dark:bg-amber-500/10" : idx % 2 === 0 ? "" : "bg-slate-50/50 dark:bg-slate-900/30"}`}>
+                                                                <tr key={idx} className={`hover:bg-slate-50 dark:hover:bg-white/5 transition-colors ${row.isTotalRow ? "bg-slate-100 dark:bg-slate-800/80 border-t border-slate-300 dark:border-white/20" : row.isSeparatorRow ? "bg-amber-100/50 dark:bg-amber-500/10 border-t border-b border-amber-200 dark:border-amber-500/20" : row.isTamuTambahan ? "bg-amber-50 dark:bg-amber-500/10" : idx % 2 === 0 ? "" : "bg-slate-50/50 dark:bg-slate-900/30"}`}>
                                                                     {row.isTotalRow ? (
                                                                         <td colSpan="3" className="px-4 md:px-3 py-3 text-right font-black border-r border-slate-200 dark:border-white/5 whitespace-nowrap text-slate-900 dark:text-white">
                                                                             {row.nama}
                                                                         </td>
+                                                                    ) : row.isSeparatorRow ? (
+                                                                        <td colSpan={3 + liveReportPreview.sabbatDates.length + 2} className="px-4 py-3 text-center font-black text-amber-700 dark:text-amber-400 text-[11px] md:text-[10px] tracking-widest">{row.nama}</td>
                                                                     ) : (
                                                                         <>
                                                                             <td className="px-4 md:px-3 py-3 text-center text-slate-500 font-bold border-r border-slate-200 dark:border-white/5">{row.no}</td>
-                                                                            <td className={`px-4 md:px-3 py-3 font-bold border-r border-slate-200 dark:border-white/5 whitespace-nowrap max-w-[200px] truncate ${row.isTamuTambahan ? "text-amber-600 dark:text-amber-300" : "text-slate-800 dark:text-slate-100"}`}>{row.nama}</td>
-                                                                            <td className={`px-4 md:px-3 py-3 border-r border-slate-200 dark:border-white/5 whitespace-nowrap text-[10px] font-semibold ${row.isTamuTambahan ? "text-amber-600/70 dark:text-amber-400/60" : "text-slate-500"}`}>{row.status}</td>
+                                                                            <td className={`px-4 md:px-3 py-3 font-bold border-r border-slate-200 dark:border-white/5 whitespace-nowrap max-w-[200px] truncate ${row.isTamuTambahan || row.isRegisteredGuest ? "text-amber-600 dark:text-amber-300" : "text-slate-800 dark:text-slate-100"}`}>{row.nama}</td>
+                                                                            <td className={`px-4 md:px-3 py-3 border-r border-slate-200 dark:border-white/5 whitespace-nowrap text-[10px] font-semibold ${row.isTamuTambahan || row.isRegisteredGuest ? "text-amber-600/70 dark:text-amber-400/60" : "text-slate-500"}`}>{row.status}</td>
                                                                         </>
                                                                     )}
                                                                     
@@ -1937,8 +1980,8 @@
                                                                             else if (row.totalType === 'tamu-bawah') cellColor = stat > 0 ? "text-amber-600 dark:text-amber-400" : "text-slate-500 dark:text-slate-700";
                                                                             else if (row.totalType === 'hadir-semua') cellColor = "text-emerald-700 dark:text-emerald-400 font-extrabold";
                                                                             else if (row.totalType === 'alpa') cellColor = "text-rose-600 dark:text-rose-400";
-                                                                        } else {
-                                                                            if (row.isTamuTambahan) cellColor = stat > 0 ? "text-amber-600 dark:text-amber-400" : "text-slate-400 dark:text-slate-700";
+                                                                        } else if (!row.isSeparatorRow) {
+                                                                            if (row.isTamuTambahan || row.isRegisteredGuest) cellColor = stat > 0 || stat === "Hadir" ? "text-amber-600 dark:text-amber-400" : "text-slate-400 dark:text-slate-700";
                                                                             else if (stat === "Hadir") cellColor = "text-emerald-600 dark:text-emerald-400";
                                                                             else if (stat === "Alpa") cellColor = "text-rose-600 dark:text-rose-400";
                                                                         }
@@ -1947,17 +1990,21 @@
                                                                         );
                                                                     })}
 
-                                                                    <td className={`px-4 md:px-3 py-3 text-center font-black border-r border-slate-200 dark:border-white/5 ${
-                                                                        row.isTotalRow 
-                                                                        ? (row.totalType === 'alpa' ? 'text-slate-600 dark:text-slate-600' : row.totalType === 'hadir-semua' ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-500/20' : row.totalType === 'tamu-bawah' ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10' : 'text-emerald-700 dark:text-emerald-400/90 bg-emerald-50 dark:bg-emerald-500/5')
-                                                                        : (row.isTamuTambahan ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10' : 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/5')
-                                                                    }`}>{row.hadirCount}</td>
+                                                                    {!row.isSeparatorRow && (
+                                                                        <>
+                                                                            <td className={`px-4 md:px-3 py-3 text-center font-black border-r border-slate-200 dark:border-white/5 ${
+                                                                                row.isTotalRow 
+                                                                                ? (row.totalType === 'alpa' ? 'text-slate-600 dark:text-slate-600' : row.totalType === 'hadir-semua' ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-500/20' : row.totalType === 'tamu-bawah' ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10' : 'text-emerald-700 dark:text-emerald-400/90 bg-emerald-50 dark:bg-emerald-500/5')
+                                                                                : (row.isTamuTambahan || row.isRegisteredGuest ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10' : 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/5')
+                                                                            }`}>{row.hadirCount}</td>
 
-                                                                    <td className={`px-4 md:px-3 py-3 text-center font-bold ${
-                                                                        row.isTotalRow
-                                                                        ? (row.totalType === 'alpa' ? 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10' : 'text-slate-500 dark:text-slate-600')
-                                                                        : (row.isTamuTambahan ? 'text-slate-500 dark:text-slate-600' : 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/5')
-                                                                    }`}>{row.alpaCount}</td>
+                                                                            <td className={`px-4 md:px-3 py-3 text-center font-bold ${
+                                                                                row.isTotalRow
+                                                                                ? (row.totalType === 'alpa' ? 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10' : 'text-slate-500 dark:text-slate-600')
+                                                                                : (row.isTamuTambahan || row.isRegisteredGuest ? 'text-slate-500 dark:text-slate-600' : 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/5')
+                                                                            }`}>{row.alpaCount}</td>
+                                                                        </>
+                                                                    )}
                                                                 </tr>
                                                             ))
                                                         ) : (
