@@ -689,25 +689,47 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
       <div class="stats-grid" id="statsGrid"></div>
 
       <div class="grid-2" style="margin-bottom:24px">
-        <div class="card" style="margin-bottom:0">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Proporsi Pembagian Saldo</div>
-              <div class="card-subtitle">Sesuai porsi alokasi kas saat ini</div>
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Proporsi Pembagian Saldo</div>
+                <div class="card-subtitle">Sesuai porsi alokasi kas saat ini</div>
+              </div>
             </div>
+            <div id="saldoBars"></div>
           </div>
-          <div id="saldoBars"></div>
+          
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Alokasi Pemasukan Terpilih</div>
+                <div class="card-subtitle">Distribusi dari total dana masuk periode ini</div>
+              </div>
+            </div>
+            <div id="allocBars"></div>
+          </div>
+
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Pengeluaran Departemen</div>
+                <div class="card-subtitle">Rincian total keluaran bulan terpilih</div>
+              </div>
+            </div>
+            <div id="kategoriOutTable"></div>
+          </div>
         </div>
+
         <div class="card" style="margin-bottom:0">
           <div class="card-header">
             <div>
-              <div class="card-title">Transaksi Berdasarkan Kategori</div>
-              <div class="card-subtitle">Rincian total masukan & keluaran bulan terpilih</div>
+              <div class="card-title">Rincian Pemasukan per Kas</div>
+              <div class="card-subtitle">Masukan bulan terpilih yang sudah dibagi alokasi</div>
             </div>
           </div>
           <div style="display: flex; flex-direction: column; gap: 16px;">
             <div id="kategoriInTable"></div>
-            <div id="kategoriOutTable"></div>
           </div>
         </div>
       </div>
@@ -2047,16 +2069,78 @@ function renderDashboard() {
     </div>
   `;
 
-  const categoryBreakdownIn = {};
-  filteredInc.forEach(x => { categoryBreakdownIn[x.income_type] = (categoryBreakdownIn[x.income_type] || 0) + x.amount; });
+  let periodDaerah = 0;
+  let periodJemaat = 0;
+  let periodBangun = 0;
 
-  let catInTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th style="color: var(--text);">Pemasukan Kategori</th><th class="fit-col" style="text-align:right">Total</th></tr></thead><tbody>';
-  if (Object.keys(categoryBreakdownIn).length === 0) {
+  filteredInc.forEach(i => {
+    periodDaerah += (i.alloc_daerah || 0);
+    periodJemaat += (i.alloc_jemaat || 0);
+    periodBangun += (i.alloc_bangun || 0);
+  });
+
+  const periodTotal = periodDaerah + periodJemaat + periodBangun;
+  
+  let allocHtml = '';
+  if (periodTotal === 0) {
+    allocHtml = '<div class="empty-state" style="padding:15px; border:none; background:transparent;"><p>Belum ada pemasukan di periode ini.</p></div>';
+  } else {
+    const pctD = ((periodDaerah / periodTotal) * 100).toFixed(1);
+    const pctJ = ((periodJemaat / periodTotal) * 100).toFixed(1);
+    const pctB = ((periodBangun / periodTotal) * 100).toFixed(1);
+
+    allocHtml = `
+      <div class="saldo-bar-wrap">
+        <div class="saldo-bar-label"><span>Kas Jemaat (${pctJ}%)</span><span>${fmt(periodJemaat)}</span></div>
+        <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctJ}%; background:linear-gradient(90deg, var(--teal-pop), var(--moss-200))"></div></div>
+      </div>
+      <div class="saldo-bar-wrap">
+        <div class="saldo-bar-label"><span>Kas Daerah (${pctD}%)</span><span>${fmt(periodDaerah)}</span></div>
+        <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctD}%; background:linear-gradient(90deg, var(--sage), var(--moss-300))"></div></div>
+      </div>
+      <div class="saldo-bar-wrap">
+        <div class="saldo-bar-label"><span>Dana Pembangunan (${pctB}%)</span><span>${fmt(periodBangun)}</span></div>
+        <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctB}%; background:linear-gradient(90deg, var(--gold), var(--gold-light))"></div></div>
+      </div>
+    `;
+  }
+  
+  const allocBarsEl = document.getElementById('allocBars');
+  if (allocBarsEl) allocBarsEl.innerHTML = allocHtml;
+
+  const jemaatBreakdown = {};
+  const daerahBreakdown = {};
+  const bangunBreakdown = {};
+
+  filteredInc.forEach(x => {
+    if (x.alloc_jemaat > 0) jemaatBreakdown[x.income_type] = (jemaatBreakdown[x.income_type] || 0) + x.alloc_jemaat;
+    if (x.alloc_daerah > 0) daerahBreakdown[x.income_type] = (daerahBreakdown[x.income_type] || 0) + x.alloc_daerah;
+    if (x.alloc_bangun > 0) bangunBreakdown[x.income_type] = (bangunBreakdown[x.income_type] || 0) + x.alloc_bangun;
+  });
+
+  let catInTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th style="color: var(--text);">Rincian Pemasukan per Kas</th><th class="fit-col" style="text-align:right">Nominal Masuk</th></tr></thead><tbody>';
+  
+  if (filteredInc.length === 0) {
     catInTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state" style="padding:15px"><p>Tidak ada pemasukan.</p></div></td></tr>';
   } else {
-    Object.entries(categoryBreakdownIn).forEach(([k, v]) => {
-      catInTable += `<tr><td><span class="badge badge-blue">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`;
-    });
+    if (Object.keys(jemaatBreakdown).length > 0) {
+      catInTable += `<tr style="background: rgba(23, 158, 132, 0.05); border-top: 2px solid var(--glass-border);"><td colspan="2"><strong style="color:var(--teal-pop); display:flex; align-items:center; gap:6px;">${safeIcon('church', 'lucide-sm')} Masuk ke Kas Jemaat</strong></td></tr>`;
+      Object.entries(jemaatBreakdown).forEach(([k, v]) => {
+        catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`;
+      });
+    }
+    if (Object.keys(daerahBreakdown).length > 0) {
+      catInTable += `<tr style="background: rgba(122, 158, 126, 0.05); border-top: 2px solid var(--glass-border);"><td colspan="2"><strong style="color:var(--sage); display:flex; align-items:center; gap:6px;">${safeIcon('mappin', 'lucide-sm')} Masuk ke Kas Daerah</strong></td></tr>`;
+      Object.entries(daerahBreakdown).forEach(([k, v]) => {
+        catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`;
+      });
+    }
+    if (Object.keys(bangunBreakdown).length > 0) {
+      catInTable += `<tr style="background: rgba(184, 148, 53, 0.05); border-top: 2px solid var(--glass-border);"><td colspan="2"><strong style="color:var(--gold); display:flex; align-items:center; gap:6px;">${safeIcon('hammer', 'lucide-sm')} Masuk ke Dana Pembangunan</strong></td></tr>`;
+      Object.entries(bangunBreakdown).forEach(([k, v]) => {
+        catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`;
+      });
+    }
   }
   catInTable += '</tbody></table></div>';
   document.getElementById('kategoriInTable').innerHTML = catInTable;
