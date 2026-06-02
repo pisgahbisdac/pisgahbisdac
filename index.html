@@ -6,7 +6,6 @@
     <title>Sistem Kehadiran Jemaat - PISGAH BISDAC</title>
     <link rel="icon" type="image/png" href="./PisgahWhite.png">
     
-    <!-- Memuat Tailwind CSS di awal -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -19,17 +18,14 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cca43b; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #e5c158; }
 
-        /* Hide scrollbar for mobile navigation */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* iOS Input Zoom Preventer */
         @media (max-width: 768px) {
             input[type="text"], input[type="password"], input[type="number"], 
             input[type="date"], input[type="month"], select, textarea {
@@ -50,7 +46,73 @@
         }
         .animate-float { animation: float 3s ease-in-out infinite; }
 
-        /* Preloader Styles */
+        @keyframes toastEnter {
+            0% { opacity: 0; transform: translate(-50%, -30px) scale(0.9); }
+            100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+        }
+        .animate-toast { 
+            animation: toastEnter 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+        }
+
+        @keyframes gradientPan {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .glow-box {
+            position: relative;
+            border-radius: 1.25rem; /* Rounded-2xl */
+            padding: 2px; /* Border thickness */
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+        .glow-box:hover {
+            transform: translateY(-3px);
+        }
+        .glow-box::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: var(--box-glow);
+            background-size: 200% 200%;
+            animation: gradientPan 4s ease infinite;
+            z-index: -1;
+        }
+        .glow-box::after {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            background: var(--box-glow);
+            background-size: 200% 200%;
+            animation: gradientPan 4s ease infinite;
+            z-index: -2;
+            filter: blur(12px);
+            opacity: 0.3; /* Subtle in light mode */
+            transition: opacity 0.3s ease, filter 0.3s ease;
+        }
+        .dark .glow-box::after {
+            opacity: 0.75; /* Vibrant in dark mode */
+            filter: blur(16px);
+        }
+        .glow-box:hover::after {
+            opacity: 0.9;
+            filter: blur(20px);
+        }
+        .glow-box-inner {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 1.15rem; /* Slightly smaller to fit inside */
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        .dark .glow-box-inner {
+            background-color: rgba(15, 23, 42, 0.98); /* slate-900 equivalent */
+        }
+
         #app-preloader {
             position: fixed; inset: 0; z-index: 99999;
             background-color: #050814;
@@ -60,7 +122,7 @@
         .spinner {
             width: 50px; height: 50px;
             border: 4px solid rgba(255, 255, 255, 0.1);
-            border-left-color: #f59e0b; /* Amber 500 */
+            border-left-color: #f59e0b;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -76,6 +138,7 @@
         <p style="color: #64748b; font-size: 0.875rem; margin-top: 0.5rem; font-family: 'Inter', sans-serif;">Menyiapkan Sistem...</p>
     </div>
 
+    <!-- Background Decoration -->
     <div class="fixed inset-0 bg-slate-100 dark:bg-[#040712] overflow-hidden -z-10 transition-colors duration-300">
         <div class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-blue-400/20 dark:bg-blue-900/15 blur-[140px]"></div>
         <div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-amber-400/20 dark:bg-amber-500/10 blur-[140px]"></div>
@@ -83,7 +146,6 @@
 
     <div id="root"></div>
 
-    <!-- Script Library Berat Dipindah Ke Bawah (Mengoptimalkan Tampilan Awal) -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -335,23 +397,26 @@
 
             return (
                 <div className="space-y-6">
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {/* Kotak Metrik Kecil - Glow Box Style */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         {[
-                            { label: "Hadir SS Terakhir", val: totalHadirPerSabbat[totalHadirPerSabbat.length-1] || 0, sub: `${jemaat.length > 0 ? Math.round((totalHadirPerSabbat[totalHadirPerSabbat.length-1]||0)/jemaat.length*100) : 0}% dari total`, diff: trendLastDiff },
-                            { label: "Hadir Khotbah",     val: khotbahPerSabbat[khotbahPerSabbat.length-1] || 0,     sub: "Sabat terakhir" },
-                            { label: "Rata-rata Hadir SS", val: totalHadirPerSabbat.length > 0 ? Math.round(totalHadirPerSabbat.reduce((a,b)=>a+b,0)/totalHadirPerSabbat.length) : 0, sub: `${sabbatList.length} Sabat terakhir` },
-                            { label: "Tamu Sabat Ini",    val: metrics.tamuCount.hadirSabatIni, sub: "semua sub-kelas" },
+                            { label: "Hadir SS Terakhir", val: totalHadirPerSabbat[totalHadirPerSabbat.length-1] || 0, sub: `${jemaat.length > 0 ? Math.round((totalHadirPerSabbat[totalHadirPerSabbat.length-1]||0)/jemaat.length*100) : 0}% dari total`, diff: trendLastDiff, grad: "linear-gradient(135deg, #10b981, #3b82f6)" },
+                            { label: "Hadir Khotbah",     val: khotbahPerSabbat[khotbahPerSabbat.length-1] || 0,     sub: "Sabat terakhir", grad: "linear-gradient(135deg, #f59e0b, #ef4444)" },
+                            { label: "Rata-rata Hadir SS", val: totalHadirPerSabbat.length > 0 ? Math.round(totalHadirPerSabbat.reduce((a,b)=>a+b,0)/totalHadirPerSabbat.length) : 0, sub: `${sabbatList.length} Sabat terakhir`, grad: "linear-gradient(135deg, #8b5cf6, #ec4899)" },
+                            { label: "Tamu Sabat Ini",    val: metrics.tamuCount.hadirSabatIni, sub: "semua sub-kelas", grad: "linear-gradient(135deg, #06b6d4, #3b82f6)" },
                         ].map((m, i) => (
-                            <div key={i} className="bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-white/5 p-4 rounded-xl flex flex-col justify-between shadow-sm">
-                                <p className="text-slate-500 dark:text-slate-500 text-[10px] md:text-[9px] font-black uppercase tracking-wider mb-1 leading-tight">{m.label}</p>
-                                <div>
-                                    <p className="text-2xl md:text-xl font-black text-slate-900 dark:text-white">{m.val}</p>
-                                    <p className="text-[11px] md:text-[10px] text-slate-500 mt-0.5">{m.sub}</p>
-                                    {m.diff !== undefined && (
-                                        <span className={`text-[11px] md:text-[10px] font-bold ${m.diff >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>
-                                            {m.diff >= 0 ? "↑" : "↓"} {Math.abs(m.diff)} vs sebelumnya
-                                        </span>
-                                    )}
+                            <div key={i} className="glow-box" style={{'--box-glow': m.grad}}>
+                                <div className="glow-box-inner p-4 flex flex-col justify-between">
+                                    <p className="text-slate-500 dark:text-slate-400 text-[10px] md:text-[9px] font-black uppercase tracking-wider mb-1 leading-tight">{m.label}</p>
+                                    <div>
+                                        <p className="text-2xl md:text-xl font-black text-slate-900 dark:text-white">{m.val}</p>
+                                        <p className="text-[11px] md:text-[10px] text-slate-500 mt-0.5">{m.sub}</p>
+                                        {m.diff !== undefined && (
+                                            <span className={`text-[11px] md:text-[10px] font-bold ${m.diff >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>
+                                                {m.diff >= 0 ? "↑" : "↓"} {Math.abs(m.diff)} vs sblm
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -407,7 +472,7 @@
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-2.5 md:gap-2 flex-1 text-xs md:text-[11px]">
-                                    {["Jemaat","Guru SS","Anggota SS","Koordinator SS", "Pemimpin SS"].map((s, i) => (
+                                    {["Jemaat","Guru SS","Anggota SS","Koordinator SS", "Pemimpin SS", "Tamu"].map((s, i) => (
                                         <div key={s} className="flex items-center justify-between">
                                             <span className="flex items-center gap-2 md:gap-1.5 text-slate-600 dark:text-slate-400">
                                                 <span style={{ width:10, height:10, borderRadius:2, background:PALETTE[i % PALETTE.length], display:"inline-block" }} className="md:w-2 md:h-2"></span>{s}
@@ -475,7 +540,7 @@
         }
 
         function App() {
-            // Tampilan Loading Screen (Menghilangkan layar blank di awal)
+            // Tampilan Loading Screen
             useEffect(() => {
                 const preloader = document.getElementById('app-preloader');
                 if (preloader) {
@@ -490,7 +555,7 @@
                 if (typeof window !== 'undefined') {
                     const stored = localStorage.getItem('theme');
                     if (stored) return stored === 'dark';
-                    return false;
+                    return false; 
                 }
                 return false;
             });
@@ -557,11 +622,17 @@
             const [reportMonthEnd,      setReportMonthEnd]      = useState("2026-05");
             const [isMultiMonth,        setIsMultiMonth]        = useState(false);
 
+            const toastTimeoutRef = useRef(null);
             const [toast, setToast] = useState({ show: false, message: "", type: "success" });
 
             const showToast = (message, type = "success") => {
+                if (toastTimeoutRef.current) {
+                    clearTimeout(toastTimeoutRef.current);
+                }
                 setToast({ show: true, message, type });
-                setTimeout(() => setToast({ show: false, message: "", type: "success" }), 4000);
+                toastTimeoutRef.current = setTimeout(() => {
+                    setToast({ show: false, message: "", type: "success" });
+                }, 4000);
             };
 
             const triggerConfirm = (title, message, onConfirmCallback) => {
@@ -626,7 +697,6 @@
                 } finally { setIsSyncing(false); }
             };
 
-            // Fungsi Helper untuk memproses Data JSON menjadi State React
             const processAndSetData = (d) => {
                 if (d.jemaat) setJemaat(d.jemaat.map((j, idx) => ({ ...j, id: j.id || `J_${Date.now()}_${idx}_${Math.random().toString(36).substr(2, 4)}`, tglLahir: cleanDateString(j.tglLahir) })));
                 if (d.kelas) setKelas(d.kelas);
@@ -687,7 +757,6 @@
             const handlePullFromCloud = async (silent = false) => {
                 if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("ISI_DENGAN_URL")) return;
 
-                // FITUR SPEED BOOST: Load dari Memory Local (Cache) terlebih dahulu jika ada
                 if (!silent && jemaat.length === 0) {
                     try {
                         const cached = localStorage.getItem('pisgah_data_cache');
@@ -703,7 +772,6 @@
                     const json = await res.json();
                     if (json.success && json.data) {
                         processAndSetData(json.data);
-                        // Simpan data terbaru ke Memory Local (Cache)
                         localStorage.setItem('pisgah_data_cache', JSON.stringify(json.data));
                         if (!silent) showToast("Sinkronisasi Berhasil!", "success");
                     }
@@ -797,14 +865,14 @@
 
                 let nextJemaat = [...jemaat], nextAbsen = [...absen], isCascade = false;
                 if (jemaatModal.mode === 'create') {
-                    nextJemaat = [...jemaat, newJemaatData]; showToast("Data Jemaat baru ditambahkan!");
+                    nextJemaat = [...jemaat, newJemaatData]; showToast("Data Jemaat baru ditambahkan!", "success");
                 } else {
                     const oldNama = jemaatModal.data?.nama || "";
                     nextJemaat = jemaat.map(j => j.id === generatedId ? newJemaatData : j);
                     if (oldNama && oldNama !== newJemaatData.nama) {
                         isCascade = true; nextAbsen = absen.map(a => a.jemaatNama === oldNama ? { ...a, jemaatNama: newJemaatData.nama } : a); setAbsen(nextAbsen);
                     }
-                    showToast("Data Jemaat diperbarui!");
+                    showToast("Data Jemaat diperbarui!", "success");
                 }
                 setJemaat(nextJemaat); setJemaatModal({ isOpen: false, mode: 'create', data: null });
                 pushDataToCloud({ jemaat: nextJemaat, absen: isCascade ? nextAbsen : absen });
@@ -832,8 +900,8 @@
                 if (isPinTaken || inputPin === String(adminPin).trim()) { showToast("PIN sudah digunakan!", "error"); return; }
 
                 let nextUsers = [...users];
-                if (userModal.mode === 'create') { nextUsers = [...users, newUserData]; showToast("User baru ditambahkan!"); }
-                else { nextUsers = users.map(u => u.nama === userModal.data.nama ? newUserData : u); showToast("User berhasil diperbarui!"); }
+                if (userModal.mode === 'create') { nextUsers = [...users, newUserData]; showToast("User baru ditambahkan!", "success"); }
+                else { nextUsers = users.map(u => u.nama === userModal.data.nama ? newUserData : u); showToast("User berhasil diperbarui!", "success"); }
                 setUsers(nextUsers); setUserModal({ isOpen: false, mode: 'create', data: null });
                 pushDataToCloud({ users: nextUsers });
             };
@@ -854,7 +922,7 @@
                 if (kelasModal.type === 'kelas') {
                     const kelasNama = fd.get('namaKelas').trim(); if (!kelasNama) return;
                     if (kelas.some(k => k.nama.toLowerCase() === kelasNama.toLowerCase() && (kelasModal.mode === 'create' || k.nama !== kelasModal.data.nama))) { showToast("Nama Kelas sudah ada!", "error"); return; }
-                    if (kelasModal.mode === 'create') { nextK = [...kelas, { nama: kelasNama }]; showToast(`Kelas "${kelasNama}" dibuat!`); }
+                    if (kelasModal.mode === 'create') { nextK = [...kelas, { nama: kelasNama }]; showToast(`Kelas "${kelasNama}" dibuat!`, "success"); }
                     else {
                         const oldNama = kelasModal.data.nama; nextK = kelas.map(k => k.nama === oldNama ? { nama: kelasNama } : k);
                         if (oldNama !== kelasNama) {
@@ -862,14 +930,14 @@
                             nextJ = jemaat.map(j => j.kelasNama === oldNama ? { ...j, kelasNama: kelasNama } : j);
                             setSubKelas(nextS); setJemaat(nextJ);
                         }
-                        showToast("Kelas diperbarui!");
+                        showToast("Kelas diperbarui!", "success");
                     }
                     setKelas(nextK);
                 } else {
                     const subNama = fd.get('namaSubKelas').trim(), parentKelasNama = fd.get('parentKelasNama');
                     if (!subNama || !parentKelasNama) return;
                     if (subKelas.some(s => s.nama.toLowerCase() === subNama.toLowerCase() && (kelasModal.mode === 'create' || s.nama !== kelasModal.data.nama))) { showToast("Nama Sub-Kelas sudah ada!", "error"); return; }
-                    if (kelasModal.mode === 'create') { nextS = [...subKelas, { nama: subNama, kelasNama: parentKelasNama }]; showToast(`Sub-kelas "${subNama}" dibuat!`); }
+                    if (kelasModal.mode === 'create') { nextS = [...subKelas, { nama: subNama, kelasNama: parentKelasNama }]; showToast(`Sub-kelas "${subNama}" dibuat!`, "success"); }
                     else {
                         const oldNama = kelasModal.data.nama; nextS = subKelas.map(s => s.nama === oldNama ? { nama: subNama, kelasNama: parentKelasNama } : s);
                         if (oldNama !== subNama || kelasModal.data.kelasNama !== parentKelasNama) {
@@ -880,7 +948,7 @@
                             nextTamu = tamuTambahan.map(t => t.subKelasNama === oldNama ? { ...t, subKelasNama: subNama } : t);
                             setJemaat(nextJ); setUsers(nextU); setKeterlibatan(nextKet); setTamuTambahan(nextTamu);
                         }
-                        showToast("Sub-kelas diperbarui!");
+                        showToast("Sub-kelas diperbarui!", "success");
                     }
                     setSubKelas(nextS);
                 }
@@ -918,13 +986,13 @@
                 const activeSubNama = currentUserRole === "user" ? loggedInUser.subKelasNama : selectedSubKelasNama;
                 const updatedDraft = { ...absenDraft };
                 jemaat.filter(j => j.subKelasNama === activeSubNama).forEach(j => { updatedDraft[j.nama] = status; });
-                setAbsenDraft(updatedDraft); showToast(`Semua jemaat kelas ditandai ${status}!`);
+                setAbsenDraft(updatedDraft); showToast(`Semua jemaat kelas ditandai ${status}!`, "success");
             };
 
             const handleMarkAllKhotbah = (status) => {
                 const updatedDraft = { ...absenDraft };
                 jemaat.filter(j => (j.nama || "").toLowerCase().includes((searchSermonJemaat || "").toLowerCase())).forEach(j => { updatedDraft[j.nama] = status; });
-                setAbsenDraft(updatedDraft); showToast(`Semua jemaat ditandai ${status}!`);
+                setAbsenDraft(updatedDraft); showToast(`Semua jemaat ditandai ${status}!`, "success");
             };
 
             useEffect(() => {
@@ -967,13 +1035,13 @@
                     if (selectedSession === "Khotbah") {
                         const filteredAbsen = absen.filter(a => !(a.tanggal === selectedSabbatDate && a.sesi === "Khotbah"));
                         deltaAbsen = jemaat.map(j => ({ tanggal: selectedSabbatDate, jemaatNama: j.nama, status: absenDraft[j.nama] || "Alpa", sesi: "Khotbah" }));
-                        nextAbsen = [...filteredAbsen, ...deltaAbsen]; setAbsen(nextAbsen); showToast(`Presensi Khotbah tanggal ${selectedSabbatDate} disimpan.`);
+                        nextAbsen = [...filteredAbsen, ...deltaAbsen]; setAbsen(nextAbsen); showToast(`Presensi Khotbah tanggal ${selectedSabbatDate} disimpan.`, "success");
                     } else {
                         const jemaatInActiveSub = jemaat.filter(j => j.subKelasNama === activeSubNama);
                         if (jemaatInActiveSub.length === 0 && (parseInt(tamuDraft) || 0) === 0) { showToast("Tidak ada jemaat di sub-kelas ini.", "warning"); return; }
                         const filteredAbsen = absen.filter(a => !(a.tanggal === selectedSabbatDate && a.sesi === "Sekolah Sabat" && jemaatInActiveSub.map(j=>j.nama).includes(a.jemaatNama)));
                         deltaAbsen = jemaatInActiveSub.map(j => ({ tanggal: selectedSabbatDate, jemaatNama: j.nama, status: absenDraft[j.nama] || "Alpa", sesi: "Sekolah Sabat" }));
-                        nextAbsen = [...filteredAbsen, ...deltaAbsen]; setAbsen(nextAbsen); showToast(`Absen Sekolah Sabat ${activeSubNama} disimpan.`);
+                        nextAbsen = [...filteredAbsen, ...deltaAbsen]; setAbsen(nextAbsen); showToast(`Absen Sekolah Sabat ${activeSubNama} disimpan.`, "success");
                     }
                     const filteredTamu = tamuTambahan.filter(t => !(t.tanggal === selectedSabbatDate && t.sesi === selectedSession && (t.subKelasNama === activeSubNama || t.subKelasNama === "_ALL_")));
                     const tamuRecord = { tanggal: selectedSabbatDate, sesi: selectedSession, subKelasNama: activeSubNama, jumlah: parseInt(tamuDraft) || 0 };
@@ -989,7 +1057,7 @@
                 const performSave = () => {
                     const filteredKeterlibatan = keterlibatan.filter(k => !(k.tanggal === selectedSabbatDate && k.subKelasNama === activeSubNama));
                     const deltaRecord = { tanggal: selectedSabbatDate, subKelasNama: activeSubNama, values: { ...keterlibatanDraft } };
-                    setKeterlibatan([...filteredKeterlibatan, deltaRecord]); showToast(`10 Indikator Keterlibatan Kelas diperbarui.`);
+                    setKeterlibatan([...filteredKeterlibatan, deltaRecord]); showToast(`10 Indikator Keterlibatan Kelas diperbarui.`, "success");
                     pushDataToCloud({ keterlibatan: [deltaRecord] });
                 };
                 if (!isSabbat(selectedSabbatDate)) triggerConfirm("Konfirmasi Tanggal", "Tanggal bukan Sabat. Tetap simpan draf?", () => performSave());
@@ -1094,7 +1162,6 @@
                     const finalRows = [];
                     baseRows.forEach((r, i) => finalRows.push({ ...r, no: i + 1 }));
 
-                    // Sisipkan area khusus tamu jika ada tamu
                     if (guestRows.length > 0 || Math.max(...guestStatusList) > 0) {
                         finalRows.push({
                             no: "", nama: "--- DAFTAR TAMU ---", status: "",
@@ -1108,7 +1175,6 @@
                         });
                     }
 
-                    // PERHITUNGAN TOTAL DI BAWAH
                     const totalHadirAnggotaList = sabbatDates.map((date, dateIndex) => {
                         let count = 0;
                         baseRows.forEach(row => { if (row.statusList[dateIndex] === 'Hadir') count++; });
@@ -1273,7 +1339,7 @@
                     });
                     doc.save(`Laporan_Keterlibatan_${fileSuffix}.pdf`);
                 }
-                showToast("Laporan PDF Berhasil Diunduh!");
+                showToast("Laporan PDF Berhasil Diunduh!", "success");
             };
 
             const handleExportExcel = () => {
@@ -1285,19 +1351,16 @@
                 const { headers, rows, targetCategoryName } = liveReportPreview;
                 const aoa = [];
                 
-                // Tambahkan Judul
                 const judul = reportType === "presensi" ? `LAPORAN REKAPITULASI PRESENSI ${reportSession.toUpperCase()}` : `LAPORAN 10 INDIKATOR KETERLIBATAN KELAS`;
                 const labelBulan = isMultiMonth ? `Periode: ${reportMonth} s/d ${reportMonthEnd}` : `Bulan: ${reportMonth}`;
                 
                 aoa.push([judul]);
                 aoa.push([`Kategori: ${targetCategoryName.toUpperCase()}`]);
                 aoa.push([`GMAHK PISGAH BISDAC | ${labelBulan}`]);
-                aoa.push([]); // Baris Kosong
+                aoa.push([]); 
 
-                // Tambahkan Header Tabel
                 aoa.push(headers);
 
-                // Tambahkan Data Tabel
                 if (reportType === "presensi") {
                     rows.forEach(row => {
                         if (row.isTotalRow) {
@@ -1314,7 +1377,6 @@
                     });
                 }
 
-                // Buat dan Simpan Workbook
                 const ws = window.XLSX.utils.aoa_to_sheet(aoa);
                 const wb = window.XLSX.utils.book_new();
                 window.XLSX.utils.book_append_sheet(wb, ws, "Laporan");
@@ -1323,15 +1385,25 @@
                 const fileName = reportType === "presensi" ? `Laporan_Presensi_${fileSuffix}.xlsx` : `Laporan_Keterlibatan_${fileSuffix}.xlsx`;
 
                 window.XLSX.writeFile(wb, fileName);
-                showToast("Laporan Excel Berhasil Diunduh!");
+                showToast("Laporan Excel Berhasil Diunduh!", "success");
             };
 
             return (
                 <div className="min-h-screen flex flex-col relative pb-safe">
                     {toast.show && (
-                        <div className="fixed bottom-24 md:bottom-20 transform -translate-x-1/2 z-[150] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-full px-5 py-2.5 shadow-2xl flex items-center gap-3 animate-fadeIn w-[90%] md:w-max max-w-sm text-sm">
-                            <i className="fas fa-circle-info text-amber-500 dark:text-amber-400 animate-pulse text-lg"></i>
-                            <span className="text-slate-900 dark:text-slate-100 truncate font-bold">{toast.message}</span>
+                        <div className={`fixed top-6 left-1/2 z-[999999] px-5 md:px-6 py-3.5 shadow-2xl flex items-center gap-3 animate-toast w-max max-w-[90vw] rounded-full border backdrop-blur-xl ${
+                            toast.type === 'error' ? 'bg-rose-50/95 dark:bg-rose-950/95 border-rose-500/50 text-rose-600 dark:text-rose-400 shadow-rose-500/20' :
+                            toast.type === 'warning' ? 'bg-amber-50/95 dark:bg-amber-950/95 border-amber-500/50 text-amber-600 dark:text-amber-400 shadow-amber-500/20' :
+                            toast.type === 'info' ? 'bg-blue-50/95 dark:bg-blue-950/95 border-blue-500/50 text-blue-600 dark:text-blue-400 shadow-blue-500/20' :
+                            'bg-emerald-50/95 dark:bg-emerald-950/95 border-emerald-500/50 text-emerald-600 dark:text-emerald-400 shadow-emerald-500/20'
+                        }`}>
+                            <i className={`text-xl md:text-2xl ${
+                                toast.type === 'error' ? 'fa-solid fa-circle-xmark' :
+                                toast.type === 'warning' ? 'fa-solid fa-triangle-exclamation' :
+                                toast.type === 'info' ? 'fa-solid fa-circle-info' :
+                                'fa-solid fa-circle-check'
+                            } animate-bounce`}></i>
+                            <span className="text-slate-900 dark:text-slate-100 font-extrabold text-sm md:text-base leading-tight tracking-wide">{toast.message}</span>
                         </div>
                     )}
 
@@ -1348,6 +1420,7 @@
                         </div>
                     )}
 
+                    { }
                     <header className="bg-white/90 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-amber-500/20 shadow-sm dark:shadow-lg relative z-20 transition-colors duration-300">
                         <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex items-center gap-3 w-full justify-center md:justify-start md:w-auto">
@@ -1360,13 +1433,37 @@
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 w-full md:w-auto justify-center">
+                            <div className="flex items-center gap-4 w-full md:w-auto justify-center">
+                                {/* Tombol Sakelar Mode Terang/Gelap (Kapsul Geser) */}
                                 <button
                                     onClick={() => setIsDarkMode(!isDarkMode)}
-                                    className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 hover:scale-105 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all shadow-sm shrink-0"
+                                    className={`relative w-[64px] h-[34px] rounded-full transition-colors duration-500 ease-in-out shadow-inner shrink-0 flex items-center px-1 border overflow-hidden ${
+                                        isDarkMode 
+                                            ? "bg-[#111827] border-slate-700/50" 
+                                            : "bg-[#f1f5f9] border-slate-300"
+                                    }`}
                                     title={isDarkMode ? "Ganti ke Mode Terang" : "Ganti ke Mode Gelap"}
                                 >
-                                    <i className={`fa-solid ${isDarkMode ? 'fa-sun' : 'fa-moon'} text-lg md:text-xl`}></i>
+                                    {/* Indikator Lingkaran Geser */}
+                                    <div 
+                                        className={`absolute w-[26px] h-[26px] rounded-full flex items-center justify-center transition-all duration-500 ease-out z-10 ${
+                                            isDarkMode 
+                                                ? "transform translate-x-[28px] bg-[#1f2937] shadow-[0_0_12px_2px_rgba(56,189,248,0.4)] border border-sky-400/50" 
+                                                : "transform translate-x-0 bg-white shadow-[0_0_12px_2px_rgba(245,158,11,0.4)] border border-amber-400/50"
+                                        }`}
+                                    >
+                                        <i className={`text-[11px] ${
+                                            isDarkMode 
+                                                ? "fa-solid fa-moon text-sky-400" 
+                                                : "fa-solid fa-sun text-amber-500"
+                                        }`}></i>
+                                    </div>
+                                    
+                                    {/* Ikon Background di dalam kapsul */}
+                                    <div className="w-full flex justify-between px-1.5 text-[10px] z-0 pointer-events-none">
+                                        <i className={`fa-solid fa-sun transition-opacity duration-300 ${isDarkMode ? "text-slate-500 opacity-60" : "opacity-0"}`}></i>
+                                        <i className={`fa-solid fa-moon transition-opacity duration-300 ${isDarkMode ? "opacity-0" : "text-slate-400 opacity-60"}`}></i>
+                                    </div>
                                 </button>
 
                                 {currentUserRole !== "public" ? (
@@ -1407,6 +1504,7 @@
                         </nav>
                     )}
 
+                    { }
                     <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 md:py-8 mb-8 md:mb-0">
                         
                         {activeTab === "dashboard" && (
@@ -1485,36 +1583,45 @@
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/5 p-5 md:p-4 rounded-2xl shadow-md dark:shadow-lg space-y-3">
-                                        <div className="flex items-center justify-between"><p className="text-slate-500 text-xs md:text-[9px] font-black uppercase tracking-wider">Total Keanggotaan</p><i className="fa-solid fa-users text-amber-500/40 text-xl md:text-lg"></i></div>
-                                        <h3 className="text-3xl md:text-2xl font-black text-slate-900 dark:text-white">{metrics.total} <span className="text-xs md:text-[10px] font-normal text-slate-400">Jiwa</span></h3>
-                                        <div className="space-y-2 md:space-y-1.5 border-t border-slate-100 dark:border-white/5 pt-3 md:pt-2.5 text-xs md:text-[10px]">
-                                            <div className="flex justify-between"><span className="text-slate-500">Sudah Baptis</span><span className="text-emerald-600 dark:text-emerald-400 font-bold">{jemaat.filter(j => j.statusBaptis === "Sudah Baptis").length}</span></div>
-                                            <div className="flex justify-between"><span className="text-slate-500">Laki / Pr</span><span className="text-slate-700 dark:text-slate-300 font-bold">{jemaat.filter(j => j.gender === "Laki-laki").length} / {jemaat.filter(j => j.gender === "Perempuan").length}</span></div>
+                                {/* Kotak Metrik Besar - Glow Box Style */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-4 mt-6">
+                                    <div className="glow-box" style={{'--box-glow': 'linear-gradient(135deg, #f59e0b, #ec4899, #ef4444)'}}>
+                                        <div className="glow-box-inner p-5 shadow-lg flex flex-col justify-between">
+                                            <div className="flex items-center justify-between mb-4"><p className="text-slate-500 text-xs font-black uppercase tracking-wider">Total Keanggotaan</p><i className="fa-solid fa-users text-amber-500/60 text-xl"></i></div>
+                                            <h3 className="text-4xl font-black text-slate-900 dark:text-white mb-2">{metrics.total} <span className="text-xs font-normal text-slate-400">Jiwa</span></h3>
+                                            <div className="space-y-2 border-t border-slate-200 dark:border-white/10 pt-3 text-xs">
+                                                <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Sudah Baptis</span><span className="text-emerald-600 dark:text-emerald-400 font-bold">{jemaat.filter(j => j.statusBaptis === "Sudah Baptis").length}</span></div>
+                                                <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Laki / Pr</span><span className="text-slate-700 dark:text-slate-300 font-bold">{jemaat.filter(j => j.gender === "Laki-laki").length} / {jemaat.filter(j => j.gender === "Perempuan").length}</span></div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/5 p-5 md:p-4 rounded-2xl shadow-md dark:shadow-lg space-y-3">
-                                        <div className="flex items-center justify-between"><p className="text-slate-500 text-xs md:text-[9px] font-black uppercase tracking-wider">Persentase Baptis</p><i className="fa-solid fa-water text-emerald-500/40 text-xl md:text-lg"></i></div>
-                                        <h3 className="text-3xl md:text-2xl font-black text-emerald-600 dark:text-emerald-400">{metrics.baptisPersen}%</h3>
-                                        <div className="w-full bg-slate-100 dark:bg-slate-950 h-2 md:h-1.5 rounded-full overflow-hidden"><div className="bg-emerald-500 h-full rounded-full" style={{ width: `${metrics.baptisPersen}%` }}></div></div>
-                                        <div className="space-y-2 md:space-y-1.5 border-t border-slate-100 dark:border-white/5 pt-3 md:pt-2.5 text-xs md:text-[10px]">
-                                            <div className="flex justify-between"><span className="text-slate-500">Belum Baptis</span><span className="text-rose-600 dark:text-rose-400 font-bold">{jemaat.filter(j => j.statusBaptis !== "Sudah Baptis").length}</span></div>
+                                    <div className="glow-box" style={{'--box-glow': 'linear-gradient(135deg, #10b981, #14b8a6, #3b82f6)'}}>
+                                        <div className="glow-box-inner p-5 shadow-lg flex flex-col justify-between">
+                                            <div className="flex items-center justify-between mb-4"><p className="text-slate-500 text-xs font-black uppercase tracking-wider">Persentase Baptis</p><i className="fa-solid fa-water text-emerald-500/60 text-xl"></i></div>
+                                            <h3 className="text-4xl font-black text-emerald-600 dark:text-emerald-400 mb-2">{metrics.baptisPersen}%</h3>
+                                            <div className="w-full bg-slate-200 dark:bg-slate-950 h-2 rounded-full overflow-hidden mb-3"><div className="bg-emerald-500 h-full rounded-full" style={{ width: `${metrics.baptisPersen}%` }}></div></div>
+                                            <div className="space-y-2 border-t border-slate-200 dark:border-white/10 pt-3 text-xs">
+                                                <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Belum Baptis</span><span className="text-rose-600 dark:text-rose-400 font-bold">{jemaat.filter(j => j.statusBaptis !== "Sudah Baptis").length}</span></div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/5 p-5 md:p-4 rounded-2xl shadow-md dark:shadow-lg space-y-3">
-                                        <div className="flex items-center justify-between"><p className="text-slate-500 text-xs md:text-[9px] font-black uppercase tracking-wider">Tamu & Kehadiran</p><i className="fa-solid fa-person-walking-luggage text-amber-500/40 text-xl md:text-lg"></i></div>
-                                        <h3 className="text-3xl md:text-2xl font-black text-amber-600 dark:text-amber-400">{metrics.tamuCount.total} <span className="text-xs md:text-[10px] font-normal text-slate-400">Tamu</span></h3>
-                                        <div className="space-y-2 md:space-y-1.5 border-t border-slate-100 dark:border-white/5 pt-3 md:pt-2.5 text-xs md:text-[10px]">
-                                            <div className="flex justify-between"><span className="text-slate-500">Tamu Sabat Ini</span><span className="text-yellow-600 dark:text-yellow-400 font-bold">{metrics.tamuCount.hadirSabatIni} org</span></div>
+                                    <div className="glow-box" style={{'--box-glow': 'linear-gradient(135deg, #f59e0b, #fbbf24, #fcd34d)'}}>
+                                        <div className="glow-box-inner p-5 shadow-lg flex flex-col justify-between">
+                                            <div className="flex items-center justify-between mb-4"><p className="text-slate-500 text-xs font-black uppercase tracking-wider">Tamu & Kehadiran</p><i className="fa-solid fa-person-walking-luggage text-amber-500/60 text-xl"></i></div>
+                                            <h3 className="text-4xl font-black text-amber-600 dark:text-amber-400 mb-2">{metrics.tamuCount.total} <span className="text-xs font-normal text-slate-400">Tamu</span></h3>
+                                            <div className="space-y-2 border-t border-slate-200 dark:border-white/10 pt-3 text-xs">
+                                                <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Tamu Sabat Ini</span><span className="text-yellow-600 dark:text-yellow-400 font-bold">{metrics.tamuCount.hadirSabatIni} org</span></div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/5 p-5 md:p-4 rounded-2xl shadow-md dark:shadow-lg space-y-3">
-                                        <div className="flex items-center justify-between"><p className="text-slate-500 text-xs md:text-[9px] font-black uppercase tracking-wider">Rata-rata Presensi</p><i className="fa-solid fa-chart-line text-indigo-500/40 text-xl md:text-lg"></i></div>
-                                        <h3 className="text-3xl md:text-2xl font-black text-indigo-600 dark:text-indigo-400">{metrics.avgRate}% <span className="text-xs md:text-[10px] font-normal text-slate-400">Hadir</span></h3>
-                                        <div className="w-full bg-slate-100 dark:bg-slate-950 h-2 md:h-1.5 rounded-full overflow-hidden"><div className="bg-indigo-500 h-full rounded-full" style={{ width: `${metrics.avgRate}%` }}></div></div>
-                                        <div className="space-y-2 md:space-y-1.5 border-t border-slate-100 dark:border-white/5 pt-3 md:pt-2.5 text-xs md:text-[10px]">
-                                             <div className="flex justify-between"><span className="text-slate-500">Sabat Lalu</span><span className="text-emerald-600 dark:text-emerald-400 font-bold">{absen.filter(a => a.tanggal === lastSabbaths[lastSabbaths.length-1] && a.status === "Hadir" && a.sesi === "Sekolah Sabat").length} org</span></div>
+                                    <div className="glow-box" style={{'--box-glow': 'linear-gradient(135deg, #8b5cf6, #6366f1, #0ea5e9)'}}>
+                                        <div className="glow-box-inner p-5 shadow-lg flex flex-col justify-between">
+                                            <div className="flex items-center justify-between mb-4"><p className="text-slate-500 text-xs font-black uppercase tracking-wider">Rata-rata Presensi</p><i className="fa-solid fa-chart-line text-indigo-500/60 text-xl"></i></div>
+                                            <h3 className="text-4xl font-black text-indigo-600 dark:text-indigo-400 mb-2">{metrics.avgRate}% <span className="text-xs font-normal text-slate-400">Hadir</span></h3>
+                                            <div className="w-full bg-slate-200 dark:bg-slate-950 h-2 rounded-full overflow-hidden mb-3"><div className="bg-indigo-500 h-full rounded-full" style={{ width: `${metrics.avgRate}%` }}></div></div>
+                                            <div className="space-y-2 border-t border-slate-200 dark:border-white/10 pt-3 text-xs">
+                                                 <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Sabat Lalu</span><span className="text-emerald-600 dark:text-emerald-400 font-bold">{absen.filter(a => a.tanggal === lastSabbaths[lastSabbaths.length-1] && a.status === "Hadir" && a.sesi === "Sekolah Sabat").length} org</span></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1576,7 +1683,7 @@
                             </section>
                         )}
 
-                        
+                        {}
                         {activeTab === "jemaat" && currentUserRole === "admin" && (
                             <section className="space-y-5 md:space-y-4 animate-fadeIn">
                                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -1597,7 +1704,7 @@
                                     <div className="w-px bg-slate-200 dark:bg-white/10 shrink-0 mx-1 md:mx-0"></div>
                                     <select value={filterKelas} onChange={(e) => setFilterKelas(e.target.value)} className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-full px-4 md:px-3 py-2 md:py-1.5 text-xs md:text-[11px] font-bold focus:outline-none shrink-0 snap-start"><option value="all">Semua Kelas</option>{kelas.map(k => <option key={k.nama} value={k.nama}>{k.nama}</option>)}</select>
                                     <select value={filterGender} onChange={(e) => setFilterGender(e.target.value)} className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-full px-4 md:px-3 py-2 md:py-1.5 text-xs md:text-[11px] font-bold focus:outline-none shrink-0 snap-start"><option value="all">Gender</option><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select>
-                                    <select value={filterBaptis} onChange={(e) => setFilterBaptis(e.target.value)} className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-full px-4 md:px-3 py-2 md:py-1.5 text-xs md:text-[11px] font-bold focus:outline-none shrink-0 snap-start"><option value="all">Status Baptis</option><option value="Sudah Baptis">Sudah Baptis</option><option value="Belum Baptis">Belum Baptis</option></select>
+                                    <select value={filterBaptis} onChange={(e) => setFilterBaptis(e.target.value)} className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-full px-4 md:px-3 py-2 md:py-1.5 text-xs md:text-[11px] font-bold focus:outline-none shrink-0 snap-start"><option value="all">Status Baptis</option><option value="Sudah Baptis">Sudah</option><option value="Belum Baptis">Belum</option></select>
                                 </div>
                                 {filteredJemaatList.length === 0 ? (
                                     <div className="text-center py-16 space-y-3"><i className="fa-solid fa-users-slash text-4xl text-slate-300 dark:text-slate-700"></i><p className="text-slate-500 text-sm">Tidak ada jemaat ditemukan.</p></div>
@@ -1628,7 +1735,7 @@
                             </section>
                         )}
 
-                        
+                        {}
                         {activeTab === "kelas" && currentUserRole === "admin" && (
                             <section className="space-y-6 animate-fadeIn">
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -1673,7 +1780,7 @@
                             </section>
                         )}
 
-                        
+                        {}
                         {activeTab === "users" && currentUserRole === "admin" && (
                             <section className="space-y-6 animate-fadeIn">
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -1724,7 +1831,7 @@
                             </section>
                         )}
 
-                        
+                        {}
                         {activeTab === "input-absen" && currentUserRole !== "public" && (
                             <section className="space-y-5 md:space-y-6 animate-fadeIn">
                                 <div className="bg-white dark:bg-slate-900/50 p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-lg">
@@ -1849,7 +1956,7 @@
                             </section>
                         )}
 
-                        
+                        {}
                         {activeTab === "rekap" && currentUserRole !== "public" && (
                             <section className="space-y-6 animate-fadeIn">
                                 <div className="flex items-center gap-4">
@@ -1929,7 +2036,7 @@
                                     </div>
                                 </div>
 
-                                {/* PRATINJAU TABEL LAPORAN */}
+                                {}
                                 {liveReportPreview && (
                                     <div className="space-y-4 animate-fadeIn pt-4">
                                         <div className="flex items-center justify-between">
@@ -2032,23 +2139,10 @@
                     {}
                     <footer className="bg-white dark:bg-slate-950 text-slate-500 py-8 border-t border-slate-200 dark:border-white/5 mt-auto text-xs pb-12 md:pb-8 transition-colors duration-300">
                         <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center md:flex-row md:justify-between gap-4 text-center md:text-left">
-                            <div className="flex flex-col gap-1">
-  {/* Baris 1: Logo + Nama Singkat */}
-  <div className="flex items-center gap-3">
-    <div className="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-700/50 p-1 bg-slate-100 dark:bg-slate-900">
-      <img 
-        src="./PisgahWhite.png" 
-        alt="Logo" 
-        className="w-full h-full object-contain" 
-        onError={(e) => e.target.style.display = 'none'} 
-      />
-    </div>
-    <h5 className="text-slate-900 dark:text-white font-black tracking-widest text-[11px]">
-      PISGAH BISDAC <br/>
-      Batam International Seventh-Day Adventist Church
-    </h5>
-  </div>
-</div>
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-700/50 p-1 bg-slate-100 dark:bg-slate-900"><img src="./PisgahWhite.png" alt="Logo" className="w-full h-full object-contain" onError={(e) => e.target.style.display = 'none'} /></div>
+                                <h5 className="text-slate-900 dark:text-white font-black tracking-widest text-[11px]">PISGAH BISDAC</h5>
+                            </div>
                             <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500">&copy; 2026 Hak Cipta Dilindungi. Sistem Presensi Cloud.</p>
                         </div>
                     </footer>
@@ -2061,7 +2155,6 @@
                         <i className={`fa-solid fa-rotate ${isSyncing ? "fa-spin" : ""}`}></i>
                     </button>
 
-                    {}
                     {jemaatModal.isOpen && (
                         <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-[100] p-4">
                             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl animate-fadeIn max-h-[90vh] overflow-y-auto no-scrollbar">
@@ -2070,7 +2163,7 @@
                                     <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Nama Lengkap *</label><input type="text" name="nama" required defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.nama : ''} className="w-full max-w-full box-border bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-3 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-amber-500 text-base md:text-sm" placeholder="Nama sesuai KTP/Kartu Jemaat"/></div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Gender</label><select name="gender" defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.gender : 'Laki-laki'} className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-3 rounded-xl border border-slate-300 dark:border-slate-700 text-base md:text-sm focus:outline-none focus:border-amber-500"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
-                                        <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Baptis</label><select name="statusBaptis" defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.statusBaptis : 'Sudah Baptis'} className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-3 rounded-xl border border-slate-300 dark:border-slate-700 text-base md:text-sm focus:outline-none focus:border-amber-500"><option value="Sudah Baptis">Sudah Baptis</option><option value="Belum Baptis">Belum Baptis</option></select></div>
+                                        <div><label className="block text-slate-500 dark:text-slate-400 mb-1.5 text-xs font-bold uppercase tracking-wider">Baptis</label><select name="statusBaptis" defaultValue={jemaatModal.mode === 'edit' ? jemaatModal.data?.statusBaptis : 'Sudah Baptis'} className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-3 rounded-xl border border-slate-300 dark:border-slate-700 text-base md:text-sm focus:outline-none focus:border-amber-500"><option value="Sudah Baptis">Sudah</option><option value="Belum Baptis">Belum</option></select></div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div className="min-w-0 w-full overflow-hidden">
