@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pembangunan & Donasi — PISGAH BISDAC</title>
 
-    <link rel="icon" type="image/png" href="./Pisgahpavicon.png">
-    <link rel="apple-touch-icon" href="./Pisgahpavicon.png">
+    <link class="rounded-none" rel="icon" type="image/png" href="./Pisgahpavicon.png">
+    <link class="rounded-none" rel="apple-touch-icon" href="./Pisgahpavicon.png">
 
     <!-- Google Fonts: Cormorant Garamond (Luxury Serif) + Inter (Modern Sans) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -223,7 +223,6 @@
         }
     </style>
 </head>
-
 <body class="font-sans antialiased text-stone-300 relative leading-relaxed overflow-x-hidden">
 
 <!-- =================== DYNAMIC ELEGANT BACKGROUND =================== -->
@@ -254,9 +253,9 @@
 
         <!-- Right actions -->
         <div class="flex items-center gap-3">
-            <div class="hidden sm:flex items-center gap-2 border border-gold/15 bg-obsidian-light/50 px-3 py-1">
-                <span class="w-1.5 h-1.5 bg-gold animate-pulse"></span>
-                <span class="text-[9px] font-medium text-stone-400 tracking-[0.2em] uppercase">LIVE CAMPAIGN</span>
+            <div class="flex items-center gap-2 border border-gold/15 bg-obsidian-light/50 px-3 py-1">
+                <span id="sync-indicator" class="w-1.5 h-1.5 bg-gold animate-pulse"></span>
+                <span id="sync-text" class="text-[9px] font-medium text-stone-400 tracking-[0.2em] uppercase">CONNECTED</span>
             </div>
 
             <!-- Admin button -->
@@ -289,10 +288,10 @@
 
                 <div class="space-y-4">
                     <h2 id="judul-web" class="font-serif text-5xl sm:text-7xl lg:text-8xl text-stone-100 font-extralight tracking-tight leading-[1.05]">
-                        Pembalian Lahan <br><span class="italic text-gold font-light">PISGAH BISDAC</span>
+                        Pembelian Lahan <br><span class="italic text-gold font-light">PISGAH BISDAC</span>
                     </h2>
                     <p class="text-stone-400 text-sm sm:text-base max-w-xl font-light tracking-wide leading-relaxed">
-                        Membangun ruang kontemplatif modern yang menghubungkan manusia dengan Sang Pencipta. Setiap dukungan Anda membentuk tiang penyangga masa depan jemaat Batam International SDA Church.
+                        Membangun ruang kontemplatif modern yang menghubungkan manusia dengan Sang Penghalau Kegelapan. Setiap dukungan Anda membentuk tiang penyangga masa depan jemaat Batam International SDA Church.
                     </p>
                 </div>
 
@@ -304,25 +303,49 @@
                 </div>
             </div>
 
-            <!-- Right: Premium Integrated Stats & Donation Panel -->
+            <!-- Right: Premium Integrated Stats & Donation Panel (Optimized Stacked Layout) -->
             <div class="lg:col-span-5">
                 <div class="glass-dark border-gold-fine p-6 sm:p-8 relative overflow-hidden space-y-6">
                     <div class="absolute top-0 left-0 w-2 h-2 border-t border-l border-gold/50"></div>
                     <div class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-gold/50"></div>
 
                     <!-- Target / Progress Visual -->
-                    <div class="border-b border-gold/10 pb-6 space-y-4">
-                        <div class="flex items-center justify-between text-[10px] tracking-[0.2em] uppercase text-stone-400">
-                            <span>Dana Terkumpul</span>
-                            <span>Target</span>
-                        </div>
-                        <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-                            <h3 id="terkumpul-val" class="font-serif text-3xl sm:text-4xl lg:text-5xl font-light text-gold tracking-tight">Rp 0</h3>
-                            <span id="target-val" class="text-stone-400 font-serif text-sm">Target: Rp 0</span>
+                    <div class="space-y-6 border-b border-gold/10 pb-6">
+                        <!-- Modified Layout: Stacked vertically instead of grid -->
+                        <div class="flex flex-col gap-6">
+                            <!-- Dana Terkumpul -->
+                            <div class="space-y-1.5">
+                                <span class="text-[9px] tracking-[0.25em] uppercase text-stone-400 block font-semibold">DANA TERKUMPUL (REALISASI)</span>
+                                <div class="flex items-baseline gap-2">
+                                    <span class="font-serif text-3xl sm:text-4xl text-gold-dark">Rp</span>
+                                    <h3 id="terkumpul-val" class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-gold tracking-tight drop-shadow-md break-words">0</h3>
+                                </div>
+                            </div>
+
+                            <!-- Dana Komitmen Jemaat -->
+                            <div class="space-y-1.5 border-t border-gold/10 pt-4">
+                                <span class="text-[9px] tracking-[0.25em] uppercase text-gold/80 block font-semibold">KOMITMEN JEMAAT</span>
+                                <div class="flex flex-wrap items-baseline gap-2">
+                                    <span class="font-serif text-2xl text-stone-500">Rp</span>
+                                    <h3 id="komitmen-realisasi-val" class="font-serif text-3xl sm:text-4xl lg:text-4xl font-semibold text-stone-300 tracking-tight drop-shadow-md break-words">0</h3>
+                                    <span class="text-stone-500 text-xs uppercase tracking-widest px-1">dari</span>
+                                    <span class="font-serif text-xl text-stone-500">Rp</span>
+                                    <h3 id="komitmen-target-val" class="font-serif text-2xl sm:text-3xl lg:text-3xl font-medium text-stone-400 tracking-tight break-words">0</h3>
+                                </div>
+                            </div>
+                            
+                            <!-- Target Dana (Moved below and styled slightly differently to distinguish) -->
+                            <div class="space-y-1.5 border-t border-gold/10 pt-4">
+                                <span class="text-[9px] tracking-[0.25em] uppercase text-gold/70 block font-semibold">TARGET DANA</span>
+                                <div class="flex items-baseline gap-2">
+                                    <span class="font-serif text-3xl sm:text-4xl text-gold/50">Rp</span>
+                                    <h3 id="target-val" class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-stone-100 tracking-tight drop-shadow-md break-words">0</h3>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Progress Bar Container -->
-                        <div class="space-y-2">
+                        <div class="space-y-2.5">
                             <div class="relative w-full bg-obsidian-dark h-[3px] overflow-hidden">
                                 <div id="progress-bar" class="premium-bar h-full transition-all duration-[1500ms] ease-out w-0 relative">
                                     <div class="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] animate-subtle-shimmer"></div>
@@ -381,7 +404,7 @@
     <div id="form-section" class="max-w-7xl mx-auto px-6 py-16 sm:py-24">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
 
-            <!-- ===== LEFT: CONFIIRMATION FORM ===== -->
+            <!-- ===== LEFT: CONFIRMATION FORM ===== -->
             <aside class="lg:col-span-5 reveal-up">
                 <div class="lg:sticky lg:top-28 space-y-6">
                     <div class="glass-dark border-gold-fine overflow-hidden shadow-2xl">
@@ -627,19 +650,19 @@
 
                 <!-- TABS SYSTEM -->
                 <div class="flex gap-2 border-b border-gold/15 overflow-x-auto pb-px">
-                    <button onclick="switchTab('info')" class="tab-btn active text-[10px] font-semibold tracking-widest uppercase pb-3 px-4 border-b-2 border-transparent text-stone-500 hover:text-stone-200" id="tab-info">
+                    <button onclick="switchTab('info')" class="tab-btn active text-sm font-bold px-5 py-3 text-stone-500 whitespace-nowrap" id="tab-info">
                         Info Utama
                     </button>
-                    <button onclick="switchTab('donasi')" class="tab-btn text-[10px] font-semibold tracking-widest uppercase pb-3 px-4 border-b-2 border-transparent text-stone-500 hover:text-stone-200" id="tab-donasi">
+                    <button onclick="switchTab('donasi')" class="tab-btn text-sm font-bold px-5 py-3 text-stone-500 whitespace-nowrap" id="tab-donasi">
                         Donasi Masuk <span id="badge-donasi" class="hidden bg-gold text-obsidian text-[9px] font-bold px-1.5 py-0.5 ml-1">!</span>
                     </button>
-                    <button onclick="switchTab('galeri')" class="tab-btn text-[10px] font-semibold tracking-widest uppercase pb-3 px-4 border-b-2 border-transparent text-stone-500 hover:text-stone-200" id="tab-galeri">
+                    <button onclick="switchTab('galeri')" class="tab-btn text-sm font-bold px-5 py-3 text-stone-500 whitespace-nowrap" id="tab-galeri">
                         Galeri
                     </button>
-                    <button onclick="switchTab('berita')" class="tab-btn text-[10px] font-semibold tracking-widest uppercase pb-3 px-4 border-b-2 border-transparent text-stone-500 hover:text-stone-200" id="tab-berita">
+                    <button onclick="switchTab('berita')" class="tab-btn text-sm font-bold px-5 py-3 text-stone-500 whitespace-nowrap" id="tab-berita">
                         Berita
                     </button>
-                    <button onclick="switchTab('panitia')" class="tab-btn text-[10px] font-semibold tracking-widest uppercase pb-3 px-4 border-b-2 border-transparent text-stone-500 hover:text-stone-200" id="tab-panitia">
+                    <button onclick="switchTab('panitia')" class="tab-btn text-sm font-bold px-5 py-3 text-stone-500 whitespace-nowrap" id="tab-panitia">
                         Panitia
                     </button>
                 </div>
@@ -662,6 +685,14 @@
                             <div class="space-y-1.5">
                                 <label class="text-[10px] font-semibold text-stone-400 uppercase tracking-widest">Dana Terkumpul (Rp)</label>
                                 <input type="number" id="edit-terkumpul" class="w-full bg-obsidian-dark border border-gold/15 focus:border-gold/50 focus:outline-none px-4 py-3 text-xs text-stone-100 font-semibold">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[10px] font-semibold text-stone-400 uppercase tracking-widest">Komitmen Jemaat Terkumpul / Realisasi (Rp)</label>
+                                <input type="number" id="edit-komitmen-realisasi" class="w-full bg-obsidian-dark border border-gold/15 focus:border-gold/50 focus:outline-none px-4 py-3 text-xs text-stone-100 font-semibold">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[10px] font-semibold text-stone-400 uppercase tracking-widest">Total Target Komitmen Jemaat (Rp)</label>
+                                <input type="number" id="edit-komitmen-target" class="w-full bg-obsidian-dark border border-gold/15 focus:border-gold/50 focus:outline-none px-4 py-3 text-xs text-stone-100 font-semibold">
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[10px] font-semibold text-stone-400 uppercase tracking-widest">Nama Bank</label>
@@ -777,7 +808,7 @@
     <div class="modal-box bg-obsidian border border-gold/35 w-full max-w-lg overflow-hidden shadow-2xl relative rounded-none" id="edit-modal-content">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gold/15 bg-obsidian-dark">
             <h2 class="font-serif text-xl text-stone-100" id="edit-modal-title">Modifikasi Data</h2>
-            <button onclick="closeEditModal()" class="w-8 h-8 border border-gold/30 text-stone-400 hover:text-stone-100 flex items-center justify-center">&times;</button>
+            <button onclick="closeEditModal()" class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 hover:bg-red-100 hover:text-red-600 transition-all text-sm">✕</button>
         </div>
         <div class="p-6 space-y-4">
             <input type="hidden" id="edit-id">
@@ -810,9 +841,25 @@
     </div>
 </div>
 
+<!-- =================== CONFIRM MODAL (NO ALERT/CONFIRM REQUIREMENT) =================== -->
+<div id="confirm-modal" class="modal-overlay" style="z-index: 10001;">
+    <div class="modal-box bg-obsidian-light border border-gold/35 w-full max-w-md p-6 space-y-6 text-center shadow-2xl rounded-none">
+        <div class="w-12 h-12 border border-gold/30 flex items-center justify-center mx-auto bg-obsidian-dark">
+            <i class="fa-solid fa-circle-question text-gold text-lg animate-pulse"></i>
+        </div>
+        <div class="space-y-2">
+            <h3 class="font-serif text-xl tracking-wider text-stone-100 font-light" id="confirm-modal-title">Konfirmasi Tindakan</h3>
+            <p class="text-stone-400 text-xs font-light leading-relaxed animate-fade-in" id="confirm-modal-msg">Apakah Anda yakin ingin melanjutkan tindakan ini?</p>
+        </div>
+        <div class="flex gap-3 pt-2">
+            <button id="confirm-modal-cancel" class="flex-1 py-3 border border-stone-700 bg-transparent text-stone-300 text-xs font-semibold tracking-widest uppercase hover:bg-stone-900 transition-all">Batal</button>
+            <button id="confirm-modal-ok" class="flex-1 py-3 bg-gold text-obsidian text-xs font-bold tracking-widest uppercase hover:bg-gold-light transition-all">Ya, Lanjutkan</button>
+        </div>
+    </div>
+</div>
+
 <!-- =================== TOAST =================== -->
 <div id="toast" class="border border-gold-glow flex items-center gap-2"><i class="fa-solid fa-circle-check text-gold"></i><span id="toast-msg">Berhasil!</span></div>
-
 
 <!-- =================== CORE JAVASCRIPT =================== -->
 <script>
@@ -824,6 +871,36 @@
 
     let isAdminMode = false;
     let globalData = null;
+
+    // ==============================
+    // CUSTOM CONFIRM POPUP (REPLACING confirm())
+    // ==============================
+    function customConfirm(msg) {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('confirm-modal');
+            const msgEl = document.getElementById('confirm-modal-msg');
+            const okBtn = document.getElementById('confirm-modal-ok');
+            const cancelBtn = document.getElementById('confirm-modal-cancel');
+            
+            msgEl.textContent = msg;
+            modal.style.opacity = '1';
+            modal.style.pointerEvents = 'all';
+            
+            const cleanup = (value) => {
+                modal.style.opacity = '0';
+                modal.style.pointerEvents = 'none';
+                okBtn.removeEventListener('click', onOk);
+                cancelBtn.removeEventListener('click', onCancel);
+                resolve(value);
+            };
+            
+            const onOk = () => cleanup(true);
+            const onCancel = () => cleanup(false);
+            
+            okBtn.addEventListener('click', onOk);
+            cancelBtn.addEventListener('click', onCancel);
+        });
+    }
 
     // ==============================
     // TOAST
@@ -1001,8 +1078,9 @@
         btn.disabled = false;
     }
 
-    function logoutAdmin() {
-        if (!confirm('Yakin ingin keluar dari mode Admin?')) return;
+    async function logoutAdmin() {
+        const isConfirmed = await customConfirm('Yakin ingin keluar dari mode Admin?');
+        if (!isConfirmed) return;
         isAdminMode = false;
         updateAdminUI();
         document.getElementById('btn-logout').classList.add('hidden');
@@ -1022,7 +1100,10 @@
     // ==============================
     async function loadKonfirmasiAdmin() {
         const container = document.getElementById('admin-konfirmasi-list');
-        container.innerHTML = '<div class="text-center py-10 text-stone-500 italic text-xs">Memproses data konfirmasi...</div>';
+        // Only show spinner if the panel is empty
+        if (!container.children.length || container.innerHTML.includes('Memproses')) {
+            container.innerHTML = '<div class="text-center py-10 text-stone-500 italic text-xs">Memproses data konfirmasi...</div>';
+        }
 
         const res = await api.req({ action: 'getKonfirmasi' });
 
@@ -1034,7 +1115,7 @@
                 else badge.classList.add('hidden');
 
                 container.innerHTML = res.data.slice().reverse().map(item => `
-                    <div class="glass-dark border border-gold/15 p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="glass-dark border border-gold/15 p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-fade-in">
                         <div>
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-[9px] uppercase tracking-widest px-2.5 py-1 ${item.status === 'Confirmed' ? 'border border-emerald-500/30 text-emerald-400 bg-emerald-500/5' : 'border border-gold/30 text-gold bg-gold/5'}">
@@ -1049,7 +1130,7 @@
                         <div class="flex gap-2 w-full md:w-auto">
                             ${item.bukti ? `<a href="${item.bukti}" target="_blank" class="flex-1 md:flex-none border border-gold/20 hover:border-gold/50 bg-obsidian-light text-stone-300 text-xs font-semibold tracking-wider px-4 py-2 uppercase text-center">Bukti</a>` : ''}
                             ${item.status !== 'Confirmed'
-                                ? `<button onclick="confirmDonasiAdmin(event, ${item.rowIdx}, ${item.jumlah})" class="flex-1 md:flex-none bg-gold text-obsidian text-xs font-bold tracking-wider px-4 py-2 uppercase">Setujui</button>`
+                                ? `<button onclick="confirmDonasiAdmin(event, '${item.id || item.rowIdx}', ${item.jumlah || 0})" class="flex-1 md:flex-none bg-gold text-obsidian text-xs font-bold tracking-wider px-4 py-2 uppercase">Setujui</button>`
                                 : ''
                             }
                         </div>
@@ -1063,13 +1144,14 @@
         }
     }
 
-    async function confirmDonasiAdmin(event, rowIdx, jumlah) {
-        if (!confirm('Yakin ingin menyetujui donasi ini?')) return;
+    async function confirmDonasiAdmin(event, idOrRowIdx, jumlah) {
+        const isConfirmed = await customConfirm('Yakin ingin menyetujui donasi ini?');
+        if (!isConfirmed) return;
         const btn = event.currentTarget;
         const orig = btn.innerHTML;
         btn.innerHTML = 'PROSES...';
         btn.disabled = true;
-        const res = await api.req({ action: 'confirmDonasi', rowIdx, jumlah });
+        const res = await api.req({ action: 'confirmDonasi', id: idOrRowIdx, rowIdx: idOrRowIdx, jumlah: jumlah });
         if (res && res.success) {
             showToast('Donasi berhasil disetujui!', 'fa-check-double');
             loadKonfirmasiAdmin();
@@ -1086,26 +1168,46 @@
     // ==============================
     async function refreshAllData() {
         const data = await api.get();
-        if (!data) { document.getElementById('judul-web').textContent = "Gagal memuat data."; return; }
+        if (!data) { 
+            if (!globalData) {
+                document.getElementById('judul-web').textContent = "Gagal memuat data."; 
+            }
+            return; 
+        }
         globalData = data;
 
-        // Title (Use agency architecture design title layout)
+        // Title
         document.getElementById('judul-web').innerHTML = `Pembelian Lahan <br><span class="italic text-gold font-light">${data.judul || 'PISGAH BISDAC'}</span>`;
 
-        // Numbers
-        document.getElementById('target-val').textContent = formatRp(data.target);
-        document.getElementById('terkumpul-val').textContent = data.terkumpul ? formatRp(data.terkumpul) : "Rp 0";
+        // Numbers (Serif Digit Separation)
+        document.getElementById('target-val').textContent = data.target ? parseInt(data.target).toLocaleString('id-ID') : "0";
+        document.getElementById('terkumpul-val').textContent = data.terkumpul ? parseInt(data.terkumpul).toLocaleString('id-ID') : "0";
         document.getElementById('bank-val').textContent = data.bank || '-';
         document.getElementById('norek-val').textContent = data.norek || '0000000000';
         document.getElementById('atasnama-val').textContent = data.atasnama || '-';
 
-        // Progress
+        // Load Congregation Commitment (Target & Realisasi)
+        let komitmenTarget = data.komitmen_target;
+        let komitmenRealisasi = data.komitmen_realisasi;
+        
+        if (komitmenTarget === undefined || komitmenTarget === null) {
+            komitmenTarget = localStorage.getItem('pisgah_komitmen_target') || 0;
+        }
+        if (komitmenRealisasi === undefined || komitmenRealisasi === null) {
+            komitmenRealisasi = data.komitmen || localStorage.getItem('pisgah_komitmen_realisasi') || 0;
+        }
+        
+        document.getElementById('komitmen-target-val').textContent = parseInt(komitmenTarget).toLocaleString('id-ID');
+        document.getElementById('komitmen-realisasi-val').textContent = parseInt(komitmenRealisasi).toLocaleString('id-ID');
+
+        // Progress Calculations
         const target = parseInt(data.target) || 1;
         const terkumpul = parseInt(data.terkumpul) || 0;
         const percent = Math.min((terkumpul / target) * 100, 100);
         const sisa = Math.max(target - terkumpul, 0);
         setTimeout(() => {
-            document.getElementById('progress-bar').style.width = percent.toFixed(1) + '%';
+            const bar = document.getElementById('progress-bar');
+            if (bar) bar.style.width = percent.toFixed(1) + '%';
             document.getElementById('progress-text').textContent = percent.toFixed(1) + '% TERCAPAI';
             document.getElementById('sisa-val').textContent = 'KEKURANGAN: ' + formatRp(sisa);
         }, 400);
@@ -1116,13 +1218,24 @@
         document.getElementById('stat-hari').textContent = 'Active';
         document.getElementById('stat-avg').textContent = 'Flexible';
 
-        // Admin inputs
-        document.getElementById('edit-judul').value = data.judul || '';
-        document.getElementById('edit-target').value = data.target || '';
-        document.getElementById('edit-terkumpul').value = data.terkumpul || '';
-        document.getElementById('edit-bank').value = data.bank || '';
-        document.getElementById('edit-norek').value = data.norek || '';
-        document.getElementById('edit-atasnama').value = data.atasnama || '';
+        // Admin inputs (Only update if the element is NOT currently focused to avoid interrupting writing)
+        const inputSyncGuard = {
+            'edit-judul': data.judul || '',
+            'edit-target': data.target || '',
+            'edit-terkumpul': data.terkumpul || '',
+            'edit-komitmen-target': komitmenTarget,
+            'edit-komitmen-realisasi': komitmenRealisasi,
+            'edit-bank': data.bank || '',
+            'edit-norek': data.norek || '',
+            'edit-atasnama': data.atasnama || ''
+        };
+
+        for (const [id, value] of Object.entries(inputSyncGuard)) {
+            const inputEl = document.getElementById(id);
+            if (inputEl && document.activeElement !== inputEl) {
+                inputEl.value = value;
+            }
+        }
 
         renderPortfolio(data.portfolio);
         renderArtikel(data.artikel);
@@ -1206,7 +1319,7 @@
         }
 
         panitiaCont.innerHTML = list.map((p, i) => `
-            <div class="glass-dark p-6 flex flex-col items-center text-center relative w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.5rem)] reveal-up" style="transition-delay: ${i * 50}ms">
+            <div class="glass-dark p-6 flex flex-col items-center text-center relative w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.5rem)] reveal-up animate-fade-in" style="transition-delay: ${i * 50}ms">
                 <div class="w-20 h-20 rounded-full mb-4 overflow-hidden border border-gold/20 p-1 flex items-center justify-center">
                     ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover rounded-full opacity-80" onerror="this.style.display='none'">` : `<i class="fa-solid fa-user text-2xl text-stone-500"></i>`}
                 </div>
@@ -1255,6 +1368,7 @@
             showToast('Konfirmasi terkirim! Menunggu verifikasi tim.', 'fa-check');
             document.getElementById('form-konfirmasi').reset();
             document.getElementById('preview-bukti-container').classList.add('hidden');
+            refreshAllData();
         } else {
             showToast('Gagal: ' + (res.error || 'Server error'), 'fa-xmark');
         }
@@ -1270,10 +1384,21 @@
         const orig = btn.innerHTML;
         btn.innerHTML = 'MENYIMPAN...';
         btn.disabled = true;
+
+        // Smart-hybrid persistence of Commitment Target & Realization
+        const komitmenTargetVal = document.getElementById('edit-komitmen-target').value;
+        const komitmenRealisasiVal = document.getElementById('edit-komitmen-realisasi').value;
+        
+        localStorage.setItem('pisgah_komitmen_target', komitmenTargetVal);
+        localStorage.setItem('pisgah_komitmen_realisasi', komitmenRealisasiVal);
+
         await api.req({
             action: 'updateInfoWebsite',
             target: document.getElementById('edit-target').value,
             terkumpul: document.getElementById('edit-terkumpul').value,
+            komitmen: komitmenRealisasiVal, // legacy sync
+            komitmen_target: komitmenTargetVal,
+            komitmen_realisasi: komitmenRealisasiVal,
             bank: document.getElementById('edit-bank').value,
             norek: document.getElementById('edit-norek').value,
             atasnama: document.getElementById('edit-atasnama').value,
@@ -1334,7 +1459,7 @@
         }
         const btn = document.getElementById('btn-add-panitia');
         btn.innerHTML = 'MENAMBAHKAN...'; btn.disabled = true;
-        const res = await api.req({ action: 'tambahPanitia', nama, jabatan, nowa, imageData: fileData });
+        const res = await api.req({ action: 'tambahPanitia', nama, jabatan: jabatan, nowa, imageData: fileData });
         if (res && res.success) {
             showToast('Anggota panitia ditambahkan!', 'fa-check');
             ['add-panitia-nama','add-panitia-jabatan','add-panitia-nowa','add-panitia-image'].forEach(id => document.getElementById(id).value = '');
@@ -1347,19 +1472,22 @@
     // HAPUS DATA
     // ==============================
     async function hapusPorto(id) {
-        if (!confirm('Hapus tahapan pembangunan ini?')) return;
+        const isConfirmed = await customConfirm('Hapus tahapan pembangunan ini?');
+        if (!isConfirmed) return;
         await api.req({ action: 'hapusPortofolio', id });
         showToast('Tahapan berhasil dihapus', 'fa-trash');
         refreshAllData();
     }
     async function hapusArt(id) {
-        if (!confirm('Hapus buletin berita ini?')) return;
+        const isConfirmed = await customConfirm('Hapus buletin berita ini?');
+        if (!isConfirmed) return;
         await api.req({ action: 'hapusArtikel', id });
         showToast('Buletin berhasil dihapus', 'fa-trash');
         refreshAllData();
     }
     async function hapusPanitia(id) {
-        if (!confirm('Hapus panitia pengawas ini?')) return;
+        const isConfirmed = await customConfirm('Hapus panitia pengawas ini?');
+        if (!isConfirmed) return;
         await api.req({ action: 'hapusPanitia', id });
         showToast('Panitia berhasil dihapus', 'fa-trash');
         refreshAllData();
@@ -1490,11 +1618,50 @@
     }
 
     // ==============================
+    // AUTO-SYNC SYSTEM
+    // ==============================
+    function startAutoSync() {
+        // Sync every 30 seconds
+        setInterval(async () => {
+            const indicator = document.getElementById('sync-indicator');
+            const text = document.getElementById('sync-text');
+            
+            if (indicator && text) {
+                indicator.className = "w-1.5 h-1.5 bg-amber-400 animate-ping";
+                text.textContent = 'SYNCING...';
+                text.className = "text-[9px] font-medium text-amber-400 tracking-[0.2em] uppercase";
+            }
+
+            try {
+                await refreshAllData();
+                
+                // If admin tab 'donasi' is currently open, automatically pull confirmation list
+                if (isAdminMode && document.getElementById('tab-donasi').classList.contains('active')) {
+                    await loadKonfirmasiAdmin();
+                }
+
+                if (indicator && text) {
+                    indicator.className = "w-1.5 h-1.5 bg-gold animate-pulse";
+                    text.textContent = 'CONNECTED';
+                    text.className = "text-[9px] font-medium text-stone-400 tracking-[0.2em] uppercase";
+                }
+            } catch (err) {
+                if (indicator && text) {
+                    indicator.className = "w-1.5 h-1.5 bg-red-500 animate-pulse";
+                    text.textContent = 'SYNC ERROR';
+                    text.className = "text-[9px] font-medium text-red-500 tracking-[0.2em] uppercase";
+                }
+            }
+        }, 30000);
+    }
+
+    // ==============================
     // INIT
     // ==============================
     window.onload = () => {
         refreshAllData();
         initScrollReveal();
+        startAutoSync();
     };
 </script>
 </body>
