@@ -106,6 +106,12 @@
   --select-arrow: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fb896' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
 }
 
+[data-theme="dark"] .badge-moss { background: rgba(168, 221, 178, 0.1); color: var(--moss-100); border-color: rgba(168, 221, 178, 0.2); }
+[data-theme="dark"] .badge-gold { background: rgba(212, 180, 85, 0.1); color: var(--gold-light); border-color: rgba(212, 180, 85, 0.2); }
+[data-theme="dark"] .badge-red { background: rgba(224, 96, 96, 0.1); color: var(--red-pop); border-color: rgba(224, 96, 96, 0.2); }
+[data-theme="dark"] .badge-green { background: rgba(78, 200, 100, 0.1); color: var(--green-pop); border-color: rgba(78, 200, 100, 0.2); }
+[data-theme="dark"] .badge-blue { background: rgba(96, 165, 250, 0.15); color: #93c5fd; border-color: rgba(96, 165, 250, 0.25); }
+
 [data-theme="dark"] .user-role {
   color: var(--moss-100);
   background: rgba(168, 221, 178, 0.1);
@@ -389,6 +395,7 @@ tr:hover td { background: var(--table-hover); }
 .badge-red { background: rgba(214, 69, 69, 0.1); color: var(--red-pop); border: 1px solid rgba(214, 69, 69, 0.15); }
 .badge-green { background: rgba(36, 153, 58, 0.1); color: var(--green-pop); border: 1px solid rgba(36, 153, 58, 0.15); }
 .badge-gray { background: var(--badge-gray-bg); color: var(--text2); border: 1px solid rgba(0, 0, 0, 0.08); }
+.badge-blue { background: rgba(59, 130, 246, 0.1); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.2); }
 .amount-pos { color: var(--green-pop); font-weight: 700; }
 .amount-neg { color: var(--red-pop); font-weight: 700; }
 
@@ -1978,7 +1985,7 @@ function renderDashboard() {
     </div>
     <div class="stat-card">
       <div class="stat-icon c-moss">${safeIcon('log', 'lucide-lg')}</div>
-      <div class="stat-label">Total Saldo Accrued</div>
+      <div class="stat-label">Total Saldo Bersih</div>
       <div class="stat-value">${fmt(saldoAccrued)}</div>
       <div class="stat-sub">Terkonsolidasi - Daerah</div>
     </div>
@@ -1992,7 +1999,7 @@ function renderDashboard() {
       <div class="stat-icon c-moss">${safeIcon('mappin', 'lucide-lg')}</div>
       <div class="stat-label">Saldo Daerah</div>
       <div class="stat-value" style="color:var(--sage)">${fmt(calcDaerah)}</div>
-      <div class="stat-sub">Persepuluhan & Alokasi Wilayah</div>
+      <div class="stat-sub">Persepuluhan & Alokasi Daerah</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon c-green">${safeIcon('hammer', 'lucide-lg')}</div>
@@ -2022,7 +2029,7 @@ function renderDashboard() {
       <div class="stat-icon c-moss">${safeIcon('users', 'lucide-lg')}</div>
       <div class="stat-label">Partisipasi Persepuluhan</div>
       <div class="stat-value" style="color:var(--text)">${totalPemberiPersepuluhan} <span style="font-size:14px; color:var(--text3)">/ ${totalAnggotaSistem}</span></div>
-      <div class="stat-sub">Total anggota dari unit yang setor</div>
+      <div class="stat-sub">Total anggota dari unit yang Memberi</div>
     </div>
   `;
 
@@ -2045,12 +2052,12 @@ function renderDashboard() {
   const categoryBreakdownIn = {};
   filteredInc.forEach(x => { categoryBreakdownIn[x.income_type] = (categoryBreakdownIn[x.income_type] || 0) + x.amount; });
 
-  let catInTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th>Pemasukan Kategori</th><th class="fit-col" style="text-align:right">Total</th></tr></thead><tbody>';
+  let catInTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th style="color: var(--text);">Pemasukan Kategori</th><th class="fit-col" style="text-align:right">Total</th></tr></thead><tbody>';
   if (Object.keys(categoryBreakdownIn).length === 0) {
     catInTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state" style="padding:15px"><p>Tidak ada pemasukan.</p></div></td></tr>';
   } else {
     Object.entries(categoryBreakdownIn).forEach(([k, v]) => {
-      catInTable += `<tr><td><span class="badge badge-moss">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`;
+      catInTable += `<tr><td><span class="badge badge-blue">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`;
     });
   }
   catInTable += '</tbody></table></div>';
@@ -2059,7 +2066,7 @@ function renderDashboard() {
   const categoryBreakdownOut = {};
   filteredExp.forEach(x => { categoryBreakdownOut[x.department] = (categoryBreakdownOut[x.department] || 0) + x.amount; });
 
-  let catOutTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th>Pengeluaran Departemen</th><th class="fit-col" style="text-align:right">Total</th></tr></thead><tbody>';
+  let catOutTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th style="color: var(--text);">Pengeluaran Departemen</th><th class="fit-col" style="text-align:right">Total</th></tr></thead><tbody>';
   if (Object.keys(categoryBreakdownOut).length === 0) {
     catOutTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state" style="padding:15px"><p>Tidak ada pengeluaran.</p></div></td></tr>';
   } else {
@@ -2195,7 +2202,7 @@ function renderIncomeList() {
   document.getElementById('incomeList').innerHTML = list.map(x => `
     <tr>
       <td class="fit-col">${fmtDate(x.date)}</td>
-      <td><span class="badge badge-moss">${x.income_type}</span></td>
+      <td><span class="badge badge-blue">${x.income_type}</span></td>
       <td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td>
       <td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td>
     </tr>
