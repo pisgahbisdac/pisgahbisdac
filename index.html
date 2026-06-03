@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 <title>PiKaChu — Sistem Keuangan Jemaat</title>
-<!-- Menambahkan Favicon -->
 <link class="favicon" rel="icon" type="image/png" href="./putih.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
 <style>
@@ -107,120 +106,46 @@
 }
 
 [data-theme="dark"] .logo-icon { color: var(--moss-100); }
-
 [data-theme="dark"] .badge-moss { background: rgba(168, 221, 178, 0.1); color: var(--moss-100); border-color: rgba(168, 221, 178, 0.2); }
 [data-theme="dark"] .badge-gold { background: rgba(212, 180, 85, 0.1); color: var(--gold-light); border-color: rgba(212, 180, 85, 0.2); }
 [data-theme="dark"] .badge-red { background: rgba(224, 96, 96, 0.1); color: var(--red-pop); border-color: rgba(224, 96, 96, 0.2); }
 [data-theme="dark"] .badge-green { background: rgba(78, 200, 100, 0.1); color: var(--green-pop); border-color: rgba(78, 200, 100, 0.2); }
 [data-theme="dark"] .badge-blue { background: rgba(96, 165, 250, 0.15); color: #93c5fd; border-color: rgba(96, 165, 250, 0.25); }
 
-[data-theme="dark"] .user-role {
-  color: var(--moss-100);
-  background: rgba(168, 221, 178, 0.1);
-  border-color: rgba(168, 221, 178, 0.2);
-}
-[data-theme="dark"] .nav-item:hover {
-  color: var(--moss-100);
-  background: rgba(168, 221, 178, 0.05);
-  border-left-color: var(--moss-300);
-}
-[data-theme="dark"] .nav-item.active {
-  color: var(--moss-100);
-  background: linear-gradient(90deg, rgba(168, 221, 178, 0.1), transparent);
-  border-left-color: var(--moss-200);
-}
+[data-theme="dark"] .user-role { color: var(--moss-100); background: rgba(168, 221, 178, 0.1); border-color: rgba(168, 221, 178, 0.2); }
+[data-theme="dark"] .nav-item:hover { color: var(--moss-100); background: rgba(168, 221, 178, 0.05); border-left-color: var(--moss-300); }
+[data-theme="dark"] .nav-item.active { color: var(--moss-100); background: linear-gradient(90deg, rgba(168, 221, 178, 0.1), transparent); border-left-color: var(--moss-200); }
 
-input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
-input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important;
-  -webkit-text-fill-color: var(--text) !important;
-  caret-color: var(--text) !important;
-  transition: background-color 5000s ease-in-out 0s;
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important; -webkit-text-fill-color: var(--text) !important; caret-color: var(--text) !important; transition: background-color 5000s ease-in-out 0s;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg-deep);
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-
+body { font-family: 'DM Sans', sans-serif; background: var(--bg-deep); color: var(--text); min-height: 100vh; display: flex; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 60% 50% at 15% 20%, var(--grad-1) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 85% 75%, var(--grad-2) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 60% at 50% 50%, var(--grad-3) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
+  content: ''; position: fixed; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 15% 20%, var(--grad-1) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 85% 75%, var(--grad-2) 0%, transparent 55%), radial-gradient(ellipse 40% 60% at 50% 50%, var(--grad-3) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
 }
 
 button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: manipulation; }
 
-.lucide {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  display: inline-block;
-  vertical-align: middle;
-}
+.lucide { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: inline-block; vertical-align: middle; }
 .lucide-sm { width: 14px; height: 14px; }
 .lucide-md { width: 18px; height: 18px; }
 .lucide-lg { width: 22px; height: 22px; }
 
-.glass {
-  background: var(--bg-glass);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-glass);
-}
+.glass { background: var(--bg-glass); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); border: 1px solid var(--glass-border); box-shadow: var(--shadow-glass); }
 
-.sidebar {
-  width: 256px;
-  height: 100vh; 
-  background: var(--sidebar-bg);
-  backdrop-filter: blur(30px);
-  border-right: 1px solid var(--glass-border);
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  top: 0; left: 0;
-  z-index: 1000;
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-}
-
+.sidebar { width: 256px; height: 100vh; background: var(--sidebar-bg); backdrop-filter: blur(30px); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 1000; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
 .sidebar-logo { padding: 24px 20px 18px; border-bottom: 1px solid var(--glass-border); }
 .logo-badge { display: flex; align-items: center; gap: 12px; }
-.logo-icon {
-  width: 42px; height: 42px;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--moss-600);
-  flex-shrink: 0;
-}
+.logo-icon { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; color: var(--moss-600); flex-shrink: 0; }
 .logo-text { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); letter-spacing: -0.3px; font-weight: 700; }
 .logo-sub { font-size: 10px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
 
 .sidebar-user { padding: 14px 20px; border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; gap: 11px; }
-.user-avatar {
-  width: 38px; height: 38px;
-  background: linear-gradient(135deg, var(--moss-500), var(--moss-400));
-  border: 1px solid var(--glass-border2); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 600; color: #fff;
-  box-shadow: 0 4px 10px rgba(45,96,56,0.15);
-}
+.user-avatar { width: 38px; height: 38px; background: linear-gradient(135deg, var(--moss-500), var(--moss-400)); border: 1px solid var(--glass-border2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: #fff; box-shadow: 0 4px 10px rgba(45,96,56,0.15); }
 .user-name { font-size: 13px; font-weight: 600; color: var(--text); }
 .user-role { font-size: 10px; color: var(--moss-600); background: rgba(45, 96, 56, 0.1); border: 1px solid rgba(78, 200, 100, 0.2); padding: 2px 8px; border-radius: 20px; font-weight: 600;}
 
@@ -237,7 +162,6 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .logout-btn:hover { color: var(--red-pop); background: rgba(214, 69, 69, 0.08); }
 
 .main { margin-left: 256px; flex: 1; min-height: 100vh; position: relative; z-index: 1; padding-bottom: 40px; }
-
 .topbar { padding: 16px 28px; border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between; background: var(--topbar-bg); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 50; }
 .topbar-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); font-weight: 700; }
 .topbar-actions { display: flex; align-items: center; gap: 10px; }
@@ -251,6 +175,8 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .btn-success { background: linear-gradient(135deg, var(--fern), var(--moss-400)); color: #fff; box-shadow: 0 4px 12px rgba(74,124,89,0.25); }
 .btn-danger { background: rgba(214, 69, 69, 0.1); color: var(--red-pop); border: 1px solid rgba(214, 69, 69, 0.15); }
 .btn-danger:hover { background: rgba(214, 69, 69, 0.15); }
+.btn-icon-only { padding: 4px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; cursor:pointer; border:1px solid var(--glass-border); transition:0.2s; }
+.btn-icon-only:hover { background: var(--bg-glass); }
 
 .tabs-container { display: flex; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); gap: 10px; }
 .tab-btn { background: transparent; border: none; color: var(--text3); padding: 12px 20px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.3s; border-bottom: 2px solid transparent; font-family: inherit; }
@@ -265,24 +191,22 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 
 .form-group { margin-bottom: 18px; position: relative; }
 .form-label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 7px; font-weight: 600; }
-
-.form-input, .form-select { 
-  width: 100%; background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text); padding: 11px 14px; border-radius: var(--radius); font-size: 16px; font-family: inherit; outline: none; transition: all 0.2s; -webkit-appearance: none; appearance: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
-}
+.form-input, .form-select { width: 100%; background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text); padding: 11px 14px; border-radius: var(--radius); font-size: 16px; font-family: inherit; outline: none; transition: all 0.2s; -webkit-appearance: none; appearance: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.01); }
 .form-input::placeholder { color: #a0b8a6; }
 .form-input:focus, .form-select:focus { border-color: var(--moss-400); background-color: var(--input-bg); box-shadow: 0 0 0 3px rgba(45, 96, 56, 0.1), inset 0 2px 4px rgba(0,0,0,0.01); }
 .form-select option { background: var(--bg-dark); color: var(--text); }
-
-.form-select, .select-sm {
-  background-image: var(--select-arrow); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; padding-right: 36px;
-}
+.form-select, .select-sm { background-image: var(--select-arrow); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; padding-right: 36px; }
 
 .login-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--moss-600), var(--moss-500)); color: #fff; border: none; border-radius: var(--radius); font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 6px; transition: all 0.2s; box-shadow: 0 6px 16px rgba(45,96,56,0.25); }
 .login-btn:hover { background: linear-gradient(135deg, var(--moss-500), var(--moss-400)); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(45,96,56,0.3); }
 
-/* TOMBOL EYE UNTUK PASSWORD */
 .eye-btn { position: absolute; right: 12px; top: 35px; cursor: pointer; color: var(--text3); display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; transition: color 0.2s; }
 .eye-btn:hover { color: var(--moss-600); background: rgba(45, 96, 56, 0.05); }
+
+/* UPLOAD FOTO KUITANSI */
+.photo-upload-box { border: 2px dashed var(--glass-border); background: var(--empty-bg); border-radius: var(--radius); padding: 16px; text-align: center; cursor: pointer; transition: 0.2s; display: block; position: relative; overflow: hidden; }
+.photo-upload-box:hover { border-color: var(--moss-400); background: rgba(45,96,56,0.05); }
+.photo-preview { max-height: 120px; object-fit: contain; display: none; margin: 0 auto; border-radius: 8px; }
 
 .card { background: var(--bg-glass); backdrop-filter: blur(20px) saturate(1.3); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-glass); position: relative; overflow: hidden; margin-bottom: 24px; }
 .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
@@ -342,7 +266,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 
 @media print {
   @page { size: auto; margin: 1.2cm; }
-  .sidebar, .topbar, .filter-bar, .btn, .hamburger, .bottom-bar { display: none !important; }
+  .sidebar, .topbar, .filter-bar, .btn, .btn-icon-only, .hamburger, .bottom-bar { display: none !important; }
   .main { margin-left: 0; padding: 0; width: 100%; }
   .page { display: none !important; }
   #page-laporan { display: block !important; padding: 0; margin: 0; width: 100%; max-width: 100%; }
@@ -372,7 +296,6 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .form-row > * { flex: 1; }
 .form-section-title { font-size: 15px; font-weight: 700; color: var(--moss-600); margin-bottom: 18px; padding-bottom: 8px; border-bottom: 1px solid var(--glass-border); }
 
-/* CLASS UNTUK MEMBUAT KOLOM FIT (MENGECIL SESUAI ISI) */
 .fit-col { width: 1%; white-space: nowrap; }
 
 .table-wrap { overflow-x: auto; margin-top: 10px; border-radius: var(--radius); width: 100%; -webkit-overflow-scrolling: touch; }
@@ -400,9 +323,7 @@ tr:hover td { background: var(--table-hover); }
 .filter-bar { display: flex; gap: 12px; align-items: center; background: var(--bg-glass); padding: 14px 22px; border-radius: var(--radius-lg); margin-bottom: 24px; border: 1px solid var(--glass-border); flex-wrap: wrap; box-shadow: var(--shadow-glass); }
 .filter-label { color: var(--text2); font-weight: 600; }
 
-.select-sm { 
-  padding: 8px 36px 8px 14px; border-radius: var(--radius); background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text); outline: none; font-size: 16px; cursor: pointer; transition: 0.2s; -webkit-appearance: none; appearance: none; font-weight: 500;
-}
+.select-sm { padding: 8px 36px 8px 14px; border-radius: var(--radius); background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text); outline: none; font-size: 16px; cursor: pointer; transition: 0.2s; -webkit-appearance: none; appearance: none; font-weight: 500; }
 .select-sm:hover, .select-sm:focus { border-color: var(--moss-300); }
 
 .status-bar { display: inline-flex; align-items: center; gap: 8px; background: rgba(45, 96, 56, 0.05); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid var(--glass-border); color: var(--text2); }
@@ -472,7 +393,8 @@ const svgStore = {
   refresh: '<path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
   eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
-  eyeOff: '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/>'
+  eyeOff: '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/>',
+  image: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>'
 };
 
 function getIcon(name, sizeClass = 'lucide-sm') {
@@ -660,7 +582,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
         <div style="display: flex; gap: 10px; align-items: center;">
           <input class="form-input" id="searchReceiptInput" type="text" placeholder="No. Kuitansi atau Unit ID (contoh: UNIT-178...)" onkeydown="if(event.key==='Enter') searchByReceipt()">
           <button class="btn btn-primary" onclick="searchByReceipt()" style="white-space: nowrap; padding: 11px 20px;">
-            <svg class="lucide lucide-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Cari
+            <svg class="lucide lucide-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg Cari
           </button>
         </div>
         <div id="receiptSearchResult" style="margin-top: 16px; display: none;"></div>
@@ -788,7 +710,8 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
             </div>
             <div class="form-group">
               <label class="form-label">Nama Pemberi (Tulis Perorangan/Kolektif)</label>
-              <input class="form-input" id="incGiver" type="text" placeholder="Contoh: Keluarga Sitorus / Jemaat Umum">
+              <input class="form-input" id="incGiver" type="text" list="giverList" placeholder="Contoh: Keluarga Sitorus / Jemaat Umum">
+              <datalist id="giverList"></datalist>
             </div>
 
             <div class="form-group" id="incAmountSingleGroup">
@@ -835,6 +758,19 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
               </div>
             </div>
 
+            <!-- FOTO KUITANSI PEMASUKAN -->
+            <div class="form-group" style="margin-top:14px">
+              <label class="form-label">Foto Kuitansi / Bukti Setor (Opsional)</label>
+              <label for="incPhotoUpload" class="photo-upload-box">
+                <div id="incPhotoIcon" style="color:var(--text3); font-size:12px;">
+                  <script>document.write(getIcon('image', 'lucide-lg'))</script><br>
+                  <span style="margin-top:6px; display:inline-block">Klik untuk unggah foto kuitansi</span>
+                </div>
+                <img id="incPhotoPreview" class="photo-preview" src="">
+              </label>
+              <input type="file" id="incPhotoUpload" accept="image/*" style="display:none" onchange="handleReceiptPhoto(event, 'income')">
+            </div>
+
             <div class="form-group" style="margin-top:14px">
               <label class="form-label">Catatan Tambahan</label>
               <input class="form-input" id="incNote" type="text" placeholder="Catatan transaksi...">
@@ -853,7 +789,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
                 <tr>
                   <th class="fit-col">Tanggal</th>
                   <th>Kategori</th>
-                  <th class="fit-col">Nomor</th>
+                  <th class="fit-col">Nomor & Bukti</th>
                   <th class="fit-col" style="text-align:right">Nominal</th>
                 </tr>
               </thead>
@@ -903,10 +839,24 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
               <label class="form-label">Nomor Bukti Keluar</label>
               <input class="form-input" id="expReceipt" type="text" placeholder="EXP-XXXX">
             </div>
-            <div class="form-group">
-              <label class="form-label">Keterangan Penggunaan</label>
-              <input class="form-input" id="expNote" type="text" placeholder="Deskripsi peruntukan dana">
-            </div>
+          </div>
+
+          <!-- FOTO KUITANSI PENGELUARAN -->
+          <div class="form-group">
+            <label class="form-label">Foto Bukti Pengeluaran/Belanja (Opsional)</label>
+            <label for="expPhotoUpload" class="photo-upload-box">
+              <div id="expPhotoIcon" style="color:var(--text3); font-size:12px;">
+                <script>document.write(getIcon('image', 'lucide-lg'))</script><br>
+                <span style="margin-top:6px; display:inline-block">Klik untuk unggah foto nota</span>
+              </div>
+              <img id="expPhotoPreview" class="photo-preview" src="">
+            </label>
+            <input type="file" id="expPhotoUpload" accept="image/*" style="display:none" onchange="handleReceiptPhoto(event, 'expense')">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Keterangan Penggunaan</label>
+            <input class="form-input" id="expNote" type="text" placeholder="Deskripsi peruntukan dana">
           </div>
           <button class="btn btn-primary" style="width:100%; padding:12px; font-weight:600" id="savExpBtn" onclick="saveExpenseForm()">
             <script>document.write(getIcon('save', 'lucide-md'))</script> Posting Pengeluaran
@@ -921,7 +871,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
                 <tr>
                   <th class="fit-col">Tanggal</th>
                   <th>Bidang</th>
-                  <th class="fit-col">Sumber Kas</th>
+                  <th class="fit-col">Bukti</th>
                   <th class="fit-col" style="text-align:right">Nominal</th>
                 </tr>
               </thead>
@@ -995,7 +945,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
                 <th class="fit-col">Tanggal</th>
                 <th class="fit-col">Alur</th>
                 <th>Kategori & Keterangan</th>
-                <th class="fit-col">Referensi</th>
+                <th class="fit-col">Referensi & Bukti</th>
                 <th>Pemberi/Penerima</th>
                 <th class="fit-col" style="text-align:right">Nominal</th>
                 <th class="fit-col" style="text-align:right">Aksi</th>
@@ -1007,6 +957,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
       </div>
     </div>
 
+    <!-- MASTER DATA PAGES -->
     <div class="page" id="page-masterIncType">
       <div class="grid-2">
         <div class="card">
@@ -1031,9 +982,6 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
               <label class="form-label" style="font-size:11px">Dana Pembangunan (%)</label>
               <input class="form-input" id="newIncTypePctBangun" type="number" placeholder="0" min="0" max="100" value="0">
             </div>
-            <div style="font-size:11px; color:var(--text3); margin-top:8px;">
-              * Total pembagian alokasi persentase harus bernilai tepat 100%.
-            </div>
           </div>
           <div style="display:flex; gap:10px;">
             <button class="btn btn-success" id="incTypeSaveBtn" onclick="saveIncTypeForm()" style="flex:1">
@@ -1057,12 +1005,13 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
             <label class="form-label">Nama Departemen/Pelayanan</label>
             <input class="form-input" id="deptName" type="text" placeholder="Contoh: Pemuda & Musik" onkeydown="if(event.key==='Enter') saveDeptForm()">
           </div>
-          <button class="btn btn-success" id="deptSaveBtn" onclick="saveDeptForm()">
-            <script>document.write(getIcon('plus', 'lucide-sm'))</script> Simpan Departemen
-          </button>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-primary" id="deptSaveBtn" onclick="saveDeptForm()" style="flex:1">Simpan Departemen</button>
+            <button class="btn btn-ghost" id="deptCancelBtn" onclick="cancelEditDept()" style="display:none">Batal</button>
+          </div>
         </div>
         <div class="card">
-          <div class="form-section-title">Bidang Kerja & Departemen Aktif</div>
+          <div class="form-section-title">Daftar Departemen Aktif</div>
           <div id="deptList"></div>
         </div>
       </div>
@@ -1073,26 +1022,26 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
         <div class="card">
           <div class="form-section-title" id="unitFormTitle">Tambah Unit/Sektor Pemberi</div>
           <div class="form-group">
-            <label class="form-label">Nama Unit / Kelompok Jemaat</label>
-            <input class="form-input" id="unitName" type="text" placeholder="Contoh: Sektor Yohanes" onkeydown="if(event.key==='Enter') saveUnitForm()">
+            <label class="form-label">Nama Unit / Sektor</label>
+            <input class="form-input" id="unitName" type="text" placeholder="Contoh: Sektor 1">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Jumlah Anggota</label>
+              <input class="form-input" id="unitJumlah" type="number" placeholder="0">
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Jumlah Unit Pemberi</label>
-            <input class="form-input" id="unitJumlah" type="number" placeholder="Contoh: 25">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Catatan Tambahan (Opsional)</label>
-            <input class="form-input" id="unitNote" type="text" placeholder="Catatan perihal unit...">
+            <label class="form-label">Keterangan / Catatan</label>
+            <input class="form-input" id="unitNote" type="text" placeholder="...">
           </div>
           <div style="display:flex; gap:10px;">
-            <button class="btn btn-success" id="unitSaveBtn" onclick="saveUnitForm()" style="flex:1">
-              <script>document.write(getIcon('plus', 'lucide-sm'))</script> Simpan Unit Baru
-            </button>
+            <button class="btn btn-primary" id="unitSaveBtn" onclick="saveUnitForm()" style="flex:1">Simpan Unit Baru</button>
             <button class="btn btn-ghost" id="unitCancelBtn" onclick="cancelEditUnit()" style="display:none">Batal</button>
           </div>
         </div>
         <div class="card">
-          <div class="form-section-title">Daftar Unit / Sektor</div>
+          <div class="form-section-title">Daftar Unit / Sektor Aktif</div>
           <div id="unitList"></div>
         </div>
       </div>
@@ -1124,9 +1073,6 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
             <span class="eye-btn" id="userEye" onclick="togglePassword('userPassword', 'userEye')" title="Lihat Password">
               <script>document.write(getIcon('eyeOff', 'lucide-md'))</script>
             </span>
-            <div style="font-size:11px; color:var(--text3); margin-top:5px">
-              Jika melakukan edit user, biarkan kolom password kosong jika tidak ingin mengubah sandi lama.
-            </div>
           </div>
           <div style="display:flex; gap:10px; margin-top:8px">
             <button class="btn btn-success" id="saveUserBtn" onclick="saveUserForm()" style="flex:1">
@@ -1209,7 +1155,6 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
         <div class="card-header">
           <div>
             <div class="card-title">Aktivitas Audit Log</div>
-            <div class="card-subtitle">Riwayat pencatatan log sistem backend secara real-time</div>
           </div>
           <button class="btn btn-ghost" onclick="renderLogs()" style="font-size:12px">
             <script>document.write(getIcon('refresh', 'lucide-sm'))</script> Segarkan Log
@@ -1234,6 +1179,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
   </main>
 </div>
 
+<!-- MODALS -->
 <div id="serverSettingsModal" class="sidebar-overlay" style="display:none; justify-content:center; align-items:center; z-index:1200;">
   <div class="card" style="max-width:420px; width: 100%; padding:28px; background:var(--bg-dark); margin: 0 16px;">
     <h3 style="margin-bottom:12px; font-family:'Playfair Display', serif; color: var(--text); display:flex; align-items:center;">
@@ -1269,7 +1215,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
 </div>
 
 <div id="editTransModal" class="sidebar-overlay" style="display:none; justify-content:center; align-items:center; z-index:1200;">
-  <div class="card" style="max-width:450px; width: 100%; padding:28px; background:var(--bg-dark); margin: 0 16px;">
+  <div class="card" style="max-width:450px; width: 100%; padding:28px; background:var(--bg-dark); margin: 0 16px; max-height:90vh; overflow-y:auto;">
     <h3 style="margin-bottom:16px; font-family:'Playfair Display', serif; color: var(--text); display:flex; align-items:center;">
       <script>document.write(getIcon('edit', 'lucide-lg'))</script> 
       <span style="margin-left: 8px;">Edit Transaksi</span>
@@ -1314,6 +1260,19 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
       <label class="form-label">Nominal (Rp)</label>
       <input class="form-input" id="editTransAmount" type="number">
     </div>
+    
+    <!-- FOTO KUITANSI EDIT -->
+    <div class="form-group">
+      <label class="form-label">Perbarui Foto Kuitansi (Biarkan kosong jika tetap)</label>
+      <label for="editPhotoUpload" class="photo-upload-box">
+        <div id="editTransPhotoIcon" style="color:var(--text3); font-size:12px;">
+          <script>document.write(getIcon('image', 'lucide-lg'))</script><br>
+          <span style="margin-top:6px; display:inline-block">Unggah foto bukti revisi baru</span>
+        </div>
+        <img id="editTransPhotoPreview" class="photo-preview" src="">
+      </label>
+      <input type="file" id="editPhotoUpload" accept="image/*" style="display:none" onchange="handleReceiptPhoto(event, 'edit')">
+    </div>
 
     <div class="form-group">
       <label class="form-label">Keterangan Tambahan</label>
@@ -1324,8 +1283,18 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
       <button class="btn btn-primary" id="btnSaveEditTrans" onclick="saveEditTransaction()">
         <script>document.write(getIcon('save', 'lucide-sm'))</script> Simpan Perubahan
       </button>
-      <button class="btn btn-ghost" onclick="document.getElementById('editTransModal').style.display='none'">Batal</button>
+      <button class="btn btn-ghost" onclick="closeEditModal()">Batal</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL LIHAT FOTO -->
+<div id="receiptPhotoModal" class="sidebar-overlay" style="display:none; justify-content:center; align-items:center; z-index:1300;" onclick="closePhotoModal()">
+  <div class="card" style="position:relative; max-width:90vw; max-height:90vh; background:var(--bg-dark); display:flex; flex-direction:column; padding:16px;" onclick="event.stopPropagation()">
+    <button class="btn btn-ghost" style="position:absolute; right:10px; top:10px; border-radius:50%; padding:6px; background:var(--bg-glass); color:var(--text); box-shadow:0 2px 10px rgba(0,0,0,0.1);" onclick="closePhotoModal()">
+      <svg class="lucide lucide-md" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <img id="photoModalImg" src="" style="max-width:100%; max-height:calc(90vh - 40px); object-fit:contain; border-radius:8px;">
   </div>
 </div>
 
@@ -1339,22 +1308,20 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
 <script>
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwL6zRobieJ7Y3Xehr_YbxRXyw26FE9FkOZ35c9NgrWx05ifUF07dv2hq-zaQ1oKEjg/exec';
 
-function getActiveApiUrl() {
-  const savedUrl = localStorage.getItem('PiKaChu_api_url');
-  return (savedUrl && savedUrl.trim() !== '') ? savedUrl.trim() : DEFAULT_API_URL;
-}
+// State penyimpanan Base64 Foto
+let currentIncPhoto = '';
+let currentExpPhoto = '';
+let currentEditPhoto = '';
 
+function getActiveApiUrl() { const savedUrl = localStorage.getItem('PiKaChu_api_url'); return (savedUrl && savedUrl.trim() !== '') ? savedUrl.trim() : DEFAULT_API_URL; }
 function getToken() { return sessionStorage.getItem('PiKaChu_token'); }
 function setToken(t) { sessionStorage.setItem('PiKaChu_token', t); }
 function clearToken() { sessionStorage.removeItem('PiKaChu_token'); }
 
 async function apiGet(action, params = {}) {
   const url = new URL(getActiveApiUrl());
-  url.searchParams.set('action', action);
-  url.searchParams.set('token', getToken() || '');
-  url.searchParams.set('_t', Date.now());
+  url.searchParams.set('action', action); url.searchParams.set('token', getToken() || ''); url.searchParams.set('_t', Date.now());
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-
   const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
   if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
   const data = await res.json();
@@ -1364,12 +1331,7 @@ async function apiGet(action, params = {}) {
 
 async function apiPost(action, payload = {}) {
   const body = JSON.stringify({ action, token: getToken(), data: payload });
-  const res = await fetch(getActiveApiUrl(), {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    redirect: 'follow',
-    body: body
-  });
+  const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body });
   if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
   const data = await res.json();
   if (!data.success) throw new Error(data.message || 'Gagal mengirim data ke server.');
@@ -1377,44 +1339,18 @@ async function apiPost(action, payload = {}) {
 }
 
 async function apiPostWithFallback(action, payload = {}) {
-  try {
-    return await apiPost(action, payload);
-  } catch (error) {
+  try { return await apiPost(action, payload); } catch (error) {
     if (error.message && (error.message.includes("tidak dikenali") || error.message.includes("not found") || error.message.includes("Action"))) {
-      console.warn(`Aksi '${action}' ditolak server. Mencoba penanganan adaptif lokal.`);
-      
       if (action === 'editRecord') {
-        const type = payload.type;
-        const oldId = payload.transaction_id;
-        
+        const type = payload.type; const oldId = payload.transaction_id;
         await apiPost('deleteRecord', { type: type, transaction_id: oldId });
-        
         if (type === 'income') {
-          return await apiPost('saveIncome', {
-            date: payload.date,
-            income_type: payload.income_type,
-            unit_name: payload.unit_name || '-',
-            nama_pemberi: payload.original?.nama_pemberi || 'Umum',
-            receipt_no: payload.receipt_no,
-            amount: payload.amount,
-            note: payload.note,
-            alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0
-          });
+          return await apiPost('saveIncome', { date: payload.date, income_type: payload.income_type, unit_name: payload.unit_name || '-', nama_pemberi: payload.original?.nama_pemberi || 'Umum', receipt_no: payload.receipt_no, amount: payload.amount, note: payload.note, alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0 });
         } else {
-          return await apiPost('saveExpense', {
-            date: payload.date,
-            department: payload.department,
-            source_balance: payload.source_balance,
-            receipt_no: payload.receipt_no,
-            amount: payload.amount,
-            note: payload.note
-          });
+          return await apiPost('saveExpense', { date: payload.date, department: payload.department, source_balance: payload.source_balance, receipt_no: payload.receipt_no, amount: payload.amount, note: payload.note });
         }
       }
-      
-      if (action === 'saveIncomeType' || action === 'deleteIncomeType' || action === 'saveConfig') {
-        throw new Error(`Server Apps Script Anda perlu diperbarui. Silakan terapkan ulang (New Deployment) kode Backend terbaru Anda.`);
-      }
+      throw new Error(`Server Apps Script Anda perlu diperbarui. Silakan terapkan ulang (New Deployment) kode Backend terbaru.`);
     }
     throw error;
   }
@@ -1422,861 +1358,406 @@ async function apiPostWithFallback(action, payload = {}) {
 
 async function login(username, password) {
   const url = new URL(getActiveApiUrl());
-  url.searchParams.set('action', 'login');
-  url.searchParams.set('username', username.trim().toLowerCase());
-  url.searchParams.set('password', password);
-  url.searchParams.set('_t', Date.now());
-
+  url.searchParams.set('action', 'login'); url.searchParams.set('username', username.trim().toLowerCase()); url.searchParams.set('password', password); url.searchParams.set('_t', Date.now());
   const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
   if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
   const data = await res.json();
-
-  if (data.success) {
-    setToken(data.token);
-    sessionStorage.setItem('PiKaChu_user', JSON.stringify(data.user));
-  }
+  if (data.success) { setToken(data.token); sessionStorage.setItem('PiKaChu_user', JSON.stringify(data.user)); }
   return data;
 }
 
-function logout() {
-  clearToken();
-  sessionStorage.removeItem('PiKaChu_user');
-  sessionStorage.removeItem('PiKaChu_token');
-  window.location.reload();
-}
-function doLogout() { logout(); }
+function doLogout() { clearToken(); sessionStorage.removeItem('PiKaChu_user'); sessionStorage.removeItem('PiKaChu_token'); window.location.reload(); }
+function getCurrentUser() { const u = sessionStorage.getItem('PiKaChu_user'); return u ? JSON.parse(u) : null; }
 
-function getCurrentUser() {
-  const u = sessionStorage.getItem('PiKaChu_user');
-  return u ? JSON.parse(u) : null;
-}
-
-// LOGIKA DUAL LOGO
 let systemConfig = {};
-
 async function loadSystemConfig() {
   try {
-    const cached = localStorage.getItem('PiKaChu_config');
-    if (cached) {
-      systemConfig = JSON.parse(cached);
-      applyConfig();
-    }
-    const res = await apiGet('getConfig');
-    if (res && res.success) {
-      systemConfig = res.data || {};
-      localStorage.setItem('PiKaChu_config', JSON.stringify(systemConfig));
-      applyConfig();
-    }
-  } catch (e) { 
-    if (e.message && !e.message.toLowerCase().includes('token') && !e.message.toLowerCase().includes('session')) {
-      console.warn('Config fetch info:', e.message); 
-    }
-  }
+    const cached = localStorage.getItem('PiKaChu_config'); if (cached) { systemConfig = JSON.parse(cached); applyConfig(); }
+    const res = await apiGet('getConfig'); if (res && res.success) { systemConfig = res.data || {}; localStorage.setItem('PiKaChu_config', JSON.stringify(systemConfig)); applyConfig(); }
+  } catch (e) { }
 }
 
 function applyConfig() {
-  // Apply Login Logo
-  const loginLogoEls = document.querySelectorAll('.app-logo-login-img');
-  const loginDefaultEls = document.querySelectorAll('.app-logo-login-default');
-  
-  if (systemConfig.logo_login && systemConfig.logo_login.trim() !== '') {
-    loginLogoEls.forEach(el => { el.src = systemConfig.logo_login; el.style.display = 'block'; });
-    loginDefaultEls.forEach(el => { el.style.display = 'none'; });
-  } else {
-    loginLogoEls.forEach(el => { el.style.display = 'none'; el.src = ''; });
-    loginDefaultEls.forEach(el => { el.style.display = 'block'; });
-  }
-
-  // Apply Sidebar Logo
-  const sidebarLogoEls = document.querySelectorAll('.app-logo-sidebar-img');
-  const sidebarDefaultEls = document.querySelectorAll('.app-logo-sidebar-default');
-  
-  if (systemConfig.logo_sidebar && systemConfig.logo_sidebar.trim() !== '') {
-    sidebarLogoEls.forEach(el => { el.src = systemConfig.logo_sidebar; el.style.display = 'block'; });
-    sidebarDefaultEls.forEach(el => { el.style.display = 'none'; });
-  } else {
-    sidebarLogoEls.forEach(el => { el.style.display = 'none'; el.src = ''; });
-    sidebarDefaultEls.forEach(el => { el.style.display = 'block'; });
-  }
+  const loginLogoEls = document.querySelectorAll('.app-logo-login-img'); const loginDefaultEls = document.querySelectorAll('.app-logo-login-default');
+  if (systemConfig.logo_login && systemConfig.logo_login.trim() !== '') { loginLogoEls.forEach(el => { el.src = systemConfig.logo_login; el.style.display = 'block'; }); loginDefaultEls.forEach(el => { el.style.display = 'none'; }); } 
+  else { loginLogoEls.forEach(el => { el.style.display = 'none'; el.src = ''; }); loginDefaultEls.forEach(el => { el.style.display = 'block'; }); }
+  const sidebarLogoEls = document.querySelectorAll('.app-logo-sidebar-img'); const sidebarDefaultEls = document.querySelectorAll('.app-logo-sidebar-default');
+  if (systemConfig.logo_sidebar && systemConfig.logo_sidebar.trim() !== '') { sidebarLogoEls.forEach(el => { el.src = systemConfig.logo_sidebar; el.style.display = 'block'; }); sidebarDefaultEls.forEach(el => { el.style.display = 'none'; }); } 
+  else { sidebarLogoEls.forEach(el => { el.style.display = 'none'; el.src = ''; }); sidebarDefaultEls.forEach(el => { el.style.display = 'block'; }); }
 }
 
 function handleLogoUpload(event, keyType) {
-  const file = event.target.files[0];
-  if(!file) return;
-  
-  notify('Memproses dan memperkecil gambar...', 'info');
+  const file = event.target.files[0]; if(!file) return; notify('Memproses gambar...', 'info');
   const reader = new FileReader();
   reader.onload = function(e) {
     const img = new Image();
     img.onload = async function() {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
-      const MAX = 150;
-      let w = img.width, h = img.height;
-      if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } 
-      else { if (h > MAX) { w *= MAX / h; h = MAX; } }
-      
-      canvas.width = w; canvas.height = h;
-      ctx.drawImage(img, 0, 0, w, h);
+      const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
+      const MAX = 150; let w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+      canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h);
       const dataUrl = canvas.toDataURL('image/png', 0.8);
-      
-      systemConfig[keyType] = dataUrl;
-      localStorage.setItem('PiKaChu_config', JSON.stringify(systemConfig));
-      applyConfig();
-      
-      try {
-        const res = await apiPostWithFallback('saveConfig', { key: keyType, value: dataUrl });
-        if(res.success) notify(`Logo ${keyType === 'logo_login' ? 'Login' : 'Sidebar'} berhasil diubah!`, 'success');
-        else throw new Error(res.message);
-      } catch (err) { notify('Gagal menyimpan logo: ' + err.message, 'error'); }
+      systemConfig[keyType] = dataUrl; localStorage.setItem('PiKaChu_config', JSON.stringify(systemConfig)); applyConfig();
+      try { const res = await apiPostWithFallback('saveConfig', { key: keyType, value: dataUrl }); if(res.success) notify(`Logo berhasil diubah!`, 'success'); else throw new Error(res.message); } catch (err) { notify('Gagal menyimpan logo: ' + err.message, 'error'); }
     }
     img.src = e.target.result;
   }
   reader.readAsDataURL(file);
 }
 
-async function resetLogo(keyType) {
-  systemConfig[keyType] = '';
-  localStorage.setItem('PiKaChu_config', JSON.stringify(systemConfig));
-  applyConfig();
-  try {
-    const res = await apiPostWithFallback('saveConfig', { key: keyType, value: '' });
-    if(res.success) notify(`Logo ${keyType === 'logo_login' ? 'Login' : 'Sidebar'} dikembalikan ke versi bawaan.`, 'success');
-  } catch (err) { notify('Gagal reset: ' + err.message, 'error'); }
+// LOGIKA KOMPRESI & UNGGAH FOTO TRANSAKSI
+function handleReceiptPhoto(event, type) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const MAX_WIDTH = 800; // Kompres ukuran max 800px untuk hemat ruang
+      let width = img.width, height = img.height;
+      
+      if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
+      else { if (height > MAX_WIDTH) { width *= MAX_WIDTH / height; height = MAX_WIDTH; } }
+      
+      canvas.width = width; canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+      if (type === 'income') {
+        currentIncPhoto = dataUrl;
+        document.getElementById('incPhotoPreview').src = dataUrl;
+        document.getElementById('incPhotoPreview').style.display = 'block';
+        document.getElementById('incPhotoIcon').style.display = 'none';
+      } else if (type === 'expense') {
+        currentExpPhoto = dataUrl;
+        document.getElementById('expPhotoPreview').src = dataUrl;
+        document.getElementById('expPhotoPreview').style.display = 'block';
+        document.getElementById('expPhotoIcon').style.display = 'none';
+      } else if (type === 'edit') {
+        currentEditPhoto = dataUrl;
+        document.getElementById('editTransPhotoPreview').src = dataUrl;
+        document.getElementById('editTransPhotoPreview').style.display = 'block';
+        document.getElementById('editTransPhotoIcon').style.display = 'none';
+      }
+    }
+    img.src = e.target.result;
+  }
+  reader.readAsDataURL(file);
 }
 
+function openPhotoModal(url) {
+  document.getElementById('photoModalImg').src = url;
+  document.getElementById('receiptPhotoModal').style.display = 'flex';
+}
+function closePhotoModal() {
+  document.getElementById('receiptPhotoModal').style.display = 'none';
+  document.getElementById('photoModalImg').src = '';
+}
 
-let currentUser = null;
-let masterData = null;
-let cachedIncome = [];
-let cachedExpense = [];
-let cachedSaldo = { daerah: 0, jemaat: 0, bangun: 0, total: 0 };
-let isServerOnline = false;
-let editingUser = null;
-let editingUnit = null;
-let editingIncType = null;
+async function resetLogo(keyType) {
+  systemConfig[keyType] = ''; localStorage.setItem('PiKaChu_config', JSON.stringify(systemConfig)); applyConfig();
+  try { await apiPostWithFallback('saveConfig', { key: keyType, value: '' }); notify(`Logo dikembalikan ke bawaan.`, 'success'); } catch (err) { }
+}
+
+let currentUser = null; let masterData = null; let cachedIncome = []; let cachedExpense = []; let cachedSaldo = { daerah: 0, jemaat: 0, bangun: 0, total: 0 }; let isServerOnline = false;
+let editingUser = null; let editingUnit = null; let editingIncType = null;
 
 function isPrivateCategory(category) {
   if (!category) return false;
   const cat = category.toLowerCase();
-  const privateCats = ['perpuluhan', 'persepuluhan', 'khusus jemaat', 'khusus daerah', 'terpadu', 'pembangunan'];
-  return privateCats.some(c => cat.includes(c));
+  return ['perpuluhan', 'persepuluhan', 'khusus jemaat', 'khusus daerah', 'terpadu', 'pembangunan'].some(c => cat.includes(c));
 }
-
-function safeIcon(name, size) {
-  return typeof getIcon === 'function' ? getIcon(name, size) : '';
-}
-
-function togglePassword(inputId, eyeId) {
-  const input = document.getElementById(inputId);
-  const eyeBtn = document.getElementById(eyeId);
-  if (input.type === "password") {
-    input.type = "text";
-    eyeBtn.innerHTML = safeIcon('eye', 'lucide-md');
-  } else {
-    input.type = "password";
-    eyeBtn.innerHTML = safeIcon('eyeOff', 'lucide-md');
-  }
-}
-
+function safeIcon(name, size) { return typeof getIcon === 'function' ? getIcon(name, size) : ''; }
+function togglePassword(inputId, eyeId) { const input = document.getElementById(inputId); const eyeBtn = document.getElementById(eyeId); if (input.type === "password") { input.type = "text"; eyeBtn.innerHTML = safeIcon('eye', 'lucide-md'); } else { input.type = "password"; eyeBtn.innerHTML = safeIcon('eyeOff', 'lucide-md'); } }
 function fmt(n) { return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID'); }
-function fmtDate(iso) {
-  if (!iso) return '-';
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return String(iso).split('T')[0];
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
+function fmtDate(iso) { if (!iso) return '-'; const d = new Date(iso); if (isNaN(d.getTime())) return String(iso).split('T')[0]; return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
 function todayStr() { return fmtDate(new Date()); }
-
-function setStatus(state, text) {
-  const dot = document.getElementById('statusDot');
-  const txt = document.getElementById('statusText');
-  if (dot && txt) {
-    dot.className = 'status-dot ' + state;
-    txt.textContent = text;
-  }
-}
+function setStatus(state, text) { const dot = document.getElementById('statusDot'); const txt = document.getElementById('statusText'); if (dot && txt) { dot.className = 'status-dot ' + state; txt.textContent = text; } }
 
 let confirmPromiseResolve = null;
 function showCustomConfirm(title, message) {
-  return new Promise((resolve) => {
-    confirmPromiseResolve = resolve;
-    document.getElementById('confirmTitle').textContent = title;
-    document.getElementById('confirmMessage').textContent = message;
-    const modal = document.getElementById('customConfirmModal');
-    modal.style.display = 'flex';
-  });
+  return new Promise((resolve) => { confirmPromiseResolve = resolve; document.getElementById('confirmTitle').textContent = title; document.getElementById('confirmMessage').textContent = message; document.getElementById('customConfirmModal').style.display = 'flex'; });
 }
+document.getElementById('confirmYesBtn').addEventListener('click', () => { document.getElementById('customConfirmModal').style.display = 'none'; if (confirmPromiseResolve) confirmPromiseResolve(true); });
+document.getElementById('confirmNoBtn').addEventListener('click', () => { document.getElementById('customConfirmModal').style.display = 'none'; if (confirmPromiseResolve) confirmPromiseResolve(false); });
 
-document.getElementById('confirmYesBtn').addEventListener('click', () => {
-  document.getElementById('customConfirmModal').style.display = 'none';
-  if (confirmPromiseResolve) confirmPromiseResolve(true);
-});
-document.getElementById('confirmNoBtn').addEventListener('click', () => {
-  document.getElementById('customConfirmModal').style.display = 'none';
-  if (confirmPromiseResolve) confirmPromiseResolve(false);
-});
-
-function openServerSettingsModal() {
-  document.getElementById('customApiUrlInput').value = localStorage.getItem('PiKaChu_api_url') || '';
-  document.getElementById('serverSettingsModal').style.display = 'flex';
-}
+function openServerSettingsModal() { document.getElementById('customApiUrlInput').value = localStorage.getItem('PiKaChu_api_url') || ''; document.getElementById('serverSettingsModal').style.display = 'flex'; }
 function closeServerSettingsModal() { document.getElementById('serverSettingsModal').style.display = 'none'; }
-
 async function saveServerSettings() {
   const newUrl = document.getElementById('customApiUrlInput').value.trim();
-  if (newUrl === '') {
-    localStorage.removeItem('PiKaChu_api_url');
-    notify('Menggunakan URL server bawaan.', 'success');
-  } else if (!newUrl.startsWith('https://script.google.com/macros/s/')) {
-    notify('URL tidak valid. Harus dimulai dengan: https://script.google.com/macros/s/', 'error');
-    return;
-  } else {
-    const cleanUrl = newUrl.endsWith('/') ? newUrl.slice(0, -1) : newUrl;
-    localStorage.setItem('PiKaChu_api_url', cleanUrl);
-    notify('URL server berhasil diperbarui di browser!', 'success');
-  }
-  closeServerSettingsModal();
-  await checkAPIConnection();
-  updateAppStatus();
+  if (newUrl === '') { localStorage.removeItem('PiKaChu_api_url'); notify('Menggunakan URL server bawaan.', 'success'); } 
+  else if (!newUrl.startsWith('https://script.google.com/macros/s/')) { notify('URL tidak valid.', 'error'); return; } 
+  else { localStorage.setItem('PiKaChu_api_url', newUrl.endsWith('/') ? newUrl.slice(0, -1) : newUrl); notify('URL server berhasil diperbarui di browser!', 'success'); }
+  closeServerSettingsModal(); await checkAPIConnection(); updateAppStatus();
 }
 
 async function checkAPIConnection() {
-  setStatus('loading', 'Menghubungkan ke Server PiKaChu...');
+  setStatus('loading', 'Menghubungkan ke Server...');
   try {
-    const url = getActiveApiUrl();
-    if (!url || url.trim() === '') {
-      setStatus('offline', 'Apps Script URL Belum Dikonfigurasi!');
-      isServerOnline = false; return false;
-    }
-    const pingUrl = `${url}?action=ping&_t=${Date.now()}`;
-    const res = await fetch(pingUrl, { method: 'GET', redirect: 'follow', signal: AbortSignal.timeout(10000) });
+    const url = getActiveApiUrl(); if (!url || url.trim() === '') { setStatus('offline', 'Apps Script URL Belum Dikonfigurasi!'); isServerOnline = false; return false; }
+    const res = await fetch(`${url}?action=ping&_t=${Date.now()}`, { method: 'GET', redirect: 'follow', signal: AbortSignal.timeout(10000) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
-    if (json.success) {
-      setStatus('online', 'Server Aktif — Sistem Cloud PiKaChu Berjalan');
-      isServerOnline = true; return true;
-    }
-    throw new Error(json.message || 'Ping gagal');
-  } catch (e) {
-    const errMsg = (e.name === 'TimeoutError' || e.name === 'AbortError') ? 'Timeout — Server tidak merespons' : 'Koneksi Bermasalah: ' + (e.message || 'Unknown Error');
-    setStatus('offline', errMsg);
-    isServerOnline = false; return false;
-  }
+    if (json.success) { setStatus('online', 'Server Aktif — Sistem Cloud Berjalan'); isServerOnline = true; return true; }
+    throw new Error(json.message);
+  } catch (e) { setStatus('offline', 'Koneksi Bermasalah'); isServerOnline = false; return false; }
 }
 
 async function doLogin() {
-  const user = document.getElementById('loginUser').value.trim();
-  const pass = document.getElementById('loginPass').value;
-
+  const user = document.getElementById('loginUser').value.trim(); const pass = document.getElementById('loginPass').value;
   if (!user || !pass) { notify('Harap masukkan Username & Password!', 'error'); return; }
-
-  const btn = document.getElementById('loginBtn');
-  const txt = document.getElementById('loginBtnText');
-  btn.disabled = true;
-  txt.innerHTML = '<span class="spinner"></span> Memverifikasi...';
-
+  const btn = document.getElementById('loginBtn'); const txt = document.getElementById('loginBtnText');
+  btn.disabled = true; txt.innerHTML = '<span class="spinner"></span> Memverifikasi...';
   try {
-    const isAvailable = await checkAPIConnection();
-    if (!isAvailable) { notify('Koneksi server gagal. Silakan periksa URL Apps Script.', 'error'); return; }
-
+    const isAvailable = await checkAPIConnection(); if (!isAvailable) { notify('Koneksi server gagal.', 'error'); return; }
     const res = await login(user, pass);
-    if (res.success) {
-      currentUser = res.user;
-      notify('Sesi aman terhubung! Selamat datang.', 'success');
-      launchApp();
-    } else {
-      notify(res.message, 'error');
-    }
-  } catch (err) { notify('Kesalahan transmisi data: ' + err.message, 'error'); } 
-  finally { btn.disabled = false; txt.textContent = 'Masuk Ke Sistem'; }
+    if (res.success) { currentUser = res.user; notify('Sesi aman terhubung! Selamat datang.', 'success'); launchApp(); } 
+    else { notify(res.message, 'error'); }
+  } catch (err) { notify('Kesalahan transmisi data: ' + err.message, 'error'); } finally { btn.disabled = false; txt.textContent = 'Masuk Ke Sistem'; }
 }
 
 async function launchApp() {
-  document.getElementById('loginPage').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-
-  document.getElementById('userNameDisplay').textContent = currentUser.nama;
-  document.getElementById('userRoleDisplay').textContent = currentUser.role;
-  document.getElementById('userAvatar').textContent = currentUser.nama.split(' ').map(x=>x[0]).join('').substring(0,2).toUpperCase();
-
-  applyRoleAccess();
-  await loadSystemConfig();
-  await syncAllData();
-  initForms();
-  showPage('dashboard');
+  document.getElementById('loginPage').style.display = 'none'; document.getElementById('app').style.display = 'flex';
+  document.getElementById('userNameDisplay').textContent = currentUser.nama; document.getElementById('userRoleDisplay').textContent = currentUser.role; document.getElementById('userAvatar').textContent = currentUser.nama.split(' ').map(x=>x[0]).join('').substring(0,2).toUpperCase();
+  applyRoleAccess(); await loadSystemConfig(); await syncAllData(); initForms(); showPage('dashboard');
 }
 
 function applyRoleAccess() {
-  const isAdm = currentUser.role === 'Admin';
-  const isBen = currentUser.role === 'Bendahara' || isAdm;
-
-  document.getElementById('navPemasukan').style.display = isBen ? '' : 'none';
-  document.getElementById('navPengeluaran').style.display = isBen ? '' : 'none';
-  document.getElementById('navRiwayat').style.display = isBen ? '' : 'none';
-  
+  const isAdm = currentUser.role === 'Admin'; const isBen = currentUser.role === 'Bendahara' || isAdm;
+  document.getElementById('navPemasukan').style.display = isBen ? '' : 'none'; document.getElementById('navPengeluaran').style.display = isBen ? '' : 'none'; document.getElementById('navRiwayat').style.display = isBen ? '' : 'none';
   if(document.getElementById('botPemasukan')) document.getElementById('botPemasukan').style.display = isBen ? 'flex' : 'none';
   if(document.getElementById('botPengeluaran')) document.getElementById('botPengeluaran').style.display = isBen ? 'flex' : 'none';
-
-  const btnJurnal = document.getElementById('btnJurnalDashboard');
-  if (btnJurnal) btnJurnal.style.display = isBen ? '' : 'none';
-
-  const recentTransCard = document.getElementById('recentTransCard');
-  if (recentTransCard) recentTransCard.style.display = isBen ? '' : 'none';
-
-  document.getElementById('adminNavLabel').style.display = isAdm ? '' : 'none';
-  document.getElementById('navMasterIncType').style.display = isAdm ? '' : 'none';
-  document.getElementById('navMasterDept').style.display = isAdm ? '' : 'none';
-  document.getElementById('navMasterUnit').style.display = isAdm ? '' : 'none';
-  document.getElementById('navUsers').style.display = isAdm ? '' : 'none';
-  document.getElementById('navSettings').style.display = isAdm ? '' : 'none';
-  document.getElementById('navLogs').style.display = isAdm ? '' : 'none';
+  const btnJurnal = document.getElementById('btnJurnalDashboard'); if (btnJurnal) btnJurnal.style.display = isBen ? '' : 'none';
+  const recentTransCard = document.getElementById('recentTransCard'); if (recentTransCard) recentTransCard.style.display = isBen ? '' : 'none';
+  document.getElementById('adminNavLabel').style.display = isAdm ? '' : 'none'; document.getElementById('navMasterIncType').style.display = isAdm ? '' : 'none'; document.getElementById('navMasterDept').style.display = isAdm ? '' : 'none'; document.getElementById('navMasterUnit').style.display = isAdm ? '' : 'none'; document.getElementById('navUsers').style.display = isAdm ? '' : 'none'; document.getElementById('navSettings').style.display = isAdm ? '' : 'none'; document.getElementById('navLogs').style.display = isAdm ? '' : 'none';
 }
 
-async function syncAllData() {
-  try {
-    await loadMasterData();
-    await loadAllTransactions();
-    updateAppStatus();
-    if (masterData) renderDashboard();
-  } catch (e) { notify('Sinkronisasi data gagal: ' + e.message, 'error'); }
-}
+async function syncAllData() { try { await loadMasterData(); await loadAllTransactions(); updateAppStatus(); if (masterData) renderDashboard(); } catch (e) { notify('Sinkronisasi data gagal: ' + e.message, 'error'); } }
 
 async function handleManualSync() {
-  const btn = document.getElementById('btnSyncData');
-  const statusTxt = document.getElementById('appStatusText');
-  const statusDot = document.getElementById('appStatusDot');
-  
-  if(btn) {
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Sinkronisasi...';
-  }
-  if(statusTxt) statusTxt.textContent = 'Menyinkronkan...';
-  if(statusDot) statusDot.className = 'status-dot loading';
-  
-  await checkAPIConnection();
-  await syncAllData();
-  
-  if(btn) {
-    btn.disabled = false;
-    btn.innerHTML = safeIcon('refresh', 'lucide-sm') + ' Sinkronisasi Data';
-  }
+  const btn = document.getElementById('btnSyncData'); const statusTxt = document.getElementById('appStatusText'); const statusDot = document.getElementById('appStatusDot');
+  if(btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Sinkronisasi...'; }
+  if(statusTxt) statusTxt.textContent = 'Menyinkronkan...'; if(statusDot) statusDot.className = 'status-dot loading';
+  await checkAPIConnection(); await syncAllData();
+  if(btn) { btn.disabled = false; btn.innerHTML = safeIcon('refresh', 'lucide-sm') + ' Sinkronisasi Data'; }
   notify('Data berhasil disinkronkan ke versi terbaru!', 'success');
 }
 
-async function loadMasterData() {
-  const res = await apiGet('getMasterData');
-  if (res.success) masterData = res.data;
-  else throw new Error('Gagal memuat master data.');
-}
-
+async function loadMasterData() { const res = await apiGet('getMasterData'); if (res.success) masterData = res.data; }
 function initForms() {
   if (!masterData) return;
-  document.getElementById('incDate').value = todayStr();
-  document.getElementById('expDate').value = todayStr();
-
+  document.getElementById('incDate').value = todayStr(); document.getElementById('expDate').value = todayStr();
   const incSel = document.getElementById('incType');
-  
-  const perpuluhanGroup = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'];
-  const excludeList = ['Persembahan Khusus', ...perpuluhanGroup];
-  
-  let parentOptions = '<option value="">-- Pilih Kategori --</option>';
-  parentOptions += '<option value="Perpuluhan">Grup Perpuluhan (Otomatis Dibagi)</option>';
-  
-  (masterData.incomeTypes || []).forEach(x => {
-    if (!excludeList.includes(x.name)) {
-      parentOptions += `<option value="${x.name}">${x.name}</option>`;
-    }
-  });
-  
+  const perpuluhanGroup = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah']; const excludeList = ['Persembahan Khusus', ...perpuluhanGroup];
+  let parentOptions = '<option value="">-- Pilih Kategori --</option><option value="Perpuluhan">Grup Perpuluhan (Otomatis Dibagi)</option>';
+  (masterData.incomeTypes || []).forEach(x => { if (!excludeList.includes(x.name)) { parentOptions += `<option value="${x.name}">${x.name}</option>`; } });
   incSel.innerHTML = parentOptions;
-
-  const unitOptions = '<option value="">-- Pilih Unit (Tanpa Unit) --</option>' + 
-    (masterData.units || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
-  document.getElementById('incUnit').innerHTML = unitOptions;
-
-  const deptSel = document.getElementById('expDept');
-  deptSel.innerHTML = '<option value="">-- Pilih Bidang Kerja --</option>' + 
-    (masterData.departments || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
+  document.getElementById('incUnit').innerHTML = '<option value="">-- Pilih Unit (Tanpa Unit) --</option>' + (masterData.units || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
+  document.getElementById('expDept').innerHTML = '<option value="">-- Pilih Bidang Kerja --</option>' + (masterData.departments || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
+  
+  const givers = new Set(); (cachedIncome || []).forEach(x => { if(x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') givers.add(x.nama_pemberi); });
+  const giverList = document.getElementById('giverList'); if(giverList) giverList.innerHTML = Array.from(givers).map(g => `<option value="${g}">`).join('');
 }
 
 function handleTypeChange() {
-  const type = document.getElementById('incType').value;
-  const singleGrp = document.getElementById('incAmountSingleGroup');
-  const perpGrp = document.getElementById('incPerpuluhanGroup');
-  
-  if (singleGrp && perpGrp) {
-    if (type === 'Perpuluhan') {
-      singleGrp.style.display = 'none';
-      perpGrp.style.display = 'block';
-    } else {
-      singleGrp.style.display = 'block';
-      perpGrp.style.display = 'none';
-    }
-  }
+  const type = document.getElementById('incType').value; const singleGrp = document.getElementById('incAmountSingleGroup'); const perpGrp = document.getElementById('incPerpuluhanGroup');
+  if (singleGrp && perpGrp) { if (type === 'Perpuluhan') { singleGrp.style.display = 'none'; perpGrp.style.display = 'block'; } else { singleGrp.style.display = 'block'; perpGrp.style.display = 'none'; } }
   updateIncomeAlloc();
 }
 
 async function loadAllTransactions() {
-  try {
-    const [inc, exp] = await Promise.all([ apiGet('getIncomeList'), apiGet('getExpenseList') ]);
-    cachedIncome  = Array.isArray(inc.data)  ? inc.data  : [];
-    cachedExpense = Array.isArray(exp.data)  ? exp.data  : [];
-  } catch (e) {
-    cachedIncome  = cachedIncome  || [];
-    cachedExpense = cachedExpense || [];
-  }
-  try {
-    const bal = await apiGet('getBalances');
-    if (bal.data) cachedSaldo = bal.data;
-  } catch (e) { }
+  try { const [inc, exp] = await Promise.all([ apiGet('getIncomeList'), apiGet('getExpenseList') ]); cachedIncome = Array.isArray(inc.data) ? inc.data : []; cachedExpense = Array.isArray(exp.data) ? exp.data : []; } catch (e) {}
+  try { const bal = await apiGet('getBalances'); if (bal.data) cachedSaldo = bal.data; } catch (e) { }
 }
 
 function searchByReceipt() {
-  const q = document.getElementById('searchReceiptInput').value.trim().toLowerCase();
-  const resultDiv = document.getElementById('receiptSearchResult');
+  const q = document.getElementById('searchReceiptInput').value.trim().toLowerCase(); const resultDiv = document.getElementById('receiptSearchResult');
   const isViewer = currentUser && currentUser.role === 'Viewer';
-
-  if (!q) {
-    resultDiv.style.display = 'none';
-    return;
-  }
+  if (!q) { resultDiv.style.display = 'none'; return; }
 
   let validUnitNames = [];
-  if (masterData && masterData.units) {
-    validUnitNames = masterData.units
-      .filter(u => String(u.id).toLowerCase().includes(q))
-      .map(u => String(u.name).toLowerCase());
-  }
+  if (masterData && masterData.units) { validUnitNames = masterData.units.filter(u => String(u.id).toLowerCase().includes(q)).map(u => String(u.name).toLowerCase()); }
+  const foundIncomes = cachedIncome.filter(x => String(x.receipt_no || '').toLowerCase().includes(q) || String(x.transaction_id || '').toLowerCase().includes(q) || validUnitNames.includes(String(x.unit_name || '').toLowerCase())).map(x => ({...x, isInc: true}));
+  const foundExpenses = cachedExpense.filter(x => String(x.receipt_no || '').toLowerCase().includes(q) || String(x.transaction_id || '').toLowerCase().includes(q)).map(x => ({...x, isInc: false}));
 
-  const foundIncomes = cachedIncome.filter(x => {
-    const receiptMatch = String(x.receipt_no || '').toLowerCase().includes(q);
-    const transMatch = String(x.transaction_id || '').toLowerCase().includes(q);
-    const unitIdMatch = validUnitNames.includes(String(x.unit_name || '').toLowerCase());
-    
-    return receiptMatch || transMatch || unitIdMatch;
-  }).map(x => ({...x, isInc: true}));
-
-  const foundExpenses = cachedExpense.filter(x => {
-    const receiptMatch = String(x.receipt_no || '').toLowerCase().includes(q);
-    const transMatch = String(x.transaction_id || '').toLowerCase().includes(q);
-    return receiptMatch || transMatch;
-  }).map(x => ({...x, isInc: false}));
-
-  const allFound = [...foundIncomes, ...foundExpenses];
-  
-  allFound.sort((a,b) => new Date(b.date) - new Date(a.date));
-
+  const allFound = [...foundIncomes, ...foundExpenses]; allFound.sort((a,b) => new Date(b.date) - new Date(a.date));
   resultDiv.style.display = 'block';
   
   if (allFound.length > 0) {
     let html = '<div style="max-height: 380px; overflow-y: auto; padding-right: 6px;">';
-    const displayList = allFound.slice(0, 100);
-    
-    displayList.forEach(found => {
-      const sign = found.isInc ? '+' : '-';
-      const style = found.isInc ? 'amount-pos' : 'amount-neg';
-      const cat = found.isInc ? found.income_type : found.department;
-      const label = found.isInc ? 'Pemasukan' : 'Pengeluaran';
-      const badge = found.isInc ? 'badge-green' : 'badge-red';
-
-      const isPrivCategory = isViewer && found.isInc && isPrivateCategory(cat);
-      
-      let pemberiHtml = '';
-      if (found.isInc) {
-        if (isPrivCategory) {
-          pemberiHtml = `<div style="font-size: 13px; color: var(--text2); margin-bottom: 4px;">Pemberi/Unit: <strong style="color: var(--text)">*** (Privasi)</strong></div>`;
-        } else {
-          const pemberiStr = found.unit_name && found.unit_name !== '-' ? found.unit_name : (found.nama_pemberi || '-');
-          pemberiHtml = `<div style="font-size: 13px; color: var(--text2); margin-bottom: 4px;">Pemberi/Unit: <strong style="color: var(--text)">${pemberiStr}</strong></div>`;
-        }
-      }
-
+    allFound.slice(0, 100).forEach(found => {
+      const isPrivCategory = isViewer && found.isInc && isPrivateCategory(found.income_type);
+      const displayPemberi = isPrivCategory ? '*** (Privasi)' : (found.isInc ? (found.unit_name && found.unit_name !== '-' ? found.unit_name : (found.nama_pemberi || '-')) : '-');
       const displayNote = isPrivCategory ? '*** (Privasi)' : (found.note || '-');
+      
+      let photoBtn = '';
+      if (found.receipt_photo) {
+        photoBtn = `<button class="btn btn-ghost" style="padding:4px 8px; font-size:11px; margin-top:8px; border-color:var(--teal-pop); color:var(--teal-pop);" onclick="openPhotoModal('${found.receipt_photo}')">${safeIcon('image', 'lucide-sm')} Lihat Bukti Foto</button>`;
+      }
 
       html += `
         <div style="padding: 16px; border: 1px solid var(--glass-border2); border-radius: var(--radius); background: var(--empty-bg); margin-bottom: 10px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <span class="badge badge-gray" style="font-family: monospace;">${found.receipt_no}</span>
-            <span class="badge ${badge}">${label}</span>
+            <span class="badge ${found.isInc ? 'badge-green' : 'badge-red'}">${found.isInc ? 'Pemasukan' : 'Pengeluaran'}</span>
           </div>
-          <div style="font-size: 13px; color: var(--text2); margin-bottom: 4px;">Tanggal Bukukan: <strong style="color: var(--text)">${fmtDate(found.date)}</strong></div>
-          ${pemberiHtml}
-          <div style="font-size: 13px; color: var(--text2); margin-bottom: 8px;">Kategori: <strong style="color: var(--text)">${cat}</strong><br><span style="font-size:11px; color:var(--text3)">${displayNote}</span></div>
+          <div style="font-size: 13px; color: var(--text2); margin-bottom: 4px;">Tgl Bukukan: <strong style="color: var(--text)">${fmtDate(found.date)}</strong></div>
+          ${found.isInc ? `<div style="font-size: 13px; color: var(--text2); margin-bottom: 4px;">Pemberi/Unit: <strong style="color: var(--text)">${displayPemberi}</strong></div>` : ''}
+          <div style="font-size: 13px; color: var(--text2); margin-bottom: 8px;">Kategori: <strong style="color: var(--text)">${found.isInc ? found.income_type : found.department}</strong><br><span style="font-size:11px; color:var(--text3)">${displayNote}</span></div>
           <div class="form-section-title" style="margin: 12px 0 8px 0; border: none; padding: 0;">Nominal Tercatat</div>
-          <div class="${style}" style="font-size: 20px; font-weight: 700;">${sign}${fmt(found.amount)}</div>
-        </div>
-      `;
+          <div class="${found.isInc ? 'amount-pos' : 'amount-neg'}" style="font-size: 20px; font-weight: 700;">${found.isInc ? '+' : '-'}${fmt(found.amount)}</div>
+          ${photoBtn}
+        </div>`;
     });
-
-    if(allFound.length > 100) {
-      html += `<div style="text-align:center; font-size:12px; color:var(--text3); margin-top:8px;">Dan ${allFound.length - 100} transaksi lainnya...</div>`;
-    }
-    
-    html += '</div>';
-    resultDiv.innerHTML = html;
-
-  } else {
-    resultDiv.innerHTML = `<div class="empty-state" style="padding: 15px;"><p>Transaksi dengan kata kunci <strong>"${document.getElementById('searchReceiptInput').value}"</strong> tidak ditemukan.</p></div>`;
-  }
+    if(allFound.length > 100) html += `<div style="text-align:center; font-size:12px; color:var(--text3); margin-top:8px;">Dan ${allFound.length - 100} transaksi lainnya...</div>`;
+    html += '</div>'; resultDiv.innerHTML = html;
+  } else { resultDiv.innerHTML = `<div class="empty-state" style="padding: 15px;"><p>Transaksi tidak ditemukan.</p></div>`; }
 }
 
 function renderDashboard() {
   if (!cachedSaldo) return;
-  const month = parseInt(document.getElementById('dashMonth').value);
-  const year = parseInt(document.getElementById('dashYear').value);
+  const month = parseInt(document.getElementById('dashMonth').value); const year = parseInt(document.getElementById('dashYear').value);
   const isViewer = currentUser && currentUser.role === 'Viewer';
+  let targetDateEnd = month === 0 ? new Date(year, 11, 31, 23, 59, 59) : new Date(year, month, 0, 23, 59, 59);
 
-  let targetDateEnd;
-  if (month === 0) {
-    targetDateEnd = new Date(year, 11, 31, 23, 59, 59);
-  } else {
-    targetDateEnd = new Date(year, month, 0, 23, 59, 59);
-  }
-
-  const filteredInc = (cachedIncome || []).filter(x => {
-    const d = new Date(x.date);
-    return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month);
-  });
-
-  const filteredExp = (cachedExpense || []).filter(x => {
-    const d = new Date(x.date);
-    return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month);
-  });
-
+  const filteredInc = (cachedIncome || []).filter(x => { const d = new Date(x.date); return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month); });
+  const filteredExp = (cachedExpense || []).filter(x => { const d = new Date(x.date); return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month); });
   const historicalInc = (cachedIncome || []).filter(x => new Date(x.date) <= targetDateEnd);
   const historicalExp = (cachedExpense || []).filter(x => new Date(x.date) <= targetDateEnd);
 
-  let calcDaerah = cachedSaldo.initDaerah || 0;
-  let calcJemaat = cachedSaldo.initJemaat || 0;
-  let calcBangun = cachedSaldo.initBangun || 0;
+  let calcDaerah = cachedSaldo.initDaerah || 0; let calcJemaat = cachedSaldo.initJemaat || 0; let calcBangun = cachedSaldo.initBangun || 0;
+  historicalInc.forEach(i => { calcDaerah += (i.alloc_daerah || 0); calcJemaat += (i.alloc_jemaat || 0); calcBangun += (i.alloc_bangun || 0); });
+  historicalExp.forEach(e => { if (e.source_balance === 'Daerah') calcDaerah -= e.amount; else if (e.source_balance === 'Kas Jemaat') calcJemaat -= e.amount; else if (e.source_balance === 'Pembangunan') calcBangun -= e.amount; });
 
-  historicalInc.forEach(i => {
-    calcDaerah += (i.alloc_daerah || 0);
-    calcJemaat += (i.alloc_jemaat || 0);
-    calcBangun += (i.alloc_bangun || 0);
-  });
+  const calcTotal = calcDaerah + calcJemaat + calcBangun; const saldoAccrued = calcTotal - calcDaerah;
+  const totalIn = filteredInc.reduce((s, x) => s + x.amount, 0); const totalOut = filteredExp.reduce((s, x) => s + x.amount, 0);
 
-  historicalExp.forEach(e => {
-    if (e.source_balance === 'Daerah') calcDaerah -= e.amount;
-    else if (e.source_balance === 'Kas Jemaat') calcJemaat -= e.amount;
-    else if (e.source_balance === 'Pembangunan') calcBangun -= e.amount;
-  });
+  let totalPemberiPersepuluhan = 0; let totalAnggotaSistem = 0;
+  if (masterData && masterData.units) totalAnggotaSistem = masterData.units.reduce((s, u) => s + (parseInt(u.jumlah_anggota) || 0), 0);
+  const unitsGavePersepuluhan = new Set(); filteredInc.forEach(x => { if ((x.income_type || '').toLowerCase().includes('persepuluhan') || (x.income_type || '').toLowerCase().includes('perpuluhan')) unitsGavePersepuluhan.add(x.unit_name); });
+  if (masterData && masterData.units) masterData.units.forEach(u => { if (unitsGavePersepuluhan.has(u.name)) totalPemberiPersepuluhan += (parseInt(u.jumlah_anggota) || 0); });
 
-  const calcTotal = calcDaerah + calcJemaat + calcBangun;
-  const saldoAccrued = calcTotal - calcDaerah;
-
-  const totalIn = filteredInc.reduce((s, x) => s + x.amount, 0);
-  const totalOut = filteredExp.reduce((s, x) => s + x.amount, 0);
-
-  let totalPemberiPersepuluhan = 0;
-  let totalAnggotaSistem = 0;
-
-  if (masterData && masterData.units) {
-      totalAnggotaSistem = masterData.units.reduce((s, u) => s + (parseInt(u.jumlah_anggota) || 0), 0);
-  }
-
-  const unitsGavePersepuluhan = new Set();
-  filteredInc.forEach(x => {
-      if ((x.income_type || '').toLowerCase().includes('persepuluhan') || (x.income_type || '').toLowerCase().includes('perpuluhan')) {
-          unitsGavePersepuluhan.add(x.unit_name);
-      }
-  });
-
-  if (masterData && masterData.units) {
-      masterData.units.forEach(u => {
-          if (unitsGavePersepuluhan.has(u.name)) {
-              totalPemberiPersepuluhan += (parseInt(u.jumlah_anggota) || 0);
-          }
-      });
-  }
-
-  const targetPembangunan = 2500000000;
-  const persentaseBangun = (calcBangun / targetPembangunan) * 100;
-  const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
+  const targetPembangunan = 2500000000; const persentaseBangun = (calcBangun / targetPembangunan) * 100; const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
 
   document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-icon c-teal">${safeIcon('shield', 'lucide-lg')}</div>
-      <div class="stat-label">Total Saldo Terkonsolidasi</div>
-      <div class="stat-value" style="color:var(--moss-700)">${fmt(calcTotal)}</div>
-      <div class="stat-sub">Semua Kategori Kas Bank</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon c-moss">${safeIcon('log', 'lucide-lg')}</div>
-      <div class="stat-label">Total Saldo Bersih</div>
-      <div class="stat-value">${fmt(saldoAccrued)}</div>
-      <div class="stat-sub">Terkonsolidasi - Daerah</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon c-gold">${safeIcon('church', 'lucide-lg')}</div>
-      <div class="stat-label">Saldo Kas Jemaat</div>
-      <div class="stat-value" style="color:var(--teal-pop)">${fmt(calcJemaat)}</div>
-      <div class="stat-sub">Kas Operasional Jemaat</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon c-moss">${safeIcon('mappin', 'lucide-lg')}</div>
-      <div class="stat-label">Saldo Daerah</div>
-      <div class="stat-value" style="color:var(--sage)">${fmt(calcDaerah)}</div>
-      <div class="stat-sub">Persepuluhan & Alokasi Daerah</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon c-green">${safeIcon('hammer', 'lucide-lg')}</div>
-      <div class="stat-label">Dana Pembangunan</div>
-      <div class="stat-value" style="color:var(--gold)">${fmt(calcBangun)}</div>
-      <div class="stat-sub" style="margin-top: 8px;">
-        <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 5px; font-weight: 700; color: var(--text3);">
-          <span>TARGET: RP 2,5 MILIAR</span>
-          <span style="color: var(--moss-600);">${persentaseBangun.toFixed(2)}%</span>
-        </div>
-        <div class="saldo-bar-track" style="height: 6px; background: rgba(184, 148, 53, 0.15); box-shadow: none;">
-          <div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: linear-gradient(90deg, var(--gold), var(--gold-light));"></div>
-        </div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon c-green">${safeIcon('trendUp', 'lucide-lg')}</div>
-      <div class="stat-label">Masuk Periode Terpilih</div>
-      <div class="stat-value amount-pos">+${fmt(totalIn)}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon c-red">${safeIcon('trendDown', 'lucide-lg')}</div>
-      <div class="stat-label">Keluar Periode Terpilih</div>
-      <div class="stat-value amount-neg">-${fmt(totalOut)}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon c-moss">${safeIcon('users', 'lucide-lg')}</div>
-      <div class="stat-label">Partisipasi Persepuluhan</div>
-      <div class="stat-value" style="color:var(--text)">${totalPemberiPersepuluhan} <span style="font-size:14px; color:var(--text3)">/ ${totalAnggotaSistem}</span></div>
-      <div class="stat-sub">Total anggota dari unit yang Memberi</div>
-    </div>
+    <div class="stat-card"><div class="stat-icon c-teal">${safeIcon('shield', 'lucide-lg')}</div><div class="stat-label">Total Saldo Terkonsolidasi</div><div class="stat-value" style="color:var(--moss-700)">${fmt(calcTotal)}</div></div>
+    <div class="stat-card"><div class="stat-icon c-moss">${safeIcon('log', 'lucide-lg')}</div><div class="stat-label">Total Saldo Bersih</div><div class="stat-value">${fmt(saldoAccrued)}</div><div class="stat-sub">Terkonsolidasi - Daerah</div></div>
+    <div class="stat-card"><div class="stat-icon c-gold">${safeIcon('church', 'lucide-lg')}</div><div class="stat-label">Saldo Kas Jemaat</div><div class="stat-value" style="color:var(--teal-pop)">${fmt(calcJemaat)}</div></div>
+    <div class="stat-card"><div class="stat-icon c-moss">${safeIcon('mappin', 'lucide-lg')}</div><div class="stat-label">Saldo Daerah</div><div class="stat-value" style="color:var(--sage)">${fmt(calcDaerah)}</div></div>
+    <div class="stat-card"><div class="stat-icon c-green">${safeIcon('hammer', 'lucide-lg')}</div><div class="stat-label">Dana Pembangunan</div><div class="stat-value" style="color:var(--gold)">${fmt(calcBangun)}</div>
+      <div class="stat-sub" style="margin-top: 8px;"><div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 5px; font-weight: 700; color: var(--text3);"><span>TARGET: RP 2,5 MILIAR</span><span style="color: var(--moss-600);">${persentaseBangun.toFixed(2)}%</span></div>
+      <div class="saldo-bar-track" style="height: 6px; background: rgba(184, 148, 53, 0.15); box-shadow: none;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: linear-gradient(90deg, var(--gold), var(--gold-light));"></div></div></div></div>
+    <div class="stat-card"><div class="stat-icon c-green">${safeIcon('trendUp', 'lucide-lg')}</div><div class="stat-label">Masuk Periode Terpilih</div><div class="stat-value amount-pos">+${fmt(totalIn)}</div></div>
+    <div class="stat-card"><div class="stat-icon c-red">${safeIcon('trendDown', 'lucide-lg')}</div><div class="stat-label">Keluar Periode Terpilih</div><div class="stat-value amount-neg">-${fmt(totalOut)}</div></div>
+    <div class="stat-card"><div class="stat-icon c-moss">${safeIcon('users', 'lucide-lg')}</div><div class="stat-label">Partisipasi Persepuluhan</div><div class="stat-value" style="color:var(--text)">${totalPemberiPersepuluhan} <span style="font-size:14px; color:var(--text3)">/ ${totalAnggotaSistem}</span></div></div>
   `;
 
   const maxVal = Math.max(calcDaerah, calcJemaat, calcBangun, 1);
   document.getElementById('saldoBars').innerHTML = `
-    <div class="saldo-bar-wrap">
-      <div class="saldo-bar-label"><span>Kas Jemaat</span><span>${fmt(calcJemaat)}</span></div>
-      <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcJemaat/maxVal*100).toFixed(0)}%; background:linear-gradient(90deg, var(--teal-pop), var(--moss-200))"></div></div>
-    </div>
-    <div class="saldo-bar-wrap">
-      <div class="saldo-bar-label"><span>Kas Daerah</span><span>${fmt(calcDaerah)}</span></div>
-      <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcDaerah/maxVal*100).toFixed(0)}%; background:linear-gradient(90deg, var(--sage), var(--moss-300))"></div></div>
-    </div>
-    <div class="saldo-bar-wrap">
-      <div class="saldo-bar-label"><span>Dana Pembangunan</span><span>${fmt(calcBangun)}</span></div>
-      <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcBangun/maxVal*100).toFixed(0)}%; background:linear-gradient(90deg, var(--gold), var(--gold-light))"></div></div>
-    </div>
+    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Jemaat</span><span>${fmt(calcJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcJemaat/maxVal*100).toFixed(0)}%; background:linear-gradient(90deg, var(--teal-pop), var(--moss-200))"></div></div></div>
+    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah</span><span>${fmt(calcDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcDaerah/maxVal*100).toFixed(0)}%; background:linear-gradient(90deg, var(--sage), var(--moss-300))"></div></div></div>
+    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Dana Pembangunan</span><span>${fmt(calcBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcBangun/maxVal*100).toFixed(0)}%; background:linear-gradient(90deg, var(--gold), var(--gold-light))"></div></div></div>
   `;
 
-  let periodDaerah = 0;
-  let periodJemaat = 0;
-  let periodBangun = 0;
-
-  filteredInc.forEach(i => {
-    periodDaerah += (i.alloc_daerah || 0);
-    periodJemaat += (i.alloc_jemaat || 0);
-    periodBangun += (i.alloc_bangun || 0);
-  });
-
+  let periodDaerah = 0; let periodJemaat = 0; let periodBangun = 0;
+  filteredInc.forEach(i => { periodDaerah += (i.alloc_daerah || 0); periodJemaat += (i.alloc_jemaat || 0); periodBangun += (i.alloc_bangun || 0); });
   const periodTotal = periodDaerah + periodJemaat + periodBangun;
   
-  let allocHtml = '';
   if (periodTotal === 0) {
-    allocHtml = '<div class="empty-state" style="padding:15px; border:none; background:transparent;"><p>Belum ada pemasukan di periode ini.</p></div>';
+    document.getElementById('allocBars').innerHTML = '<div class="empty-state" style="padding:15px; border:none; background:transparent;"><p>Belum ada pemasukan di periode ini.</p></div>';
   } else {
-    const pctD = ((periodDaerah / periodTotal) * 100).toFixed(1);
-    const pctJ = ((periodJemaat / periodTotal) * 100).toFixed(1);
-    const pctB = ((periodBangun / periodTotal) * 100).toFixed(1);
-
-    allocHtml = `
-      <div class="saldo-bar-wrap">
-        <div class="saldo-bar-label"><span>Kas Jemaat (${pctJ}%)</span><span>${fmt(periodJemaat)}</span></div>
-        <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctJ}%; background:linear-gradient(90deg, var(--teal-pop), var(--moss-200))"></div></div>
-      </div>
-      <div class="saldo-bar-wrap">
-        <div class="saldo-bar-label"><span>Kas Daerah (${pctD}%)</span><span>${fmt(periodDaerah)}</span></div>
-        <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctD}%; background:linear-gradient(90deg, var(--sage), var(--moss-300))"></div></div>
-      </div>
-      <div class="saldo-bar-wrap">
-        <div class="saldo-bar-label"><span>Dana Pembangunan (${pctB}%)</span><span>${fmt(periodBangun)}</span></div>
-        <div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctB}%; background:linear-gradient(90deg, var(--gold), var(--gold-light))"></div></div>
-      </div>
+    const pctD = ((periodDaerah / periodTotal) * 100).toFixed(1); const pctJ = ((periodJemaat / periodTotal) * 100).toFixed(1); const pctB = ((periodBangun / periodTotal) * 100).toFixed(1);
+    document.getElementById('allocBars').innerHTML = `
+      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Jemaat (${pctJ}%)</span><span>${fmt(periodJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctJ}%; background:linear-gradient(90deg, var(--teal-pop), var(--moss-200))"></div></div></div>
+      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah (${pctD}%)</span><span>${fmt(periodDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctD}%; background:linear-gradient(90deg, var(--sage), var(--moss-300))"></div></div></div>
+      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Dana Pembangunan (${pctB}%)</span><span>${fmt(periodBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctB}%; background:linear-gradient(90deg, var(--gold), var(--gold-light))"></div></div></div>
     `;
   }
-  
-  const allocBarsEl = document.getElementById('allocBars');
-  if (allocBarsEl) allocBarsEl.innerHTML = allocHtml;
 
-  const jemaatBreakdown = {};
-  const daerahBreakdown = {};
-  const bangunBreakdown = {};
-
-  filteredInc.forEach(x => {
-    if (x.alloc_jemaat > 0) jemaatBreakdown[x.income_type] = (jemaatBreakdown[x.income_type] || 0) + x.alloc_jemaat;
-    if (x.alloc_daerah > 0) daerahBreakdown[x.income_type] = (daerahBreakdown[x.income_type] || 0) + x.alloc_daerah;
-    if (x.alloc_bangun > 0) bangunBreakdown[x.income_type] = (bangunBreakdown[x.income_type] || 0) + x.alloc_bangun;
-  });
-
+  const jBreak = {}; const dBreak = {}; const bBreak = {};
+  filteredInc.forEach(x => { if (x.alloc_jemaat > 0) jBreak[x.income_type] = (jBreak[x.income_type] || 0) + x.alloc_jemaat; if (x.alloc_daerah > 0) dBreak[x.income_type] = (dBreak[x.income_type] || 0) + x.alloc_daerah; if (x.alloc_bangun > 0) bBreak[x.income_type] = (bBreak[x.income_type] || 0) + x.alloc_bangun; });
   let catInTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th style="color: var(--text);">Rincian Pemasukan per Kas</th><th class="fit-col" style="text-align:right">Nominal Masuk</th></tr></thead><tbody>';
-  
-  if (filteredInc.length === 0) {
-    catInTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state" style="padding:15px"><p>Tidak ada pemasukan.</p></div></td></tr>';
-  } else {
-    if (Object.keys(jemaatBreakdown).length > 0) {
-      catInTable += `<tr style="background: rgba(23, 158, 132, 0.05); border-top: 2px solid var(--glass-border);"><td colspan="2"><strong style="color:var(--teal-pop); display:flex; align-items:center; gap:6px;">${safeIcon('church', 'lucide-sm')} Masuk ke Kas Jemaat</strong></td></tr>`;
-      Object.entries(jemaatBreakdown).forEach(([k, v]) => {
-        catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`;
-      });
-    }
-    if (Object.keys(daerahBreakdown).length > 0) {
-      catInTable += `<tr style="background: rgba(122, 158, 126, 0.05); border-top: 2px solid var(--glass-border);"><td colspan="2"><strong style="color:var(--sage); display:flex; align-items:center; gap:6px;">${safeIcon('mappin', 'lucide-sm')} Masuk ke Kas Daerah</strong></td></tr>`;
-      Object.entries(daerahBreakdown).forEach(([k, v]) => {
-        catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`;
-      });
-    }
-    if (Object.keys(bangunBreakdown).length > 0) {
-      catInTable += `<tr style="background: rgba(184, 148, 53, 0.05); border-top: 2px solid var(--glass-border);"><td colspan="2"><strong style="color:var(--gold); display:flex; align-items:center; gap:6px;">${safeIcon('hammer', 'lucide-sm')} Masuk ke Dana Pembangunan</strong></td></tr>`;
-      Object.entries(bangunBreakdown).forEach(([k, v]) => {
-        catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`;
-      });
-    }
+  if (filteredInc.length === 0) { catInTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state" style="padding:15px"><p>Tidak ada pemasukan.</p></div></td></tr>'; } else {
+    if (Object.keys(jBreak).length > 0) { catInTable += `<tr style="background: rgba(23, 158, 132, 0.05); border-top: 2px solid var(--glass-border);"><td colspan="2"><strong style="color:var(--teal-pop); display:flex; align-items:center; gap:6px;">${safeIcon('church', 'lucide-sm')} Masuk ke Kas Jemaat</strong></td></tr>`; Object.entries(jBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
+    if (Object.keys(dBreak).length > 0) { catInTable += `<tr style="background: rgba(122, 158, 126, 0.05); border-top: 2px solid var(--glass-border);"><td colspan="2"><strong style="color:var(--sage); display:flex; align-items:center; gap:6px;">${safeIcon('mappin', 'lucide-sm')} Masuk ke Kas Daerah</strong></td></tr>`; Object.entries(dBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
+    if (Object.keys(bBreak).length > 0) { catInTable += `<tr style="background: rgba(184, 148, 53, 0.05); border-top: 2px solid var(--glass-border);"><td colspan="2"><strong style="color:var(--gold); display:flex; align-items:center; gap:6px;">${safeIcon('hammer', 'lucide-sm')} Masuk ke Dana Pembangunan</strong></td></tr>`; Object.entries(bBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
   }
-  catInTable += '</tbody></table></div>';
-  document.getElementById('kategoriInTable').innerHTML = catInTable;
+  document.getElementById('kategoriInTable').innerHTML = catInTable + '</tbody></table></div>';
 
-  const categoryBreakdownOut = {};
-  filteredExp.forEach(x => { categoryBreakdownOut[x.department] = (categoryBreakdownOut[x.department] || 0) + x.amount; });
-
+  const catOutBreak = {}; filteredExp.forEach(x => { catOutBreak[x.department] = (catOutBreak[x.department] || 0) + x.amount; });
   let catOutTable = '<div class="table-wrap" style="margin-top:0"><table style="font-size:12px; min-width:100%;"><thead><tr><th style="color: var(--text);">Pengeluaran Departemen</th><th class="fit-col" style="text-align:right">Total</th></tr></thead><tbody>';
-  if (Object.keys(categoryBreakdownOut).length === 0) {
-    catOutTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state" style="padding:15px"><p>Tidak ada pengeluaran.</p></div></td></tr>';
-  } else {
-    Object.entries(categoryBreakdownOut).forEach(([k, v]) => {
-      catOutTable += `<tr><td><span class="badge badge-gold">${k}</span></td><td class="fit-col amount-neg" style="text-align:right">-${fmt(v)}</td></tr>`;
-    });
-  }
-  catOutTable += '</tbody></table></div>';
-  document.getElementById('kategoriOutTable').innerHTML = catOutTable;
+  if (Object.keys(catOutBreak).length === 0) { catOutTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state" style="padding:15px"><p>Tidak ada pengeluaran.</p></div></td></tr>'; } else { Object.entries(catOutBreak).forEach(([k, v]) => { catOutTable += `<tr><td><span class="badge badge-gold">${k}</span></td><td class="fit-col amount-neg" style="text-align:right">-${fmt(v)}</td></tr>`; }); }
+  document.getElementById('kategoriOutTable').innerHTML = catOutTable + '</tbody></table></div>';
 
-  const recent = [
-    ...filteredInc.map(x => ({ ...x, kind: 'income', style: 'amount-pos', sign: '+', badge: 'badge-green', label: 'Masuk' })),
-    ...filteredExp.map(x => ({ ...x, kind: 'expense', style: 'amount-neg', sign: '-', badge: 'badge-red', label: 'Keluar' }))
-  ].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+  const recent = [...filteredInc.map(x => ({ ...x, kind: 'income', style: 'amount-pos', sign: '+', badge: 'badge-green', label: 'Masuk' })), ...filteredExp.map(x => ({ ...x, kind: 'expense', style: 'amount-neg', sign: '-', badge: 'badge-red', label: 'Keluar' }))]
+    .sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
   document.getElementById('recentTrans').innerHTML = recent.map(x => {
     const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
-    const displayNote = isPrivCategory ? '*** (Privasi)' : (x.note || '-');
-
+    let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);" title="Lihat Foto Bukti">${safeIcon('image', 'lucide-sm')}</button>` : '';
     return `
       <tr>
         <td class="fit-col">${fmtDate(x.date)}</td>
         <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
-        <td><strong>${x.income_type || x.department}</strong><br><span style="font-size:11px; color:var(--text3)">${displayNote}</span></td>
+        <td><strong>${x.income_type || x.department}</strong><br><span style="font-size:11px; color:var(--text3)">${isPrivCategory ? '***' : (x.note || '-')}</span></td>
         <td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td>
-        <td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span></td>
+        <td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td>
       </tr>
     `;
-  }).join('') || '<tr><td colspan="5" style="text-align:center"><div class="empty-state"><p>Belum ada aktivitas jurnal masuk/keluar.</p></div></td></tr>';
+  }).join('') || '<tr><td colspan="5" style="text-align:center"><div class="empty-state"><p>Belum ada aktivitas.</p></div></td></tr>';
 }
 
 function getIncomeTypeConfig(name) { return masterData.incomeTypes.find(x => x.name === name) || null; }
 
 function updateIncomeAlloc() {
-  const type = document.getElementById('incType').value;
-  let allocD = 0, allocJ = 0, allocB = 0;
-
+  const type = document.getElementById('incType').value; let allocD = 0, allocJ = 0, allocB = 0;
   if (type === 'Perpuluhan') {
-    const amtP = parseFloat(document.getElementById('incAmtPerpuluhan').value) || 0;
-    const amtT = parseFloat(document.getElementById('incAmtTerpadu').value) || 0;
-    const amtKJ = parseFloat(document.getElementById('incAmtKhususJemaat').value) || 0;
-    const amtKD = parseFloat(document.getElementById('incAmtKhususDaerah').value) || 0;
-
-    const getPct = (name) => {
-      const cfg = getIncomeTypeConfig(name);
-      return cfg ? { d: cfg.pct_daerah, j: cfg.pct_jemaat, b: cfg.pct_bangun } : { d: 0, j: 0, b: 0 };
-    };
-
+    const amtP = parseFloat(document.getElementById('incAmtPerpuluhan').value) || 0; const amtT = parseFloat(document.getElementById('incAmtTerpadu').value) || 0; const amtKJ = parseFloat(document.getElementById('incAmtKhususJemaat').value) || 0; const amtKD = parseFloat(document.getElementById('incAmtKhususDaerah').value) || 0;
+    const getPct = (name) => { const cfg = getIncomeTypeConfig(name); return cfg ? { d: cfg.pct_daerah, j: cfg.pct_jemaat, b: cfg.pct_bangun } : { d: 0, j: 0, b: 0 }; };
     const cp = getPct('Perpuluhan'), ct = getPct('Terpadu'), ckj = getPct('Khusus Jemaat'), ckd = getPct('Khusus Daerah');
-
     allocD = (amtP * cp.d/100) + (amtT * ct.d/100) + (amtKJ * ckj.d/100) + (amtKD * ckd.d/100);
     allocJ = (amtP * cp.j/100) + (amtT * ct.j/100) + (amtKJ * ckj.j/100) + (amtKD * ckd.j/100);
     allocB = (amtP * cp.b/100) + (amtT * ct.b/100) + (amtKJ * ckj.b/100) + (amtKD * ckd.b/100);
   } else {
-    const amount = parseFloat(document.getElementById('incAmount').value) || 0;
-    const cfg = getIncomeTypeConfig(type);
-    if (cfg) { 
-      allocD = amount * cfg.pct_daerah / 100; 
-      allocJ = amount * cfg.pct_jemaat / 100; 
-      allocB = amount * cfg.pct_bangun / 100; 
-    }
+    const amount = parseFloat(document.getElementById('incAmount').value) || 0; const cfg = getIncomeTypeConfig(type);
+    if (cfg) { allocD = amount * cfg.pct_daerah / 100; allocJ = amount * cfg.pct_jemaat / 100; allocB = amount * cfg.pct_bangun / 100; }
   }
-
-  document.getElementById('allocDaerahVal').textContent = fmt(allocD);
-  document.getElementById('allocJemaatVal').textContent = fmt(allocJ);
-  document.getElementById('allocBangunVal').textContent = fmt(allocB);
+  document.getElementById('allocDaerahVal').textContent = fmt(allocD); document.getElementById('allocJemaatVal').textContent = fmt(allocJ); document.getElementById('allocBangunVal').textContent = fmt(allocB);
 }
 
 async function saveIncomeForm() {
-  const date = document.getElementById('incDate').value;
-  const type = document.getElementById('incType').value;
-  const unit = document.getElementById('incUnit').value;
-  const giver = document.getElementById('incGiver').value.trim();
-  const receipt = document.getElementById('incReceipt').value.trim();
-  const note = document.getElementById('incNote').value.trim();
+  const date = document.getElementById('incDate').value; const type = document.getElementById('incType').value;
+  const unit = document.getElementById('incUnit').value; const giver = document.getElementById('incGiver').value.trim();
+  const receipt = document.getElementById('incReceipt').value.trim(); const note = document.getElementById('incNote').value.trim();
 
   if (!date || !type || !receipt) { notify('Harap isi kolom tanggal, kategori, dan referensi!', 'error'); return; }
 
-  const btn = document.getElementById('savIncBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Memproses Setoran...';
-
+  const btn = document.getElementById('savIncBtn'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Memproses Setoran...';
   try {
     if (type === 'Perpuluhan') {
       const items = [];
-      ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'].forEach(k => {
-        const val = parseFloat(document.getElementById(`incAmt${k.replace(/\s/g, '')}`).value) || 0;
-        if (val > 0) items.push({ income_type: k, amount: val });
-      });
-
+      ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'].forEach(k => { const val = parseFloat(document.getElementById(`incAmt${k.replace(/\s/g, '')}`).value) || 0; if (val > 0) items.push({ income_type: k, amount: val, note }); });
       if (items.length === 0) throw new Error('Harap isi minimal satu nominal perpuluhan!');
-      
-      await Promise.all(items.map(item => 
-        apiPost('saveIncome', { 
-          date, income_type: item.income_type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', 
-          receipt_no: receipt, amount: item.amount, note, alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0 
-        })
-      ));
-
+      await apiPost('saveBulkIncome', { date, unit_name: unit || '-', receipt_no: receipt, items, receipt_photo_base64: currentIncPhoto });
     } else {
-      const amount = parseFloat(document.getElementById('incAmount').value) || 0;
-      if (amount <= 0) throw new Error('Harap isi nominal!');
-      
-      await apiPost('saveIncome', { 
-        date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', 
-        receipt_no: receipt, amount, note, alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0 
-      });
+      const amount = parseFloat(document.getElementById('incAmount').value) || 0; if (amount <= 0) throw new Error('Harap isi nominal!');
+      await apiPost('saveIncome', { date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount, note, alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0, receipt_photo_base64: currentIncPhoto });
     }
-
     notify('Setoran pemasukan berhasil dibukukan!', 'success');
     
-    document.getElementById('incType').value = '';
-    handleTypeChange();
-    document.getElementById('incUnit').value = '';
-    document.getElementById('incGiver').value = '';
-    document.getElementById('incReceipt').value = '';
-    document.getElementById('incAmount').value = '';
-    document.getElementById('incAmtPerpuluhan').value = '';
-    document.getElementById('incAmtTerpadu').value = '';
-    document.getElementById('incAmtKhususJemaat').value = '';
-    document.getElementById('incAmtKhususDaerah').value = '';
-    document.getElementById('incNote').value = '';
-    updateIncomeAlloc();
-
-    await syncAllData();
-    renderIncomeList();
-  } catch (err) { notify(err.message, 'error'); } 
-  finally { btn.disabled = false; btn.innerHTML = `${safeIcon('save', 'lucide-md')} Posting Pemasukan`; }
+    // Reset form dan foto
+    document.getElementById('incType').value = ''; handleTypeChange();
+    document.getElementById('incUnit').value = ''; document.getElementById('incGiver').value = '';
+    document.getElementById('incReceipt').value = ''; document.getElementById('incAmount').value = '';
+    document.getElementById('incAmtPerpuluhan').value = ''; document.getElementById('incAmtTerpadu').value = ''; document.getElementById('incAmtKhususJemaat').value = ''; document.getElementById('incAmtKhususDaerah').value = ''; document.getElementById('incNote').value = '';
+    
+    currentIncPhoto = ''; document.getElementById('incPhotoUpload').value = '';
+    document.getElementById('incPhotoPreview').style.display = 'none'; document.getElementById('incPhotoPreview').src = ''; document.getElementById('incPhotoIcon').style.display = 'block';
+    
+    updateIncomeAlloc(); await syncAllData(); renderIncomeList();
+  } catch (err) { notify(err.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = `${safeIcon('save', 'lucide-md')} Posting Pemasukan`; }
 }
 
 function renderIncomeList() {
@@ -2285,54 +1766,42 @@ function renderIncomeList() {
     <tr>
       <td class="fit-col">${fmtDate(x.date)}</td>
       <td><span class="badge badge-blue">${x.income_type}</span></td>
-      <td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td>
+      <td class="fit-col">
+        <span style="font-family:monospace">${x.receipt_no}</span>
+        ${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}
+      </td>
       <td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td>
     </tr>
   `).join('') || '<tr><td colspan="4" style="text-align:center; padding:12px">Belum ada transaksi.</td></tr>';
 }
 
 function checkSaldo() {
-  const src = document.getElementById('expSource').value;
-  const amount = parseFloat(document.getElementById('expAmount').value) || 0;
-
-  let avail = 0;
-  if (src === 'Daerah') avail = cachedSaldo.daerah;
-  if (src === 'Kas Jemaat') avail = cachedSaldo.jemaat;
-  if (src === 'Pembangunan') avail = cachedSaldo.bangun;
-
-  document.getElementById('saldoTersedia').textContent = fmt(avail);
-  document.getElementById('saldoWarning').style.display = amount > avail ? 'flex' : 'none';
+  const src = document.getElementById('expSource').value; const amount = parseFloat(document.getElementById('expAmount').value) || 0;
+  let avail = src === 'Daerah' ? cachedSaldo.daerah : (src === 'Kas Jemaat' ? cachedSaldo.jemaat : cachedSaldo.bangun);
+  document.getElementById('saldoTersedia').textContent = fmt(avail); document.getElementById('saldoWarning').style.display = amount > avail ? 'flex' : 'none';
 }
 
 async function saveExpenseForm() {
-  const date = document.getElementById('expDate').value;
-  const dept = document.getElementById('expDept').value;
-  const src = document.getElementById('expSource').value;
-  const receipt = document.getElementById('expReceipt').value.trim();
-  const amount = parseFloat(document.getElementById('expAmount').value) || 0;
-  const note = document.getElementById('expNote').value.trim();
+  const date = document.getElementById('expDate').value; const dept = document.getElementById('expDept').value;
+  const src = document.getElementById('expSource').value; const receipt = document.getElementById('expReceipt').value.trim();
+  const amount = parseFloat(document.getElementById('expAmount').value) || 0; const note = document.getElementById('expNote').value.trim();
 
   if (!date || !dept || !receipt || amount <= 0) { notify('Harap isi kolom tanggal, departemen, bukti kas, dan nominal!', 'error'); return; }
+  let avail = src === 'Daerah' ? cachedSaldo.daerah : (src === 'Kas Jemaat' ? cachedSaldo.jemaat : cachedSaldo.bangun);
+  if (amount > avail) { notify('Batal Posting. Saldo tidak memadai!', 'error'); return; }
 
-  let avail = 0;
-  if (src === 'Daerah') avail = cachedSaldo.daerah;
-  if (src === 'Kas Jemaat') avail = cachedSaldo.jemaat;
-  if (src === 'Pembangunan') avail = cachedSaldo.bangun;
-
-  if (amount > avail) { notify('Batal Posting. Saldo kas terpilih tidak memadai!', 'error'); return; }
-
-  const btn = document.getElementById('savExpBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Menyimpan Kas...';
-
+  const btn = document.getElementById('savExpBtn'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Menyimpan Kas...';
   try {
-    await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note });
+    await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentExpPhoto });
     notify('Pencatatan pengeluaran berhasil!', 'success');
-    document.getElementById('expDept').value = ''; document.getElementById('expReceipt').value = '';
-    document.getElementById('expAmount').value = ''; document.getElementById('expNote').value = '';
+    
+    // Reset form
+    document.getElementById('expDept').value = ''; document.getElementById('expReceipt').value = ''; document.getElementById('expAmount').value = ''; document.getElementById('expNote').value = '';
+    currentExpPhoto = ''; document.getElementById('expPhotoUpload').value = '';
+    document.getElementById('expPhotoPreview').style.display = 'none'; document.getElementById('expPhotoPreview').src = ''; document.getElementById('expPhotoIcon').style.display = 'block';
+    
     await syncAllData(); renderExpenseList();
-  } catch (err) { notify(err.message, 'error'); } 
-  finally { btn.disabled = false; btn.innerHTML = `${safeIcon('save')} Posting Pengeluaran`; }
+  } catch (err) { notify(err.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = `${safeIcon('save', 'lucide-md')} Posting Pengeluaran`; }
 }
 
 function renderExpenseList() {
@@ -2341,28 +1810,24 @@ function renderExpenseList() {
     <tr>
       <td class="fit-col">${fmtDate(x.date)}</td>
       <td><strong>${x.department}</strong></td>
-      <td class="fit-col"><span class="badge badge-gold">${x.source_balance}</span></td>
+      <td class="fit-col">
+        <span class="badge badge-gray">${x.receipt_no}</span>
+        ${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}
+      </td>
       <td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td>
     </tr>
   `).join('') || '<tr><td colspan="4" style="text-align:center; padding:12px">Belum ada transaksi.</td></tr>';
 }
 
 async function loadReport() {
-  const month = parseInt(document.getElementById('rptMonth').value);
-  const year = parseInt(document.getElementById('rptYear').value);
-  const rc = document.getElementById('reportContent');
-
+  const month = parseInt(document.getElementById('rptMonth').value); const year = parseInt(document.getElementById('rptYear').value); const rc = document.getElementById('reportContent');
   rc.innerHTML = '<div style="text-align:center; padding:40px;"><span class="spinner"></span> Sedang Menyusun Laporan...</div>';
-  try {
-    const res = await apiGet('getMonthlyReport', { month, year });
-    if (res.success) renderReportView(res.data);
-  } catch(e) { rc.innerHTML = `<div style="text-align:center; padding:20px; color:var(--red-pop)">Gagal memuat: ${e.message}</div>`; }
+  try { const res = await apiGet('getMonthlyReport', { month, year }); if (res.success) renderReportView(res.data); } catch(e) { rc.innerHTML = `<div style="text-align:center; padding:20px; color:var(--red-pop)">Gagal memuat: ${e.message}</div>`; }
 }
 
 function renderReportView(data) {
   const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-  const s = data.summary; const bal = s.balances || cachedSaldo;
-  const isViewer = currentUser && currentUser.role === 'Viewer';
+  const s = data.summary; const bal = s.balances || cachedSaldo; const isViewer = currentUser && currentUser.role === 'Viewer';
 
   let html = `
     <div class="card" style="margin-top:20px">
@@ -2385,7 +1850,6 @@ function renderReportView(data) {
   else {
     Object.entries(data.incByCategory).forEach(([category, items]) => {
       const isPrivCategory = isViewer && isPrivateCategory(category);
-      
       const tot = items.reduce((sum, x) => sum + x.amount, 0);
       html += `
         <div style="margin-bottom:20px">
@@ -2394,34 +1858,20 @@ function renderReportView(data) {
           </div>
           <div class="table-wrap">
             <table>
-              <thead>
-                <tr><th class="fit-col">Tanggal</th><th>Pemberi</th><th class="fit-col">Referensi No.</th><th>Keterangan</th><th class="fit-col" style="text-align:right">Subtotal</th></tr>
-              </thead>
+              <thead><tr><th class="fit-col">Tanggal</th><th>Pemberi</th><th class="fit-col">Referensi No.</th><th>Keterangan</th><th class="fit-col" style="text-align:right">Subtotal</th></tr></thead>
               <tbody>
                 ${items.map(x => {
                   const displayNote = isPrivCategory ? '*** (Privasi)' : (x.note || '-');
                   let rawPemberi = (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') ? x.nama_pemberi : (x.unit_name || '-');
-                  
-                  const displayPemberi = isPrivCategory ? '*** (Privasi)' : rawPemberi;
-                  
-                  return `
-                  <tr>
-                    <td class="fit-col">${fmtDate(x.date)}</td>
-                    <td>${displayPemberi}</td>
-                    <td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td>
-                    <td>${displayNote}</td>
-                    <td class="fit-col amount-pos" style="text-align:right">${fmt(x.amount)}</td>
-                  </tr>
-                `}).join('')}
+                  return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td>${isPrivCategory ? '***' : rawPemberi}</td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td><td>${displayNote}</td><td class="fit-col amount-pos" style="text-align:right">${fmt(x.amount)}</td></tr>`
+                }).join('')}
               </tbody>
             </table>
           </div>
         </div>`;
     });
   }
-  html += '</div>';
-
-  html += `<div class="card"><div class="form-section-title">B. Perincian Dana Keluar</div>`;
+  html += '</div><div class="card"><div class="form-section-title">B. Perincian Dana Keluar</div>';
   if (Object.keys(data.expByDept).length === 0) html += '<div class="empty-state"><p>Tidak ada pengeluaran belanja.</p></div>';
   else {
     Object.entries(data.expByDept).forEach(([dept, items]) => {
@@ -2433,83 +1883,51 @@ function renderReportView(data) {
           </div>
           <div class="table-wrap">
             <table>
-              <thead>
-                <tr><th class="fit-col">Tanggal</th><th class="fit-col">Sumber Kas</th><th class="fit-col">Referensi No.</th><th>Keperluan</th><th class="fit-col" style="text-align:right">Subtotal</th></tr>
-              </thead>
+              <thead><tr><th class="fit-col">Tanggal</th><th class="fit-col">Sumber Kas</th><th class="fit-col">Referensi No.</th><th>Keperluan</th><th class="fit-col" style="text-align:right">Subtotal</th></tr></thead>
               <tbody>
-                ${items.map(x => `
-                  <tr>
-                    <td class="fit-col">${fmtDate(x.date)}</td>
-                    <td class="fit-col"><span class="badge badge-gold">${x.source_balance}</span></td>
-                    <td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td>
-                    <td>${x.note || '-'}</td>
-                    <td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td>
-                  </tr>
-                `).join('')}
+                ${items.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge badge-gold">${x.source_balance}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td><td>${x.note || '-'}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('')}
               </tbody>
             </table>
           </div>
         </div>`;
     });
   }
-  html += '</div>';
-  document.getElementById('reportContent').innerHTML = html;
+  document.getElementById('reportContent').innerHTML = html + '</div>';
 }
 
 function renderHistory() {
-  const q = document.getElementById('searchTrans').value.toLowerCase();
-  const giverQ = (document.getElementById('filterGiver')?.value || '').toLowerCase();
-  const type = document.getElementById('filterType').value;
-  const month = parseInt(document.getElementById('filterMonth')?.value || 0);
-  const year = parseInt(document.getElementById('filterYear')?.value || 0);
+  const q = document.getElementById('searchTrans').value.toLowerCase(); const giverQ = (document.getElementById('filterGiver')?.value || '').toLowerCase();
+  const type = document.getElementById('filterType').value; const month = parseInt(document.getElementById('filterMonth')?.value || 0); const year = parseInt(document.getElementById('filterYear')?.value || 0);
   
   let list = [];
-  
   if (type !== 'expense') (cachedIncome || []).forEach(x => list.push({ ...x, type: 'income', badge: 'badge-green', label: 'Masuk', style: 'amount-pos', sign: '+' }));
   if (type !== 'income') (cachedExpense || []).forEach(x => list.push({ ...x, type: 'expense', badge: 'badge-red', label: 'Keluar', style: 'amount-neg', sign: '-' }));
   
   list.sort((a,b) => new Date(b.date) - new Date(a.date));
-  
   list = list.filter(x => {
-    let match = true;
     const d = new Date(x.date);
-    
-    if (year !== 0 && d.getFullYear() !== year) match = false;
-    if (month !== 0 && (d.getMonth() + 1) !== month) match = false;
-    
-    if (q && !`${x.income_type || x.department} ${x.note || ''} ${x.receipt_no}`.toLowerCase().includes(q)) match = false;
-    
-    if (giverQ) {
-      if (x.type === 'expense') {
-        match = false;
-      } else {
-        const giverStr = `${x.nama_pemberi || ''} ${x.unit_name || ''}`.toLowerCase();
-        if (!giverStr.includes(giverQ)) match = false;
-      }
-    }
-    
-    return match;
+    if (year !== 0 && d.getFullYear() !== year) return false;
+    if (month !== 0 && (d.getMonth() + 1) !== month) return false;
+    if (q && !`${x.income_type || x.department} ${x.note || ''} ${x.receipt_no}`.toLowerCase().includes(q)) return false;
+    if (giverQ) { if (x.type === 'expense') return false; const giverStr = `${x.nama_pemberi || ''} ${x.unit_name || ''}`.toLowerCase(); if (!giverStr.includes(giverQ)) return false; }
+    return true;
   });
 
-  const isAdmin = currentUser.role === 'Admin';
-  const isBendahara = currentUser.role === 'Bendahara';
-  const canEdit = isAdmin || isBendahara;
-  const isViewer = currentUser.role === 'Viewer';
+  const isAdmin = currentUser.role === 'Admin'; const canEdit = isAdmin || currentUser.role === 'Bendahara'; const isViewer = currentUser.role === 'Viewer';
 
   document.getElementById('historyList').innerHTML = list.map(x => {
     const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
-    
-    const displayNote = isPrivCategory ? '*** (Privasi)' : (x.note || '-');
-    const displayPemberi = isPrivCategory ? '*** (Privasi)' : (x.nama_pemberi || '-');
     const deleteId = x.transaction_id || x.receipt_no || '';
+    
+    let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);" title="Lihat Foto Bukti">${safeIcon('image', 'lucide-sm')}</button>` : '';
 
     return `
     <tr>
       <td class="fit-col">${fmtDate(x.date)}</td>
       <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
-      <td><strong>${x.income_type || x.department || '-'}</strong><br><span style="font-size:11px; color:var(--text3)">${displayNote}</span></td>
-      <td class="fit-col"><span class="badge badge-gray">${x.receipt_no || '-'}</span></td>
-      <td>${displayPemberi}</td>
+      <td><strong>${x.income_type || x.department || '-'}</strong><br><span style="font-size:11px; color:var(--text3)">${isPrivCategory ? '***' : (x.note || '-')}</span></td>
+      <td class="fit-col"><span class="badge badge-gray">${x.receipt_no || '-'}</span> ${photoBtn}</td>
+      <td>${isPrivCategory ? '***' : (x.nama_pemberi || '-')}</td>
       <td class="fit-col ${x.style}" style="text-align:right"><strong>${x.sign}${fmt(x.amount)}</strong></td>
       <td class="fit-col" style="text-align:right; min-width:140px;">
         ${canEdit && deleteId ? `<button class="btn btn-ghost" style="padding:4px 8px; font-size:11px; margin-right:4px;" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit')} Edit</button>` : ''}
@@ -2519,486 +1937,230 @@ function renderHistory() {
 }
 
 let currentEditTransaction = null;
-
 function handleEditTypeChange() {
-  const type = document.getElementById('editTransCat').value;
-  const subCatGroup = document.getElementById('editTransSubCatGroup');
-  if(subCatGroup) {
-    subCatGroup.style.display = (type === 'Perpuluhan' && currentEditTransaction && currentEditTransaction.type === 'income') ? 'block' : 'none';
-  }
+  const type = document.getElementById('editTransCat').value; const subCatGroup = document.getElementById('editTransSubCatGroup');
+  if(subCatGroup) subCatGroup.style.display = (type === 'Perpuluhan' && currentEditTransaction && currentEditTransaction.type === 'income') ? 'block' : 'none';
 }
 
 function openEditTrans(type, id) {
   const list = type === 'income' ? cachedIncome : cachedExpense;
   const trx = list.find(x => (x.transaction_id || x.receipt_no) === id);
   if(!trx) { notify('Transaksi tidak ditemukan di cache.', 'error'); return; }
-
   currentEditTransaction = { type, id, original: trx };
 
   document.getElementById('editTransModal').style.display = 'flex';
-  document.getElementById('editTransDate').value = fmtDate(trx.date);
-  document.getElementById('editTransAmount').value = trx.amount;
-  document.getElementById('editTransNote').value = trx.note || '';
-  document.getElementById('editTransReceipt').value = trx.receipt_no || '';
+  document.getElementById('editTransDate').value = fmtDate(trx.date); document.getElementById('editTransAmount').value = trx.amount; document.getElementById('editTransNote').value = trx.note || ''; document.getElementById('editTransReceipt').value = trx.receipt_no || '';
 
-  const catSelect = document.getElementById('editTransCat');
-  const subCatSelect = document.getElementById('editTransSubCat');
-  const subCatGroup = document.getElementById('editTransSubCatGroup');
-  
-  catSelect.innerHTML = '';
-  if (subCatSelect) subCatSelect.innerHTML = '';
+  const catSelect = document.getElementById('editTransCat'); const subCatSelect = document.getElementById('editTransSubCat'); const subCatGroup = document.getElementById('editTransSubCatGroup');
+  catSelect.innerHTML = ''; if (subCatSelect) subCatSelect.innerHTML = '';
   
   if(type === 'income') {
       document.getElementById('editTransCatLabel').textContent = 'Kategori Pemasukan';
-      
-      const perpuluhanGroup = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'];
-      const excludeList = ['Persembahan Khusus', ...perpuluhanGroup];
-      
+      const perpuluhanGroup = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah']; const excludeList = ['Persembahan Khusus', ...perpuluhanGroup];
       catSelect.add(new Option('Perpuluhan (Grup)', 'Perpuluhan'));
-      (masterData.incomeTypes || []).forEach(x => {
-        if (perpuluhanGroup.includes(x.name) && subCatSelect) subCatSelect.add(new Option(x.name, x.name));
-        if (!excludeList.includes(x.name)) catSelect.add(new Option(x.name, x.name));
-      });
-      
-      if (perpuluhanGroup.includes(trx.income_type)) {
-        catSelect.value = 'Perpuluhan';
-        if (subCatSelect) subCatSelect.value = trx.income_type;
-        if (subCatGroup) subCatGroup.style.display = 'block';
-      } else {
-        catSelect.value = trx.income_type;
-        if (subCatGroup) subCatGroup.style.display = 'none';
-      }
-      
-      document.getElementById('editTransUnitGroup').style.display = 'block';
-      document.getElementById('editTransSourceGroup').style.display = 'none';
-
-      const unitSelect = document.getElementById('editTransUnit');
-      unitSelect.innerHTML = '<option value="">-- Tanpa Unit --</option>';
-      (masterData.units || []).forEach(x => unitSelect.add(new Option(x.name, x.name)));
-      unitSelect.value = trx.unit_name || '';
-
+      const existingTypes = [];
+      (masterData.incomeTypes || []).forEach(x => { existingTypes.push(x.name); if (perpuluhanGroup.includes(x.name) && subCatSelect) subCatSelect.add(new Option(x.name, x.name)); if (!excludeList.includes(x.name)) catSelect.add(new Option(x.name, x.name)); });
+      if (trx.income_type && !existingTypes.includes(trx.income_type) && !perpuluhanGroup.includes(trx.income_type)) catSelect.add(new Option(trx.income_type + ' (Histori)', trx.income_type));
+      if (perpuluhanGroup.includes(trx.income_type)) { catSelect.value = 'Perpuluhan'; if (subCatSelect) subCatSelect.value = trx.income_type; if (subCatGroup) subCatGroup.style.display = 'block'; } else { catSelect.value = trx.income_type; if (subCatGroup) subCatGroup.style.display = 'none'; }
+      document.getElementById('editTransUnitGroup').style.display = 'block'; document.getElementById('editTransSourceGroup').style.display = 'none';
+      const unitSelect = document.getElementById('editTransUnit'); unitSelect.innerHTML = '<option value="">-- Tanpa Unit --</option>'; const existingUnits = [];
+      (masterData.units || []).forEach(x => { existingUnits.push(x.name); unitSelect.add(new Option(x.name, x.name)); });
+      if (trx.unit_name && trx.unit_name !== '-' && !existingUnits.includes(trx.unit_name)) unitSelect.add(new Option(trx.unit_name + ' (Histori)', trx.unit_name)); unitSelect.value = trx.unit_name || '';
   } else {
       document.getElementById('editTransCatLabel').textContent = 'Departemen Pengeluaran';
-      (masterData.departments || []).forEach(x => catSelect.add(new Option(x.name, x.name)));
-      catSelect.value = trx.department;
+      const existingDepts = []; (masterData.departments || []).forEach(x => { existingDepts.push(x.name); catSelect.add(new Option(x.name, x.name)); });
+      if (trx.department && !existingDepts.includes(trx.department)) catSelect.add(new Option(trx.department + ' (Histori)', trx.department)); 
       
-      if (subCatGroup) subCatGroup.style.display = 'none';
-      document.getElementById('editTransUnitGroup').style.display = 'none';
+      // PERBAIKAN: Kode yang terpotong disambung kembali di bawah ini
+      catSelect.value = trx.department || '';
+      document.getElementById('editTransUnitGroup').style.display = 'none'; 
       document.getElementById('editTransSourceGroup').style.display = 'block';
-
       document.getElementById('editTransSource').value = trx.source_balance || 'Kas Jemaat';
   }
 }
 
+function closeEditModal() {
+  document.getElementById('editTransModal').style.display = 'none';
+  currentEditTransaction = null; currentEditPhoto = '';
+  document.getElementById('editPhotoUpload').value = '';
+  document.getElementById('editTransPhotoPreview').style.display = 'none';
+  document.getElementById('editTransPhotoPreview').src = '';
+  document.getElementById('editTransPhotoIcon').style.display = 'block';
+}
+
 async function saveEditTransaction() {
   if(!currentEditTransaction) return;
-  const btn = document.getElementById('btnSaveEditTrans');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Menyimpan...';
+  const { type, id, original } = currentEditTransaction;
+  const date = document.getElementById('editTransDate').value;
+  const receipt = document.getElementById('editTransReceipt').value.trim();
+  const amount = parseFloat(document.getElementById('editTransAmount').value) || 0;
+  const note = document.getElementById('editTransNote').value.trim();
 
-  try {
-    const payload = {
-      type: currentEditTransaction.type,
-      transaction_id: currentEditTransaction.id,
-      date: document.getElementById('editTransDate').value,
-      receipt_no: document.getElementById('editTransReceipt').value.trim(),
-      amount: parseFloat(document.getElementById('editTransAmount').value) || 0,
-      note: document.getElementById('editTransNote').value.trim()
-    };
+  if(!date || !receipt || amount <= 0) { notify('Isi form dengan benar!', 'error'); return; }
 
-    if (currentEditTransaction.type === 'income') {
-      const parentType = document.getElementById('editTransCat').value;
-      payload.income_type = (parentType === 'Perpuluhan') ? document.getElementById('editTransSubCat').value : parentType;
-      payload.unit_name = document.getElementById('editTransUnit').value;
-      payload.nama_pemberi = currentEditTransaction.original.nama_pemberi;
-    } else {
-      payload.department = document.getElementById('editTransCat').value;
-      payload.source_balance = document.getElementById('editTransSource').value;
-    }
-
-    if(!payload.date || !payload.amount) {
-      throw new Error("Tanggal dan Nominal wajib diisi!");
-    }
-
-    await apiPostWithFallback('editRecord', payload);
-    
-    notify('Transaksi berhasil diperbarui!', 'success');
-    document.getElementById('editTransModal').style.display = 'none';
-    
-    await syncAllData();
-    renderHistory();
-    if(currentEditTransaction.type === 'income') renderIncomeList();
-    if(currentEditTransaction.type === 'expense') renderExpenseList();
-  } catch(e) {
-    notify(e.message, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `${safeIcon('save', 'lucide-sm')} Simpan Perubahan`;
+  let payload = { type, transaction_id: id, date, receipt_no: receipt, amount, note, receipt_photo_base64: currentEditPhoto, original };
+  if(type === 'income') {
+    const cat = document.getElementById('editTransCat').value;
+    payload.income_type = cat === 'Perpuluhan' ? document.getElementById('editTransSubCat').value : cat;
+    payload.unit_name = document.getElementById('editTransUnit').value || '-';
+  } else {
+    payload.department = document.getElementById('editTransCat').value;
+    payload.source_balance = document.getElementById('editTransSource').value;
   }
+
+  const btn = document.getElementById('btnSaveEditTrans'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Menyimpan...';
+  try {
+    await apiPostWithFallback('editRecord', payload);
+    notify('Perubahan berhasil disimpan!', 'success');
+    closeEditModal(); await syncAllData(); renderHistory();
+  } catch(e) { notify(e.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = safeIcon('save', 'lucide-sm') + ' Simpan Perubahan'; }
 }
 
 async function deleteTransaction(type, id) {
-  const isConfirm = await showCustomConfirm('Hapus Transaksi', `Yakin ingin menghapus permanen jurnal dengan referensi ${id}?`);
+  const isConfirm = await showCustomConfirm('Hapus Transaksi', 'Hapus permanen jurnal ini?');
   if (!isConfirm) return;
-  try {
-    await apiPost('deleteRecord', { type, transaction_id: id });
-    notify('Satu arsip jurnal berhasil dihapus.', 'success');
-    await syncAllData(); renderHistory();
-  } catch(e) { notify(e.message, 'error'); }
+  try { await apiPost('deleteRecord', { type, transaction_id: id }); notify('Jurnal berhasil dihapus.', 'success'); await syncAllData(); renderHistory(); } 
+  catch(e) { notify(e.message, 'error'); }
 }
 
-function editIncType(name, pctDaerah, pctJemaat, pctBangun) {
-  editingIncType = name;
-  document.getElementById('incTypeFormTitle').textContent = `Ubah Kategori: ${name}`;
-  document.getElementById('newIncTypeName').value = name;
-  document.getElementById('newIncTypePctDaerah').value = pctDaerah;
-  document.getElementById('newIncTypePctJemaat').value = pctJemaat;
-  document.getElementById('newIncTypePctBangun').value = pctBangun;
-  document.getElementById('incTypeSaveBtn').innerHTML = `${safeIcon('edit')} Update Kategori`;
-  document.getElementById('incTypeCancelBtn').style.display = 'inline-flex';
+// --- Master Data ---
+function editIncType(name, pd, pj, pb) {
+  editingIncType = name; document.getElementById('incTypeFormTitle').textContent = 'Ubah Kategori';
+  document.getElementById('newIncTypeName').value = name; document.getElementById('newIncTypePctDaerah').value = pd;
+  document.getElementById('newIncTypePctJemaat').value = pj; document.getElementById('newIncTypePctBangun').value = pb;
+  document.getElementById('incTypeSaveBtn').innerHTML = safeIcon('save', 'lucide-sm') + ' Update'; document.getElementById('incTypeCancelBtn').style.display = 'inline-flex';
 }
-
 function cancelEditIncType() {
-  editingIncType = null;
-  document.getElementById('incTypeFormTitle').textContent = 'Tambah Kategori Masukan Baru';
-  document.getElementById('newIncTypeName').value = '';
-  document.getElementById('newIncTypePctDaerah').value = '0';
-  document.getElementById('newIncTypePctJemaat').value = '100';
-  document.getElementById('newIncTypePctBangun').value = '0';
-  document.getElementById('incTypeSaveBtn').innerHTML = `${safeIcon('plus')} Simpan Kategori`;
-  document.getElementById('incTypeCancelBtn').style.display = 'none';
+  editingIncType = null; document.getElementById('incTypeFormTitle').textContent = 'Tambah Kategori';
+  document.getElementById('newIncTypeName').value = ''; document.getElementById('newIncTypePctDaerah').value = '0';
+  document.getElementById('newIncTypePctJemaat').value = '100'; document.getElementById('newIncTypePctBangun').value = '0';
+  document.getElementById('incTypeSaveBtn').innerHTML = safeIcon('plus', 'lucide-sm') + ' Simpan'; document.getElementById('incTypeCancelBtn').style.display = 'none';
 }
-
 async function saveIncTypeForm() {
-  const name = document.getElementById('newIncTypeName').value.trim();
-  const pctDaerah = parseFloat(document.getElementById('newIncTypePctDaerah').value) || 0;
-  const pctJemaat = parseFloat(document.getElementById('newIncTypePctJemaat').value) || 0;
-  const pctBangun = parseFloat(document.getElementById('newIncTypePctBangun').value) || 0;
-
-  if (!name) { notify('Nama kategori masukan wajib diisi!', 'error'); return; }
-  if ((pctDaerah + pctJemaat + pctBangun) !== 100) { notify('Gagal! Total proporsi alokasi pembagian harus tepat 100%!', 'error'); return; }
-
+  const name = document.getElementById('newIncTypeName').value.trim(); const pd = parseFloat(document.getElementById('newIncTypePctDaerah').value)||0; const pj = parseFloat(document.getElementById('newIncTypePctJemaat').value)||0; const pb = parseFloat(document.getElementById('newIncTypePctBangun').value)||0;
+  if(!name) return; if(Math.round(pd+pj+pb) !== 100) { notify('Total harus 100%!', 'error'); return; }
   const btn = document.getElementById('incTypeSaveBtn'); btn.disabled = true;
-  try {
-    await apiPostWithFallback('saveIncomeType', {
-      name,
-      pct_daerah: pctDaerah,
-      pct_jemaat: pctJemaat,
-      pct_bangun: pctBangun,
-      oldName: editingIncType,
-      isUpdate: !!editingIncType
-    });
-    notify(editingIncType ? 'Kategori masukan berhasil diperbarui.' : 'Kategori masukan baru berhasil ditambahkan.', 'success');
-    cancelEditIncType();
-    await syncAllData();
-    renderMasterIncTypes();
-    initForms();
-  } catch(e) {
-    notify(e.message, 'error');
-  } finally {
-    btn.disabled = false;
-  }
+  try { await apiPostWithFallback('saveIncomeType', { name, pct_daerah: pd, pct_jemaat: pj, pct_bangun: pb, oldName: editingIncType, isUpdate: !!editingIncType }); notify('Kategori disimpan.', 'success'); cancelEditIncType(); await loadMasterData(); renderMasterIncTypes(); initForms(); }
+  catch(e) { notify(e.message, 'error'); } finally { btn.disabled = false; }
 }
-
-async function deleteIncType(name) {
-  const isConfirm = await showCustomConfirm('Hapus Kategori', `Yakin ingin menghapus kategori "${name}"? Kategori yang sudah memiliki transaksi sebaiknya tidak dihapus.`);
-  if (!isConfirm) return;
-  try {
-    await apiPostWithFallback('deleteIncomeType', { name });
-    notify('Kategori masukan berhasil dihapus.', 'success');
-    await syncAllData();
-    renderMasterIncTypes();
-    initForms();
-  } catch(e) {
-    notify(e.message, 'error');
-  }
-}
-
 function renderMasterIncTypes() {
-  const types = (masterData && masterData.incomeTypes) ? masterData.incomeTypes : [];
-  const systemReserved = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah', 'Persembahan Khusus'];
-
-  document.getElementById('incTypeList').innerHTML = types.map(x => {
-    const isReserved = systemReserved.includes(x.name);
-    const safeName = x.name.replace(/'/g, "\\'");
-    return `
-    <div style="display:flex; justify-content:space-between; align-items:center; padding:12.5px 0; border-bottom:1px solid var(--glass-border)">
-      <div>
-        <strong style="color:var(--text); display:flex; align-items:center; gap:8px;">${safeIcon('plus')} ${x.name}</strong>
-        <div style="margin-left: 26px; margin-top: 4px; display:flex; gap:6px; flex-wrap:wrap;">
-          <span class="badge badge-moss" style="font-size:10px;">Daerah: ${x.pct_daerah}%</span>
-          <span class="badge badge-gold" style="font-size:10px;">Jemaat: ${x.pct_jemaat}%</span>
-          <span class="badge badge-green" style="font-size:10px;">Bangunan: ${x.pct_bangun}%</span>
-        </div>
-      </div>
-      <div style="display:flex; gap:6px;">
-        ${isReserved ? '<span style="font-size:11px; color:var(--text3); font-weight:600; padding:4px 8px;">Kunci Sistem</span>' : `
-          <button class="btn btn-ghost" style="padding:4px 8px; font-size:11px" onclick="editIncType('${safeName}', ${x.pct_daerah}, ${x.pct_jemaat}, ${x.pct_bangun})">${safeIcon('edit')} Edit</button>
-          <button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteIncType('${safeName}')">${safeIcon('trash')} Hapus</button>
-        `}
-      </div>
-    </div>
-  `}).join('') || '<div class="empty-state">Belum ada Kategori Masukan terdaftar.</div>';
+  const resv = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah', 'Persembahan Khusus'];
+  document.getElementById('incTypeList').innerHTML = (masterData?.incomeTypes||[]).map(x => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--glass-border)"><div><strong>${x.name}</strong><br><small style="color:var(--text3)">D:${x.pct_daerah}% J:${x.pct_jemaat}% B:${x.pct_bangun}%</small></div><div style="display:flex; gap:6px;">${resv.includes(x.name) ? '<span style="font-size:10px; color:var(--text3)">Sistem</span>' : `<button class="btn btn-ghost" style="padding:4px 8px; font-size:11px;" onclick="editIncType('${x.name.replace(/'/g,"\\'")}', ${x.pct_daerah}, ${x.pct_jemaat}, ${x.pct_bangun})">Edit</button><button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteIncType('${x.name.replace(/'/g,"\\'")}')">Hapus</button>`}</div></div>`).join('') || '<div class="empty-state">No Data</div>';
 }
+async function deleteIncType(name) { if(await showCustomConfirm('Hapus Kategori', `Hapus ${name}?`)) { try { await apiPost('deleteIncomeType', {name}); notify('Terhapus.', 'success'); await loadMasterData(); renderMasterIncTypes(); initForms(); } catch(e) { notify(e.message, 'error'); } } }
 
+let editingDept = null;
+function cancelEditDept() {
+  editingDept = null; document.getElementById('deptName').value = '';
+  document.getElementById('deptSaveBtn').textContent = 'Simpan Departemen'; document.getElementById('deptCancelBtn').style.display = 'none';
+}
 async function saveDeptForm() {
-  const name = document.getElementById('deptName').value.trim();
-  if (!name) return;
+  const name = document.getElementById('deptName').value.trim(); if(!name) return;
   const btn = document.getElementById('deptSaveBtn'); btn.disabled = true;
-  try {
-    await apiPost('saveDepartment', { name });
-    notify('Departemen baru berhasil didaftarkan.', 'success');
-    document.getElementById('deptName').value = '';
-    await syncAllData(); renderMasterDepts(); initForms();
-  } catch(e) { notify(e.message, 'error'); } finally { btn.disabled = false; }
+  try { await apiPost('saveDepartment', { id: editingDept, name }); notify('Departemen disimpan.', 'success'); cancelEditDept(); await loadMasterData(); renderMasterDepts(); initForms(); }
+  catch(e) { notify(e.message, 'error'); } finally { btn.disabled = false; }
 }
-
-async function deleteDept(name) {
-  const isConfirm = await showCustomConfirm('Nonaktifkan Departemen', `Yakin ingin menonaktifkan Departemen "${name}"?`);
-  if (!isConfirm) return;
-  try {
-    await apiPost('deleteDepartment', { name });
-    notify('Departemen berhasil dinonaktifkan.', 'success');
-    await syncAllData(); renderMasterDepts(); initForms();
-  } catch(e) { notify(e.message, 'error'); }
-}
-
 function renderMasterDepts() {
-  const depts = (masterData && masterData.departments) ? masterData.departments : [];
-  document.getElementById('deptList').innerHTML = depts.map(x => `
-    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--glass-border)">
-      <span style="color:var(--text); display:flex; align-items:center; gap:8px;">${safeIcon('building')} ${x.name}</span>
-      <button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteDept('${x.name}')">${safeIcon('trash')} Hapus</button>
-    </div>
-  `).join('') || '<div class="empty-state">Belum ada data Departemen terdaftar.</div>';
+  document.getElementById('deptList').innerHTML = (masterData?.departments||[]).map(x => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--glass-border)"><span>${x.name}</span><button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteDept('${x.id||x.name}')">Hapus</button></div>`).join('') || '<div class="empty-state">No Data</div>';
 }
+async function deleteDept(id) { if(await showCustomConfirm('Hapus Departemen', 'Lanjutkan?')) { try { await apiPost('deleteDepartment', {id, name:id}); notify('Terhapus.', 'success'); await loadMasterData(); renderMasterDepts(); initForms(); } catch(e) { notify(e.message, 'error'); } } }
 
 function editUnit(name, note, jumlah) {
-  editingUnit = name;
-  document.getElementById('unitName').value = name;
-  document.getElementById('unitNote').value = note || '';
-  document.getElementById('unitJumlah').value = jumlah || 0;
-  document.getElementById('unitSaveBtn').innerHTML = `${safeIcon('edit')} Update Unit`;
-  document.getElementById('unitCancelBtn').style.display = 'inline-flex';
-  document.getElementById('unitFormTitle').textContent = 'Ubah Data Unit';
+  editingUnit = name; document.getElementById('unitFormTitle').textContent = 'Ubah Unit';
+  document.getElementById('unitName').value = name; document.getElementById('unitNote').value = note||''; document.getElementById('unitJumlah').value = jumlah||0;
+  document.getElementById('unitSaveBtn').textContent = 'Update'; document.getElementById('unitCancelBtn').style.display = 'inline-flex';
 }
-
 function cancelEditUnit() {
-  editingUnit = null;
-  document.getElementById('unitName').value = '';
-  document.getElementById('unitNote').value = '';
-  document.getElementById('unitJumlah').value = '';
-  document.getElementById('unitSaveBtn').innerHTML = `${safeIcon('plus')} Simpan Unit Baru`;
-  document.getElementById('unitCancelBtn').style.display = 'none';
-  document.getElementById('unitFormTitle').textContent = 'Tambah Unit/Sektor Pemberi';
+  editingUnit = null; document.getElementById('unitFormTitle').textContent = 'Tambah Unit';
+  document.getElementById('unitName').value = ''; document.getElementById('unitNote').value = ''; document.getElementById('unitJumlah').value = '';
+  document.getElementById('unitSaveBtn').textContent = 'Simpan Unit Baru'; document.getElementById('unitCancelBtn').style.display = 'none';
 }
-
 async function saveUnitForm() {
-  const name = document.getElementById('unitName').value.trim();
-  const note = document.getElementById('unitNote').value.trim();
-  const jumlah = parseInt(document.getElementById('unitJumlah').value) || 0;
-  if (!name) return;
-
+  const name = document.getElementById('unitName').value.trim(); const note = document.getElementById('unitNote').value.trim(); const jumlah = parseInt(document.getElementById('unitJumlah').value)||0; if(!name) return;
   const btn = document.getElementById('unitSaveBtn'); btn.disabled = true;
-  try {
-    await apiPost('saveUnit', { name, note, jumlah_anggota: jumlah, oldName: editingUnit, isUpdate: !!editingUnit });
-    notify(editingUnit ? 'Data unit berhasil diperbarui.' : 'Unit baru berhasil didaftarkan.', 'success');
-    cancelEditUnit(); await syncAllData(); renderMasterUnits(); initForms();
-  } catch(e) { notify(e.message, 'error'); } finally { btn.disabled = false; }
+  try { await apiPost('saveUnit', { name, note, jumlah_anggota: jumlah, oldName: editingUnit, isUpdate: !!editingUnit }); notify('Unit disimpan.', 'success'); cancelEditUnit(); await loadMasterData(); renderMasterUnits(); initForms(); }
+  catch(e) { notify(e.message, 'error'); } finally { btn.disabled = false; }
 }
-
-async function deleteUnit(name) {
-  const isConfirm = await showCustomConfirm('Nonaktifkan Unit/Sektor', `Yakin ingin menonaktifkan Sektor "${name}"?`);
-  if (!isConfirm) return;
-  try {
-    await apiPost('deleteUnit', { name });
-    notify('Unit berhasil dinonaktifkan.', 'success');
-    await syncAllData(); renderMasterUnits(); initForms();
-  } catch(e) { notify(e.message, 'error'); }
-}
-
 function renderMasterUnits() {
-  const units = (masterData && masterData.units) ? masterData.units : [];
-  document.getElementById('unitList').innerHTML = units.map(x => {
-    const safeName = x.name.replace(/'/g, "\\'");
-    const safeNote = (x.note || '').replace(/'/g, "\\'");
-    const jumlah = x.jumlah_anggota || 0;
-    return `
-    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--glass-border)">
-      <div>
-        <strong style="color:var(--text); display:flex; align-items:center; gap:8px;">${safeIcon('users')} ${x.name}</strong>
-        ${jumlah > 0 ? `<span class="badge badge-moss" style="margin:4px 0 0 26px;">${jumlah} Pemberi</span>` : ''}
-        ${x.note ? `<br><small style="color:var(--text3); margin-left:26px;">${x.note}</small>` : ''}
-      </div>
-      <div style="display:flex; gap:6px;">
-        <button class="btn btn-ghost" style="padding:4px 8px; font-size:11px" onclick="editUnit('${safeName}', '${safeNote}', ${jumlah})">${safeIcon('edit')} Edit</button>
-        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteUnit('${safeName}')">${safeIcon('trash')} Hapus</button>
-      </div>
-    </div>
-  `}).join('') || '<div class="empty-state">Belum ada Unit Pemberi terdaftar.</div>';
+  document.getElementById('unitList').innerHTML = (masterData?.units||[]).map(x => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--glass-border)"><div><strong>${x.name}</strong>${x.jumlah_anggota?`<br><small style="color:var(--text3)">${x.jumlah_anggota} Jiwa</small>`:''}</div><div style="display:flex; gap:6px;"><button class="btn btn-ghost" style="padding:4px 8px; font-size:11px;" onclick="editUnit('${x.name.replace(/'/g,"\\'")}', '${(x.note||'').replace(/'/g,"\\'")}', ${x.jumlah_anggota||0})">Edit</button><button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteUnit('${x.name.replace(/'/g,"\\'")}')">Hapus</button></div></div>`).join('') || '<div class="empty-state">No Data</div>';
 }
-
-async function renderUsers() {
-  let list = [];
-  try { list = (await apiGet('getUsers')).data; } catch (e) { notify('Gagal memuat user: ' + e.message, 'error'); }
-
-  document.getElementById('userList').innerHTML = list.map(x => `
-    <tr>
-      <td><strong style="color:var(--text)">${x.username}</strong></td>
-      <td>${x.nama}</td>
-      <td class="fit-col"><span class="badge ${x.role === 'Admin' ? 'badge-moss' : x.role === 'Bendahara' ? 'badge-gold' : 'badge-gray'}">${x.role}</span></td>
-      <td><span style="font-family:monospace; color:var(--text2);">${x.password || '(Tersembunyi)'}</span></td>
-      <td class="fit-col" style="text-align:right">
-        <button class="btn btn-ghost" style="padding:4px 8px; font-size:11px; margin-right:4px;" onclick="editUser('${x.username}', '${x.nama}', '${x.role}')">${safeIcon('edit')} Edit</button>
-        ${x.username === 'admin' ? '' : `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px" onclick="deleteUser('${x.username}')">${safeIcon('trash')}</button>`}
-      </td>
-    </tr>
-  `).join('') || '<tr><td colspan="5" style="text-align:center; padding:12px">Belum ada operator terdaftar.</td></tr>';
-}
+async function deleteUnit(name) { if(await showCustomConfirm('Hapus Unit', `Hapus ${name}?`)) { try { await apiPost('deleteUnit', {name}); notify('Terhapus.', 'success'); await loadMasterData(); renderMasterUnits(); initForms(); } catch(e) { notify(e.message, 'error'); } } }
 
 function editUser(username, nama, role) {
-  editingUser = username;
-  document.getElementById('userFormTitle').textContent = `Ubah Akun: ${username}`;
+  editingUser = username; document.getElementById('userFormTitle').textContent = 'Ubah Akun';
   document.getElementById('userName').value = username; document.getElementById('userName').disabled = true;
-  document.getElementById('userFullName').value = nama; document.getElementById('userRole').value = role;
-  
-  const passInput = document.getElementById('userPassword');
-  passInput.value = ''; passInput.type = 'password';
-  document.getElementById('userEye').innerHTML = safeIcon('eyeOff', 'lucide-md');
-  
-  document.getElementById('saveUserBtn').innerHTML = `${safeIcon('edit')} Update User`;
-  document.getElementById('cancelEditUserBtn').style.display = 'inline-flex';
+  document.getElementById('userFullName').value = nama; document.getElementById('userRole').value = role; document.getElementById('userPassword').value = '';
+  document.getElementById('saveUserBtn').innerHTML = safeIcon('save', 'lucide-sm') + ' Update'; document.getElementById('cancelEditUserBtn').style.display = 'inline-flex';
 }
-
 function cancelEditUser() {
-  editingUser = null;
-  document.getElementById('userFormTitle').textContent = 'Tambah Akun Sistem Baru';
+  editingUser = null; document.getElementById('userFormTitle').textContent = 'Tambah Akun';
   document.getElementById('userName').value = ''; document.getElementById('userName').disabled = false;
-  document.getElementById('userFullName').value = ''; document.getElementById('userRole').value = 'Viewer';
-  
-  const passInput = document.getElementById('userPassword');
-  passInput.value = ''; passInput.type = 'password';
-  document.getElementById('userEye').innerHTML = safeIcon('eyeOff', 'lucide-md');
-  
-  document.getElementById('saveUserBtn').innerHTML = `${safeIcon('save')} Simpan User`;
-  document.getElementById('cancelEditUserBtn').style.display = 'none';
+  document.getElementById('userFullName').value = ''; document.getElementById('userRole').value = 'Viewer'; document.getElementById('userPassword').value = '';
+  document.getElementById('saveUserBtn').innerHTML = safeIcon('save', 'lucide-sm') + ' Simpan'; document.getElementById('cancelEditUserBtn').style.display = 'none';
 }
-
 async function saveUserForm() {
-  const username = document.getElementById('userName').value.trim();
-  const nama = document.getElementById('userFullName').value.trim();
-  const role = document.getElementById('userRole').value;
-  const password = document.getElementById('userPassword').value;
-
-  if (!username || !nama) { notify('Kolom username dan nama wajib diisi!', 'error'); return; }
+  const username = document.getElementById('userName').value.trim(); const nama = document.getElementById('userFullName').value.trim(); const role = document.getElementById('userRole').value; const password = document.getElementById('userPassword').value;
+  if(!username || !nama) return;
   const btn = document.getElementById('saveUserBtn'); btn.disabled = true;
-
-  try {
-    await apiPost('saveUser', { username, nama, role, password, isUpdate: !!editingUser });
-    notify(editingUser ? 'Data akun user berhasil diperbarui.' : 'Akun user baru berhasil didaftarkan.', 'success');
-    cancelEditUser(); renderUsers();
-  } catch(e) { notify(e.message, 'error'); } finally { btn.disabled = false; }
+  try { await apiPost('saveUser', { username, nama, role, password, isUpdate: !!editingUser }); notify('User disimpan.', 'success'); cancelEditUser(); renderUsers(); }
+  catch(e) { notify(e.message, 'error'); } finally { btn.disabled = false; }
 }
-
-async function deleteUser(username) {
-  const isConfirm = await showCustomConfirm('Hapus Operator', `Yakin ingin menghapus akun "${username}" secara permanen?`);
-  if (!isConfirm) return;
+async function renderUsers() {
   try {
-    await apiPost('deleteRecord', { type: 'users', transaction_id: username });
-    notify('Akun user berhasil dihapus dari sistem.', 'success');
-    renderUsers();
-  } catch(e) { notify(e.message, 'error'); }
+    const res = await apiGet('getUsers');
+    document.getElementById('userList').innerHTML = (res.data||[]).map(x => `<tr><td>${x.username}</td><td>${x.nama}</td><td class="fit-col"><span class="badge badge-gray">${x.role}</span></td><td>***</td><td class="fit-col" style="text-align:right"><button class="btn btn-ghost" style="padding:4px 8px; font-size:11px;" onclick="editUser('${x.username}', '${x.nama}', '${x.role}')">Edit</button> ${x.username==='admin'?'':`<button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteUser('${x.username}')">Hapus</button>`}</td></tr>`).join('');
+  } catch(e) {}
 }
+async function deleteUser(username) { if(await showCustomConfirm('Hapus User', `Hapus ${username}?`)) { try { await apiPost('deleteRecord', {type:'users', transaction_id:username}); notify('Terhapus.', 'success'); renderUsers(); } catch(e) { notify(e.message, 'error'); } } }
 
 async function renderLogs() {
-  const tbody = document.getElementById('logList');
-  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center"><span class="spinner"></span> Mengambil data audit log...</td></tr>';
-  try {
-    const res = await apiGet('getLogs');
-    if (res.success) {
-      tbody.innerHTML = res.data.map(x => `
-        <tr>
-          <td class="fit-col"><small style="font-family:monospace">${new Date(x.timestamp).toLocaleString('id-ID')}</small></td>
-          <td><strong>${x.user}</strong></td>
-          <td class="fit-col"><span class="badge badge-moss">${x.action}</span></td>
-          <td><span style="font-family:monospace; font-size:11px; color:var(--text2)">${x.detail}</span></td>
-        </tr>
-      `).join('') || '<tr><td colspan="4" style="text-align:center">Belum ada catatan aktivitas logs.</td></tr>';
-    }
-  } catch (e) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--red-pop)">Gagal memuat log: ${e.message}</td></tr>`; }
+  try { const res = await apiGet('getLogs'); document.getElementById('logList').innerHTML = (res.data||[]).map(x => `<tr><td class="fit-col">${new Date(x.timestamp).toLocaleString('id-ID')}</td><td>${x.user}</td><td class="fit-col"><span class="badge badge-gray">${x.action}</span></td><td>${x.detail}</td></tr>`).join(''); } catch(e) {}
 }
 
-const pageTitles = {
-  dashboard: 'Dashboard Utama', pemasukan: 'Entri Setoran Masuk', pengeluaran: 'Entri Pengeluaran Dana', laporan: 'Arsip Laporan Keuangan',
-  riwayat: 'Buku Jurnal Umum', masterIncType: 'Kelola Kategori Pemasukan', masterDept: 'Kelola Departemen', masterUnit: 'Kelola Sektor & Unit Jemaat', users: 'Kelola Hak Akses Pengguna', settings: 'Pengaturan Sistem', logs: 'Audit Keamanan & Log'
-};
-
-function showPage(name) {
-  if (currentUser && currentUser.role === 'Viewer') {
-    if (!['dashboard', 'laporan'].includes(name)) { notify('Akses Ditolak: Anda hanya dapat melihat halaman publik.', 'error'); return; }
-  }
-  if (currentUser && currentUser.role === 'Bendahara') {
-    if (['masterIncType', 'masterDept', 'masterUnit', 'users', 'settings', 'logs'].includes(name)) { notify('Akses Ditolak: Halaman ini khusus Admin.', 'error'); return; }
-  }
-
-  document.querySelectorAll('.page, .nav-item, .bottom-nav-item').forEach(x => x.classList.remove('active'));
-  
-  const activePage = document.getElementById('page-' + name);
-  if (activePage) activePage.classList.add('active');
-
-  document.querySelectorAll('.nav-item').forEach(x => { if (x.getAttribute('onclick') && x.getAttribute('onclick').includes(`'${name}'`)) x.classList.add('active'); });
-  document.querySelectorAll('.bottom-nav-item').forEach(x => { if (x.getAttribute('data-target') === name) x.classList.add('active'); });
-
-  document.getElementById('pageTitle').textContent = pageTitles[name] || 'Sistem Keuangan';
-  closeSidebar();
-
-  if (name === 'pemasukan') renderIncomeList();
-  if (name === 'pengeluaran') { renderExpenseList(); checkSaldo(); }
-  if (name === 'riwayat') renderHistory();
-  if (name === 'masterIncType') renderMasterIncTypes();
-  if (name === 'masterDept') renderMasterDepts();
-  if (name === 'masterUnit') renderMasterUnits();
-  if (name === 'users') renderUsers();
-  if (name === 'logs') renderLogs();
-  if (name === 'dashboard') renderDashboard();
-}
-
-function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
-function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
-
-let notifTimer;
+// --- Core UI Functions ---
 function notify(msg, type = 'success') {
-  const el = document.getElementById('notification');
-  document.getElementById('notifIcon').innerHTML = type === 'success' ? safeIcon('check', 'lucide-md') : type === 'error' ? safeIcon('alert', 'lucide-md') : safeIcon('info', 'lucide-md');
-  document.getElementById('notifMsg').textContent = msg;
-  el.className = `notification show ${type}`;
-  clearTimeout(notifTimer);
-  notifTimer = setTimeout(() => { el.className = 'notification'; }, 3500);
+  const el = document.getElementById('notification'); const icon = document.getElementById('notifIcon'); const text = document.getElementById('notifMsg');
+  el.className = 'notification ' + type; text.textContent = msg;
+  icon.innerHTML = type === 'success' ? safeIcon('check', 'lucide-md') : safeIcon('alert', 'lucide-md');
+  el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3000);
 }
 
 function updateAppStatus() {
   const dot = document.getElementById('appStatusDot'); const txt = document.getElementById('appStatusText');
-  if (dot && txt) {
-    if (isServerOnline) { dot.className = 'status-dot online'; txt.textContent = 'Server Cloud Terhubung'; } 
-    else { dot.className = 'status-dot offline'; txt.textContent = 'Server Offline'; }
-  }
+  if (dot && txt) { dot.className = 'status-dot ' + (isServerOnline ? 'online' : 'offline'); txt.textContent = isServerOnline ? 'Koneksi Aktif' : 'Offline'; }
 }
 
-(async function boot() {
-  document.getElementById('loginPage').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + pageId); if (target) target.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav-item').forEach(n => n.classList.remove('active'));
+  const activeNav = document.querySelector(`.nav-item[onclick*="showPage('${pageId}')"]`); if(activeNav) activeNav.classList.add('active');
+  const activeBotNav = document.querySelector(`.bottom-nav-item[data-target="${pageId}"]`); if(activeBotNav) activeBotNav.classList.add('active');
+  const titles = { dashboard:'Dashboard Ringkasan', pemasukan:'Pemasukan Kas', pengeluaran:'Pengeluaran', laporan:'Laporan Keuangan', riwayat:'Histori Transaksi', masterIncType:'Kategori Pemasukan', masterDept:'Departemen', masterUnit:'Unit Jemaat', users:'Manajemen User', settings:'Pengaturan', logs:'Audit Log' };
+  document.getElementById('pageTitle').textContent = titles[pageId] || 'Dashboard';
+  closeSidebar();
+  if(pageId === 'dashboard') renderDashboard(); else if(pageId === 'pemasukan') renderIncomeList(); else if(pageId === 'pengeluaran') renderExpenseList(); else if(pageId === 'riwayat') renderHistory(); else if(pageId === 'laporan') document.getElementById('reportContent').innerHTML = ''; else if(pageId === 'masterIncType') renderMasterIncTypes(); else if(pageId === 'masterDept') renderMasterDepts(); else if(pageId === 'masterUnit') renderMasterUnits(); else if(pageId === 'users') renderUsers(); else if(pageId === 'logs') renderLogs();
+}
+function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
 
-  const isOnline = await checkAPIConnection();
-  if (!isOnline) {
-    notify('PiKaChu terdeteksi dalam status luring (Offline). Klik ikon gerigi di halaman login untuk mengonfigurasi URL Apps Script Anda.', 'error');
+// Init Logic
+window.onload = async () => {
+  const savedUrl = localStorage.getItem('PiKaChu_api_url');
+  if (!savedUrl && window.location.href.includes('google.com')) { 
+    // fallback init silently
   }
-
-  if(isOnline && getActiveApiUrl().trim() !== '') {
-      loadSystemConfig();
+  const tk = getToken();
+  if (tk) {
+    currentUser = getCurrentUser();
+    if (currentUser) {
+      document.getElementById('loginBtnText').innerHTML = '<span class="spinner"></span> Memulihkan Sesi...';
+      const ok = await checkAPIConnection();
+      if (ok) { launchApp(); } else { notify('Koneksi ke server gagal. Harap login ulang.', 'error'); clearToken(); }
+    } else { clearToken(); }
   }
-
-  setInterval(async () => { await checkAPIConnection(); updateAppStatus(); }, 30000);
-})();
+};
 </script>
 </body>
 </html>
