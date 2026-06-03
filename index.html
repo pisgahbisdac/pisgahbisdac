@@ -531,10 +531,6 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
   </aside>
 
   <nav class="bottom-bar" id="bottomBar">
-    <div class="bottom-nav-item active" onclick="showPage('dashboard')" data-target="dashboard">
-      <span class="bottom-nav-icon"><script>document.write(getIcon('building'))</script></span>
-      <span>Beranda</span>
-    </div>
     <div class="bottom-nav-item" onclick="showPage('pemasukan')" id="botPemasukan" data-target="pemasukan">
       <span class="bottom-nav-icon"><script>document.write(getIcon('trendUp'))</script></span>
       <span>Masuk</span>
@@ -542,6 +538,10 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
     <div class="bottom-nav-item" onclick="showPage('pengeluaran')" id="botPengeluaran" data-target="pengeluaran">
       <span class="bottom-nav-icon"><script>document.write(getIcon('trendDown'))</script></span>
       <span>Keluar</span>
+    </div>
+    <div class="bottom-nav-item active" onclick="showPage('dashboard')" data-target="dashboard">
+      <span class="bottom-nav-icon"><script>document.write(getIcon('building'))</script></span>
+      <span>Beranda</span>
     </div>
     <div class="bottom-nav-item" onclick="showPage('laporan')" id="botLaporan" data-target="laporan">
       <span class="bottom-nav-icon"><script>document.write(getIcon('log'))</script></span>
@@ -670,8 +670,8 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
                 <th class="fit-col">Tanggal</th>
                 <th class="fit-col">Tipe</th>
                 <th>Kategori & Keterangan</th>
-                <th class="fit-col" style="text-align:right">Nominal</th>
                 <th class="fit-col">Dokumen</th>
+                <th class="fit-col" style="text-align:right">Nominal</th>
               </tr>
             </thead>
             <tbody id="recentTrans"></tbody>
@@ -1698,13 +1698,13 @@ function renderDashboard() {
     const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
     let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);" title="Lihat Foto Bukti">${safeIcon('image', 'lucide-sm')}</button>` : '';
     return `
-      <tr>
-        <td class="fit-col">${fmtDate(x.date)}</td>
-        <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
-        <td><strong>${x.income_type || x.department}</strong><br><span style="font-size:11px; color:var(--text3)">${isPrivCategory ? '***' : (x.note || '-')}</span></td>
-        <td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td>
-        <td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td>
-      </tr>
+    <tr>
+      <td class="fit-col">${fmtDate(x.date)}</td>
+      <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
+      <td><strong>${x.income_type || x.department}</strong><br><span style="font-size:11px; color:var(--text3)">${isPrivCategory ? '***' : (x.note || '-')}</span></td>
+      <td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td>
+      <td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td>
+    </tr>
     `;
   }).join('') || '<tr><td colspan="5" style="text-align:center"><div class="empty-state"><p>Belum ada aktivitas.</p></div></td></tr>';
 }
