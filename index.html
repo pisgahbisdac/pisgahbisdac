@@ -20,6 +20,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -53,6 +54,12 @@
                     }
                 }
             }
+        }
+    </script>
+    <script>
+        // Set tema awal sebelum React render untuk mencegah FOUC (Flash of Unstyled Content)
+        if (localStorage.getItem('theme') === 'dark' || !localStorage.getItem('theme')) {
+            document.documentElement.classList.add('dark');
         }
     </script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -259,112 +266,112 @@
         @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
         /* --- TEMA ELEGANT NAVY & GOLD (DARK MODE) --- */
-        :root {
+        html.dark {
             color-scheme: dark;
         }
         
-        body, .bg-gray-50 {
+        html.dark body, html.dark .bg-gray-50 {
             background-color: #0b1a30 !important; /* Background utama Navy Gelap */
             color: #f4f6f9 !important; /* Teks default terang */
         }
         
         /* Panel & Card Dasar menjadi Dark Navy elegan (Termasuk efek Hover) */
-        .bg-white, .bg-white\/50, .bg-white\/60, [class*="hover:bg-white"]:hover, [class*="hover:bg-gray-50"]:hover {
+        html.dark .bg-white, html.dark .bg-white\/50, html.dark .bg-white\/60, html.dark [class*="hover:bg-white"]:hover, html.dark [class*="hover:bg-gray-50"]:hover {
             background-color: #112240 !important; 
             border-color: #1e365d !important; 
         }
         
         /* Inversi Teks Gelap menjadi Terang (Termasuk efek Hover) */
-        .text-navy-900, [class*="hover:text-navy-900"]:hover, 
-        .text-navy-800, [class*="hover:text-navy-800"]:hover, 
-        .text-navy-700, [class*="hover:text-navy-700"]:hover { color: #f4f6f9 !important; }
+        html.dark .text-navy-900, html.dark [class*="hover:text-navy-900"]:hover, 
+        html.dark .text-navy-800, html.dark [class*="hover:text-navy-800"]:hover, 
+        html.dark .text-navy-700, html.dark [class*="hover:text-navy-700"]:hover { color: #f4f6f9 !important; }
         
-        .text-navy-600, [class*="hover:text-navy-600"]:hover, 
-        .text-navy-500, [class*="hover:text-navy-500"]:hover { color: #cbd4e1 !important; }
+        html.dark .text-navy-600, html.dark [class*="hover:text-navy-600"]:hover, 
+        html.dark .text-navy-500, html.dark [class*="hover:text-navy-500"]:hover { color: #cbd4e1 !important; }
         
-        .text-navy-400, [class*="hover:text-navy-400"]:hover { color: #7c97b5 !important; }
+        html.dark .text-navy-400, html.dark [class*="hover:text-navy-400"]:hover { color: #7c97b5 !important; }
         
         /* Penyesuaian Border dan Highlight Tipis */
-        .border-navy-50, .border-navy-50\/50, .border-navy-100, .border-navy-100\/20, .border-navy-100\/50, .border-navy-100\/60, .border-navy-100\/80, .border-navy-200, .border-navy-300, .border-gold-200\/50, .border-gold-200\/60, .border-gold-300\/80, .border-gold-400\/30, .border-gold-400\/50 { border-color: #1e365d !important; }
+        html.dark .border-navy-50, html.dark .border-navy-50\/50, html.dark .border-navy-100, html.dark .border-navy-100\/20, html.dark .border-navy-100\/50, html.dark .border-navy-100\/60, html.dark .border-navy-100\/80, html.dark .border-navy-200, html.dark .border-navy-300, html.dark .border-gold-200\/50, html.dark .border-gold-200\/60, html.dark .border-gold-300\/80, html.dark .border-gold-400\/30, html.dark .border-gold-400\/50 { border-color: #1e365d !important; }
         
         /* Background Hover Universal untuk Menu, Tabel, dan Tombol Navigasi */
-        .bg-navy-50, .bg-navy-50\/10, .bg-navy-50\/20, .bg-navy-50\/30, .bg-navy-50\/50, .bg-navy-50\/70, [class*="hover:bg-navy-50"]:hover { background-color: #162a4a !important; }
-        .bg-navy-100, .bg-navy-100\/50, .bg-navy-100\/60, .bg-navy-100\/80, [class*="hover:bg-navy-100"]:hover { background-color: #1e365d !important; }
+        html.dark .bg-navy-50, html.dark .bg-navy-50\/10, html.dark .bg-navy-50\/20, html.dark .bg-navy-50\/30, html.dark .bg-navy-50\/50, html.dark .bg-navy-50\/70, html.dark [class*="hover:bg-navy-50"]:hover { background-color: #162a4a !important; }
+        html.dark .bg-navy-100, html.dark .bg-navy-100\/50, html.dark .bg-navy-100\/60, html.dark .bg-navy-100\/80, html.dark [class*="hover:bg-navy-100"]:hover { background-color: #1e365d !important; }
         
         /* Aksen Gold / Transparan untuk Highlight (Warna Kuning Emas) */
-        .bg-gold-50, .bg-gold-50\/30, .bg-gold-50\/50, [class*="hover:bg-gold-50"]:hover, 
-        .bg-gold-100, [class*="hover:bg-gold-100"]:hover, 
-        .from-gold-50, .bg-gold-400\/10, .bg-gold-400\/20, .bg-gold-400\/30 {
+        html.dark .bg-gold-50, html.dark .bg-gold-50\/30, html.dark .bg-gold-50\/50, html.dark [class*="hover:bg-gold-50"]:hover, 
+        html.dark .bg-gold-100, html.dark [class*="hover:bg-gold-100"]:hover, 
+        html.dark .from-gold-50, html.dark .bg-gold-400\/10, html.dark .bg-gold-400\/20, html.dark .bg-gold-400\/30 {
             background: rgba(231, 174, 48, 0.1) !important;
             color: #e7ae30 !important;
             border-color: rgba(231, 174, 48, 0.3) !important;
         }
 
         /* Mengamankan Hover untuk Background Warna Lain (Merah, Hijau, Ungu, dll) di tabel jadwal */
-        [class*="hover:bg-red-50"]:hover, [class*="hover:bg-green-50"]:hover, [class*="hover:bg-purple-50"]:hover {
+        html.dark [class*="hover:bg-red-50"]:hover, html.dark [class*="hover:bg-green-50"]:hover, html.dark [class*="hover:bg-purple-50"]:hover {
             background-color: rgba(255, 255, 255, 0.08) !important;
         }
         
         /* Tombol Utama (Awalnya Navy Gelap, sekarang jadi Emas Elegan) */
-        .bg-navy-900, .bg-navy-800 {
+        html.dark .bg-navy-900, html.dark .bg-navy-800 {
             background-color: #e7ae30 !important;
             color: #0b1a30 !important;
             border: none !important;
         }
-        .bg-navy-900:hover, .bg-navy-800:hover {
+        html.dark .bg-navy-900:hover, html.dark .bg-navy-800:hover {
             background-color: #c98e21 !important;
         }
         /* Memastikan teks/icon dalam tombol emas tetap gelap */
-        .bg-navy-900 .text-gold-400, .bg-navy-800 .text-gold-400, .bg-navy-900 .text-white, .bg-navy-800 .text-white {
+        html.dark .bg-navy-900 .text-gold-400, html.dark .bg-navy-800 .text-gold-400, html.dark .bg-navy-900 .text-white, html.dark .bg-navy-800 .text-white {
             color: #0b1a30 !important; 
         }
         
         /* Header & Navigasi Mobile (Glassmorphism Gelap) */
-        .bg-white\/80, .bg-white\/90, .bg-white\/70 {
+        html.dark .bg-white\/80, html.dark .bg-white\/90, html.dark .bg-white\/70 {
             background-color: rgba(11, 26, 48, 0.85) !important;
             border-color: #1e365d !important;
         }
         
         /* Konten Spesifik Editor & Teks Panjang */
-        .warta-content, .pengumuman-text, .prose p, .prose li { color: #cbd4e1 !important; }
-        .warta-content h3, .pengumuman-text h3, .prose h1, .prose h2, .prose h3 {
+        html.dark .warta-content, html.dark .pengumuman-text, html.dark .prose p, html.dark .prose li { color: #cbd4e1 !important; }
+        html.dark .warta-content h3, html.dark .pengumuman-text h3, html.dark .prose h1, html.dark .prose h2, html.dark .prose h3 {
             color: #e7ae30 !important;
             border-bottom-color: #1e365d !important;
         }
-        .warta-content b, .warta-content strong, .pengumuman-text b, .pengumuman-text strong {
+        html.dark .warta-content b, html.dark .warta-content strong, html.dark .pengumuman-text b, html.dark .pengumuman-text strong {
             color: #f4f6f9 !important;
         }
         
         /* Kartu Spesial (Welcome & Pembangunan) */
-        .welcome-box-gradient {
+        html.dark .welcome-box-gradient {
             background: linear-gradient(135deg, rgba(231, 174, 48, 0.15) 0%, rgba(11, 26, 48, 0.95) 100%) !important;
             border: 1px solid rgba(231, 174, 48, 0.3) !important;
         }
-        .glass-card {
+        html.dark .glass-card {
             background: rgba(17, 34, 64, 0.8) !important;
             border: 1px solid rgba(231, 174, 48, 0.2) !important;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
         }
         
         /* Form & Input Fields */
-        input, select, textarea, div[contentEditable] {
+        html.dark input, html.dark select, html.dark textarea, html.dark div[contentEditable] {
             background-color: #0b1a30 !important;
             color: #f4f6f9 !important;
             border-color: #1e365d !important;
         }
-        input:focus, select:focus, textarea:focus, div[contentEditable]:focus {
+        html.dark input:focus, html.dark select:focus, html.dark textarea:focus, html.dark div[contentEditable]:focus {
             border-color: #e7ae30 !important;
             background-color: #112240 !important;
             outline: none !important;
         }
         
         /* Modal Overlay Background */
-        .bg-navy-900\/60, .bg-navy-900\/80 {
+        html.dark .bg-navy-900\/60, html.dark .bg-navy-900\/80 {
             background-color: rgba(5, 12, 23, 0.85) !important;
         }
 
         /* Latar ikon berwarna merah/biru/hijau agar tidak terlalu mencolok di dark mode */
-        .bg-red-50, .bg-green-50, .bg-blue-50, .bg-purple-50, .bg-amber-50 {
+        html.dark .bg-red-50, html.dark .bg-green-50, html.dark .bg-blue-50, html.dark .bg-purple-50, html.dark .bg-amber-50 {
             background-color: rgba(255, 255, 255, 0.05) !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
         }
@@ -613,6 +620,8 @@
         // --- ICONS (SVG MAPPING) ---
         const Icon = ({ name, className }) => {
             const icons = {
+                Sun: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>,
+                Moon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>,
                 Home: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>,
                 BookOpen: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>,
                 Warta: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokewidth="2" strokelinecap="round" strokelinejoin="round" className={className}><path d="M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/><path d="M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14"/><path d="M8 6v8"/></svg>,
@@ -1156,9 +1165,9 @@
             const susunan = activeSabat.susunan || defaultSusunan;
 
             const renderItem = (title, desc, isHighlight = false) => (
-                <div className={`flex justify-between items-center py-3 px-4 border-b border-[#1e365d] last:border-0 transition-colors rounded-xl mx-2 my-1 ${isHighlight ? 'bg-[#e7ae30]/10 shadow-sm border border-[#e7ae30]/30' : 'hover:bg-[#1e365d]/50'}`}>
-                    <span className="text-sm font-medium w-1/2 shrink-0 text-[#cbd4e1]">{title}</span>
-                    <span className={`text-sm text-right w-1/2 break-words font-bold ${isHighlight ? 'text-[#e7ae30]' : 'text-[#f4f6f9]'}`}>{desc}</span>
+                <div className={`flex justify-between items-center py-3 px-4 border-b border-navy-100 last:border-0 transition-colors rounded-xl mx-2 my-1 ${isHighlight ? 'bg-gold-500/10 shadow-sm border border-gold-500/30' : 'hover:bg-navy-50'}`}>
+                    <span className="text-sm font-medium w-1/2 shrink-0 text-navy-600">{title}</span>
+                    <span className={`text-sm text-right w-1/2 break-words font-bold ${isHighlight ? 'text-gold-500' : 'text-navy-900'}`}>{desc}</span>
                 </div>
             );
 
@@ -1171,36 +1180,36 @@
 
             return (
                 <div className="space-y-6 animate-fade-in">
-                    <div className="rounded-[1.5rem] shadow-sm border border-[#1e365d] overflow-hidden relative bg-[#112240]">
-                        <div className="text-center p-6 md:p-8 border-b border-[#1e365d] bg-[#0b1a30]/80">
-                            <h2 className="text-xl md:text-[1.75rem] font-black uppercase tracking-widest leading-none text-[#f4f6f9]">Susunan Ibadah</h2>
+                    <div className="rounded-[1.5rem] shadow-sm border border-navy-100 overflow-hidden relative bg-white">
+                        <div className="text-center p-6 md:p-8 border-b border-navy-100 bg-navy-50/80">
+                            <h2 className="text-xl md:text-[1.75rem] font-black uppercase tracking-widest leading-none text-navy-900">Susunan Ibadah</h2>
                             <p className="text-gold-500 font-bold mt-2 text-sm md:text-base">{formatIndoDate(sabatYMD)}</p>
                         </div>
 
-                        <div className="flex flex-col">
+                        <div className="flex flex-col border-b border-navy-100 overflow-hidden bg-white">
                             {/* TABS SCROLLABLE */}
-                            <div className="flex flex-col border-b border-[#1e365d] overflow-hidden bg-[#112240]">
+                            <div className="flex flex-col overflow-hidden">
                                 <div className="flex items-center gap-2 p-3 pb-1 md:p-5 md:pb-2">
-                                    <div className="rounded-[1.25rem] flex-1 flex overflow-x-auto border border-[#1e365d] p-1.5 gap-2 hide-scrollbar scroll-smooth bg-[#0b1a30]">
+                                    <div className="rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100 p-1.5 gap-2 hide-scrollbar scroll-smooth bg-navy-50">
                                         {susunanTabs.map(tab => (
                                             <button
                                                 key={tab.id}
                                                 onClick={() => setOpenSection(tab.id)}
-                                                className={`px-5 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all duration-300 flex items-center font-bold shrink-0 ${openSection === tab.id ? 'bg-gold-500 shadow-sm text-navy-900 scale-100' : 'text-[#7c97b5] hover:text-white hover:bg-[#1e365d] scale-95 origin-center'}`}
+                                                className={`px-5 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all duration-300 flex items-center font-bold shrink-0 ${openSection === tab.id ? 'bg-gold-500 shadow-sm text-navy-900 scale-100' : 'text-navy-400 hover:text-navy-900 hover:bg-navy-100 scale-95 origin-center'}`}
                                             >
-                                                <Icon name={tab.icon} className={`w-[1.15rem] h-[1.15rem] mr-2 transition-colors ${openSection === tab.id ? 'text-navy-900' : 'text-[#7c97b5]'}`} />
+                                                <Icon name={tab.icon} className={`w-[1.15rem] h-[1.15rem] mr-2 transition-colors ${openSection === tab.id ? 'text-navy-900' : 'text-navy-400'}`} />
                                                 {tab.label}
                                             </button>
                                         ))}
                                     </div>
                                 </div>
-                                <p className="text-[10px] italic text-center pb-3 md:hidden text-[#7c97b5]">scroll ke samping untuk lihat susunan yang lain &rarr;</p>
+                                <p className="text-[10px] italic text-center pb-3 md:hidden text-navy-400">scroll ke samping untuk lihat susunan yang lain &rarr;</p>
                             </div>
 
                             {/* TAB CONTENT */}
 
                             {openSection === 'khotbah' && (
-                                <div className="p-4 md:p-6 animate-fade-in bg-[#112240]">
+                                <div className="p-4 md:p-6 animate-fade-in bg-white">
                                     {renderItem("Pemimpin Acara", getOfficer(activeSabat.khotbah, "Pemimpin Acara"), true)}
                                     {renderItem("Sambutan", getOfficer(activeSabat.khotbah, "Pemimpin Acara"))}
                                     {renderItem("Lagu Pengantar", "LS 408 - Berdiam, Berdiam")}
@@ -1209,7 +1218,7 @@
                                     {renderItem("Ayat Bersahutan", susunan.kAyatBersahutan)}
                                     {renderItem("Lagu Buka", susunan.kLaguBuka)}
                                     {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Doa Syafaat"))}
-                                    <div className="flex flex-wrap p-4 md:p-6 font-bold text-[#7c97b5] text-xs justify-center">
+                                    <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
                                     <p>"LS 516 - Dengar Ya Tuhan"</p>
                                     </div>
                                     {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
@@ -1229,7 +1238,7 @@
                             )}
                             
                             {openSection === 'ss' && (
-                                <div className="p-4 md:p-6 animate-fade-in bg-[#112240]">
+                                <div className="p-4 md:p-6 animate-fade-in bg-white">
                                     {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pemimpin Acara"), true)}
                                     {renderItem("Lagu Buka", susunan.ssLaguBuka)}
                                     {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka"))}
@@ -1237,20 +1246,20 @@
                                     {renderItem("Diskusi Sekolah Sabat", "Kelas Dewasa, Kelas Pendalaman Alkitab, Kelas Anak-anak")}
                                     {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
                                     {renderItem("Doa Tutup", getOfficer(activeSabat.sekolahSabat, "Doa Tutup"))}
-                                    <div className="flex flex-wrap p-4 md:p-6 font-bold text-[#7c97b5] text-xs justify-center">
+                                    <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
                                     <p>"LS 168 Kita Memiliki Pengharapan"</p>
                                     </div>
                                 </div>
                             )}
 
                             {openSection === 'diakon' && (
-                                <div className="p-4 md:p-6 animate-fade-in bg-[#112240]">
+                                <div className="p-4 md:p-6 animate-fade-in bg-white">
                                     {activeSabat.diakon.map((p, idx) => <div key={idx}>{renderItem(p.tugas, p.nama)}</div>)}
                                 </div>
                             )}
 
                             {openSection === 'musik' && (
-                                <div className="p-4 md:p-6 animate-fade-in bg-[#112240]">
+                                <div className="p-4 md:p-6 animate-fade-in bg-white">
                                     {activeSabat.musik.map((p, idx) => <div key={idx}>{renderItem(p.tugas, p.nama)}</div>)}
                                 </div>
                             )}
@@ -5391,6 +5400,22 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
             const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
             const [selectedWartaDetail, setSelectedWartaDetail] = React.useState(null);
 
+            // --- THEME STATE ---
+            const [isDarkMode, setIsDarkMode] = React.useState(() => {
+                const saved = localStorage.getItem('theme');
+                return saved ? saved === 'dark' : true; 
+            });
+
+            React.useEffect(() => {
+                if (isDarkMode) {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                }
+            }, [isDarkMode]);
+
             // --- HISTORY API (TOMBOL BACK ANDROID: LOGIKA "UP") ---
             const getInitialTab = () => {
                 const hash = window.location.hash.replace('#', '');
@@ -5762,8 +5787,17 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                                     })}
                                 </div>
 
+                                {/* Toggle Theme Button */}
+                                <button 
+                                    onClick={() => setIsDarkMode(!isDarkMode)} 
+                                    className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-600 hover:text-gold-500 hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm shrink-0" 
+                                    title={isDarkMode ? "Ganti ke Mode Terang" : "Ganti ke Mode Gelap"}
+                                >
+                                    <Icon name={isDarkMode ? "Sun" : "Moon"} className="w-5 h-5" />
+                                </button>
+
                                 {activeTab !== 'search' && (
-                                    <button onClick={() => setActiveTab('search')} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-600 hover:text-gold-500 hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm" title="Pencarian">
+                                    <button onClick={() => setActiveTab('search')} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-600 hover:text-gold-500 hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm shrink-0" title="Pencarian">
                                         <Icon name="Search" className="w-4 h-4" />
                                     </button>
                                 )}
