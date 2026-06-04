@@ -732,14 +732,14 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
           </div>
         </div>
         <div style="display: flex; gap: 12px; align-items: center;">
-          <input class="form-input" id="searchReceiptInput" type="text" placeholder="Contoh: INC-1234..." onkeydown="if(event.key==='Enter') searchByReceipt()">
+          <input class="form-input" id="searchReceiptInput" type="text" placeholder="INC-1234..." onkeydown="if(event.key==='Enter') searchByReceipt()">
           <button class="btn btn-primary" onclick="searchByReceipt()" style="white-space: nowrap; padding: 12px 24px;">Cari</button>
         </div>
         <div id="receiptSearchResult" style="margin-top: 20px; display: none;"></div>
       </div>
 
       <div class="filter-bar">
-        <span class="filter-label">Filter Dashboard:</span>
+        <span class="filter-label">Filter:</span>
         <select class="select-sm" id="dashMonth" onchange="renderDashboard()">
           <option value="0">Semua Bulan</option>
           <option value="1">Januari</option><option value="2">Februari</option>
@@ -1711,7 +1711,7 @@ function renderDashboard() {
 
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Total Aset</div><div class="stat-icon c-teal">${safeIcon('shield', 'lucide-lg')}</div></div>
+      <div class="stat-header"><div class="stat-label">Total Saldo</div><div class="stat-icon c-teal">${safeIcon('shield', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color:var(--teal-pop)">${fmt(calcTotal)}</div>
     </div>
     <div class="stat-card">
