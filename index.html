@@ -223,7 +223,7 @@
             return sabbats;
         };
 
-        function KeterlibatanRadarChart({ keterlibatan, subKelas, absen, isDarkMode, parseLocalDate }) {
+    function KeterlibatanRadarChart({ keterlibatan, subKelas, absen, isDarkMode, parseLocalDate }) {
     const radarRef = useRef(null);
     const chartRef = useRef(null);
 
@@ -350,7 +350,7 @@
     );
 }
 
-        function DashboardCharts({ jemaat, absen, tamuTambahan, subKelas, metrics, parseLocalDate, currentUserRole, isDarkMode }) {
+        function DashboardCharts({ jemaat, absen, tamuTambahan, subKelas, metrics, parseLocalDate, currentUserRole, isDarkMode, keterlibatan }) {
             const trendRef    = useRef(null);
             const donutRef    = useRef(null);
             const ageRef      = useRef(null);
@@ -1824,7 +1824,7 @@
                                     </div>
                                 </div>
 
-                                <DashboardCharts jemaat={jemaat} absen={absen} tamuTambahan={tamuTambahan} subKelas={subKelas} metrics={metrics} parseLocalDate={parseLocalDate} currentUserRole={currentUserRole} isDarkMode={isDarkMode} />
+                                <DashboardCharts jemaat={jemaat} absen={absen} tamuTambahan={tamuTambahan} subKelas={subKelas} metrics={metrics} parseLocalDate={parseLocalDate} currentUserRole={currentUserRole} isDarkMode={isDarkMode} keterlibatan={keterlibatan} />
 
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mt-6">
                                     {/* Form Doa Jemaat - Glow Box */}
