@@ -223,6 +223,133 @@
             return sabbats;
         };
 
+        function KeterlibatanRadarChart({ keterlibatan, subKelas, absen, isDarkMode, parseLocalDate }) {
+    const radarRef = useRef(null);
+    const chartRef = useRef(null);
+
+    // Ambil tanggal Sabat terakhir yang punya data keterlibatan
+    const lastSabbatWithData = useMemo(() => {
+        const dates = [...new Set(keterlibatan.map(k => k.tanggal))].sort();
+        return dates[dates.length - 1] || null;
+    }, [keterlibatan]);
+
+    // Ambil tanggal Sabat terakhir dari absen (fallback label)
+    const lastSabbatFromAbsen = useMemo(() => {
+        const dates = [...new Set(absen.filter(a => a.sesi === "Sekolah Sabat").map(a => a.tanggal))].sort();
+        return dates[dates.length - 1] || null;
+    }, [absen]);
+
+    const targetDate = lastSabbatWithData || lastSabbatFromAbsen;
+
+    // Agregat nilai per indikator (sum semua sub-kelas di tanggal terakhir)
+    const aggregatedValues = useMemo(() => {
+        if (!targetDate) return Array(10).fill(0);
+        const recsForDate = keterlibatan.filter(k => k.tanggal === targetDate);
+        return KEGIATAN_KETERLIBATAN.map(keg => {
+            return recsForDate.reduce((sum, rec) => sum + (rec.values?.[keg.id] || 0), 0);
+        });
+    }, [keterlibatan, targetDate]);
+
+    const maxVal = Math.max(...aggregatedValues, 1);
+
+    // Label pendek untuk radar
+    const shortLabels = [
+        "Tepat Waktu", "Baca Alkitab", "Renungan", "Belajar SS",
+        "Hadir Rabu", "Jangkauan", "Perawatan", "Doa", "Kel. Kecil", "Risalah"
+    ];
+
+    useEffect(() => {
+        if (!window.Chart || !radarRef.current) return;
+        if (chartRef.current) { chartRef.current.destroy(); chartRef.current = null; }
+
+        const textColor  = isDarkMode ? "rgba(255,255,255,0.65)" : "rgba(15,23,42,0.6)";
+        const gridColor  = isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)";
+        const pointColor = isDarkMode ? "#2dd4bf" : "#0d9488";
+        const fillColor  = isDarkMode ? "rgba(45,212,191,0.25)" : "rgba(13,148,136,0.18)";
+        const lineColor  = isDarkMode ? "#2dd4bf" : "#0d9488";
+
+        chartRef.current = new Chart(radarRef.current, {
+            type: "radar",
+            data: {
+                labels: shortLabels,
+                datasets: [{
+                    label: "Jumlah Anggota",
+                    data: aggregatedValues,
+                    backgroundColor: fillColor,
+                    borderColor: lineColor,
+                    borderWidth: 2.5,
+                    pointBackgroundColor: pointColor,
+                    pointBorderColor: isDarkMode ? "#fff" : "#fff",
+                    pointBorderWidth: 1.5,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => ` ${ctx.raw} anggota`,
+                            title: (items) => KEGIATAN_KETERLIBATAN[items[0].dataIndex]?.text || items[0].label,
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        min: 0,
+                        max: maxVal,
+                        ticks: {
+                            stepSize: Math.max(1, Math.ceil(maxVal / 4)),
+                            color: textColor,
+                            backdropColor: "transparent",
+                            font: { size: 9 }
+                        },
+                        pointLabels: {
+                            color: textColor,
+                            font: { size: 10, weight: "bold" }
+                        },
+                        grid:        { color: gridColor },
+                        angleLines:  { color: gridColor },
+                    }
+                }
+            }
+        });
+
+        return () => { if (chartRef.current) { chartRef.current.destroy(); chartRef.current = null; } };
+    }, [aggregatedValues, isDarkMode, maxVal]);
+
+    const dateLabel = targetDate
+        ? (() => { const d = parseLocalDate(targetDate); return d ? `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}` : targetDate; })()
+        : "–";
+
+    return (
+        <div className="flex flex-col flex-1">
+            {targetDate ? (
+                <p className="text-[10px] text-teal-600 dark:text-teal-400 font-bold mb-3 bg-teal-50 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/20 px-2.5 py-1 rounded-lg inline-block self-start">
+                    <i className="fa-solid fa-calendar-check mr-1"></i> Data: {dateLabel}
+                </p>
+            ) : (
+                <p className="text-xs text-slate-500 italic mb-3">Belum ada data keterlibatan.</p>
+            )}
+            <div style={{ position: "relative", height: "200px" }}>
+                <canvas ref={radarRef}></canvas>
+            </div>
+            {/* Mini legend nilai */}
+            <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-1.5">
+                {shortLabels.map((label, i) => (
+                    <div key={i} className="flex items-center justify-between text-[10px]">
+                        <span className="text-slate-500 dark:text-slate-400 truncate">{label}</span>
+                        <span className="font-black text-teal-600 dark:text-teal-400 ml-1 shrink-0">{aggregatedValues[i]}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
         function DashboardCharts({ jemaat, absen, tamuTambahan, subKelas, metrics, parseLocalDate, currentUserRole, isDarkMode }) {
             const trendRef    = useRef(null);
             const donutRef    = useRef(null);
@@ -619,33 +746,22 @@
                             </div>
                         </div>
 
-                        {/* Kehadiran Per Anggota (List) */}
-                        {currentUserRole !== "public" && (
-                            <div className="glow-box" style={{'--box-glow': 'linear-gradient(135deg, #94a3b8, #475569)'}}>
-                                <div className="glow-box-inner p-5 flex flex-col h-full">
-                                    <h4 className="font-extrabold text-slate-900 dark:text-white text-sm mb-1 uppercase tracking-wider">
-                                        <i className="fa-solid fa-user-check text-slate-500 dark:text-slate-400 mr-2"></i> Kehadiran per Anggota
-                                    </h4>
-                                    <p className="text-xs text-slate-500 mb-4">4 Sabat terakhir · SS saja</p>
-                                    <div className="space-y-3 flex-1 overflow-y-auto pr-2 no-scrollbar" style={{maxHeight: "220px"}}>
-                                        {memberAttendance.map((m) => {
-                                            const pct = m.total > 0 ? Math.round(m.hadir / m.total * 100) : 0;
-                                            const color = pct >= 100 ? "#10b981" : pct >= 50 ? "#f59e0b" : "#ef4444";
-                                            return (
-                                                <div key={m.nama} className="flex items-center gap-3 text-xs">
-                                                    <span className="text-slate-700 dark:text-slate-300 w-[100px] text-right shrink-0 truncate font-semibold">{m.nama}</span>
-                                                    <div className="flex-1 bg-slate-100 dark:bg-slate-900 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                                        <div className="h-full rounded-full" style={{ width:`${pct}%`, background:color }}></div>
-                                                    </div>
-                                                    <span className="font-bold text-slate-900 dark:text-white w-6 text-right shrink-0">{m.hadir}/{m.total}</span>
-                                                </div>
-                                            );
-                                        })}
-                                        {memberAttendance.length === 0 && <p className="text-slate-500 text-xs italic text-center py-6">Belum ada data absen.</p>}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        {/* Ringkasan 10 Indikator Keterlibatan */}
+<div className="glow-box" style={{'--box-glow': 'linear-gradient(135deg, #14b8a6, #6366f1)'}}>
+    <div className="glow-box-inner p-5 flex flex-col h-full">
+        <h4 className="font-extrabold text-slate-900 dark:text-white text-sm mb-1 uppercase tracking-wider">
+            <i className="fa-solid fa-star text-teal-500 dark:text-teal-400 mr-2"></i> 10 Indikator Keterlibatan
+        </h4>
+        <p className="text-xs text-slate-500 mb-4">Sabat terakhir · semua sub-kelas</p>
+        <KeterlibatanRadarChart
+            keterlibatan={keterlibatan}
+            subKelas={subKelas}
+            absen={absen}
+            isDarkMode={isDarkMode}
+            parseLocalDate={parseLocalDate}
+        />
+    </div>
+</div>
                     </div>
                 </div>
             );
@@ -1277,8 +1393,8 @@
                     // Sisipkan area khusus tamu jika ada tamu
                     if (guestRows.length > 0 || Math.max(...guestStatusList) > 0) {
                         finalRows.push({
-                            no: "", nama: "--- DAFTAR TAMU ---", status: "",
-                            statusList: Array(sabbatDates.length).fill(""), hadirCount: "", alpaCount: "", isSeparatorRow: true
+                            no: "", nama: "", status: "--- DAFTAR TAMU ---",
+                            statusList: Array(sabbatDates.length).fill(""), hadirCount: "", alpaCount: "", isSeparatorRow: false 
                         });
                         guestRows.forEach((r, i) => finalRows.push({ ...r, no: baseRows.length + i + 1 }));
 
