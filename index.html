@@ -129,6 +129,12 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Fix icon kalender di dark mode */
+        .dark input[type="date"]::-webkit-calendar-picker-indicator,
+        .dark input[type="month"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen relative overflow-x-hidden bg-slate-50 dark:bg-[#050814] text-slate-900 dark:text-slate-100 transition-colors duration-300">
