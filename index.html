@@ -1001,9 +1001,17 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
             <script>document.write(getIcon('alert', 'lucide-md'))</script> 
             Pengeluaran Melebihi Saldo!
           </div>
-          <div class="form-group" style="margin-top:20px">
-            <label class="form-label">Nomor Bukti</label>
-            <input class="form-input" id="expReceipt" type="text" placeholder="EXP-XXXX">
+          
+          <div class="form-row" style="margin-top:20px">
+            <div class="form-group">
+              <label class="form-label">Nomor Bukti</label>
+              <input class="form-input" id="expReceipt" type="text" placeholder="EXP-XXXX">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nama Penerima</label>
+              <input class="form-input" id="expReceiver" type="text" list="receiverList" placeholder="Penerima / Vendor">
+              <datalist id="receiverList"></datalist>
+            </div>
           </div>
 
           <div class="form-group">
@@ -1077,7 +1085,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
         </div>
         <div style="position:relative; flex:1; min-width:180px;">
           <svg class="lucide lucide-sm" style="position:absolute; left:14px; top:13px; color:var(--text3)" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          <input class="form-input" id="filterGiver" style="width:100%; padding-left:40px;" type="text" placeholder="Cari pemberi/unit..." oninput="renderHistory()">
+          <input class="form-input" id="filterGiver" style="width:100%; padding-left:40px;" type="text" placeholder="Cari pemberi/penerima/unit..." oninput="renderHistory()">
         </div>
         <select class="select-sm" id="filterMonth" onchange="renderHistory()">
           <option value="0">Semua Bulan</option>
@@ -1389,6 +1397,11 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
       </select>
     </div>
     
+    <div class="form-group" id="editTransPihakGroup" style="display:none;">
+      <label class="form-label" id="editTransPihakLabel">Pihak Terkait</label>
+      <input class="form-input" id="editTransPihak" type="text">
+    </div>
+    
     <div class="form-group">
       <label class="form-label">Foto Revisi</label>
       <label for="editPhotoUpload" class="photo-upload-box">
@@ -1466,7 +1479,7 @@ async function apiPostWithFallback(action, payload = {}) {
         if (type === 'income') {
           return await apiPost('saveIncome', { date: payload.date, income_type: payload.income_type, unit_name: payload.unit_name || '-', nama_pemberi: payload.original?.nama_pemberi || 'Umum', receipt_no: payload.receipt_no, amount: payload.amount, note: payload.note, alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0 });
         } else {
-          return await apiPost('saveExpense', { date: payload.date, department: payload.department, source_balance: payload.source_balance, receipt_no: payload.receipt_no, amount: payload.amount, note: payload.note });
+          return await apiPost('saveExpense', { date: payload.date, department: payload.department, source_balance: payload.source_balance, receipt_no: payload.receipt_no, amount: payload.amount, note: payload.note, nama_penerima: payload.nama_penerima || '-' });
         }
       }
       throw new Error(`Server Apps Script perlu diperbarui (New Deployment).`);
@@ -1649,6 +1662,9 @@ function initForms() {
   document.getElementById('expDept').innerHTML = '<option value="">-- Departemen --</option>' + (masterData.departments || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
   const givers = new Set(); (cachedIncome || []).forEach(x => { if(x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') givers.add(x.nama_pemberi); });
   const giverList = document.getElementById('giverList'); if(giverList) giverList.innerHTML = Array.from(givers).map(g => `<option value="${g}">`).join('');
+  
+  const receivers = new Set(); (cachedExpense || []).forEach(x => { if(x.nama_penerima && x.nama_penerima !== '-' && x.nama_penerima !== 'Umum') receivers.add(x.nama_penerima); });
+  const receiverList = document.getElementById('receiverList'); if(receiverList) receiverList.innerHTML = Array.from(receivers).map(r => `<option value="${r}">`).join('');
 }
 
 function handleTypeChange() {
@@ -1679,7 +1695,9 @@ function searchByReceipt() {
     let html = '<div style="max-height: 380px; overflow-y: auto; padding-right: 6px;">';
     allFound.slice(0, 100).forEach(found => {
       const isPrivCategory = isViewer && found.isInc && isPrivateCategory(found.income_type);
-      const displayPemberi = isPrivCategory ? '*** (Privasi)' : (found.isInc ? (found.unit_name && found.unit_name !== '-' ? found.unit_name : (found.nama_pemberi || '-')) : '-');
+      const displayPihak = found.isInc 
+        ? (isPrivCategory ? '*** (Privasi)' : (found.unit_name && found.unit_name !== '-' ? found.unit_name : (found.nama_pemberi || '-')))
+        : (found.nama_penerima || '-');
       const displayNote = isPrivCategory ? '*** (Privasi)' : (found.note || '-');
       
       let photoBtn = '';
@@ -1692,7 +1710,7 @@ function searchByReceipt() {
             <span class="badge ${found.isInc ? 'badge-green' : 'badge-red'}">${found.isInc ? 'Pemasukan' : 'Pengeluaran'}</span>
           </div>
           <div style="font-size: 13px; color: var(--text2); margin-bottom: 4px;">Tgl: <strong style="color: var(--text)">${fmtDate(found.date)}</strong></div>
-          ${found.isInc ? `<div style="font-size: 13px; color: var(--text2); margin-bottom: 4px;">Pihak: <strong style="color: var(--text)">${displayPemberi}</strong></div>` : ''}
+          <div style="font-size: 13px; color: var(--text2); margin-bottom: 4px;">Pihak: <strong style="color: var(--text)">${displayPihak}</strong></div>
           <div style="font-size: 13px; color: var(--text2); margin-bottom: 8px;">Ket: <strong style="color: var(--text)">${found.isInc ? found.income_type : found.department}</strong><br><span style="font-size:12px; color:var(--text4)">${displayNote}</span></div>
           <div class="${found.isInc ? 'amount-pos' : 'amount-neg'}" style="font-size: 22px; font-weight: 800; letter-spacing:-0.5px;">${found.isInc ? '+' : '-'}${fmt(found.amount)}</div>
           ${photoBtn}
@@ -1893,6 +1911,7 @@ async function saveExpenseForm() {
   const date = document.getElementById('expDate').value; const dept = document.getElementById('expDept').value;
   const src = document.getElementById('expSource').value; const receipt = document.getElementById('expReceipt').value.trim();
   const amount = parseFloat(document.getElementById('expAmount').value) || 0; const note = document.getElementById('expNote').value.trim();
+  const receiver = document.getElementById('expReceiver').value.trim();
 
   if (!date || !dept || !receipt || amount <= 0) { notify('Lengkapi data!', 'error'); return; }
   let avail = src === 'Daerah' ? cachedSaldo.daerah : (src === 'Kas Jemaat' ? cachedSaldo.jemaat : cachedSaldo.bangun);
@@ -1900,10 +1919,23 @@ async function saveExpenseForm() {
 
   const btn = document.getElementById('savExpBtn'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Proses...';
   try {
-    await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentExpPhoto });
+    await apiPost('saveExpense', { 
+      date, 
+      department: dept, 
+      source_balance: src, 
+      receipt_no: receipt, 
+      amount, 
+      note, 
+      receipt_photo_base64: currentExpPhoto,
+      nama_penerima: receiver || '-',
+      receiver: receiver || '-',
+      recipient: receiver || '-',
+      penerima: receiver || '-'
+    });
     notify('Berhasil!', 'success');
     
     document.getElementById('expDept').value = ''; document.getElementById('expReceipt').value = ''; document.getElementById('expAmount').value = ''; document.getElementById('expNote').value = '';
+    document.getElementById('expReceiver').value = '';
     currentExpPhoto = ''; document.getElementById('expPhotoUpload').value = ''; document.getElementById('expPhotoPreview').style.display = 'none'; document.getElementById('expPhotoPreview').src = ''; document.getElementById('expPhotoIcon').style.display = 'block';
     
     await syncAllData(); renderExpenseList();
@@ -1915,7 +1947,7 @@ function renderExpenseList() {
   document.getElementById('expenseList').innerHTML = list.map(x => `
     <tr>
       <td class="fit-col">${fmtDate(x.date)}</td>
-      <td><strong>${x.department}</strong></td>
+      <td><strong>${x.department}</strong><br><span style="font-size:12px; color:var(--text4)">Penerima: ${x.nama_penerima || '-'}</span></td>
       <td class="fit-col">
         <span class="badge badge-gray">${x.receipt_no}</span>
         ${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}
@@ -1992,7 +2024,7 @@ function renderReportView(data) {
             <table>
               <thead><tr><th class="fit-col">Tanggal</th><th class="fit-col">Sumber Kas</th><th class="fit-col">Ref</th><th>Keperluan</th><th class="fit-col" style="text-align:right">Subtotal</th></tr></thead>
               <tbody>
-                ${items.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge badge-gold">${x.source_balance}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td><td>${x.note || '-'}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('')}
+                ${items.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge badge-gold">${x.source_balance}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td><td>${x.note || '-'}${x.nama_penerima ? `<br><small style="color:var(--text3)">Penerima: ${x.nama_penerima}</small>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('')}
               </tbody>
             </table>
           </div>
@@ -2016,7 +2048,12 @@ function renderHistory() {
     if (year !== 0 && d.getFullYear() !== year) return false;
     if (month !== 0 && (d.getMonth() + 1) !== month) return false;
     if (q && !`${x.income_type || x.department} ${x.note || ''} ${x.receipt_no}`.toLowerCase().includes(q)) return false;
-    if (giverQ) { if (x.type === 'expense') return false; const giverStr = `${x.nama_pemberi || ''} ${x.unit_name || ''}`.toLowerCase(); if (!giverStr.includes(giverQ)) return false; }
+    if (giverQ) {
+      const partyStr = x.type === 'income' 
+        ? `${x.nama_pemberi || ''} ${x.unit_name || ''}`.toLowerCase()
+        : `${x.nama_penerima || ''}`.toLowerCase();
+      if (!partyStr.includes(giverQ)) return false;
+    }
     return true;
   });
 
@@ -2026,6 +2063,9 @@ function renderHistory() {
     const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
     const deleteId = x.transaction_id || x.receipt_no || '';
     let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);" title="Lihat Foto">${safeIcon('image', 'lucide-sm')}</button>` : '';
+    const pihak = x.type === 'income' 
+      ? (isPrivCategory ? '***' : (x.nama_pemberi || '-')) 
+      : (x.nama_penerima || '-');
 
     return `
     <tr>
@@ -2033,7 +2073,7 @@ function renderHistory() {
       <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
       <td><strong>${x.income_type || x.department || '-'}</strong><br><span style="font-size:12px; color:var(--text4)">${isPrivCategory ? '***' : (x.note || '-')}</span></td>
       <td class="fit-col"><span class="badge badge-gray">${x.receipt_no || '-'}</span> ${photoBtn}</td>
-      <td>${isPrivCategory ? '***' : (x.nama_pemberi || '-')}</td>
+      <td>${pihak}</td>
       <td class="fit-col ${x.style}" style="text-align:right; font-weight:800;">${x.sign}${fmt(x.amount)}</td>
       <td class="fit-col" style="text-align:right;">
         ${canEdit && deleteId ? `<button class="btn-icon-only" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit')}</button>` : ''}
@@ -2072,6 +2112,10 @@ function openEditTrans(type, id) {
       const unitSelect = document.getElementById('editTransUnit'); unitSelect.innerHTML = '<option value="">-- Tanpa Unit --</option>'; const existingUnits = [];
       (masterData.units || []).forEach(x => { existingUnits.push(x.name); unitSelect.add(new Option(x.name, x.name)); });
       if (trx.unit_name && trx.unit_name !== '-' && !existingUnits.includes(trx.unit_name)) unitSelect.add(new Option(trx.unit_name + ' (Histori)', trx.unit_name)); unitSelect.value = trx.unit_name || '';
+      
+      document.getElementById('editTransPihakGroup').style.display = 'block';
+      document.getElementById('editTransPihakLabel').textContent = 'Nama Pemberi';
+      document.getElementById('editTransPihak').value = trx.nama_pemberi || '';
   } else {
       document.getElementById('editTransCatLabel').textContent = 'Departemen';
       const existingDepts = []; (masterData.departments || []).forEach(x => { existingDepts.push(x.name); catSelect.add(new Option(x.name, x.name)); });
@@ -2080,6 +2124,10 @@ function openEditTrans(type, id) {
       document.getElementById('editTransUnitGroup').style.display = 'none'; 
       document.getElementById('editTransSourceGroup').style.display = 'block';
       document.getElementById('editTransSource').value = trx.source_balance || 'Kas Jemaat';
+      
+      document.getElementById('editTransPihakGroup').style.display = 'block';
+      document.getElementById('editTransPihakLabel').textContent = 'Nama Penerima';
+      document.getElementById('editTransPihak').value = trx.nama_penerima || '';
   }
 }
 
@@ -2097,8 +2145,20 @@ async function saveEditTransaction() {
   if(!date || !receipt || amount <= 0) { notify('Isi form dengan benar!', 'error'); return; }
 
   let payload = { type, transaction_id: id, date, receipt_no: receipt, amount, note, receipt_photo_base64: currentEditPhoto, original };
-  if(type === 'income') { payload.income_type = document.getElementById('editTransCat').value === 'Perpuluhan' ? document.getElementById('editTransSubCat').value : document.getElementById('editTransCat').value; payload.unit_name = document.getElementById('editTransUnit').value || '-'; } 
-  else { payload.department = document.getElementById('editTransCat').value; payload.source_balance = document.getElementById('editTransSource').value; }
+  if(type === 'income') { 
+    payload.income_type = document.getElementById('editTransCat').value === 'Perpuluhan' ? document.getElementById('editTransSubCat').value : document.getElementById('editTransCat').value; 
+    payload.unit_name = document.getElementById('editTransUnit').value || '-'; 
+    payload.nama_pemberi = document.getElementById('editTransPihak').value.trim() || 'Umum';
+  } 
+  else { 
+    payload.department = document.getElementById('editTransCat').value; 
+    payload.source_balance = document.getElementById('editTransSource').value; 
+    const receiverVal = document.getElementById('editTransPihak').value.trim() || '-';
+    payload.nama_penerima = receiverVal;
+    payload.receiver = receiverVal;
+    payload.recipient = receiverVal;
+    payload.penerima = receiverVal;
+  }
 
   const btn = document.getElementById('btnSaveEditTrans'); btn.disabled = true; btn.innerHTML = 'Menyimpan...';
   try { await apiPostWithFallback('editRecord', payload); notify('Berhasil!', 'success'); closeEditModal(); await syncAllData(); renderHistory(); } 
