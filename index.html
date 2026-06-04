@@ -277,6 +277,25 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .photo-upload-box:hover { border-color: var(--primary); background: rgba(212, 175, 55, 0.05); box-shadow: 0 0 15px rgba(212, 175, 55, 0.1); }
 .photo-preview { max-height: 140px; object-fit: contain; display: none; margin: 0 auto; border-radius: 8px; }
 
+/* Grid 2-Kolom untuk Tampilan Desktop */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+/* Row Form Sejajar untuk Tampilan Desktop */
+.form-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+.form-row > * {
+  flex: 1;
+  min-width: 0;
+}
+
 /* Cards (Glowing Effect) */
 .card { 
   background: var(--bg-dark); border: 1px solid var(--glass-border); 
