@@ -1546,6 +1546,11 @@ function renderDashboard() {
 
   const targetPembangunan = 2500000000; const persentaseBangun = (calcBangun / targetPembangunan) * 100; const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
 
+  const komitmenSaatIni = 53376900; // Jika nilai ini dari pangkalan data di masa akan datang, ia boleh diganti dengan pembolehubah dinamik.
+  const targetKomitmen = 77300000;
+  const persentaseKomitmen = (komitmenSaatIni / targetKomitmen) * 100;
+  const visualPercentKomitmen = persentaseKomitmen > 100 ? 100 : persentaseKomitmen;
+
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Total Saldo</div><div class="stat-icon c-teal">${safeIcon('shield', 'lucide-lg')}</div></div>
@@ -1580,11 +1585,11 @@ function renderDashboard() {
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Komitmen Pembangunan</div><div class="stat-icon c-pink">${safeIcon('info', 'lucide-lg')}</div></div>
-      <div class="stat-value" style="color:var(--pink)">Rp 53.376.900</div>
+      <div class="stat-header"><div class="stat-label">Komitmen Pembangunan</div><div class="stat-icon c-pink">${safeIcon('hammer', 'lucide-lg')}</div></div>
+      <div class="stat-value">${fmt(komitmenSaatIni)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
-        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text3);"><span>TARGET: RP 77.300.000</span><span style="color: var(--teal-pop);">69.01%</span></div>
-        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:69.01%; background: var(--pink);"></div></div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text3);"><span>TARGET: ${fmt(targetKomitmen).toUpperCase()}</span><span style="color: var(--teal-pop);">${persentaseKomitmen.toFixed(2)}%</span></div>
+        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentKomitmen}%; background: var(--pink);"></div></div>
       </div>
     </div>
     <div class="stat-card">
