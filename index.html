@@ -452,7 +452,26 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .table-wrap.scrollable { max-height: 70vh; overflow-y: auto; border: none; }
 table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 14px; }
 .summary-table { min-width: 100% !important; } 
-th { text-align: left; padding: 16px; font-weight: 600; color: var(--text2); background: var(--table-th-bg); white-space: nowrap; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--glass-border); }
+
+/* STICKY TABLE HEADER (FROSTED GLASS EFFECT) */
+th { 
+  position: sticky; 
+  top: 0; 
+  z-index: 10; 
+  backdrop-filter: blur(12px); 
+  -webkit-backdrop-filter: blur(12px); 
+  text-align: left; 
+  padding: 16px; 
+  font-weight: 600; 
+  color: var(--text2); 
+  background: var(--table-th-bg); 
+  white-space: nowrap; 
+  font-size: 12px; 
+  text-transform: uppercase; 
+  letter-spacing: 0.5px; 
+  border-bottom: 1px solid var(--glass-border); 
+}
+
 td { padding: 16px; border-bottom: 1px solid var(--glass-border); color: var(--text); vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: var(--table-hover); }
@@ -772,10 +791,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
           <option value="9">September</option><option value="10">Oktober</option>
           <option value="11">November</option><option value="12">Desember</option>
         </select>
-        <select class="select-sm" id="dashYear" onchange="renderDashboard()">
-          <option value="2026">2026</option>
-          <option value="2025">2025</option>
-        </select>
+        <input type="number" class="select-sm" id="dashYear" value="2026" min="2000" max="2100" onchange="renderDashboard()" style="background-image: none; padding-right: 12px; width: 80px;" title="Ketik tahun">
         <button class="btn btn-ghost" id="btnSyncData" onclick="handleManualSync()" style="margin-left: auto;">
           <script>document.write(getIcon('refresh', 'lucide-sm'))</script> Sinkronisasi
         </button>
@@ -1070,10 +1086,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
           <option value="9">September</option><option value="10">Oktober</option>
           <option value="11">November</option><option value="12">Desember</option>
         </select>
-        <select class="select-sm" id="rptYear">
-          <option value="2026">2026</option>
-          <option value="2025">2025</option>
-        </select>
+        <input type="number" class="select-sm" id="rptYear" value="2026" min="2000" max="2100" style="background-image: none; padding-right: 12px; width: 80px;" title="Ketik tahun">
         <button class="btn btn-primary" onclick="loadReport()">Buat Laporan</button>
         <button class="btn btn-ghost" id="btnPrintReport" onclick="window.print()">Cetak / PDF</button>
       </div>
@@ -1095,11 +1108,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
           <option value="0">Semua Bulan</option>
           <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option><option value="4">Apr</option><option value="5">Mei</option><option value="6">Jun</option><option value="7">Jul</option><option value="8">Agu</option><option value="9">Sep</option><option value="10">Okt</option><option value="11">Nov</option><option value="12">Des</option>
         </select>
-        <select class="select-sm" id="filterYear" onchange="renderHistory()">
-          <option value="0">Semua Tahun</option>
-          <option value="2026">2026</option>
-          <option value="2025">2025</option>
-        </select>
+        <input type="number" class="select-sm" id="filterYear" value="0" min="0" max="2100" placeholder="Thn" onchange="renderHistory()" style="background-image: none; padding-right: 12px; width: 80px;" title="Isi 0 untuk Semua Tahun">
         <select class="select-sm" id="filterType" onchange="renderHistory()">
           <option value="">Semua Transaksi</option>
           <option value="income">Pemasukan Saja</option>
@@ -1550,7 +1559,7 @@ function handleReceiptPhoto(event, type) {
     img.onload = function() {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const MAX_WIDTH = 800; 
+      const MAX_WIDTH = 400; // Kompresi agar muat di Google Sheet
       let width = img.width, height = img.height;
       
       if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
@@ -1558,7 +1567,7 @@ function handleReceiptPhoto(event, type) {
       
       canvas.width = width; canvas.height = height;
       ctx.drawImage(img, 0, 0, width, height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.5); // Kompresi 50%
 
       if (type === 'income') { currentIncPhoto = dataUrl; document.getElementById('incPhotoPreview').src = dataUrl; document.getElementById('incPhotoPreview').style.display = 'block'; document.getElementById('incPhotoIcon').style.display = 'none'; } 
       else if (type === 'expense') { currentExpPhoto = dataUrl; document.getElementById('expPhotoPreview').src = dataUrl; document.getElementById('expPhotoPreview').style.display = 'block'; document.getElementById('expPhotoIcon').style.display = 'none'; } 
