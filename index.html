@@ -1425,9 +1425,22 @@ function searchByReceipt() {
   if (!q) { resultDiv.style.display = 'none'; return; }
 
   let validUnitNames = [];
-  if (masterData && masterData.units) { validUnitNames = masterData.units.filter(u => String(u.id || '').toLowerCase().includes(q) || String(u.name || '').toLowerCase().includes(q)).map(u => String(u.name).toLowerCase()); }
-  const foundIncomes = cachedIncome.filter(x => String(x.receipt_no || '').toLowerCase().includes(q) || String(x.transaction_id || '').toLowerCase().includes(q) || validUnitNames.includes(String(x.unit_name || '').toLowerCase()) || String(x.unit_name || '').toLowerCase().includes(q)).map(x => ({...x, isInc: true}));
-  const foundExpenses = cachedExpense.filter(x => String(x.receipt_no || '').toLowerCase().includes(q) || String(x.transaction_id || '').toLowerCase().includes(q)).map(x => ({...x, isInc: false}));
+  // Hanya mencari berdasarkan unit_id (ID Unit)
+  if (masterData && masterData.units) { 
+    validUnitNames = masterData.units
+      .filter(u => String(u.id || '').toLowerCase() === q || String(u.id || '').toLowerCase().includes(q))
+      .map(u => String(u.name).toLowerCase()); 
+  }
+  
+  // Hanya mencari unit_id (melalui validUnitNames) dan receipt_no
+  const foundIncomes = cachedIncome.filter(x => 
+    String(x.receipt_no || '').toLowerCase().includes(q) || 
+    validUnitNames.includes(String(x.unit_name || '').toLowerCase())
+  ).map(x => ({...x, isInc: true}));
+
+  const foundExpenses = cachedExpense.filter(x => 
+    String(x.receipt_no || '').toLowerCase().includes(q)
+  ).map(x => ({...x, isInc: false}));
 
   const allFound = [...foundIncomes, ...foundExpenses]; allFound.sort((a,b) => new Date(b.date) - new Date(a.date));
   resultDiv.style.display = 'block';
@@ -1435,7 +1448,8 @@ function searchByReceipt() {
   if (allFound.length > 0) {
     let html = '<div style="max-height: 380px; overflow-y: auto; padding-right: 6px;">';
     
-    const isUnitSearch = validUnitNames.length > 0 || foundIncomes.some(x => String(x.unit_name || '').toLowerCase().includes(q));
+    // Pastikan status pencarian unit hanya aktif jika ada ID Unit yang sah sepadan
+    const isUnitSearch = validUnitNames.length > 0;
     if (isUnitSearch && foundIncomes.length > 0) {
       const monthlySum = {};
       let totalIncSearch = 0;
