@@ -1559,7 +1559,7 @@ function handleReceiptPhoto(event, type) {
     img.onload = function() {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const MAX_WIDTH = 400; // Kompresi agar muat di Google Sheet
+      const MAX_WIDTH = 800; // Resolusi dinaikkan agar kuitansi / nota terbaca jelas
       let width = img.width, height = img.height;
       
       if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
@@ -1567,7 +1567,7 @@ function handleReceiptPhoto(event, type) {
       
       canvas.width = width; canvas.height = height;
       ctx.drawImage(img, 0, 0, width, height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.5); // Kompresi 50%
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.7); // Kualitas ditingkatkan menjadi 70%
 
       if (type === 'income') { currentIncPhoto = dataUrl; document.getElementById('incPhotoPreview').src = dataUrl; document.getElementById('incPhotoPreview').style.display = 'block'; document.getElementById('incPhotoIcon').style.display = 'none'; } 
       else if (type === 'expense') { currentExpPhoto = dataUrl; document.getElementById('expPhotoPreview').src = dataUrl; document.getElementById('expPhotoPreview').style.display = 'block'; document.getElementById('expPhotoIcon').style.display = 'none'; } 
