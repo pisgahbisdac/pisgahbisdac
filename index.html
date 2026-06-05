@@ -36,6 +36,16 @@
   --green-pop:  #059669;
   --red-pop:    #DC2626;
   --teal-pop:   #0284C7;
+  --blue: #3498db;
+  --red: #e74c3c;
+  --green: #2ecc71;
+  --yellow: #f1c40f;
+  --orange: #e67e22;
+  --purple: #9b59b6;
+  --pink: #fd79a8;
+  --teal: #1abc9c;
+  --gray: #7f8c8d;
+  --dark: #2c3e50;
 
   --radius:     12px;
   --radius-lg:  16px;
@@ -310,11 +320,20 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .stat-label { font-size: 13px; color: var(--text2); font-weight: 600; }
 .stat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
 .stat-icon .lucide { width: 18px; height: 18px; }
-.stat-icon.c-moss  { background: rgba(212, 175, 55, 0.1); color: var(--primary); }
-.stat-icon.c-gold  { background: rgba(212, 175, 55, 0.15); color: var(--gold); }
-.stat-icon.c-teal  { background: rgba(2, 132, 199, 0.1); color: var(--teal-pop); }
-.stat-icon.c-green { background: rgba(5, 150, 105, 0.1); color: var(--green-pop); }
-.stat-icon.c-red   { background: rgba(220, 38, 38, 0.1); color: var(--red-pop); }
+.stat-icon.c-moss  { background: rgba(212, 175, 55, 0.233); color: var(--primary); }
+.stat-icon.c-gold  { background: rgba(212, 175, 55, 0.233); color: var(--gold); }
+.stat-icon.c-teal  { background: rgba(2, 133, 199, 0.233); color: var(--teal-pop); }
+.stat-icon.c-green { background: rgba(5, 150, 104, 0.233); color: var(--green-pop); }
+.stat-icon.c-red   { background: rgba(220, 38, 38, 0.233); color: var(--red-pop); }
+
+.stat-icon.c-blue   { background: rgba(41, 117, 209, 0.233); color: var(--blue-pop); }
+.stat-icon.c-yellow { background: rgba(251, 190, 36, 0.233); color: var(--yellow-pop); }
+.stat-icon.c-orange { background: rgba(251, 146, 60, 0.233); color: var(--orange-pop); }
+.stat-icon.c-purple { background: rgba(192, 132, 252, 0.233); color: var(--purple-pop); }
+.stat-icon.c-pink   { background: rgba(244, 114, 181, 0.233); color: var(--pink-pop); }
+.stat-icon.c-teal   { background: rgba(45, 212, 190, 0.233); color: var(--teal-pop); }
+.stat-icon.c-gray   { background: rgba(156, 163, 175, 0.233); color: var(--gray-pop); }
+.stat-icon.c-indigo { background: rgba(129, 141, 248, 0.233); color: var(--indigo-pop); }
 
 .stat-value { font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -1px; line-height: 1.2;}
 .stat-sub { font-size: 12px; color: var(--text4); margin-top: 6px; font-weight: 500;}
@@ -1534,7 +1553,7 @@ function renderDashboard() {
     </div>
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Kas Bersih (Non-Daerah)</div><div class="stat-icon c-moss">${safeIcon('log', 'lucide-lg')}</div></div>
-      <div class="stat-value">${fmt(saldoAccrued)}</div>
+      <div class="stat-value" style="color:var(--yellow)">${fmt(saldoAccrued)}</div>
     </div>
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Pemasukan Periode</div><div class="stat-icon c-green">${safeIcon('trendUp', 'lucide-lg')}</div></div>
@@ -1549,19 +1568,27 @@ function renderDashboard() {
       <div class="stat-value" style="color:var(--gold)">${fmt(calcJemaat)}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Kas Daerah</div><div class="stat-icon c-moss">${safeIcon('mappin', 'lucide-lg')}</div></div>
-      <div class="stat-value">${fmt(calcDaerah)}</div>
+      <div class="stat-header"><div class="stat-label">Kas Daerah</div><div class="stat-icon c-blue">${safeIcon('mappin', 'lucide-lg')}</div></div>
+      <div class="stat-value" style="color:var(--blue)">${fmt(calcDaerah)}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Dana Pembangunan</div><div class="stat-icon c-teal">${safeIcon('hammer', 'lucide-lg')}</div></div>
-      <div class="stat-value">${fmt(calcBangun)}</div>
+      <div class="stat-header"><div class="stat-label">Dana Pembangunan</div><div class="stat-icon c-orange">${safeIcon('hammer', 'lucide-lg')}</div></div>
+      <div class="stat-value" style="color:var(--orange)">${fmt(calcBangun)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
-        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text3);"><span>TARGET: RP 2.500.000.000;</span><span style="color: var(--teal-pop);">${persentaseBangun.toFixed(2)}%</span></div>
-        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: var(--teal-pop);"></div></div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text3);"><span>TARGET: RP 2.500.000.000</span><span style="color: var(--teal-pop);">${persentaseBangun.toFixed(2)}%</span></div>
+        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: var(--orange);"></div></div>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Partisipasi Jemaat</div><div class="stat-icon c-moss">${safeIcon('users', 'lucide-lg')}</div></div>
+      <div class="stat-header"><div class="stat-label">Komitmen Pembangunan</div><div class="stat-icon c-pink">${safeIcon('info', 'lucide-lg')}</div></div>
+      <div class="stat-value" style="color:var(--pink)">Rp 53.376.900</div>
+      <div class="stat-sub" style="margin-top: 12px;">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text3);"><span>TARGET: RP 77.300.000</span><span style="color: var(--teal-pop);">69.01%</span></div>
+        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:69.01%; background: var(--pink);"></div></div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-header"><div class="stat-label">Partisipasi Jemaat</div><div class="stat-icon c-indigo">${safeIcon('users', 'lucide-lg')}</div></div>
       <div class="stat-value">${totalPemberiPersepuluhan} <span style="font-size:16px; color:var(--text4)">/ ${totalAnggotaSistem}</span></div>
     </div>
   `;
@@ -1569,8 +1596,8 @@ function renderDashboard() {
   const maxVal = Math.max(calcDaerah, calcJemaat, calcBangun, 1);
   document.getElementById('saldoBars').innerHTML = `
     <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Jemaat</span><span>${fmt(calcJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcJemaat/maxVal*100).toFixed(0)}%; background:var(--gold)"></div></div></div>
-    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah</span><span>${fmt(calcDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcDaerah/maxVal*100).toFixed(0)}%; background:var(--text3)"></div></div></div>
-    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Dana Pembangunan</span><span>${fmt(calcBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcBangun/maxVal*100).toFixed(0)}%; background:var(--teal-pop)"></div></div></div>
+    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah</span><span>${fmt(calcDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcDaerah/maxVal*100).toFixed(0)}%; background:var(--blue)"></div></div></div>
+    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Dana Pembangunan</span><span>${fmt(calcBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcBangun/maxVal*100).toFixed(0)}%; background:var(--orange)"></div></div></div>
   `;
 
   let periodDaerah = 0; let periodJemaat = 0; let periodBangun = 0;
@@ -1583,8 +1610,8 @@ function renderDashboard() {
     const pctD = ((periodDaerah / periodTotal) * 100).toFixed(1); const pctJ = ((periodJemaat / periodTotal) * 100).toFixed(1); const pctB = ((periodBangun / periodTotal) * 100).toFixed(1);
     document.getElementById('allocBars').innerHTML = `
       <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Jemaat (${pctJ}%)</span><span>${fmt(periodJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctJ}%; background:var(--gold)"></div></div></div>
-      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah (${pctD}%)</span><span>${fmt(periodDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctD}%; background:var(--text3)"></div></div></div>
-      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Pembangunan (${pctB}%)</span><span>${fmt(periodBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctB}%; background:var(--teal-pop)"></div></div></div>
+      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah (${pctD}%)</span><span>${fmt(periodDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctD}%; background:var(--blue)"></div></div></div>
+      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Pembangunan (${pctB}%)</span><span>${fmt(periodBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctB}%; background:var(--orange)"></div></div></div>
     `;
   }
 
@@ -1593,8 +1620,8 @@ function renderDashboard() {
   let catInTable = '<div class="table-wrap" style="margin-top:0; border:none;"><table class="summary-table" style="font-size:13px; width:100%;"><tbody>';
   if (filteredInc.length === 0) { catInTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state">Tidak ada pemasukan.</div></td></tr>'; } else {
     if (Object.keys(jBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--gold);">Masuk ke Kas Jemaat</strong></td></tr>`; Object.entries(jBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
-    if (Object.keys(dBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--text3);">Masuk ke Kas Daerah</strong></td></tr>`; Object.entries(dBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
-    if (Object.keys(bBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--teal-pop);">Masuk ke Pembangunan</strong></td></tr>`; Object.entries(bBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
+    if (Object.keys(dBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--blue);">Masuk ke Kas Daerah</strong></td></tr>`; Object.entries(dBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
+    if (Object.keys(bBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--orange);">Masuk ke Pembangunan</strong></td></tr>`; Object.entries(bBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
   }
   document.getElementById('kategoriInTable').innerHTML = catInTable + '</tbody></table></div>';
 
