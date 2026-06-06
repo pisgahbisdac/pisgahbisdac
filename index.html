@@ -36,16 +36,6 @@
   --green-pop:  #059669;
   --red-pop:    #DC2626;
   --teal-pop:   #0284C7;
-  --blue: #3498db;
-  --red: #e74c3c;
-  --green: #2ecc71;
-  --yellow: #f1c40f;
-  --orange: #e67e22;
-  --purple: #9b59b6;
-  --pink: #fd79a8;
-  --teal: #1abc9c;
-  --gray: #7f8c8d;
-  --dark: #2c3e50;
 
   --radius:     12px;
   --radius-lg:  16px;
@@ -320,20 +310,11 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .stat-label { font-size: 13px; color: var(--text2); font-weight: 600; }
 .stat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
 .stat-icon .lucide { width: 18px; height: 18px; }
-.stat-icon.c-moss  { background: rgba(212, 175, 55, 0.233); color: var(--primary); }
-.stat-icon.c-gold  { background: rgba(212, 175, 55, 0.233); color: var(--gold); }
-.stat-icon.c-teal  { background: rgba(2, 133, 199, 0.233); color: var(--teal-pop); }
-.stat-icon.c-green { background: rgba(5, 150, 104, 0.233); color: var(--green-pop); }
-.stat-icon.c-red   { background: rgba(220, 38, 38, 0.233); color: var(--red-pop); }
-
-.stat-icon.c-blue   { background: rgba(41, 117, 209, 0.233); color: var(--blue-pop); }
-.stat-icon.c-yellow { background: rgba(251, 190, 36, 0.233); color: var(--yellow-pop); }
-.stat-icon.c-orange { background: rgba(251, 146, 60, 0.233); color: var(--orange-pop); }
-.stat-icon.c-purple { background: rgba(192, 132, 252, 0.233); color: var(--purple-pop); }
-.stat-icon.c-pink   { background: rgba(244, 114, 181, 0.233); color: var(--pink-pop); }
-.stat-icon.c-teal   { background: rgba(45, 212, 190, 0.233); color: var(--teal-pop); }
-.stat-icon.c-gray   { background: rgba(156, 163, 175, 0.233); color: var(--gray-pop); }
-.stat-icon.c-indigo { background: rgba(129, 141, 248, 0.233); color: var(--indigo-pop); }
+.stat-icon.c-moss  { background: rgba(212, 175, 55, 0.1); color: var(--primary); }
+.stat-icon.c-gold  { background: rgba(212, 175, 55, 0.15); color: var(--gold); }
+.stat-icon.c-teal  { background: rgba(2, 132, 199, 0.1); color: var(--teal-pop); }
+.stat-icon.c-green { background: rgba(5, 150, 105, 0.1); color: var(--green-pop); }
+.stat-icon.c-red   { background: rgba(220, 38, 38, 0.1); color: var(--red-pop); }
 
 .stat-value { font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -1px; line-height: 1.2;}
 .stat-sub { font-size: 12px; color: var(--text4); margin-top: 6px; font-weight: 500;}
@@ -779,7 +760,11 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
             <div class="form-group"><label class="form-label">Jenis Pemasukan</label><select class="form-select" id="incType" onchange="handleTypeChange()"></select></div>
             <div class="form-row">
               <div class="form-group"><label class="form-label">Unit (Opsional)</label><select class="form-select" id="incUnit"></select></div>
-              <div class="form-group"><label class="form-label">No. Kuitansi</label><input class="form-input" id="incReceipt" type="text" placeholder="INC-XXXX"></div>
+              <div class="form-group">
+                <label class="form-label">No. Kuitansi</label>
+                <input class="form-input" id="incReceipt" type="text" placeholder="INC-XXXX">
+                <div id="lastIncReceipt" style="font-size:11px; color:var(--text3); margin-top:4px;"></div>
+              </div>
             </div>
             <div class="form-group"><label class="form-label">Nama Pemberi</label><input class="form-input" id="incGiver" type="text" list="giverList" placeholder="Nama / Kelompok"><datalist id="giverList"></datalist></div>
 
@@ -849,7 +834,11 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
           <div class="saldo-warning" id="saldoWarning"><script>document.write(getIcon('alert', 'lucide-md'))</script> Pengeluaran Melebihi Saldo!</div>
           
           <div class="form-row" style="margin-top:20px">
-            <div class="form-group"><label class="form-label">Nomor Bukti</label><input class="form-input" id="expReceipt" type="text" placeholder="EXP-XXXX"></div>
+            <div class="form-group">
+              <label class="form-label">Nomor Bukti</label>
+              <input class="form-input" id="expReceipt" type="text" placeholder="EXP-XXXX">
+              <div id="lastExpReceipt" style="font-size:11px; color:var(--text3); margin-top:4px;"></div>
+            </div>
             <div class="form-group"><label class="form-label">Nama Penerima</label><input class="form-input" id="expReceiver" type="text" list="receiverList" placeholder="Penerima / Vendor"><datalist id="receiverList"></datalist></div>
           </div>
           <div class="form-group">
@@ -1186,7 +1175,7 @@ const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwL6zRobieJ7Y3X
 let currentIncPhoto = '';
 let currentExpPhoto = '';
 let currentEditPhoto = '';
-let currentReportData = null; // Menyimpan data laporan untuk fitur sensor dinamis
+let currentReportData = null; 
 
 function getActiveApiUrl() { const savedUrl = localStorage.getItem('PiKaChu_api_url'); return (savedUrl && savedUrl.trim() !== '') ? savedUrl.trim() : DEFAULT_API_URL; }
 function getToken() { return sessionStorage.getItem('PiKaChu_token'); }
@@ -1398,7 +1387,38 @@ function applyRoleAccess() {
   const sensorContainer = document.getElementById('reportSensorContainer'); if (sensorContainer) sensorContainer.style.display = isViewer ? 'none' : 'flex';
 }
 
-async function syncAllData() { try { await loadMasterData(); await loadAllTransactions(); updateAppStatus(); if (masterData) renderDashboard(); } catch (e) { notify('Sinkronisasi gagal: ' + e.message, 'error'); } }
+function updateLastReceipts() {
+  const lblInc = document.getElementById('lastIncReceipt');
+  if (lblInc) {
+    if (cachedIncome && cachedIncome.length > 0) {
+      const sortedInc = [...cachedIncome].sort((a,b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date));
+      lblInc.innerHTML = `No. Kuitansi Terakhir: <strong style="color:var(--text)">${sortedInc[0].receipt_no}</strong>`;
+    } else {
+      lblInc.textContent = 'Belum ada transaksi';
+    }
+  }
+  const lblExp = document.getElementById('lastExpReceipt');
+  if (lblExp) {
+    if (cachedExpense && cachedExpense.length > 0) {
+      const sortedExp = [...cachedExpense].sort((a,b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date));
+      lblExp.innerHTML = `No. Bukti Terakhir: <strong style="color:var(--text)">${sortedExp[0].receipt_no}</strong>`;
+    } else {
+      lblExp.textContent = 'Belum ada transaksi';
+    }
+  }
+}
+
+async function syncAllData() { 
+  try { 
+    await loadMasterData(); 
+    await loadAllTransactions(); 
+    updateAppStatus(); 
+    if (masterData) renderDashboard(); 
+    updateLastReceipts(); 
+  } catch (e) { 
+    notify('Sinkronisasi gagal: ' + e.message, 'error'); 
+  } 
+}
 
 async function handleManualSync() {
   const btn = document.getElementById('btnSyncData'); const statusTxt = document.getElementById('appStatusText'); const statusDot = document.getElementById('appStatusDot');
@@ -1444,14 +1464,12 @@ function searchByReceipt() {
   if (!q) { resultDiv.style.display = 'none'; return; }
 
   let validUnitNames = [];
-  // Hanya mencari berdasarkan unit_id (ID Unit)
   if (masterData && masterData.units) { 
     validUnitNames = masterData.units
       .filter(u => String(u.id || '').toLowerCase() === q || String(u.id || '').toLowerCase().includes(q))
       .map(u => String(u.name).toLowerCase()); 
   }
   
-  // Hanya mencari unit_id (melalui validUnitNames) dan receipt_no
   const foundIncomes = cachedIncome.filter(x => 
     String(x.receipt_no || '').toLowerCase().includes(q) || 
     validUnitNames.includes(String(x.unit_name || '').toLowerCase())
@@ -1467,7 +1485,6 @@ function searchByReceipt() {
   if (allFound.length > 0) {
     let html = '<div style="max-height: 380px; overflow-y: auto; padding-right: 6px;">';
     
-    // Pastikan status pencarian unit hanya aktif jika ada ID Unit yang sah sepadan
     const isUnitSearch = validUnitNames.length > 0;
     if (isUnitSearch && foundIncomes.length > 0) {
       const monthlySum = {};
@@ -1545,8 +1562,8 @@ function renderDashboard() {
   if (masterData && masterData.units) masterData.units.forEach(u => { if (unitsGavePersepuluhan.has(u.name)) totalPemberiPersepuluhan += (parseInt(u.jumlah_anggota) || 0); });
 
   const targetPembangunan = 2500000000; const persentaseBangun = (calcBangun / targetPembangunan) * 100; const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
-
-  const komitmenSaatIni = 53376900; // Jika nilai ini dari pangkalan data di masa akan datang, ia boleh diganti dengan pembolehubah dinamik.
+  
+  const komitmenSaatIni = 53376900; 
   const targetKomitmen = 77300000;
   const persentaseKomitmen = (komitmenSaatIni / targetKomitmen) * 100;
   const visualPercentKomitmen = persentaseKomitmen > 100 ? 100 : persentaseKomitmen;
@@ -1558,7 +1575,7 @@ function renderDashboard() {
     </div>
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Kas Bersih (Non-Daerah)</div><div class="stat-icon c-moss">${safeIcon('log', 'lucide-lg')}</div></div>
-      <div class="stat-value" style="color:var(--yellow)">${fmt(saldoAccrued)}</div>
+      <div class="stat-value">${fmt(saldoAccrued)}</div>
     </div>
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Pemasukan Periode</div><div class="stat-icon c-green">${safeIcon('trendUp', 'lucide-lg')}</div></div>
@@ -1573,36 +1590,36 @@ function renderDashboard() {
       <div class="stat-value" style="color:var(--gold)">${fmt(calcJemaat)}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Kas Daerah</div><div class="stat-icon c-blue">${safeIcon('mappin', 'lucide-lg')}</div></div>
-      <div class="stat-value" style="color:var(--blue)">${fmt(calcDaerah)}</div>
+      <div class="stat-header"><div class="stat-label">Kas Daerah</div><div class="stat-icon c-moss">${safeIcon('mappin', 'lucide-lg')}</div></div>
+      <div class="stat-value">${fmt(calcDaerah)}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Dana Pembangunan</div><div class="stat-icon c-orange">${safeIcon('hammer', 'lucide-lg')}</div></div>
-      <div class="stat-value" style="color:var(--orange)">${fmt(calcBangun)}</div>
+      <div class="stat-header"><div class="stat-label">Dana Pembangunan</div><div class="stat-icon c-teal">${safeIcon('hammer', 'lucide-lg')}</div></div>
+      <div class="stat-value">${fmt(calcBangun)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
-        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text3);"><span>TARGET: RP 2.500.000.000</span><span style="color: var(--teal-pop);">${persentaseBangun.toFixed(2)}%</span></div>
-        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: var(--orange);"></div></div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text3);"><span>TARGET: ${fmt(targetPembangunan).toUpperCase()}</span><span style="color: var(--teal-pop);">${persentaseBangun.toFixed(2)}%</span></div>
+        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: var(--teal-pop);"></div></div>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Komitmen Pembangunan</div><div class="stat-icon c-pink">${safeIcon('hammer', 'lucide-lg')}</div></div>
+      <div class="stat-header"><div class="stat-label">Partisipasi Jemaat</div><div class="stat-icon c-moss">${safeIcon('users', 'lucide-lg')}</div></div>
+      <div class="stat-value">${totalPemberiPersepuluhan} <span style="font-size:16px; color:var(--text4)">/ ${totalAnggotaSistem}</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-header"><div class="stat-label">Komitmen Pembangunan</div><div class="stat-icon c-teal">${safeIcon('hammer', 'lucide-lg')}</div></div>
       <div class="stat-value">${fmt(komitmenSaatIni)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
         <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text3);"><span>TARGET: ${fmt(targetKomitmen).toUpperCase()}</span><span style="color: var(--teal-pop);">${persentaseKomitmen.toFixed(2)}%</span></div>
-        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentKomitmen}%; background: var(--pink);"></div></div>
+        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentKomitmen}%; background: var(--teal-pop);"></div></div>
       </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Partisipasi Jemaat</div><div class="stat-icon c-indigo">${safeIcon('users', 'lucide-lg')}</div></div>
-      <div class="stat-value">${totalPemberiPersepuluhan} <span style="font-size:16px; color:var(--text4)">/ ${totalAnggotaSistem}</span></div>
     </div>
   `;
 
   const maxVal = Math.max(calcDaerah, calcJemaat, calcBangun, 1);
   document.getElementById('saldoBars').innerHTML = `
     <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Jemaat</span><span>${fmt(calcJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcJemaat/maxVal*100).toFixed(0)}%; background:var(--gold)"></div></div></div>
-    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah</span><span>${fmt(calcDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcDaerah/maxVal*100).toFixed(0)}%; background:var(--blue)"></div></div></div>
-    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Dana Pembangunan</span><span>${fmt(calcBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcBangun/maxVal*100).toFixed(0)}%; background:var(--orange)"></div></div></div>
+    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah</span><span>${fmt(calcDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcDaerah/maxVal*100).toFixed(0)}%; background:var(--text3)"></div></div></div>
+    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Dana Pembangunan</span><span>${fmt(calcBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcBangun/maxVal*100).toFixed(0)}%; background:var(--teal-pop)"></div></div></div>
   `;
 
   let periodDaerah = 0; let periodJemaat = 0; let periodBangun = 0;
@@ -1615,8 +1632,8 @@ function renderDashboard() {
     const pctD = ((periodDaerah / periodTotal) * 100).toFixed(1); const pctJ = ((periodJemaat / periodTotal) * 100).toFixed(1); const pctB = ((periodBangun / periodTotal) * 100).toFixed(1);
     document.getElementById('allocBars').innerHTML = `
       <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Jemaat (${pctJ}%)</span><span>${fmt(periodJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctJ}%; background:var(--gold)"></div></div></div>
-      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah (${pctD}%)</span><span>${fmt(periodDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctD}%; background:var(--blue)"></div></div></div>
-      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Pembangunan (${pctB}%)</span><span>${fmt(periodBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctB}%; background:var(--orange)"></div></div></div>
+      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah (${pctD}%)</span><span>${fmt(periodDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctD}%; background:var(--text3)"></div></div></div>
+      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Pembangunan (${pctB}%)</span><span>${fmt(periodBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctB}%; background:var(--teal-pop)"></div></div></div>
     `;
   }
 
@@ -1625,8 +1642,8 @@ function renderDashboard() {
   let catInTable = '<div class="table-wrap" style="margin-top:0; border:none;"><table class="summary-table" style="font-size:13px; width:100%;"><tbody>';
   if (filteredInc.length === 0) { catInTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state">Tidak ada pemasukan.</div></td></tr>'; } else {
     if (Object.keys(jBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--gold);">Masuk ke Kas Jemaat</strong></td></tr>`; Object.entries(jBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
-    if (Object.keys(dBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--blue);">Masuk ke Kas Daerah</strong></td></tr>`; Object.entries(dBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
-    if (Object.keys(bBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--orange);">Masuk ke Pembangunan</strong></td></tr>`; Object.entries(bBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
+    if (Object.keys(dBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--text3);">Masuk ke Kas Daerah</strong></td></tr>`; Object.entries(dBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
+    if (Object.keys(bBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--teal-pop);">Masuk ke Pembangunan</strong></td></tr>`; Object.entries(bBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
   }
   document.getElementById('kategoriInTable').innerHTML = catInTable + '</tbody></table></div>';
 
