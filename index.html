@@ -8,47 +8,36 @@
 <link rel="icon" type="image/png" href="./putih.png">
 <link rel="icon" type="image/svg+xml" href="./putih.png">
 <link rel="apple-touch-icon" href="./hijau.png">
-<meta name="theme-color" content="#d4af37">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#151924">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* LIGHT THEME (Clean Modern SaaS + Gold) */
+  /* LIGHT THEME FALLBACK */
   --bg-deep:    #F4F6F8;
   --bg-dark:    #FFFFFF;
   --bg-mid:     #F9FAFB;
-  
-  --bg-glass:   rgba(255, 255, 255, 0.7); /* 70% Transparent */
-  
+  --bg-glass:   rgba(255, 255, 255, 0.7);
   --primary:    #d4af37;
   --primary-hover: #b5952f;
-  
   --gold:       #d4af37; 
   --gold-light: #f3d57a;
-  
   --glass-border:  #E5E7EB;
   --glass-border2: #D1D5DB;
-
   --text:       #111827;
   --text2:      #4B5563;
   --text3:      #6B7280;
   --text4:      #9CA3AF;
-
   --green-pop:  #059669;
   --red-pop:    #DC2626;
   --teal-pop:   #0284C7;
-
   --radius:     12px;
   --radius-lg:  16px;
   --radius-xl:  24px;
-  
-  /* Glowing Shadows for Light Mode */
   --shadow-sm:  0 0 15px rgba(212, 175, 55, 0.1);
   --shadow-md:  0 0 20px rgba(212, 175, 55, 0.15);
   --shadow-lg:  0 0 30px rgba(212, 175, 55, 0.2);
-
   --input-bg: #FFFFFF;
   --input-border: var(--glass-border);
-  
   --sidebar-bg: #FFFFFF;
   --topbar-bg: rgba(255, 255, 255, 0.95);
   --login-card-bg: #FFFFFF;
@@ -57,57 +46,64 @@
   --table-hover: rgba(212, 175, 55, 0.05);
   --table-th-bg: rgba(212, 175, 55, 0.08);
   --badge-gray-bg: rgba(0, 0, 0, 0.03);
+
+  /* NEON ACCENTS */
+  --accent-cyan:    #00d2ff;
+  --accent-blue:    #3a86ff;
+  --accent-green:   #00e676;
+  --accent-gold:    #ffd166;
+  --accent-orange:  #ff6b6b;
+  --accent-purple:  #9d4edd;
   
   --select-arrow: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
 }
 
-/* DARK THEME (Abu-abu Gelap + Gold + Glowing) */
+/* DARK THEME (Dasbor Analitik) */
 [data-theme="dark"] {
-  --bg-deep: #121212;
-  --bg-dark: #1a1a1a;
-  --bg-mid: #222222;
+  --bg-deep:        #151924;
+  --bg-dark:        #1e222d;
+  --bg-sidebar:     #1b1e28;
+  --input-bg:       #12151f;
   
-  --bg-glass: rgba(26, 26, 26, 0.7); /* 70% Transparent */
+  --glass-border:   #2a2f3e;
+  --glass-border2:  #3b4256;
+  
+  --text:           #e2e8f0;
+  --text2:          #8492a6;
+  --text3:          #8492a6;
+  --text4:          #5c677d;
+
+  --bg-glass: rgba(30, 34, 45, 0.7);
   
   --primary: #d4af37; 
   --primary-hover: #f3d57a;
 
-  --text: #f0f0f0;
-  --text2: #cccccc;
-  --text3: #999999;
-  --text4: #666666;
+  --green-pop: #00e676;
+  --red-pop: #ff6b6b;
+  --teal-pop: #00d2ff;
+  --gold: #ffd166;
 
-  --green-pop: #4ec864;
-  --red-pop: #e06060;
-  --teal-pop: #4ecdb4;
-  --gold: #d4af37;
+  --shadow-sm: 0 4px 6px rgba(0,0,0,0.3);
+  --shadow-md: 0 8px 15px rgba(0,0,0,0.4);
+  --shadow-lg: 0 12px 25px rgba(0,0,0,0.5);
 
-  --glass-border: rgba(212, 175, 55, 0.25);
-  --glass-border2: rgba(212, 175, 55, 0.4);
-
-  /* Glowing Shadows for Dark Mode */
-  --shadow-sm: 0 0 15px rgba(212, 175, 55, 0.15);
-  --shadow-md: 0 0 25px rgba(212, 175, 55, 0.25);
-  --shadow-lg: 0 0 35px rgba(212, 175, 55, 0.35);
-
-  --input-bg: rgba(20, 20, 20, 0.8);
   --input-border: var(--glass-border);
   
-  --sidebar-bg: #1a1a1a;
-  --topbar-bg: rgba(26, 26, 26, 0.95);
-  --login-card-bg: #1a1a1a;
-  --report-card-bg: rgba(255,255,255,0.03);
-  --empty-bg: rgba(212, 175, 55, 0.05);
-  --table-hover: rgba(212, 175, 55, 0.05);
-  --table-th-bg: rgba(212, 175, 55, 0.1);
-  --badge-gray-bg: rgba(255, 255, 255, 0.05);
+  --sidebar-bg: #1b1e28;
+  --topbar-bg: rgba(30, 34, 45, 0.95);
+  --login-card-bg: #1e222d;
+  --report-card-bg: #151924;
+  --empty-bg: #12151f;
+  --table-hover: rgba(255,255,255,0.02);
+  --table-th-bg: #151924;
+  --badge-gray-bg: #12151f;
 
   --select-arrow: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { 
-  font-family: 'Plus Jakarta Sans', sans-serif; 
+  font-family: 'Inter', sans-serif; 
   background: var(--bg-deep); 
   color: var(--text); 
   min-height: 100vh; 
@@ -151,7 +147,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .logo-text { font-size: 20px; color: var(--text); font-weight: 800; letter-spacing: -0.5px; }
 
 .sidebar-user { padding: 0 24px 20px; border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; gap: 12px; }
-.user-avatar { width: 40px; height: 40px; background: var(--bg-mid); border: 1px solid var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--text); }
+.user-avatar { width: 40px; height: 40px; background: var(--bg-deep); border: 1px solid var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--text); }
 .user-name { font-size: 14px; font-weight: 700; color: var(--text); }
 .user-role { font-size: 11px; color: var(--primary); font-weight: 600;}
 
@@ -253,13 +249,13 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 
 .login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; position: relative; z-index: 10; width: 100%; }
 .login-card { 
-  background: var(--login-card-bg); border: 1px solid var(--glass-border); 
+  background: var(--bg-dark); border: 1px solid var(--glass-border); 
   border-radius: var(--radius-xl); padding: 48px 40px; width: 100%; max-width: 420px; 
   box-shadow: var(--shadow-lg); 
 }
 .login-logo { text-align: center; margin-bottom: 36px; }
 .login-logo img { width: 80px; height: 80px; object-fit: contain; margin: 0 auto 16px; display: block; }
-.login-logo h1 { font-size: 28px; color: var(--text); font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
+.login-logo h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--text); font-weight: 700; letter-spacing: -1px; margin-bottom: 4px; }
 
 .login-btn { 
   width: 100%; padding: 14px; background: var(--primary); color: #111827; 
@@ -349,7 +345,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
     display: flex; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
     width: calc(100% - 32px); max-width: 400px; background: var(--bg-glass); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--glass-border); border-radius: 100px; z-index: 100; justify-content: space-between; align-items: center; padding: 8px 16px; 
-    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.15);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   }
   .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text3); font-size: 10px; font-weight: 600; gap: 4px; cursor: pointer; flex: 1; transition: all 0.3s ease; position: relative; }
   .bottom-nav-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -543,7 +539,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
       <svg class="app-logo-login-default" style="width:64px; height:64px; color:var(--primary); margin: 0 auto 16px; display:block;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
       </svg>
-      <h1>PiKaChu</h1>
+      <h1 style="font-family: 'Playfair Display', serif;">PiKaChu</h1>
       <p style="color:var(--text3); font-size: 14px; font-weight: 500;">Sistem Keuangan Jemaat</p>
     </div>
 
@@ -781,9 +777,9 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
             </div>
 
             <div class="alloc-display scrollable-x" id="incAllocDisplay">
-              <div class="alloc-row"><span class="alloc-label">Daerah</span><span class="alloc-value" id="allocDaerahVal">Rp 0</span></div>
-              <div class="alloc-row"><span class="alloc-label">Kas Jemaat</span><span class="alloc-value" id="allocJemaatVal">Rp 0</span></div>
-              <div class="alloc-row"><span class="alloc-label">Pembangunan</span><span class="alloc-value" id="allocBangunVal">Rp 0</span></div>
+              <div class="alloc-row"><span class="alloc-label">Daerah</span><span class="alloc-value" id="allocDaerahVal" style="color:var(--accent-purple, var(--text))">Rp 0</span></div>
+              <div class="alloc-row"><span class="alloc-label">Kas Jemaat</span><span class="alloc-value" id="allocJemaatVal" style="color:var(--accent-gold, var(--text))">Rp 0</span></div>
+              <div class="alloc-row"><span class="alloc-label">Pembangunan</span><span class="alloc-value" id="allocBangunVal" style="color:var(--accent-blue, var(--text))">Rp 0</span></div>
             </div>
 
             <div class="form-group" style="margin-top:20px">
@@ -830,7 +826,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
               <option value="Pembangunan">Saldo Pembangunan</option>
             </select>
           </div>
-          <div class="form-group"><label class="form-label">Sisa Kas Terpilih</label><div class="saldo-display" id="saldoTersedia">Rp 0</div></div>
+          <div class="form-group"><label class="form-label">Sisa Kas Terpilih</label><div class="saldo-display" id="saldoTersedia" style="color:var(--accent-cyan, var(--teal-pop))">Rp 0</div></div>
           <div class="saldo-warning" id="saldoWarning"><script>document.write(getIcon('alert', 'lucide-md'))</script> Pengeluaran Melebihi Saldo!</div>
           
           <div class="form-row" style="margin-top:20px">
@@ -883,7 +879,6 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
         <button class="btn btn-ghost" id="btnPrintReport" onclick="window.print()">Cetak / PDF</button>
       </div>
 
-      <!-- Tambahan Fitur Tick Tool Sensor -->
       <div id="reportSensorContainer" style="margin-top: -8px; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; padding: 14px; background: var(--input-bg); border-radius: var(--radius-lg); border: 1px dashed var(--glass-border); max-width: 100%; box-sizing: border-box;">
         <input type="checkbox" id="sensorPemasukan" onchange="applyReportSensor()" style="width: 20px; height: 20px; accent-color: var(--gold); cursor: pointer; flex-shrink: 0;">
         <label for="sensorPemasukan" style="color: var(--text); font-size: 14px; cursor: pointer; user-select: none; font-weight: 500;">
@@ -1571,55 +1566,55 @@ function renderDashboard() {
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Total Saldo</div><div class="stat-icon c-teal">${safeIcon('shield', 'lucide-lg')}</div></div>
-      <div class="stat-value" style="color:var(--teal-pop)">${fmt(calcTotal)}</div>
+      <div class="stat-value" style="color: var(--accent-blue, #3a86ff)">${fmt(calcTotal)}</div>
     </div>
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Kas Bersih (Non-Daerah)</div><div class="stat-icon c-moss">${safeIcon('log', 'lucide-lg')}</div></div>
-      <div class="stat-value">${fmt(saldoAccrued)}</div>
+      <div class="stat-value" style="color: var(--accent-cyan, #00d2ff)">${fmt(saldoAccrued)}</div>
     </div>
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Pemasukan Periode</div><div class="stat-icon c-green">${safeIcon('trendUp', 'lucide-lg')}</div></div>
-      <div class="stat-value amount-pos">+${fmt(totalIn)}</div>
+      <div class="stat-value" style="color: var(--accent-green, #00e676)">+${fmt(totalIn)}</div>
     </div>
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Pengeluaran Periode</div><div class="stat-icon c-red">${safeIcon('trendDown', 'lucide-lg')}</div></div>
-      <div class="stat-value amount-neg">-${fmt(totalOut)}</div>
+      <div class="stat-value" style="color: var(--accent-orange, #ff6b6b)">-${fmt(totalOut)}</div>
     </div>
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Kas Jemaat</div><div class="stat-icon c-gold">${safeIcon('church', 'lucide-lg')}</div></div>
-      <div class="stat-value" style="color:var(--gold)">${fmt(calcJemaat)}</div>
+      <div class="stat-value" style="color: var(--accent-gold, #ffd166)">${fmt(calcJemaat)}</div>
     </div>
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Kas Daerah</div><div class="stat-icon c-moss">${safeIcon('mappin', 'lucide-lg')}</div></div>
-      <div class="stat-value">${fmt(calcDaerah)}</div>
+      <div class="stat-value" style="color: var(--accent-purple, #9d4edd)">${fmt(calcDaerah)}</div>
     </div>
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Dana Pembangunan</div><div class="stat-icon c-teal">${safeIcon('hammer', 'lucide-lg')}</div></div>
-      <div class="stat-value">${fmt(calcBangun)}</div>
+      <div class="stat-value" style="color: var(--accent-blue, #3a86ff)">${fmt(calcBangun)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
-        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text3);"><span>TARGET: ${fmt(targetPembangunan).toUpperCase()}</span><span style="color: var(--teal-pop);">${persentaseBangun.toFixed(2)}%</span></div>
-        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: var(--teal-pop);"></div></div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text-muted, var(--text3));"><span>TARGET: ${fmt(targetPembangunan).toUpperCase()}</span><span style="color: var(--accent-blue, var(--teal-pop));">${persentaseBangun.toFixed(2)}%</span></div>
+        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: var(--accent-blue, var(--teal-pop));"></div></div>
       </div>
     </div>
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Partisipasi Jemaat</div><div class="stat-icon c-moss">${safeIcon('users', 'lucide-lg')}</div></div>
-      <div class="stat-value">${totalPemberiPersepuluhan} <span style="font-size:16px; color:var(--text4)">/ ${totalAnggotaSistem}</span></div>
+      <div class="stat-value" style="color: var(--text-main, var(--text))">${totalPemberiPersepuluhan} <span style="font-size:16px; color: var(--text-muted, var(--text4))">/ ${totalAnggotaSistem}</span></div>
     </div>
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Komitmen Pembangunan</div><div class="stat-icon c-teal">${safeIcon('hammer', 'lucide-lg')}</div></div>
-      <div class="stat-value">${fmt(komitmenSaatIni)}</div>
+      <div class="stat-value" style="color: var(--accent-cyan, #00d2ff)">${fmt(komitmenSaatIni)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
-        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text3);"><span>TARGET: ${fmt(targetKomitmen).toUpperCase()}</span><span style="color: var(--teal-pop);">${persentaseKomitmen.toFixed(2)}%</span></div>
-        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentKomitmen}%; background: var(--teal-pop);"></div></div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text-muted, var(--text3));"><span>TARGET: ${fmt(targetKomitmen).toUpperCase()}</span><span style="color: var(--accent-cyan, var(--teal-pop));">${persentaseKomitmen.toFixed(2)}%</span></div>
+        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentKomitmen}%; background: var(--accent-cyan, var(--teal-pop));"></div></div>
       </div>
     </div>
   `;
 
   const maxVal = Math.max(calcDaerah, calcJemaat, calcBangun, 1);
   document.getElementById('saldoBars').innerHTML = `
-    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Jemaat</span><span>${fmt(calcJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcJemaat/maxVal*100).toFixed(0)}%; background:var(--gold)"></div></div></div>
-    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah</span><span>${fmt(calcDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcDaerah/maxVal*100).toFixed(0)}%; background:var(--text3)"></div></div></div>
-    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Dana Pembangunan</span><span>${fmt(calcBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcBangun/maxVal*100).toFixed(0)}%; background:var(--teal-pop)"></div></div></div>
+    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Jemaat</span><span>${fmt(calcJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcJemaat/maxVal*100).toFixed(0)}%; background:var(--accent-gold, var(--gold))"></div></div></div>
+    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah</span><span>${fmt(calcDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcDaerah/maxVal*100).toFixed(0)}%; background:var(--accent-purple, var(--text3))"></div></div></div>
+    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Dana Pembangunan</span><span>${fmt(calcBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcBangun/maxVal*100).toFixed(0)}%; background:var(--accent-blue, var(--teal-pop))"></div></div></div>
   `;
 
   let periodDaerah = 0; let periodJemaat = 0; let periodBangun = 0;
@@ -1631,9 +1626,9 @@ function renderDashboard() {
   } else {
     const pctD = ((periodDaerah / periodTotal) * 100).toFixed(1); const pctJ = ((periodJemaat / periodTotal) * 100).toFixed(1); const pctB = ((periodBangun / periodTotal) * 100).toFixed(1);
     document.getElementById('allocBars').innerHTML = `
-      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Jemaat (${pctJ}%)</span><span>${fmt(periodJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctJ}%; background:var(--gold)"></div></div></div>
-      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah (${pctD}%)</span><span>${fmt(periodDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctD}%; background:var(--text3)"></div></div></div>
-      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Pembangunan (${pctB}%)</span><span>${fmt(periodBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctB}%; background:var(--teal-pop)"></div></div></div>
+      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Jemaat (${pctJ}%)</span><span>${fmt(periodJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctJ}%; background:var(--accent-gold, var(--gold))"></div></div></div>
+      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah (${pctD}%)</span><span>${fmt(periodDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctD}%; background:var(--accent-purple, var(--text3))"></div></div></div>
+      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Pembangunan (${pctB}%)</span><span>${fmt(periodBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctB}%; background:var(--accent-blue, var(--teal-pop))"></div></div></div>
     `;
   }
 
@@ -1641,9 +1636,9 @@ function renderDashboard() {
   filteredInc.forEach(x => { if (x.alloc_jemaat > 0) jBreak[x.income_type] = (jBreak[x.income_type] || 0) + x.alloc_jemaat; if (x.alloc_daerah > 0) dBreak[x.income_type] = (dBreak[x.income_type] || 0) + x.alloc_daerah; if (x.alloc_bangun > 0) bBreak[x.income_type] = (bBreak[x.income_type] || 0) + x.alloc_bangun; });
   let catInTable = '<div class="table-wrap" style="margin-top:0; border:none;"><table class="summary-table" style="font-size:13px; width:100%;"><tbody>';
   if (filteredInc.length === 0) { catInTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state">Tidak ada pemasukan.</div></td></tr>'; } else {
-    if (Object.keys(jBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--gold);">Masuk ke Kas Jemaat</strong></td></tr>`; Object.entries(jBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
-    if (Object.keys(dBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--text3);">Masuk ke Kas Daerah</strong></td></tr>`; Object.entries(dBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
-    if (Object.keys(bBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--teal-pop);">Masuk ke Pembangunan</strong></td></tr>`; Object.entries(bBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
+    if (Object.keys(jBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--accent-gold, var(--gold));">Masuk ke Kas Jemaat</strong></td></tr>`; Object.entries(jBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
+    if (Object.keys(dBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--accent-purple, var(--text3));">Masuk ke Kas Daerah</strong></td></tr>`; Object.entries(dBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
+    if (Object.keys(bBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--accent-blue, var(--teal-pop));">Masuk ke Pembangunan</strong></td></tr>`; Object.entries(bBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge badge-gray">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
   }
   document.getElementById('kategoriInTable').innerHTML = catInTable + '</tbody></table></div>';
 
@@ -1658,7 +1653,7 @@ function renderDashboard() {
   document.getElementById('recentTrans').innerHTML = recent.map(x => {
     const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
     let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
-    return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td><td><strong>${x.income_type || x.department}</strong><br><span style="font-size:12px; color:var(--text4)">${isPrivCategory ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td><td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td></tr>`;
+    return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td><td><strong>${x.income_type || x.department}</strong><br><span style="font-size:12px; color:var(--text-muted, var(--text4))">${isPrivCategory ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td><td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td></tr>`;
   }).join('') || '<tr><td colspan="5" style="text-align:center"><div class="empty-state">Belum ada aktivitas.</div></td></tr>';
 }
 
