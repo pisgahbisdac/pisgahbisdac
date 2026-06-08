@@ -58,8 +58,11 @@
     </script>
     <script>
         // Set tema awal sebelum React render untuk mencegah FOUC (Flash of Unstyled Content)
-        if (localStorage.getItem('theme') === 'dark' || !localStorage.getItem('theme')) {
+        // Default diubah menjadi Light mode (jika tidak ada data di localStorage)
+        if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
         }
     </script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -5525,7 +5528,8 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
             // --- THEME STATE ---
             const [isDarkMode, setIsDarkMode] = React.useState(() => {
                 const saved = localStorage.getItem('theme');
-                return saved ? saved === 'dark' : true; 
+                // Ubah nilai default dari true menjadi false agar base-nya adalah mode terang
+                return saved ? saved === 'dark' : false; 
             });
 
             React.useEffect(() => {
