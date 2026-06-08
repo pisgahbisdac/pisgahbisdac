@@ -1477,7 +1477,7 @@
 
             // Memperbaiki logika filter agar kolom pencarian (search bar) dapat berfungsi
             const filteredBooks = React.useMemo(() => {
-                let result = booksFromServer;
+                let result = [...booksFromServer];
                 if (activeCategory !== 'Semua') {
                     result = result.filter(b => b.category === activeCategory);
                 }
@@ -1489,7 +1489,8 @@
                         (b.desc && b.desc.toLowerCase().includes(q))
                     );
                 }
-                return result;
+                // Mengurutkan buku berdasarkan abjad (A-Z) pada judul
+                return result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
             }, [booksFromServer, activeCategory, searchQuery]);
 
             // Mode baca PDF
@@ -2740,13 +2741,17 @@
             // --- TAMBAHKAN KODE INI DI SINI ---
             const [bukuSearch, setBukuSearch] = React.useState('');
             const filteredAdminBuku = React.useMemo(() => {
-                if (!bukuSearch.trim() || bukuSearch.length < 2) return daftarBuku;
-                const q = bukuSearch.toLowerCase();
-                return daftarBuku.filter(b =>
-                    (b.title && b.title.toLowerCase().includes(q)) ||
-                    (b.author && b.author.toLowerCase().includes(q)) ||
-                    (b.category && b.category.toLowerCase().includes(q))
-                );
+                let result = [...daftarBuku];
+                if (bukuSearch.trim() && bukuSearch.length >= 2) {
+                    const q = bukuSearch.toLowerCase();
+                    result = result.filter(b =>
+                        (b.title && b.title.toLowerCase().includes(q)) ||
+                        (b.author && b.author.toLowerCase().includes(q)) ||
+                        (b.category && b.category.toLowerCase().includes(q))
+                    );
+                }
+                // Mengurutkan buku berdasarkan abjad (A-Z) pada judul
+                return result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
             }, [daftarBuku, bukuSearch]);
             // -----------------------------------
 
@@ -5053,102 +5058,108 @@ const compressImage = (file, maxWidth = 1200) => {
 </button>
                                     </div>
 
-                                    {/* Search Bar Admin Buku */}
-                                    <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-4">
-                                        <div className="relative">
-                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-navy-400 pointer-events-none">
-                                                <Icon name="Search" className="w-4 h-4" />
+                                    {/* Container Utama untuk Search dan Daftar Buku agar Kotaknya Simetris */}
+                                    <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
+                                        
+                                        {/* Search Bar Admin Buku */}
+                                        <div className="mb-6">
+                                            <div className="relative">
+                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-navy-400 pointer-events-none">
+                                                    <Icon name="Search" className="w-4 h-4" />
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Cari judul, pengarang, atau kategori..."
+                                                    value={bukuSearch}
+                                                    onChange={e => setBukuSearch(e.target.value)}
+                                                    className="w-full pl-11 pr-10 py-3 bg-navy-50/50 border border-navy-100 rounded-xl text-sm font-semibold text-navy-900 placeholder-navy-300 outline-none focus:border-gold-500 transition-all"
+                                                />
+                                                {bukuSearch && (
+                                                    <button onClick={() => setBukuSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-navy-200 text-navy-500 hover:bg-navy-300 transition flex items-center justify-center">
+                                                        <Icon name="X" className="w-3.5 h-3.5" />
+                                                    </button>
+                                                )}
                                             </div>
-                                            <input
-                                                type="text"
-                                                placeholder="Cari judul, pengarang, atau kategori..."
-                                                value={bukuSearch}
-                                                onChange={e => setBukuSearch(e.target.value)}
-                                                className="w-full pl-11 pr-10 py-3 bg-navy-50/50 border border-navy-100 rounded-xl text-sm font-semibold text-navy-900 placeholder-navy-300 outline-none focus:border-gold-500 transition-all"
-                                            />
-                                            {bukuSearch && (
-                                                <button onClick={() => setBukuSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-navy-200 text-navy-500 hover:bg-navy-300 transition flex items-center justify-center">
-                                                    <Icon name="X" className="w-3.5 h-3.5" />
-                                                </button>
+                                            {bukuSearch.length >= 2 && (
+                                                <p className="text-xs text-navy-400 font-semibold mt-2 px-1">{filteredAdminBuku.length} dari {daftarBuku.length} buku</p>
                                             )}
                                         </div>
-                                        {bukuSearch.length >= 2 && (
-                                            <p className="text-xs text-navy-400 font-semibold mt-2 px-1">{filteredAdminBuku.length} dari {daftarBuku.length} buku</p>
+
+                                        {/* Book Grid — Responsif dari 2 sampai 6 kolom */}
+                                        <div className="max-h-[65vh] overflow-y-auto pr-2 custom-scrollbar">
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5">
+                                                {filteredAdminBuku.map(book => (
+                                                    <div key={book.id} className="bg-white rounded-xl shadow-sm border border-navy-100/60 overflow-hidden hover:shadow-md transition flex flex-col">
+                                                        <div className="h-36 sm:h-40 bg-gradient-to-br from-navy-100 to-navy-50 flex items-center justify-center overflow-hidden shrink-0 relative">
+                                                            <img 
+                                                                src={book.cover || getDefaultBookCover(book.category)} 
+                                                                alt={book.title} 
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => { e.target.src = getDefaultBookCover(book.category); }}
+                                                            />
+                                                            {book.pdfUrl && (
+                                                                <div className="absolute top-2 right-2 bg-green-500/90 text-white px-2 py-0.5 rounded text-[9px] font-bold shadow-sm flex items-center">
+                                                                    ✓ PDF
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="p-3 sm:p-4 flex flex-col flex-1">
+                                                            <div className="mb-3 flex-1">
+                                                                <p className="font-bold text-navy-900 text-[13px] sm:text-sm line-clamp-2 leading-tight">{book.title}</p>
+                                                                <p className="text-[10px] sm:text-xs text-navy-400 mt-1 line-clamp-1">{book.author}</p>
+                                                            </div>
+                                                            <div className="flex items-center justify-between mb-3 shrink-0">
+                                                                <span className="text-[10px] bg-gold-100 text-gold-800 px-2 py-0.5 rounded-md font-bold uppercase tracking-wide">{book.category}</span>
+                                                            </div>
+                                                            <div className="flex gap-2 mt-auto shrink-0">
+                                                                <button 
+                                                                    onClick={() => { setEditingBook(book); setBookFormData(book); setBookFormModal(true); }}
+                                                                    className="flex-1 py-1.5 sm:py-2 bg-navy-50 text-navy-700 rounded-lg text-[10px] sm:text-xs font-bold hover:bg-navy-100 transition flex items-center justify-center gap-1.5"
+                                                                >
+                                                                    <Icon name="Edit" className="w-3 h-3" /> Edit
+                                                                </button>
+                                                                <button 
+                                                                    onClick={async () => {
+                                                                        if (!confirm('Yakin ingin menghapus buku ini?')) return;
+                                                                        try {
+                                                                            const res = await fetch(GAS_API_URL, {
+                                                                                method: 'POST',
+                                                                                body: JSON.stringify({ 
+                                                                                    action: 'deleteBook', 
+                                                                                    password: adminToken,
+                                                                                    data: book.id 
+                                                                                })
+                                                                            });
+                                                                            const data = await res.json();
+                                                                            if (data.status === 'success' || data.success) {
+                                                                                alert('Buku berhasil dihapus!');
+                                                                                loadBooks();
+                                                                            } else {
+                                                                                alert('Error: ' + (data.message || data.error || 'Gagal menghapus'));
+                                                                            }
+                                                                        } catch (err) { alert('Error: ' + err.message); }
+                                                                    }}
+                                                                    className="flex-1 py-1.5 sm:py-2 bg-red-50 text-red-700 rounded-lg text-[10px] sm:text-xs font-bold hover:bg-red-100 transition flex items-center justify-center gap-1.5"
+                                                                >
+                                                                    <Icon name="Trash" className="w-3 h-3" /> Hapus
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {filteredAdminBuku.length === 0 && (
+                                            <div className="bg-navy-50/50 rounded-xl border-2 border-dashed border-navy-200 p-10 text-center mt-4">
+                                                <Icon name="BookOpen" className="w-12 h-12 text-navy-300 mx-auto mb-3" />
+                                                {bukuSearch.length >= 2
+                                                    ? <><p className="text-navy-700 font-bold mb-1">Tidak ditemukan</p><p className="text-navy-500 text-xs">Tidak ada buku cocok dengan &quot;{bukuSearch}&quot;</p></>
+                                                    : <p className="text-navy-600 font-medium text-sm">Belum ada buku. Mulai tambahkan buku pertama Anda!</p>
+                                                }
+                                            </div>
                                         )}
                                     </div>
-
-                                    {/* Book Grid — 6 kolom */}
-                                    <div className="max-h-[calc(285vh-270px)] overflow-y-auto pr-2 custom-scrollbar">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-4">
-                                        {filteredAdminBuku.map(book => (
-                                            <div key={book.id} className="bg-white rounded-xl shadow-sm border border-navy-100/60 overflow-hidden hover:shadow-md transition">
-                                                <div className="h-40 bg-gradient-to-br from-navy-100 to-navy-50 flex items-center justify-center overflow-hidden">
-                                                    <img 
-                                                        src={book.cover || getDefaultBookCover(book.category)} 
-                                                        alt={book.title} 
-                                                        className="w-full h-full object-cover"
-                                                        onError={(e) => { e.target.src = getDefaultBookCover(book.category); }}
-                                                    />
-                                                </div>
-                                                <div className="p-4">
-                                                    <div className="mb-3">
-                                                        <p className="font-bold text-navy-900 text-sm line-clamp-3">{book.title}</p>
-                                                        <p className="text-xs text-navy-400 mt-0.5">{book.author}</p>
-                                                    </div>
-                                                    <div className="flex items-center justify-between mb-3">
-                                                        <span className="text-xs bg-gold-100 text-gold-800 px-2.5 py-1 rounded-full font-semibold">{book.category}</span>
-                                                        {book.pdfUrl && <span className="text-xs text-green-600 font-bold">✓ PDF</span>}
-                                                    </div>
-                                                    <p className="text-xs text-navy-500 mb-4 line-clamp-2">{book.desc}</p>
-                                                    <div className="flex gap-2">
-                                                        <button 
-                                                            onClick={() => { setEditingBook(book); setBookFormData(book); setBookFormModal(true); }}
-                                                            className="flex-1 py-2 bg-navy-50 text-navy-700 rounded-lg text-xs font-bold hover:bg-navy-100 transition flex items-center justify-center gap-1.5"
-                                                        >
-                                                            <Icon name="Edit" className="w-3.5 h-3.5" /> Edit
-                                                        </button>
-                                                        <button 
-                                                            onClick={async () => {
-                                                                if (!confirm('Yakin ingin menghapus buku ini?')) return;
-                                                                try {
-                                                                    const res = await fetch(GAS_API_URL, {
-                                                                        method: 'POST',
-                                                                        body: JSON.stringify({ 
-                                                                            action: 'deleteBook', 
-                                                                            password: adminToken,
-                                                                            data: book.id 
-                                                                        })
-                                                                    });
-                                                                    const data = await res.json();
-                                                                    if (data.status === 'success' || data.success) {
-                                                                        alert('Buku berhasil dihapus!');
-                                                                        // Reload
-                                                                        loadBooks();
-                                                                    } else {
-                                                                        alert('Error: ' + (data.message || data.error || 'Gagal menghapus'));
-                                                                    }
-                                                                } catch (err) { alert('Error: ' + err.message); }
-                                                            }}
-                                                            className="flex-1 py-2 bg-red-50 text-red-700 rounded-lg text-xs font-bold hover:bg-red-100 transition flex items-center justify-center gap-1.5"
-                                                        >
-                                                            <Icon name="Trash" className="w-3.5 h-3.5" /> Hapus
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    </div>
-
-                                    {filteredAdminBuku.length === 0 && (
-                                        <div className="bg-white rounded-xl border-2 border-dashed border-navy-200 p-12 text-center">
-                                            <Icon name="BookOpen" className="w-16 h-16 text-navy-200 mx-auto mb-4" />
-                                            {bukuSearch.length >= 2
-                                                ? <><p className="text-navy-700 font-bold mb-1">Tidak ditemukan</p><p className="text-navy-400 text-sm">Tidak ada buku cocok dengan &quot;{bukuSearch}&quot;</p></>
-                                                : <p className="text-navy-500 font-medium">Belum ada buku. Mulai tambahkan buku pertama Anda!</p>
-                                            }
-                                        </div>
-                                    )}
 
                                     {/* Book Form Modal */}
                                     {bookFormModal && (
@@ -5329,10 +5340,10 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
         // 3. Buku: cari judul, pengarang, deskripsi
         if (daftarBuku && daftarBuku.length) {
             results.buku = daftarBuku.filter(b => 
-                b.title.toLowerCase().includes(q) || 
-                b.author.toLowerCase().includes(q) || 
-                b.desc.toLowerCase().includes(q)
-            ).slice(0, 20);
+                (b.title && b.title.toLowerCase().includes(q)) || 
+                (b.author && b.author.toLowerCase().includes(q)) || 
+                (b.desc && b.desc.toLowerCase().includes(q))
+            ).sort((a, b) => (a.title || '').localeCompare(b.title || '')).slice(0, 20);
         }
 
         // 4. Jadwal petugas (seperti sebelumnya)
