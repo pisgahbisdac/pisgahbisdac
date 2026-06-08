@@ -338,8 +338,10 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   .filter-bar { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; align-items: center; -webkit-overflow-scrolling: touch; padding-bottom: 12px; }
   .filter-bar > * { flex-shrink: 0; width: auto; max-width: none; margin: 0; }
   
-  .stats-grid { display: flex; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; padding-bottom: 16px; gap: 16px; }
-  .stat-card { min-width: 85%; flex-shrink: 0; scroll-snap-align: center; margin-bottom: 0; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; padding-bottom: 16px; overflow-x: visible; }
+  .stat-card { min-width: 0; width: 100%; padding: 16px; margin-bottom: 0; }
+  .stat-value { font-size: 20px; }
+  .stat-label { font-size: 12px; line-height: 1.3; }
   
   .bottom-bar {
     display: flex; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
