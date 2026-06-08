@@ -251,7 +251,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .login-card { 
   background: var(--bg-dark); border: 1px solid var(--glass-border); 
   border-radius: var(--radius-xl); padding: 48px 40px; width: 100%; max-width: 420px; 
-  box-shadow: var(--shadow-lg); 
+  box-shadow: var(--shadow-sm); 
 }
 .login-logo { text-align: center; margin-bottom: 36px; }
 .login-logo img { width: 80px; height: 80px; object-fit: contain; margin: 0 auto 16px; display: block; }
@@ -335,14 +335,89 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   
   .card { padding: 20px; margin-bottom: 16px; width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden; min-width: 0; }
   
-  .filter-bar { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; align-items: center; -webkit-overflow-scrolling: touch; padding-bottom: 12px; }
-  .filter-bar > * { flex-shrink: 0; width: auto; max-width: none; margin: 0; }
+  .filter-bar { flex-direction: row; flex-wrap: wrap; overflow-x: visible; align-items: stretch; padding: 16px; gap: 12px; }
+  .filter-bar > * { flex: 1 1 calc(50% - 12px); width: auto; max-width: 100%; margin: 0 !important; }
+  .filter-bar .filter-label { flex: 1 1 100%; margin-bottom: -6px !important; }
+  .filter-bar > div, .filter-bar > label { flex: 1 1 100% !important; }
+  .filter-bar .btn { flex: 1 1 calc(50% - 12px); padding: 12px; justify-content: center; }
   
   .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; padding-bottom: 16px; overflow-x: visible; }
   .stat-card { min-width: 0; width: 100%; padding: 16px; margin-bottom: 0; }
   .stat-value { font-size: 20px; }
   .stat-label { font-size: 12px; line-height: 1.3; }
   
+  /* MOBILE LIST STYLES (No Scroll) */
+  .mobile-list-table { min-width: 100% !important; display: block; width: 100%; }
+  .mobile-list-table thead { display: none; }
+  .mobile-list-table tbody { display: block; width: 100%; }
+  .mobile-list-table tr:not(.empty-row) { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto auto; gap: 6px; padding: 16px 24px; border-bottom: 1px solid var(--glass-border); }
+  .mobile-list-table tr.empty-row { display: block; padding: 24px; text-align: center;}
+  .mobile-list-table tr.empty-row td { display: block; width: 100%; padding: 0 !important; border: none !important; }
+  .mobile-list-table td { padding: 0 !important; border: none !important; display: flex; align-items: center; white-space: normal; line-height: 1.4; }
+  .mobile-list-table td:nth-child(1) { grid-column: 1 / 2; grid-row: 1; font-size: 12px; color: var(--text-muted, var(--text3)); font-weight: 500;}
+  .mobile-list-table td:nth-child(2) { grid-column: 2 / 3; grid-row: 1; justify-content: flex-end; }
+  .mobile-list-table td:nth-child(3) { grid-column: 1 / 3; grid-row: 2; align-items: flex-start; flex-direction: column; padding-bottom: 4px !important; }
+  .mobile-list-table td:nth-child(4) { grid-column: 1 / 2; grid-row: 3; align-items: center; justify-content: flex-start;}
+  .mobile-list-table td:nth-child(5) { grid-column: 2 / 3; grid-row: 3; justify-content: flex-end; font-size: 16px; }
+
+  /* Table for Log (Pemasukan / Pengeluaran - 4 cols) */
+  .table-log { min-width: 100% !important; display: block; width: 100%; }
+  .table-log thead { display: none; }
+  .table-log tbody { display: block; width: 100%; }
+  .table-log tr:not(.empty-row) { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto auto; gap: 6px; padding: 16px 20px; border-bottom: 1px solid var(--border-color); }
+  .table-log tr.empty-row { display: block; padding: 24px; text-align:center; }
+  .table-log tr.empty-row td { display: block; width: 100%; border: none !important; padding: 0 !important; }
+  .table-log td { padding: 0 !important; border: none !important; display: flex; align-items: center; white-space: normal; line-height: 1.4; }
+  .table-log td:nth-child(1) { grid-column: 1 / 2; grid-row: 1; font-size: 12px; color: var(--text-muted); font-weight: 500;}
+  .table-log td:nth-child(2) { grid-column: 1 / 3; grid-row: 2; align-items: flex-start; flex-direction: column; padding-bottom: 4px !important; }
+  .table-log td:nth-child(3) { grid-column: 1 / 2; grid-row: 3; align-items: center; justify-content: flex-start;}
+  .table-log td:nth-child(4) { grid-column: 2 / 3; grid-row: 3; justify-content: flex-end; font-size: 16px; font-weight: bold;}
+
+  /* Table for Laporan (5 cols) */
+  .table-report { min-width: 100% !important; display: block; width: 100%; }
+  .table-report thead { display: none; }
+  .table-report tbody { display: block; width: 100%; }
+  .table-report tr:not(.empty-row) { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto auto; gap: 6px; padding: 16px 20px; border-bottom: 1px solid var(--border-color); }
+  .table-report tr.empty-row { display: block; padding: 24px; text-align:center; }
+  .table-report tr.empty-row td { display: block; width: 100%; border: none !important; padding: 0 !important; }
+  .table-report td { padding: 0 !important; border: none !important; display: flex; align-items: center; white-space: normal; line-height: 1.4; }
+  .table-report td:nth-child(1) { grid-column: 1 / 2; grid-row: 1; font-size: 12px; color: var(--text-muted); font-weight: 500;}
+  .table-report td:nth-child(2) { grid-column: 2 / 3; grid-row: 1; justify-content: flex-end; font-size: 12px; font-weight: 600; text-align:right;}
+  .table-report td:nth-child(4) { grid-column: 1 / 3; grid-row: 2; align-items: flex-start; flex-direction: column; padding-bottom: 4px !important; font-size: 13px;}
+  .table-report td:nth-child(3) { grid-column: 1 / 2; grid-row: 3; align-items: center; justify-content: flex-start;}
+  .table-report td:nth-child(5) { grid-column: 2 / 3; grid-row: 3; justify-content: flex-end; font-size: 16px; font-weight: bold;}
+
+  /* MOBILE LIST STYLES (No Scroll) */
+  .mobile-list-table { min-width: 100% !important; display: block; width: 100%; }
+  .mobile-list-table thead { display: none; }
+  .mobile-list-table tbody { display: block; width: 100%; }
+  .mobile-list-table tr:not(.empty-row) { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto auto; gap: 6px; padding: 16px 20px; border-bottom: 1px solid var(--border-color); }
+  .mobile-list-table tr.empty-row { display: block; padding: 24px; text-align: center;}
+  .mobile-list-table tr.empty-row td { display: block; width: 100%; padding: 0 !important; border: none !important; }
+  .mobile-list-table td { padding: 0 !important; border: none !important; display: flex; align-items: center; white-space: normal; line-height: 1.4; }
+  .mobile-list-table td:nth-child(1) { grid-column: 1 / 2; grid-row: 1; font-size: 12px; color: var(--text-muted); font-weight: 500;}
+  .mobile-list-table td:nth-child(2) { grid-column: 2 / 3; grid-row: 1; justify-content: flex-end; }
+  .mobile-list-table td:nth-child(3) { grid-column: 1 / 3; grid-row: 2; align-items: flex-start; flex-direction: column; padding-bottom: 4px !important; }
+  .mobile-list-table td:nth-child(4) { grid-column: 1 / 2; grid-row: 3; align-items: center; justify-content: flex-start;}
+  .mobile-list-table td:nth-child(5) { grid-column: 2 / 3; grid-row: 3; justify-content: flex-end; font-size: 16px; }
+
+  /* Table for History (7 cols) */
+  .table-history { min-width: 100% !important; display: block; width: 100%; }
+  .table-history thead { display: none; }
+  .table-history tbody { display: block; width: 100%; }
+  .table-history tr:not(.empty-row) { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto auto auto auto; gap: 6px; padding: 16px 20px; border-bottom: 1px solid var(--border-color); }
+  .table-history tr.empty-row { display: block; padding: 24px; text-align:center; }
+  .table-history tr.empty-row td { display: block; width: 100%; border: none !important; padding: 0 !important; }
+  .table-history td { padding: 0 !important; border: none !important; display: flex; align-items: center; white-space: normal; line-height: 1.4; }
+  
+  .table-history td:nth-child(1) { grid-column: 1 / 2; grid-row: 1; font-size: 11px; color: var(--text-muted); font-weight: 500; }
+  .table-history td:nth-child(2) { grid-column: 2 / 3; grid-row: 1; justify-content: flex-end; }
+  .table-history td:nth-child(3) { grid-column: 1 / 3; grid-row: 2; align-items: flex-start; flex-direction: column; padding-bottom: 4px !important; }
+  .table-history td:nth-child(4) { grid-column: 1 / 2; grid-row: 3; font-size: 11px; }
+  .table-history td:nth-child(5) { grid-column: 2 / 3; grid-row: 3; justify-content: flex-end; font-size: 12px; color: var(--text-muted); text-align: right; }
+  .table-history td:nth-child(6) { grid-column: 1 / 3; grid-row: 4; justify-content: flex-end; font-size: 18px; font-weight: bold; margin-bottom: 4px; }
+  .table-history td:nth-child(7) { grid-column: 1 / 3; grid-row: 5; justify-content: flex-end; padding-top: 8px !important; border-top: 1px dashed var(--border-color) !important; width: 100%; }
+
   .bottom-bar {
     display: flex; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
     width: calc(100% - 32px); max-width: 400px; background: var(--bg-glass); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
@@ -376,6 +451,19 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   table { border-collapse: collapse; width: 100%; margin-top: 10px; }
   th, td { border: 1px solid #ddd !important; padding: 8px !important; color: black !important; font-size: 10pt !important; }
   th { background-color: #f5f5f5 !important; font-weight: bold; }
+
+  /* MENGEMBALIKAN KE MODE TABEL DESKTOP SAAT DIPRINT (PDF) */
+  .table-report, .table-log, .mobile-list-table, .table-history { display: table !important; width: 100% !important; }
+  .table-report thead, .table-log thead, .mobile-list-table thead, .table-history thead { display: table-header-group !important; }
+  .table-report tbody, .table-log tbody, .mobile-list-table tbody, .table-history tbody { display: table-row-group !important; }
+  .table-report tr, .table-log tr, .mobile-list-table tr, .table-history tr { display: table-row !important; }
+  .table-report td, .table-log td, .mobile-list-table td, .table-report th, .table-log th, .mobile-list-table th, .table-history td, .table-history th {
+      display: table-cell !important; padding: 8px !important; border: 1px solid #ddd !important; text-align: left !important;
+  }
+  .table-report td:nth-child(n), .table-log td:nth-child(n), .table-history td:nth-child(n) {
+      grid-column: auto !important; grid-row: auto !important; align-items: center !important; justify-content: flex-start !important; flex-direction: row !important; font-size: 10pt !important; text-align: left !important;
+  }
+  .table-report td:last-child, .table-log td:last-child, .table-history td:last-child { text-align: right !important; }
 }
 
 .page { display: none; padding: 32px; width: 100%; box-sizing: border-box; overflow-x: hidden; }
@@ -729,7 +817,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
           <button class="btn btn-ghost" id="btnJurnalDashboard" onclick="showPage('riwayat')">Selengkapnya &rarr;</button>
         </div>
         <div class="table-wrap" style="border:none;">
-          <table>
+          <table class="mobile-list-table">
             <thead>
               <tr>
                 <th class="fit-col">Tanggal</th>
@@ -799,7 +887,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
         <div class="card" style="padding:0;">
           <div class="form-section-title" style="margin: 24px 24px 16px;">Log Masuk Terakhir</div>
           <div class="table-wrap" style="border:none;">
-            <table>
+            <table class="table-log">
               <thead>
                 <tr><th class="fit-col">Tanggal</th><th>Kategori</th><th class="fit-col">Bukti</th><th class="fit-col" style="text-align:right">Nominal</th></tr>
               </thead>
@@ -853,7 +941,7 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
         <div class="card" style="padding:0;">
           <div class="form-section-title" style="margin: 24px 24px 16px;">Log Keluar Terakhir</div>
           <div class="table-wrap" style="border:none;">
-            <table>
+            <table class="table-log">
               <thead>
                 <tr><th class="fit-col">Tanggal</th><th>Bidang</th><th class="fit-col">Bukti</th><th class="fit-col" style="text-align:right">Nominal</th></tr>
               </thead>
@@ -914,8 +1002,8 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
         </select>
       </div>
       <div class="card" style="padding:0;">
-        <div class="table-wrap scrollable">
-          <table>
+        <div class="table-wrap scrollable" style="border:none;">
+          <table class="table-history">
             <thead>
               <tr>
                 <th class="fit-col">Tanggal</th>
@@ -1656,7 +1744,7 @@ function renderDashboard() {
     const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
     let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
     return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td><td><strong>${x.income_type || x.department}</strong><br><span style="font-size:12px; color:var(--text-muted, var(--text4))">${isPrivCategory ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td><td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td></tr>`;
-  }).join('') || '<tr><td colspan="5" style="text-align:center"><div class="empty-state">Belum ada aktivitas.</div></td></tr>';
+  }).join('') || '<tr class="empty-row"><td colspan="5" style="text-align:center"><div class="empty-state" style="border:none; padding:20px;">Belum ada aktivitas.</div></td></tr>';
 }
 
 function getIncomeTypeConfig(name) { return masterData.incomeTypes.find(x => x.name === name) || null; }
@@ -1706,7 +1794,7 @@ async function saveIncomeForm() {
 
 function renderIncomeList() {
   const list = [...cachedIncome].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
-  document.getElementById('incomeList').innerHTML = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge badge-blue">${x.income_type}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('') || '<tr><td colspan="4" style="text-align:center; padding:12px">Kosong.</td></tr>';
+  document.getElementById('incomeList').innerHTML = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge badge-blue">${x.income_type}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('') || '<tr class="empty-row"><td colspan="4" style="text-align:center; padding:12px">Kosong.</td></tr>';
 }
 
 function checkSaldo() {
@@ -1737,7 +1825,7 @@ async function saveExpenseForm() {
 
 function renderExpenseList() {
   const list = [...cachedExpense].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
-  document.getElementById('expenseList').innerHTML = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><strong>${x.department}</strong><br><span style="font-size:12px; color:var(--text4)">Penerima: ${x.nama_penerima || '-'}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('') || '<tr><td colspan="4" style="text-align:center; padding:12px">Kosong.</td></tr>';
+  document.getElementById('expenseList').innerHTML = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><strong>${x.department}</strong><br><span style="font-size:12px; color:var(--text4)">Penerima: ${x.nama_penerima || '-'}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('') || '<tr class="empty-row"><td colspan="4" style="text-align:center; padding:12px">Kosong.</td></tr>';
 }
 
 async function loadReport() {
@@ -1799,7 +1887,7 @@ function renderReportView() {
             <strong style="color:var(--text)">${category}</strong><strong class="amount-pos">${fmt(tot)}</strong>
           </div>
           <div class="table-wrap">
-            <table>
+            <table class="table-report">
               <thead><tr><th class="fit-col">Tanggal</th><th>Pemberi</th><th class="fit-col">Ref</th><th>Keterangan</th><th class="fit-col" style="text-align:right">Subtotal</th></tr></thead>
               <tbody>
                 ${items.map(x => {
@@ -1825,7 +1913,7 @@ function renderReportView() {
             <strong style="color:var(--text)">${dept}</strong><strong class="amount-neg">-${fmt(tot)}</strong>
           </div>
           <div class="table-wrap">
-            <table>
+            <table class="table-report">
               <thead><tr><th class="fit-col">Tanggal</th><th class="fit-col">Sumber Kas</th><th class="fit-col">Ref</th><th>Keperluan</th><th class="fit-col" style="text-align:right">Subtotal</th></tr></thead>
               <tbody>
                 ${items.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge badge-gold">${x.source_balance}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td><td>${x.note || '-'}${x.nama_penerima ? `<br><small style="color:var(--text3)">Penerima: ${x.nama_penerima}</small>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('')}
