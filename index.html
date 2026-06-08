@@ -757,8 +757,8 @@
                 { id: 'susunan_ibadah', label: 'Susunan Ibadah', icon: 'List' },
                 { id: 'persembahan', label: 'Persembahan & Perpuluhan', icon: 'Gift' },
                 { id: 'hubungi', label: 'Hubungi Kami', icon: 'Phone' },
-                { id: 'kehadiran', label: 'Data Kehadiran', icon: 'ListOrdered', isExternal: false, link: 'hadir.html' },
-                { id: 'laporan', label: 'Laporan Keuangan', icon: 'Megaphone', isExternal: false, link: 'laporan.html' },
+                { id: 'kehadiran', label: 'Data Kehadiran', icon: 'ListOrdered', isSameTab: true, link: 'hadir.html' },
+                { id: 'laporan', label: 'Laporan Keuangan', icon: 'Megaphone', isSameTab: true, link: 'laporan.html' },
             ];
 
             const filteredItems = featureItems;
@@ -770,15 +770,23 @@
 
                 const cardContent = (
                     <>
-    <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-navy group-hover:glass.card transition-all duration-200 flex items-center justify-center mb-2.5 md:mb-3 hover:shadow-[0_0_12px_rgba(231,174,48,0.6)]">
-        <Icon name={item.icon} className="w-6 h-6 md:w-8 md:h-8 text-navy-600 group-hover:text-gold-500 transition-colors" />
-    </div>
-    <h3 className="font-bold text-[11px] md:text-sm leading-tight text-navy-900 group-hover:glass-card transition-colors">{line1}{line2 && <><br />{line2}</>}</h3>
-</>
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-[1rem] bg-navy-50 group-hover:bg-gold-50 transition-colors flex items-center justify-center mb-2.5 md:mb-3">
+                            <Icon name={item.icon} className="w-6 h-6 md:w-8 md:h-8 text-navy-600 group-hover:text-gold-500 transition-colors" />
+                        </div>
+                        <h3 className="font-bold text-[11px] md:text-sm leading-tight text-navy-900 group-hover:text-gold-700 transition-colors">{line1}{line2 && <><br />{line2}</>}</h3>
+                    </>
                 )
 
-    const baseClass = "bg-white p-2 md:p-2 rounded-full shadow-sm flex flex-col items-center text-center justify-center transition-all duration-200 group";
+    const baseClass = "bg-white p-2 md:p-2 rounded-[1rem] shadow-sm flex flex-col items-center text-center justify-center transition-all duration-200 group";
     const borderGlowClass = "border border-gold-300/80 hover:glass-card hover:shadow-[0_0_6px_rgba(231,174,48,0.6)]";
+
+    if (item.isSameTab) {
+    return (
+        <a key={item.id} href={item.link} target="_self" className={`${baseClass} ${borderGlowClass} hover:-translate-y-0.5 hover:shadow-md`}>
+            {cardContent}
+        </a>
+    );
+    }
 
     if (item.isExternal) {
         return (
@@ -5917,6 +5925,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                                 )}
 
                                 {/* Menu Burger Mobile (Diantara Search dan Login) - Sekarang selalu tampil */}
+                                
                                 <div className="relative flex items-center">
                                     <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className={`w-10 h-10 bg-white border border-navy-100/60 rounded-full hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm ${isMobileMenuOpen ? 'text-gold-500' : 'text-navy-600'}`} title="Menu Lainnya">
                                         <Icon name={isMobileMenuOpen ? "X" : "Menu"} className="w-4 h-4" />
@@ -5940,37 +5949,6 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
         </button>
     ))}
     
-    {/* 👇 TEMPATKAN LINK KEHADIRAN DI SINI (setelah mapping, tanpa garis pemisah) */}
-    <button 
-    onClick={(e) => {
-        e.preventDefault(); // Mencegah aksi default jika ada
-        const userConfirmed = window.confirm("Buka halaman kehadiran sekarang?");
-        if (userConfirmed) {
-            window.location.href = './hadir.html'; // Buka di tab yang sama (_self)
-        }
-        setIsMobileMenuOpen(false);
-    }} 
-    className="w-full text-left px-4 py-3 flex items-center space-x-3 hover:bg-navy-50/70 transition-colors text-navy-700 font-medium"
->
-    <Icon name="ListOrdered" className="w-[1.15rem] h-[1.15rem]" />
-    <span className="text-sm">Kehadiran</span>
-</button>
-        {/* 👇 TEMPATKAN LINK LAPORAN DI SINI (setelah mapping, tanpa garis pemisah) */}
-    <button 
-    onClick={(e) => {
-        e.preventDefault(); // Mencegah aksi default jika ada
-        const userConfirmed = window.confirm("Buka halaman Laporan sekarang?");
-        if (userConfirmed) {
-            window.location.href = './laporan.html'; // Buka di tab yang sama (_self)
-        }
-        setIsMobileMenuOpen(false);
-    }} 
-    className="w-full text-left px-4 py-3 flex items-center space-x-3 hover:bg-navy-50/70 transition-colors text-navy-700 font-medium"
->
-    <Icon name="Megaphone" className="w-[1.15rem] h-[1.15rem]" />
-    <span className="text-sm">Laporan</span>
-</button>
-
 {/* Logout Button - Hanya tampil saat user sudah login sebagai admin */}
 {isAdminLoggedIn && (
     <>
