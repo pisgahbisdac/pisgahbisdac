@@ -713,7 +713,7 @@
             const [currentSlide, setCurrentSlide] = React.useState(0);
 
             // Safeguard untuk berjaga-jaga jika array gambar kosong (Dipindahkan ke atas)
-            const displayImages = heroImages && heroImages.length > 0 ? heroImages : ["./PisgahColor.png"];
+            const displayImages = heroImages && heroImages.length > 0 ? heroImages : ["./icons/PisgahColor.png"];
 
             // --- FILTER WARTA TERBARU UNTUK HOME ---
             const sortedWartaHome = React.useMemo(() => {
@@ -757,6 +757,8 @@
                 { id: 'susunan_ibadah', label: 'Susunan Ibadah', icon: 'List' },
                 { id: 'persembahan', label: 'Persembahan & Perpuluhan', icon: 'Gift' },
                 { id: 'hubungi', label: 'Hubungi Kami', icon: 'Phone' },
+                { id: 'kehadiran', label: 'Data Kehadiran', icon: 'ListOrdered', isExternal: false, link: 'hadir.html' },
+                { id: 'laporan', label: 'Laporan Keuangan', icon: 'Megaphone', isExternal: false, link: 'laporan.html' },
             ];
 
             const filteredItems = featureItems;
@@ -915,7 +917,7 @@
                     )}
 
                     {/* ✨ MENU FITUR dengan border gold glowing */}
-                <div className="mt-5 grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-1.5 md:gap-2 mb-5 md:mb-7">
+                <div className="mt-5 grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-4 gap-1.5 md:gap-2 mb-5 md:mb-7">
                     {filteredItems.map(item => renderFeatureCard(item))}
                 </div>
 
@@ -5944,7 +5946,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
         e.preventDefault(); // Mencegah aksi default jika ada
         const userConfirmed = window.confirm("Buka halaman kehadiran sekarang?");
         if (userConfirmed) {
-            window.location.href = 'https://hadir.pisgahbisdac.app'; // Buka di tab yang sama (_self)
+            window.location.href = './hadir.html'; // Buka di tab yang sama (_self)
         }
         setIsMobileMenuOpen(false);
     }} 
@@ -5959,13 +5961,13 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
         e.preventDefault(); // Mencegah aksi default jika ada
         const userConfirmed = window.confirm("Buka halaman Laporan sekarang?");
         if (userConfirmed) {
-            window.location.href = 'https://pikachu.pisgahbisdac.app'; // Buka di tab yang sama (_self)
+            window.location.href = './laporan.html'; // Buka di tab yang sama (_self)
         }
         setIsMobileMenuOpen(false);
     }} 
     className="w-full text-left px-4 py-3 flex items-center space-x-3 hover:bg-navy-50/70 transition-colors text-navy-700 font-medium"
 >
-    <Icon name="BookOpen" className="w-[1.15rem] h-[1.15rem]" />
+    <Icon name="Megaphone" className="w-[1.15rem] h-[1.15rem]" />
     <span className="text-sm">Laporan</span>
 </button>
 
