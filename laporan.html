@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 <title>PiKaChu — Sistem Keuangan Jemaat</title>
-<link class="favicon" rel="icon" type="image/png" href="./putih.png">
+<link class="favicon" rel="icon" type="image/png" href="./iconsputih.png">
 <link rel="apple-touch-icon" href="./icons/hijau.png">
 <meta name="theme-color" content="#151924">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
@@ -124,6 +124,11 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 }
 
 button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: manipulation; }
+
+.logo-link {
+  display: inline-block; /* atau block */
+  text-decoration: none;
+}
 
 /* Icons */
 .lucide { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: inline-block; vertical-align: middle; }
@@ -622,14 +627,16 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
       </button>
     </div>
     
-    <div class="login-logo">
-      <img id="login-custom-logo" src="" class="app-logo-login-img" alt="Logo PiKaChu" style="display:none; width:80px; height:80px; object-fit:contain; margin:0 auto 16px;">
-      <svg class="app-logo-login-default" style="width:64px; height:64px; color:var(--primary); margin: 0 auto 16px; display:block;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-      </svg>
-      <h1 style="font-family: 'Playfair Display', serif;">PiKaChu</h1>
-      <p style="color:var(--text3); font-size: 14px; font-weight: 500;">Sistem Keuangan Jemaat</p>
-    </div>
+    <a href="https://pisgahbisdac.app" style="text-decoration: none; display: block;">
+  <div class="login-logo">
+    <img id="login-custom-logo" src="" class="app-logo-login-img" alt="Logo PiKaChu" style="display:none; width:80px; height:80px; object-fit:contain; margin:0 auto 16px;">
+    <svg class="app-logo-login-default" style="width:64px; height:64px; color:var(--primary); margin: 0 auto 16px; display:block;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+    </svg>
+    <h1 style="font-family: 'Playfair Display', serif;">PiKaChu</h1>
+    <p style="color:var(--text3); font-size: 14px; font-weight: 500;">Sistem Keuangan Jemaat</p>
+  </div>
+  </a>
 
     <div id="loginStatus" class="status-bar" style="justify-content:center; margin-bottom:24px; width: 100%;">
       <div class="status-dot loading" id="statusDot"></div>
@@ -663,7 +670,9 @@ document.addEventListener('DOMContentLoaded', updateThemeIcons);
           <img id="sidebar-custom-logo" src="" class="app-logo-sidebar-img" style="display:none; width:100%; height:100%; object-fit:contain;">
           <svg id="sidebar-default-logo" class="lucide lucide-lg app-logo-sidebar-default" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         </div>
-        <div><div class="logo-text">PiKaChu</div></div>
+        <a href="https://pisgahbisdac.app" class="logo-link">
+          <div class="logo-text">PiKaChu</div>
+        </a>
       </div>
     </div>
     <div class="sidebar-user">
