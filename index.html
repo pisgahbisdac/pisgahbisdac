@@ -5896,9 +5896,9 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                             </div>
                             
                             <div className="flex justify-end items-center gap-2 shrink-0">
-                                {/* Navigasi Desktop (Disembunyikan di Mobile) */}
+                                {/* Navigasi Desktop (Disembunyikan di Mobile) - Kontak & Persembahan dihilangkan */}
                                 <div className="hidden md:flex items-center gap-1 mr-2 bg-navy-50/30 p-1 rounded-2xl border border-navy-50">
-                                    {tabs.map(tab => {
+                                    {tabs.filter(t => !['persembahan', 'hubungi'].includes(t.id)).map(tab => {
                                         const isActive = activeTab.startsWith(tab.id);
                                         return (
                                             <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all text-sm font-bold ${isActive ? 'bg-white text-navy-900 shadow-sm border border-navy-100/50' : 'text-navy-500 hover:text-navy-700 hover:bg-navy-50'}`}>
@@ -5924,8 +5924,9 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                                     </button>
                                 )}
 
-                                {/* Menu Burger Mobile (Diantara Search dan Login) - Sekarang selalu tampil */}
+                                {/* Menu Burger Mobile (Diantara Search dan Login) - Otomatis Hide karena menu sudah kosong */}
                                 
+                                {(tabs.filter(t => !['belajar', 'warta', 'home', 'jadwal', 'live', 'persembahan', 'hubungi'].includes(t.id)).length > 0 || isAdminLoggedIn) && (
                                 <div className="relative flex items-center">
                                     <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className={`w-10 h-10 bg-white border border-navy-100/60 rounded-full hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm ${isMobileMenuOpen ? 'text-gold-500' : 'text-navy-600'}`} title="Menu Lainnya">
                                         <Icon name={isMobileMenuOpen ? "X" : "Menu"} className="w-4 h-4" />
@@ -5938,7 +5939,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                                             
                                             {/* Dropdown Box */}
                                             <div className="absolute top-12 right-0 w-48 bg-white/80 backdrop-blur-md border border-navy-100/50 rounded-2xl shadow-xl py-2 z-50 animate-fade-in flex flex-col overflow-hidden">
-    {tabs.filter(t => !['belajar', 'warta', 'home', 'jadwal', 'live'].includes(t.id)).map(tab => (
+    {tabs.filter(t => !['belajar', 'warta', 'home', 'jadwal', 'live', 'persembahan', 'hubungi'].includes(t.id)).map(tab => (
         <button 
             key={tab.id} 
             onClick={() => { setActiveTab(tab.id); setIsMobileMenuOpen(false); }} 
@@ -5952,7 +5953,9 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
 {/* Logout Button - Hanya tampil saat user sudah login sebagai admin */}
 {isAdminLoggedIn && (
     <>
-        <div className="h-px bg-navy-100 my-1"></div>
+        {tabs.filter(t => !['belajar', 'warta', 'home', 'jadwal', 'live', 'persembahan', 'hubungi'].includes(t.id)).length > 0 && (
+            <div className="h-px bg-navy-100 my-1"></div>
+        )}
         <button 
             onClick={() => {
                 if (confirm('Yakin ingin logout dari akun admin?')) {
@@ -5971,6 +5974,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                                         </>
                                     )}
                                 </div>
+                                )}
 
                                 {isAdminLoggedIn ? (
                                     <button onClick={() => setActiveTab('admin_dashboard')} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-600 hover:text-gold-500 hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm" title="Dashboard Admin"><Icon name="Settings" className="w-4 h-4" /></button>
