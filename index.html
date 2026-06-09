@@ -1450,7 +1450,7 @@ const renderPerjamuanGroup = (title, members) => (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Pastikan di dalam renderPerjamuanGroup semua teks mengikuti aturan navy on light */}
             {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 3))}
-            {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(3, 7))}
+             {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(3, 7))}
             {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(7, 11))}
             {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(11, 16))}
         </div>
@@ -3540,6 +3540,43 @@ const compressImage = (file, maxWidth = 1200) => {
                 
                 const tableData = flattenJadwalData(date, baseData);
 
+                const executeSave = () => {
+                    fetch(GAS_API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'saveJadwal',
+                            password: adminToken,
+                            tanggal: date,
+                            data: baseData,
+                            tableData: tableData
+                        })
+                    })
+                    .then(res => res.text())
+                    .then(text => {
+                        setIsSavingJadwal(false);
+                        let result = { success: false };
+                        try {
+                            result = JSON.parse(text);
+                        } catch (e) {
+                            console.warn("Response non-JSON dari GAS:", text.substring(0, 100));
+                            if (text.includes('"success":true') || text.includes("success") || text.trim() === '') {
+                                result = { success: true };
+                            }
+                        }
+                        if (result.success) {
+                            setJadwalDB({ ...jadwalDB, [date]: baseData });
+                            setEditingDate(null);
+                        } else {
+                            alert("Gagal menyimpan: " + (result.message || "Akses ditolak."));
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Fetch error:", err);
+                        setIsSavingJadwal(false);
+                        setJadwalDB({ ...jadwalDB, [date]: baseData });
+                        setEditingDate(null);
+                    });
+                };
                 // Otomatis sinkronisasi "Tanggal Perjamuan" global dengan tanggal jadwal yang sedang diedit
                 if (subTab === 'perjamuan') {
                     fetch(GAS_API_URL, {
@@ -3549,52 +3586,24 @@ const compressImage = (file, maxWidth = 1200) => {
                             password: adminToken,
                             tanggal: date
                         })
-                    }).catch(e => console.log("Gagal auto update perjamuan date", e));
-                    if (setPerjamuanDate) setPerjamuanDate(date);
+                    })
+                    .then(() => {
+                        if (setPerjamuanDate) setPerjamuanDate(date);
+                        try {
+                            const cached = JSON.parse(localStorage.getItem('appData') || '{}');
+                            cached.perjamuanDate = date;
+                            localStorage.setItem('appData', JSON.stringify(cached));
+                        } catch (e) {}
+                        executeSave();
+                    })
+                    .catch(e => {
+                        console.log("Gagal auto update perjamuan date", e);
+                        executeSave();
+                    });
+                } else {
+                    executeSave();
                 }
-
-                fetch(GAS_API_URL, {
-    method: 'POST',
-    body: JSON.stringify({
-        action: 'saveJadwal',
-        password: adminToken,
-        tanggal: date,
-        data: baseData,
-        tableData: tableData
-    })
-})
-    .then(res => res.text())
-    .then(text => {
-        setIsSavingJadwal(false);
-        let result = { success: false };
-        try {
-            result = JSON.parse(text);
-        } catch (e) {
-            // Response bukan JSON tapi kemungkinan sudah tersimpan
-            // GAS kadang return HTML error page meski data tersimpan
-            console.warn("Response non-JSON dari GAS:", text.substring(0, 100));
-            // Jika text mengandung "success" atau kosong, anggap berhasil
-            if (text.includes('"success":true') || text.includes("success") || text.trim() === '') {
-                result = { success: true };
-            }
-        }
-        if (result.success) {
-            setJadwalDB({ ...jadwalDB, [date]: baseData });
-            setEditingDate(null);
-        } else {
-            alert("Gagal menyimpan: " + (result.message || "Akses ditolak."));
-        }
-    })
-    .catch(err => {
-        // Fetch gagal total (network error) - tapi GAS mungkin sudah menyimpan
-        // Optimistic update: anggap tersimpan jika hanya network timeout
-        console.error("Fetch error:", err);
-        setIsSavingJadwal(false);
-        setJadwalDB({ ...jadwalDB, [date]: baseData });
-        setEditingDate(null);
-        // Tidak tampilkan alert error karena data kemungkinan sudah tersimpan
-    });
-};
+            };
 
             // HAPUS (RESET) JADWAL
             const handleDeleteRow = (date) => {
