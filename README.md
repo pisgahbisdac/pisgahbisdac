@@ -7,6 +7,7 @@ Sebuah project web apps untuk memberikan informasi yang berhubungan dengan:
  - BUKU ROH NUBUAT
  - KEHADIRAN KHOTBAH DAN SEKOLAH SABAT
  - 10 POIN KETERLIBATAN ANGGOTA KELAS
+ - LAPORAN KEUANGAN JEMAAT
 DLL
 
 Serta informasi dan artikel lain-nya yang bisa membangun inam dan kerohanian
