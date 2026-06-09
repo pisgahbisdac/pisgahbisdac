@@ -5774,7 +5774,7 @@
             nextSabat.setDate(today.getDate() + ((6 - today.getDay() + 7) % 7));
             const sabatYMD = toYMD(nextSabat);
 
-            const perjamuanYMD = perjamuanDate ? perjamuanDate.split('T')[0] : '';
+            const perjamuanYMD = perjamuanDate ? (perjamuanDate.includes('T') ? toYMD(new Date(perjamuanDate)) : perjamuanDate) : '';
             const showPerjamuan = (() => {
                 if (!perjamuanYMD) return false;
                 // Parse manual agar menggunakan local midnight, bukan UTC midnight
