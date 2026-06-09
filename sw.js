@@ -1,4 +1,4 @@
-const CACHE_NAME = 'Pisgah-Bisdac-v2';
+const CACHE_NAME = 'Pisgah-Bisdac-v3';
 const urlsToCache = [
   './',
   './carousel',

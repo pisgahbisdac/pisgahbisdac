@@ -3564,7 +3564,16 @@ const compressImage = (file, maxWidth = 1200) => {
                             }
                         }
                         if (result.success) {
-                            setJadwalDB({ ...jadwalDB, [date]: baseData });
+                            const newJadwalDB = { ...jadwalDB, [date]: baseData };
+                            setJadwalDB(newJadwalDB);
+                            try {
+                                const cachedStr = localStorage.getItem('pisgah_data_cache');
+                                if (cachedStr) {
+                                    const cached = JSON.parse(cachedStr);
+                                    cached.jadwalDB = newJadwalDB;
+                                    localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
+                                }
+                            } catch(e) {}
                             setEditingDate(null);
                         } else {
                             alert("Gagal menyimpan: " + (result.message || "Akses ditolak."));
@@ -3590,9 +3599,9 @@ const compressImage = (file, maxWidth = 1200) => {
                     .then(() => {
                         if (setPerjamuanDate) setPerjamuanDate(date);
                         try {
-                            const cached = JSON.parse(localStorage.getItem('appData') || '{}');
+                            const cached = JSON.parse(localStorage.getItem('pisgah_data_cache') || '{}');
                             cached.perjamuanDate = date;
-                            localStorage.setItem('appData', JSON.stringify(cached));
+                            localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
                         } catch (e) {}
                         executeSave();
                     })
@@ -5736,7 +5745,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
             nextSabat.setDate(today.getDate() + ((6 - today.getDay() + 7) % 7));
             const sabatYMD = toYMD(nextSabat);
 
-            const perjamuanYMD = perjamuanDate || '';
+            const perjamuanYMD = perjamuanDate ? perjamuanDate.split('T')[0] : '';
 const showPerjamuan = (() => {
     if (!perjamuanYMD) return false;
     const perjamuanObj = new Date(perjamuanYMD);
