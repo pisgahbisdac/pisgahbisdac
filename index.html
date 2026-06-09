@@ -208,27 +208,21 @@
             musik: [{ tugas: "Pianis SS", nama: "Pianis SS" }, { tugas: "Pianis Khotbah", nama: "Pianis Khotbah" }, { tugas: "Gitar", nama: "Gitar" }],
             susunan: defaultSusunan,
             perjamuan: [
-                // Roti & Anggur (0-4)
-                { tugas: "Persiapan Roti 1", nama: "" }, 
-                { tugas: "Persiapan Roti 2", nama: "" }, 
-                { tugas: "Persiapan Anggur 1", nama: "" }, 
-                { tugas: "Persiapan Anggur 2", nama: "" }, 
-                { tugas: "Penata Meja Perjamuan", nama: "" },
-                // Basuh Kaki (5-12)
-                { tugas: "Koord. Basuh Kaki Pria", nama: "" }, 
-                { tugas: "Koord. Basuh Kaki Wanita", nama: "" }, 
-                { tugas: "Persiapan Air & Baskom", nama: "" }, 
-                { tugas: "Persiapan Handuk", nama: "" }, 
-                { tugas: "Petugas Ruangan Pria", nama: "" }, 
-                { tugas: "Petugas Ruangan Wanita", nama: "" },
-                { tugas: "Persiapan & Basuh Kaki 1", nama: "" },
-                { tugas: "Persiapan & Basuh Kaki 2", nama: "" },
-                // Pelayan Perjamuan (13-16)
+                // Roti & Anggur (0-3)
+                { tugas: "Persiapan Roti", nama: "Diakones" },
+                { tugas: "Persiapan Anggur", nama: "Diakones" }, 
+                { tugas: "Penata Meja Perjamuan", nama: "Diakones" },
+                // Basuh Kaki (4-7)
+                { tugas: "Koord. Basuh Kaki Pria", nama: "Diakon" }, 
+                { tugas: "Koord. Basuh Kaki Wanita", nama: "Diakones" }, 
+                { tugas: "Persiapan Air & Baskom 1", nama: "" },
+                { tugas: "Persiapan Air & Baskom 2", nama: "" },
+                // Pelayan Perjamuan (8-11)
                 { tugas: "Pelayan Perjamuan (L1)", nama: "" }, 
                 { tugas: "Pelayan Perjamuan (P1)", nama: "" }, 
                 { tugas: "Pelayan Perjamuan (L2)", nama: "" }, 
                 { tugas: "Pelayan Perjamuan (P2)", nama: "" },
-                // Pembersihan Alat (17-21)
+                // Pembersihan Alat (12-16)
                 { tugas: "Pembersihan Gelas", nama: "" }, 
                 { tugas: "Pembersihan Nampan", nama: "" }, 
                 { tugas: "Pembersihan Baskom", nama: "" }, 
@@ -1448,10 +1442,10 @@ const renderPerjamuanGroup = (title, members) => (
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Pastikan di dalam renderPerjamuanGroup semua teks mengikuti aturan navy on light */}
-            {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 5))}
-            {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(5, 13))}
-            {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(13, 17))}
-            {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(17, 22))}
+            {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 3))}
+            {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(4, 7))}
+            {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(8, 11))}
+            {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(12, 16))}
         </div>
     </div>
 )}
@@ -4138,7 +4132,7 @@ const handleSavePerjamuanDate = async (e) => {
                                                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
                                                                                 <div className="space-y-3 p-4 bg-white rounded-xl border border-navy-100 shadow-sm h-fit">
                                                                                     <h4 className="font-black text-sm text-navy-800 border-b border-navy-50 pb-2">Roti & Anggur</h4>
-                                                                                    {editForm.slice(0, 5).map((p, i) => (
+                                                                                    {editForm.slice(0, 3).map((p, i) => (
                                                                                         <div key={i}>
                                                                                             <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
                                                                                             <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
@@ -4147,28 +4141,28 @@ const handleSavePerjamuanDate = async (e) => {
                                                                                 </div>
                                                                                 <div className="space-y-3 p-4 bg-white rounded-xl border border-navy-100 shadow-sm h-fit">
                                                                                     <h4 className="font-black text-sm text-navy-800 border-b border-navy-50 pb-2">Basuh Kaki</h4>
-                                                                                    {editForm.slice(5, 13).map((p, i) => (
-                                                                                        <div key={i+5}>
+                                                                                    {editForm.slice(3, 7).map((p, i) => (
+                                                                                        <div key={i+3}>
                                                                                             <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
-                                                                                            <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i+5, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                            <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i+3, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
                                                                                         </div>
                                                                                     ))}
                                                                                 </div>
                                                                                 <div className="space-y-3 p-4 bg-white rounded-xl border border-navy-100 shadow-sm h-fit">
                                                                                     <h4 className="font-black text-sm text-navy-800 border-b border-navy-50 pb-2">Pelayan Perjamuan</h4>
-                                                                                    {editForm.slice(13, 17).map((p, i) => (
-                                                                                        <div key={i+13}>
+                                                                                    {editForm.slice(7, 11).map((p, i) => (
+                                                                                        <div key={i+7}>
                                                                                             <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
-                                                                                            <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i+13, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                            <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i+7, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
                                                                                         </div>
                                                                                     ))}
                                                                                 </div>
                                                                                 <div className="space-y-3 p-4 bg-white rounded-xl border border-navy-100 shadow-sm h-fit">
                                                                                     <h4 className="font-black text-sm text-navy-800 border-b border-navy-50 pb-2">Pembersihan Alat</h4>
-                                                                                    {editForm.slice(17, 22).map((p, i) => (
-                                                                                        <div key={i+17}>
+                                                                                    {editForm.slice(11, 16).map((p, i) => (
+                                                                                        <div key={i+11}>
                                                                                             <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
-                                                                                            <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i+17, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                            <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i+11, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
                                                                                         </div>
                                                                                     ))}
                                                                                 </div>
