@@ -1450,9 +1450,9 @@ const renderPerjamuanGroup = (title, members) => (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Pastikan di dalam renderPerjamuanGroup semua teks mengikuti aturan navy on light */}
             {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 3))}
-            {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(4, 7))}
-            {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(8, 11))}
-            {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(12, 16))}
+            {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(3, 7))}
+            {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(7, 11))}
+            {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(11, 16))}
         </div>
     </div>
 )}
@@ -3539,6 +3539,19 @@ const compressImage = (file, maxWidth = 1200) => {
                 setIsSavingJadwal(true);
                 
                 const tableData = flattenJadwalData(date, baseData);
+
+                // Otomatis sinkronisasi "Tanggal Perjamuan" global dengan tanggal jadwal yang sedang diedit
+                if (subTab === 'perjamuan') {
+                    fetch(GAS_API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'savePerjamuanDate',
+                            password: adminToken,
+                            tanggal: date
+                        })
+                    }).catch(e => console.log("Gagal auto update perjamuan date", e));
+                    if (setPerjamuanDate) setPerjamuanDate(date);
+                }
 
                 fetch(GAS_API_URL, {
     method: 'POST',
@@ -5724,9 +5737,27 @@ const showPerjamuan = (() => {
     return today <= perjamuanObj;
 })();
 
-            const activeRabu = jadwalDB[rabuYMD] || initialJadwalRabu;
-            const activeSabat = jadwalDB[sabatYMD] || initialJadwalSabat;
-            const activePerjamuan = jadwalDB[perjamuanYMD]?.perjamuan || initialJadwalSabat.perjamuan;
+// Fungsi Sinkronisasi Data Jadwal agar selalu sesuai urutan template awal
+            const mergeJadwalData = React.useCallback((saved, initial) => {
+                if (!saved) return initial;
+                const merged = { ...initial, ...saved };
+                const arrayKeys = ['petugas', 'sekolahSabat', 'khotbah', 'diakon', 'musik', 'perjamuan'];
+                arrayKeys.forEach(key => {
+                    if (initial[key]) {
+                        merged[key] = initial[key].map(baseItem => {
+                            const match = (saved[key] || []).find(s => s.tugas === baseItem.tugas);
+                            return match ? { ...match } : { ...baseItem };
+                        });
+                    }
+                });
+                if (initial.susunan) {
+                    merged.susunan = { ...initial.susunan, ...(saved.susunan || {}) };
+                }
+                return merged;
+            }, []);
+            const activeRabu = mergeJadwalData(jadwalDB[rabuYMD], initialJadwalRabu);
+            const activeSabat = mergeJadwalData(jadwalDB[sabatYMD], initialJadwalSabat);
+            const activePerjamuan = mergeJadwalData(jadwalDB[perjamuanYMD], initialJadwalSabat).perjamuan;
 
             // --- LOGIKA KHUSUS HALAMAN JADWAL (HARI-H LOMPAT KE MINGGU DEPAN) ---
             let displayRabuYMD = rabuYMD;
@@ -5741,8 +5772,8 @@ const showPerjamuan = (() => {
                 displaySabatYMD = toYMD(nextS);
             }
 
-            const jadwalKhususRabu = jadwalDB[displayRabuYMD] || initialJadwalRabu;
-            const jadwalKhususSabat = jadwalDB[displaySabatYMD] || initialJadwalSabat;
+            const jadwalKhususRabu = mergeJadwalData(jadwalDB[displayRabuYMD], initialJadwalRabu);
+            const jadwalKhususSabat = mergeJadwalData(jadwalDB[displaySabatYMD], initialJadwalSabat);
             // ----------------------------------------------------------------------
 
             // MENGAMBIL DATA DARI REST API GOOGLE APPS SCRIPT DENGAN CACHING
@@ -5762,6 +5793,8 @@ const showPerjamuan = (() => {
                 if (cached.dataPejabat) setDataPejabat(cached.dataPejabat);
                 if (cached.jadwalDB) setJadwalDB(cached.jadwalDB);
                 if (cached.youtubeUrl) setYoutubeUrl(cached.youtubeUrl);
+                if (cached.liveUrl) setLiveUrl(cached.liveUrl);
+                if (cached.perjamuanDate) setPerjamuanDate(cached.perjamuanDate);
                 if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
                 if (cached.heroImages) setHeroImages(cached.heroImages);
                 if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
@@ -5809,7 +5842,6 @@ const showPerjamuan = (() => {
             if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
 
             // Ambil data buku (public)
-            // Ambil data buku (public)
             try {
                 const bukuRes = await fetch(GAS_API_URL, {
                     method: 'POST',
@@ -5849,6 +5881,8 @@ const showPerjamuan = (() => {
                 dataPejabat: data.dataPejabat,
                 jadwalDB: data.jadwalDB,
                 youtubeUrl: data.youtubeUrl,
+                liveUrl: data.liveUrl, // Tambahan: Simpan Live URL ke cache
+                perjamuanDate: data.perjamuanDate, // Tambahan: Simpan Tanggal Perjamuan ke cache
                 kategoriPejabat: data.kategoriPejabat,
                 heroImages: newHeroImages,
                 daftarWarta: data.daftarWarta,
