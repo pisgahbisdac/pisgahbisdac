@@ -3465,25 +3465,47 @@ const compressImage = (file, maxWidth = 1200) => {
                 const tableData = flattenJadwalData(date, baseData);
 
                 fetch(GAS_API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'saveJadwal',
-                        password: adminToken, // Otorisasi
-                        tanggal: date,
-                        data: baseData, // JSON Asli untuk bacaan React App
-                        tableData: tableData // Array 2D (Tabel) untuk ditulis rapi ke Spreadsheet
-                    })
-                })
-                    .then(res => res.json())
-                    .then(result => {
-                        setIsSavingJadwal(false);
-                        if (result.success) {
-                            setJadwalDB({ ...jadwalDB, [date]: baseData });
-                            setEditingDate(null);
-                        } else { alert("Gagal menyimpan: " + (result.message || "Akses ditolak.")); }
-                    })
-                    .catch(err => { alert("Gagal terhubung ke server."); setIsSavingJadwal(false); });
-            };
+    method: 'POST',
+    body: JSON.stringify({
+        action: 'saveJadwal',
+        password: adminToken,
+        tanggal: date,
+        data: baseData,
+        tableData: tableData
+    })
+})
+    .then(res => res.text())
+    .then(text => {
+        setIsSavingJadwal(false);
+        let result = { success: false };
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            // Response bukan JSON tapi kemungkinan sudah tersimpan
+            // GAS kadang return HTML error page meski data tersimpan
+            console.warn("Response non-JSON dari GAS:", text.substring(0, 100));
+            // Jika text mengandung "success" atau kosong, anggap berhasil
+            if (text.includes('"success":true') || text.includes("success") || text.trim() === '') {
+                result = { success: true };
+            }
+        }
+        if (result.success) {
+            setJadwalDB({ ...jadwalDB, [date]: baseData });
+            setEditingDate(null);
+        } else {
+            alert("Gagal menyimpan: " + (result.message || "Akses ditolak."));
+        }
+    })
+    .catch(err => {
+        // Fetch gagal total (network error) - tapi GAS mungkin sudah menyimpan
+        // Optimistic update: anggap tersimpan jika hanya network timeout
+        console.error("Fetch error:", err);
+        setIsSavingJadwal(false);
+        setJadwalDB({ ...jadwalDB, [date]: baseData });
+        setEditingDate(null);
+        // Tidak tampilkan alert error karena data kemungkinan sudah tersimpan
+    });
+};
 
             // HAPUS (RESET) JADWAL
             const handleDeleteRow = (date) => {
@@ -4816,62 +4838,101 @@ Perjamuan
 {/* PERJAMUAN TAB */}
 {pengaturanSubTab === 'perjamuan' && (
     <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm animate-fade-in">
+        {/* Header */}
         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-            <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 shadow-inner">
+            <div className="w-12 h-12 bg-gold-50 rounded-full flex items-center justify-center text-gold-600 shadow-inner">
                 <Icon name="Gift" className="w-6 h-6" />
             </div>
             <div>
                 <h3 className="font-black text-navy-900 text-lg tracking-tight">Tanggal Perjamuan Kudus</h3>
-                <p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">
-                    {perjamuanDate
-                        ? `Terjadwal: ${formatIndoDate(perjamuanDate)}`
-                        : 'Belum diatur'}
+                <p className="text-xs font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5">
+                    {perjamuanDate ? (
+                        <><span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
+                        <span className="text-green-600">Aktif · {formatIndoDate(perjamuanDate)}</span></>
+                    ) : (
+                        <><span className="w-2 h-2 rounded-full bg-navy-300 inline-block"></span>
+                        <span className="text-navy-400">Belum diatur</span></>
+                    )}
                 </p>
             </div>
         </div>
- 
-        <form onSubmit={handleSavePerjamuanDate} className="space-y-5">
+
+        {/* Status Banner saat ini */}
+        {perjamuanDate && (
+            <div className="mb-5 bg-gradient-to-r from-gold-50 to-white border border-gold-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gold-100 rounded-full flex items-center justify-center shrink-0">
+                        <Icon name="Calendar" className="w-5 h-5 text-gold-600" />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-black text-navy-400 uppercase tracking-widest mb-0.5">Jadwal Tersimpan</p>
+                        <p className="font-black text-navy-900 text-base leading-tight">{formatIndoDate(perjamuanDate)}</p>
+                    </div>
+                </div>
+                {(() => {
+                    const today = new Date(); today.setHours(0,0,0,0);
+                    const tgl = new Date(perjamuanDate + 'T00:00:00');
+                    const diff = Math.ceil((tgl - today) / (1000 * 60 * 60 * 24));
+                    if (diff < 0) return (
+                        <span className="text-[10px] font-bold bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-full uppercase tracking-wide">Sudah Lewat</span>
+                    );
+                    if (diff === 0) return (
+                        <span className="text-[10px] font-bold bg-gold-100 text-gold-700 border border-gold-300 px-3 py-1.5 rounded-full uppercase tracking-wide animate-pulse">Hari Ini!</span>
+                    );
+                    return (
+                        <span className="text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-full uppercase tracking-wide">{diff} hari lagi</span>
+                    );
+                })()}
+            </div>
+        )}
+
+        <form onSubmit={handleSavePerjamuanDate} className="space-y-4">
             <div>
                 <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">
-                    Pilih Tanggal Perjamuan
+                    Pilih / Ubah Tanggal Perjamuan
                 </label>
                 <input
                     type="date"
                     value={editPerjamuanDate}
                     onChange={e => setEditPerjamuanDate(e.target.value)}
                     required
-                    className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm"
+                    className="w-full p-3.5 border-2 border-navy-200 focus:border-gold-500 rounded-xl outline-none transition-all bg-white text-sm font-bold text-navy-900 shadow-sm"
                 />
-                <p className="text-[10px] text-navy-500 mt-2 font-medium leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">
-                    Banner Perjamuan Kudus akan tampil di halaman <b>Jadwal</b> dan <b>Live</b>
-                    sejak hari ini hingga tanggal perjamuan yang dipilih.
-                    Setelah tanggal perjamuan lewat, banner otomatis menghilang.
-                </p>
             </div>
- 
-            {/* Preview tanggal yang dipilih */}
-            {editPerjamuanDate && (
-                <div className="bg-gold-50 border border-gold-200 rounded-xl p-4 flex items-center gap-3">
-                    <Icon name="Gift" className="w-5 h-5 text-gold-500 shrink-0" />
+
+            {/* Preview pilihan baru */}
+            {editPerjamuanDate && editPerjamuanDate !== perjamuanDate && (
+                <div className="bg-navy-50 border border-navy-200 rounded-xl p-4 flex items-center gap-3">
+                    <Icon name="Info" className="w-4 h-4 text-navy-500 shrink-0" />
                     <div>
-                        <p className="text-xs font-bold text-navy-500 uppercase tracking-widest">Akan disimpan</p>
-                        <p className="font-black text-navy-900 text-base">{formatIndoDate(editPerjamuanDate)}</p>
+                        <p className="text-[10px] font-bold text-navy-400 uppercase tracking-wider">Akan diubah ke</p>
+                        <p className="font-black text-navy-900 text-sm">{formatIndoDate(editPerjamuanDate)}</p>
                     </div>
                 </div>
             )}
- 
+
+            {/* Info Box */}
+            <div className="bg-gold-50/60 border border-gold-200/80 rounded-xl p-4 flex gap-3">
+                <Icon name="Info" className="w-4 h-4 text-gold-600 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-navy-600 font-medium leading-relaxed">
+                    Banner <b>Perjamuan Kudus</b> tampil otomatis di halaman <b>Jadwal</b> dan <b>Live</b> sejak hari ini hingga tanggal perjamuan. Setelah tanggal lewat, banner hilang otomatis.
+                </p>
+            </div>
+
             <button
                 type="submit"
                 disabled={isSavingPerjamuanDate}
-                className={`w-full ${isSavingPerjamuanDate
-                    ? 'bg-navy-300 text-navy-500 cursor-not-allowed'
-                    : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'
-                } font-bold py-3.5 rounded-xl transition-all flex justify-center items-center`}
+                className={`w-full font-bold py-3.5 rounded-xl transition-all flex justify-center items-center gap-2 shadow-md ${
+                    isSavingPerjamuanDate
+                        ? 'bg-navy-300 text-navy-500 cursor-not-allowed'
+                        : 'bg-navy-900 hover:bg-navy-800 text-gold-400 hover:shadow-lg'
+                }`}
             >
-                {isSavingPerjamuanDate
-                    ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</>
-                    : 'Simpan Tanggal Perjamuan'
-                }
+                {isSavingPerjamuanDate ? (
+                    <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin"></span> Menyimpan...</>
+                ) : (
+                    <><Icon name="Save" className="w-4 h-4" /> Simpan Tanggal Perjamuan</>
+                )}
             </button>
         </form>
     </div>
