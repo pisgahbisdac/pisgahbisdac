@@ -9,10 +9,9 @@
 <meta name="theme-color" content="#151924">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./stylelaporan.css">
-
 </head>
-<body>
 
+<body>
 <script>
 (function() {
   const savedTheme = localStorage.getItem('PiKaChu_theme') || 'dark';
@@ -1151,7 +1150,7 @@ function renderDashboard() {
       <div class="stat-value" style="color: var(--accent-gold, #ffd166)">${fmt(calcJemaat)}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Kas Daerah</div><div class="stat-icon c-moss">${safeIcon('mappin', 'lucide-lg')}</div></div>
+      <div class="stat-header"><div class="stat-label">Kas Daerah</div><div class="stat-icon c-teal">${safeIcon('mappin', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-purple, #9d4edd)">${fmt(calcDaerah)}</div>
     </div>
     <div class="stat-card">
@@ -1163,17 +1162,18 @@ function renderDashboard() {
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Partisipasi Jemaat</div><div class="stat-icon c-moss">${safeIcon('users', 'lucide-lg')}</div></div>
-      <div class="stat-value" style="color: var(--text-main, var(--text))">${totalPemberiPersepuluhan} <span style="font-size:16px; color: var(--text-muted, var(--text4))">/ ${totalAnggotaSistem}</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Komitmen Pembangunan</div><div class="stat-icon c-teal">${safeIcon('hammer', 'lucide-lg')}</div></div>
+      <div class="stat-header"><div class="stat-label">Komitmen Pembangunan</div><div class="stat-icon c-moss">${safeIcon('hammer', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-cyan, #00d2ff)">${fmt(komitmenSaatIni)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
         <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text-muted, var(--text3));"><span>TARGET: ${fmt(targetKomitmen).toUpperCase()}</span><span style="color: var(--accent-cyan, var(--teal-pop));">${persentaseKomitmen.toFixed(2)}%</span></div>
         <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentKomitmen}%; background: var(--accent-cyan, var(--teal-pop));"></div></div>
       </div>
     </div>
+    <div class="stat-card">
+      <div class="stat-header"><div class="stat-label">Partisipasi Jemaat</div><div class="stat-icon c-red">${safeIcon('users', 'lucide-lg')}</div></div>
+      <div class="stat-value" style="color: var(--text-main, var(--text))">${totalPemberiPersepuluhan} <span style="font-size:16px; color: var(--text-muted, var(--text4))">/ ${totalAnggotaSistem}</span></div>
+    </div>
+    
   `;
 
   const maxVal = Math.max(calcDaerah, calcJemaat, calcBangun, 1);
