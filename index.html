@@ -1401,18 +1401,20 @@
             );
         };
 
-        // Helper Rendering Sub-Group untuk Perjamuan
+        // Helper Rendering Sub-Group untuk Perjamuan (support dark mode)
         const renderPerjamuanGroup = (title, members) => (
-            <div className="bg-white/60 rounded-xl p-3 shadow-inner">
-                <h3 className="text-md font-bold text-navy-800 border-l-4 border-gold-500 pl-2 mb-2">
+            <div className="bg-white/80 dark:bg-navy-800/60 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-amber-100 dark:border-gold-800/30">
+                <h3 className="text-md font-bold text-navy-800 dark:text-gold-400 border-l-4 border-gold-500 pl-2 mb-2">
                     {title}
                 </h3>
                 <ul className="space-y-1.5">
                     {members.map((m, idx) => (
                         <li key={idx} className="flex justify-between items-center text-sm">
-                            <span className="font-medium text-navy-900">{m.nama || "-"}</span>
-                            <span className="text-navy-600 text-xs bg-gold-50 px-2 py-0.5 rounded-full">
+                            <span className="text-navy-600 dark:text-gray-400 text-l bg-gold-50 dark:bg-navy-700 px-2 py-0.5 rounded-lg">
                                 {m.tugas}
+                            </span>
+                            <span className="font-medium text-navy-900 dark:text-gray-200 text-right">
+                                {m.nama || "-"}
                             </span>
                         </li>
                     ))}
@@ -1423,37 +1425,35 @@
         const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, perjamuanYMD, activePerjamuan }) => (
             <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
                 {/* Tombol GDrive Jadwal Lengkap */}
-                <div className="bg-white p-5 md:p-6 rounded-[1.25rem] shadow-sm border border-navy-100/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="bg-white dark:bg-navy-800/70 p-5 md:p-6 rounded-[1.25rem] shadow-sm border border-navy-100/60 dark:border-navy-700 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
-                        <h3 className="font-bold text-navy-900 text-[1.15rem]">Jadwal Lengkap</h3>
-                        <p className="text-sm text-navy-500 mt-1">Lihat dan unduh file PDF jadwal pelayanan bulanan / triwulan di Google Drive.</p>
+                        <h3 className="font-bold text-navy-900 dark:text-white text-[1.15rem]">Jadwal Lengkap</h3>
+                        <p className="text-sm text-navy-500 dark:text-gray-400 mt-1">Lihat dan unduh file PDF jadwal pelayanan bulanan / triwulan di Google Drive.</p>
                     </div>
-                    <a href="./document/TW2-2026-R1.pdf" target="_blank" rel="noopener noreferrer" className="bg-navy-900 hover:bg-navy-800 text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center shrink-0 w-full sm:w-auto justify-center">
-                        <Icon name="Drive" className="w-[1.15rem] h-[1.15rem] mr-2 text-navy-900" /> Buka Google Drive
+                    <a href="./document/TW2-2026-R1.pdf" target="_blank" rel="noopener noreferrer" className="bg-navy-900 dark:bg-gold-500 hover:bg-navy-800 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-900 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center shrink-0 w-full sm:w-auto justify-center">
+                        <Icon name="Drive" className="w-[1.15rem] h-[1.15rem] mr-2 text-current" /> Buka Google Drive
                     </a>
                 </div>
 
                 {/* Banner Spesial Perjamuan Kudus */}
                 {showPerjamuan && (
-                    <div className="bg-gradient-to-br from-gold-50 to-white p-5 md:p-6 rounded-[1.25rem] shadow-sm border border-gold-200 relative overflow-hidden animate-fade-in">
-                        {/* Badge - sekarang gelap dengan teks emas */}
-                        <div className="absolute top-0 right-0 bg-navy-900 text-gold-500 text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm">
+                    <div className="bg-gradient-to-br from-amber-50 via-white to-yellow-50 dark:from-navy-900 dark:via-navy-800 dark:to-navy-900 p-5 md:p-6 rounded-[1.25rem] shadow-sm dark:shadow-md border border-amber-200 dark:border-gold-800 relative overflow-hidden animate-fade-in">
+                        {/* Background pattern halus */}
+                        <div className="absolute inset-0 opacity-30 dark:opacity-10 bg-[radial-gradient(#fbbf24_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
+                        {/* Badge */}
+                        <div className="absolute top-0 right-0 bg-navy-900 dark:bg-gold-500 text-gold-500 dark:text-navy-900 text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm">
                             Jadwal Spesial
-                        </div>
-
-                        <div className="flex items-center space-x-3 mb-5 border-b border-gold-200 pb-3">
-                            <div className="w-10 h-10 bg-gold-100 rounded-full flex items-center justify-center text-gold-600">
+                        </div><br />
+                        <div className="flex items-center space-x-3 mb-5 border-b border-amber-200 dark:border-gold-800/50 pb-3 relative z-10">
+                            <div className="w-10 h-10 bg-amber-100 dark:bg-gold-900/40 rounded-full flex items-center justify-center text-amber-600 dark:text-gold-400">
                                 <Icon name="Gift" className="w-5 h-5" />
                             </div>
-                            <div><br />
-                                <h2 className="text-xl font-black text-navy-900 leading-tight">Pelayanan Perjamuan Kudus</h2>
-                                {/* Teks tanggal diubah menjadi navy */}
-                                <p className="text-sm font-bold text-navy-700 mt-0.5">{formatIndoDate(perjamuanYMD)}</p>
+                            <div>
+                                <h2 className="text-xl font-black text-navy-900 dark:text-white leading-tight">Pelayanan Perjamuan Kudus</h2>
+                                <p className="text-sm font-bold text-navy-700 dark:text-amber-200/90 mt-0.5">{formatIndoDate(perjamuanYMD)}</p>
                             </div>
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Pastikan di dalam renderPerjamuanGroup semua teks mengikuti aturan navy on light */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
                             {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 3))}
                             {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(3, 7))}
                             {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(7, 11))}
@@ -1463,52 +1463,98 @@
                 )}
 
                 {/* Rabu */}
-                <div className="bg-white p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 relative overflow-hidden group">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-5 border-b pb-4 border-navy-50">
+                <div className="bg-white dark:bg-navy-800/70 p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 dark:border-navy-700 relative overflow-hidden group">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-5 border-b pb-4 border-navy-50 dark:border-navy-700">
                         <div className="flex items-center space-x-3">
                             <Icon name="Calendar" className="w-[1.4rem] h-[1.4rem] text-gold-500" />
-                            <div><h2 className="text-lg font-bold text-navy-900 tracking-tight">{activeRabu.title}</h2><p className="text-sm font-semibold text-navy-400 mt-0.5">{formatIndoDate(rabuYMD)}</p></div>
+                            <div>
+                                <h2 className="text-lg font-bold text-navy-900 dark:text-white tracking-tight">{activeRabu.title}</h2>
+                                <p className="text-sm font-semibold text-navy-400 dark:text-gray-400 mt-0.5">{formatIndoDate(rabuYMD)}</p>
+                            </div>
                         </div>
-                        <span className="text-xs font-bold text-navy-800 bg-gold-50 px-4 py-1.5 rounded-full mt-3 md:mt-0 w-fit border border-gold-200 uppercase tracking-widest shadow-sm">{activeRabu.time}</span>
+                        <span className="text-xs font-bold text-navy-800 dark:text-navy-200 bg-gold-50 dark:bg-navy-700 px-4 py-1.5 rounded-full mt-3 md:mt-0 w-fit border border-gold-200 dark:border-gold-800 uppercase tracking-widest shadow-sm">{activeRabu.time}</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
                         {activeRabu.petugas.map((p, idx) => (
-                            <div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 md:[&:nth-last-child(-n+2)]:border-0 px-2 hover:bg-navy-50/30 transition-colors rounded-lg"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>
+                            <div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 dark:border-navy-700/50 last:border-0 md:[&:nth-last-child(-n+2)]:border-0 px-2 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-lg">
+                                <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                <span className="text-sm font-bold text-navy-900 dark:text-white text-right">{p.nama}</span>
+                            </div>
                         ))}
                     </div>
                 </div>
 
                 {/* Sabat */}
-                <div className="bg-white p-5 md:p-7 rounded-[1.5rem] shadow-sm border-t-[6px] border-navy-800 border-x border-b border-navy-100/60 relative">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 border-b pb-4 border-navy-50">
+                <div className="bg-white dark:bg-navy-800/70 p-5 md:p-7 rounded-[1.5rem] shadow-sm border-t-[6px] border-navy-800 dark:border-gold-600 border-x border-b border-navy-100/60 dark:border-navy-700 relative">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 border-b pb-4 border-navy-50 dark:border-navy-700">
                         <div className="flex items-center space-x-3">
                             <Icon name="Calendar" className="w-[1.4rem] h-[1.4rem] text-gold-500" />
-                            <div><h2 className="text-lg font-bold text-navy-900 tracking-tight">{activeSabat.title}</h2><p className="text-sm font-semibold text-navy-400 mt-0.5">{formatIndoDate(sabatYMD)}</p></div>
+                            <div>
+                                <h2 className="text-lg font-bold text-navy-900 dark:text-white tracking-tight">{activeSabat.title}</h2>
+                                <p className="text-sm font-semibold text-navy-400 dark:text-gray-400 mt-0.5">{formatIndoDate(sabatYMD)}</p>
+                            </div>
                         </div>
-                        <span className="text-xs font-bold text-navy-800 bg-gold-50 px-4 py-1.5 rounded-full mt-3 md:mt-0 w-fit border border-gold-200 uppercase tracking-widest shadow-sm">Waktu: {activeSabat.time}</span>
+                        <span className="text-xs font-bold text-navy-800 dark:text-navy-200 bg-gold-50 dark:bg-navy-700 px-4 py-1.5 rounded-full mt-3 md:mt-0 w-fit border border-gold-200 dark:border-gold-800 uppercase tracking-widest shadow-sm">Waktu: {activeSabat.time}</span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
                         <div className="space-y-6">
                             <div>
-                                <div className="flex justify-between items-end mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Khotbah / Umum</h3><span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.khotbahTime}</span></div>
-                                <div className="flex flex-col">{activeSabat.khotbah.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
+                                <div className="flex justify-between items-end mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
+                                    <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Khotbah / Umum</h3>
+                                    <span className="text-[11px] text-navy-600 dark:text-gray-400 font-bold bg-white dark:bg-navy-800 px-2 py-0.5 rounded-full border border-navy-100 dark:border-navy-600">{activeSabat.khotbahTime}</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    {activeSabat.khotbah.map((p, idx) => (
+                                        <div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 dark:border-navy-700/50 last:border-0 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-lg px-2">
+                                            <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                            <span className="text-sm font-bold text-navy-900 dark:text-white text-right">{p.nama}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                             <div>
-                                <div className="mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Diakon & Diakones</h3></div>
-                                <div className="flex flex-col">{activeSabat.diakon.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
+                                <div className="mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
+                                    <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Diakon & Diakones</h3>
+                                </div>
+                                <div className="flex flex-col">
+                                    {activeSabat.diakon.map((p, idx) => (
+                                        <div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 dark:border-navy-700/50 last:border-0 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-lg px-2">
+                                            <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                            <span className="text-sm font-bold text-navy-900 dark:text-white text-right">{p.nama}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                         <div className="space-y-6">
                             <div>
-                                <div className="flex justify-between items-end mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Sekolah Sabat</h3><span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.sekolahSabatTime}</span></div>
-                                <div className="flex flex-col">{activeSabat.sekolahSabat.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
+                                <div className="flex justify-between items-end mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
+                                    <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Sekolah Sabat</h3>
+                                    <span className="text-[11px] text-navy-600 dark:text-gray-400 font-bold bg-white dark:bg-navy-800 px-2 py-0.5 rounded-full border border-navy-100 dark:border-navy-600">{activeSabat.sekolahSabatTime}</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    {activeSabat.sekolahSabat.map((p, idx) => (
+                                        <div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 dark:border-navy-700/50 last:border-0 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-lg px-2">
+                                            <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                            <span className="text-sm font-bold text-navy-900 dark:text-white text-right">{p.nama}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                             <div>
-                                <div className="mb-2 bg-navy-50/50 p-3 rounded-xl border border-navy-100/50"><h3 className="font-bold text-navy-800 text-sm uppercase tracking-wider">Pelayanan Musik</h3></div>
-                                <div className="flex flex-col">{activeSabat.musik.map((p, idx) => (<div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 last:border-0 hover:bg-navy-50/30 transition-colors rounded-lg px-2"><span className="text-sm text-navy-500 font-medium">{p.tugas}</span><span className="text-sm font-bold text-navy-900 text-right">{p.nama}</span></div>))}</div>
+                                <div className="mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
+                                    <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Pelayanan Musik</h3>
+                                </div>
+                                <div className="flex flex-col">
+                                    {activeSabat.musik.map((p, idx) => (
+                                        <div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 dark:border-navy-700/50 last:border-0 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-lg px-2">
+                                            <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                            <span className="text-sm font-bold text-navy-900 dark:text-white text-right">{p.nama}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -2472,8 +2518,8 @@
                                             onClick={() => goToPage(currentPage - 1)}
                                             disabled={currentPage === 1}
                                             className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all shadow-sm ${currentPage === 1
-                                                    ? 'bg-navy-50 text-navy-300 cursor-not-allowed'
-                                                    : 'bg-white border border-navy-200 text-navy-700 hover:bg-gold-50 hover:text-gold-600 hover:border-gold-300'
+                                                ? 'bg-navy-50 text-navy-300 cursor-not-allowed'
+                                                : 'bg-white border border-navy-200 text-navy-700 hover:bg-gold-50 hover:text-gold-600 hover:border-gold-300'
                                                 }`}
                                         >
                                             <Icon name="ChevronLeft" className="w-5 h-5" />
@@ -2485,8 +2531,8 @@
                                                     key={page}
                                                     onClick={() => goToPage(page)}
                                                     className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all ${page === currentPage
-                                                            ? 'bg-navy-900 text-gold-400 shadow-md scale-110'
-                                                            : 'bg-white border border-navy-100 text-navy-600 hover:bg-navy-50 hover:border-navy-300'
+                                                        ? 'bg-navy-900 text-gold-400 shadow-md scale-110'
+                                                        : 'bg-white border border-navy-100 text-navy-600 hover:bg-navy-50 hover:border-navy-300'
                                                         }`}
                                                 >
                                                     {page}
@@ -2498,8 +2544,8 @@
                                             onClick={() => goToPage(currentPage + 1)}
                                             disabled={currentPage === totalPages}
                                             className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all shadow-sm ${currentPage === totalPages
-                                                    ? 'bg-navy-50 text-navy-300 cursor-not-allowed'
-                                                    : 'bg-white border border-navy-200 text-navy-700 hover:bg-gold-50 hover:text-gold-600 hover:border-gold-300'
+                                                ? 'bg-navy-50 text-navy-300 cursor-not-allowed'
+                                                : 'bg-white border border-navy-200 text-navy-700 hover:bg-gold-50 hover:text-gold-600 hover:border-gold-300'
                                                 }`}
                                         >
                                             <Icon name="ChevronRight" className="w-5 h-5" />
@@ -4103,7 +4149,7 @@
                                 {subTab === 'perjamuan' && (
                                     <div className="bg-gold-50/50 border border-gold-200 p-4 rounded-xl text-navy-800 text-sm flex items-start shadow-sm">
                                         <Icon name="Gift" className="w-5 h-5 text-gold-500 mr-3 shrink-0" />
-                                        <p><b>Jadwal Spesial:</b> Perjamuan Kudus hanya dilaksanakan pada <span className="font-bold underline text-gold-600">Sabtu</span> di bulan Maret, September, dan Desember. Mengisi jadwal pada tanggal lain tidak akan memunculkannya secara otomatis di bulan tersebut.</p>
+                                        <p><b>Jadwal Spesial:</b> Perjamuan Kudus hanya dilaksanakan pada <span className="font-bold underline text-gold-600">Sabtu</span> di bulan Maret, June, September, dan Desember. Mengisi jadwal pada tanggal lain tidak akan memunculkannya secara otomatis di bulan tersebut.</p>
                                     </div>
                                 )}
 
@@ -4121,10 +4167,10 @@
                                     </div>
                                     <div className="overflow-x-auto">
                                         <table className={`w-full text-left border-collapse ${subTab === 'perjamuan' ? 'w-full min-w-[800px] mx-auto' :
-                                                subTab === 'susunanAcara' ? 'w-full min-w-[300px] mx-auto' :
-                                                    subTab === 'diakon' ? 'w-full min:w-[200px] mx-auto' :
-                                                        subTab === 'musik' ? 'w-full min:w-[200px] mx-auto' :
-                                                            'w-full min-w-[800px] mx-auto'
+                                            subTab === 'susunanAcara' ? 'w-full min-w-[300px] mx-auto' :
+                                                subTab === 'diakon' ? 'w-full min:w-[200px] mx-auto' :
+                                                    subTab === 'musik' ? 'w-full min:w-[200px] mx-auto' :
+                                                        'w-full min-w-[800px] mx-auto'
                                             }`}>
                                             <thead className="bg-navy-50/50 border-b border-navy-100/60">
                                                 <tr>
@@ -4509,8 +4555,8 @@
                                                                         key={folder.id}
                                                                         onClick={() => setSelectedFolder(folder.id)}
                                                                         className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 ${selectedFolder === folder.id
-                                                                                ? 'bg-navy-900 text-gold-400'
-                                                                                : 'bg-navy-50 text-navy-700 hover:bg-navy-100'
+                                                                            ? 'bg-navy-900 text-gold-400'
+                                                                            : 'bg-navy-50 text-navy-700 hover:bg-navy-100'
                                                                             }`}
                                                                     >
                                                                         📁 {folder.name}
@@ -5142,8 +5188,8 @@
                                         type="submit"
                                         disabled={isSavingPerjamuanDate}
                                         className={`w-full font-bold py-3.5 rounded-xl transition-all flex justify-center items-center gap-2 shadow-md ${isSavingPerjamuanDate
-                                                ? 'bg-navy-300 text-navy-500 cursor-not-allowed'
-                                                : 'bg-navy-900 hover:bg-navy-800 text-gold-400 hover:shadow-lg'
+                                            ? 'bg-navy-300 text-navy-500 cursor-not-allowed'
+                                            : 'bg-navy-900 hover:bg-navy-800 text-gold-400 hover:shadow-lg'
                                             }`}
                                     >
                                         {isSavingPerjamuanDate ? (
