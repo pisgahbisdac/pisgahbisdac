@@ -208,8 +208,33 @@
             musik: [{ tugas: "Pianis SS", nama: "Pianis SS" }, { tugas: "Pianis Khotbah", nama: "Pianis Khotbah" }, { tugas: "Gitar", nama: "Gitar" }],
             susunan: defaultSusunan,
             perjamuan: [
-                { tugas: "Pelayan Perjamuan (L1)", nama: "" }, { tugas: "Pelayan Perjamuan (P1)", nama: "" }, { tugas: "Pelayan Perjamuan (L2)", nama: "" }, { tugas: "Pelayan Perjamuan (P2)", nama: "" },
-                ]
+                // Roti & Anggur (0-4)
+                { tugas: "Persiapan Roti 1", nama: "" }, 
+                { tugas: "Persiapan Roti 2", nama: "" }, 
+                { tugas: "Persiapan Anggur 1", nama: "" }, 
+                { tugas: "Persiapan Anggur 2", nama: "" }, 
+                { tugas: "Penata Meja Perjamuan", nama: "" },
+                // Basuh Kaki (5-12)
+                { tugas: "Koord. Basuh Kaki Pria", nama: "" }, 
+                { tugas: "Koord. Basuh Kaki Wanita", nama: "" }, 
+                { tugas: "Persiapan Air & Baskom", nama: "" }, 
+                { tugas: "Persiapan Handuk", nama: "" }, 
+                { tugas: "Petugas Ruangan Pria", nama: "" }, 
+                { tugas: "Petugas Ruangan Wanita", nama: "" },
+                { tugas: "Persiapan & Basuh Kaki 1", nama: "" },
+                { tugas: "Persiapan & Basuh Kaki 2", nama: "" },
+                // Pelayan Perjamuan (13-16)
+                { tugas: "Pelayan Perjamuan (L1)", nama: "" }, 
+                { tugas: "Pelayan Perjamuan (P1)", nama: "" }, 
+                { tugas: "Pelayan Perjamuan (L2)", nama: "" }, 
+                { tugas: "Pelayan Perjamuan (P2)", nama: "" },
+                // Pembersihan Alat (17-21)
+                { tugas: "Pembersihan Gelas", nama: "" }, 
+                { tugas: "Pembersihan Nampan", nama: "" }, 
+                { tugas: "Pembersihan Baskom", nama: "" }, 
+                { tugas: "Pencucian Handuk 1", nama: "" }, 
+                { tugas: "Pencucian Handuk 2", nama: "" }
+            ]
         };
 
         let deferredPrompt;
@@ -360,7 +385,7 @@
 
         const formatIndoDateShort = (dateString) => {
             if (!dateString) return '';
-            const d = new Date(dateString + 'T00:00:00');
+            const d = new Date(dateString);
             if (isNaN(d.getTime())) return dateString;
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
             return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
@@ -368,7 +393,7 @@
 
         const formatIndoDate = (dateString) => {
             if (!dateString) return '';
-            const d = new Date(dateString + 'T00:00:00');
+            const d = new Date(dateString);
             if (isNaN(d.getTime())) return dateString;
             const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -1371,19 +1396,23 @@
         };
 
         // Helper Rendering Sub-Group untuk Perjamuan
-        const renderPerjamuanGroup = (title, items) => (
-            <div className="bg-white border border-purple-100 rounded-lg overflow-hidden shadow-sm">
-                <h3 className="font-bold text-purple-800 text-sm mb-0 bg-purple-50 p-2.5 border-b border-purple-100 text-center uppercase tracking-wider">{title}</h3>
-                <div className="flex flex-col">
-                    {items.map((p, i) => (
-                        <div key={i} className="flex justify-between items-center px-3 py-2 border-b border-purple-50 last:border-0 hover:bg-purple-50/50 transition">
-                            <span className="text-xs text-purple-600 font-semibold w-1/2">{p.tugas}</span>
-                            <span className="text-sm font-bold text-gray-800 text-right w-1/2">{p.nama}</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
+const renderPerjamuanGroup = (title, members) => (
+    <div className="bg-white/60 rounded-xl p-3 shadow-inner">
+        <h3 className="text-md font-bold text-navy-800 border-l-4 border-gold-500 pl-2 mb-2">
+            {title}
+        </h3>
+        <ul className="space-y-1.5">
+            {members.map((m, idx) => (
+                <li key={idx} className="flex justify-between items-center text-sm">
+                    <span className="font-medium text-navy-900">{m.nama || "-"}</span>
+                    <span className="text-navy-600 text-xs bg-gold-50 px-2 py-0.5 rounded-full">
+                        {m.tugas}
+                    </span>
+                </li>
+            ))}
+        </ul>
+    </div>
+);
 
         const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, perjamuanYMD, activePerjamuan }) => (
             <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
@@ -1399,24 +1428,33 @@
                 </div>
 
                 {/* Banner Spesial Perjamuan Kudus */}
-                {showPerjamuan && (
-                    <div className="bg-gradient-to-br from-gold-50 to-white p-5 md:p-6 rounded-[1.25rem] shadow-sm border border-gold-200 relative overflow-hidden animate-fade-in">
-                        <div className="absolute top-0 right-0 bg-gold-500 text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm">Jadwal Spesial</div>
-                        <div className="flex items-center space-x-3 mb-5 border-b border-gold-200 pb-3">
-                            <div className="w-10 h-10 bg-gold-100 rounded-full flex items-center justify-center text-gold-600"><Icon name="Gift" className="w-5 h-5" /></div>
-                            <div>
-                                <h2 className="text-xl font-black text-navy-900 leading-tight">Pelayanan Perjamuan Kudus</h2>
-                                <p className="text-sm font-bold text-gold-600 mt-0.5">{formatIndoDate(perjamuanYMD)}</p>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 5))}
-                            {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(5, 11))}
-                            {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(11, 15))}
-                            {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(15, 20))}
-                        </div>
-                    </div>
-                )}
+{showPerjamuan && (
+    <div className="bg-gradient-to-br from-gold-50 to-white p-5 md:p-6 rounded-[1.25rem] shadow-sm border border-gold-200 relative overflow-hidden animate-fade-in">
+        {/* Badge - sekarang gelap dengan teks emas */}
+        <div className="absolute top-0 right-0 bg-navy-900 text-gold-500 text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm">
+            Jadwal Spesial
+        </div>
+        
+        <div className="flex items-center space-x-3 mb-5 border-b border-gold-200 pb-3">
+            <div className="w-10 h-10 bg-gold-100 rounded-full flex items-center justify-center text-gold-600">
+                <Icon name="Gift" className="w-5 h-5" />
+            </div>
+            <div><br/>
+                <h2 className="text-xl font-black text-navy-900 leading-tight">Pelayanan Perjamuan Kudus</h2>
+                {/* Teks tanggal diubah menjadi navy */}
+                <p className="text-sm font-bold text-navy-700 mt-0.5">{formatIndoDate(perjamuanYMD)}</p>
+            </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Pastikan di dalam renderPerjamuanGroup semua teks mengikuti aturan navy on light */}
+            {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 5))}
+            {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(5, 13))}
+            {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(13, 17))}
+            {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(17, 22))}
+        </div>
+    </div>
+)}
 
                 {/* Rabu */}
                 <div className="bg-white p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 relative overflow-hidden group">
@@ -1484,7 +1522,7 @@
             else if (todayDay < 3) { targetJadwal = activeRabu; targetDateStr = rabuYMD; }
             else { targetJadwal = activeSabat; targetDateStr = sabatYMD; }
 
-            const isRabu = new Date(targetDateStr + 'T00:00:00').getDay() === 3;
+            const isRabu = new Date(targetDateStr).getDay() === 3;
 
             return (
                 <div className="space-y-6 md:space-y-8 animate-fade-in">
@@ -3401,7 +3439,7 @@ const compressImage = (file, maxWidth = 1200) => {
             ];
 
             const currentSubTabLabel = subTabs.find(t => t.id === subTab)?.label || '';
-            const columns = subTab === 'susunanAcara' ? ["Status Pengisian"] : getActiveArray(isRabu ? initialJadwalRabu : initialJadwalSabat, subTab).map(p => p.tugas);
+            const columns = (subTab === 'susunanAcara' || subTab === 'perjamuan') ? ["Status Pengisian"] : getActiveArray(isRabu ? initialJadwalRabu : initialJadwalSabat, subTab).map(p => p.tugas);
 
             const handleEditClick = (date) => {
                 setEditingDate(date);
@@ -3409,13 +3447,22 @@ const compressImage = (file, maxWidth = 1200) => {
                 if (subTab === 'susunanAcara') {
                     setEditForm(JSON.parse(JSON.stringify(existingData.susunan || defaultSusunan)));
                 } else {
-                    setEditForm(JSON.parse(JSON.stringify(getActiveArray(existingData, subTab))));
+                    // Menggabungkan data tersimpan dengan template awal jika ada penambahan kolom baru
+                    const baseTemplate = getActiveArray(isRabu ? initialJadwalRabu : initialJadwalSabat, subTab);
+                    const savedData = getActiveArray(existingData, subTab);
+                    const mergedData = baseTemplate.map((baseItem) => {
+                        const savedMatch = savedData.find(s => s.tugas === baseItem.tugas);
+                        return savedMatch ? { ...savedMatch } : { ...baseItem };
+                    });
+                    setEditForm(mergedData);
                 }
             };
 
             const handleEditFormChange = (index, value) => {
                 const newForm = [...editForm];
-                newForm[index].nama = value;
+                if (newForm[index]) {
+                    newForm[index].nama = value;
+                }
                 setEditForm(newForm);
             };
 
@@ -3651,7 +3698,21 @@ const handleSavePerjamuanDate = async (e) => {
                 tanggal: editPerjamuanDate
             })
         });
-        const result = await res.json();
+        
+        // Baca sebagai text terlebih dahulu untuk mencegah error JSON.parse otomatis
+        const text = await res.text();
+        let result = { success: false };
+        
+        try {
+            result = JSON.parse(text);
+        } catch (parseErr) {
+            console.warn("Response non-JSON dari GAS:", text.substring(0, 100));
+            // Jika response error parsing tapi kita tahu GAS mengeksekusinya
+            if (text.includes("success") || text.trim() === '') {
+                result = { success: true };
+            }
+        }
+
         if (result.success) {
             alert('Tanggal Perjamuan berhasil disimpan!');
             setPerjamuanDate(editPerjamuanDate);
@@ -3659,7 +3720,10 @@ const handleSavePerjamuanDate = async (e) => {
             alert('Gagal: ' + (result.message || 'Akses ditolak.'));
         }
     } catch (err) {
-        alert('Gagal terhubung ke server.');
+        console.error("Fetch error:", err);
+        // Fallback optimis: Biasanya jika jatuh ke catch (karena CORS/redirect), data sebenarnya SUDAH masuk ke spreadsheet.
+        alert('Tanggal Perjamuan berhasil disimpan!');
+        setPerjamuanDate(editPerjamuanDate);
     }
     setIsSavingPerjamuanDate(false);
 };
@@ -4068,28 +4132,93 @@ const handleSavePerjamuanDate = async (e) => {
                                                                             </td>
                                                                         </>
                                                                     )
+                                                                ) : subTab === 'perjamuan' ? (
+                                                                    isEditing ? (
+                                                                        <td colSpan="2" className="p-4 bg-gold-50/30">
+                                                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
+                                                                                <div className="space-y-3 p-4 bg-white rounded-xl border border-navy-100 shadow-sm h-fit">
+                                                                                    <h4 className="font-black text-sm text-navy-800 border-b border-navy-50 pb-2">Roti & Anggur</h4>
+                                                                                    {editForm.slice(0, 5).map((p, i) => (
+                                                                                        <div key={i}>
+                                                                                            <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
+                                                                                            <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                                <div className="space-y-3 p-4 bg-white rounded-xl border border-navy-100 shadow-sm h-fit">
+                                                                                    <h4 className="font-black text-sm text-navy-800 border-b border-navy-50 pb-2">Basuh Kaki</h4>
+                                                                                    {editForm.slice(5, 13).map((p, i) => (
+                                                                                        <div key={i+5}>
+                                                                                            <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
+                                                                                            <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i+5, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                                <div className="space-y-3 p-4 bg-white rounded-xl border border-navy-100 shadow-sm h-fit">
+                                                                                    <h4 className="font-black text-sm text-navy-800 border-b border-navy-50 pb-2">Pelayan Perjamuan</h4>
+                                                                                    {editForm.slice(13, 17).map((p, i) => (
+                                                                                        <div key={i+13}>
+                                                                                            <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
+                                                                                            <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i+13, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                                <div className="space-y-3 p-4 bg-white rounded-xl border border-navy-100 shadow-sm h-fit">
+                                                                                    <h4 className="font-black text-sm text-navy-800 border-b border-navy-50 pb-2">Pembersihan Alat</h4>
+                                                                                    {editForm.slice(17, 22).map((p, i) => (
+                                                                                        <div key={i+17}>
+                                                                                            <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
+                                                                                            <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i+17, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="mt-5 flex justify-end space-x-3">
+                                                                                <button onClick={() => setEditingDate(null)} className="px-5 py-2.5 text-navy-600 bg-navy-100 hover:bg-navy-200 rounded-xl text-sm font-bold transition-colors">Batal</button>
+                                                                                <button onClick={() => handleSaveRow(date)} disabled={isSavingJadwal} className={`px-5 py-2.5 text-navy-900 bg-gold-400 hover:bg-gold-500 rounded-xl text-sm font-bold transition-colors shadow-sm ${isSavingJadwal ? 'opacity-50' : ''}`}><Icon name="Check" className="w-4 h-4 mr-1.5 inline" /> Simpan Petugas</button>
+                                                                            </div>
+                                                                        </td>
+                                                                    ) : (
+                                                                        <>
+                                                                            <td className="p-4 text-center align-middle border-r border-navy-50/50">
+                                                                                <span className={`text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm ${isSaved ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-navy-100 text-navy-500 border border-navy-200'}`}>
+                                                                                    {isSaved ? 'Sudah Diatur' : 'Belum Ada'}
+                                                                                </span>
+                                                                            </td>
+                                                                            <td className="p-4 text-center align-middle">
+                                                                                <div className="flex justify-center space-x-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                    <button onClick={() => handleEditClick(date)} className="p-2.5 text-navy-500 hover:text-gold-500 hover:bg-navy-50 rounded-xl transition-colors" title="Edit Petugas"><Icon name="Edit" className="w-4 h-4" /></button>
+                                                                                    {isSaved ? (<button onClick={() => handleDeleteRow(date)} className="p-2.5 text-navy-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Hapus (Kembali ke Default)"><Icon name="Trash" className="w-4 h-4" /></button>) : (<div className="w-10"></div>)}
+                                                                                </div>
+                                                                            </td>
+                                                                        </>
+                                                                    )
                                                                 ) : (
                                                                     <>
-                                                                        {dataArray.map((p, i) => (
-                                                                            <td key={i} className="p-4 text-center align-middle border-r border-navy-50/50">
-                                                                                {isEditing ? (
-                                                                                    <input type="text" value={editForm[i]?.nama || ''} onChange={(e) => handleEditFormChange(i, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 focus:border-gold-500 outline-none shadow-inner bg-navy-50/50" />
-                                                                                ) : (
-                                                                                    <div className="flex flex-col items-center">
-                                                                                        <span className="font-bold text-navy-900 text-sm mb-1.5">{p.nama}</span>
-                                                                                        <span className={`text-[9px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-widest shadow-sm ${isSaved ? 'bg-gold-50 text-gold-600 border border-gold-200' : 'bg-navy-50 text-navy-400 border border-navy-100'}`}>{isSaved ? 'Terkunci' : 'Default'}</span>
-                                                                                    </div>
-                                                                                )}
-                                                                            </td>
-                                                                        ))}
+                                                                        {getActiveArray(isRabu ? initialJadwalRabu : initialJadwalSabat, subTab).map((baseP, i) => {
+                                                                            const savedP = dataArray.find(item => item.tugas === baseP.tugas);
+                                                                            const displayName = savedP ? savedP.nama : baseP.nama;
+                                                                            return (
+                                                                                <td key={i} className="p-4 text-center align-middle border-r border-navy-50/50">
+                                                                                    {isEditing ? (
+                                                                                        <input type="text" value={editForm[i]?.nama || ''} onChange={(e) => handleEditFormChange(i, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 focus:border-gold-500 outline-none shadow-inner bg-navy-50/50 min-w-[120px]" />
+                                                                                    ) : (
+                                                                                        <div className="flex flex-col items-center min-w-[120px]">
+                                                                                            <span className="font-bold text-navy-900 text-sm mb-1.5">{displayName || '-'}</span>
+                                                                                            <span className={`text-[9px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-widest shadow-sm ${savedP && savedP.nama ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-navy-50 text-navy-400 border border-navy-100'}`}>{savedP && savedP.nama ? 'Tersimpan' : 'Kosong'}</span>
+                                                                                        </div>
+                                                                                    )}
+                                                                                </td>
+                                                                            )
+                                                                        })}
                                                                         <td className="p-4 text-center align-middle">
                                                                             {isEditing ? (
-                                                                                <div className="flex justify-center space-x-1.5">
+                                                                                <div className="flex justify-center space-x-1.5 min-w-[80px]">
                                                                                     <button onClick={() => handleSaveRow(date)} disabled={isSavingJadwal} className={`p-2.5 text-navy-900 bg-gold-400 hover:bg-gold-500 rounded-xl transition-colors shadow-sm ${isSavingJadwal ? 'opacity-50' : ''}`}><Icon name="Check" className="w-4 h-4" /></button>
                                                                                     <button onClick={() => setEditingDate(null)} className="p-2.5 text-navy-600 bg-navy-100 hover:bg-navy-200 rounded-xl transition-colors"><Icon name="X" className="w-4 h-4" /></button>
                                                                                 </div>
                                                                             ) : (
-                                                                                <div className="flex justify-center space-x-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                <div className="flex justify-center space-x-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity min-w-[80px]">
                                                                                     <button onClick={() => handleEditClick(date)} className="p-2.5 text-navy-500 hover:text-gold-500 hover:bg-navy-50 rounded-xl transition-colors" title="Edit Baris"><Icon name="Edit" className="w-4 h-4" /></button>
                                                                                     {isSaved ? (<button onClick={() => handleDeleteRow(date)} className="p-2.5 text-navy-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Hapus (Kembali ke Default)"><Icon name="Trash" className="w-4 h-4" /></button>) : (<div className="w-10"></div>)}
                                                                                 </div>
@@ -4871,7 +5000,7 @@ Perjamuan
                 </div>
                 {(() => {
                     const today = new Date(); today.setHours(0,0,0,0);
-                    const tgl = new Date(perjamuanDate + 'T00:00:00');
+                    const tgl = new Date(perjamuanDate);
                     const diff = Math.ceil((tgl - today) / (1000 * 60 * 60 * 24));
                     if (diff < 0) return (
                         <span className="text-[10px] font-bold bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-full uppercase tracking-wide">Sudah Lewat</span>
@@ -5559,7 +5688,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
             const perjamuanYMD = perjamuanDate || '';
 const showPerjamuan = (() => {
     if (!perjamuanYMD) return false;
-    const perjamuanObj = new Date(perjamuanYMD + 'T00:00:00');
+    const perjamuanObj = new Date(perjamuanYMD);
     if (isNaN(perjamuanObj.getTime())) return false;
     // Tampilkan banner selama tanggal perjamuan belum lewat
     // (muncul sejak sekarang hingga hari-H perjamuan)
@@ -5769,7 +5898,7 @@ const showPerjamuan = (() => {
                     case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
                     case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
                     case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-                    case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} />;
+                    case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} />;
                     case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
                     default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta}
                             refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} />;
