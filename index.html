@@ -502,8 +502,7 @@
     <div className="animate-fade-in relative z-10">
         {/* Hero Image + Overlapping Welcome Box */}
         <div className="w-full relative mb-6 md:mb-10 group mt-0">
-            {/* 
-              PERUBAHAN DI SINI: 
+            {/* PERUBAHAN DI SINI: 
               Menghapus tinggi statis (h-[220px] dll) dan menggantinya dengan aspect-[1500/500],
               ditambah max-w-[1500px] dan mx-auto agar posisinya di tengah jika layar sangat lebar.
             */}
@@ -1052,7 +1051,15 @@
 
  
         const ContactGembala = ({ dataPejabat }) => {
-            const gembala = dataPejabat.find(p => p.id === 'gembala');
+            // Perbaikan: Cari berdasarkan ID 'gembala', ATAU yang nama Jabatannya / Kategorinya mengandung kata 'gembala'
+            if (!dataPejabat || !Array.isArray(dataPejabat)) return null;
+            
+            const gembala = dataPejabat.find(p => 
+                p.id === 'gembala' || 
+                (p.jabatan && p.jabatan.toLowerCase().includes('gembala')) ||
+                (p.kategori && p.kategori.toLowerCase().includes('gembala'))
+            );
+            
             if (!gembala) return null;
             return (
                 <div className="mt-10 bg-gold-400/10 border border-gold-200/50 rounded-[1.5rem] p-6 md:p-8 flex flex-col md:flex-row items-center justify-between not-prose shadow-sm relative overflow-hidden">
@@ -1666,7 +1673,10 @@ const renderPerjamuanGroup = (title, members) => (
         );
 
         const MemberBaru = ({ setActiveTab, dataPejabat }) => {
-            const contacts = dataPejabat.filter(p => ['gembala', 'ketua'].includes(p.id));
+            const contacts = dataPejabat.filter(p => 
+                ['gembala', 'ketua'].includes(p.id) || 
+                (p.jabatan && (p.jabatan.toLowerCase().includes('gembala') || p.jabatan.toLowerCase().includes('ketua')))
+            );
             const steps = [
                 {
                     number: 1,
@@ -1721,7 +1731,7 @@ const renderPerjamuanGroup = (title, members) => (
                     number: 7,
                     title: "Mengikuti Kehidupan Jemaat dan Pelayanan",
                     points: [
-                        "Anggota baru dianjurkan untuk aktif dalam pelayanan gereja, seperti pelayanan sosial, sekolah Sabat, paduan suara, atau penginjilan.",
+                        "Anggota baru dianjurkan untuk aktif dalam pelayanan gereja, safety pelayanan sosial, sekolah Sabat, paduan suara, atau penginjilan.",
                         "Bertumbuh secara rohani melalui doa, studi Alkitab, dan persekutuan dengan jemaat."
                     ]
                 }
@@ -1766,7 +1776,7 @@ const renderPerjamuanGroup = (title, members) => (
 
                     <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
                         <h2 className="text-[1.3rem] font-black mb-4 text-navy-900 border-b pb-3 border-navy-50">Hubungi Pelayan Jemaat</h2>
-                        <p className="text-sm font-medium text-navy-600 mb-6">Silakan hubungi Pendeta atau Ketua Jemaat kami untuk bimbingan rohani dan persiapan keanggotaan:</p>
+                        <p className="text-sm font-medium text-navy-600 mb-6">Silahkan hubungi Pendeta atau Ketua Jemaat kami untuk bimbingan rohani dan persiapan keanggotaan:</p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
                             {contacts.map(p => (<a key={p.id} href={`https://wa.me/${p.wa}`} target="_blank" className="flex items-center justify-between p-4 rounded-xl border border-navy-100 bg-white hover:bg-gold-50 hover:border-gold-200 transition-colors h-full group shadow-sm"><div className="flex items-center"><img src={p.img} alt={p.nama} className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-transparent group-hover:border-gold-400 transition-colors shrink-0" /><div><p className="font-bold text-navy-500 text-[10px] uppercase tracking-widest">{p.jabatan}</p><p className="text-sm font-bold text-navy-900 mt-1 leading-tight">{p.nama}</p></div></div><span className="text-gold-500 font-bold ml-2 opacity-50 group-hover:opacity-100 transition-opacity"><Icon name="MessageCircle" className="w-5 h-5" /></span></a>))}
                         </div>
@@ -1776,12 +1786,21 @@ const renderPerjamuanGroup = (title, members) => (
         };
 
         const PindahMasuk = ({ setActiveTab, dataPejabat }) => {
-            const contacts = dataPejabat.filter(p => ['sekretaris'].includes(p.id));
+            // Perbaikan: Cari berdasarkan ID 'sekretaris', atau yang jabatannya/kategorinya mengandung kata terkait
+            const contacts = dataPejabat.filter(p => 
+                p.id === 'sekretaris' || 
+                (p.jabatan && (
+                    p.jabatan.toLowerCase().includes('sekretaris') || 
+                    p.jabatan.toLowerCase().includes('sekertaris') || 
+                    p.jabatan.toLowerCase().includes('clerk')
+                )) ||
+                (p.kategori && p.kategori.toLowerCase().includes('sekretaris'))
+            );
             return (
                 <div className="space-y-6 animate-fade-in relative z-10">
                     <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
                         <h2 className="text-[1.3rem] font-black mb-4 text-navy-900 border-b pb-3 border-navy-50">Pengurusan ACMS</h2>
-                        <p className="text-sm font-medium text-navy-600 mb-6">Silakan isi formulir ACMS atau hubungi Sekretaris Jemaat kami untuk bantuan kepindahan:</p>
+                        <p className="text-sm font-medium text-navy-600 mb-6">Silahkan isi formulir ACMS atau hubungi Sekretaris Jemaat kami untuk bantuan kepindahan:</p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
                             <button onClick={() => setActiveTab('form_acms')} className="flex items-center justify-between p-4 rounded-xl border border-gold-300 bg-gradient-to-br from-gold-400 to-gold-500 hover:from-gold-300 hover:to-gold-400 transition-colors h-full w-full text-left shadow text-navy-900 group"><div className="flex items-center"><div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-navy-900 mr-4 shrink-0"><Icon name="BookOpen" className="w-5 h-5" /></div><div><p className="font-black text-navy-900 text-sm md:text-base leading-tight">Formulir Pindah Masuk</p><p className="text-xs font-bold text-navy-800 mt-1 opacity-90">Isi Data Online</p></div></div><span className="text-navy-900 font-bold ml-2 transform group-hover:translate-x-1 transition-transform">&rarr;</span></button>
                             {contacts.map(p => (<a key={p.id} href={`https://wa.me/${p.wa}`} target="_blank" className="flex items-center justify-between p-4 rounded-xl border border-navy-100 bg-white hover:bg-gold-50 hover:border-gold-200 transition-colors h-full group shadow-sm"><div className="flex items-center"><img src={p.img} alt={p.nama} className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-transparent group-hover:border-gold-400 transition-colors shrink-0" /><div><p className="font-bold text-navy-500 text-[10px] uppercase tracking-widest">{p.jabatan}</p><p className="text-sm font-bold text-navy-900 mt-1 leading-tight">{p.nama}</p></div></div><span className="text-gold-500 font-bold ml-2 opacity-50 group-hover:opacity-100 transition-opacity"><Icon name="MessageCircle" className="w-5 h-5" /></span></a>))}
@@ -1926,7 +1945,23 @@ const renderPerjamuanGroup = (title, members) => (
 
             if (step === 'success') {
                 return (
-                    <div className="bg-white p-8 md:p-10 rounded-[1.5rem] shadow-sm border border-navy-100/60 text-center animate-fade-in relative z-10"><div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm"><Icon name="Check" className="w-10 h-10" /></div><h2 className="text-[1.8rem] font-black text-navy-900 mb-3 tracking-tight">Dokumen Berhasil Dibuat!</h2><p className="text-navy-600 mb-8 font-medium">File PDF permohonan Anda telah berhasil <b>diunduh</b> ke perangkat Anda.</p><div className="bg-navy-50/50 p-6 rounded-2xl text-left border border-navy-100 mb-8 shadow-inner"><h3 className="font-bold text-navy-900 mb-2 flex items-center"><Icon name="Info" className="w-5 h-5 mr-2 text-gold-500" /> Langkah Selanjutnya</h3><p className="text-sm text-navy-600 mb-4 leading-relaxed">Aplikasi email standar/bawaan Anda (seperti Gmail atau Mail) akan terbuka secara otomatis.</p><ol className="list-decimal list-outside ml-4 space-y-2 text-sm text-navy-700 font-medium"><li>Temukan file PDF yang baru saja terunduh (biasanya di folder Downloads).</li><li><b>"Attach / Lampirkan"</b> file tersebut ke dalam badan email yang terbuka.</li><li>Klik tombol <b>Kirim</b> untuk mengirimkannya ke Sekretaris Jemaat PISGAH BISDAC.</li></ol></div><button onClick={() => setActiveTab('pindah_masuk')} className="bg-navy-900 hover:bg-navy-800 text-gold-400 px-8 py-3.5 rounded-xl font-bold transition shadow hover:shadow-md">Selesai & Kembali</button></div>
+                    <div className="bg-white p-8 md:p-10 rounded-[1.5rem] shadow-sm border border-navy-100/60 text-center animate-fade-in relative z-10">
+                        <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                            <Icon name="Check" className="w-10 h-10" />
+                        </div>
+                        <h2 className="text-[1.8rem] font-black text-navy-900 mb-3 tracking-tight">Dokumen Berhasil Dibuat!</h2>
+                        <p className="text-navy-600 mb-8 font-medium">File PDF permohonan Anda telah berhasil <b>diunduh</b> ke perangkat Anda.</p>
+                        <div className="bg-navy-50/50 p-6 rounded-2xl text-left border border-navy-100 mb-8 shadow-inner">
+                            <h3 className="font-bold text-navy-900 mb-2 flex items-center"><Icon name="Info" className="w-5 h-5 mr-2 text-gold-500" /> Langkah Selanjutnya</h3>
+                            <p className="text-sm text-navy-600 mb-4 leading-relaxed">Aplikasi email standar/bawaan Anda (seperti Gmail atau Mail) akan terbuka secara otomatis.</p>
+                            <ol className="list-decimal list-outside ml-4 space-y-2 text-sm text-navy-700 font-medium">
+                                <li>Temukan file PDF yang baru saja terunduh (biasanya di folder Downloads).</li>
+                                <li><b>"Attach / Lampirkan"</b> file tersebut ke dalam badan email yang terbuka.</li>
+                                <li>Klik tombol <b>Kirim</b> untuk mengirimkannya ke Sekretaris Jemaat PISGAH BISDAC.</li>
+                            </ol>
+                        </div>
+                        <button onClick={() => setActiveTab('pindah_masuk')} className="bg-navy-900 hover:bg-navy-800 text-gold-400 px-8 py-3.5 rounded-xl font-bold transition shadow hover:shadow-md">Selesai & Kembali</button>
+                    </div>
                 );
             }
 
@@ -1935,7 +1970,7 @@ const renderPerjamuanGroup = (title, members) => (
                     <div className="space-y-6 animate-fade-in relative z-10">
                         {showCaptcha && (
                             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/60 px-4 backdrop-blur-md">
-                                <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-sm w-full animate-fade-in text-center"><div className="w-16 h-16 bg-gold-100 text-gold-600 rounded-full flex items-center justify-center mx-auto mb-4 scale-110"><Icon name="Shield" className="w-8 h-8" /></div><h3 className="text-2xl font-black text-navy-900 mb-2">Verifikasi Keamanan</h3><p className="text-sm font-medium text-navy-600 mb-6 leading-relaxed">Untuk menghindari spam otomatis, silakan selesaikan perhitungan sederhana berikut:</p><div className="flex items-center justify-center space-x-3 mb-6 bg-navy-50 p-5 rounded-2xl border border-navy-100/50 shadow-inner"><span className="text-2xl font-black text-navy-800 tracking-wider"> {captcha.num1} + {captcha.num2} = </span><input type="number" value={captchaInput} onChange={(e) => setCaptchaInput(e.target.value)} className={`w-24 p-3 border-2 ${captchaError ? 'border-red-400 bg-red-50 text-red-700' : 'border-navy-200 bg-white text-navy-900 focus:border-gold-500'} rounded-xl text-3xl font-black text-center outline-none transition-colors drop-shadow-sm`} autoFocus onKeyDown={(e) => { if (e.key === 'Enter') verifyAndKirim(); }} /></div>{captchaError && <p className="text-red-500 text-sm mb-6 font-bold animate-pulse">Jawaban salah, silakan coba lagi.</p>}<div className="flex justify-between space-x-4"><button onClick={() => setShowCaptcha(false)} className="w-1/2 py-3.5 text-navy-600 bg-navy-50 hover:bg-navy-100 rounded-xl transition font-bold">Batal</button><button onClick={verifyAndKirim} className="w-1/2 py-3.5 bg-navy-900 hover:bg-navy-800 text-gold-400 rounded-xl transition font-bold shadow-md">Kirim PDF</button></div></div>
+                                <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-sm w-full animate-fade-in text-center"><div className="w-16 h-16 bg-gold-100 text-gold-600 rounded-full flex items-center justify-center mx-auto mb-4 scale-110"><Icon name="Shield" className="w-8 h-8" /></div><h3 className="text-2xl font-black text-navy-900 mb-2">Verifikasi Keamanan</h3><p className="text-sm font-medium text-navy-600 mb-6 leading-relaxed">Untuk menghindari spam otomatis, silahkan selesaikan perhitungan sederhana berikut:</p><div className="flex items-center justify-center space-x-3 mb-6 bg-navy-50 p-5 rounded-2xl border border-navy-100/50 shadow-inner"><span className="text-2xl font-black text-navy-800 tracking-wider"> {captcha.num1} + {captcha.num2} = </span><input type="number" value={captchaInput} onChange={(e) => setCaptchaInput(e.target.value)} className={`w-24 p-3 border-2 ${captchaError ? 'border-red-400 bg-red-50 text-red-700' : 'border-navy-200 bg-white text-navy-900 focus:border-gold-500'} rounded-xl text-3xl font-black text-center outline-none transition-colors drop-shadow-sm`} autoFocus onKeyDown={(e) => { if (e.key === 'Enter') verifyAndKirim(); }} /></div>{captchaError && <p className="text-red-500 text-sm mb-6 font-bold animate-pulse">Jawaban salah, silahkan coba lagi.</p>}<div className="flex justify-between space-x-4"><button onClick={() => setShowCaptcha(false)} className="w-1/2 py-3.5 text-navy-600 bg-navy-50 hover:bg-navy-100 rounded-xl transition font-bold">Batal</button><button onClick={verifyAndKirim} className="w-1/2 py-3.5 bg-navy-900 hover:bg-navy-800 text-gold-400 rounded-xl transition font-bold shadow-md">Kirim PDF</button></div></div>
                             </div>
                         )}
                         <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-4 md:p-5 rounded-[1.5rem] shadow-sm border border-navy-100/60 gap-4">
@@ -2059,7 +2094,7 @@ const renderPerjamuanGroup = (title, members) => (
                                         <Icon name={showPassword ? "EyeOff" : "Eye"} className="w-5 h-5" />
                                     </button>
                                 </div>
-                                {error && <p className="text-red-500 text-xs mt-2 font-bold flex items-center"><Icon name="Info" className="w-3.5 h-3.5 mr-1" /> Password salah, silakan coba lagi.</p>}
+                                {error && <p className="text-red-500 text-xs mt-2 font-bold flex items-center"><Icon name="Info" className="w-3.5 h-3.5 mr-1" /> Password salah, silahkan coba lagi.</p>}
                             </div>
                             <button type="submit" disabled={isLoading} className={`w-full ${isLoading ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex items-center justify-center`}>
                                 {isLoading ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Memverifikasi...</> : 'Masuk ke Dashboard'}
@@ -4257,7 +4292,7 @@ const handleSavePerjamuanDate = async (e) => {
         {wartaSubTab === 'input' && (
             <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
                 <h1 className="text-xl font-bold text-navy-800 mb-4 border-b pb-2">Input Warta Baru</h1>
-                <p className="text-navy-500 mb-4">Silakan isi konten warta di bawah ini.</p>
+                <p className="text-navy-500 mb-4">Silahkan isi konten warta di bawah ini.</p>
                 <form onSubmit={handleWartaFormSubmit}>
                     <div className="mb-5">
                         <label className="block text-sm font-medium text-navy-700 mb-1">Judul Warta</label>
@@ -5637,7 +5672,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
 
             // Default State Kontak Gereja & Peta
             const defaultKontak = {
-                alamat: "GMAHK PISGAH BISDAC\nAlamat gereja Anda belum diatur. Silakan atur melalui Admin Dashboard.",
+                alamat: "GMAHK PISGAH BISDAC\nAlamat gereja Anda belum diatur. Silahkan atur melalui Admin Dashboard.",
                 mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15956.123281231682!2d104.032646!3d1.127814!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31d98921bf232f1f%3A0xc3b832b8429b9f9!2sGMAHK%20Pisgah%20Bisdac!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"
             };
             const [kontakGereja, setKontakGereja] = React.useState(defaultKontak);
