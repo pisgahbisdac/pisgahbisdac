@@ -603,27 +603,28 @@
             <div className="glass-card p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 {/* Artikel Visi Gereja */}
-                <div className="mt-4 glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
-                    <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-navy-400 text-[9px] md:text-[9px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center z-10" style={{ color: '#0b1a30' }}>
-                    <Icon name="" className="w-3 h-3 mr-1"/> VISI gereja advent
-                    </div>
-                    <div className="p-5 md:p-6"><br/>
-                        <h3 className="text-[1.1rem] md:text-l font-black text-gold-500 leading-tight mb-2 text-center">
-                            Selaras dengan wahyu Alkitab, anggota-anggota Gereja Masehi Advent Hari Ketujuh melihat sebagai klimaks agar selaras sepenuhnya dengan kehendak dan kebenaran-Nya yang sempurna.
-                        </h3>
-                    </div>
-                </div>
-                {/* Artikel Misi Gereja */}
-                <div className="mt-4 glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
-                    <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-navy-400 text-[9px] md:text-[9px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center z-10" style={{ color: '#0b1a30' }}>
-                    <Icon name="" className="w-3 h-3 mr-1"/> MISI gereja advent
-                    </div>
-                    <div className="p-5 md:p-6"><br/>
-                        <h3 className="text-[1.1rem] md:text-l font-black text-gold-500 leading-tight mb-2 text-center">
-                            Untuk memanggil semua orang menjadi murid Yesus Kristus, memberitakan Injil kekal Pekabaran Tiga Malaikat (Wahyu 14:6-12), dan mempersiapkan dunia bagi kedatangan Kristus kembali yang tidak lama lagi.
-                        </h3>
-                    </div>
-                </div>
+<div className="mt-4 glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-gold-500 to-navy-400 text-[9px] md:text-[9px] font-black px-4 py-1.5 rounded-b-xl uppercase tracking-widest shadow-sm z-10" style={{ color: '#0b1a30' }}>
+        VISI GEREJA ADVENT
+    </div>
+    <div className="p-5 md:p-6"><br/>
+        <h3 className="text-[1.1rem] md:text-l font-black text-navy-500 leading-tight mb-2 text-center">
+            Selaras dengan <span className="text-gold-500 tracking-tight">wahyu Alkitab,</span> anggota-anggota Gereja Masehi Advent Hari Ketujuh melihat sebagai <span className="text-gold-500 tracking-tight">klimaks</span> agar <span className="text-gold-500 tracking-tight">selaras sepenuhnya</span> dengan <span className="text-gold-500 tracking-tight">kehendak dan kebenaran-Nya yang sempurna.</span>
+        </h3>
+    </div>
+</div>
+
+{/* Artikel Misi Gereja */}
+<div className="mt-4 glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-gold-500 to-navy-400 text-[9px] md:text-[9px] font-black px-4 py-1.5 rounded-b-xl uppercase tracking-widest shadow-sm z-10" style={{ color: '#0b1a30' }}>
+        MISI GEREJA ADVENT
+    </div>
+    <div className="p-5 md:p-6"><br/>
+        <h3 className="text-[1.1rem] md:text-l font-black text-navy-500 leading-tight mb-2 text-center">
+            Untuk memanggil <span className="text-gold-500 tracking-tight">semua orang</span> menjadi <span className="text-gold-500 tracking-tight">murid Yesus Kristus, memberitakan Injil kekal Pekabaran Tiga Malaikat (Wahyu 14:6-12),</span> dan <span className="text-gold-500 tracking-tight">mempersiapkan dunia</span> bagi <span className="text-gold-500 tracking-tight">kedatangan Kristus</span> kembali yang tidak lama lagi.
+        </h3>
+    </div>
+</div>
             </div>
             </div>
 
@@ -981,10 +982,11 @@
     const Belajar = ({ setActiveTab }) => {
     const items = [
         { id: 'sekolah_sabat', title: 'Sekolah Sabat', desc: 'Akses pelajaran harian Sekolah Sabat secara online untuk pedalaman rohani Anda.', img: 'https://images.spr.so/cdn-cgi/imagedelivery/j42No7y-dcokJuNgXeA0ig/ecfa0085-8c09-46ef-97df-6be05cd44019/1000129545/w=800,quality=80,fit=scale-down', color: 'blue', isExternal: true, link: 'https://sabbath-school.adventech.io/in' },
+        { id: 'belajar', title: 'Belajar Online', desc: 'Pembelajaran tanpa batas, lebih banyak kemungkinan untuk mengenal-Nya, Bertemulah dengan-Nya kapan dan dimana saja', img: 'https://suaranubuatan.id/wp-content/uploads/2021/09/book-4126481_1920.jpg', color: 'blue', isExternal: true, link: 'https://suaranubuatan.id/' },
         { id: 'alkitab', title: 'Alkitab', desc: 'Alkitab adalah firman Allah yang diilhamkan, satu-satunya aturan iman dan praktik.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg', color: 'orange' },
         { id: '28dasar', title: '28 Dasar Kepercayaan', desc: 'Gereja Advent memegang keyakinan dasar tertentu sebagai ajaran Kitab Suci.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjc1L2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9mcEUxNzQ5NDcxNDI3NTExLmpwZw/w:1920,q:75/hope-images/67054013a60919c92d92c959/fpE1749471427511.jpg', color: 'green' },
-        { id: 'egw', title: 'Ellen G. White', desc: 'Mengenal tulisan-tulisan yang diilhami untuk menuntun gereja pada akhir zaman.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg', color: 'purple' },
-        { id: 'perpustakaan', title: 'Buku-Buku', desc: 'Baca dan Download Buku', img: 'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg', color: 'purple' }
+        { id: 'perpustakaan', title: 'Buku-Buku', desc: 'Baca dan Download Buku', img: 'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg', color: 'purple' },
+        { id: 'egw', title: 'Ellen G. White', desc: 'Mengenal tulisan-tulisan yang diilhami untuk menuntun gereja pada akhir zaman.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg', color: 'purple' }
     ];
 
     return (
@@ -1295,55 +1297,62 @@
                         ))}
                     </div>
 
-                    {/* Grid 6 Buku atau Loading State */}
-                    {isLoadingBooks ? (
-                        <div className="text-center py-12">
-                            <div className="w-12 h-12 border-4 border-navy-100 border-t-gold-500 rounded-full animate-spin mx-auto mb-4"></div>
-                            <p className="text-navy-400 font-medium">Memuat buku...</p>
-                        </div>
-                    ) : filteredBooks.length > 0 ? (
-                    <div className="max-h-[calc(170vh-280px)] overflow-y-auto pr-2 custom-scrollbar">
-                        {searchQuery.length >= 2 && (
-                            <p className="text-xs text-navy-400 font-semibold mb-3 px-1">{filteredBooks.length} hasil untuk &quot;{searchQuery}&quot;</p>
-                        )}
-                        <div className="flex flex-wrap justify-center gap-4">
-    {filteredBooks.map(book => (
-        <div
-            key={book.id}
-            className="w-[160px] sm:w-44 bg-white rounded-2xl shadow-sm border border-navy-100/60 overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-            onClick={() => setSelectedBook(book)}
-        >
-            <div className="h-[10rem] overflow-hidden relative">
-                <img 
-                    src={book.cover || getDefaultBookCover(book.category)} 
-                    alt={book.title} 
-                    loading="lazy" 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                    onError={(e) => { e.target.src = getDefaultBookCover(book.category); }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
-                <span className="absolute top-2 right-2 bg-gold-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{book.category}</span>
+{/* Grid Buku - 2 kolom di mobile */}
+{isLoadingBooks ? (
+    <div className="text-center py-12">
+        <div className="w-12 h-12 border-1 border-navy-100 border-t-gold-500 rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-navy-400 font-medium">Memuat buku...</p>
+    </div>
+) : filteredBooks.length > 0 ? (
+    <div className="max-h-[calc(170vh-280px)] overflow-y-auto pr-2 custom-scrollbar">
+        {searchQuery.length >= 2 && (
+            <p className="text-xs text-navy-400 font-semibold mb-3 px-1">
+                {filteredBooks.length} hasil untuk &quot;{searchQuery}&quot;
+            </p>
+        )}
+        {/* GRID: 2 kolom di mobile, 3 di sm, 4 di md, 5 di lg */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {filteredBooks.map(book => (
+                <div
+                    key={book.id}
+                    className="w-full bg-white rounded-2xl shadow-sm border border-navy-100/60 overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                    onClick={() => setSelectedBook(book)}
+                >
+                    <div className="h-[10rem] overflow-hidden relative">
+                        <img 
+                            src={book.cover || getDefaultBookCover(book.category)} 
+                            alt={book.title} 
+                            loading="lazy" 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                            onError={(e) => { e.target.src = getDefaultBookCover(book.category); }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
+                        <span className="absolute top-2 right-2 bg-gold-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            {book.category}
+                        </span>
+                    </div>
+                    <div className="p-3 flex-1 flex flex-col">
+                        <p className="font-bold text-navy-900 text-sm leading-tight mb-1 line-clamp-3">{book.title}</p>
+                        <p className="text-xs text-navy-400 font-semibold mb-3">{book.author}</p>
+                        <button className="mt-auto w-full py-2 rounded-xl bg-navy-900 text-gold-400 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-navy-800 transition">
+                            <Icon name="BookOpen" className="w-3.5 h-3.5" /> Baca Buku
+                        </button>
+                    </div>
                 </div>
-            <div className="p-3 flex-1 flex flex-col">
-                <p className="font-bold text-navy-900 text-sm leading-tight mb-1 line-clamp-3">{book.title}</p>
-                <p className="text-xs text-navy-400 font-semibold mb-3">{book.author}</p>
-                <button className="mt-auto w-full py-2 rounded-xl bg-navy-900 text-gold-400 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-navy-800 transition">
-                    <Icon name="BookOpen" className="w-3.5 h-3.5" /> Baca Buku
-                </button>
-            </div>
+            ))}
         </div>
-    ))}
-</div>
-</div>
-                    ) : (
-                        <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-12 text-center">
-                            <Icon name="BookOpen" className="w-16 h-16 text-navy-200 mx-auto mb-4" />
-                            {searchQuery.length >= 2
-                                ? <><p className="text-navy-700 font-bold mb-1">Buku tidak ditemukan</p><p className="text-navy-400 text-sm">Tidak ada buku yang cocok dengan &quot;{searchQuery}&quot;</p><button onClick={() => setSearchQuery('')} className="mt-4 px-5 py-2 bg-navy-900 text-gold-400 rounded-xl text-sm font-bold hover:bg-navy-800 transition">Hapus Pencarian</button></>
-                                : <p className="text-navy-500 font-medium">Belum ada buku di kategori ini.</p>
-                            }
-                        </div>
-                    )}
+    </div>
+) : (
+    <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-12 text-center">
+        <Icon name="BookOpen" className="w-16 h-16 text-navy-200 mx-auto mb-4" />
+        {searchQuery.length >= 2
+            ? <><p className="text-navy-700 font-bold mb-1">Buku tidak ditemukan</p>
+               <p className="text-navy-400 text-sm">Tidak ada buku yang cocok dengan &quot;{searchQuery}&quot;</p>
+               <button onClick={() => setSearchQuery('')} className="mt-4 px-5 py-2 bg-navy-900 text-gold-400 rounded-xl text-sm font-bold hover:bg-navy-800 transition">Hapus Pencarian</button></>
+            : <p className="text-navy-500 font-medium">Belum ada buku di kategori ini.</p>
+        }
+    </div>
+)}
 
                     {/* Tautan Download Eksternal */}
                     <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-6 mx-auto max-w-4xl">
@@ -5632,11 +5641,15 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 shadow-sm">
                         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 gap-3">
                             <div className="flex items-center gap-2 md:gap-3 flex-1 justify-start">
-                                <div className="flex items-center shrink-0 cursor-pointer" onClick={() => setActiveTab('home')}>
-                                    <img src="./icons/PisgahColor.png" className="w-7 h-7 md:w-8 md:h-8 flex items-center object-contain opacity-90 mr-1.5" alt="Logo" />
-                                    <p className="text-l md:text-2xl font-bold text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></p>
-                                </div>
+                            <div className="flex flex-col items-start shrink-0 cursor-pointer" onClick={() => setActiveTab('home')}>
+                                {/* Baris 1: Logo + Nama Gereja */}
+                            <div className="flex items-center">
+                                <img src="./icons/PisgahColor.png" className="w-8 h-8 md:w-8 md:h-8 object-contain opacity-100 mr-1.5" alt="Logo"/>
+                                <p className="text-xl md:text-2xl font-bold text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span><br/>
+                                </p>
                             </div>
+                            </div>
+                        </div>
                             
                             <div className="flex justify-end items-center gap-2 shrink-0">
                                 {/* Navigasi Desktop (Disembunyikan di Mobile) - Kontak & Persembahan dihilangkan */}
