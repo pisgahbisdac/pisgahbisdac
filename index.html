@@ -5396,26 +5396,41 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
             const sabatYMD = toYMD(nextSabat);
 
             const getNextPerjamuan = () => {
-                const year = today.getFullYear();
-                const months = [2, 5, 9, 11];
-                for (let m of months) {
-                    let lastDay = new Date(year, m + 1, 0);
-                    let lastSat = new Date(lastDay);
-                    lastSat.setDate(lastDay.getDate() - ((lastDay.getDay() + 1) % 7));
-                    if (today <= lastSat) return lastSat;
-                }
-                let lastDayNextYear = new Date(year + 1, 3, 0);
-                let lastSatNextYear = new Date(lastDayNextYear);
-                lastSatNextYear.setDate(lastDayNextYear.getDate() - ((lastDayNextYear.getDay() + 1) % 7));
-                return lastSatNextYear;
-            };
+    const year = today.getFullYear();
+ 
+    // Bulan perjamuan (0-index): Maret=2, Juni=5, September=8, Desember=11
+    // Sesuaikan array ini dengan jadwal jemaat Anda
+    const months = [2, 5, 8, 11];
+ 
+    for (let m of months) {
+        // Cari hari Sabtu terakhir di bulan m tahun ini
+        let lastDay = new Date(year, m + 1, 0); // hari terakhir bulan m
+        let lastSat = new Date(lastDay);
+        // Rumus: mundur sejumlah hari agar jatuh di hari Sabtu (day=6)
+        let dayOfWeek = lastSat.getDay(); // 0=Sun..6=Sat
+        let daysBack = (dayOfWeek === 6) ? 0 : (dayOfWeek + 1) % 7;
+        lastSat.setDate(lastSat.getDate() - daysBack);
+ 
+        if (today <= lastSat) return lastSat;
+    }
+ 
+    // Jika semua sudah lewat di tahun ini, ambil Maret tahun depan
+    let lastDayNextYear = new Date(year + 1, 3, 0);
+    let lastSatNextYear = new Date(lastDayNextYear);
+    let dayOfWeek = lastSatNextYear.getDay();
+    let daysBack = (dayOfWeek === 6) ? 0 : (dayOfWeek + 1) % 7;
+    lastSatNextYear.setDate(lastSatNextYear.getDate() - daysBack);
+    return lastSatNextYear;
+};
 
             const nextPerjamuanObj = getNextPerjamuan();
             const perjamuanYMD = toYMD(nextPerjamuanObj);
 
             const diffTime = nextPerjamuanObj - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            const showPerjamuan = diffDays <= 8 && diffDays >= 0;
+const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+// Tampilkan banner perjamuan jika masih dalam bulan yang sama (max 31 hari)
+// sehingga seluruh bulan perjamuan sudah terlihat jadwalnya
+const showPerjamuan = diffDays <= 31 && diffDays >= 0;
 
             const activeRabu = jadwalDB[rabuYMD] || initialJadwalRabu;
             const activeSabat = jadwalDB[sabatYMD] || initialJadwalSabat;
