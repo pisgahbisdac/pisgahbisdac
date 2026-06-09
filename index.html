@@ -3521,28 +3521,28 @@ const compressImage = (file, maxWidth = 1200) => {
 
             // SIMPAN PEJABAT
             const handleSimpanPejabat = async () => {
-                setIsSavingPejabat(true);
-                try {
-                    const res = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: 'savePejabat',
-                            password: adminToken,
-                            dataPejabat: dataPejabat,
-                            kategoriPejabat: kategoriPejabat
-                        })
-                    });
-                    const result = await res.json();
-                    if (result.success) {
-                        alert("Data Pejabat & Kategori berhasil disimpan!");
-                    } else {
-                        alert("Gagal menyimpan: " + (result.message || "Akses ditolak."));
-                    }
-                } catch (err) {
-                    alert("Gagal terhubung ke server.");
-                }
-                setIsSavingPejabat(false);
-            };
+    setIsSavingPejabat(true);
+    try {
+        const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'savePejabat',
+                password: adminToken,
+                dataPejabat: dataPejabat,       // ← WAJIB "dataPejabat", bukan "data"
+                kategoriPejabat: kategoriPejabat
+            })
+        });
+        const result = await res.json();
+        if (result.success) {
+            alert("Data Pejabat & Kategori berhasil disimpan!");
+        } else {
+            alert("Gagal menyimpan: " + (result.message || "Akses ditolak."));
+        }
+    } catch (err) {
+        alert("Gagal terhubung ke server.");
+    }
+    setIsSavingPejabat(false);
+};
 
             // GANTI PASSWORD
             const handleGantiPassword = async (e) => {
@@ -5346,7 +5346,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
 
             const [jadwalDB, setJadwalDB] = React.useState({});
             const [dataPejabat, setDataPejabat] = React.useState(initialDataPejabat);
-            const [kategoriPejabat, setKategoriPejabat] = React.useState(["Kepemimpinan", "Keuangan", "Departemen & Pelayanan", "Lainnya"]);
+            const [kategoriPejabat, setKategoriPejabat] = React.useState(["Gembala", "Officers", "Departemen & Pelayanan", "Lainnya"]);
             const [youtubeUrl, setYoutubeUrl] = React.useState(""); // untuk video terbaru
             const [liveUrl, setLiveUrl] = React.useState("https://www.youtube.com/embed/live_stream?channel=UCaTPS74NOHACRYU0zInVZ4g");
             const [heroImages, setHeroImages] = React.useState(["./carousel/hero-default.png"]);
