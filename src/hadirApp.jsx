@@ -2375,5 +2375,14 @@ import ReactDOM from 'react-dom/client';
         const container = document.getElementById('root');
         const root = ReactDOM.createRoot(container);
         root.render(<App />);
+
+        // Hide preloader
+        setTimeout(() => {
+            const preloader = document.getElementById('app-preloader');
+            if (preloader) {
+                preloader.classList.add('fade-out');
+                setTimeout(() => preloader.remove(), 500);
+            }
+        }, 300);
     
 export default function EmptyApp() { return null; }

@@ -13,7 +13,7 @@
     rel="stylesheet">
 
   <link rel="stylesheet" href="/src/index.css">
-  </head>
+</head>
 
 <body class="page-laporan">
   <script>
@@ -88,6 +88,131 @@
     }
 
     document.addEventListener('DOMContentLoaded', updateThemeIcons);
+
+    function closeDashboardDetail() {
+      document.getElementById('dashboardDetailModal').style.display = 'none';
+    }
+
+    function openDashboardDetail(type) {
+      console.log("openDashboardDetail called with type:", type);
+      console.log("cachedSaldo:", cachedSaldo);
+      if (!cachedSaldo) { console.log("returning early due to no cachedSaldo"); return; }
+      const monthEl = document.getElementById('dashMonth');
+      const yearEl = document.getElementById('dashYear');
+      console.log("monthEl:", monthEl, "yearEl:", yearEl);
+      if (!monthEl || !yearEl) { console.log("returning early due to missing elements"); return; }
+      const month = parseInt(monthEl.value);
+      const year = parseInt(yearEl.value);
+      console.log("parsed month:", month, "year:", year);
+      let targetDateEnd = month === 0 ? new Date(year, 11, 31, 23, 59, 59) : new Date(year, month, 0, 23, 59, 59);
+
+      console.log("filtering inc/exp");
+      const filteredInc = (cachedIncome || []).filter(x => { const d = new Date(x.date); return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month); });
+      const filteredExp = (cachedExpense || []).filter(x => { const d = new Date(x.date); return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month); });
+      const historicalInc = (cachedIncome || []).filter(x => new Date(x.date) <= targetDateEnd);
+      const historicalExp = (cachedExpense || []).filter(x => new Date(x.date) <= targetDateEnd);
+
+      console.log("historicalInc length:", historicalInc.length);
+
+      let title = "";
+      let txList = [];
+      console.log("checking isViewer");
+      const isViewer = currentUser && currentUser.role === 'Viewer';
+      console.log("isViewer:", isViewer);
+
+      if (type === 'total' || type === 'bersih') {
+        title = type === 'total' ? "Semua Transaksi Saldo" : "Semua Transaksi Kas Bersih";
+        historicalInc.forEach(x => { if (type === 'total' || x.alloc_jemaat > 0 || x.alloc_bangun > 0) txList.push({ ...x, isInc: true }); });
+        historicalExp.forEach(x => { if (type === 'total' || x.source_balance === 'Kas Jemaat' || x.source_balance === 'Pembangunan') txList.push({ ...x, isInc: false }); });
+      } else if (type === 'in') {
+        title = "Pemasukan Periode Ini";
+        filteredInc.forEach(x => txList.push({ ...x, isInc: true }));
+      } else if (type === 'out') {
+        title = "Pengeluaran Periode Ini";
+        filteredExp.forEach(x => txList.push({ ...x, isInc: false }));
+      } else if (type === 'jemaat') {
+        title = "Rincian Kas Jemaat";
+        historicalInc.forEach(x => { if (x.alloc_jemaat > 0) txList.push({ ...x, isInc: true, overrideAmt: x.alloc_jemaat }); });
+        historicalExp.forEach(x => { if (x.source_balance === 'Kas Jemaat') txList.push({ ...x, isInc: false }); });
+      } else if (type === 'daerah') {
+        title = "Rincian Kas Daerah";
+        historicalInc.forEach(x => { if (x.alloc_daerah > 0) txList.push({ ...x, isInc: true, overrideAmt: x.alloc_daerah }); });
+        historicalExp.forEach(x => { if (x.source_balance === 'Daerah') txList.push({ ...x, isInc: false }); });
+      } else if (type === 'bangun') {
+        title = "Rincian Dana Pembangunan";
+        historicalInc.forEach(x => { if (x.alloc_bangun > 0) txList.push({ ...x, isInc: true, overrideAmt: x.alloc_bangun }); });
+        historicalExp.forEach(x => { if (x.source_balance === 'Pembangunan') txList.push({ ...x, isInc: false }); });
+      }
+
+      if (type === 'jemaat' && cachedSaldo.initJemaat) {
+        txList.push({ isInc: true, overrideAmt: cachedSaldo.initJemaat, receipt_no: 'SALDO_AWAL', date: '2000-01-01', income_type: 'Saldo Awal Sistem', note: 'Diinput saat setup', nama_pemberi: 'Sistem' });
+      }
+      if (type === 'daerah' && cachedSaldo.initDaerah) {
+        txList.push({ isInc: true, overrideAmt: cachedSaldo.initDaerah, receipt_no: 'SALDO_AWAL', date: '2000-01-01', income_type: 'Saldo Awal Sistem', note: 'Diinput saat setup', nama_pemberi: 'Sistem' });
+      }
+      if (type === 'bangun' && cachedSaldo.initBangun) {
+        txList.push({ isInc: true, overrideAmt: cachedSaldo.initBangun, receipt_no: 'SALDO_AWAL', date: '2000-01-01', income_type: 'Saldo Awal Sistem', note: 'Diinput saat setup', nama_pemberi: 'Sistem' });
+      }
+      if (type === 'total') {
+        const initT = (cachedSaldo.initJemaat || 0) + (cachedSaldo.initDaerah || 0) + (cachedSaldo.initBangun || 0);
+        if (initT) txList.push({ isInc: true, overrideAmt: initT, receipt_no: 'SALDO_AWAL', date: '2000-01-01', income_type: 'Saldo Awal Sistem', note: 'Diinput saat setup', nama_pemberi: 'Sistem' });
+      }
+      if (type === 'bersih') {
+        const initB = (cachedSaldo.initJemaat || 0) + (cachedSaldo.initBangun || 0);
+        if (initB) txList.push({ isInc: true, overrideAmt: initB, receipt_no: 'SALDO_AWAL', date: '2000-01-01', income_type: 'Saldo Awal Sistem', note: 'Diinput saat setup', nama_pemberi: 'Sistem' });
+      }
+
+      console.log("txList length:", txList.length);
+      txList.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      document.getElementById('dashDetailTitle').textContent = title;
+
+      let html = "";
+      if (txList.length === 0) {
+        html = `<div class="empty-state">Tidak ada transaksi.</div>`;
+      } else {
+        html = '<div style="display:flex; flex-direction:column; gap:8px;">';
+        let totalVal = 0;
+        txList.forEach(x => {
+          const amt = x.overrideAmt || x.amount;
+          if (x.isInc) totalVal += amt; else totalVal -= amt;
+          const isPrivCategory = isViewer && x.isInc && isPrivateCategory(x.income_type);
+          const displayPihak = x.isInc ? (isPrivCategory ? '*** (Privasi)' : (x.unit_name && x.unit_name !== '-' ? x.unit_name : (x.nama_pemberi || '-'))) : (x.nama_penerima || '-');
+          const displayNote = isPrivCategory ? '*** (Privasi)' : (x.note || '-');
+
+          let photoBtn = '';
+          if (x.receipt_photo) { photoBtn = `<button class="btn btn-ghost" style="padding:4px 8px; font-size:12px; margin-top:8px;" onclick="openPhotoModal('${x.receipt_photo}')">Lihat Foto</button>`; }
+
+          html += `
+          <div style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--empty-bg);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+              <div>
+                <span class="badge ${x.isInc ? 'badge-green' : 'badge-red'}">${x.isInc ? 'Pemasukan' : 'Pengeluaran'}</span>
+                <span class="badge badge-gray" style="margin-left:4px;">${x.receipt_no}</span>
+              </div>
+              <div class="${x.isInc ? 'amount-pos' : 'amount-neg'}" style="font-weight: 700; font-size: 16px;">${x.isInc ? '+' : '-'}${fmt(amt)}</div>
+            </div>
+            <div style="font-size: 12px; color: var(--text2);">
+              <div style="margin-bottom:2px;">Tgl: <strong style="color:var(--text)">${fmtDate(x.date)}</strong></div>
+              <div style="margin-bottom:2px;">Pihak: <strong style="color:var(--text)">${displayPihak}</strong></div>
+              <div style="margin-bottom:2px;">Ket: <strong style="color:var(--text)">${x.isInc ? x.income_type : x.department}</strong></div>
+              <div style="color:var(--text4);">${displayNote}</div>
+            </div>
+            ${photoBtn}
+          </div>`;
+        });
+        html += `<div style="padding: 12px; border: 1px dashed var(--glass-border); border-radius: var(--radius); background: var(--empty-bg); display: flex; justify-content: space-between; margin-top: 8px;">
+          <strong style="color:var(--text);">TOTAL AKUMULASI</strong>
+          <strong class="${totalVal >= 0 ? 'amount-pos' : 'amount-neg'}" style="font-size: 16px;">${totalVal >= 0 ? '+' : ''}${fmt(totalVal)}</strong>
+        </div>`;
+        html += '</div>';
+      }
+
+      console.log("setting innerHTML, html length:", html.length);
+      document.getElementById('dashDetailContent').innerHTML = html;
+      document.getElementById('dashboardDetailModal').style.display = 'flex';
+      console.log("modal displayed");
+    }
   </script>
 
   <div id="loginPage" class="login-page">
@@ -1013,6 +1138,24 @@
     </div>
   </div>
 
+  <div id="dashboardDetailModal" class="modal-overlay" style="display:none; align-items:flex-end; z-index:1100;">
+    <div class="modal-content slide-up"
+      style="max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column;">
+      <div class="modal-header">
+        <div class="modal-title" id="dashDetailTitle">Rincian Transaksi</div>
+        <button class="btn-icon-only" onclick="closeDashboardDetail()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" style="overflow-y: auto; flex: 1; padding: 12px;" id="dashDetailContent">
+      </div>
+    </div>
+  </div>
+
   <div class="notification" id="notification"><span id="notifIcon"
       style="display:flex; align-items:center;"></span><span id="notifMsg"></span></div>
 
@@ -1165,6 +1308,15 @@
     async function resetLogo(keyType) { systemConfig[keyType] = ''; localStorage.setItem('PiKaChu_config', JSON.stringify(systemConfig)); applyConfig(); try { await apiPostWithFallback('saveConfig', { key: keyType, value: '' }); notify(`Logo direset.`, 'success'); } catch (err) { } }
 
     let currentUser = null; let masterData = null; let cachedIncome = []; let cachedExpense = []; let cachedSaldo = { daerah: 0, jemaat: 0, bangun: 0, total: 0 }; let isServerOnline = false;
+    let pembangunanDataCache = null;
+    const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbxvNICOilB-oQG3WfI6nrj_kYjG3tGMBZYndE4K3jw_TuvjR7lOMsyyyCyNHTNCKUOOMg/exec';
+
+    async function loadPembangunanData() {
+        try {
+            const res = await fetch(PEMBANGUNAN_URL + "?t=" + Date.now());
+            pembangunanDataCache = await res.json();
+        } catch (e) { console.error('Failed to load Pembangunan Data', e); }
+    }
     let editingUser = null; let editingUnit = null; let editingIncType = null;
 
     function isPrivateCategory(category) { if (!category) return false; const cat = category.toLowerCase(); return ['perpuluhan', 'persepuluhan', 'khusus jemaat', 'khusus daerah', 'terpadu', 'pembangunan'].some(c => cat.includes(c)); }
@@ -1218,7 +1370,7 @@
     async function launchApp() {
       document.getElementById('loginPage').style.display = 'none'; document.getElementById('app').style.display = 'flex';
       document.getElementById('userNameDisplay').textContent = currentUser.nama; document.getElementById('userRoleDisplay').textContent = currentUser.role; document.getElementById('userAvatar').textContent = currentUser.nama.split(' ').map(x => x[0]).join('').substring(0, 2).toUpperCase();
-      applyRoleAccess(); await loadSystemConfig(); await syncAllData(); initForms(); showPage('dashboard');
+      applyRoleAccess(); await Promise.all([loadSystemConfig(), syncAllData()]); initForms(); showPage('dashboard');
     }
 
     function applyRoleAccess() {
@@ -1257,8 +1409,7 @@
 
     async function syncAllData() {
       try {
-        await loadMasterData();
-        await loadAllTransactions();
+        await Promise.all([loadMasterData(), loadAllTransactions(), loadPembangunanData()]);
         updateAppStatus();
         if (masterData) renderDashboard();
         updateLastReceipts();
@@ -1301,8 +1452,12 @@
     }
 
     async function loadAllTransactions() {
-      try { const [inc, exp] = await Promise.all([apiGet('getIncomeList'), apiGet('getExpenseList')]); cachedIncome = Array.isArray(inc.data) ? inc.data : []; cachedExpense = Array.isArray(exp.data) ? exp.data : []; } catch (e) { }
-      try { const bal = await apiGet('getBalances'); if (bal.data) cachedSaldo = bal.data; } catch (e) { }
+      try {
+        const [inc, exp, bal] = await Promise.all([apiGet('getIncomeList'), apiGet('getExpenseList'), apiGet('getBalances')]);
+        cachedIncome = Array.isArray(inc.data) ? inc.data : [];
+        cachedExpense = Array.isArray(exp.data) ? exp.data : [];
+        if (bal && bal.data) cachedSaldo = bal.data;
+      } catch (e) { }
     }
 
     function searchByReceipt() {
@@ -1408,44 +1563,45 @@
       const unitsGavePersepuluhan = new Set(); filteredInc.forEach(x => { if ((x.income_type || '').toLowerCase().includes('persepuluhan') || (x.income_type || '').toLowerCase().includes('perpuluhan')) unitsGavePersepuluhan.add(x.unit_name); });
       if (masterData && masterData.units) masterData.units.forEach(u => { if (unitsGavePersepuluhan.has(u.name)) totalPemberiPersepuluhan += (parseInt(u.jumlah_anggota) || 0); });
 
-      const targetPembangunan = 2500000000; const persentaseBangun = (calcBangun / targetPembangunan) * 100; const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
+      const targetPembangunan = pembangunanDataCache?.target ? parseInt(pembangunanDataCache.target) : 2500000000; 
+      const persentaseBangun = (calcBangun / targetPembangunan) * 100; const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
 
-      const komitmenSaatIni = 53376900;
-      const targetKomitmen = 77300000;
+      const komitmenSaatIni = pembangunanDataCache?.komitmen_realisasi ? parseInt(pembangunanDataCache.komitmen_realisasi) : 53376900;
+      const targetKomitmen = pembangunanDataCache?.komitmen_target ? parseInt(pembangunanDataCache.komitmen_target) : 77300000;
       const persentaseKomitmen = (komitmenSaatIni / targetKomitmen) * 100;
       const visualPercentKomitmen = persentaseKomitmen > 100 ? 100 : persentaseKomitmen;
 
       document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card">
+    <div class="stat-card clickable" onclick="openDashboardDetail('total')">
       <div class="stat-header"><div class="stat-label">Total Saldo</div><div class="stat-icon c-teal">${safeIcon('shield', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-blue, #3a86ff)">${fmt(calcTotal)}</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card clickable" onclick="openDashboardDetail('bersih')">
       <div class="stat-header"><div class="stat-label">Kas Bersih (Non-Daerah)</div><div class="stat-icon c-moss">${safeIcon('log', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-cyan, #00d2ff)">${fmt(saldoAccrued)}</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card clickable" onclick="openDashboardDetail('in')">
       <div class="stat-header"><div class="stat-label">Pemasukan Periode</div><div class="stat-icon c-green">${safeIcon('trendUp', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-green, #00e676)">+${fmt(totalIn)}</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card clickable" onclick="openDashboardDetail('out')">
       <div class="stat-header"><div class="stat-label">Pengeluaran Periode</div><div class="stat-icon c-red">${safeIcon('trendDown', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-orange, #ff6b6b)">-${fmt(totalOut)}</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card clickable" onclick="openDashboardDetail('jemaat')">
       <div class="stat-header"><div class="stat-label">Kas Jemaat</div><div class="stat-icon c-gold">${safeIcon('church', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-gold, #ffd166)">${fmt(calcJemaat)}</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card clickable" onclick="openDashboardDetail('daerah')">
       <div class="stat-header"><div class="stat-label">Kas Daerah</div><div class="stat-icon c-teal">${safeIcon('mappin', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-purple, #9d4edd)">${fmt(calcDaerah)}</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Dana Pembangunan</div><div class="stat-icon c-teal">${safeIcon('hammer', 'lucide-lg')}</div></div>
+    <div class="stat-card clickable" onclick="openDashboardDetail('bangun')">
+      <div class="stat-header"><div class="stat-label">Total Dana Pembangunan</div><div class="stat-icon c-teal">${safeIcon('hammer', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-blue, #3a86ff)">${fmt(calcBangun)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
-        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text-muted, var(--text3));"><span>TARGET: ${fmt(targetPembangunan).toUpperCase()}</span><span style="color: var(--accent-blue, var(--teal-pop));">${persentaseBangun.toFixed(2)}%</span></div>
-        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: var(--accent-blue, var(--teal-pop));"></div></div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text-muted, var(--accent-gold, #ffd166));"><span>TARGET: ${fmt(targetPembangunan).toUpperCase()}</span><span style="color: var(--accent-gold, #ffd166, var(--teal-pop));">${persentaseBangun.toFixed(2)}%</span></div>
+        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: var(--accent-gold, #ffd166, var(--teal-pop));"></div></div>
       </div>
     </div>
     <div class="stat-card">
@@ -1508,6 +1664,25 @@
         let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
         return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td><td><strong>${x.income_type || x.department}</strong><br><span style="font-size:12px; color:var(--text-muted, var(--text4))">${isPrivCategory ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td><td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td></tr>`;
       }).join('') || '<tr class="empty-row"><td colspan="5" style="text-align:center"><div class="empty-state" style="border:none; padding:20px;">Belum ada aktivitas.</div></td></tr>';
+
+      // Auto-Sync to Pembangunan Server
+      if (pembangunanDataCache && parseInt(pembangunanDataCache.terkumpul) !== calcBangun) {
+        const payload = {
+            action: 'updateInfoWebsite',
+            target: pembangunanDataCache.target,
+            terkumpul: calcBangun, 
+            komitmen: pembangunanDataCache.komitmen,
+            komitmen_target: pembangunanDataCache.komitmen_target,
+            komitmen_realisasi: pembangunanDataCache.komitmen_realisasi,
+            bank: pembangunanDataCache.bank,
+            norek: pembangunanDataCache.norek,
+            atasnama: pembangunanDataCache.atasnama,
+            judul: pembangunanDataCache.judul
+        };
+        fetch(PEMBANGUNAN_URL, { method: 'POST', body: JSON.stringify(payload) })
+          .then(() => { pembangunanDataCache.terkumpul = calcBangun; console.log("Synced calcBangun to Pembangunan."); })
+          .catch(e => console.error("Failed to sync to Pembangunan", e));
+      }
     }
 
     function getIncomeTypeConfig(name) { return masterData.incomeTypes.find(x => x.name === name) || null; }
@@ -2078,8 +2253,10 @@
         } else { clearToken(); }
       }
     };
+
+
   </script>
-  
+
 </body>
 
 </html>
