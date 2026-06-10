@@ -22,8 +22,20 @@ export default {
             700: '#384d69',
             800: '#314157',
             900: '#0b1a30',
+            950: '#060d18',
+        },
+        obsidian: {
+            DEFAULT: '#12110f',
+            light: '#1c1a17',
+            dark: '#0a0908',
+            muted: '#262420'
         },
         gold: {
+            DEFAULT: '#C5A880',
+            light: '#e5c199',
+            dark: '#9a7e58',
+            pale: '#f5ebdf',
+            glow: 'rgba(197, 168, 128, 0.15)',
             50: '#fdf9ed',
             100: '#faefcf',
             200: '#f4dc96',
@@ -38,6 +50,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+        serif: ['Cormorant Garamond', 'serif'],
       }
     },
   },
