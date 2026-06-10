@@ -755,7 +755,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   .topbar { padding: 12px 8px; width: 100%; box-sizing: border-box; }
   .topbar-title { font-size: 18px; }
   
-  .grid-2 { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 100%; box-sizing: border-box; }
+  .grid-2 { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 100%; box-sizing: border-box; align-items: stretch; }
   .grid-2 > * { min-width: 0; max-width: 100%; box-sizing: border-box; }
   .form-row { flex-direction: column; gap: 0; width: 100%; box-sizing: border-box; }
   
@@ -985,6 +985,8 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
     --bg-dark: #ffffff !important;
     --bg-sidebar: #ffffff !important;
     --input-bg: #ffffff !important;
+    --empty-bg: #ffffff !important;
+    --report-card-bg: #ffffff !important;
     --glass-border: #e2e8f0 !important;
     --glass-border2: #cbd5e1 !important;
     --text: #000000 !important;
@@ -994,7 +996,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   }
   
   @page { size: auto; margin: 1.2cm; }
-  .sidebar, .topbar, .filter-bar, .btn, .btn-icon-only, .hamburger, .bottom-bar, #reportSensorContainer { display: none !important; }
+  .sidebar, .topbar, .filter-bar, .btn, .btn-icon-only, .hamburger, .bottom-bar, #reportSensorContainer, .no-print { display: none !important; }
   .main { margin-left: 0; padding: 0; width: 100%; background: white !important;}
   .page { display: none !important; }
   #page-laporan { display: block !important; padding: 0; margin: 0; width: 100%; max-width: 100%; }
@@ -1021,9 +1023,9 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   .table-report td:last-child, .table-log td:last-child, .table-history td:last-child { text-align: right !important; }
   
   /* Make PDF neater */
-  tr, .card, .report-section { page-break-inside: avoid; }
+  tr, .card, .report-section, .dash-tx-card { page-break-inside: avoid; break-inside: avoid; }
   table { page-break-inside: auto; }
-  h2, h3, .section-title { page-break-after: avoid; }
+  h2, h3, .section-title, .form-section-title { page-break-after: avoid; break-after: avoid; }
 }
 
 .page { display: none; padding: 32px; width: 100%; box-sizing: border-box; overflow-x: hidden; }

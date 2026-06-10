@@ -583,11 +583,11 @@
 
               <div class="alloc-display scrollable-x" id="incAllocDisplay">
                 <div class="alloc-row"><span class="alloc-label">Daerah</span><span class="alloc-value"
-                    id="allocDaerahVal" style="color:var(--accent-purple, var(--text))">Rp 0</span></div>
+                    id="allocDaerahVal" style="color:var(--accent-purple, var(--text))">Rp&nbsp;0</span></div>
                 <div class="alloc-row"><span class="alloc-label">Kas Jemaat</span><span class="alloc-value"
-                    id="allocJemaatVal" style="color:var(--accent-gold, var(--text))">Rp 0</span></div>
+                    id="allocJemaatVal" style="color:var(--accent-gold, var(--text))">Rp&nbsp;0</span></div>
                 <div class="alloc-row"><span class="alloc-label">Pembangunan</span><span class="alloc-value"
-                    id="allocBangunVal" style="color:var(--accent-blue, var(--text))">Rp 0</span></div>
+                    id="allocBangunVal" style="color:var(--accent-blue, var(--text))">Rp&nbsp;0</span></div>
               </div>
 
               <div class="form-group" style="margin-top:20px">
@@ -637,7 +637,7 @@
               </select>
             </div>
             <div class="form-group"><label class="form-label">Sisa Kas Terpilih</label>
-              <div class="saldo-display" id="saldoTersedia" style="color:var(--accent-cyan, var(--teal-pop))">Rp 0</div>
+              <div class="saldo-display" id="saldoTersedia" style="color:var(--accent-cyan, var(--teal-pop))">Rp&nbsp;0</div>
             </div>
             <div class="saldo-warning" id="saldoWarning">
               <script>document.write(getIcon('alert', 'lucide-md'))</script> Pengeluaran Melebihi Saldo!
@@ -761,6 +761,7 @@
             <option value="income">Pemasukan Saja</option>
             <option value="expense">Pengeluaran Saja</option>
           </select>
+          <button class="btn btn-primary" id="btnPrintUnit" onclick="printUnitReport()" style="display:none; white-space:nowrap; margin-left:auto;">${safeIcon('printer', 'lucide-sm')} Cetak PDF</button>
         </div>
         <div class="card" style="padding:0;">
           <div id="historyListContainer"></div>
@@ -876,19 +877,7 @@
           </div>
           <div class="card" style="padding:0;">
             <div class="form-section-title" style="margin: 24px 24px 16px;">Pengguna Sistem</div>
-            <div class="table-wrap" style="border:none;">
-              <table>
-                <thead>
-                  <tr>
-                    <th>User</th>
-                    <th>Nama</th>
-                    <th class="fit-col">Akses</th>
-                    <th class="fit-col" style="text-align:right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody id="userList"></tbody>
-              </table>
-            </div>
+            <div id="userList" style="display:flex; flex-direction:column;"></div>
           </div>
         </div>
       </div>
@@ -911,13 +900,13 @@
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                   </svg>
                 </div>
-                <label for="logoLoginUpload" class="settings-upload-box" style="width:100%; padding: 20px;">
-                  <script>document.write(getIcon('edit', 'lucide-md'))</script> Pilih Gambar
+                <label for="logoLoginUpload" class="btn btn-primary" style="width:100%; justify-content:center;">
+                  <script>document.write(getIcon('image', 'lucide-sm'))</script> Pilih Gambar
                 </label>
                 <input type="file" id="logoLoginUpload" accept="image/*" style="display:none;"
                   onchange="handleLogoUpload(event, 'logo_login')">
-                <button class="btn btn-ghost" style="width:100%; color:var(--red-pop);"
-                  onclick="resetLogo('logo_login')">Reset Logo</button>
+                <button class="btn btn-ghost" style="width:100%; justify-content:center; color:var(--red-pop);"
+                  onclick="resetLogo('logo_login')">Hapus Logo</button>
               </div>
             </div>
             <div
@@ -934,13 +923,13 @@
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                   </svg>
                 </div>
-                <label for="logoSidebarUpload" class="settings-upload-box" style="width:100%; padding: 20px;">
-                  <script>document.write(getIcon('edit', 'lucide-md'))</script> Pilih Gambar
+                <label for="logoSidebarUpload" class="btn btn-primary" style="width:100%; justify-content:center;">
+                  <script>document.write(getIcon('image', 'lucide-sm'))</script> Pilih Gambar
                 </label>
                 <input type="file" id="logoSidebarUpload" accept="image/*" style="display:none;"
                   onchange="handleLogoUpload(event, 'logo_sidebar')">
-                <button class="btn btn-ghost" style="width:100%; color:var(--red-pop);"
-                  onclick="resetLogo('logo_sidebar')">Reset Logo</button>
+                <button class="btn btn-ghost" style="width:100%; justify-content:center; color:var(--red-pop);"
+                  onclick="resetLogo('logo_sidebar')">Hapus Logo</button>
               </div>
             </div>
           </div>
@@ -954,7 +943,7 @@
               onclick="renderLogs()">Segarkan</button>
           </div>
           <div class="table-wrap scrollable" style="border:none;">
-            <table>
+            <table class="table-log">
               <thead>
                 <tr>
                   <th class="fit-col">Waktu</th>
@@ -1135,6 +1124,53 @@
     let currentReportData = null;
 
     function getActiveApiUrl() { const savedUrl = localStorage.getItem('PiKaChu_api_url'); return (savedUrl && savedUrl.trim() !== '') ? savedUrl.trim() : DEFAULT_API_URL; }
+    function printUnitReport(searchTermOverride = null) {
+       if (!window.currentHistoryData || window.currentHistoryData.length === 0) return notify('Tidak ada data untuk dicetak.', 'error');
+       
+       const unitSearchTerm = (typeof searchTermOverride === 'string' ? searchTermOverride : '') || (document.getElementById('filterGiver')?.value.trim() || document.getElementById('searchTrans')?.value.trim()) || '';
+       
+       const incByCat = {};
+       const expByDept = {};
+       let totalInc = 0;
+       let totalExp = 0;
+
+       window.currentHistoryData.forEach(x => {
+          if (x.type === 'income') {
+             const cat = x.income_type || 'Lainnya';
+             if (!incByCat[cat]) incByCat[cat] = [];
+             incByCat[cat].push(x);
+             totalInc += x.amount;
+          } else {
+             const dept = x.department || 'Lainnya';
+             if (!expByDept[dept]) expByDept[dept] = [];
+             expByDept[dept].push(x);
+             totalExp += x.amount;
+          }
+       });
+
+       const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+       let periodStr = "Semua Waktu";
+       const fM = parseInt(document.getElementById('filterMonth')?.value || 0);
+       const fY = parseInt(document.getElementById('filterYear')?.value || 0);
+       if (fM > 0 && fY > 0) periodStr = `${mNames[fM]} ${fY}`;
+       else if (fM > 0) periodStr = `${mNames[fM]}`;
+       else if (fY > 0) periodStr = `Tahun ${fY}`;
+
+       currentReportData = {
+          summary: { totalIncome: totalInc, totalExpense: totalExp, netBalance: totalInc - totalExp, balances: cachedSaldo || { total: 0 } },
+          incByCategory: incByCat,
+          expByDept: expByDept,
+          month: fM || 0,
+          year: fY || 0,
+          customTitle: unitSearchTerm ? `LAPORAN PENCARIAN: ${unitSearchTerm.toUpperCase()}` : `LAPORAN PENCARIAN TRANSAKSI`,
+          customPeriod: `Period: ${periodStr}`
+       };
+       
+       showPage('laporan');
+       renderReportView();
+       setTimeout(() => { window.print(); }, 500);
+    }
+
     function getToken() { return sessionStorage.getItem('PiKaChu_token'); }
     function setToken(t) { sessionStorage.setItem('PiKaChu_token', t); }
     function clearToken() { sessionStorage.removeItem('PiKaChu_token'); }
@@ -1290,7 +1326,7 @@
     function isPrivateCategory(category) { if (!category) return false; const cat = category.toLowerCase(); return ['perpuluhan', 'persepuluhan', 'khusus jemaat', 'khusus daerah', 'terpadu', 'pembangunan'].some(c => cat.includes(c)); }
     function safeIcon(name, size) { return typeof getIcon === 'function' ? getIcon(name, size) : ''; }
     function togglePassword(inputId, eyeId) { const input = document.getElementById(inputId); const eyeBtn = document.getElementById(eyeId); if (input.type === "password") { input.type = "text"; eyeBtn.innerHTML = safeIcon('eye', 'lucide-md'); } else { input.type = "password"; eyeBtn.innerHTML = safeIcon('eyeOff', 'lucide-md'); } }
-    function fmt(n) { return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID'); }
+    function fmt(n) { return 'Rp&nbsp;' + Math.round(n || 0).toLocaleString('id-ID'); }
     function fmtInputDate(iso) { if (!iso) return ''; const d = new Date(iso); if (isNaN(d.getTime())) return String(iso).split('T')[0]; return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
     function fmtDate(iso) { if (!iso) return '-'; const d = new Date(iso); if (isNaN(d.getTime())) { const p = String(iso).split('T')[0].split('-'); if(p.length===3) return `${p[2]}/${p[1]}/${p[0]}`; return String(iso).split('T')[0]; } return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`; }
     function todayStr() { return fmtInputDate(new Date()); }
@@ -1350,7 +1386,7 @@
       if (document.getElementById('botPengeluaran')) document.getElementById('botPengeluaran').style.display = isBen ? 'flex' : 'none';
       const btnJurnal = document.getElementById('btnJurnalDashboard'); if (btnJurnal) btnJurnal.style.display = isBen ? '' : 'none';
       const recentTransCard = document.getElementById('recentTransCard'); if (recentTransCard) recentTransCard.style.display = isBen ? '' : 'none';
-      const btnPrint = document.getElementById('btnPrintReport'); if (btnPrint) btnPrint.style.display = isBen ? '' : 'none';
+      const btnPrint = document.getElementById('btnPrintReport'); if (btnPrint) btnPrint.style.display = '';
       document.getElementById('adminNavLabel').style.display = isAdm ? '' : 'none'; document.getElementById('navMasterIncType').style.display = isAdm ? '' : 'none'; document.getElementById('navMasterDept').style.display = isAdm ? '' : 'none'; document.getElementById('navMasterUnit').style.display = isAdm ? '' : 'none'; document.getElementById('navUsers').style.display = isAdm ? '' : 'none'; document.getElementById('navSettings').style.display = isAdm ? '' : 'none'; document.getElementById('navLogs').style.display = isAdm ? '' : 'none';
       const sensorContainer = document.getElementById('reportSensorContainer'); if (sensorContainer) sensorContainer.style.display = isViewer ? 'none' : 'flex';
     }
@@ -1451,6 +1487,7 @@
       ).map(x => ({ ...x, isInc: false }));
 
       const allFound = [...foundIncomes, ...foundExpenses]; allFound.sort((a, b) => new Date(b.date) - new Date(a.date));
+      window.currentHistoryData = allFound.map(x => ({ ...x, type: x.isInc ? 'income' : 'expense' }));
       resultDiv.style.display = 'block';
 
       if (allFound.length > 0) {
@@ -1473,7 +1510,8 @@
           });
 
           html += `<div style="background:var(--badge-gray-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius); margin-bottom:16px;">
-        <div style="font-size:12px; color:var(--text3); margin-bottom:12px; font-weight:700; text-transform:uppercase;">Akumulasi Pemasukan Unit</div>`;
+        <div style="font-size:12px; color:var(--text3); margin-bottom:12px; font-weight:700; text-transform:uppercase;">Akumulasi Pemasukan Unit</div>
+        <button class="btn btn-primary" style="width:100%; justify-content:center; padding:10px; margin-bottom:16px; font-size:13px;" onclick="printUnitReport('${q}')">${safeIcon('printer', 'lucide-sm')} Cetak PDF Laporan Unit Ini</button>`;
           
           html += `<div style="margin-bottom:8px;"><strong style="font-size:11px; color:var(--text3);">Berdasarkan Bulan</strong></div>`;
           Object.keys(monthlySum).sort((a, b) => b.localeCompare(a)).forEach(k => {
@@ -1972,72 +2010,121 @@
       if (!currentReportData) return;
       const data = currentReportData;
       const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-      const s = data.summary; const bal = s.balances || cachedSaldo; const isViewer = currentUser && currentUser.role === 'Viewer';
+      const s = data.summary; const bal = s.balances || cachedSaldo || {total:0}; const isViewer = currentUser && currentUser.role === 'Viewer';
 
       const isSensor = document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false;
+
+      const title = data.customTitle || "FINANCIAL REPORT";
+      const periodStr = data.customPeriod || `Period: ${mNames[data.month] || ''} ${data.year || ''}`.trim();
 
       let html = `
     <div class="card" style="margin-top:20px">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
         <div>
-          <h2 style="font-size:24px; color:var(--text); font-weight:800; letter-spacing:-0.5px;">FINANCIAL REPORT</h2>
-          <p style="color:var(--text3); font-size:14px; font-weight:500;">Period: ${mNames[data.month]} ${data.year}</p>
+          <h2 style="font-size:24px; color:var(--text); font-weight:800; letter-spacing:-0.5px;">${title}</h2>
+          <p style="color:var(--text3); font-size:14px; font-weight:500;">${periodStr}</p>
         </div>
       </div>
       <div class="report-summary">
         <div class="report-card"><div class="report-card-label">Income</div><div class="report-card-val amount-pos">+${fmt(s.totalIncome)}</div></div>
         <div class="report-card"><div class="report-card-label">Expense</div><div class="report-card-val amount-neg">-${fmt(s.totalExpense)}</div></div>
         <div class="report-card"><div class="report-card-label">Net</div><div class="report-card-val ${s.netBalance >= 0 ? 'amount-pos' : 'amount-neg'}">${fmt(s.netBalance)}</div></div>
-        <div class="report-card"><div class="report-card-label">Total Assets</div><div class="report-card-val" style="color:var(--teal-pop)">${fmt(bal.total)}</div></div>
+        <div class="report-card no-print"><div class="report-card-label">Total Assets</div><div class="report-card-val" style="color:var(--teal-pop)">${fmt(bal.total)}</div></div>
       </div>
     </div>
   `;
 
       html += `<div class="card"><div class="form-section-title">A. Detail Pemasukan</div>`;
-      if (Object.keys(data.incByCategory).length === 0) html += '<div class="empty-state">Kosong</div>';
+      if (Object.keys(data.incByCategory || {}).length === 0) html += '<div class="empty-state">Kosong</div>';
       else {
         Object.entries(data.incByCategory).forEach(([category, items]) => {
           const isPrivCategory = isViewer && isPrivateCategory(category);
           const tot = items.reduce((sum, x) => sum + x.amount, 0);
-          html += `
-        <div style="margin-bottom:24px">
-          <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--glass-border); padding-bottom:8px; margin-bottom:12px">
-            <strong style="color:var(--text)">${category}</strong><strong class="amount-pos">${fmt(tot)}</strong>
-          </div>
-          <div class="table-wrap">
-            <table class="table-report">
+          const desktopHtml = `<table class="table-report">
               <thead><tr><th class="fit-col">Tanggal</th><th>Pemberi</th><th class="fit-col">Ref</th><th>Keterangan</th><th class="fit-col" style="text-align:right">Subtotal</th></tr></thead>
               <tbody>
                 ${items.map(x => {
             const isMasked = isPrivCategory || isSensor;
             const displayNote = isMasked ? '*** (Privasi)' : (x.note || '-');
             let rawPemberi = (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') ? x.nama_pemberi : (x.unit_name || '-');
-            return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td>${isMasked ? '***' : rawPemberi}</td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td><td>${displayNote}</td><td class="fit-col amount-pos" style="text-align:right">${fmt(x.amount)}</td></tr>`
+            return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td>${isMasked ? '***' : rawPemberi}</td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td>${displayNote}</td><td class="fit-col amount-pos" style="text-align:right">${fmt(x.amount)}</td></tr>`
           }).join('')}
               </tbody>
-            </table>
+            </table>`;
+          
+          const mobileHtml = `<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">${items.map(x => {
+            const isMasked = isPrivCategory || isSensor;
+            const displayNote = isMasked ? '*** (Privasi)' : (x.note || '-');
+            let rawPemberi = (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') ? x.nama_pemberi : (x.unit_name || '-');
+            let photoBtn = '';
+            if (x.receipt_photo) { photoBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>`; }
+            return `<div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
+                <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
+                  <span class="badge badge-green" style="font-size:10px; padding:2px 7px;">IN</span>
+                  <span style="font-size:11px; color:var(--text3); font-family:monospace;">${x.receipt_no || '-'}</span>
+                </div>
+                <div class="amount-pos" style="font-weight: 700; font-size: 15px; white-space:nowrap;">+${fmt(x.amount)}</div>
+              </div>
+              <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
+                <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
+                <span style="color:var(--text4)">Pemberi</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${isMasked ? '***' : rawPemberi}</strong>
+                <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${displayNote}</span>
+              </div>
+              ${photoBtn}
+            </div>`;
+          }).join('')}</div>`;
+
+          html += `
+        <div style="margin-bottom:24px">
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--glass-border); padding-bottom:8px; margin-bottom:12px; page-break-after: avoid; break-after: avoid;">
+            <strong style="color:var(--text)">${category}</strong><strong class="amount-pos">${fmt(tot)}</strong>
           </div>
+          <div class="desktop-only table-wrap scrollable" style="border:none;">${desktopHtml}</div>
+          <div class="mobile-only">${mobileHtml}</div>
         </div>`;
         });
       }
       html += '</div><div class="card"><div class="form-section-title">B. Detail Pengeluaran</div>';
-      if (Object.keys(data.expByDept).length === 0) html += '<div class="empty-state">Kosong</div>';
+      if (Object.keys(data.expByDept || {}).length === 0) html += '<div class="empty-state">Kosong</div>';
       else {
         Object.entries(data.expByDept).forEach(([dept, items]) => {
           const tot = items.reduce((sum, x) => sum + x.amount, 0);
-          html += `
-        <div style="margin-bottom:24px">
-          <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--glass-border); padding-bottom:8px; margin-bottom:12px">
-            <strong style="color:var(--text)">${dept}</strong><strong class="amount-neg">-${fmt(tot)}</strong>
-          </div>
-          <div class="table-wrap">
-            <table class="table-report">
+          const desktopHtml = `<table class="table-report">
               <thead><tr><th class="fit-col">Tanggal</th><th class="fit-col">Sumber Kas</th><th class="fit-col">Ref</th><th>Keperluan</th><th class="fit-col" style="text-align:right">Subtotal</th></tr></thead>
               <tbody>
-                ${items.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge badge-gold">${x.source_balance}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span></td><td>${x.note || '-'}${x.nama_penerima ? `<br><small style="color:var(--text3)">Penerima: ${x.nama_penerima}</small>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('')}
+                ${items.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge badge-gold">${x.source_balance}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td>${x.note || '-'}${x.nama_penerima ? `<br><small style="color:var(--text3)">Penerima: ${x.nama_penerima}</small>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('')}
               </tbody>
-            </table>
+            </table>`;
+            
+          const mobileHtml = `<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">${items.map(x => {
+            let photoBtn = '';
+            if (x.receipt_photo) { photoBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>`; }
+            return `<div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
+                <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
+                  <span class="badge badge-red" style="font-size:10px; padding:2px 7px;">OUT</span>
+                  <span style="font-size:11px; color:var(--text3); font-family:monospace;">${x.receipt_no || '-'}</span>
+                </div>
+                <div class="amount-neg" style="font-weight: 700; font-size: 15px; white-space:nowrap;">-${fmt(x.amount)}</div>
+              </div>
+              <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
+                <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
+                <span style="color:var(--text4)">Sumber</span><strong style="color:var(--accent-gold, var(--gold)); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${x.source_balance}</strong>
+                <span style="color:var(--text4)">Penerima</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${x.nama_penerima || '-'}</strong>
+                <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${x.note || '-'}</span>
+              </div>
+              ${photoBtn}
+            </div>`;
+          }).join('')}</div>`;
+          
+          html += `
+        <div style="margin-bottom:24px">
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--glass-border); padding-bottom:8px; margin-bottom:12px; page-break-after: avoid; break-after: avoid;">
+            <strong style="color:var(--text)">${dept}</strong><strong class="amount-neg">-${fmt(tot)}</strong>
           </div>
+          <div class="desktop-only table-wrap scrollable" style="border:none;">${desktopHtml}</div>
+          <div class="mobile-only">${mobileHtml}</div>
         </div>`;
         });
       }
@@ -2072,6 +2159,12 @@
         }
         return true;
       });
+
+      window.currentHistoryData = list;
+      const printBtn = document.getElementById('btnPrintUnit');
+      if (printBtn) {
+        printBtn.style.display = (giverQ || q || month > 0 || year > 0) ? 'inline-flex' : 'none';
+      }
 
       const isAdmin = currentUser.role === 'Admin'; const canEdit = isAdmin || currentUser.role === 'Bendahara'; const isViewer = currentUser.role === 'Viewer';
 
@@ -2444,7 +2537,21 @@
     async function renderUsers() {
       try {
         const res = await apiGet('getUsers');
-        document.getElementById('userList').innerHTML = (res.data || []).map(x => `<tr><td><strong>${x.username}</strong></td><td>${x.nama}</td><td class="fit-col"><span class="badge badge-gray">${x.role}</span></td><td class="fit-col" style="text-align:right"><button class="btn-icon-only" onclick="editUser('${x.username}', '${x.nama}', '${x.role}')">${safeIcon('edit')}</button> ${x.username === 'admin' ? '' : `<button class="btn-icon-only" style="color:var(--red-pop);" onclick="deleteUser('${x.username}')">${safeIcon('trash')}</button>`}</td></tr>`).join('');
+        document.getElementById('userList').innerHTML = (res.data || []).map(x => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-bottom:1px solid var(--glass-border)">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="font-weight:700; font-size:15px; color:var(--text);">${x.nama}</div>
+            <div style="font-size:12px; color:var(--text3); display:flex; align-items:center; gap:8px;">
+              <span style="font-family:monospace; color:var(--text2); background:var(--badge-gray-bg); padding:2px 6px; border-radius:4px;">@${x.username}</span>
+              <span class="badge ${x.role==='Admin'?'badge-blue':(x.role==='Bendahara'?'badge-green':'badge-gray')}" style="font-size:10px;">${x.role}</span>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-icon-only" style="background:var(--input-bg); border:1px solid var(--glass-border);" onclick="editUser('${x.username}', '${x.nama}', '${x.role}')">${safeIcon('edit')}</button>
+            ${x.username === 'admin' ? '' : `<button class="btn-icon-only" style="background:var(--input-bg); border:1px solid var(--glass-border); color:var(--red-pop);" onclick="deleteUser('${x.username}')">${safeIcon('trash')}</button>`}
+          </div>
+        </div>
+        `).join('');
       } catch (e) { }
     }
     async function deleteUser(username) { if (await showCustomConfirm('Hapus', `Yakin?`)) { try { await apiPost('deleteRecord', { type: 'users', transaction_id: username }); notify('Terhapus', 'success'); renderUsers(); } catch (e) { notify(e.message, 'error'); } } }
