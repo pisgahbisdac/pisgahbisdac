@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#0b1a30">
+    <link rel="apple-touch-icon" href="./icons/Pisgahpavicon.png">
+    <title>PISGAH-BISDAC App</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="./icons/Pisgahpavicon.png">
+    <link rel="icon" type="image/png" href="./icons/Pisgahpavicon.png">
+    <link rel="apple-touch-icon" href="./icons/Pisgahpavicon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    
+    <script>
+        // Set tema awal sebelum React render untuk mencegah FOUC (Flash of Unstyled Content)
+        // Default diubah menjadi Light mode (jika tidak ada data di localStorage)
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    
+    
+    
+    <!-- HAPUS SCRIPT LUCIDE KARENA ANDA SUDAH MEMILIKI KOMPONEN ICON CUSTOM (Mengurangi beban download) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+        crossorigin="anonymous"></script>
+    <!-- Library untuk konversi HEIC/HEIF ke format standard -->
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+    
+  <script type="module" crossorigin src="/assets/main-BM5vIx1F.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/assets/jsx-runtime-RZwNhPWW.js">
+  <link rel="stylesheet" crossorigin href="/assets/main-CU0T6he2.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-DRd8NQ1d.css">
+</head>
+
+<body class="text-navy-900 font-sans antialiased overflow-x-hidden">
+    <div id="root">
+        <!-- Preloader: Ditampilkan saat React & Babel sedang diproses, mencegah blank screen lambat -->
+        <div class="min-h-screen flex flex-col items-center justify-center relative">
+            <div class="flex flex-col items-center justify-center mt-[-10vh]">
+                <div class="fixed inset-0 flex items-center justify-center z-[400] flex-col"
+                    style="background-color: rgba(0, 0, 0, 0.02);">
+                    <div class="loading-spinner mb-6"></div>
+                    <p class="text-[#D4AF37] font-black tracking-widest text-xl animate-pulse uppercase">...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+</body>
+
+</html>
