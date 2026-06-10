@@ -610,19 +610,7 @@
           </div>
           <div class="card" style="padding:0;">
             <div class="form-section-title" style="margin: 24px 24px 16px;">Log Masuk Terakhir</div>
-            <div class="table-wrap" style="border:none;">
-              <table class="table-log">
-                <thead>
-                  <tr>
-                    <th class="fit-col">Tanggal</th>
-                    <th>Kategori</th>
-                    <th class="fit-col">Bukti</th>
-                    <th class="fit-col" style="text-align:right">Nominal</th>
-                  </tr>
-                </thead>
-                <tbody id="incomeList"></tbody>
-              </table>
-            </div>
+            <div id="incomeLogContainer"></div>
           </div>
         </div>
       </div>
@@ -684,19 +672,7 @@
           </div>
           <div class="card" style="padding:0;">
             <div class="form-section-title" style="margin: 24px 24px 16px;">Log Keluar Terakhir</div>
-            <div class="table-wrap" style="border:none;">
-              <table class="table-log">
-                <thead>
-                  <tr>
-                    <th class="fit-col">Tanggal</th>
-                    <th>Bidang</th>
-                    <th class="fit-col">Bukti</th>
-                    <th class="fit-col" style="text-align:right">Nominal</th>
-                  </tr>
-                </thead>
-                <tbody id="expenseList"></tbody>
-              </table>
-            </div>
+            <div id="expenseLogContainer"></div>
           </div>
         </div>
       </div>
@@ -723,6 +699,7 @@
             style="background-image: none; padding-right: 12px; width: 80px;" title="Ketik tahun">
           <button class="btn btn-primary" onclick="loadReport()">Buat Laporan</button>
           <button class="btn btn-ghost" id="btnPrintReport" onclick="window.print()">Cetak / PDF</button>
+          <button class="btn btn-ghost" id="btnExportExcel" onclick="exportToExcel()" style="color: var(--green-pop); border-color: rgba(5, 150, 105, 0.2);">Export Excel</button>
         </div>
 
         <div id="reportSensorContainer"
@@ -1313,8 +1290,9 @@
     function safeIcon(name, size) { return typeof getIcon === 'function' ? getIcon(name, size) : ''; }
     function togglePassword(inputId, eyeId) { const input = document.getElementById(inputId); const eyeBtn = document.getElementById(eyeId); if (input.type === "password") { input.type = "text"; eyeBtn.innerHTML = safeIcon('eye', 'lucide-md'); } else { input.type = "password"; eyeBtn.innerHTML = safeIcon('eyeOff', 'lucide-md'); } }
     function fmt(n) { return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID'); }
-    function fmtDate(iso) { if (!iso) return '-'; const d = new Date(iso); if (isNaN(d.getTime())) return String(iso).split('T')[0]; return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
-    function todayStr() { return fmtDate(new Date()); }
+    function fmtInputDate(iso) { if (!iso) return ''; const d = new Date(iso); if (isNaN(d.getTime())) return String(iso).split('T')[0]; return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+    function fmtDate(iso) { if (!iso) return '-'; const d = new Date(iso); if (isNaN(d.getTime())) { const p = String(iso).split('T')[0].split('-'); if(p.length===3) return `${p[2]}/${p[1]}/${p[0]}`; return String(iso).split('T')[0]; } return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`; }
+    function todayStr() { return fmtInputDate(new Date()); }
     function setStatus(state, text) { const dot = document.getElementById('statusDot'); const txt = document.getElementById('statusText'); if (dot && txt) { dot.className = 'status-dot ' + state; txt.textContent = text; } }
 
     let confirmPromiseResolve = null;
@@ -1773,7 +1751,43 @@
 
     function renderIncomeList() {
       const list = [...cachedIncome].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
-      document.getElementById('incomeList').innerHTML = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge badge-blue">${x.income_type}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('') || '<tr class="empty-row"><td colspan="4" style="text-align:center; padding:12px">Kosong.</td></tr>';
+      if (list.length === 0) {
+        document.getElementById('incomeLogContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Kosong.</div>';
+      } else {
+        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge badge-blue">${x.income_type}</span><br><span style="font-size:12px; color:var(--text4)">${x.note || '-'}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('');
+        
+        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
+          let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
+          return `
+          <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
+              <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
+                <span class="badge badge-blue" style="font-size:10px; padding:2px 7px;">IN</span>
+                <span style="font-size:11px; color:var(--text3); font-family:monospace;">${x.receipt_no}</span>
+              </div>
+              <div class="amount-pos" style="font-weight: 700; font-size: 15px; white-space:nowrap;">+${fmt(x.amount)}</div>
+            </div>
+            <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
+              <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
+              <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.income_type}</strong>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${x.note || '-'}</span>
+            </div>
+            <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+              ${photoBtn}
+            </div>
+          </div>`;
+        }).join('') + '</div>';
+
+        document.getElementById('incomeLogContainer').innerHTML = `
+          <div class="desktop-only table-wrap" style="border:none;">
+            <table class="table-log">
+              <thead><tr><th class="fit-col">Tanggal</th><th>Kategori</th><th class="fit-col">Bukti</th><th class="fit-col" style="text-align:right">Nominal</th></tr></thead>
+              <tbody>${desktopHtml}</tbody>
+            </table>
+          </div>
+          <div class="mobile-only" style="padding-bottom:12px;">${mobileHtml}</div>
+        `;
+      }
     }
 
     function checkSaldo() {
@@ -1804,7 +1818,44 @@
 
     function renderExpenseList() {
       const list = [...cachedExpense].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
-      document.getElementById('expenseList').innerHTML = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><strong>${x.department}</strong><br><span style="font-size:12px; color:var(--text4)">Penerima: ${x.nama_penerima || '-'}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('') || '<tr class="empty-row"><td colspan="4" style="text-align:center; padding:12px">Kosong.</td></tr>';
+      if (list.length === 0) {
+        document.getElementById('expenseLogContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Kosong.</div>';
+      } else {
+        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><strong>${x.department}</strong><br><span style="font-size:12px; color:var(--text4)">${x.note || '-'}<br>Penerima: ${x.nama_penerima || '-'}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('');
+        
+        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
+          let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
+          return `
+          <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
+              <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
+                <span class="badge badge-red" style="font-size:10px; padding:2px 7px;">OUT</span>
+                <span style="font-size:11px; color:var(--text3); font-family:monospace;">${x.receipt_no}</span>
+              </div>
+              <div class="amount-neg" style="font-weight: 700; font-size: 15px; white-space:nowrap;">-${fmt(x.amount)}</div>
+            </div>
+            <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
+              <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
+              <span style="color:var(--text4)">Pihak</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${x.nama_penerima || '-'}</strong>
+              <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.department}</strong>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${x.note || '-'}</span>
+            </div>
+            <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+              ${photoBtn}
+            </div>
+          </div>`;
+        }).join('') + '</div>';
+
+        document.getElementById('expenseLogContainer').innerHTML = `
+          <div class="desktop-only table-wrap" style="border:none;">
+            <table class="table-log">
+              <thead><tr><th class="fit-col">Tanggal</th><th>Bidang</th><th class="fit-col">Bukti</th><th class="fit-col" style="text-align:right">Nominal</th></tr></thead>
+              <tbody>${desktopHtml}</tbody>
+            </table>
+          </div>
+          <div class="mobile-only" style="padding-bottom:12px;">${mobileHtml}</div>
+        `;
+      }
     }
 
     async function loadReport() {
@@ -1818,10 +1869,98 @@
         if (res.success) {
           currentReportData = res.data;
           renderReportView();
+          document.getElementById('btnExportExcel').style.display = 'inline-block';
         }
       } catch (e) {
         rc.innerHTML = `<div style="text-align:center; padding:20px; color:var(--red-pop)">Gagal memuat: ${e.message}</div>`;
       }
+    }
+
+    function exportToExcel() {
+      if (!currentReportData || (!currentReportData.incByCat && !currentReportData.expByDept)) {
+        return notify('Laporan kosong. Buat laporan terlebih dahulu.', 'error');
+      }
+
+      let allTrans = [];
+      if (currentReportData.incByCat) {
+         Object.values(currentReportData.incByCat).forEach(items => {
+            items.forEach(t => allTrans.push({ ...t, transType: 'INCOME' }));
+         });
+      }
+      if (currentReportData.expByDept) {
+         Object.values(currentReportData.expByDept).forEach(items => {
+            items.forEach(t => allTrans.push({ ...t, transType: 'EXPENSE' }));
+         });
+      }
+      
+      allTrans.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      let rowsHtml = '';
+      allTrans.forEach((t, index) => {
+         const type = t.transType === 'INCOME' ? 'Pemasukan' : 'Pengeluaran';
+         const category = t.income_type || t.department || '';
+         const pihak = t.nama_pemberi || t.nama_penerima || '';
+         const receipt = t.receipt_no || '';
+         const note = t.note || '';
+         const incAmt = t.transType === 'INCOME' ? t.amount : '';
+         const expAmt = t.transType === 'EXPENSE' ? t.amount : '';
+
+         rowsHtml += `<tr>
+            <td>${index + 1}</td>
+            <td>${fmtDate(t.date)}</td>
+            <td>${type}</td>
+            <td>${category}</td>
+            <td>${pihak}</td>
+            <td>${receipt}</td>
+            <td>${note}</td>
+            <td>${incAmt}</td>
+            <td>${expAmt}</td>
+         </tr>`;
+      });
+
+      const html = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            table { border-collapse: collapse; font-family: sans-serif; }
+            th, td { border: 1px solid #000000; padding: 5px; font-size: 11pt; text-align: left; vertical-align: top; }
+            th { background-color: #e2e8f0; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Tanggal</th>
+                <th>Tipe Transaksi</th>
+                <th>Kategori / Bidang</th>
+                <th>Pihak (Pemberi / Penerima)</th>
+                <th>No. Bukti</th>
+                <th>Catatan</th>
+                <th>Pemasukan (+)</th>
+                <th>Pengeluaran (-)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+      
+      const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Data_Transaksi_${document.getElementById('rptMonth').value}_${document.getElementById('rptYear').value}.xls`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      notify('Export Excel berhasil.', 'success');
     }
 
     function applyReportSensor() {
@@ -1834,7 +1973,6 @@
       const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
       const s = data.summary; const bal = s.balances || cachedSaldo; const isViewer = currentUser && currentUser.role === 'Viewer';
 
-      // Periksa apakah fitur Sensor Centang (Tick Tool) aktif
       const isSensor = document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false;
 
       let html = `
@@ -2013,6 +2151,7 @@
           <div class="mobile-only" style="padding-bottom:12px;">${mobileHtml}</div>
         `;
       }
+    }
 
     let currentEditTransaction = null;
 
@@ -2040,7 +2179,7 @@
       if (!trx) { notify('Transaksi tidak ditemukan.', 'error'); return; }
 
       if (document.getElementById('editTransModal')) document.getElementById('editTransModal').style.display = 'flex';
-      if (document.getElementById('editTransDate')) document.getElementById('editTransDate').value = fmtDate(trx.date);
+      if (document.getElementById('editTransDate')) document.getElementById('editTransDate').value = fmtInputDate(trx.date);
       if (document.getElementById('editTransReceipt')) document.getElementById('editTransReceipt').value = trx.receipt_no || '';
       if (document.getElementById('editTransNote')) document.getElementById('editTransNote').value = trx.note || '';
 

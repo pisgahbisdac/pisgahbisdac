@@ -446,8 +446,14 @@
 
         /* Fix icon kalender di dark mode */
         .dark input[type="date"]::-webkit-calendar-picker-indicator,
-        .dark input[type="month"]::-webkit-calendar-picker-indicator {
-        filter: invert(1);
+        .dark input[type="month"]::-webkit-calendar-picker-indicator,
+        [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+        [data-theme="dark"] input[type="month"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+        .dark input[type="date"], .dark input[type="month"],
+        [data-theme="dark"] input[type="date"], [data-theme="dark"] input[type="month"] {
+            color-scheme: dark;
         }
 
 /* ======== IMPORTED FROM stylelaporan.css ======== */
@@ -629,10 +635,11 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .sidebar-footer { padding: 16px 12px; border-top: 1px solid var(--glass-border); }
 .logout-btn { 
   display: flex; align-items: center; gap: 12px; 
-  color: var(--text2); font-size: 14px; font-weight: 600;
+  color: var(--red-pop); font-size: 14px; font-weight: 600;
   cursor: pointer; padding: 12px; border-radius: var(--radius); transition: all 0.2s; 
+  background: rgba(220, 38, 38, 0.05);
 }
-.logout-btn:hover { color: var(--red-pop); background: rgba(220, 38, 38, 0.1); }
+.logout-btn:hover { background: rgba(220, 38, 38, 0.15); transform: scale(0.98); }
 
 .main { margin-left: 260px; flex: 1; min-height: 100vh; position: relative; padding-bottom: 40px; }
 .topbar { 
@@ -725,6 +732,10 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 /* =======================================================
    MOBILE RESPONSIVE VIEWS
    ======================================================= */
+.mobile-only { display: none !important; }
+.desktop-only { display: block; }
+
+
 @media (max-width: 768px) {
   .desktop-only { display: none !important; }
   .mobile-only { display: block !important; }
@@ -965,6 +976,19 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .sidebar-overlay.show { display: block; }
 
 @media print {
+  :root, [data-theme="dark"] {
+    --bg-deep: #ffffff !important;
+    --bg-dark: #ffffff !important;
+    --bg-sidebar: #ffffff !important;
+    --input-bg: #ffffff !important;
+    --glass-border: #e2e8f0 !important;
+    --glass-border2: #cbd5e1 !important;
+    --text: #000000 !important;
+    --text2: #000000 !important;
+    --text3: #333333 !important;
+    --text4: #666666 !important;
+  }
+  
   @page { size: auto; margin: 1.2cm; }
   .sidebar, .topbar, .filter-bar, .btn, .btn-icon-only, .hamburger, .bottom-bar, #reportSensorContainer { display: none !important; }
   .main { margin-left: 0; padding: 0; width: 100%; background: white !important;}
@@ -991,6 +1015,11 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
       grid-column: auto !important; grid-row: auto !important; align-items: center !important; justify-content: flex-start !important; flex-direction: row !important; font-size: 10pt !important; text-align: left !important;
   }
   .table-report td:last-child, .table-log td:last-child, .table-history td:last-child { text-align: right !important; }
+  
+  /* Make PDF neater */
+  tr, .card, .report-section { page-break-inside: avoid; }
+  table { page-break-inside: auto; }
+  h2, h3, .section-title { page-break-after: avoid; }
 }
 
 .page { display: none; padding: 32px; width: 100%; box-sizing: border-box; overflow-x: hidden; }
@@ -1023,9 +1052,6 @@ tr:hover td { background: var(--table-hover); }
 .badge-blue { background: rgba(2, 132, 199, 0.1); color: var(--teal-pop); border: 1px solid rgba(2, 132, 199, 0.2); }
 .badge-cyan { background: rgba(0, 210, 255, 0.1); color: var(--accent-cyan); border: 1px solid rgba(0, 210, 255, 0.2); }
 .text-rose-pop { color: var(--rose-pop); }
-
-.mobile-only { display: none !important; }
-.desktop-only { display: block; }
 
 .amount-pos { color: var(--green-pop); font-weight: 700; }
 .amount-neg { color: var(--red-pop); font-weight: 700; }

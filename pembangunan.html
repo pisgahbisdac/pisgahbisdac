@@ -1130,7 +1130,7 @@
                                 <span class="text-[9px] uppercase tracking-widest px-2.5 py-1 ${item.status === 'Confirmed' ? 'border border-emerald-500/30 text-emerald-400 bg-emerald-500/5' : 'border border-gold-500/30 text-gold-500 bg-gold-500/5'}">
                                     ${item.status === 'Confirmed' ? 'Selesai' : '⏳ Tertunda'}
                                 </span>
-                                <span class="text-[10px] text-stone-500">${new Date(item.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                <span class="text-[10px] text-stone-500">${(function(d){return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear();})(new Date(item.date))}</span>
                             </div>
                             <h5 class="font-serif text-lg text-stone-100 font-light">${item.nama}</h5>
                             <p class="font-serif text-xl text-gold-500">${formatRp(item.jumlah)}</p>

@@ -12,8 +12,8 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
     rel="stylesheet">
 
-    <link rel="stylesheet" crossorigin href="/assets/index-DzI4nzHe.css">
-  </head>
+  <link rel="stylesheet" crossorigin href="/assets/index-DzNfxNBj.css">
+</head>
 
 <body class="page-laporan">
   <script>
@@ -88,6 +88,149 @@
     }
 
     document.addEventListener('DOMContentLoaded', updateThemeIcons);
+
+    function closeDashboardDetail() {
+      document.getElementById('dashboardDetailModal').style.display = 'none';
+    }
+
+    function openDashboardDetail(type) {
+      console.log("openDashboardDetail called with type:", type);
+      console.log("cachedSaldo:", cachedSaldo);
+      if (!cachedSaldo) { console.log("returning early due to no cachedSaldo"); return; }
+      const monthEl = document.getElementById('dashMonth');
+      const yearEl = document.getElementById('dashYear');
+      console.log("monthEl:", monthEl, "yearEl:", yearEl);
+      if (!monthEl || !yearEl) { console.log("returning early due to missing elements"); return; }
+      const month = parseInt(monthEl.value);
+      const year = parseInt(yearEl.value);
+      console.log("parsed month:", month, "year:", year);
+      let targetDateEnd = month === 0 ? new Date(year, 11, 31, 23, 59, 59) : new Date(year, month, 0, 23, 59, 59);
+
+      console.log("filtering inc/exp");
+      const filteredInc = (cachedIncome || []).filter(x => { const d = new Date(x.date); return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month); });
+      const filteredExp = (cachedExpense || []).filter(x => { const d = new Date(x.date); return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month); });
+      const historicalInc = (cachedIncome || []).filter(x => new Date(x.date) <= targetDateEnd);
+      const historicalExp = (cachedExpense || []).filter(x => new Date(x.date) <= targetDateEnd);
+
+      console.log("historicalInc length:", historicalInc.length);
+
+      let title = "";
+      let txList = [];
+      console.log("checking isViewer");
+      const isViewer = currentUser && currentUser.role === 'Viewer';
+      console.log("isViewer:", isViewer);
+
+      if (type === 'total' || type === 'bersih') {
+        title = type === 'total' ? "Semua Transaksi Saldo" : "Semua Transaksi Kas Bersih";
+        historicalInc.forEach(x => { if (type === 'total' || x.alloc_jemaat > 0 || x.alloc_bangun > 0) txList.push({ ...x, isInc: true }); });
+        historicalExp.forEach(x => { if (type === 'total' || x.source_balance === 'Kas Jemaat' || x.source_balance === 'Pembangunan') txList.push({ ...x, isInc: false }); });
+      } else if (type === 'in') {
+        title = "Pemasukan Periode Ini";
+        filteredInc.forEach(x => txList.push({ ...x, isInc: true }));
+      } else if (type === 'out') {
+        title = "Pengeluaran Periode Ini";
+        filteredExp.forEach(x => txList.push({ ...x, isInc: false }));
+      } else if (type === 'jemaat') {
+        title = "Rincian Kas Jemaat";
+        historicalInc.forEach(x => { if (x.alloc_jemaat > 0) txList.push({ ...x, isInc: true, overrideAmt: x.alloc_jemaat }); });
+        historicalExp.forEach(x => { if (x.source_balance === 'Kas Jemaat') txList.push({ ...x, isInc: false }); });
+      } else if (type === 'daerah') {
+        title = "Rincian Kas Daerah";
+        historicalInc.forEach(x => { if (x.alloc_daerah > 0) txList.push({ ...x, isInc: true, overrideAmt: x.alloc_daerah }); });
+        historicalExp.forEach(x => { if (x.source_balance === 'Daerah') txList.push({ ...x, isInc: false }); });
+      } else if (type === 'bangun') {
+        title = "Rincian Dana Pembangunan";
+        historicalInc.forEach(x => { if (x.alloc_bangun > 0) txList.push({ ...x, isInc: true, overrideAmt: x.alloc_bangun }); });
+        historicalExp.forEach(x => { if (x.source_balance === 'Pembangunan') txList.push({ ...x, isInc: false }); });
+      }
+
+      if (type === 'jemaat' && cachedSaldo.initJemaat) {
+        txList.push({ isInc: true, overrideAmt: cachedSaldo.initJemaat, receipt_no: 'SALDO_AWAL', date: '2000-01-01', income_type: 'Saldo Awal Sistem', note: 'Diinput saat setup', nama_pemberi: 'Sistem' });
+      }
+      if (type === 'daerah' && cachedSaldo.initDaerah) {
+        txList.push({ isInc: true, overrideAmt: cachedSaldo.initDaerah, receipt_no: 'SALDO_AWAL', date: '2000-01-01', income_type: 'Saldo Awal Sistem', note: 'Diinput saat setup', nama_pemberi: 'Sistem' });
+      }
+      if (type === 'bangun' && cachedSaldo.initBangun) {
+        txList.push({ isInc: true, overrideAmt: cachedSaldo.initBangun, receipt_no: 'SALDO_AWAL', date: '2000-01-01', income_type: 'Saldo Awal Sistem', note: 'Diinput saat setup', nama_pemberi: 'Sistem' });
+      }
+      if (type === 'total') {
+        const initT = (cachedSaldo.initJemaat || 0) + (cachedSaldo.initDaerah || 0) + (cachedSaldo.initBangun || 0);
+        if (initT) txList.push({ isInc: true, overrideAmt: initT, receipt_no: 'SALDO_AWAL', date: '2000-01-01', income_type: 'Saldo Awal Sistem', note: 'Diinput saat setup', nama_pemberi: 'Sistem' });
+      }
+      if (type === 'bersih') {
+        const initB = (cachedSaldo.initJemaat || 0) + (cachedSaldo.initBangun || 0);
+        if (initB) txList.push({ isInc: true, overrideAmt: initB, receipt_no: 'SALDO_AWAL', date: '2000-01-01', income_type: 'Saldo Awal Sistem', note: 'Diinput saat setup', nama_pemberi: 'Sistem' });
+      }
+
+      console.log("txList length:", txList.length);
+      txList.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      document.getElementById('dashDetailTitle').textContent = title;
+
+      let html = "";
+      if (txList.length === 0) {
+        html = `<div class="empty-state">Tidak ada transaksi.</div>`;
+      } else {
+        let totalInc = 0;
+        let totalExp = 0;
+        let listHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:6px;">';
+        
+        txList.forEach(x => {
+          const amt = x.overrideAmt || x.amount;
+          if (x.isInc) totalInc += amt; else totalExp += amt;
+          const isPrivCategory = isViewer && x.isInc && isPrivateCategory(x.income_type);
+          const displayPihak = x.isInc ? (isPrivCategory ? '*** (Privasi)' : (x.unit_name && x.unit_name !== '-' ? x.unit_name : (x.nama_pemberi || '-'))) : (x.nama_penerima || '-');
+          const displayNote = isPrivCategory ? '*** (Privasi)' : (x.note || '-');
+
+          let photoBtn = '';
+          if (x.receipt_photo) { photoBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>`; }
+
+          listHtml += `
+          <div class="dash-tx-card" style="padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--empty-bg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px;">
+              <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
+                <span class="badge ${x.isInc ? 'badge-green' : 'badge-red'}" style="font-size:10px; padding:2px 7px;">${x.isInc ? 'IN' : 'OUT'}</span>
+                <span style="font-size:11px; color:var(--text3); font-family:monospace;">${x.receipt_no}</span>
+              </div>
+              <div class="${x.isInc ? 'amount-pos' : 'amount-neg'}" style="font-weight: 700; font-size: 15px; white-space:nowrap;">${x.isInc ? '+' : '-'}${fmt(amt)}</div>
+            </div>
+            <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
+              <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
+              <span style="color:var(--text4)">Pihak</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${displayPihak}</strong>
+              <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.isInc ? x.income_type : x.department}</strong>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${displayNote}</span>
+            </div>
+            ${photoBtn}
+          </div>`;
+        });
+        listHtml += '</div>';
+
+        let totalVal = totalInc - totalExp;
+        let summaryHtml = `
+        <div class="dash-summary-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px;">
+          <div style="background: rgba(5, 150, 105, 0.08); border: 1px solid rgba(5, 150, 105, 0.2); padding: 8px 6px; border-radius: var(--radius); text-align: center;">
+            <div style="font-size: 9px; color: var(--text3); margin-bottom: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pemasukan</div>
+            <div class="amount-pos" style="font-size: 13px; font-weight: 800;">+${fmt(totalInc)}</div>
+          </div>
+          <div style="background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.2); padding: 8px 6px; border-radius: var(--radius); text-align: center;">
+            <div style="font-size: 9px; color: var(--text3); margin-bottom: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pengeluaran</div>
+            <div class="amount-neg" style="font-size: 13px; font-weight: 800;">-${fmt(totalExp)}</div>
+          </div>
+          <div style="background: var(--empty-bg); border: 1px solid var(--glass-border); padding: 8px 6px; border-radius: var(--radius); text-align: center;">
+            <div style="font-size: 9px; color: var(--text3); margin-bottom: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Saldo</div>
+            <div class="${totalVal >= 0 ? 'amount-pos' : 'amount-neg'}" style="font-size: 13px; font-weight: 800;">${totalVal >= 0 ? '+' : ''}${fmt(totalVal)}</div>
+          </div>
+        </div>
+        `;
+        
+        html = summaryHtml + listHtml;
+      }
+
+      console.log("setting innerHTML, html length:", html.length);
+      document.getElementById('dashDetailContent').innerHTML = html;
+      document.getElementById('dashboardDetailModal').style.display = 'flex';
+      console.log("modal displayed");
+    }
   </script>
 
   <div id="loginPage" class="login-page">
@@ -336,7 +479,7 @@
         <div class="stats-grid" id="statsGrid"></div>
 
         <div class="grid-2 dashboard-main-grid" style="margin-bottom:24px;">
-          <div class="dashboard-col" style="display: flex; flex-direction: column; gap: 24px; min-width: 0;">
+          <div class="dashboard-col" style="display: flex; flex-direction: column; gap: 24px; min-width: 0; width: 100%; box-sizing: border-box;">
             <div class="card" style="margin-bottom:0; width: 100%;">
               <div class="card-header">
                 <div>
@@ -355,8 +498,8 @@
               </div>
               <div class="scrollable-x" id="allocBars"></div>
             </div>
-            <div class="card" style="margin-bottom:0; padding:0; width: 100%;">
-              <div class="card-header" style="padding: 24px 24px 0;">
+            <div class="card" style="margin-bottom:0; width: 100%;">
+              <div class="card-header">
                 <div>
                   <div class="card-title">Pengeluaran Departemen</div>
                   <div class="card-subtitle">Bulan terpilih</div>
@@ -365,8 +508,8 @@
               <div id="kategoriOutTable"></div>
             </div>
           </div>
-          <div class="card" style="margin-bottom:0; padding:0; min-width: 0; max-width: 100%;">
-            <div class="card-header" style="padding: 24px 24px 0;">
+          <div class="card" style="margin-bottom:0; width: 100%;">
+            <div class="card-header">
               <div>
                 <div class="card-title">Rincian Pemasukan Kas</div>
                 <div class="card-subtitle">Bulan terpilih</div>
@@ -378,26 +521,13 @@
           </div>
         </div>
 
-        <div class="card" id="recentTransCard" style="padding:0; min-width: 0; max-width: 100%;">
-          <div class="card-header" style="padding: 24px 24px 0;">
+        <div class="card" id="recentTransCard" style="margin-bottom:0; width: 100%;">
+          <div class="card-header">
             <div class="card-title">Transaksi Terakhir</div>
             <button class="btn btn-ghost" id="btnJurnalDashboard" onclick="showPage('riwayat')">Selengkapnya
               &rarr;</button>
           </div>
-          <div class="table-wrap" style="border:none;">
-            <table class="mobile-list-table">
-              <thead>
-                <tr>
-                  <th class="fit-col">Tanggal</th>
-                  <th class="fit-col">Tipe</th>
-                  <th>Keterangan</th>
-                  <th class="fit-col">Dokumen</th>
-                  <th class="fit-col" style="text-align:right">Nominal</th>
-                </tr>
-              </thead>
-              <tbody id="recentTrans"></tbody>
-            </table>
-          </div>
+          <div id="recentTransContainer"></div>
         </div>
       </div>
 
@@ -480,19 +610,7 @@
           </div>
           <div class="card" style="padding:0;">
             <div class="form-section-title" style="margin: 24px 24px 16px;">Log Masuk Terakhir</div>
-            <div class="table-wrap" style="border:none;">
-              <table class="table-log">
-                <thead>
-                  <tr>
-                    <th class="fit-col">Tanggal</th>
-                    <th>Kategori</th>
-                    <th class="fit-col">Bukti</th>
-                    <th class="fit-col" style="text-align:right">Nominal</th>
-                  </tr>
-                </thead>
-                <tbody id="incomeList"></tbody>
-              </table>
-            </div>
+            <div id="incomeLogContainer"></div>
           </div>
         </div>
       </div>
@@ -554,19 +672,7 @@
           </div>
           <div class="card" style="padding:0;">
             <div class="form-section-title" style="margin: 24px 24px 16px;">Log Keluar Terakhir</div>
-            <div class="table-wrap" style="border:none;">
-              <table class="table-log">
-                <thead>
-                  <tr>
-                    <th class="fit-col">Tanggal</th>
-                    <th>Bidang</th>
-                    <th class="fit-col">Bukti</th>
-                    <th class="fit-col" style="text-align:right">Nominal</th>
-                  </tr>
-                </thead>
-                <tbody id="expenseList"></tbody>
-              </table>
-            </div>
+            <div id="expenseLogContainer"></div>
           </div>
         </div>
       </div>
@@ -593,6 +699,7 @@
             style="background-image: none; padding-right: 12px; width: 80px;" title="Ketik tahun">
           <button class="btn btn-primary" onclick="loadReport()">Buat Laporan</button>
           <button class="btn btn-ghost" id="btnPrintReport" onclick="window.print()">Cetak / PDF</button>
+          <button class="btn btn-ghost" id="btnExportExcel" onclick="exportToExcel()" style="color: var(--green-pop); border-color: rgba(5, 150, 105, 0.2);">Export Excel</button>
         </div>
 
         <div id="reportSensorContainer"
@@ -656,22 +763,7 @@
           </select>
         </div>
         <div class="card" style="padding:0;">
-          <div class="table-wrap scrollable" style="border:none;">
-            <table class="table-history">
-              <thead>
-                <tr>
-                  <th class="fit-col">Tanggal</th>
-                  <th class="fit-col">Alur</th>
-                  <th>Kategori & Keterangan</th>
-                  <th class="fit-col">Bukti</th>
-                  <th>Pihak</th>
-                  <th class="fit-col" style="text-align:right">Nominal</th>
-                  <th class="fit-col" style="text-align:right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody id="historyList"></tbody>
-            </table>
-          </div>
+          <div id="historyListContainer"></div>
         </div>
       </div>
 
@@ -1013,6 +1105,24 @@
     </div>
   </div>
 
+  <div id="dashboardDetailModal" class="modal-overlay" style="display:none; align-items:center; z-index:1100;">
+    <div class="modal-content slide-up"
+      style="max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column;">
+      <div class="modal-header">
+        <div class="modal-title" id="dashDetailTitle">Rincian Transaksi</div>
+        <button class="btn-icon-only" onclick="closeDashboardDetail()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" style="overflow-y: auto; flex: 1; padding: 12px;" id="dashDetailContent">
+      </div>
+    </div>
+  </div>
+
   <div class="notification" id="notification"><span id="notifIcon"
       style="display:flex; align-items:center;"></span><span id="notifMsg"></span></div>
 
@@ -1165,14 +1275,24 @@
     async function resetLogo(keyType) { systemConfig[keyType] = ''; localStorage.setItem('PiKaChu_config', JSON.stringify(systemConfig)); applyConfig(); try { await apiPostWithFallback('saveConfig', { key: keyType, value: '' }); notify(`Logo direset.`, 'success'); } catch (err) { } }
 
     let currentUser = null; let masterData = null; let cachedIncome = []; let cachedExpense = []; let cachedSaldo = { daerah: 0, jemaat: 0, bangun: 0, total: 0 }; let isServerOnline = false;
+    let pembangunanDataCache = null;
+    const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbxvNICOilB-oQG3WfI6nrj_kYjG3tGMBZYndE4K3jw_TuvjR7lOMsyyyCyNHTNCKUOOMg/exec';
+
+    async function loadPembangunanData() {
+        try {
+            const res = await fetch(PEMBANGUNAN_URL + "?t=" + Date.now());
+            pembangunanDataCache = await res.json();
+        } catch (e) { console.error('Failed to load Pembangunan Data', e); }
+    }
     let editingUser = null; let editingUnit = null; let editingIncType = null;
 
     function isPrivateCategory(category) { if (!category) return false; const cat = category.toLowerCase(); return ['perpuluhan', 'persepuluhan', 'khusus jemaat', 'khusus daerah', 'terpadu', 'pembangunan'].some(c => cat.includes(c)); }
     function safeIcon(name, size) { return typeof getIcon === 'function' ? getIcon(name, size) : ''; }
     function togglePassword(inputId, eyeId) { const input = document.getElementById(inputId); const eyeBtn = document.getElementById(eyeId); if (input.type === "password") { input.type = "text"; eyeBtn.innerHTML = safeIcon('eye', 'lucide-md'); } else { input.type = "password"; eyeBtn.innerHTML = safeIcon('eyeOff', 'lucide-md'); } }
     function fmt(n) { return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID'); }
-    function fmtDate(iso) { if (!iso) return '-'; const d = new Date(iso); if (isNaN(d.getTime())) return String(iso).split('T')[0]; return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
-    function todayStr() { return fmtDate(new Date()); }
+    function fmtInputDate(iso) { if (!iso) return ''; const d = new Date(iso); if (isNaN(d.getTime())) return String(iso).split('T')[0]; return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+    function fmtDate(iso) { if (!iso) return '-'; const d = new Date(iso); if (isNaN(d.getTime())) { const p = String(iso).split('T')[0].split('-'); if(p.length===3) return `${p[2]}/${p[1]}/${p[0]}`; return String(iso).split('T')[0]; } return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`; }
+    function todayStr() { return fmtInputDate(new Date()); }
     function setStatus(state, text) { const dot = document.getElementById('statusDot'); const txt = document.getElementById('statusText'); if (dot && txt) { dot.className = 'status-dot ' + state; txt.textContent = text; } }
 
     let confirmPromiseResolve = null;
@@ -1218,7 +1338,7 @@
     async function launchApp() {
       document.getElementById('loginPage').style.display = 'none'; document.getElementById('app').style.display = 'flex';
       document.getElementById('userNameDisplay').textContent = currentUser.nama; document.getElementById('userRoleDisplay').textContent = currentUser.role; document.getElementById('userAvatar').textContent = currentUser.nama.split(' ').map(x => x[0]).join('').substring(0, 2).toUpperCase();
-      applyRoleAccess(); await loadSystemConfig(); await syncAllData(); initForms(); showPage('dashboard');
+      applyRoleAccess(); await Promise.all([loadSystemConfig(), syncAllData()]); initForms(); showPage('dashboard');
     }
 
     function applyRoleAccess() {
@@ -1257,8 +1377,7 @@
 
     async function syncAllData() {
       try {
-        await loadMasterData();
-        await loadAllTransactions();
+        await Promise.all([loadMasterData(), loadAllTransactions(), loadPembangunanData()]);
         updateAppStatus();
         if (masterData) renderDashboard();
         updateLastReceipts();
@@ -1301,8 +1420,12 @@
     }
 
     async function loadAllTransactions() {
-      try { const [inc, exp] = await Promise.all([apiGet('getIncomeList'), apiGet('getExpenseList')]); cachedIncome = Array.isArray(inc.data) ? inc.data : []; cachedExpense = Array.isArray(exp.data) ? exp.data : []; } catch (e) { }
-      try { const bal = await apiGet('getBalances'); if (bal.data) cachedSaldo = bal.data; } catch (e) { }
+      try {
+        const [inc, exp, bal] = await Promise.all([apiGet('getIncomeList'), apiGet('getExpenseList'), apiGet('getBalances')]);
+        cachedIncome = Array.isArray(inc.data) ? inc.data : [];
+        cachedExpense = Array.isArray(exp.data) ? exp.data : [];
+        if (bal && bal.data) cachedSaldo = bal.data;
+      } catch (e) { }
     }
 
     function searchByReceipt() {
@@ -1335,16 +1458,23 @@
         const isUnitSearch = validUnitNames.length > 0;
         if (isUnitSearch && foundIncomes.length > 0) {
           const monthlySum = {};
+          const ketSum = {};
           let totalIncSearch = 0;
           foundIncomes.forEach(inc => {
             const d = new Date(inc.date);
             const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
             monthlySum[k] = (monthlySum[k] || 0) + inc.amount;
+            
+            const ket = inc.income_type || '-';
+            ketSum[ket] = (ketSum[ket] || 0) + inc.amount;
+
             totalIncSearch += inc.amount;
           });
 
           html += `<div style="background:var(--badge-gray-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius); margin-bottom:16px;">
         <div style="font-size:12px; color:var(--text3); margin-bottom:12px; font-weight:700; text-transform:uppercase;">Akumulasi Pemasukan Unit</div>`;
+          
+          html += `<div style="margin-bottom:8px;"><strong style="font-size:11px; color:var(--text3);">Berdasarkan Bulan</strong></div>`;
           Object.keys(monthlySum).sort((a, b) => b.localeCompare(a)).forEach(k => {
             const [y, m] = k.split('-');
             const mNames = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -1352,7 +1482,15 @@
           <span style="color:var(--text2)">${mNames[parseInt(m)]} ${y}</span><strong class="amount-pos">+${fmt(monthlySum[k])}</strong>
         </div>`;
           });
-          html += `<div style="display:flex; justify-content:space-between; font-size:14px; margin-top:8px; padding-top:4px;">
+
+          html += `<div style="margin-bottom:8px; margin-top:12px;"><strong style="font-size:11px; color:var(--text3);">Berdasarkan Keterangan</strong></div>`;
+          Object.keys(ketSum).sort((a, b) => ketSum[b] - ketSum[a]).forEach(ket => {
+            html += `<div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; border-bottom:1px solid var(--glass-border); padding-bottom:6px;">
+          <span style="color:var(--text2)">${ket}</span><strong class="amount-pos">+${fmt(ketSum[ket])}</strong>
+        </div>`;
+          });
+
+          html += `<div style="display:flex; justify-content:space-between; font-size:14px; margin-top:12px; padding-top:4px;">
           <strong style="color:var(--text)">TOTAL KESELURUHAN</strong><strong class="amount-pos">+${fmt(totalIncSearch)}</strong>
         </div></div>`;
         }
@@ -1408,44 +1546,45 @@
       const unitsGavePersepuluhan = new Set(); filteredInc.forEach(x => { if ((x.income_type || '').toLowerCase().includes('persepuluhan') || (x.income_type || '').toLowerCase().includes('perpuluhan')) unitsGavePersepuluhan.add(x.unit_name); });
       if (masterData && masterData.units) masterData.units.forEach(u => { if (unitsGavePersepuluhan.has(u.name)) totalPemberiPersepuluhan += (parseInt(u.jumlah_anggota) || 0); });
 
-      const targetPembangunan = 2500000000; const persentaseBangun = (calcBangun / targetPembangunan) * 100; const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
+      const targetPembangunan = pembangunanDataCache?.target ? parseInt(pembangunanDataCache.target) : 2500000000; 
+      const persentaseBangun = (calcBangun / targetPembangunan) * 100; const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
 
-      const komitmenSaatIni = 53376900;
-      const targetKomitmen = 77300000;
+      const komitmenSaatIni = pembangunanDataCache?.komitmen_realisasi ? parseInt(pembangunanDataCache.komitmen_realisasi) : 53376900;
+      const targetKomitmen = pembangunanDataCache?.komitmen_target ? parseInt(pembangunanDataCache.komitmen_target) : 77300000;
       const persentaseKomitmen = (komitmenSaatIni / targetKomitmen) * 100;
       const visualPercentKomitmen = persentaseKomitmen > 100 ? 100 : persentaseKomitmen;
 
       document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card">
+    <div class="stat-card clickable" onclick="openDashboardDetail('total')">
       <div class="stat-header"><div class="stat-label">Total Saldo</div><div class="stat-icon c-teal">${safeIcon('shield', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-blue, #3a86ff)">${fmt(calcTotal)}</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card clickable" onclick="openDashboardDetail('bersih')">
       <div class="stat-header"><div class="stat-label">Kas Bersih (Non-Daerah)</div><div class="stat-icon c-moss">${safeIcon('log', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-cyan, #00d2ff)">${fmt(saldoAccrued)}</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card clickable" onclick="openDashboardDetail('in')">
       <div class="stat-header"><div class="stat-label">Pemasukan Periode</div><div class="stat-icon c-green">${safeIcon('trendUp', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-green, #00e676)">+${fmt(totalIn)}</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card clickable" onclick="openDashboardDetail('out')">
       <div class="stat-header"><div class="stat-label">Pengeluaran Periode</div><div class="stat-icon c-red">${safeIcon('trendDown', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-orange, #ff6b6b)">-${fmt(totalOut)}</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card clickable" onclick="openDashboardDetail('jemaat')">
       <div class="stat-header"><div class="stat-label">Kas Jemaat</div><div class="stat-icon c-gold">${safeIcon('church', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-gold, #ffd166)">${fmt(calcJemaat)}</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card clickable" onclick="openDashboardDetail('daerah')">
       <div class="stat-header"><div class="stat-label">Kas Daerah</div><div class="stat-icon c-teal">${safeIcon('mappin', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-purple, #9d4edd)">${fmt(calcDaerah)}</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-header"><div class="stat-label">Dana Pembangunan</div><div class="stat-icon c-teal">${safeIcon('hammer', 'lucide-lg')}</div></div>
+    <div class="stat-card clickable" onclick="openDashboardDetail('bangun')">
+      <div class="stat-header"><div class="stat-label">Total Dana Pembangunan</div><div class="stat-icon c-teal">${safeIcon('hammer', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-blue, #3a86ff)">${fmt(calcBangun)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
-        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text-muted, var(--text3));"><span>TARGET: ${fmt(targetPembangunan).toUpperCase()}</span><span style="color: var(--accent-blue, var(--teal-pop));">${persentaseBangun.toFixed(2)}%</span></div>
-        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: var(--accent-blue, var(--teal-pop));"></div></div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text-muted, var(--accent-gold, #ffd166));"><span>TARGET: ${fmt(targetPembangunan).toUpperCase()}</span><span style="color: var(--accent-gold, #ffd166, var(--teal-pop));">${persentaseBangun.toFixed(2)}%</span></div>
+        <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: var(--accent-gold, #ffd166, var(--teal-pop));"></div></div>
       </div>
     </div>
     <div class="stat-card">
@@ -1503,11 +1642,66 @@
       const recent = [...filteredInc.map(x => ({ ...x, kind: 'income', style: 'amount-pos', sign: '+', badge: 'badge-green', label: 'In' })), ...filteredExp.map(x => ({ ...x, kind: 'expense', style: 'amount-neg', sign: '-', badge: 'badge-red', label: 'Out' }))]
         .sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
-      document.getElementById('recentTrans').innerHTML = recent.map(x => {
-        const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
-        let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
-        return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td><td><strong>${x.income_type || x.department}</strong><br><span style="font-size:12px; color:var(--text-muted, var(--text4))">${isPrivCategory ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td><td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td></tr>`;
-      }).join('') || '<tr class="empty-row"><td colspan="5" style="text-align:center"><div class="empty-state" style="border:none; padding:20px;">Belum ada aktivitas.</div></td></tr>';
+      if (recent.length === 0) {
+        document.getElementById('recentTransContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Belum ada aktivitas.</div>';
+      } else {
+        let desktopHtml = recent.map(x => {
+          const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
+          let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
+          return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td><td><strong>${x.income_type || x.department}</strong><br><span style="font-size:12px; color:var(--text-muted, var(--text4))">${isPrivCategory ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td><td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td></tr>`;
+        }).join('');
+
+        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + recent.map(x => {
+          const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
+          const isInc = x.kind === 'income';
+          let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
+          return `
+          <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
+              <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
+                <span class="badge ${x.badge}" style="font-size:10px; padding:2px 7px;">${isInc ? 'IN' : 'OUT'}</span>
+                <span style="font-size:11px; color:var(--text3); font-family:monospace;">${x.receipt_no}</span>
+              </div>
+              <div class="${x.style}" style="font-weight: 700; font-size: 15px; white-space:nowrap;">${x.sign}${fmt(x.amount)}</div>
+            </div>
+            <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
+              <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
+              <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.income_type || x.department}</strong>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${isPrivCategory ? '***' : (x.note || '-')}</span>
+            </div>
+            ${photoBtn}
+          </div>`;
+        }).join('') + '</div>';
+
+        document.getElementById('recentTransContainer').innerHTML = `
+          <div class="desktop-only table-wrap" style="border:none;">
+            <table class="table-log">
+              <thead><tr><th class="fit-col">Tanggal</th><th class="fit-col">Alur</th><th>Keterangan</th><th class="fit-col">Bukti</th><th class="fit-col" style="text-align:right">Nominal</th></tr></thead>
+              <tbody>${desktopHtml}</tbody>
+            </table>
+          </div>
+          <div class="mobile-only" style="padding-bottom:12px;">${mobileHtml}</div>
+        `;
+      }
+
+      // Auto-Sync to Pembangunan Server
+      if (pembangunanDataCache && parseInt(pembangunanDataCache.terkumpul) !== calcBangun) {
+        const payload = {
+            action: 'updateInfoWebsite',
+            target: pembangunanDataCache.target,
+            terkumpul: calcBangun, 
+            komitmen: pembangunanDataCache.komitmen,
+            komitmen_target: pembangunanDataCache.komitmen_target,
+            komitmen_realisasi: pembangunanDataCache.komitmen_realisasi,
+            bank: pembangunanDataCache.bank,
+            norek: pembangunanDataCache.norek,
+            atasnama: pembangunanDataCache.atasnama,
+            judul: pembangunanDataCache.judul
+        };
+        fetch(PEMBANGUNAN_URL, { method: 'POST', body: JSON.stringify(payload) })
+          .then(() => { pembangunanDataCache.terkumpul = calcBangun; console.log("Synced calcBangun to Pembangunan."); })
+          .catch(e => console.error("Failed to sync to Pembangunan", e));
+      }
     }
 
     function getIncomeTypeConfig(name) { return masterData.incomeTypes.find(x => x.name === name) || null; }
@@ -1557,7 +1751,43 @@
 
     function renderIncomeList() {
       const list = [...cachedIncome].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
-      document.getElementById('incomeList').innerHTML = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge badge-blue">${x.income_type}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('') || '<tr class="empty-row"><td colspan="4" style="text-align:center; padding:12px">Kosong.</td></tr>';
+      if (list.length === 0) {
+        document.getElementById('incomeLogContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Kosong.</div>';
+      } else {
+        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge badge-blue">${x.income_type}</span><br><span style="font-size:12px; color:var(--text4)">${x.note || '-'}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('');
+        
+        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
+          let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
+          return `
+          <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
+              <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
+                <span class="badge badge-blue" style="font-size:10px; padding:2px 7px;">IN</span>
+                <span style="font-size:11px; color:var(--text3); font-family:monospace;">${x.receipt_no}</span>
+              </div>
+              <div class="amount-pos" style="font-weight: 700; font-size: 15px; white-space:nowrap;">+${fmt(x.amount)}</div>
+            </div>
+            <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
+              <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
+              <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.income_type}</strong>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${x.note || '-'}</span>
+            </div>
+            <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+              ${photoBtn}
+            </div>
+          </div>`;
+        }).join('') + '</div>';
+
+        document.getElementById('incomeLogContainer').innerHTML = `
+          <div class="desktop-only table-wrap" style="border:none;">
+            <table class="table-log">
+              <thead><tr><th class="fit-col">Tanggal</th><th>Kategori</th><th class="fit-col">Bukti</th><th class="fit-col" style="text-align:right">Nominal</th></tr></thead>
+              <tbody>${desktopHtml}</tbody>
+            </table>
+          </div>
+          <div class="mobile-only" style="padding-bottom:12px;">${mobileHtml}</div>
+        `;
+      }
     }
 
     function checkSaldo() {
@@ -1588,7 +1818,44 @@
 
     function renderExpenseList() {
       const list = [...cachedExpense].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
-      document.getElementById('expenseList').innerHTML = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><strong>${x.department}</strong><br><span style="font-size:12px; color:var(--text4)">Penerima: ${x.nama_penerima || '-'}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('') || '<tr class="empty-row"><td colspan="4" style="text-align:center; padding:12px">Kosong.</td></tr>';
+      if (list.length === 0) {
+        document.getElementById('expenseLogContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Kosong.</div>';
+      } else {
+        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><strong>${x.department}</strong><br><span style="font-size:12px; color:var(--text4)">${x.note || '-'}<br>Penerima: ${x.nama_penerima || '-'}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('');
+        
+        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
+          let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
+          return `
+          <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
+              <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
+                <span class="badge badge-red" style="font-size:10px; padding:2px 7px;">OUT</span>
+                <span style="font-size:11px; color:var(--text3); font-family:monospace;">${x.receipt_no}</span>
+              </div>
+              <div class="amount-neg" style="font-weight: 700; font-size: 15px; white-space:nowrap;">-${fmt(x.amount)}</div>
+            </div>
+            <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
+              <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
+              <span style="color:var(--text4)">Pihak</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${x.nama_penerima || '-'}</strong>
+              <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.department}</strong>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${x.note || '-'}</span>
+            </div>
+            <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+              ${photoBtn}
+            </div>
+          </div>`;
+        }).join('') + '</div>';
+
+        document.getElementById('expenseLogContainer').innerHTML = `
+          <div class="desktop-only table-wrap" style="border:none;">
+            <table class="table-log">
+              <thead><tr><th class="fit-col">Tanggal</th><th>Bidang</th><th class="fit-col">Bukti</th><th class="fit-col" style="text-align:right">Nominal</th></tr></thead>
+              <tbody>${desktopHtml}</tbody>
+            </table>
+          </div>
+          <div class="mobile-only" style="padding-bottom:12px;">${mobileHtml}</div>
+        `;
+      }
     }
 
     async function loadReport() {
@@ -1602,10 +1869,98 @@
         if (res.success) {
           currentReportData = res.data;
           renderReportView();
+          document.getElementById('btnExportExcel').style.display = 'inline-block';
         }
       } catch (e) {
         rc.innerHTML = `<div style="text-align:center; padding:20px; color:var(--red-pop)">Gagal memuat: ${e.message}</div>`;
       }
+    }
+
+    function exportToExcel() {
+      if (!currentReportData || (!currentReportData.incByCat && !currentReportData.expByDept)) {
+        return notify('Laporan kosong. Buat laporan terlebih dahulu.', 'error');
+      }
+
+      let allTrans = [];
+      if (currentReportData.incByCat) {
+         Object.values(currentReportData.incByCat).forEach(items => {
+            items.forEach(t => allTrans.push({ ...t, transType: 'INCOME' }));
+         });
+      }
+      if (currentReportData.expByDept) {
+         Object.values(currentReportData.expByDept).forEach(items => {
+            items.forEach(t => allTrans.push({ ...t, transType: 'EXPENSE' }));
+         });
+      }
+      
+      allTrans.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      let rowsHtml = '';
+      allTrans.forEach((t, index) => {
+         const type = t.transType === 'INCOME' ? 'Pemasukan' : 'Pengeluaran';
+         const category = t.income_type || t.department || '';
+         const pihak = t.nama_pemberi || t.nama_penerima || '';
+         const receipt = t.receipt_no || '';
+         const note = t.note || '';
+         const incAmt = t.transType === 'INCOME' ? t.amount : '';
+         const expAmt = t.transType === 'EXPENSE' ? t.amount : '';
+
+         rowsHtml += `<tr>
+            <td>${index + 1}</td>
+            <td>${fmtDate(t.date)}</td>
+            <td>${type}</td>
+            <td>${category}</td>
+            <td>${pihak}</td>
+            <td>${receipt}</td>
+            <td>${note}</td>
+            <td>${incAmt}</td>
+            <td>${expAmt}</td>
+         </tr>`;
+      });
+
+      const html = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            table { border-collapse: collapse; font-family: sans-serif; }
+            th, td { border: 1px solid #000000; padding: 5px; font-size: 11pt; text-align: left; vertical-align: top; }
+            th { background-color: #e2e8f0; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Tanggal</th>
+                <th>Tipe Transaksi</th>
+                <th>Kategori / Bidang</th>
+                <th>Pihak (Pemberi / Penerima)</th>
+                <th>No. Bukti</th>
+                <th>Catatan</th>
+                <th>Pemasukan (+)</th>
+                <th>Pengeluaran (-)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+      
+      const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Data_Transaksi_${document.getElementById('rptMonth').value}_${document.getElementById('rptYear').value}.xls`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      notify('Export Excel berhasil.', 'success');
     }
 
     function applyReportSensor() {
@@ -1618,7 +1973,6 @@
       const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
       const s = data.summary; const bal = s.balances || cachedSaldo; const isViewer = currentUser && currentUser.role === 'Viewer';
 
-      // Periksa apakah fitur Sensor Centang (Tick Tool) aktif
       const isSensor = document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false;
 
       let html = `
@@ -1720,25 +2074,83 @@
 
       const isAdmin = currentUser.role === 'Admin'; const canEdit = isAdmin || currentUser.role === 'Bendahara'; const isViewer = currentUser.role === 'Viewer';
 
-      document.getElementById('historyList').innerHTML = list.map(x => {
-        const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
-        const deleteId = x.transaction_id || x.receipt_no || '';
-        let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
-        const pihak = x.type === 'income' ? (isPrivCategory ? '***' : (x.nama_pemberi || '-')) : (x.nama_penerima || '-');
+      if (list.length === 0) {
+        document.getElementById('historyListContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Data kosong.</div>';
+      } else {
+        let desktopHtml = list.map(x => {
+          const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
+          const deleteId = x.transaction_id || x.receipt_no || '';
+          let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
+          const pihak = x.type === 'income' ? (isPrivCategory ? '***' : (x.nama_pemberi || '-')) : (x.nama_penerima || '-');
 
-        return `
-    <tr>
-      <td class="fit-col">${fmtDate(x.date)}</td>
-      <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
-      <td><strong>${x.income_type || x.department || '-'}</strong><br><span style="font-size:12px; color:var(--text4)">${isPrivCategory ? '***' : (x.note || '-')}</span></td>
-      <td class="fit-col"><span class="badge badge-gray">${x.receipt_no || '-'}</span> ${photoBtn}</td>
-      <td>${pihak}</td>
-      <td class="fit-col ${x.style}" style="text-align:right; font-weight:800;">${x.sign}${fmt(x.amount)}</td>
-      <td class="fit-col" style="text-align:right;">
-        ${canEdit && deleteId ? `<button class="btn-icon-only" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit')}</button>` : ''}
-        ${isAdmin && deleteId ? `<button class="btn-icon-only" style="color:var(--red-pop)" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash')}</button>` : (!canEdit ? '<span style="color:var(--text4)">-</span>' : '')}
-      </td>
-    </tr>`}).join('') || '<tr><td colspan="7" style="text-align:center"><div class="empty-state">Data kosong.</div></td></tr>';
+          return `
+      <tr>
+        <td class="fit-col">${fmtDate(x.date)}</td>
+        <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
+        <td><strong>${x.income_type || x.department || '-'}</strong><br><span style="font-size:12px; color:var(--text4)">${isPrivCategory ? '***' : (x.note || '-')}</span></td>
+        <td class="fit-col"><span class="badge badge-gray">${x.receipt_no || '-'}</span> ${photoBtn}</td>
+        <td>${pihak}</td>
+        <td class="fit-col ${x.style}" style="text-align:right; font-weight:800;">${x.sign}${fmt(x.amount)}</td>
+        <td class="fit-col" style="text-align:right;">
+          ${canEdit && deleteId ? `<button class="btn-icon-only" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit')}</button>` : ''}
+          ${isAdmin && deleteId ? `<button class="btn-icon-only" style="color:var(--red-pop)" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash')}</button>` : (!canEdit ? '<span style="color:var(--text4)">-</span>' : '')}
+        </td>
+      </tr>`;
+        }).join('');
+
+        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
+          const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
+          const isInc = x.type === 'income';
+          const deleteId = x.transaction_id || x.receipt_no || '';
+          const pihak = x.type === 'income' ? (isPrivCategory ? '***' : (x.nama_pemberi || '-')) : (x.nama_penerima || '-');
+          
+          let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
+          let editBtn = canEdit && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openEditTrans('${x.type}', '${deleteId}')">✏️ Edit</button>` : '';
+          let delBtn = isAdmin && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--rose-pop);" onclick="deleteTransaction('${x.type}', '${deleteId}')">🗑️ Hapus</button>` : '';
+
+          return `
+          <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
+              <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
+                <span class="badge ${x.badge}" style="font-size:10px; padding:2px 7px;">${isInc ? 'IN' : 'OUT'}</span>
+                <span style="font-size:11px; color:var(--text3); font-family:monospace;">${x.receipt_no || '-'}</span>
+              </div>
+              <div class="${x.style}" style="font-weight: 700; font-size: 15px; white-space:nowrap;">${x.sign}${fmt(x.amount)}</div>
+            </div>
+            <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
+              <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
+              <span style="color:var(--text4)">Pihak</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${pihak}</strong>
+              <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.income_type || x.department || '-'}</strong>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${isPrivCategory ? '***' : (x.note || '-')}</span>
+            </div>
+            <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+              ${photoBtn}
+              ${editBtn}
+              ${delBtn}
+            </div>
+          </div>`;
+        }).join('') + '</div>';
+
+        document.getElementById('historyListContainer').innerHTML = `
+          <div class="desktop-only table-wrap scrollable" style="border:none;">
+            <table class="table-history">
+              <thead>
+                <tr>
+                  <th class="fit-col">Tanggal</th>
+                  <th class="fit-col">Alur</th>
+                  <th>Kategori & Keterangan</th>
+                  <th class="fit-col">Bukti</th>
+                  <th>Pihak</th>
+                  <th class="fit-col" style="text-align:right">Nominal</th>
+                  <th class="fit-col" style="text-align:right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>${desktopHtml}</tbody>
+            </table>
+          </div>
+          <div class="mobile-only" style="padding-bottom:12px;">${mobileHtml}</div>
+        `;
+      }
     }
 
     let currentEditTransaction = null;
@@ -1767,7 +2179,7 @@
       if (!trx) { notify('Transaksi tidak ditemukan.', 'error'); return; }
 
       if (document.getElementById('editTransModal')) document.getElementById('editTransModal').style.display = 'flex';
-      if (document.getElementById('editTransDate')) document.getElementById('editTransDate').value = fmtDate(trx.date);
+      if (document.getElementById('editTransDate')) document.getElementById('editTransDate').value = fmtInputDate(trx.date);
       if (document.getElementById('editTransReceipt')) document.getElementById('editTransReceipt').value = trx.receipt_no || '';
       if (document.getElementById('editTransNote')) document.getElementById('editTransNote').value = trx.note || '';
 
@@ -2078,8 +2490,10 @@
         } else { clearToken(); }
       }
     };
+
+
   </script>
-  
+
 </body>
 
 </html>

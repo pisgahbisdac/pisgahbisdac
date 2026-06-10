@@ -24,7 +24,7 @@
     
 
     
-  <link rel="stylesheet" crossorigin href="/assets/index-DzI4nzHe.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-DzNfxNBj.css">
 </head>
 
 <body class="font-sans antialiased text-stone-300 relative leading-relaxed overflow-x-hidden page-pembangunan">
@@ -624,11 +624,9 @@
                                         class="w-full bg-navy-900 border border-gold-500/15 focus:border-gold-500/50 focus:outline-none px-4 py-3 text-xs text-stone-100 font-semibold">
                                 </div>
                                 <div class="space-y-1.5">
-                                    <label
-                                        class="text-[10px] font-semibold text-stone-400 uppercase tracking-widest">Dana
-                                        Terkumpul (Rp)</label>
-                                    <input type="number" id="edit-terkumpul"
-                                        class="w-full bg-navy-900 border border-gold-500/15 focus:border-gold-500/50 focus:outline-none px-4 py-3 text-xs text-stone-100 font-semibold">
+                                    <label class="text-[10px] font-semibold text-stone-400 uppercase tracking-widest">Dana Terkumpul (Rp) <span class="text-gold-500 lowercase normal-case ml-1 font-normal">(Auto-Sync Laporan)</span></label>
+                                    <input type="number" id="edit-terkumpul" readonly
+                                        class="w-full bg-navy-900/50 border border-gold-500/15 px-4 py-3 text-xs text-stone-500 font-semibold cursor-not-allowed focus:outline-none" placeholder="Otomatis disinkronkan...">
                                 </div>
                                 <div class="space-y-1.5">
                                     <label
@@ -1132,7 +1130,7 @@
                                 <span class="text-[9px] uppercase tracking-widest px-2.5 py-1 ${item.status === 'Confirmed' ? 'border border-emerald-500/30 text-emerald-400 bg-emerald-500/5' : 'border border-gold-500/30 text-gold-500 bg-gold-500/5'}">
                                     ${item.status === 'Confirmed' ? 'Selesai' : '⏳ Tertunda'}
                                 </span>
-                                <span class="text-[10px] text-stone-500">${new Date(item.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                <span class="text-[10px] text-stone-500">${(function(d){return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear();})(new Date(item.date))}</span>
                             </div>
                             <h5 class="font-serif text-lg text-stone-100 font-light">${item.nama}</h5>
                             <p class="font-serif text-xl text-gold-500">${formatRp(item.jumlah)}</p>

@@ -643,7 +643,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                                 {wartaTerbaru.judul}
                             </h3>
                             <div className="text-[10px] font-bold text-navy-500 uppercase tracking-widest mb-2 flex items-center">
-                                <Icon name="Calendar" className="w-3.5 h-3.5 mr-1 text-gold-500" /> {wartaTerbaru.tanggal}
+                                <Icon name="Calendar" className="w-3.5 h-3.5 mr-1 text-gold-500" /> {formatDate(wartaTerbaru.tanggal)}
                             </div>
                             <p className="text-xs text-navy-600 font-medium line-clamp-2 leading-relaxed">
                                 {truncateText(stripHtml(wartaTerbaru.isi), 120)}
@@ -678,7 +678,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                                         <h4 className="font-bold text-[11px] md:text-xs text-navy-800 line-clamp-2 leading-tight group-hover:text-gold-600 transition-colors">
                                             {warta.judul}
                                         </h4>
-                                        <span className="text-[9px] text-navy-400 font-bold block mt-1">{warta.tanggal}</span>
+                                        <span className="text-[9px] text-navy-400 font-bold block mt-1">{formatDate(warta.tanggal)}</span>
                                     </div>
                                 );
                             })}
@@ -2277,7 +2277,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta 
                 <div className="bg-white rounded-[1.5rem] p-5 md:p-8 shadow-sm border border-navy-100/60">
                     <h1 className="text-2xl md:text-3xl font-black text-navy-900 leading-tight mb-4">{selectedWarta.judul}</h1>
                     <div className="flex flex-wrap items-center text-sm text-navy-500 font-medium mb-6 pb-6 border-b border-navy-50">
-                        <span className="flex items-center mr-4 mb-2 md:mb-0"><Icon name="Calendar" className="w-4 h-4 mr-1.5 text-gold-500" /> {selectedWarta.tanggal}</span>
+                        <span className="flex items-center mr-4 mb-2 md:mb-0"><Icon name="Calendar" className="w-4 h-4 mr-1.5 text-gold-500" /> {formatDate(selectedWarta.tanggal)}</span>
                         <span className="flex items-center"><Icon name="Edit" className="w-4 h-4 mr-1.5 text-gold-500" /> {selectedWarta.penulis || 'Admin'}</span>
                     </div>
 
@@ -2393,7 +2393,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta 
 
                                             {/* Badge Tanggal (Floating) */}
                                             <div className="absolute bottom-3 left-3 bg-white/90 text-navy-900 text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm backdrop-blur-md">
-                                                {warta.tanggal}
+                                                {formatDate(warta.tanggal)}
                                             </div>
                                         </div>
 
@@ -4386,7 +4386,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                 <div className="flex-1 flex flex-col min-w-0">
                                                                     <h4 className="font-bold text-navy-900 text-base sm:text-lg line-clamp-2 leading-tight mb-1.5 group-hover:text-gold-600 transition-colors pr-2">{warta.judul}</h4>
                                                                     <p className="text-[10px] font-bold text-navy-500 uppercase tracking-widest mb-2 flex items-center">
-                                                                        <Icon name="Calendar" className="w-3 h-3 mr-1.5 text-gold-500" /> {warta.tanggal}
+                                                                        <Icon name="Calendar" className="w-3 h-3 mr-1.5 text-gold-500" /> {formatDate(warta.tanggal)}
                                                                     </p>
                                                                     <p className="text-xs text-navy-600 line-clamp-2 leading-relaxed mb-4 flex-1">
                                                                         {shortPreview}

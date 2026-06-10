@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistem Kehadiran Jemaat - PISGAH BISDAC</title>
-    <link rel="icon" type="image/png" href="./PisgahWhite.png">
-    <link rel="apple-touch-icon" href="./PisgahWhite.png">
+    <link rel="icon" type="image/svg+xml" href="./icons/PisgahColor.png">
+    <link rel="icon" type="image/png" href="./icons/PisgahColor.png">
+    <link rel="apple-touch-icon" href="./icons/PisgahColor.png">
     <meta name="theme-color" content="#151924">
-    
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Taruh setelah tag <meta charset> -->
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
@@ -18,25 +21,58 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://unpkg.com">
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-    
-    
-  <script type="module" crossorigin src="/assets/hadir-DkhbfkJK.js"></script>
+
+    <style>
+        #app-preloader {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #050814;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        #app-preloader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid rgba(245, 158, 11, 0.3);
+            border-top: 4px solid #f59e0b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+  <script type="module" crossorigin src="/assets/hadir-CR7_T5wy.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/jsx-runtime-BPsgnrMD.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-DzI4nzHe.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-DzNfxNBj.css">
 </head>
-<body class="antialiased min-h-screen relative overflow-x-hidden bg-slate-50 dark:bg-[#050814] text-slate-900 dark:text-slate-100 transition-colors duration-300">
-    
+
+<body
+    class="antialiased min-h-screen relative overflow-x-hidden bg-slate-50 dark:bg-[#050814] text-slate-900 dark:text-slate-100 transition-colors duration-300">
+
     <!-- Preloader Instan -->
     <div id="app-preloader">
         <div class="spinner"></div>
-        <h2 style="color: #f59e0b; font-weight: 800; font-size: 1.25rem; margin-top: 1.5rem; letter-spacing: 0.05em; font-family: 'Inter', sans-serif;">PISGAH BISDAC</h2>
-        <p style="color: #64748b; font-size: 0.875rem; margin-top: 0.5rem; font-family: 'Inter', sans-serif;">Menyiapkan Sistem...</p>
+        <h2
+            style="color: #f59e0b; font-weight: 800; font-size: 1.25rem; margin-top: 1.5rem; letter-spacing: 0.05em; font-family: 'Inter', sans-serif;">
+            PISGAH BISDAC</h2>
+        <p style="color: #64748b; font-size: 0.875rem; margin-top: 0.5rem; font-family: 'Inter', sans-serif;">Menyiapkan
+            Sistem...</p>
     </div>
 
     <!-- Background Decoration -->
     <div class="fixed inset-0 bg-slate-100 dark:bg-[#040712] overflow-hidden -z-10 transition-colors duration-300">
-        <div class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-blue-400/20 dark:bg-blue-900/15 blur-[140px]"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-amber-400/20 dark:bg-amber-500/10 blur-[140px]"></div>
+        <div
+            class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-blue-400/20 dark:bg-blue-900/15 blur-[140px]">
+        </div>
+        <div
+            class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-amber-400/20 dark:bg-amber-500/10 blur-[140px]">
+        </div>
     </div>
 
     <div id="root"></div>
@@ -45,12 +81,14 @@
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<!-- jsPDF & XLSX dimuat setelah app siap, tidak blocking render -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <!-- jsPDF & XLSX dimuat setelah app siap, tidak blocking render -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"
+        defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
 
-    
+
 </body>
+
 </html>
