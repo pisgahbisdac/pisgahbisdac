@@ -380,15 +380,15 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
 
         const cardContent = (
             <>
-                <div className="w-12 h-12 md:w-16 md:h-16 rounded-[1rem] bg-navy-50 group-hover:bg-gold-50 transition-colors flex items-center justify-center mb-2.5 md:mb-3">
-                    <Icon name={item.icon} className="w-6 h-6 md:w-8 md:h-8 text-navy-600 group-hover:text-gold-500 transition-colors" />
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-navy-50 to-navy-100 dark:from-navy-700/80 dark:to-navy-800/80 group-hover:from-gold-400 group-hover:to-gold-500 transition-all duration-300 flex items-center justify-center mb-3 shadow-inner">
+                    <Icon name={item.icon} className="w-6 h-6 md:w-7 md:h-7 text-navy-600 dark:text-navy-300 group-hover:text-white transition-colors duration-300 drop-shadow-sm" />
                 </div>
-                <h3 className="font-bold text-[11px] md:text-sm leading-tight text-navy-900 group-hover:text-gold-700 transition-colors">{line1}{line2 && <><br />{line2}</>}</h3>
+                <h3 className="font-bold text-[11px] md:text-[13px] leading-tight text-navy-900 dark:text-white group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors duration-300">{line1}{line2 && <><br />{line2}</>}</h3>
             </>
         )
 
-        const baseClass = "bg-white p-2 md:p-2 rounded-[1rem] shadow-sm flex flex-col items-center text-center justify-center transition-all duration-200 group";
-        const borderGlowClass = "border border-gold-300/80 hover:glass-card hover:shadow-[0_0_6px_rgba(231,174,48,0.6)]";
+        const baseClass = "bg-white dark:bg-navy-800/80 p-3 md:p-4 rounded-3xl shadow-sm border border-navy-100/80 dark:border-navy-700/80 flex flex-col items-center text-center justify-center transition-all duration-300 group backdrop-blur-sm";
+        const borderGlowClass = "hover:border-gold-300 dark:hover:border-gold-500/50 hover:shadow-lg hover:shadow-gold-500/10 hover:-translate-y-1";
 
         if (item.isSameTab) {
             return (
@@ -490,17 +490,22 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
             </div>
 
             {!isPengumumanReallyEmpty() && (
-                <div className="bg-gradient-to-r from-gold-50 to-white-100 p-5 md:p-6 rounded-[1.5rem] shadow-sm border border-gold-200 hover:shadow-md transition-shadow relative overflow-hidden mb-6 md:mb-8">
-                    <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-navy-400 text-white text-[9px] md:text-[10px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center z-10">
-                        <Icon name="Info" className="w-3 h-3 mr-1" /> Info
+                <div className="bg-white dark:bg-navy-800/90 p-6 md:p-8 rounded-[2rem] shadow-lg border border-gold-300/50 dark:border-gold-500/30 hover:shadow-xl transition-all duration-300 relative overflow-hidden mb-6 md:mb-8 group">
+                    <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-gold-400 text-navy-900 text-[10px] md:text-[11px] font-black px-4 py-2 rounded-bl-2xl uppercase tracking-widest shadow-sm flex items-center z-10">
+                        <Icon name="Info" className="w-3 h-3 mr-1" /> Info Terkini
                     </div>
-                    <h2 className="text-[1.15rem] font-bold mb-4 text-navy-900 flex items-center">
-                        <Icon name="Megaphone" className="w-[1.5rem] h-[1.5rem] mr-2 text-gold-500" /> PENGUMUMAN JEMAAT
-                    </h2>
-                    <h3 className="text-[1rem] font-bold mb-3 text-navy-900 flex items-center">
-                        {pengumuman.header || "Pengumuman Jemaat"}
-                    </h3>
-                    <div className="pengumuman-text text-navy-800 text-sm whitespace-pre-wrap font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}>
+                    <div className="flex items-center mb-5 border-b border-navy-100/60 dark:border-navy-700/60 pb-5 relative z-10">
+                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-gold-50 to-gold-100 dark:from-navy-700 dark:to-navy-800 flex items-center justify-center mr-4 shrink-0 shadow-inner group-hover:from-gold-400 group-hover:to-gold-500 transition-colors duration-300 border border-gold-200 dark:border-navy-600">
+                            <Icon name="Megaphone" className="w-6 h-6 md:w-7 md:h-7 text-gold-600 dark:text-gold-400 group-hover:text-white transition-colors duration-300 drop-shadow-sm" />
+                        </div>
+                        <div>
+                            <h2 className="text-sm font-bold text-navy-400 dark:text-gray-400 uppercase tracking-widest leading-none mb-1.5">PENGUMUMAN JEMAAT</h2>
+                            <h3 className="text-lg md:text-xl font-black text-navy-900 dark:text-white leading-tight">
+                                {pengumuman.header || "Pekan Ini"}
+                            </h3>
+                        </div>
+                    </div>
+                    <div className="pengumuman-text text-navy-700 dark:text-navy-100 text-[14px] md:text-[15px] whitespace-pre-wrap font-medium leading-relaxed relative z-10" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}>
                     </div>
                 </div>
             )}
@@ -807,9 +812,9 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
     const susunan = activeSabat.susunan || defaultSusunan;
 
     const renderItem = (title, desc, isHighlight = false) => (
-        <div className={`flex justify-between items-center py-3 px-4 border-b border-navy-100 last:border-0 transition-colors rounded-xl mx-2 my-1 ${isHighlight ? 'bg-gold-500/10 shadow-sm border border-gold-500/30' : 'hover:bg-navy-50'}`}>
-            <span className="text-sm font-medium w-1/2 shrink-0 text-navy-600">{title}</span>
-            <span className={`text-sm text-right w-1/2 break-words font-bold ${isHighlight ? 'text-gold-500' : 'text-navy-900'}`}>{desc}</span>
+        <div className={`flex justify-between items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 transition-colors rounded-xl mx-2 my-1.5 ${isHighlight ? 'bg-gold-500/10 shadow-sm border-gold-500/50' : 'hover:bg-navy-50 dark:hover:bg-navy-700/50'}`}>
+            <span className="text-sm font-medium w-1/2 shrink-0 text-navy-600 dark:text-navy-300">{title}</span>
+            <span className={`text-sm text-right w-1/2 break-words font-bold ${isHighlight ? 'text-gold-500' : 'text-navy-900 dark:text-white'}`}>{desc}</span>
         </div>
     );
 
@@ -1312,22 +1317,18 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
 
 // Helper Rendering Sub-Group untuk Perjamuan (support dark mode)
 const renderPerjamuanGroup = (title, members) => (
-    <div className="bg-white/80 dark:bg-navy-800/60 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-amber-100 dark:border-gold-800/30">
-        <h3 className="text-md font-bold text-navy-800 dark:text-gold-400 border-l-4 border-gold-500 pl-2 mb-2">
-            {title}
-        </h3>
-        <ul className="space-y-1.5">
+    <div className="flex flex-col">
+        <div className="mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
+            <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">{title}</h3>
+        </div>
+        <div className="flex flex-col">
             {members.map((m, idx) => (
-                <li key={idx} className="flex justify-between items-center text-sm">
-                    <span className="text-navy-600 dark:text-gray-400 text-l bg-gold-50 dark:bg-navy-700 px-2 py-0.5 rounded-lg">
-                        {m.tugas}
-                    </span>
-                    <span className="font-medium text-navy-900 dark:text-gray-200 text-right">
-                        {m.nama || "-"}
-                    </span>
-                </li>
+                <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
+                    <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{m.tugas}</span>
+                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words pl-2">{m.nama || "-"}</span>
+                </div>
             ))}
-        </ul>
+        </div>
     </div>
 );
 
@@ -1385,9 +1386,9 @@ const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, per
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
                 {activeRabu.petugas.map((p, idx) => (
-                    <div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 dark:border-navy-700/50 last:border-0 md:[&:nth-last-child(-n+2)]:border-0 px-2 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-lg">
+                    <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
                         <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                        <span className="text-sm font-bold text-navy-900 dark:text-white text-right">{p.nama}</span>
+                        <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
                     </div>
                 ))}
             </div>
@@ -1415,9 +1416,9 @@ const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, per
                         </div>
                         <div className="flex flex-col">
                             {activeSabat.khotbah.map((p, idx) => (
-                                <div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 dark:border-navy-700/50 last:border-0 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-lg px-2">
+                                <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
                                     <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right">{p.nama}</span>
+                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
                                 </div>
                             ))}
                         </div>
@@ -1428,9 +1429,9 @@ const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, per
                         </div>
                         <div className="flex flex-col">
                             {activeSabat.diakon.map((p, idx) => (
-                                <div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 dark:border-navy-700/50 last:border-0 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-lg px-2">
+                                <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
                                     <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right">{p.nama}</span>
+                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
                                 </div>
                             ))}
                         </div>
@@ -1444,9 +1445,9 @@ const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, per
                         </div>
                         <div className="flex flex-col">
                             {activeSabat.sekolahSabat.map((p, idx) => (
-                                <div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 dark:border-navy-700/50 last:border-0 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-lg px-2">
+                                <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
                                     <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right">{p.nama}</span>
+                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
                                 </div>
                             ))}
                         </div>
@@ -1457,9 +1458,9 @@ const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, per
                         </div>
                         <div className="flex flex-col">
                             {activeSabat.musik.map((p, idx) => (
-                                <div key={idx} className="flex justify-between items-center py-2 border-b border-navy-50/50 dark:border-navy-700/50 last:border-0 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-lg px-2">
+                                <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
                                     <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right">{p.nama}</span>
+                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
                                 </div>
                             ))}
                         </div>
@@ -1535,30 +1536,33 @@ const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPe
                 </div>
 
                 {isRabu ? (
-                    <div className="overflow-hidden border-separate rounded-xl border-navy-100/50">
-                        <table className="w-full text-left text-sm border-collapse">
-                            <tbody>
-                                {targetJadwal.petugas.map((p, idx) => (<tr key={idx} className="border-b border-navy-50 relative last:border-0 hover:bg-navy-50/30 transition-colors"><td className="py-3 px-5 text-navy-500 font-medium w-1/2">{p.tugas}</td><td className="py-3 px-5 font-bold text-navy-900 w-1/2 text-right">{p.nama}</td></tr>))}
-                            </tbody>
-                        </table>
+                    <div className="flex flex-col">
+                        {targetJadwal.petugas.map((p, idx) => (
+                            <div key={idx} className="flex items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 rounded-xl my-1.5 hover:bg-navy-50/30 transition-colors">
+                                <span className="text-sm text-navy-500 font-medium w-1/2">{p.tugas}</span>
+                                <span className="text-sm font-bold text-navy-900 w-1/2 text-right break-words">{p.nama}</span>
+                            </div>
+                        ))}
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        <div className="border rounded-xl border-navy-100/50 overflow-hidden">
-                            <div className="flex justify-between items-end mb-2 bg-navy-50/50 px-5 py-3 border-b border-navy-100/50 font-bold text-navy-800 text-sm uppercase tracking-wide">Ibadah Umum / Khotbah<span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.khotbahTime}</span></div>
-                            <table className="w-full text-left text-sm border-collapse">
-                                <tbody>
-                                    {targetJadwal.khotbah.map((p, idx) => (<tr key={idx} className="border-b border-navy-50 relative last:border-0 hover:bg-navy-50/30 transition-colors"><td className="py-2.5 px-5 text-navy-500 font-medium w-1/2">{p.tugas}</td><td className="py-2.5 px-5 font-bold text-navy-900 text-right w-1/2">{p.nama}</td></tr>))}
-                                </tbody>
-                            </table>
+                        <div className="flex flex-col">
+                            <div className="flex justify-between items-end bg-navy-50/50 px-5 py-3 border border-navy-100/50 rounded-xl mb-3 font-bold text-navy-800 text-sm uppercase tracking-wide shadow-sm">Ibadah Umum / Khotbah<span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.khotbahTime}</span></div>
+                            {targetJadwal.khotbah.map((p, idx) => (
+                                <div key={idx} className="flex items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 rounded-xl my-1.5 hover:bg-navy-50/30 transition-colors">
+                                    <span className="text-sm text-navy-500 font-medium w-1/2">{p.tugas}</span>
+                                    <span className="text-sm font-bold text-navy-900 text-right w-1/2 break-words">{p.nama}</span>
+                                </div>
+                            ))}
                         </div>
-                        <div className="border rounded-xl border-navy-100/50 overflow-hidden">
-                            <div className="flex justify-between items-end mb-2 bg-navy-50/50 px-5 py-3 border-b border-navy-100/50 font-bold text-navy-800 text-sm uppercase tracking-wide">Sekolah Sabat<span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.sekolahSabatTime}</span></div>
-                            <table className="w-full text-left text-sm border-collapse">
-                                <tbody>
-                                    {targetJadwal.sekolahSabat.map((p, idx) => (<tr key={idx} className="border-b border-navy-50 relative last:border-0 hover:bg-navy-50/30 transition-colors"><td className="py-2.5 px-5 text-navy-500 font-medium w-1/2">{p.tugas}</td><td className="py-2.5 px-5 font-bold text-navy-900 text-right w-1/2">{p.nama}</td></tr>))}
-                                </tbody>
-                            </table>
+                        <div className="flex flex-col">
+                            <div className="flex justify-between items-end bg-navy-50/50 px-5 py-3 border border-navy-100/50 rounded-xl mb-3 font-bold text-navy-800 text-sm uppercase tracking-wide shadow-sm">Sekolah Sabat<span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.sekolahSabatTime}</span></div>
+                            {targetJadwal.sekolahSabat.map((p, idx) => (
+                                <div key={idx} className="flex items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 rounded-xl my-1.5 hover:bg-navy-50/30 transition-colors">
+                                    <span className="text-sm text-navy-500 font-medium w-1/2">{p.tugas}</span>
+                                    <span className="text-sm font-bold text-navy-900 text-right w-1/2 break-words">{p.nama}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 )}
