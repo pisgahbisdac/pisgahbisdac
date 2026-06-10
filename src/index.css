@@ -957,7 +957,7 @@ tr:hover td { background: var(--table-hover); }
 
         html.page-pembangunan, body.page-pembangunan { background: #0b1a30 !important; margin: 0; padding: 0; min-height: 100vh; -webkit-tap-highlight-color: transparent; overflow-x: hidden; color: #eae7e2; }
 
-        .hidden {
+        .page-pembangunan .hidden {
             display: none !important;
         }
 
