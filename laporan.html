@@ -173,7 +173,7 @@
       } else {
         let totalInc = 0;
         let totalExp = 0;
-        let listHtml = '<div style="display:flex; flex-direction:column; gap:8px;">';
+        let listHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:6px;">';
         
         txList.forEach(x => {
           const amt = x.overrideAmt || x.amount;
@@ -183,22 +183,22 @@
           const displayNote = isPrivCategory ? '*** (Privasi)' : (x.note || '-');
 
           let photoBtn = '';
-          if (x.receipt_photo) { photoBtn = `<button class="btn btn-ghost" style="padding:4px 8px; font-size:12px; margin-top:8px;" onclick="openPhotoModal('${x.receipt_photo}')">Lihat Foto</button>`; }
+          if (x.receipt_photo) { photoBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>`; }
 
           listHtml += `
-          <div style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--empty-bg);">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-              <div>
-                <span class="badge ${x.isInc ? 'badge-green' : 'badge-red'}">${x.isInc ? 'Pemasukan' : 'Pengeluaran'}</span>
-                <span class="badge badge-gray" style="margin-left:4px;">${x.receipt_no}</span>
+          <div class="dash-tx-card" style="padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--empty-bg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px;">
+              <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
+                <span class="badge ${x.isInc ? 'badge-green' : 'badge-red'}" style="font-size:10px; padding:2px 7px;">${x.isInc ? 'IN' : 'OUT'}</span>
+                <span style="font-size:11px; color:var(--text3); font-family:monospace;">${x.receipt_no}</span>
               </div>
-              <div class="${x.isInc ? 'amount-pos' : 'amount-neg'}" style="font-weight: 700; font-size: 16px;">${x.isInc ? '+' : '-'}${fmt(amt)}</div>
+              <div class="${x.isInc ? 'amount-pos' : 'amount-neg'}" style="font-weight: 700; font-size: 15px; white-space:nowrap;">${x.isInc ? '+' : '-'}${fmt(amt)}</div>
             </div>
-            <div style="font-size: 12px; color: var(--text2);">
-              <div style="margin-bottom:2px;">Tgl: <strong style="color:var(--text)">${fmtDate(x.date)}</strong></div>
-              <div style="margin-bottom:2px;">Pihak: <strong style="color:var(--text)">${displayPihak}</strong></div>
-              <div style="margin-bottom:2px;">Ket: <strong style="color:var(--text)">${x.isInc ? x.income_type : x.department}</strong></div>
-              <div style="color:var(--text4);">${displayNote}</div>
+            <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
+              <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
+              <span style="color:var(--text4)">Pihak</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${displayPihak}</strong>
+              <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.isInc ? x.income_type : x.department}</strong>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${displayNote}</span>
             </div>
             ${photoBtn}
           </div>`;
@@ -207,18 +207,18 @@
 
         let totalVal = totalInc - totalExp;
         let summaryHtml = `
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px;">
-          <div style="background: rgba(5, 150, 105, 0.05); border: 1px solid rgba(5, 150, 105, 0.2); padding: 12px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm);">
-            <div style="font-size: 10px; color: var(--text3); margin-bottom: 4px; font-weight: 700; text-transform: uppercase;">Pemasukan</div>
-            <div class="amount-pos" style="font-size: 14px;">+${fmt(totalInc)}</div>
+        <div class="dash-summary-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px;">
+          <div style="background: rgba(5, 150, 105, 0.08); border: 1px solid rgba(5, 150, 105, 0.2); padding: 8px 6px; border-radius: var(--radius); text-align: center;">
+            <div style="font-size: 9px; color: var(--text3); margin-bottom: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pemasukan</div>
+            <div class="amount-pos" style="font-size: 13px; font-weight: 800;">+${fmt(totalInc)}</div>
           </div>
-          <div style="background: rgba(220, 38, 38, 0.05); border: 1px solid rgba(220, 38, 38, 0.2); padding: 12px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm);">
-            <div style="font-size: 10px; color: var(--text3); margin-bottom: 4px; font-weight: 700; text-transform: uppercase;">Pengeluaran</div>
-            <div class="amount-neg" style="font-size: 14px;">-${fmt(totalExp)}</div>
+          <div style="background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.2); padding: 8px 6px; border-radius: var(--radius); text-align: center;">
+            <div style="font-size: 9px; color: var(--text3); margin-bottom: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pengeluaran</div>
+            <div class="amount-neg" style="font-size: 13px; font-weight: 800;">-${fmt(totalExp)}</div>
           </div>
-          <div style="background: var(--empty-bg); border: 1px solid var(--glass-border); padding: 12px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm);">
-            <div style="font-size: 10px; color: var(--text3); margin-bottom: 4px; font-weight: 700; text-transform: uppercase;">Akumulasi</div>
-            <div class="${totalVal >= 0 ? 'amount-pos' : 'amount-neg'}" style="font-size: 14px;">${totalVal >= 0 ? '+' : ''}${fmt(totalVal)}</div>
+          <div style="background: var(--empty-bg); border: 1px solid var(--glass-border); padding: 8px 6px; border-radius: var(--radius); text-align: center;">
+            <div style="font-size: 9px; color: var(--text3); margin-bottom: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Saldo</div>
+            <div class="${totalVal >= 0 ? 'amount-pos' : 'amount-neg'}" style="font-size: 13px; font-weight: 800;">${totalVal >= 0 ? '+' : ''}${fmt(totalVal)}</div>
           </div>
         </div>
         `;
