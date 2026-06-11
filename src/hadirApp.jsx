@@ -2161,9 +2161,9 @@ import ReactDOM from 'react-dom/client';
                                                 </div>
                                             </div>
 
-                                            <div className="bg-white dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-white/10 shadow-md overflow-hidden relative">
-                                                <div className="overflow-x-auto no-scrollbar">
-                                                    <table className="text-left border-collapse text-xs w-max min-w-full">
+                                            <div className="bg-white dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-white/10 shadow-md overflow-hidden relative allow-scroll">
+                                                <div className="overflow-x-auto no-scrollbar allow-scroll">
+                                                    <table className="text-left border-collapse text-xs w-max min-w-full allow-scroll">
                                                         <thead>
                                                             <tr className="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-white/10">
                                                                 {liveReportPreview.headers.map((hdr, i) => (

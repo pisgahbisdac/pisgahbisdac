@@ -12,7 +12,7 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" crossorigin href="/assets/index-D-wXahmK.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-CZkQ7_8I.css">
 </head>
 
 <body class="page-laporan">
@@ -174,7 +174,7 @@
         let totalInc = 0;
         let totalExp = 0;
         let listHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:6px;">';
-        
+
         txList.forEach(x => {
           const amt = x.overrideAmt || x.amount;
           if (x.isInc) totalInc += amt; else totalExp += amt;
@@ -208,21 +208,21 @@
         let totalVal = totalInc - totalExp;
         let summaryHtml = `
         <div class="dash-summary-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px;">
-          <div style="background: rgba(5, 150, 105, 0.08); border: 1px solid rgba(5, 150, 105, 0.2); padding: 8px 6px; border-radius: var(--radius); text-align: center;">
-            <div style="font-size: 9px; color: var(--text3); margin-bottom: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pemasukan</div>
-            <div class="amount-pos" style="font-size: 13px; font-weight: 800;">+${fmt(totalInc)}</div>
+          <div style="background: rgba(5, 150, 105, 0.08); border: 1px solid rgba(5, 150, 105, 0.2); padding: 8px 4px; border-radius: var(--radius); text-align: center; overflow: hidden; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 8px; color: var(--text3); margin-bottom: 2px; font-weight: 800; text-transform: uppercase; letter-spacing: 0px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Pemasukan</div>
+            <div class="amount-pos" style="font-size: clamp(8px, 2.5vw, 12px); font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; line-height: 1.1;">+${fmt(totalInc)}</div>
           </div>
-          <div style="background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.2); padding: 8px 6px; border-radius: var(--radius); text-align: center;">
-            <div style="font-size: 9px; color: var(--text3); margin-bottom: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pengeluaran</div>
-            <div class="amount-neg" style="font-size: 13px; font-weight: 800;">-${fmt(totalExp)}</div>
+          <div style="background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.2); padding: 8px 4px; border-radius: var(--radius); text-align: center; overflow: hidden; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 8px; color: var(--text3); margin-bottom: 2px; font-weight: 800; text-transform: uppercase; letter-spacing: 0px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Pengeluaran</div>
+            <div class="amount-neg" style="font-size: clamp(8px, 2.5vw, 12px); font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; line-height: 1.1;">-${fmt(totalExp)}</div>
           </div>
-          <div style="background: var(--empty-bg); border: 1px solid var(--glass-border); padding: 8px 6px; border-radius: var(--radius); text-align: center;">
-            <div style="font-size: 9px; color: var(--text3); margin-bottom: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Saldo</div>
-            <div class="${totalVal >= 0 ? 'amount-pos' : 'amount-neg'}" style="font-size: 13px; font-weight: 800;">${totalVal >= 0 ? '+' : ''}${fmt(totalVal)}</div>
+          <div style="background: var(--empty-bg); border: 1px solid var(--glass-border); padding: 8px 4px; border-radius: var(--radius); text-align: center; overflow: hidden; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 8px; color: var(--text3); margin-bottom: 2px; font-weight: 800; text-transform: uppercase; letter-spacing: 0px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Saldo</div>
+            <div class="${totalVal >= 0 ? 'amount-pos' : 'amount-neg'}" style="font-size: clamp(8px, 2.5vw, 12px); font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; line-height: 1.1;">${totalVal >= 0 ? '+' : ''}${fmt(totalVal)}</div>
           </div>
         </div>
         `;
-        
+
         html = summaryHtml + listHtml;
       }
 
@@ -479,7 +479,8 @@
         <div class="stats-grid" id="statsGrid"></div>
 
         <div class="grid-2 dashboard-main-grid" style="margin-bottom:24px;">
-          <div class="dashboard-col" style="display: flex; flex-direction: column; gap: 24px; min-width: 0; width: 100%; box-sizing: border-box;">
+          <div class="dashboard-col"
+            style="display: flex; flex-direction: column; gap: 24px; min-width: 0; width: 100%; box-sizing: border-box;">
             <div class="card" style="margin-bottom:0; width: 100%;">
               <div class="card-header">
                 <div>
@@ -637,7 +638,8 @@
               </select>
             </div>
             <div class="form-group"><label class="form-label">Sisa Kas Terpilih</label>
-              <div class="saldo-display" id="saldoTersedia" style="color:var(--accent-cyan, var(--teal-pop))">Rp&nbsp;0</div>
+              <div class="saldo-display" id="saldoTersedia" style="color:var(--accent-cyan, var(--teal-pop))">Rp&nbsp;0
+              </div>
             </div>
             <div class="saldo-warning" id="saldoWarning">
               <script>document.write(getIcon('alert', 'lucide-md'))</script> Pengeluaran Melebihi Saldo!
@@ -680,8 +682,13 @@
       <!-- PAGE: LAPORAN -->
       <div class="page" id="page-laporan">
         <div class="filter-bar">
+          <select class="select-sm" id="rptMode">
+            <option value="bulanan">Per Bulan</option>
+            <option value="akumulasi">Akumulasi (Dari Awal)</option>
+          </select>
           <span class="filter-label">Periode:</span>
           <select class="select-sm" id="rptMonth">
+            <option value="0">Semua Bulan</option>
             <option value="1">Januari</option>
             <option value="2">Februari</option>
             <option value="3">Maret</option>
@@ -698,8 +705,9 @@
           <input type="number" class="select-sm" id="rptYear" value="2026" min="2000" max="2100"
             style="background-image: none; padding-right: 12px; width: 80px;" title="Ketik tahun">
           <button class="btn btn-primary" onclick="loadReport()">Buat Laporan</button>
+          <button class="btn btn-ghost" id="btnExportExcel" onclick="exportToExcel()"
+            style="color: var(--green-pop); border-color: rgba(5, 150, 105, 0.2);">Export Excel</button>
           <button class="btn btn-ghost" id="btnPrintReport" onclick="window.print()">Cetak / PDF</button>
-          <button class="btn btn-ghost" id="btnExportExcel" onclick="exportToExcel()" style="color: var(--green-pop); border-color: rgba(5, 150, 105, 0.2);">Export Excel</button>
         </div>
 
         <div id="reportSensorContainer"
@@ -761,7 +769,8 @@
             <option value="income">Pemasukan Saja</option>
             <option value="expense">Pengeluaran Saja</option>
           </select>
-          <button class="btn btn-primary" id="btnPrintUnit" onclick="printUnitReport()" style="display:none; white-space:nowrap; margin-left:auto;">${safeIcon('printer', 'lucide-sm')} Cetak PDF</button>
+          <button class="btn btn-primary" id="btnPrintUnit" onclick="printUnitReport()"
+            style="display:none; white-space:nowrap; margin-left:auto;">Cetak PDF</button>
         </div>
         <div class="card" style="padding:0;">
           <div id="historyListContainer"></div>
@@ -1094,12 +1103,14 @@
     </div>
   </div>
 
-  <div id="dashboardDetailModal" class="modal-overlay" style="display:none; align-items:center; z-index:1100;">
+  <div id="dashboardDetailModal" class="modal-overlay" style="display:none; z-index:1100;">
     <div class="modal-content slide-up"
-      style="max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column;">
-      <div class="modal-header">
-        <div class="modal-title" id="dashDetailTitle">Rincian Transaksi</div>
-        <button class="btn-icon-only" onclick="closeDashboardDetail()">
+      style="max-height: 95vh; overflow-y: hidden; display: flex; flex-direction: column;">
+      <div class="modal-header" style="position: relative; justify-content: center;">
+        <div class="modal-title" id="dashDetailTitle"
+          style="text-align: center; flex: 1; font-size: 15px; padding-right: 24px; padding-left: 24px;">Rincian
+          Transaksi</div>
+        <button class="btn-icon-only" onclick="closeDashboardDetail()" style="position: absolute; right: 16px;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1125,50 +1136,50 @@
 
     function getActiveApiUrl() { const savedUrl = localStorage.getItem('PiKaChu_api_url'); return (savedUrl && savedUrl.trim() !== '') ? savedUrl.trim() : DEFAULT_API_URL; }
     function printUnitReport(searchTermOverride = null) {
-       if (!window.currentHistoryData || window.currentHistoryData.length === 0) return notify('Tidak ada data untuk dicetak.', 'error');
-       
-       const unitSearchTerm = (typeof searchTermOverride === 'string' ? searchTermOverride : '') || (document.getElementById('filterGiver')?.value.trim() || document.getElementById('searchTrans')?.value.trim()) || '';
-       
-       const incByCat = {};
-       const expByDept = {};
-       let totalInc = 0;
-       let totalExp = 0;
+      if (!window.currentHistoryData || window.currentHistoryData.length === 0) return notify('Tidak ada data untuk dicetak.', 'error');
 
-       window.currentHistoryData.forEach(x => {
-          if (x.type === 'income') {
-             const cat = x.income_type || 'Lainnya';
-             if (!incByCat[cat]) incByCat[cat] = [];
-             incByCat[cat].push(x);
-             totalInc += x.amount;
-          } else {
-             const dept = x.department || 'Lainnya';
-             if (!expByDept[dept]) expByDept[dept] = [];
-             expByDept[dept].push(x);
-             totalExp += x.amount;
-          }
-       });
+      const unitSearchTerm = (typeof searchTermOverride === 'string' ? searchTermOverride : '') || (document.getElementById('filterGiver')?.value.trim() || document.getElementById('searchTrans')?.value.trim()) || '';
 
-       const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-       let periodStr = "Semua Waktu";
-       const fM = parseInt(document.getElementById('filterMonth')?.value || 0);
-       const fY = parseInt(document.getElementById('filterYear')?.value || 0);
-       if (fM > 0 && fY > 0) periodStr = `${mNames[fM]} ${fY}`;
-       else if (fM > 0) periodStr = `${mNames[fM]}`;
-       else if (fY > 0) periodStr = `Tahun ${fY}`;
+      const incByCat = {};
+      const expByDept = {};
+      let totalInc = 0;
+      let totalExp = 0;
 
-       currentReportData = {
-          summary: { totalIncome: totalInc, totalExpense: totalExp, netBalance: totalInc - totalExp, balances: cachedSaldo || { total: 0 } },
-          incByCategory: incByCat,
-          expByDept: expByDept,
-          month: fM || 0,
-          year: fY || 0,
-          customTitle: unitSearchTerm ? `LAPORAN PENCARIAN: ${unitSearchTerm.toUpperCase()}` : `LAPORAN PENCARIAN TRANSAKSI`,
-          customPeriod: `Period: ${periodStr}`
-       };
-       
-       showPage('laporan');
-       renderReportView();
-       setTimeout(() => { window.print(); }, 500);
+      window.currentHistoryData.forEach(x => {
+        if (x.type === 'income') {
+          const cat = x.income_type || 'Lainnya';
+          if (!incByCat[cat]) incByCat[cat] = [];
+          incByCat[cat].push(x);
+          totalInc += x.amount;
+        } else {
+          const dept = x.department || 'Lainnya';
+          if (!expByDept[dept]) expByDept[dept] = [];
+          expByDept[dept].push(x);
+          totalExp += x.amount;
+        }
+      });
+
+      const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+      let periodStr = "Semua Waktu";
+      const fM = parseInt(document.getElementById('filterMonth')?.value || 0);
+      const fY = parseInt(document.getElementById('filterYear')?.value || 0);
+      if (fM > 0 && fY > 0) periodStr = `${mNames[fM]} ${fY}`;
+      else if (fM > 0) periodStr = `${mNames[fM]}`;
+      else if (fY > 0) periodStr = `Tahun ${fY}`;
+
+      currentReportData = {
+        summary: { totalIncome: totalInc, totalExpense: totalExp, netBalance: totalInc - totalExp, balances: cachedSaldo || { total: 0 } },
+        incByCategory: incByCat,
+        expByDept: expByDept,
+        month: fM || 0,
+        year: fY || 0,
+        customTitle: unitSearchTerm ? `LAPORAN PENCARIAN: ${unitSearchTerm.toUpperCase()}` : `LAPORAN PENCARIAN TRANSAKSI`,
+        customPeriod: `Period: ${periodStr}`
+      };
+
+      showPage('laporan');
+      renderReportView();
+      setTimeout(() => { window.print(); }, 500);
     }
 
     function getToken() { return sessionStorage.getItem('PiKaChu_token'); }
@@ -1315,10 +1326,10 @@
     const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbxvNICOilB-oQG3WfI6nrj_kYjG3tGMBZYndE4K3jw_TuvjR7lOMsyyyCyNHTNCKUOOMg/exec';
 
     async function loadPembangunanData() {
-        try {
-            const res = await fetch(PEMBANGUNAN_URL + "?t=" + Date.now());
-            pembangunanDataCache = await res.json();
-        } catch (e) { console.error('Failed to load Pembangunan Data', e); }
+      try {
+        const res = await fetch(PEMBANGUNAN_URL + "?t=" + Date.now());
+        pembangunanDataCache = await res.json();
+      } catch (e) { console.error('Failed to load Pembangunan Data', e); }
     }
     let editingUser = null; let editingUnit = null; let editingIncType = null;
 
@@ -1326,9 +1337,9 @@
     function isPrivateCategory(category) { if (!category) return false; const cat = category.toLowerCase(); return ['perpuluhan', 'persepuluhan', 'khusus jemaat', 'khusus daerah', 'terpadu', 'pembangunan'].some(c => cat.includes(c)); }
     function safeIcon(name, size) { return typeof getIcon === 'function' ? getIcon(name, size) : ''; }
     function togglePassword(inputId, eyeId) { const input = document.getElementById(inputId); const eyeBtn = document.getElementById(eyeId); if (input.type === "password") { input.type = "text"; eyeBtn.innerHTML = safeIcon('eye', 'lucide-md'); } else { input.type = "password"; eyeBtn.innerHTML = safeIcon('eyeOff', 'lucide-md'); } }
-    function fmt(n) { return 'Rp&nbsp;' + Math.round(n || 0).toLocaleString('id-ID'); }
+    function fmt(n) { return 'Rp\u00A0' + Math.round(n || 0).toLocaleString('id-ID'); }
     function fmtInputDate(iso) { if (!iso) return ''; const d = new Date(iso); if (isNaN(d.getTime())) return String(iso).split('T')[0]; return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
-    function fmtDate(iso) { if (!iso) return '-'; const d = new Date(iso); if (isNaN(d.getTime())) { const p = String(iso).split('T')[0].split('-'); if(p.length===3) return `${p[2]}/${p[1]}/${p[0]}`; return String(iso).split('T')[0]; } return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`; }
+    function fmtDate(iso) { if (!iso) return '-'; const d = new Date(iso); if (isNaN(d.getTime())) { const p = String(iso).split('T')[0].split('-'); if (p.length === 3) return `${p[2]}/${p[1]}/${p[0]}`; return String(iso).split('T')[0]; } return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`; }
     function todayStr() { return fmtInputDate(new Date()); }
     function setStatus(state, text) { const dot = document.getElementById('statusDot'); const txt = document.getElementById('statusText'); if (dot && txt) { dot.className = 'status-dot ' + state; txt.textContent = text; } }
 
@@ -1502,7 +1513,7 @@
             const d = new Date(inc.date);
             const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
             monthlySum[k] = (monthlySum[k] || 0) + inc.amount;
-            
+
             const ket = inc.income_type || '-';
             ketSum[ket] = (ketSum[ket] || 0) + inc.amount;
 
@@ -1512,7 +1523,7 @@
           html += `<div style="background:var(--badge-gray-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius); margin-bottom:16px;">
         <div style="font-size:12px; color:var(--text3); margin-bottom:12px; font-weight:700; text-transform:uppercase;">Akumulasi Pemasukan Unit</div>
         <button class="btn btn-primary" style="width:100%; justify-content:center; padding:10px; margin-bottom:16px; font-size:13px;" onclick="printUnitReport('${q}')">${safeIcon('printer', 'lucide-sm')} Cetak PDF Laporan Unit Ini</button>`;
-          
+
           html += `<div style="margin-bottom:8px;"><strong style="font-size:11px; color:var(--text3);">Berdasarkan Bulan</strong></div>`;
           Object.keys(monthlySum).sort((a, b) => b.localeCompare(a)).forEach(k => {
             const [y, m] = k.split('-');
@@ -1585,7 +1596,7 @@
       const unitsGavePersepuluhan = new Set(); filteredInc.forEach(x => { if ((x.income_type || '').toLowerCase().includes('persepuluhan') || (x.income_type || '').toLowerCase().includes('perpuluhan')) unitsGavePersepuluhan.add(x.unit_name); });
       if (masterData && masterData.units) masterData.units.forEach(u => { if (unitsGavePersepuluhan.has(u.name)) totalPemberiPersepuluhan += (parseInt(u.jumlah_anggota) || 0); });
 
-      const targetPembangunan = pembangunanDataCache?.target ? parseInt(pembangunanDataCache.target) : 2500000000; 
+      const targetPembangunan = pembangunanDataCache?.target ? parseInt(pembangunanDataCache.target) : 2500000000;
       const persentaseBangun = (calcBangun / targetPembangunan) * 100; const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
 
       const komitmenSaatIni = pembangunanDataCache?.komitmen_realisasi ? parseInt(pembangunanDataCache.komitmen_realisasi) : 53376900;
@@ -1622,7 +1633,8 @@
       <div class="stat-header"><div class="stat-label">Total Dana Pembangunan</div><div class="stat-icon c-teal">${safeIcon('hammer', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-blue, #3a86ff)">${fmt(calcBangun)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
-        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text-muted, var(--accent-gold, #ffd166));"><span>TARGET: ${fmt(targetPembangunan).toUpperCase()}</span><span style="color: var(--accent-gold, #ffd166, var(--teal-pop));">${persentaseBangun.toFixed(2)}%</span></div>
+        <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 2px; font-weight: 700; color: var(--text-muted, var(--accent-gold, #ffd166));"><span>TARGET:</span><span style="color: var(--accent-gold, #ffd166, var(--teal-pop));">${persentaseBangun.toFixed(2)}%</span></div>
+        <div style="font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text-muted, var(--accent-gold, #ffd166)); word-break: break-word; line-height: 1.1;">${fmt(targetPembangunan).toUpperCase()}</div>
         <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: var(--accent-gold, #ffd166, var(--teal-pop));"></div></div>
       </div>
     </div>
@@ -1630,7 +1642,8 @@
       <div class="stat-header"><div class="stat-label">Komitmen Pembangunan</div><div class="stat-icon c-moss">${safeIcon('hammer', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-cyan, #00d2ff)">${fmt(komitmenSaatIni)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
-        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text-muted, var(--text3));"><span>TARGET: ${fmt(targetKomitmen).toUpperCase()}</span><span style="color: var(--accent-cyan, var(--teal-pop));">${persentaseKomitmen.toFixed(2)}%</span></div>
+        <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 2px; font-weight: 700; color: var(--text-muted, var(--text3));"><span>TARGET:</span><span style="color: var(--accent-cyan, var(--teal-pop));">${persentaseKomitmen.toFixed(2)}%</span></div>
+        <div style="font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text-muted, var(--text3)); word-break: break-word; line-height: 1.1;">${fmt(targetKomitmen).toUpperCase()}</div>
         <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentKomitmen}%; background: var(--accent-cyan, var(--teal-pop));"></div></div>
       </div>
     </div>
@@ -1726,16 +1739,16 @@
       // Auto-Sync to Pembangunan Server
       if (pembangunanDataCache && parseInt(pembangunanDataCache.terkumpul) !== calcBangun) {
         const payload = {
-            action: 'updateInfoWebsite',
-            target: pembangunanDataCache.target,
-            terkumpul: calcBangun, 
-            komitmen: pembangunanDataCache.komitmen,
-            komitmen_target: pembangunanDataCache.komitmen_target,
-            komitmen_realisasi: pembangunanDataCache.komitmen_realisasi,
-            bank: pembangunanDataCache.bank,
-            norek: pembangunanDataCache.norek,
-            atasnama: pembangunanDataCache.atasnama,
-            judul: pembangunanDataCache.judul
+          action: 'updateInfoWebsite',
+          target: pembangunanDataCache.target,
+          terkumpul: calcBangun,
+          komitmen: pembangunanDataCache.komitmen,
+          komitmen_target: pembangunanDataCache.komitmen_target,
+          komitmen_realisasi: pembangunanDataCache.komitmen_realisasi,
+          bank: pembangunanDataCache.bank,
+          norek: pembangunanDataCache.norek,
+          atasnama: pembangunanDataCache.atasnama,
+          judul: pembangunanDataCache.judul
         };
         fetch(PEMBANGUNAN_URL, { method: 'POST', body: JSON.stringify(payload) })
           .then(() => { pembangunanDataCache.terkumpul = calcBangun; console.log("Synced calcBangun to Pembangunan."); })
@@ -1794,7 +1807,7 @@
         document.getElementById('incomeLogContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Kosong.</div>';
       } else {
         let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.income_type, false)}">${x.income_type}</span><br><span style="font-size:12px; color:var(--text4)">${x.note || '-'}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('');
-        
+
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
           let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
           return `
@@ -1861,7 +1874,7 @@
         document.getElementById('expenseLogContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Kosong.</div>';
       } else {
         let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.department, true)}">${x.department}</span><br><span style="font-size:12px; color:var(--text4)">${x.note || '-'}<br>Penerima: ${x.nama_penerima || '-'}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('');
-        
+
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
           let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
           return `
@@ -1900,16 +1913,83 @@
     async function loadReport() {
       const month = parseInt(document.getElementById('rptMonth').value);
       const year = parseInt(document.getElementById('rptYear').value);
+      const mode = document.getElementById('rptMode') ? document.getElementById('rptMode').value : 'bulanan';
       const rc = document.getElementById('reportContent');
 
       rc.innerHTML = '<div style="text-align:center; padding:40px;"><span class="spinner"></span> Menyusun Laporan...</div>';
+      
       try {
-        const res = await apiGet('getMonthlyReport', { month, year });
-        if (res.success) {
-          currentReportData = res.data;
-          renderReportView();
-          document.getElementById('btnExportExcel').style.display = 'inline-block';
+        // Calculate locally to support "Akumulasi dari awal" instantly
+        let totalInc = 0; let totalExp = 0;
+        const incByCat = {}; const expByDept = {};
+        
+        let saldoAwal = (cachedSaldo.initJemaat || 0) + (cachedSaldo.initDaerah || 0) + (cachedSaldo.initBangun || 0);
+
+        if (mode === 'bulanan') {
+            const isBefore = (dateStr) => {
+               const d = new Date(dateStr);
+               if (year !== 0 && d.getFullYear() < year) return true;
+               if (year !== 0 && d.getFullYear() === year && month !== 0 && (d.getMonth() + 1) < month) return true;
+               return false;
+            };
+            (cachedIncome || []).forEach(x => { if (isBefore(x.date)) saldoAwal += x.amount; });
+            (cachedExpense || []).forEach(x => { if (isBefore(x.date)) saldoAwal -= x.amount; });
         }
+
+        if (saldoAwal !== 0) {
+            incByCat['Saldo Awal'] = [{
+                date: (mode === 'bulanan' && year !== 0 && month !== 0) ? `${year}-${String(month).padStart(2, '0')}-01` : '2000-01-01',
+                income_type: 'Saldo Awal',
+                receipt_no: 'SALDO_AWAL',
+                nama_pemberi: 'Sistem / Akumulasi',
+                source_balance: 'Sistem',
+                amount: saldoAwal,
+                note: mode === 'bulanan' ? 'Saldo kumulatif sebelum periode ini' : 'Saldo Awal Sistem'
+            }];
+            totalInc += saldoAwal;
+        }
+
+        const isMatch = (dateStr) => {
+          const d = new Date(dateStr);
+          if (mode === 'akumulasi') {
+             if (year !== 0) {
+                if (d.getFullYear() > year) return false;
+                if (d.getFullYear() === year && month !== 0 && (d.getMonth() + 1) > month) return false;
+             }
+             return true;
+          } else {
+             if (year !== 0 && d.getFullYear() !== year) return false;
+             if (month !== 0 && (d.getMonth() + 1) !== month) return false;
+             return true;
+          }
+        };
+
+        (cachedIncome || []).filter(x => isMatch(x.date)).forEach(x => {
+            const cat = x.income_type || 'Lainnya';
+            if (!incByCat[cat]) incByCat[cat] = [];
+            incByCat[cat].push(x);
+            totalInc += x.amount;
+        });
+
+        (cachedExpense || []).filter(x => isMatch(x.date)).forEach(x => {
+            const dept = x.department || 'Lainnya';
+            if (!expByDept[dept]) expByDept[dept] = [];
+            expByDept[dept].push(x);
+            totalExp += x.amount;
+        });
+
+        currentReportData = {
+            summary: { saldoAwal: saldoAwal, periodIncome: totalInc - saldoAwal, totalIncome: totalInc, totalExpense: totalExp, netBalance: totalInc - totalExp, balances: cachedSaldo || { total: 0 } },
+            incByCategory: incByCat,
+            expByDept: expByDept,
+            month: month,
+            year: year,
+            mode: mode
+        };
+        
+        renderReportView();
+        const exportBtn = document.getElementById('btnExportExcel');
+        if (exportBtn) exportBtn.style.display = 'inline-block';
       } catch (e) {
         rc.innerHTML = `<div style="text-align:center; padding:20px; color:var(--red-pop)">Gagal memuat: ${e.message}</div>`;
       }
@@ -1922,29 +2002,29 @@
 
       let allTrans = [];
       if (currentReportData.incByCat) {
-         Object.values(currentReportData.incByCat).forEach(items => {
-            items.forEach(t => allTrans.push({ ...t, transType: 'INCOME' }));
-         });
+        Object.values(currentReportData.incByCat).forEach(items => {
+          items.forEach(t => allTrans.push({ ...t, transType: 'INCOME' }));
+        });
       }
       if (currentReportData.expByDept) {
-         Object.values(currentReportData.expByDept).forEach(items => {
-            items.forEach(t => allTrans.push({ ...t, transType: 'EXPENSE' }));
-         });
+        Object.values(currentReportData.expByDept).forEach(items => {
+          items.forEach(t => allTrans.push({ ...t, transType: 'EXPENSE' }));
+        });
       }
-      
+
       allTrans.sort((a, b) => new Date(a.date) - new Date(b.date));
 
       let rowsHtml = '';
       allTrans.forEach((t, index) => {
-         const type = t.transType === 'INCOME' ? 'Pemasukan' : 'Pengeluaran';
-         const category = t.income_type || t.department || '';
-         const pihak = t.nama_pemberi || t.nama_penerima || '';
-         const receipt = t.receipt_no || '';
-         const note = t.note || '';
-         const incAmt = t.transType === 'INCOME' ? t.amount : '';
-         const expAmt = t.transType === 'EXPENSE' ? t.amount : '';
+        const type = t.transType === 'INCOME' ? 'Pemasukan' : 'Pengeluaran';
+        const category = t.income_type || t.department || '';
+        const pihak = t.nama_pemberi || t.nama_penerima || '';
+        const receipt = t.receipt_no || '';
+        const note = t.note || '';
+        const incAmt = t.transType === 'INCOME' ? t.amount : '';
+        const expAmt = t.transType === 'EXPENSE' ? t.amount : '';
 
-         rowsHtml += `<tr>
+        rowsHtml += `<tr>
             <td>${index + 1}</td>
             <td>${fmtDate(t.date)}</td>
             <td>${type}</td>
@@ -1989,7 +2069,7 @@
         </body>
         </html>
       `;
-      
+
       const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -2010,12 +2090,16 @@
       if (!currentReportData) return;
       const data = currentReportData;
       const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-      const s = data.summary; const bal = s.balances || cachedSaldo || {total:0}; const isViewer = currentUser && currentUser.role === 'Viewer';
+      const s = data.summary; const bal = s.balances || cachedSaldo || { total: 0 }; const isViewer = currentUser && currentUser.role === 'Viewer';
 
       const isSensor = document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false;
 
       const title = data.customTitle || "FINANCIAL REPORT";
-      const periodStr = data.customPeriod || `Period: ${mNames[data.month] || ''} ${data.year || ''}`.trim();
+      let periodStr = data.customPeriod || `Period: ${mNames[data.month] || ''} ${data.year || ''}`.trim();
+      if (!data.customPeriod && data.mode === 'akumulasi') {
+        periodStr = `As per: ${mNames[data.month] || ''} ${data.year || ''}`.trim();
+        if (data.month === 0) periodStr = `As per: Akhir Tahun ${data.year || ''}`.trim();
+      }
 
       let html = `
     <div class="card" style="margin-top:20px">
@@ -2026,9 +2110,10 @@
         </div>
       </div>
       <div class="report-summary">
-        <div class="report-card"><div class="report-card-label">Income</div><div class="report-card-val amount-pos">+${fmt(s.totalIncome)}</div></div>
-        <div class="report-card"><div class="report-card-label">Expense</div><div class="report-card-val amount-neg">-${fmt(s.totalExpense)}</div></div>
-        <div class="report-card"><div class="report-card-label">Net</div><div class="report-card-val ${s.netBalance >= 0 ? 'amount-pos' : 'amount-neg'}">${fmt(s.netBalance)}</div></div>
+        <div class="report-card"><div class="report-card-label">Saldo Awal</div><div class="report-card-val amount-pos" style="color:var(--text)">${fmt(s.saldoAwal || 0)}</div></div>
+        <div class="report-card"><div class="report-card-label">Income Periode</div><div class="report-card-val amount-pos">+${fmt(s.periodIncome !== undefined ? s.periodIncome : s.totalIncome)}</div></div>
+        <div class="report-card"><div class="report-card-label">Expense Periode</div><div class="report-card-val amount-neg">-${fmt(s.totalExpense)}</div></div>
+        <div class="report-card"><div class="report-card-label">Net Balance</div><div class="report-card-val ${s.netBalance >= 0 ? 'amount-pos' : 'amount-neg'}">${fmt(s.netBalance)}</div></div>
         <div class="report-card no-print"><div class="report-card-label">Total Assets</div><div class="report-card-val" style="color:var(--teal-pop)">${fmt(bal.total)}</div></div>
       </div>
     </div>
@@ -2051,7 +2136,7 @@
           }).join('')}
               </tbody>
             </table>`;
-          
+
           const mobileHtml = `<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">${items.map(x => {
             const isMasked = isPrivCategory || isSensor;
             const displayNote = isMasked ? '*** (Privasi)' : (x.note || '-');
@@ -2096,7 +2181,7 @@
                 ${items.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge badge-gold">${x.source_balance}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td>${x.note || '-'}${x.nama_penerima ? `<br><small style="color:var(--text3)">Penerima: ${x.nama_penerima}</small>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('')}
               </tbody>
             </table>`;
-            
+
           const mobileHtml = `<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">${items.map(x => {
             let photoBtn = '';
             if (x.receipt_photo) { photoBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>`; }
@@ -2117,7 +2202,7 @@
               ${photoBtn}
             </div>`;
           }).join('')}</div>`;
-          
+
           html += `
         <div style="margin-bottom:24px">
           <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--glass-border); padding-bottom:8px; margin-bottom:12px; page-break-after: avoid; break-after: avoid;">
@@ -2197,7 +2282,7 @@
           const isInc = x.type === 'income';
           const deleteId = x.transaction_id || x.receipt_no || '';
           const pihak = x.type === 'income' ? (isPrivCategory ? '***' : (x.nama_pemberi || '-')) : (x.nama_penerima || '-');
-          
+
           let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
           let editBtn = canEdit && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openEditTrans('${x.type}', '${deleteId}')">✏️ Edit</button>` : '';
           let delBtn = isAdmin && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--rose-pop);" onclick="deleteTransaction('${x.type}', '${deleteId}')">🗑️ Hapus</button>` : '';
@@ -2543,7 +2628,7 @@
             <div style="font-weight:700; font-size:15px; color:var(--text);">${x.nama}</div>
             <div style="font-size:12px; color:var(--text3); display:flex; align-items:center; gap:8px;">
               <span style="font-family:monospace; color:var(--text2); background:var(--badge-gray-bg); padding:2px 6px; border-radius:4px;">@${x.username}</span>
-              <span class="badge ${x.role==='Admin'?'badge-blue':(x.role==='Bendahara'?'badge-green':'badge-gray')}" style="font-size:10px;">${x.role}</span>
+              <span class="badge ${x.role === 'Admin' ? 'badge-blue' : (x.role === 'Bendahara' ? 'badge-green' : 'badge-gray')}" style="font-size:10px;">${x.role}</span>
             </div>
           </div>
           <div style="display:flex; gap:8px;">
