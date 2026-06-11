@@ -3934,7 +3934,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                     <button onClick={() => setAdminTab('pelayan')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'pelayan' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Pejabat</button>
                     <button onClick={() => setAdminTab('buku')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'buku' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Buku</button>
                     <button onClick={() => setAdminTab('pengaturan')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'pengaturan' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Pengaturan Admin</button>
-                    <button onClick={() => { if(confirm('Yakin ingin logout dari akun admin?')) handleLogout(); }} className="flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 text-red-600 hover:text-red-700 hover:bg-red-50/50">Logout</button>
+                    <button onClick={() => { if (confirm('Yakin ingin logout dari akun admin?')) handleLogout(); }} className="flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 text-red-600 hover:text-red-700 hover:bg-red-50/50">Logout</button>
                 </div>
 
                 <div className={`p-4 md:p-6 ${adminTab === 'jadwal' ? 'bg-navy-50/30' : 'bg-white'}`}>
@@ -4765,7 +4765,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 )}
 
                 {adminTab === 'pengaturan' && (
-                    <div className="animate-fade-in space-y-6 bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
+                    <div className="animate-fade-in space-y-6 pt-2">
                         {/* Subtabs seperti pada jadwal */}
                         <div className="flex items-center gap-2">
                             <button onClick={() => scrollPengaturanTabs('left')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kiri">
@@ -4970,11 +4970,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                 </form>
                             </div>
                         )}
-                    </div>
-                )}
-
-                {/* PERJAMUAN TAB */}
-                {pengaturanSubTab === 'perjamuan' && (
+                        {/* PERJAMUAN TAB */}
+                        {pengaturanSubTab === 'perjamuan' && (
                     <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm animate-fade-in">
                         {/* Header */}
                         <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
@@ -5083,6 +5080,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                         </form>
                     </div>
                 )}
+                </div>
+            )}
 
                 {/* BOOK TAB */}
                 {adminTab === 'buku' && (
