@@ -365,6 +365,11 @@
             <script>document.write(getIcon('shield', 'lucide-md'))</script>
           </span> Manajemen User
         </div>
+        <div class="nav-item" onclick="showPage('akun')" id="navAkun">
+          <span class="nav-icon">
+            <script>document.write(getIcon('user', 'lucide-md'))</script>
+          </span> Pengaturan Akun
+        </div>
         <div class="nav-item" onclick="showPage('settings')" id="navSettings">
           <span class="nav-icon">
             <script>document.write(getIcon('settings', 'lucide-md'))</script>
@@ -893,10 +898,11 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Binding Unit (Opsional)</label>
-              <select class="form-select" id="userUnit">
-                <option value="">-- Bebas (Semua Akses) --</option>
-              </select>
+              <label>Binding Unit Khusus</label>
+              <div id="userUnitContainer" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--glass-border); padding: 12px; border-radius: var(--radius); background: var(--input-bg); display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <!-- Populated dynamically -->
+              </div>
+              <div class="form-text">Centang unit yang ingin dihubungkan. User hanya dapat melihat kas unit terpilih.</div>
             </div>
             <div class="form-group">
               <label class="form-label">Kata Sandi</label>
@@ -915,6 +921,32 @@
             <div class="form-section-title" style="margin: 24px 24px 16px;">Pengguna Sistem</div>
             <div id="userList" style="display:flex; flex-direction:column;"></div>
           </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-akun">
+        <div class="card" style="max-width: 500px; margin: 0 auto;">
+          <div class="card-header">
+            <div class="card-title" style="display:flex; align-items:center; gap:8px;">
+              <span style="color:var(--primary)"><script>document.write(getIcon('user', 'lucide-md'))</script></span>
+              Pengaturan Akun (Ubah Sandi)
+            </div>
+          </div>
+          <div class="form-group" style="position:relative;">
+            <label class="form-label">Kata Sandi Baru</label>
+            <input type="password" class="form-input" id="myNewPassword" placeholder="Masukkan kata sandi baru">
+            <span class="eye-btn" id="myNewPasswordEye" onclick="togglePassword('myNewPassword', 'myNewPasswordEye')">
+              <script>document.write(getIcon('eyeOff', 'lucide-md'))</script>
+            </span>
+          </div>
+          <div class="form-group" style="position:relative;">
+            <label class="form-label">Konfirmasi Kata Sandi Baru</label>
+            <input type="password" class="form-input" id="myNewPasswordConfirm" placeholder="Ketik ulang kata sandi baru">
+            <span class="eye-btn" id="myNewPasswordConfirmEye" onclick="togglePassword('myNewPasswordConfirm', 'myNewPasswordConfirmEye')">
+              <script>document.write(getIcon('eyeOff', 'lucide-md'))</script>
+            </span>
+          </div>
+          <button class="btn btn-primary" style="width:100%; margin-top:8px;" id="btnUpdateMyPassword" onclick="updateMyPassword()">Update Sandi</button>
         </div>
       </div>
 
@@ -1282,12 +1314,21 @@
     function doLogout() { clearToken(); sessionStorage.removeItem('PiKaChu_user'); sessionStorage.removeItem('PiKaChu_token'); window.location.reload(); }
     function getCurrentUser() { const u = sessionStorage.getItem('PiKaChu_user'); return u ? JSON.parse(u) : null; }
 
-    function getUserUnitName() {
-      if (!systemConfig.userUnits || !currentUser || !currentUser.username) return null;
-      for (const [key, val] of Object.entries(systemConfig.userUnits)) {
-        if (key.toLowerCase() === currentUser.username.toLowerCase()) return val;
+    function getUserUnits(uname = null) {
+      const targetUser = uname || (currentUser ? currentUser.username : null);
+      if (!systemConfig.userUnits || !targetUser) return [];
+      let units = systemConfig.userUnits;
+      while (typeof units === 'string') {
+        try { units = JSON.parse(units); } catch(e) { return []; }
       }
-      return null;
+      for (const [key, val] of Object.entries(units || {})) {
+        if (key.toLowerCase() === targetUser.toLowerCase()) {
+           if (Array.isArray(val)) return val;
+           if (typeof val === 'string') return [val]; // backward compatibility
+           return [];
+        }
+      }
+      return [];
     }
 
     let systemConfig = {};
@@ -1357,6 +1398,7 @@
       { id: 'riwayat', label: 'Riwayat (Histori)' },
       { id: 'masterData', label: 'Kategori, Departemen & Unit' },
       { id: 'users', label: 'Manajemen User' },
+      { id: 'akun', label: 'Pengaturan Akun (Sandi)' },
       { id: 'settings', label: 'Pengaturan Web' }
     ];
 
@@ -1366,10 +1408,10 @@
       }
       if (!systemConfig.rolePermissions || typeof systemConfig.rolePermissions !== 'object' || Object.keys(systemConfig.rolePermissions).length === 0) {
         systemConfig.rolePermissions = {
-           Admin: { menus: { dashboard: {view:true, edit:true, del:true}, pemasukan: {view:true, edit:true, del:true}, pengeluaran: {view:true, edit:true, del:true}, laporan: {view:true, edit:true, del:true}, riwayat: {view:true, edit:true, del:true}, masterData: {view:true, edit:true, del:true}, users: {view:true, edit:true, del:true}, settings: {view:true, edit:true, del:true} }, isAnonymous: false },
-           Bendahara: { menus: { dashboard: {view:true, edit:true, del:true}, pemasukan: {view:true, edit:true, del:true}, pengeluaran: {view:true, edit:true, del:true}, laporan: {view:true, edit:true, del:true}, riwayat: {view:true, edit:true, del:true}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, settings: {view:false, edit:false, del:false} }, isAnonymous: false },
-           Viewer: { menus: { dashboard: {view:true, edit:false, del:false}, pemasukan: {view:false, edit:false, del:false}, pengeluaran: {view:false, edit:false, del:false}, laporan: {view:true, edit:false, del:false}, riwayat: {view:true, edit:false, del:false}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, settings: {view:false, edit:false, del:false} }, isAnonymous: false },
-           Publik: { menus: { dashboard: {view:true, edit:false, del:false}, pemasukan: {view:false, edit:false, del:false}, pengeluaran: {view:false, edit:false, del:false}, laporan: {view:false, edit:false, del:false}, riwayat: {view:true, edit:false, del:false}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, settings: {view:false, edit:false, del:false} }, isAnonymous: true }
+           Admin: { menus: { dashboard: {view:true, edit:true, del:true}, pemasukan: {view:true, edit:true, del:true}, pengeluaran: {view:true, edit:true, del:true}, laporan: {view:true, edit:true, del:true}, riwayat: {view:true, edit:true, del:true}, masterData: {view:true, edit:true, del:true}, users: {view:true, edit:true, del:true}, akun: {view:true, edit:true, del:true}, settings: {view:true, edit:true, del:true} }, isAnonymous: false },
+           Bendahara: { menus: { dashboard: {view:true, edit:true, del:true}, pemasukan: {view:true, edit:true, del:true}, pengeluaran: {view:true, edit:true, del:true}, laporan: {view:true, edit:true, del:true}, riwayat: {view:true, edit:true, del:true}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, akun: {view:true, edit:true, del:true}, settings: {view:false, edit:false, del:false} }, isAnonymous: false },
+           Viewer: { menus: { dashboard: {view:true, edit:false, del:false}, pemasukan: {view:false, edit:false, del:false}, pengeluaran: {view:false, edit:false, del:false}, laporan: {view:true, edit:false, del:false}, riwayat: {view:true, edit:false, del:false}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, akun: {view:true, edit:true, del:true}, settings: {view:false, edit:false, del:false} }, isAnonymous: false },
+           Publik: { menus: { dashboard: {view:true, edit:false, del:false}, pemasukan: {view:false, edit:false, del:false}, pengeluaran: {view:false, edit:false, del:false}, laporan: {view:false, edit:false, del:false}, riwayat: {view:true, edit:false, del:false}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, akun: {view:false, edit:false, del:false}, settings: {view:false, edit:false, del:false} }, isAnonymous: true }
         };
       }
 
@@ -1646,6 +1688,9 @@
       document.getElementById('navSettings').style.display = mSettings.view ? '' : 'none';
       document.getElementById('navRoles').style.display = mSettings.view ? '' : 'none';
       
+      const mAkun = perms.menus.akun || {view:false,edit:false,del:false};
+      document.getElementById('navAkun').style.display = mAkun.view ? '' : 'none';
+      
       const showAdminGroup = mMaster.view || mUsers.view || mSettings.view;
       document.getElementById('adminNavLabel').style.display = showAdminGroup ? '' : 'none';
 
@@ -1655,18 +1700,7 @@
       if (!mPemasukan.edit) { document.querySelectorAll('.btn-save-pemasukan').forEach(el => el.style.display = 'none'); }
       if (!mPengeluaran.edit) { document.querySelectorAll('.btn-save-pengeluaran').forEach(el => el.style.display = 'none'); }
 
-      const userUnitName = getUserUnitName();
-      if (userUnitName) {
-         if(document.getElementById('dashSearchCard')) document.getElementById('dashSearchCard').style.display = 'none';
-         if(document.getElementById('dashUnitToggleContainer')) document.getElementById('dashUnitToggleContainer').style.display = 'block';
-         if(document.getElementById('riwayatGlobalSearch')) document.getElementById('riwayatGlobalSearch').style.display = 'none';
-         if(document.getElementById('btnFilterMyUnit')) document.getElementById('btnFilterMyUnit').style.display = 'inline-flex';
-      } else {
-         if(document.getElementById('dashSearchCard')) document.getElementById('dashSearchCard').style.display = 'block';
-         if(document.getElementById('dashUnitToggleContainer')) document.getElementById('dashUnitToggleContainer').style.display = 'none';
-         if(document.getElementById('riwayatGlobalSearch')) document.getElementById('riwayatGlobalSearch').style.display = 'flex';
-         if(document.getElementById('btnFilterMyUnit')) document.getElementById('btnFilterMyUnit').style.display = 'none';
-      }
+      const userUnits = getUserUnits();
     }
 
     let myUnitFilterActive = false;
@@ -1756,8 +1790,15 @@
       (masterData.incomeTypes || []).forEach(x => { if (!excludeList.includes(x.name)) { parentOptions += `<option value="${x.name}">${x.name}</option>`; } });
       incSel.innerHTML = parentOptions;
       document.getElementById('incUnit').innerHTML = '<option value="">-- Tanpa Unit --</option>' + (masterData.units || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
-      const userUnitSelect = document.getElementById('userUnit');
-      if (userUnitSelect) userUnitSelect.innerHTML = '<option value="">-- Bebas (Semua Akses) --</option>' + (masterData.units || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
+      const userUnitContainer = document.getElementById('userUnitContainer');
+      if (userUnitContainer) {
+        userUnitContainer.innerHTML = (masterData.units || []).map(x => `
+          <label class="unit-check-wrapper">
+            <input type="checkbox" class="userUnitCheck" value="${x.name}">
+            <div class="unit-check-box">${x.name}</div>
+          </label>
+        `).join('');
+      }
       document.getElementById('expDept').innerHTML = '<option value="">-- Departemen --</option>' + (masterData.departments || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
       const givers = new Set(); (cachedIncome || []).forEach(x => { if (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') givers.add(x.nama_pemberi); });
       const giverList = document.getElementById('giverList'); if (giverList) giverList.innerHTML = Array.from(givers).map(g => `<option value="${g}">`).join('');
@@ -1879,6 +1920,20 @@
     }
 
     function renderDashboard() {
+      const userUnits = getUserUnits();
+      if (userUnits.length > 0) {
+         if(document.getElementById('dashSearchCard')) document.getElementById('dashSearchCard').style.display = 'none';
+         if(document.getElementById('dashUnitToggleContainer')) document.getElementById('dashUnitToggleContainer').style.display = 'block';
+         if(document.getElementById('riwayatGlobalSearch')) document.getElementById('riwayatGlobalSearch').style.display = 'none';
+         if(document.getElementById('btnFilterMyUnit')) document.getElementById('btnFilterMyUnit').style.display = 'inline-flex';
+         document.getElementById('dashUnitToggleContainer').innerHTML = `<button class="btn btn-primary" onclick="goToMyUnitHistory()" style="white-space:normal;">Lihat Transaksi Unit Saya (${userUnits.join(', ')})</button>`;
+      } else {
+         if(document.getElementById('dashSearchCard')) document.getElementById('dashSearchCard').style.display = 'block';
+         if(document.getElementById('dashUnitToggleContainer')) document.getElementById('dashUnitToggleContainer').style.display = 'none';
+         if(document.getElementById('riwayatGlobalSearch')) document.getElementById('riwayatGlobalSearch').style.display = 'flex';
+         if(document.getElementById('btnFilterMyUnit')) document.getElementById('btnFilterMyUnit').style.display = 'none';
+      }
+
       if (!cachedSaldo) return;
       const month = parseInt(document.getElementById('dashMonth').value); const year = parseInt(document.getElementById('dashYear').value);
       const isViewer = currentUser && currentUser.role === 'Viewer';
@@ -2548,13 +2603,9 @@
           if (!matchedUnitNames.includes(String(x.unit_name || '').toLowerCase())) return false;
         }
 
-        const userUnitName = getUserUnitName();
-        if (userUnitName && myUnitFilterActive) {
-           if (x.type === 'income') {
-              if (String(x.unit_name || '').toLowerCase() !== String(userUnitName).toLowerCase()) return false;
-           } else {
-              return false; // Hide expense when filtering specifically for their unit's income
-           }
+        const userUnits = getUserUnits();
+        if (myUnitFilterActive && userUnits.length > 0) {
+          if (!userUnits.includes(x.unit_name)) return false;
         }
 
         return true;
@@ -2574,25 +2625,118 @@
       const isViewer = currentUser.role === 'Viewer';
       const isAnon = perms.isAnonymous;
 
+      let sumIn = 0; let sumOut = 0;
+      const monthlyBreak = {}; // { 'Jan 2025': {inc:0, exp:0} }
+      const catBreakIn = {}; // { 'Perpuluhan': 1234 }
+      const catBreakOut = {}; // { 'Gaji': 5678 }
+      const mNamesShort = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+      list.forEach(x => {
+        if (x.type === 'income') { sumIn += x.amount; const cat = x.income_type || 'Lainnya'; catBreakIn[cat] = (catBreakIn[cat] || 0) + x.amount; }
+        else if (x.type === 'expense') { sumOut += x.amount; const cat = x.department || 'Lainnya'; catBreakOut[cat] = (catBreakOut[cat] || 0) + x.amount; }
+        const d = new Date(x.date); const mKey = `${mNamesShort[d.getMonth()+1]} ${d.getFullYear()}`;
+        if (!monthlyBreak[mKey]) monthlyBreak[mKey] = {inc:0, exp:0};
+        if (x.type === 'income') monthlyBreak[mKey].inc += x.amount; else monthlyBreak[mKey].exp += x.amount;
+      });
+      let summaryHtml = '';
+      if (myUnitFilterActive || giverQ || q || month > 0 || year > 0) {
+        // --- Top summary cards with proper gap ---
+        summaryHtml = `
+          <div style="margin-bottom:16px; padding:16px 20px; background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg);">
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:20px;">
+              <div>
+                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Pemasukan</div>
+                <div class="amount-pos" style="font-size:18px; font-weight:800; font-family:monospace;">+${fmt(sumIn)}</div>
+              </div>
+              <div>
+                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Pengeluaran</div>
+                <div class="amount-neg" style="font-size:18px; font-weight:800; font-family:monospace;">-${fmt(sumOut)}</div>
+              </div>
+              <div>
+                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Bersih</div>
+                <div style="font-size:18px; font-weight:800; font-family:monospace; color:${(sumIn-sumOut) >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(sumIn - sumOut)}</div>
+              </div>
+              <div>
+                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Total Data</div>
+                <div style="font-size:18px; font-weight:800; font-family:monospace; color:var(--text)">${list.length} Baris</div>
+              </div>
+            </div>`;
+
+        // --- Per-month breakdown ---
+        const monthKeys = Object.keys(monthlyBreak);
+        if (monthKeys.length > 1) {
+          summaryHtml += `
+            <div style="margin-top:16px; border-top:1px solid var(--glass-border); padding-top:14px;">
+              <div style="font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Rincian Per Bulan</div>
+              <div class="table-wrap" style="border:none; margin:0;">
+                <table class="summary-table" style="font-size:12px; width:100%;">
+                  <thead><tr><th style="text-align:left">Bulan</th><th style="text-align:right">Masuk</th><th style="text-align:right">Keluar</th><th style="text-align:right">Bersih</th></tr></thead>
+                  <tbody>${monthKeys.map(k => {
+                    const v = monthlyBreak[k]; const net = v.inc - v.exp;
+                    return `<tr><td>${k}</td><td class="amount-pos" style="text-align:right">${fmt(v.inc)}</td><td class="amount-neg" style="text-align:right">${fmt(v.exp)}</td><td style="text-align:right; font-weight:700; color:${net >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(net)}</td></tr>`;
+                  }).join('')}</tbody>
+                </table>
+              </div>
+            </div>`;
+        }
+
+        // --- Per-category breakdown ---
+        const hasInCat = Object.keys(catBreakIn).length > 0;
+        const hasOutCat = Object.keys(catBreakOut).length > 0;
+        if (hasInCat || hasOutCat) {
+          summaryHtml += `
+            <div style="margin-top:16px; border-top:1px solid var(--glass-border); padding-top:14px;">
+              <div style="font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Rincian Per Kategori</div>
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">`;
+          if (hasInCat) {
+            summaryHtml += `<div>
+              <div style="font-size:10px; font-weight:700; color:var(--accent-green); margin-bottom:6px; text-transform:uppercase;">Pemasukan</div>
+              ${Object.entries(catBreakIn).sort((a,b)=>b[1]-a[1]).map(([k,v]) => `
+                <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--glass-border);">
+                  <span style="font-size:12px; color:var(--text2);">${k}</span>
+                  <span class="amount-pos" style="font-size:12px; font-weight:700; font-family:monospace;">${fmt(v)}</span>
+                </div>`).join('')}
+            </div>`;
+          }
+          if (hasOutCat) {
+            summaryHtml += `<div>
+              <div style="font-size:10px; font-weight:700; color:var(--accent-orange); margin-bottom:6px; text-transform:uppercase;">Pengeluaran</div>
+              ${Object.entries(catBreakOut).sort((a,b)=>b[1]-a[1]).map(([k,v]) => `
+                <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--glass-border);">
+                  <span style="font-size:12px; color:var(--text2);">${k}</span>
+                  <span class="amount-neg" style="font-size:12px; font-weight:700; font-family:monospace;">${fmt(v)}</span>
+                </div>`).join('')}
+            </div>`;
+          }
+          summaryHtml += `</div></div>`;
+        }
+
+        summaryHtml += `</div>`;
+      }
+
       if (list.length === 0) {
-        document.getElementById('historyListContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Data kosong.</div>';
+        document.getElementById('historyListContainer').innerHTML = summaryHtml + '<div class="empty-state" style="padding:20px; text-align:center;">Data kosong.</div>';
       } else {
-        const userUnitName = getUserUnitName();
+        const userUnits = getUserUnits();
         
         let desktopHtml = list.map(x => {
+          const txUnitLower = String(x.unit_name || '').toLowerCase();
+          const belongsToUserUnits = userUnits.some(u => u.toLowerCase() === txUnitLower);
+          
           const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
-          const isOtherUnit = userUnitName && x.type === 'income' && String(x.unit_name || '').toLowerCase() !== String(userUnitName).toLowerCase();
-          const shouldHide = isAnon || isOtherUnit;
+          const isOtherUnit = userUnits.length > 0 && x.type === 'income' && !belongsToUserUnits;
+          
+          // DO NOT HIDE if the transaction belongs to the user's bound units!
+          const shouldHide = !belongsToUserUnits && (isAnon || isOtherUnit || isPrivCategory);
           
           const deleteId = x.transaction_id || x.receipt_no || '';
           let photoBtn = (x.receipt_photo && !shouldHide) ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
-          const pihak = x.type === 'income' ? (isPrivCategory || shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
+          const pihak = x.type === 'income' ? (shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
 
           return `
       <tr>
         <td class="fit-col">${fmtDate(x.date)}</td>
         <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
-        <td><span class="badge ${getCatBadge(x.income_type || x.department, x.type !== 'income')}">${x.income_type || x.department || '-'}</span><br><span style="font-size:12px; color:var(--text4)">${isPrivCategory || shouldHide ? '***' : (x.note || '-')}</span></td>
+        <td><span class="badge ${getCatBadge(x.income_type || x.department, x.type !== 'income')}">${x.income_type || x.department || '-'}</span><br><span style="font-size:12px; color:var(--text4)">${shouldHide ? '***' : (x.note || '-')}</span></td>
         <td class="fit-col"><span class="badge badge-gray">${x.receipt_no || '-'}</span> ${photoBtn}</td>
         <td>${pihak}</td>
         <td class="fit-col ${x.style}" style="text-align:right; font-weight:800;">${x.sign}${fmt(x.amount)}</td>
@@ -2604,13 +2748,18 @@
         }).join('');
 
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
+          const txUnitLower = String(x.unit_name || '').toLowerCase();
+          const belongsToUserUnits = userUnits.some(u => u.toLowerCase() === txUnitLower);
+          
           const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
           const isInc = x.type === 'income';
-          const isOtherUnit = userUnitName && x.type === 'income' && String(x.unit_name || '').toLowerCase() !== String(userUnitName).toLowerCase();
-          const shouldHide = isAnon || isOtherUnit;
+          const isOtherUnit = userUnits.length > 0 && x.type === 'income' && !belongsToUserUnits;
+          
+          // DO NOT HIDE if the transaction belongs to the user's bound units!
+          const shouldHide = !belongsToUserUnits && (isAnon || isOtherUnit || isPrivCategory);
           
           const deleteId = x.transaction_id || x.receipt_no || '';
-          const pihak = x.type === 'income' ? (isPrivCategory || shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
+          const pihak = x.type === 'income' ? (shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
 
           let photoBtn = (x.receipt_photo && !shouldHide) ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
           let editBtn = canEdit && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openEditTrans('${x.type}', '${deleteId}')">✏️ Edit</button>` : '';
@@ -2629,7 +2778,7 @@
               <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
               <span style="color:var(--text4)">Pihak</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${pihak}</strong>
               <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.income_type || x.department || '-'}</strong>
-              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${isPrivCategory || shouldHide ? '***' : (x.note || '-')}</span>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${shouldHide ? '***' : (x.note || '-')}</span>
             </div>
             <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
               ${photoBtn}
@@ -2639,7 +2788,7 @@
           </div>`;
         }).join('') + '</div>';
 
-        document.getElementById('historyListContainer').innerHTML = `
+        document.getElementById('historyListContainer').innerHTML = summaryHtml + `
           <div class="desktop-only table-wrap scrollable" style="border:none;">
             <table class="table-history">
               <thead>
@@ -2928,34 +3077,57 @@
     }
     function renderMasterUnits() { document.getElementById('unitList').innerHTML = (masterData?.units || []).map(x => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--glass-border)"><div><strong>${x.name}</strong>${x.jumlah_anggota ? `<br><small style="color:var(--text3)">${x.jumlah_anggota} Jiwa</small>` : ''}</div><div style="display:flex; gap:6px;"><button class="btn-icon-only" onclick="editUnit('${x.name.replace(/'/g, "\\'")}', '${(x.note || '').replace(/'/g, "\\'")}', ${x.jumlah_anggota || 0})">${safeIcon('edit')}</button><button class="btn-icon-only" style="color:var(--red-pop);" onclick="deleteUnit('${x.name.replace(/'/g, "\\'")}')">${safeIcon('trash')}</button></div></div>`).join('') || '<div class="empty-state">No Data</div>'; }
     async function deleteUnit(name) { if (await showCustomConfirm('Hapus', `Yakin?`)) { try { await apiPost('deleteUnit', { name }); notify('Terhapus', 'success'); await loadMasterData(); renderMasterUnits(); initForms(); } catch (e) { notify(e.message, 'error'); } } }
+    async function updateMyPassword() {
+      const p1 = document.getElementById('myNewPassword').value;
+      const p2 = document.getElementById('myNewPasswordConfirm').value;
+      if (!p1) { notify('Kata sandi tidak boleh kosong', 'error'); return; }
+      if (p1 !== p2) { notify('Kata sandi tidak cocok', 'error'); return; }
+      if (p1.length < 6) { notify('Kata sandi minimal 6 karakter', 'error'); return; }
+      
+      const btn = document.getElementById('btnUpdateMyPassword');
+      btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Memproses...';
+      try {
+        await apiPost('saveUser', { username: currentUser.username, nama: currentUser.nama, role: currentUser.role, password: p1, isUpdate: true });
+        notify('Sandi berhasil diubah', 'success');
+        document.getElementById('myNewPassword').value = '';
+        document.getElementById('myNewPasswordConfirm').value = '';
+      } catch (e) { notify(e.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = 'Update Sandi'; }
+    }
 
+    /* ======== USER MANAGEMENT ======== */
     function editUser(username, nama, role) {
       editingUser = username; document.getElementById('userFormTitle').textContent = 'Ubah Akun';
       document.getElementById('userName').value = username; document.getElementById('userName').disabled = true;
       document.getElementById('userFullName').value = nama; document.getElementById('userRole').value = role; document.getElementById('userPassword').value = '';
-      document.getElementById('userUnit').value = (systemConfig.userUnits && systemConfig.userUnits[username]) || '';
+      const boundUnits = getUserUnits(username);
+      document.querySelectorAll('.userUnitCheck').forEach(chk => { chk.checked = boundUnits.includes(chk.value); });
       document.getElementById('saveUserBtn').innerHTML = 'Update'; document.getElementById('cancelEditUserBtn').style.display = 'inline-flex';
     }
     function cancelEditUser() {
       editingUser = null; document.getElementById('userFormTitle').textContent = 'Tambah User';
       document.getElementById('userName').value = ''; document.getElementById('userName').disabled = false;
       document.getElementById('userFullName').value = ''; document.getElementById('userRole').value = 'Viewer'; document.getElementById('userPassword').value = '';
-      document.getElementById('userUnit').value = '';
+      document.querySelectorAll('.userUnitCheck').forEach(chk => chk.checked = false);
       document.getElementById('saveUserBtn').innerHTML = 'Simpan'; document.getElementById('cancelEditUserBtn').style.display = 'none';
     }
     async function saveUserForm() {
       const username = document.getElementById('userName').value.trim(); const nama = document.getElementById('userFullName').value.trim(); const role = document.getElementById('userRole').value; const password = document.getElementById('userPassword').value;
-      const unit = document.getElementById('userUnit').value;
+      const unitChecks = document.querySelectorAll('.userUnitCheck:checked');
+      const unitsArray = Array.from(unitChecks).map(chk => chk.value);
       if (!username || !role) { notify('Lengkapi data wajib!', 'error'); return; }
       const btn = document.getElementById('saveUserBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
       try { 
         await apiPost('saveUser', { username, nama, role, password, isUpdate: !!editingUser }); 
         
         if (!systemConfig.userUnits) systemConfig.userUnits = {};
-        if (unit) {
-          // ensure case insensitive replace
+        while (typeof systemConfig.userUnits === 'string') {
+          try { systemConfig.userUnits = JSON.parse(systemConfig.userUnits); } catch(e) { systemConfig.userUnits = {}; break; }
+        }
+        
+        if (unitsArray.length > 0) {
           Object.keys(systemConfig.userUnits).forEach(k => { if(k.toLowerCase() === username.toLowerCase()) delete systemConfig.userUnits[k]; });
-          systemConfig.userUnits[username] = unit;
+          systemConfig.userUnits[username] = unitsArray;
         } else {
           Object.keys(systemConfig.userUnits).forEach(k => { if(k.toLowerCase() === username.toLowerCase()) delete systemConfig.userUnits[k]; });
         }
@@ -2968,7 +3140,9 @@
     async function renderUsers() {
       try {
         const res = await apiGet('getUsers');
-        document.getElementById('userList').innerHTML = (res.data || []).map(x => `
+        document.getElementById('userList').innerHTML = (res.data || []).map(x => {
+          const uUnit = getUserUnits(x.username);
+          return `
         <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; padding:16px 20px; border-bottom:1px solid var(--glass-border)">
           <div style="display:flex; flex-direction:column; gap:6px; flex:1; min-width:200px;">
             <div style="font-weight:700; font-size:15px; color:var(--text); line-height:1.2;">${x.nama}</div>
@@ -2976,15 +3150,15 @@
               <span style="font-family:monospace; color:var(--text2); background:var(--badge-gray-bg); padding:2px 6px; border-radius:4px; word-break:break-all;">@${x.username}</span>
               <span style="font-family:monospace; color:var(--text); background:var(--glass-bg); border:1px solid var(--glass-border); padding:2px 6px; border-radius:4px; word-break:break-all;" title="Password Saat Ini">🔑 ${x.password || '***'}</span>
               <span class="badge ${x.role === 'Admin' ? 'badge-blue' : (x.role === 'Bendahara' ? 'badge-green' : 'badge-gray')}" style="font-size:10px;">${x.role}</span>
-              ${systemConfig.userUnits && systemConfig.userUnits[x.username] ? `<span class="badge badge-yellow" style="font-size:10px;" title="Terikat dengan Unit">${systemConfig.userUnits[x.username]}</span>` : ''}
+              ${uUnit.map(u => `<span class="badge badge-gold" style="font-size:10px;" title="Terikat dengan Unit">${u}</span>`).join(' ')}
             </div>
           </div>
           <div style="display:flex; gap:8px;">
             <button class="btn-icon-only" style="background:var(--input-bg); border:1px solid var(--glass-border);" onclick="editUser('${x.username}', '${x.nama}', '${x.role}')">${safeIcon('edit')}</button>
             ${x.username === 'admin' ? '' : `<button class="btn-icon-only" style="background:var(--input-bg); border:1px solid var(--glass-border); color:var(--red-pop);" onclick="deleteUser('${x.username}')">${safeIcon('trash')}</button>`}
           </div>
-        </div>
-        `).join('');
+        </div>`;
+        }).join('') || '<div class="empty-state">No Data</div>';
       } catch (e) { }
     }
     async function deleteUser(username) { if (await showCustomConfirm('Hapus', `Yakin?`)) { try { await apiPost('deleteRecord', { type: 'users', transaction_id: username }); notify('Terhapus', 'success'); renderUsers(); } catch (e) { notify(e.message, 'error'); } } }
