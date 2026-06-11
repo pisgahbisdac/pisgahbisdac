@@ -666,6 +666,17 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 }
 .btn:active { transform: scale(0.97); }
 
+.btn-spinner {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid currentColor;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  vertical-align: middle;
+}
+
+
 .btn-primary { background: var(--primary); color: #111827; box-shadow: var(--shadow-sm); font-weight: 700; }
 .btn-primary:hover { background: var(--primary-hover); color: #111827; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); transform: translateY(-1px); }
 .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--glass-border); }
