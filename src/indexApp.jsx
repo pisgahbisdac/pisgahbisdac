@@ -490,14 +490,11 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
             </div>
 
             {!isPengumumanReallyEmpty() && (
-                <div className="bg-white dark:bg-navy-800/90 p-6 md:p-8 rounded-[2rem] shadow-lg border border-gold-300/50 dark:border-gold-500/30 hover:shadow-xl transition-all duration-300 relative overflow-hidden mb-6 md:mb-8 group">
+                <div className={`bg-white dark:bg-navy-800/90 p-6 md:p-8 rounded-[2rem] shadow-lg border border-gold-300/50 dark:border-gold-500/30 hover:shadow-xl transition-all duration-300 relative overflow-hidden group ${pengumuman.marginBawah || 'mb-6 md:mb-8'}`}>
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-l from-gold-500 to-gold-400 text-navy-900 text-[10px] md:text-[11px] font-black px-4 py-2 rounded-b-2xl uppercase tracking-widest shadow-sm flex items-center z-10">
                         <Icon name="Info" className="w-3 h-3 mr-1" /> Info Terkini
                     </div>
                     <div className="flex flex-col items-center justify-center mt-6 md:mt-4 mb-5 border-b border-navy-100/60 dark:border-navy-700/60 pb-5 relative z-10 text-center">
-                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-gold-50 to-gold-100 dark:from-navy-700 dark:to-navy-800 flex items-center justify-center mb-3 shrink-0 shadow-inner group-hover:from-gold-400 group-hover:to-gold-500 transition-colors duration-300 border border-gold-200 dark:border-navy-600">
-                            <Icon name="Megaphone" className="w-6 h-6 md:w-7 md:h-7 text-gold-600 dark:text-gold-400 group-hover:text-white transition-colors duration-300 drop-shadow-sm" />
-                        </div>
                         <div>
                             <h2 className="text-sm font-bold text-navy-400 dark:text-gray-400 uppercase tracking-widest leading-none mb-1.5">PENGUMUMAN JEMAAT</h2>
                             <h3 className="text-lg md:text-xl font-black text-navy-900 dark:text-white leading-tight">
@@ -505,7 +502,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                             </h3>
                         </div>
                     </div>
-                    <div className="pengumuman-text text-navy-700 dark:text-navy-100 text-[14px] md:text-[15px] whitespace-pre-wrap font-medium leading-relaxed relative z-10 text-center" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}>
+                    <div className={`pengumuman-text text-navy-700 dark:text-navy-100 text-[14px] md:text-[15px] whitespace-pre-wrap font-medium leading-relaxed relative z-10 ${pengumuman.kolom === '2' ? 'md:columns-2 md:gap-8 text-left' : pengumuman.kolom === '3' ? 'md:columns-3 md:gap-6 text-left' : 'text-center'}`} dangerouslySetInnerHTML={{ __html: pengumuman.isi }}>
                     </div>
                 </div>
             )}
@@ -4928,6 +4925,26 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                         <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Judul Pengumuman</label>
                                         <input type="text" value={editPengumuman.header} onChange={e => setEditPengumuman({ ...editPengumuman, header: e.target.value })} placeholder="Misal: Pengumuman Penting" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-4" />
 
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Kolom Teks (Khusus Tablet/PC)</label>
+                                                <select value={editPengumuman.kolom || '1'} onChange={e => setEditPengumuman({ ...editPengumuman, kolom: e.target.value })} className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-bold shadow-sm">
+                                                    <option value="1">1 Kolom (Tengah)</option>
+                                                    <option value="2">2 Kolom (Kiri-Kanan)</option>
+                                                    <option value="3">3 Kolom (Triptych)</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Margin / Jarak Bawah</label>
+                                                <select value={editPengumuman.marginBawah || 'mb-6 md:mb-8'} onChange={e => setEditPengumuman({ ...editPengumuman, marginBawah: e.target.value })} className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-bold shadow-sm">
+                                                    <option value="mb-0">Tidak Ada Jarak (0px)</option>
+                                                    <option value="mb-4">Sempit (16px)</option>
+                                                    <option value="mb-6 md:mb-8">Sedang / Standar (24px-32px)</option>
+                                                    <option value="mb-10 md:mb-14">Lebar (40px-56px)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
                                         <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Isi Pengumuman</label>
                                         <RichTextEditor
                                             ref={pengumumanEditorRef}
@@ -5002,116 +5019,116 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                         )}
                         {/* PERJAMUAN TAB */}
                         {pengaturanSubTab === 'perjamuan' && (
-                    <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm animate-fade-in">
-                        {/* Header */}
-                        <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                            <div className="w-12 h-12 bg-gold-50 rounded-full flex items-center justify-center text-gold-600 shadow-inner">
-                                <Icon name="Gift" className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <h3 className="font-black text-navy-900 text-lg tracking-tight">Tanggal Perjamuan Kudus</h3>
-                                <p className="text-xs font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5">
-                                    {perjamuanDate ? (
-                                        <><span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
-                                            <span className="text-green-600">Aktif · {formatIndoDate(perjamuanDate)}</span></>
-                                    ) : (
-                                        <><span className="w-2 h-2 rounded-full bg-navy-300 inline-block"></span>
-                                            <span className="text-navy-400">Belum diatur</span></>
-                                    )}
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Status Banner saat ini */}
-                        {perjamuanDate && (
-                            <div className="mb-5 bg-gradient-to-r from-gold-50 to-white border border-gold-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-gold-100 rounded-full flex items-center justify-center shrink-0">
-                                        <Icon name="Calendar" className="w-5 h-5 text-gold-600" />
+                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm animate-fade-in">
+                                {/* Header */}
+                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                                    <div className="w-12 h-12 bg-gold-50 rounded-full flex items-center justify-center text-gold-600 shadow-inner">
+                                        <Icon name="Gift" className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-navy-400 uppercase tracking-widest mb-0.5">Jadwal Tersimpan</p>
-                                        <p className="font-black text-navy-900 text-base leading-tight">{formatIndoDate(perjamuanDate)}</p>
+                                        <h3 className="font-black text-navy-900 text-lg tracking-tight">Tanggal Perjamuan Kudus</h3>
+                                        <p className="text-xs font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5">
+                                            {perjamuanDate ? (
+                                                <><span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
+                                                    <span className="text-green-600">Aktif · {formatIndoDate(perjamuanDate)}</span></>
+                                            ) : (
+                                                <><span className="w-2 h-2 rounded-full bg-navy-300 inline-block"></span>
+                                                    <span className="text-navy-400">Belum diatur</span></>
+                                            )}
+                                        </p>
                                     </div>
                                 </div>
-                                {(() => {
-                                    const today = new Date(); today.setHours(0, 0, 0, 0);
-                                    const tgl = new Date(perjamuanDate);
-                                    const diff = Math.ceil((tgl - today) / (1000 * 60 * 60 * 24));
-                                    if (diff < 0) return (
-                                        <span className="text-[10px] font-bold bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-full uppercase tracking-wide">Sudah Lewat</span>
-                                    );
-                                    if (diff === 0) return (
-                                        <span className="text-[10px] font-bold bg-gold-100 text-gold-700 border border-gold-300 px-3 py-1.5 rounded-full uppercase tracking-wide animate-pulse">Hari Ini!</span>
-                                    );
-                                    return (
-                                        <span className="text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-full uppercase tracking-wide">{diff} hari lagi</span>
-                                    );
-                                })()}
+
+                                {/* Status Banner saat ini */}
+                                {perjamuanDate && (
+                                    <div className="mb-5 bg-gradient-to-r from-gold-50 to-white border border-gold-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-gold-100 rounded-full flex items-center justify-center shrink-0">
+                                                <Icon name="Calendar" className="w-5 h-5 text-gold-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-navy-400 uppercase tracking-widest mb-0.5">Jadwal Tersimpan</p>
+                                                <p className="font-black text-navy-900 text-base leading-tight">{formatIndoDate(perjamuanDate)}</p>
+                                            </div>
+                                        </div>
+                                        {(() => {
+                                            const today = new Date(); today.setHours(0, 0, 0, 0);
+                                            const tgl = new Date(perjamuanDate);
+                                            const diff = Math.ceil((tgl - today) / (1000 * 60 * 60 * 24));
+                                            if (diff < 0) return (
+                                                <span className="text-[10px] font-bold bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-full uppercase tracking-wide">Sudah Lewat</span>
+                                            );
+                                            if (diff === 0) return (
+                                                <span className="text-[10px] font-bold bg-gold-100 text-gold-700 border border-gold-300 px-3 py-1.5 rounded-full uppercase tracking-wide animate-pulse">Hari Ini!</span>
+                                            );
+                                            return (
+                                                <span className="text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-full uppercase tracking-wide">{diff} hari lagi</span>
+                                            );
+                                        })()}
+                                    </div>
+                                )}
+
+                                <form onSubmit={handleSavePerjamuanDate} className="space-y-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">
+                                            Pilih / Ubah Tanggal Perjamuan
+                                        </label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="date"
+                                                value={editPerjamuanDate}
+                                                onChange={e => setEditPerjamuanDate(e.target.value)}
+                                                className="w-full p-3.5 border-2 border-navy-200 focus:border-gold-500 rounded-xl outline-none transition-all bg-white text-sm font-bold text-navy-900 shadow-sm"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditPerjamuanDate('')}
+                                                className="bg-red-50 hover:bg-red-100 text-red-600 px-4 rounded-xl border border-red-200 font-bold text-sm transition-all shadow-sm whitespace-nowrap"
+                                                title="Hapus Tanggal"
+                                            >
+                                                Hapus
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Preview pilihan baru */}
+                                    {editPerjamuanDate && editPerjamuanDate !== perjamuanDate && (
+                                        <div className="bg-navy-50 border border-navy-200 rounded-xl p-4 flex items-center gap-3">
+                                            <Icon name="Info" className="w-4 h-4 text-navy-500 shrink-0" />
+                                            <div>
+                                                <p className="text-[10px] font-bold text-navy-400 uppercase tracking-wider">Akan diubah ke</p>
+                                                <p className="font-black text-navy-900 text-sm">{formatIndoDate(editPerjamuanDate)}</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Info Box */}
+                                    <div className="bg-gold-50/60 border border-gold-200/80 rounded-xl p-4 flex gap-3">
+                                        <Icon name="Info" className="w-4 h-4 text-gold-600 shrink-0 mt-0.5" />
+                                        <p className="text-[11px] text-navy-600 font-medium leading-relaxed">
+                                            Banner <b>Perjamuan Kudus</b> tampil otomatis di halaman <b>Jadwal</b> dan <b>Live</b> sejak hari ini hingga tanggal perjamuan. Setelah tanggal lewat, banner hilang otomatis.
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isSavingPerjamuanDate}
+                                        className={`w-full font-bold py-3.5 rounded-xl transition-all flex justify-center items-center gap-2 shadow-md ${isSavingPerjamuanDate
+                                            ? 'bg-navy-300 text-navy-500 cursor-not-allowed'
+                                            : 'bg-navy-900 hover:bg-navy-800 text-gold-400 hover:shadow-lg'
+                                            }`}
+                                    >
+                                        {isSavingPerjamuanDate ? (
+                                            <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin"></span> Menyimpan...</>
+                                        ) : (
+                                            <><Icon name="Save" className="w-4 h-4" /> Simpan Tanggal Perjamuan</>
+                                        )}
+                                    </button>
+                                </form>
                             </div>
                         )}
-
-                        <form onSubmit={handleSavePerjamuanDate} className="space-y-4">
-                            <div>
-                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">
-                                    Pilih / Ubah Tanggal Perjamuan
-                                </label>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="date"
-                                        value={editPerjamuanDate}
-                                        onChange={e => setEditPerjamuanDate(e.target.value)}
-                                        className="w-full p-3.5 border-2 border-navy-200 focus:border-gold-500 rounded-xl outline-none transition-all bg-white text-sm font-bold text-navy-900 shadow-sm"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setEditPerjamuanDate('')}
-                                        className="bg-red-50 hover:bg-red-100 text-red-600 px-4 rounded-xl border border-red-200 font-bold text-sm transition-all shadow-sm whitespace-nowrap"
-                                        title="Hapus Tanggal"
-                                    >
-                                        Hapus
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Preview pilihan baru */}
-                            {editPerjamuanDate && editPerjamuanDate !== perjamuanDate && (
-                                <div className="bg-navy-50 border border-navy-200 rounded-xl p-4 flex items-center gap-3">
-                                    <Icon name="Info" className="w-4 h-4 text-navy-500 shrink-0" />
-                                    <div>
-                                        <p className="text-[10px] font-bold text-navy-400 uppercase tracking-wider">Akan diubah ke</p>
-                                        <p className="font-black text-navy-900 text-sm">{formatIndoDate(editPerjamuanDate)}</p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Info Box */}
-                            <div className="bg-gold-50/60 border border-gold-200/80 rounded-xl p-4 flex gap-3">
-                                <Icon name="Info" className="w-4 h-4 text-gold-600 shrink-0 mt-0.5" />
-                                <p className="text-[11px] text-navy-600 font-medium leading-relaxed">
-                                    Banner <b>Perjamuan Kudus</b> tampil otomatis di halaman <b>Jadwal</b> dan <b>Live</b> sejak hari ini hingga tanggal perjamuan. Setelah tanggal lewat, banner hilang otomatis.
-                                </p>
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={isSavingPerjamuanDate}
-                                className={`w-full font-bold py-3.5 rounded-xl transition-all flex justify-center items-center gap-2 shadow-md ${isSavingPerjamuanDate
-                                    ? 'bg-navy-300 text-navy-500 cursor-not-allowed'
-                                    : 'bg-navy-900 hover:bg-navy-800 text-gold-400 hover:shadow-lg'
-                                    }`}
-                            >
-                                {isSavingPerjamuanDate ? (
-                                    <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin"></span> Menyimpan...</>
-                                ) : (
-                                    <><Icon name="Save" className="w-4 h-4" /> Simpan Tanggal Perjamuan</>
-                                )}
-                            </button>
-                        </form>
                     </div>
                 )}
-                </div>
-            )}
 
                 {/* BOOK TAB */}
                 {adminTab === 'buku' && (
@@ -5719,7 +5736,7 @@ const App = () => {
     const [kontakGereja, setKontakGereja] = React.useState(defaultKontak);
 
     // Pengumuman default State
-    const [pengumuman, setPengumuman] = React.useState({ header: "Pengumuman Jemaat", isi: "" });
+    const [pengumuman, setPengumuman] = React.useState({ header: "Pengumuman Jemaat", isi: "", kolom: "1", marginBawah: "mb-6 md:mb-8" });
 
     // Warta default State
     const [daftarWarta, setDaftarWarta] = React.useState([]);
@@ -5900,12 +5917,17 @@ const App = () => {
                     try {
                         const parsed = JSON.parse(data.pengumuman);
                         if (parsed && typeof parsed === 'object') {
-                            newPengumumanObj = { header: parsed.header || "Pengumuman Jemaat", isi: decodeHTML(parsed.isi || "") };
+                            newPengumumanObj = { 
+                                header: parsed.header || "Pengumuman Jemaat", 
+                                isi: decodeHTML(parsed.isi || ""),
+                                kolom: parsed.kolom || "1",
+                                marginBawah: parsed.marginBawah || "mb-6 md:mb-8"
+                            };
                         } else {
-                            newPengumumanObj = { header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) };
+                            newPengumumanObj = { header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman), kolom: "1", marginBawah: "mb-6 md:mb-8" };
                         }
                     } catch (e) {
-                        newPengumumanObj = { header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman) };
+                        newPengumumanObj = { header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman), kolom: "1", marginBawah: "mb-6 md:mb-8" };
                     }
                     setPengumuman(newPengumumanObj);
                 }
