@@ -5861,6 +5861,9 @@ const App = () => {
     const jadwalKhususRabu = mergeJadwalData(jadwalDB[displayRabuYMD], initialJadwalRabu);
     const jadwalKhususSabat = mergeJadwalData(jadwalDB[displaySabatYMD], initialJadwalSabat);
     // ----------------------------------------------------------------------
+    const [syncTrigger, setSyncTrigger] = React.useState(0);
+    const [isSyncing, setIsSyncing] = React.useState(false);
+    const [showSyncNotif, setShowSyncNotif] = React.useState(false);
 
     // MENGAMBIL DATA DARI REST API GOOGLE APPS SCRIPT DENGAN CACHING
     React.useEffect(() => {
@@ -5871,25 +5874,31 @@ const App = () => {
                 return;
             }
 
-            const cachedDataStr = localStorage.getItem('pisgah_data_cache');
+            if (syncTrigger > 0) setIsSyncing(true);
+
             let hasCache = false;
-            if (cachedDataStr) {
-                try {
-                    const cached = JSON.parse(cachedDataStr);
-                    if (cached.dataPejabat) setDataPejabat(cached.dataPejabat);
-                    if (cached.jadwalDB) setJadwalDB(cached.jadwalDB);
-                    if (cached.youtubeUrl) setYoutubeUrl(cached.youtubeUrl);
-                    if (cached.liveUrl) setLiveUrl(cached.liveUrl);
-                    if (cached.perjamuanDate) setPerjamuanDate(cached.perjamuanDate);
-                    if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
-                    if (cached.heroImages) setHeroImages(cached.heroImages);
-                    if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
-                    if (cached.daftarBuku) setDaftarBuku(cached.daftarBuku);
-                    if (cached.pengumumanObj) setPengumuman(cached.pengumumanObj);
-                    if (cached.kontakGerejaObj) setKontakGereja(cached.kontakGerejaObj);
-                    setIsAppLoading(false);
-                    hasCache = true;
-                } catch (e) { console.warn("Gagal membaca cache"); }
+            if (syncTrigger === 0) {
+                const cachedDataStr = localStorage.getItem('pisgah_data_cache');
+                if (cachedDataStr) {
+                    try {
+                        const cached = JSON.parse(cachedDataStr);
+                        if (cached.dataPejabat) setDataPejabat(cached.dataPejabat);
+                        if (cached.jadwalDB) setJadwalDB(cached.jadwalDB);
+                        if (cached.youtubeUrl) setYoutubeUrl(cached.youtubeUrl);
+                        if (cached.liveUrl) setLiveUrl(cached.liveUrl);
+                        if (cached.perjamuanDate) setPerjamuanDate(cached.perjamuanDate);
+                        if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
+                        if (cached.heroImages) setHeroImages(cached.heroImages);
+                        if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
+                        if (cached.daftarBuku) setDaftarBuku(cached.daftarBuku);
+                        if (cached.pengumumanObj) setPengumuman(cached.pengumumanObj);
+                        if (cached.kontakGerejaObj) setKontakGereja(cached.kontakGerejaObj);
+                        setIsAppLoading(false);
+                        hasCache = true;
+                    } catch (e) { console.warn("Gagal membaca cache"); }
+                }
+            } else {
+                hasCache = true;
             }
 
             try {
@@ -5986,14 +5995,22 @@ const App = () => {
                 }));
 
                 if (!hasCache) setIsAppLoading(false);
+                if (syncTrigger > 0) {
+                    setIsSyncing(false);
+                    setTimeout(() => setShowSyncNotif(false), 3000);
+                }
             } catch (error) {
                 console.error('Error fetching data:', error);
                 if (!hasCache) setIsAppLoading(false);
+                if (syncTrigger > 0) {
+                    setIsSyncing(false);
+                    setTimeout(() => setShowSyncNotif(false), 3000);
+                }
             }
         };
 
         fetchData();
-    }, []);
+    }, [syncTrigger]);
 
     // FIX TYPO: Memperbaiki penulisan state yang sebelumnya kurang kurung siku
     const [isAdminLoggedIn, setIsAdminLoggedIn] = React.useState(false);
@@ -6125,6 +6142,23 @@ const App = () => {
                 </div>
             </header>
 
+            {/* Notifikasi Sinkronisasi */}
+            {showSyncNotif && (
+                <div className="fixed top-[70px] left-1/2 transform -translate-x-1/2 z-[40] bg-navy-900/90 backdrop-blur-md border border-navy-700 text-white px-5 py-2.5 rounded-full shadow-xl text-xs md:text-sm font-bold flex items-center gap-2 animate-fade-in w-max max-w-[90vw]">
+                    {isSyncing ? (
+                        <>
+                            <Icon name="RefreshCw" className="w-4 h-4 animate-spin text-gold-400 shrink-0" />
+                            <span className="truncate">Menyinkronkan data dengan server...</span>
+                        </>
+                    ) : (
+                        <>
+                            <span className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(34,197,94,0.5)]"><Icon name="Check" className="w-3 h-3 text-white" /></span>
+                            <span className="truncate">Data telah diperbarui!</span>
+                        </>
+                    )}
+                </div>
+            )}
+
             <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8 pb-32 md:pb-12">
                 {renderContent()}
             </main>
@@ -6176,8 +6210,34 @@ const App = () => {
 
             {/* Floating Action Button (Hubungi / WA) */}
             {activeTab !== 'admin_dashboard' && activeTab !== 'hubungi' && (
-                <button
-                    onClick={() => setActiveTab('hubungi')}
+                <>
+                    {/* Floating Sync Button */}
+                    <button
+                        onClick={() => {
+                            if (!isSyncing) {
+                                setSyncTrigger(prev => prev + 1);
+                                setShowSyncNotif(true);
+                            }
+                        }}
+                        className="fixed right-4 md:right-4 z-[90] w-[3rem] h-[3rem] bg-white/80 backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-white/60 cursor-pointer group shadow-lg"
+                        style={{
+                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 9rem)'
+                        }}
+                        title="Sinkronisasi Data"
+                    >
+                        {isSyncing ? (
+                            <Icon name="RefreshCw" className="w-5 h-5 animate-spin text-navy-500" />
+                        ) : (
+                            <div className="relative flex items-center justify-center w-full h-full">
+                                <span className="absolute w-3 h-3 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.8)]"></span>
+                                <span className="absolute w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75"></span>
+                            </div>
+                        )}
+                    </button>
+
+                    {/* Floating WhatsApp Button */}
+                    <button
+                        onClick={() => setActiveTab('hubungi')}
                     className="fixed right-4 md:right-4 z-[90] p-4 rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center animate-fade-in group"
                     style={{
                         bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)',
@@ -6201,6 +6261,7 @@ const App = () => {
                 >
                     <Icon name="Phone" className="w-6 h-6 md:w-7 md:h-7 drop-shadow-sm transition-colors" />
                 </button>
+                </>
             )}
         </div>
     );
