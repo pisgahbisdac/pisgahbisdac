@@ -5304,11 +5304,11 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                     let val = e.target.value;
                                                     let match = val.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
                                                     if (match && match[1]) {
-                                                        val = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                                                        val = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
                                                     } else {
                                                         match = val.match(/id=([a-zA-Z0-9_-]+)/);
                                                         if (match && match[1] && val.includes('drive.google.com')) {
-                                                            val = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                                                            val = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
                                                         }
                                                     }
                                                     setBookFormData({ ...bookFormData, cover: val });
