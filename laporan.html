@@ -930,9 +930,15 @@
           <div class="card-header">
             <div class="card-title" style="display:flex; align-items:center; gap:8px;">
               <span style="color:var(--primary)"><script>document.write(getIcon('user', 'lucide-md'))</script></span>
-              Pengaturan Akun (Ubah Sandi)
+              Pengaturan Akun
             </div>
           </div>
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-input" id="myNewUsername" placeholder="Username baru">
+            <small style="color:var(--text4); font-size:11px;">Kosongkan jika tidak ingin mengubah username.</small>
+          </div>
+          <div style="border-top:1px solid var(--glass-border); margin:12px 0;"></div>
           <div class="form-group" style="position:relative;">
             <label class="form-label">Kata Sandi Baru</label>
             <input type="password" class="form-input" id="myNewPassword" placeholder="Masukkan kata sandi baru">
@@ -946,8 +952,9 @@
             <span class="eye-btn" id="myNewPasswordConfirmEye" onclick="togglePassword('myNewPasswordConfirm', 'myNewPasswordConfirmEye')">
               <script>document.write(getIcon('eyeOff', 'lucide-md'))</script>
             </span>
+            <small style="color:var(--text4); font-size:11px;">Kosongkan jika tidak ingin mengubah sandi.</small>
           </div>
-          <button class="btn btn-primary" style="width:100%; margin-top:8px;" id="btnUpdateMyPassword" onclick="updateMyPassword()">Update Sandi</button>
+          <button class="btn btn-primary" style="width:100%; margin-top:8px;" id="btnUpdateMyPassword" onclick="updateMyAccount()">Simpan Perubahan</button>
         </div>
       </div>
 
@@ -1400,7 +1407,8 @@
       { id: 'masterData', label: 'Kategori, Departemen & Unit' },
       { id: 'users', label: 'Manajemen User' },
       { id: 'akun', label: 'Pengaturan Akun (Sandi)' },
-      { id: 'settings', label: 'Pengaturan Web' }
+      { id: 'settings', label: 'Pengaturan Web' },
+      { id: 'logs', label: 'Audit Log' }
     ];
 
     function renderRoles() {
@@ -1409,10 +1417,10 @@
       }
       if (!systemConfig.rolePermissions || typeof systemConfig.rolePermissions !== 'object' || Object.keys(systemConfig.rolePermissions).length === 0) {
         systemConfig.rolePermissions = {
-           Admin: { menus: { dashboard: {view:true, edit:true, del:true}, pemasukan: {view:true, edit:true, del:true}, pengeluaran: {view:true, edit:true, del:true}, laporan: {view:true, edit:true, del:true}, riwayat: {view:true, edit:true, del:true}, masterData: {view:true, edit:true, del:true}, users: {view:true, edit:true, del:true}, akun: {view:true, edit:true, del:true}, settings: {view:true, edit:true, del:true} }, isAnonymous: false },
-           Bendahara: { menus: { dashboard: {view:true, edit:true, del:true}, pemasukan: {view:true, edit:true, del:true}, pengeluaran: {view:true, edit:true, del:true}, laporan: {view:true, edit:true, del:true}, riwayat: {view:true, edit:true, del:true}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, akun: {view:true, edit:true, del:true}, settings: {view:false, edit:false, del:false} }, isAnonymous: false },
-           Viewer: { menus: { dashboard: {view:true, edit:false, del:false}, pemasukan: {view:false, edit:false, del:false}, pengeluaran: {view:false, edit:false, del:false}, laporan: {view:true, edit:false, del:false}, riwayat: {view:true, edit:false, del:false}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, akun: {view:true, edit:true, del:true}, settings: {view:false, edit:false, del:false} }, isAnonymous: false },
-           Publik: { menus: { dashboard: {view:true, edit:false, del:false}, pemasukan: {view:false, edit:false, del:false}, pengeluaran: {view:false, edit:false, del:false}, laporan: {view:false, edit:false, del:false}, riwayat: {view:true, edit:false, del:false}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, akun: {view:false, edit:false, del:false}, settings: {view:false, edit:false, del:false} }, isAnonymous: true }
+           Admin: { menus: { dashboard: {view:true, edit:true, del:true}, pemasukan: {view:true, edit:true, del:true}, pengeluaran: {view:true, edit:true, del:true}, laporan: {view:true, edit:true, del:true}, riwayat: {view:true, edit:true, del:true}, masterData: {view:true, edit:true, del:true}, users: {view:true, edit:true, del:true}, akun: {view:true, edit:true, del:true}, settings: {view:true, edit:true, del:true}, logs: {view:true, edit:true, del:true} }, isAnonymous: false },
+           Bendahara: { menus: { dashboard: {view:true, edit:true, del:true}, pemasukan: {view:true, edit:true, del:true}, pengeluaran: {view:true, edit:true, del:true}, laporan: {view:true, edit:true, del:true}, riwayat: {view:true, edit:true, del:true}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, akun: {view:true, edit:true, del:true}, settings: {view:false, edit:false, del:false}, logs: {view:false, edit:false, del:false} }, isAnonymous: false },
+           Viewer: { menus: { dashboard: {view:true, edit:false, del:false}, pemasukan: {view:false, edit:false, del:false}, pengeluaran: {view:false, edit:false, del:false}, laporan: {view:true, edit:false, del:false}, riwayat: {view:true, edit:false, del:false}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, akun: {view:true, edit:true, del:true}, settings: {view:false, edit:false, del:false}, logs: {view:false, edit:false, del:false} }, isAnonymous: false },
+           Publik: { menus: { dashboard: {view:true, edit:false, del:false}, pemasukan: {view:false, edit:false, del:false}, pengeluaran: {view:false, edit:false, del:false}, laporan: {view:false, edit:false, del:false}, riwayat: {view:true, edit:false, del:false}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, akun: {view:false, edit:false, del:false}, settings: {view:false, edit:false, del:false}, logs: {view:false, edit:false, del:false} }, isAnonymous: true }
         };
       }
 
@@ -1691,8 +1699,11 @@
       
       const mAkun = perms.menus.akun || {view:false,edit:false,del:false};
       document.getElementById('navAkun').style.display = mAkun.view ? '' : 'none';
+
+      const mLogs = perms.menus.logs || {view:false,edit:false,del:false};
+      if (document.getElementById('navLogs')) document.getElementById('navLogs').style.display = mLogs.view ? '' : 'none';
       
-      const showAdminGroup = mMaster.view || mUsers.view || mSettings.view;
+      const showAdminGroup = mMaster.view || mUsers.view || mSettings.view || mLogs.view;
       document.getElementById('adminNavLabel').style.display = showAdminGroup ? '' : 'none';
 
       const sensorContainer = document.getElementById('reportSensorContainer'); 
@@ -3089,22 +3100,43 @@
     }
     function renderMasterUnits() { document.getElementById('unitList').innerHTML = (masterData?.units || []).map(x => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--glass-border)"><div><strong>${x.name}</strong>${x.jumlah_anggota ? `<br><small style="color:var(--text3)">${x.jumlah_anggota} Jiwa</small>` : ''}</div><div style="display:flex; gap:6px;"><button class="btn-icon-only" onclick="editUnit('${x.name.replace(/'/g, "\\'")}', '${(x.note || '').replace(/'/g, "\\'")}', ${x.jumlah_anggota || 0})">${safeIcon('edit')}</button><button class="btn-icon-only" style="color:var(--red-pop);" onclick="deleteUnit('${x.name.replace(/'/g, "\\'")}')">${safeIcon('trash')}</button></div></div>`).join('') || '<div class="empty-state">No Data</div>'; }
     async function deleteUnit(name) { if (await showCustomConfirm('Hapus', `Yakin?`)) { try { await apiPost('deleteUnit', { name }); notify('Terhapus', 'success'); await loadMasterData(); renderMasterUnits(); initForms(); } catch (e) { notify(e.message, 'error'); } } }
-    async function updateMyPassword() {
+    async function updateMyAccount() {
+      const newUsername = document.getElementById('myNewUsername').value.trim();
       const p1 = document.getElementById('myNewPassword').value;
       const p2 = document.getElementById('myNewPasswordConfirm').value;
-      if (!p1) { notify('Kata sandi tidak boleh kosong', 'error'); return; }
-      if (p1 !== p2) { notify('Kata sandi tidak cocok', 'error'); return; }
-      if (p1.length < 6) { notify('Kata sandi minimal 6 karakter', 'error'); return; }
+
+      if (!newUsername && !p1) { notify('Isi username baru atau sandi baru', 'error'); return; }
+      if (p1 && p1 !== p2) { notify('Kata sandi tidak cocok', 'error'); return; }
+      if (p1 && p1.length < 6) { notify('Kata sandi minimal 6 karakter', 'error'); return; }
+      if (newUsername && newUsername.length < 3) { notify('Username minimal 3 karakter', 'error'); return; }
       
       const btn = document.getElementById('btnUpdateMyPassword');
       btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Memproses...';
       try {
-        await apiPost('saveUser', { username: currentUser.username, nama: currentUser.nama, role: currentUser.role, password: p1, isUpdate: true });
-        notify('Sandi berhasil diubah', 'success');
+        const payload = {
+          username: currentUser.username,
+          nama: currentUser.nama,
+          role: currentUser.role,
+          isUpdate: true
+        };
+        if (p1) payload.password = p1;
+        if (newUsername && newUsername !== currentUser.username) {
+          payload.newUsername = newUsername;
+        }
+        await apiPost('saveUser', payload);
+
+        // Update local session if username changed
+        if (newUsername && newUsername !== currentUser.username) {
+          currentUser.username = newUsername;
+          sessionStorage.setItem('PiKaChu_user', JSON.stringify(currentUser));
+        }
+
+        notify('Akun berhasil diperbarui', 'success');
+        document.getElementById('myNewUsername').value = '';
         document.getElementById('myNewPassword').value = '';
         document.getElementById('myNewPasswordConfirm').value = '';
       } catch (e) { notify(e.message, 'error'); }
-      finally { btn.disabled = false; btn.innerHTML = 'Update Sandi'; }
+      finally { btn.disabled = false; btn.innerHTML = 'Simpan Perubahan'; }
     }
 
     /* ======== USER MANAGEMENT ======== */
