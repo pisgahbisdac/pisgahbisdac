@@ -319,7 +319,7 @@ const formatDate = (dateString) => {
 };
 
 // --- COMPONENTS ---
-const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta }) => {
+const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook }) => {
     const [currentSlide, setCurrentSlide] = React.useState(0);
 
     // Safeguard untuk berjaga-jaga jika array gambar kosong (Dipindahkan ke atas)
@@ -565,6 +565,96 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                 </div>
             </div>
 
+            {/* UPDATE BUKU TERBARU */}
+            {daftarBuku && daftarBuku.length > 0 && (
+                <div className="glass-card p-5 md:p-6 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8">
+                    <div className="flex justify-between items-end mb-4 px-1">
+                        <div>
+                            <h2 className="text-[1.15rem] font-black text-navy-900 flex items-center">
+                                <Icon name="BookOpen" className="w-5 h-5 mr-2 text-gold-500" /> Pustaka Terbaru
+                            </h2>
+                            <p className="text-xs text-navy-500 font-medium mt-0.5">Buku & Dokumen yang baru ditambahkan</p>
+                        </div>
+                        <button onClick={() => setActiveTab('belajar_perpustakaan')} className="text-[10px] font-bold text-navy-600 uppercase tracking-wider hover:text-gold-600 transition flex items-center gap-1">
+                            Lihat Semua <Icon name="ChevronRight" className="w-3 h-3" />
+                        </button>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                        {[...daftarBuku].reverse().slice(0, 4).map(b => (
+                            <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className="bg-white rounded-2xl border border-navy-100/60 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                                <div className="h-32 md:h-40 overflow-hidden relative shrink-0">
+                                    <img src={b.cover || getDefaultBookCover(b.category)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-navy-900/10 to-transparent" />
+                                    <span className="absolute top-2 right-2 bg-navy-900/80 backdrop-blur-sm text-gold-400 text-[9px] font-black tracking-wider px-2 py-1 rounded-full shadow-sm">{b.category}</span>
+                                </div>
+                                <div className="p-3 md:p-4 flex-1 flex flex-col justify-between">
+                                    <div>
+                                        <div className="font-bold text-xs md:text-sm text-navy-900 line-clamp-2 leading-tight mb-1">{b.title}</div>
+                                        <div className="text-[10px] md:text-xs text-navy-500 font-semibold">{b.author}</div>
+                                    </div>
+                                    <div className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold text-navy-600 group-hover:text-gold-600 transition-colors bg-navy-50 px-2 py-1.5 rounded-lg w-max">
+                                        <Icon name="BookOpen" className="w-3 h-3" /> Baca Sekarang
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* --- WARTA TERBARU HOME --- */}
+            {sortedWartaHome.length > 0 && (
+                <div className="glass-card p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8 animate-fade-in">
+                    <div className="flex items-center justify-between mb-4 border-b border-navy-50 pb-3">
+                        <h2 className="text-[1.15rem] font-bold text-navy-900 flex items-center">
+                            <Icon name="BookOpen" className="w-[1.15rem] h-[1.15rem] mr-2 text-gold-500" /> Warta Terbaru
+                        </h2>
+                        <button onClick={() => { setSelectedWarta(null); setActiveTab('warta'); }} className="text-[10px] md:text-xs font-bold text-gold-600 hover:text-navy-900 transition-colors uppercase tracking-widest flex items-center">
+                            Lihat Semua <Icon name="ChevronRight" className="w-3.5 h-3.5 ml-1" />
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                        {sortedWartaHome.slice(0, 4).map((warta, idx) => {
+                            const rawUrls = parseGambarUrls(warta.gambarUrl);
+                            const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
+                            const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
+
+                            return (
+                                <div key={idx} onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }} className="bg-white rounded-2xl border border-navy-100/60 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                                    <div className="h-32 md:h-40 overflow-hidden relative shrink-0 bg-navy-50">
+                                        {thumb ? (
+                                            <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" alt="Thumbnail" referrerPolicy="no-referrer" />
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center h-full text-navy-300 group-hover:scale-105 transition-transform duration-500">
+                                                <Icon name="Image" className="w-6 h-6 mb-1 opacity-50" />
+                                                <span className="text-[9px] font-bold uppercase tracking-widest opacity-50">Tanpa Gambar</span>
+                                            </div>
+                                        )}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-navy-900/10 to-transparent" />
+                                        {idx === 0 && (
+                                            <span className="absolute top-2 right-2 bg-gold-500 text-white text-[9px] font-black tracking-wider px-2 py-1 rounded-full shadow-sm">TERBARU</span>
+                                        )}
+                                    </div>
+                                    <div className="p-3 md:p-4 flex-1 flex flex-col justify-between">
+                                        <div>
+                                            <div className="font-bold text-xs md:text-sm text-navy-900 line-clamp-2 leading-tight mb-1">{warta.judul}</div>
+                                            <div className="text-[10px] md:text-[11px] text-navy-500 font-medium line-clamp-2 leading-relaxed mb-2">
+                                                {truncateText(stripHtml(warta.isi), 80)}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 text-[9px] md:text-[10px] font-bold text-navy-400">
+                                            <Icon name="Calendar" className="w-3 h-3 text-gold-500" /> {formatDate(warta.tanggal)}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+            {/* ------------------------------- */}
+
             <div className="glass-card p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
 
@@ -605,66 +695,6 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                     </div>
                 </div>
             </div>
-
-            {/* --- WARTA TERBARU HOME --- */}
-            {sortedWartaHome.length > 0 && (
-                <div className="glass-card p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8 animate-fade-in">
-                    <div className="flex items-center justify-between mb-4 border-b border-navy-50 pb-3">
-                        <h2 className="text-[1.15rem] font-bold text-navy-900 flex items-center">
-                            <Icon name="BookOpen" className="w-[1.15rem] h-[1.15rem] mr-2 text-gold-500" /> Warta Terbaru
-                        </h2>
-                        <button onClick={() => { setSelectedWarta(null); setActiveTab('warta'); }} className="text-[10px] md:text-xs font-bold text-gold-600 hover:text-navy-900 transition-colors uppercase tracking-widest flex items-center">
-                            Lihat Semua <Icon name="ChevronRight" className="w-3.5 h-3.5 ml-1" />
-                        </button>
-                    </div>
-
-                    <div className="flex flex-col gap-5">
-                        {sortedWartaHome.slice(0, 3).map((warta, idx) => {
-                            const rawUrls = parseGambarUrls(warta.gambarUrl);
-                            const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
-                            const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
-
-                            return (
-                                <div
-                                    key={idx}
-                                    onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }}
-                                    className={`group cursor-pointer bg-white rounded-2xl border border-navy-100/50 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col ${idx % 2 === 1 ? 'md:flex-row-reverse' : 'md:flex-row'}`}
-                                >
-                                    {/* Thumbnail Utama */}
-                                    <div className="w-full md:w-2/5 aspect-video md:aspect-auto md:h-auto bg-navy-50 relative overflow-hidden shrink-0">
-                                        {thumb ? (
-                                            <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" alt="Thumbnail" referrerPolicy="no-referrer" />
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center h-full text-navy-300">
-                                                <Icon name="Image" className="w-8 h-8 mb-1 opacity-50" />
-                                                <span className="text-[9px] font-bold uppercase tracking-widest opacity-50">Tanpa Gambar</span>
-                                            </div>
-                                        )}
-                                        {idx === 0 && (
-                                            <div className="absolute top-3 left-3 bg-gold-500 text-white text-[10px] font-black px-2.5 py-1 rounded shadow-sm tracking-wider">
-                                                TERBARU
-                                            </div>
-                                        )}
-                                    </div>
-                                    {/* Teks Utama */}
-                                    <div className="p-4 md:p-5 flex-1 flex flex-col justify-center">
-                                        <h3 className="font-bold text-navy-900 text-base md:text-lg leading-tight mb-2 group-hover:text-gold-600 transition-colors line-clamp-2">
-                                            {warta.judul}
-                                        </h3>
-                                        <div className="text-[10px] font-bold text-navy-500 uppercase tracking-widest mb-2 flex items-center">
-                                            <Icon name="Calendar" className="w-3.5 h-3.5 mr-1 text-gold-500" /> {formatDate(warta.tanggal)}
-                                        </div>
-                                        <p className="text-xs text-navy-600 font-medium line-clamp-2 leading-relaxed">
-                                            {truncateText(stripHtml(warta.isi), 120)}
-                                        </p>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
-            {/* ------------------------------- */}
 
             <div className="flex flex-col items-center justify-center mb-5 md:mb-8 bg-white p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 text-center">
                 <div className="w-16 h-16 mb-4 flex items-center justify-center overflow-hidden rounded-2xl shadow-inner bg-white p-2">
@@ -5798,6 +5828,7 @@ const App = () => {
                     if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
                     if (cached.heroImages) setHeroImages(cached.heroImages);
                     if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
+                    if (cached.daftarBuku) setDaftarBuku(cached.daftarBuku);
                     if (cached.pengumumanObj) setPengumuman(cached.pengumumanObj);
                     if (cached.kontakGerejaObj) setKontakGereja(cached.kontakGerejaObj);
                     setIsAppLoading(false);
@@ -5841,6 +5872,7 @@ const App = () => {
 
                 if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
 
+                let fetchedBuku = [];
                 // Ambil data buku (public)
                 try {
                     const bukuRes = await fetch(GAS_API_URL, {
@@ -5851,14 +5883,15 @@ const App = () => {
 
                     // Menyamakan standar pengecekan dengan panel admin
                     if (bukuData.status === 'success' && bukuData.data) {
-                        setDaftarBuku(bukuData.data);
+                        fetchedBuku = bukuData.data;
                     } else if (bukuData.data && bukuData.data.status === 'success') {
-                        setDaftarBuku(bukuData.data.data || []);
+                        fetchedBuku = bukuData.data.data || [];
                     } else if (bukuData.success && bukuData.data) {
-                        setDaftarBuku(bukuData.data);
+                        fetchedBuku = bukuData.data;
                     } else {
                         console.warn('Gagal memuat buku:', bukuData.message);
                     }
+                    if (fetchedBuku.length > 0) setDaftarBuku(fetchedBuku);
                 } catch (e) {
                     console.error('Error fetching books:', e);
                 }
@@ -5886,6 +5919,7 @@ const App = () => {
                     kategoriPejabat: data.kategoriPejabat,
                     heroImages: newHeroImages,
                     daftarWarta: data.daftarWarta,
+                    daftarBuku: fetchedBuku.length > 0 ? fetchedBuku : daftarBuku, // Simpan ke cache
                     pengumumanObj: newPengumumanObj,
                     kontakGerejaObj: newKontakGerejaObj
                 }));
@@ -5945,7 +5979,7 @@ const App = () => {
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} />;
+            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
             case 'belajar': return <Belajar setActiveTab={setActiveTab} />;
             case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
@@ -5961,10 +5995,9 @@ const App = () => {
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} />;
+            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
-            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta}
-                refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} />;
+            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
         }
     };
 
