@@ -58,6 +58,10 @@ const formatImageUrl = (url) => {
         const id = url.split('/d/')[1].split('/')[0];
         return `https://drive.google.com/thumbnail?id=${id}&sz=w2000`; // Naikkan dari w1200 ke w2000 untuk kualitas lebih baik
     }
+    if (url.includes('docs.google.com/presentation/d/') || url.includes('docs.google.com/document/d/') || url.includes('docs.google.com/spreadsheets/d/')) {
+        const id = url.split('/d/')[1].split('/')[0];
+        return `https://drive.google.com/thumbnail?id=${id}&sz=w2000`;
+    }
     if (url.includes('drive.google.com/uc?')) {
         const ucMatch = url.match(/[?&]id=([^&]+)/);
         const fileMatch = url.match(/\/d\/([^/]+)/);
@@ -5396,6 +5400,11 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                         match = val.match(/id=([a-zA-Z0-9_-]+)/);
                                                         if (match && match[1] && val.includes('drive.google.com')) {
                                                             val = `https://drive.google.com/file/d/${match[1]}/preview`;
+                                                        } else {
+                                                            let docsMatch = val.match(/(docs\.google\.com\/(?:presentation|document|spreadsheets)\/d\/[a-zA-Z0-9_-]+)/);
+                                                            if (docsMatch && docsMatch[1]) {
+                                                                val = `https://${docsMatch[1]}/preview`;
+                                                            }
                                                         }
                                                     }
                                                     setBookFormData({ ...bookFormData, pdfUrl: val });
