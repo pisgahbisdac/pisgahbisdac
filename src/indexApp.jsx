@@ -77,6 +77,20 @@ const formatImageUrl = (url) => {
     return url;
 };
 
+const getCoverFallback = (b) => {
+    if (b.cover && b.cover.trim() !== '') {
+        const fmt = formatImageUrl(b.cover);
+        return fmt || b.cover;
+    }
+    if (b.pdfUrl && b.pdfUrl.trim() !== '') {
+        const thumb = formatImageUrl(b.pdfUrl);
+        if (thumb && thumb.includes('thumbnail?id=')) {
+            return thumb.replace('sz=w2000', 'sz=w800');
+        }
+    }
+    return getDefaultBookCover(b.category);
+};
+
 // --- KOMPONEN LOADING INI ---
 const LoadingScreen = () => {
     return (
@@ -580,7 +594,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                         {[...daftarBuku].reverse().slice(0, 4).map(b => (
                             <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className="bg-white rounded-2xl border border-navy-100/60 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col">
                                 <div className="h-32 md:h-40 overflow-hidden relative shrink-0">
-                                    <img src={b.cover || getDefaultBookCover(b.category)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
+                                    <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
                                     <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-navy-900/10 to-transparent" />
                                     <span className="absolute top-2 right-2 bg-navy-900/80 backdrop-blur-sm text-gold-400 text-[9px] font-black tracking-wider px-2 py-1 rounded-full shadow-sm">{b.category}</span>
                                 </div>
@@ -1266,7 +1280,7 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                             >
                                 <div className="h-[10rem] overflow-hidden relative">
                                     <img
-                                        src={book.cover || getDefaultBookCover(book.category)}
+                                        src={getCoverFallback(book)}
                                         alt={book.title}
                                         loading="lazy"
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -5181,7 +5195,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                         <div key={book.id} className="bg-white rounded-xl shadow-sm border border-navy-100/60 overflow-hidden hover:shadow-md transition flex flex-col">
                                             <div className="h-36 sm:h-40 bg-gradient-to-br from-navy-100 to-navy-50 flex items-center justify-center overflow-hidden shrink-0 relative">
                                                 <img
-                                                    src={book.cover || getDefaultBookCover(book.category)}
+                                                    src={getCoverFallback(book)}
                                                     alt={book.title}
                                                     className="w-full h-full object-cover"
                                                     onError={(e) => { e.target.src = getDefaultBookCover(book.category); }}
@@ -5579,7 +5593,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                                 {searchResults.buku.map(b => (
                                     <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className="bg-white rounded-xl border border-navy-100/60 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group">
                                         <div className="h-28 overflow-hidden relative">
-                                            <img src={b.cover || getDefaultBookCover(b.category)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
+                                            <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
                                             <div className="absolute inset-0 bg-gradient-to-t from-navy-900/70 to-transparent" />
                                             <span className="absolute top-1.5 right-1.5 bg-gold-500/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">{b.category}</span>
                                         </div>
