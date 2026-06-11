@@ -95,6 +95,17 @@ const getCoverFallback = (b) => {
     return getDefaultBookCover(b.category);
 };
 
+const DocumentBadge = ({ book, className = "absolute top-2 left-2" }) => {
+    if (!book.pdfUrl) return null;
+    const isPpt = book.pdfUrl.includes('presentation') || (book.title && (book.title.toLowerCase().includes('ppt') || book.title.toLowerCase().includes('presentasi')));
+    const isDoc = book.pdfUrl.includes('document');
+    return (
+        <span className={`${className} text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm backdrop-blur-sm ${isPpt ? 'bg-orange-500/90' : isDoc ? 'bg-blue-500/90' : 'bg-green-500/90'}`}>
+            {isPpt ? '✓ PPT' : isDoc ? '✓ DOC' : '✓ PDF'}
+        </span>
+    );
+};
+
 // --- KOMPONEN LOADING INI ---
 const LoadingScreen = () => {
     return (
@@ -600,6 +611,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                                 <div className="h-32 md:h-40 overflow-hidden relative shrink-0">
                                     <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
                                     <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-navy-900/10 to-transparent" />
+                                    <DocumentBadge book={b} />
                                     <span className="absolute top-2 right-2 bg-navy-900/80 backdrop-blur-sm text-gold-400 text-[9px] font-black tracking-wider px-2 py-1 rounded-full shadow-sm">{b.category}</span>
                                 </div>
                                 <div className="p-3 md:p-4 flex-1 flex flex-col justify-between">
@@ -940,7 +952,7 @@ const Belajar = ({ setActiveTab }) => {
         { id: 'belajar', title: 'Belajar Online', desc: 'Pembelajaran tanpa batas, lebih banyak kemungkinan untuk mengenal-Nya, Bertemulah dengan-Nya kapan dan dimana saja', img: 'https://suaranubuatan.id/wp-content/uploads/2021/09/book-4126481_1920.jpg', color: 'purple', isExternal: true, link: 'https://suaranubuatan.id/' },
         { id: 'alkitab', title: 'Alkitab', desc: 'Alkitab adalah firman Allah yang diilhamkan, satu-satunya aturan iman dan praktik.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg', color: 'orange' },
         { id: '28dasar', title: '28 Dasar Kepercayaan', desc: 'Gereja Advent memegang keyakinan dasar tertentu sebagai ajaran Kitab Suci.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjc1L2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9mcEUxNzQ5NDcxNDI3NTExLmpwZw/w:1920,q:75/hope-images/67054013a60919c92d92c959/fpE1749471427511.jpg', color: 'green' },
-        { id: 'perpustakaan', title: 'Buku-Buku', desc: 'Baca dan Download Buku', img: 'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg', color: 'purple' },
+        { id: 'perpustakaan', title: 'Buku-Buku', desc: 'Baca, Download Buku dan bervagai bahan untuk khotbah dan pemahaman lainnya.', img: 'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg', color: 'purple' },
         { id: 'egw', title: 'Ellen G. White', desc: 'Mengenal tulisan-tulisan yang diilhami untuk menuntun gereja pada akhir zaman.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg', color: 'purple' }
     ];
 
@@ -1185,12 +1197,12 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                         <p className="text-xs text-navy-500 font-semibold mt-0.5">{selectedBook.author}</p>
                     </div>
                     <a
-                        href={selectedBook.pdfUrl && selectedBook.pdfUrl.replace('/preview', '/view')}
+                        href={selectedBook.pdfUrl ? selectedBook.pdfUrl.replace('/preview', '/view').replace('/embed?start=false&loop=false&delayms=3000', '/present') : '#'}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1.5 bg-navy-900 text-gold-400 px-4 py-2 rounded-xl text-xs font-bold shrink-0 hover:bg-navy-800 transition"
                     >
-                        <Icon name="Download" className="w-3.5 h-3.5" /> Unduh
+                        <Icon name="ExternalLink" className="w-3.5 h-3.5" /> Buka Eksternal
                     </a>
                 </div>
                 {/* PDF Iframe Viewer */}
@@ -1209,10 +1221,12 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                             <p className="text-navy-500 font-medium">Link PDF tidak tersedia</p>
                         </div>
                     )}
+                    {selectedBook.pdfUrl && (
+                        <div className="bg-navy-50 text-center py-3 px-4 border-t border-navy-100">
+                            <p className="text-[10px] text-navy-500 font-medium">Jika dokumen meminta akses/login (karena diblokir oleh iPhone/Safari), silakan klik tombol <b>Buka Eksternal</b> di atas.</p>
+                        </div>
+                    )}
                 </div>
-                <p className="text-center text-xs text-navy-400 mt-3 font-medium">
-                    Jika PDF tidak tampil, coba buka di browser dengan tombol Unduh di atas.
-                </p>
             </div>
         );
     }
@@ -1291,6 +1305,7 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                                         onError={(e) => { e.target.src = getDefaultBookCover(book.category); }}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
+                                    <DocumentBadge book={book} />
                                     <span className="absolute top-2 right-2 bg-gold-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                                         {book.category}
                                     </span>
@@ -5204,11 +5219,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                     className="w-full h-full object-cover"
                                                     onError={(e) => { e.target.src = getDefaultBookCover(book.category); }}
                                                 />
-                                                {book.pdfUrl && (
-                                                    <div className="absolute top-2 right-2 bg-green-500/90 text-white px-2 py-0.5 rounded text-[9px] font-bold shadow-sm flex items-center">
-                                                        ✓ PDF
-                                                    </div>
-                                                )}
+                                                <DocumentBadge book={book} />
                                             </div>
                                             <div className="p-3 sm:p-4 flex flex-col flex-1">
                                                 <div className="mb-3 flex-1">
@@ -5403,7 +5414,11 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                         } else {
                                                             let docsMatch = val.match(/(docs\.google\.com\/(?:presentation|document|spreadsheets)\/d\/[a-zA-Z0-9_-]+)/);
                                                             if (docsMatch && docsMatch[1]) {
-                                                                val = `https://${docsMatch[1]}/preview`;
+                                                                if (docsMatch[1].includes('presentation')) {
+                                                                    val = `https://${docsMatch[1]}/embed?start=false&loop=false&delayms=3000`;
+                                                                } else {
+                                                                    val = `https://${docsMatch[1]}/preview`;
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -5604,6 +5619,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                                         <div className="h-28 overflow-hidden relative">
                                             <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
                                             <div className="absolute inset-0 bg-gradient-to-t from-navy-900/70 to-transparent" />
+                                            <DocumentBadge book={b} className="absolute top-1.5 left-1.5" />
                                             <span className="absolute top-1.5 right-1.5 bg-gold-500/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">{b.category}</span>
                                         </div>
                                         <div className="p-2.5">
@@ -5940,8 +5956,8 @@ const App = () => {
                     try {
                         const parsed = JSON.parse(data.pengumuman);
                         if (parsed && typeof parsed === 'object') {
-                            newPengumumanObj = { 
-                                header: parsed.header || "Pengumuman Jemaat", 
+                            newPengumumanObj = {
+                                header: parsed.header || "Pengumuman Jemaat",
                                 isi: decodeHTML(parsed.isi || ""),
                                 kolom: parsed.kolom || "1",
                                 marginBawah: parsed.marginBawah || "mb-6 md:mb-8"
