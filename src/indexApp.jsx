@@ -5300,9 +5300,21 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                             <input
                                                 type="url"
                                                 value={bookFormData.cover}
-                                                onChange={(e) => setBookFormData({ ...bookFormData, cover: e.target.value })}
+                                                onChange={(e) => {
+                                                    let val = e.target.value;
+                                                    let match = val.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+                                                    if (match && match[1]) {
+                                                        val = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                                                    } else {
+                                                        match = val.match(/id=([a-zA-Z0-9_-]+)/);
+                                                        if (match && match[1] && val.includes('drive.google.com')) {
+                                                            val = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                                                        }
+                                                    }
+                                                    setBookFormData({ ...bookFormData, cover: val });
+                                                }}
                                                 className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium text-sm"
-                                                placeholder="https://example.com/image.jpg"
+                                                placeholder="Link gambar dari Google Drive (otomatis dikonversi) atau web lain"
                                             />
                                             <p className="text-xs text-navy-400 mt-1.5">
                                                 💡 <strong>Kosongkan</strong> untuk menggunakan gambar default sesuai kategori (EGW, Doktrin, Panduan, Renungan, Lain-lain)
@@ -5310,15 +5322,27 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-bold text-navy-900 mb-1.5">Link PDF (Google Drive)</label>
+                                            <label className="block text-sm font-bold text-navy-900 mb-1.5">Link Dokumen (PDF / PPT / Google Drive)</label>
                                             <input
                                                 type="url"
                                                 value={bookFormData.pdfUrl}
-                                                onChange={(e) => setBookFormData({ ...bookFormData, pdfUrl: e.target.value })}
+                                                onChange={(e) => {
+                                                    let val = e.target.value;
+                                                    let match = val.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+                                                    if (match && match[1]) {
+                                                        val = `https://drive.google.com/file/d/${match[1]}/preview`;
+                                                    } else {
+                                                        match = val.match(/id=([a-zA-Z0-9_-]+)/);
+                                                        if (match && match[1] && val.includes('drive.google.com')) {
+                                                            val = `https://drive.google.com/file/d/${match[1]}/preview`;
+                                                        }
+                                                    }
+                                                    setBookFormData({ ...bookFormData, pdfUrl: val });
+                                                }}
                                                 className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium text-sm"
-                                                placeholder="https://drive.google.com/file/d/FILE_ID/preview"
+                                                placeholder="Link dokumen dari Google Drive (otomatis dikonversi)"
                                             />
-                                            <p className="text-xs text-navy-400 mt-1.5">Format: https://drive.google.com/file/d/FILE_ID/preview</p>
+                                            <p className="text-xs text-navy-400 mt-1.5">💡 Mendukung <strong>PDF</strong> maupun presentasi <strong>PPT/Slide</strong>. Cukup <i>paste</i> link (URL) apa saja dari Google Drive Anda ke sini.</p>
                                         </div>
 
                                         <div className="flex gap-3 pt-6">
