@@ -11,6 +11,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
     rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <link rel="stylesheet" href="/src/index.css">
 </head>
@@ -244,20 +245,18 @@
         </button>
       </div>
 
-      <a href="https://pisgahbisdac.app" style="text-decoration: none; display: block;">
-        <div class="login-logo">
-          <img id="login-custom-logo" src="" class="app-logo-login-img" alt="Logo PiKaChu"
-            style="display:none; width:80px; height:80px; object-fit:contain; margin:0 auto 16px;">
-          <svg class="app-logo-login-default"
-            style="width:64px; height:64px; color:var(--primary); margin: 0 auto 16px; display:block;"
-            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg>
-          <h1 style="font-family: 'Playfair Display', serif;">PiKaChu</h1>
-          <p style="color:var(--text3); font-size: 14px; font-weight: 500;">Sistem Keuangan Jemaat</p>
+      <div style="display: block; text-align: center;">
+        <div class="logo-container" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; margin-bottom:32px;">
+          <div style="background:var(--card-bg); border:1px solid var(--border-color); width:104px; height:104px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(0,0,0,0.1); flex-shrink: 0;">
+            <img class="app-logo-login-img" src="" alt="Logo" style="display:none; width:76px; height:76px; object-fit:contain;">
+            <img class="app-logo-login-default" src="./icons/PisgahColor.png" alt="Logo Default" style="width:76px; height:76px; object-fit:contain;">
+          </div>
+          <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div class="app-name-display" style="font-size:24px; font-weight:900; color:var(--text); letter-spacing:1px; line-height: 1.2;">PISGAH BISDAC</div>
+            <div class="app-subtitle-display" style="font-size:12px; color:var(--text2); font-weight:700; text-transform:uppercase; letter-spacing:1.5px; margin-top:6px;">Gereja Masehi Advent</div>
+          </div>
         </div>
-      </a>
+      </div>
 
       <div id="loginStatus" class="status-bar" style="justify-content:center; margin-bottom:24px; width: 100%;">
         <div class="status-dot loading" id="statusDot"></div>
@@ -288,16 +287,14 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-logo">
         <div class="logo-badge">
-          <div class="logo-icon">
-            <img id="sidebar-custom-logo" src="" class="app-logo-sidebar-img"
-              style="display:none; width:100%; height:100%; object-fit:contain;">
-            <svg id="sidebar-default-logo" class="lucide lucide-lg app-logo-sidebar-default" viewBox="0 0 24 24">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
+          <div class="logo-icon" style="width: 48px; height: 48px; background: transparent; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <img class="app-logo-sidebar-img" src="" alt="Logo" style="display:none; width: 40px; height: 40px; object-fit: contain;">
+            <img class="app-logo-sidebar-default" src="./icons/PisgahColor.png" alt="Logo Default" style="width: 40px; height: 40px; object-fit: contain;">
           </div>
-          <a href="https://pisgahbisdac.app" class="logo-link">
-            <div class="logo-text">PiKaChu</div>
-          </a>
+          <div style="display: flex; flex-direction: column; justify-content: center;">
+            <div class="app-name-display" style="font-size: 16px; font-weight: 800; color: var(--text); letter-spacing: 0.5px; line-height: 1.2;">PISGAH BISDAC</div>
+            <div class="app-subtitle-display" style="font-size: 9px; color: var(--text-muted, var(--text3)); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">Gereja Masehi Advent</div>
+          </div>
         </div>
       </div>
       <div class="sidebar-user">
@@ -308,6 +305,13 @@
         </div>
       </div>
       <nav class="sidebar-nav">
+        <a href="./index.html" style="text-decoration: none;">
+          <div class="nav-item" style="background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text1); margin-bottom: 15px;">
+            <span class="nav-icon" style="color: #f59e0b;">
+              <script>document.write(getIcon('building', 'lucide-md'))</script>
+            </span> Beranda Utama
+          </div>
+        </a>
         <div class="nav-section-title">Menu Utama</div>
         <div class="nav-item active" onclick="showPage('dashboard')">
           <span class="nav-icon">
@@ -359,7 +363,12 @@
         <div class="nav-item" onclick="showPage('settings')" id="navSettings">
           <span class="nav-icon">
             <script>document.write(getIcon('settings', 'lucide-md'))</script>
-          </span> Pengaturan
+          </span> Pengaturan Web
+        </div>
+        <div class="nav-item" onclick="showPage('roles')" id="navRoles">
+          <span class="nav-icon">
+            <script>document.write(getIcon('key', 'lucide-md'))</script>
+          </span> Hak Akses Menu
         </div>
         <div class="nav-item" onclick="showPage('logs')" id="navLogs">
           <span class="nav-icon">
@@ -418,13 +427,13 @@
             </svg></button>
           <span class="topbar-title" id="pageTitle">Dashboard</span>
         </div>
-        <div class="topbar-actions">
+        <div class="topbar-actions" style="display:flex; gap:8px;">
+          <a href="./index.html" class="btn btn-icon-only" title="Kembali ke Beranda" style="display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--text-main); width: 34px; height: 34px;">
+            <svg class="lucide lucide-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </a>
           <button class="btn btn-icon-only theme-toggle-btn" title="Ubah Tema" onclick="toggleTheme()"></button>
-          <div class="status-bar" style="margin:0; cursor:pointer;" onclick="handleManualSync()"
-            title="Klik untuk sinkronisasi">
-            <div class="status-dot online" id="appStatusDot"></div>
-            <span id="appStatusText">Online</span>
-          </div>
         </div>
       </div>
 
@@ -471,9 +480,6 @@
           <input type="number" class="select-sm" id="dashYear" value="2026" min="2000" max="2100"
             onchange="renderDashboard()" style="background-image: none; padding-right: 12px; width: 80px;"
             title="Ketik tahun">
-          <button class="btn btn-ghost" id="btnSyncData" onclick="handleManualSync()" style="margin-left: auto;">
-            <script>document.write(getIcon('refresh', 'lucide-sm'))</script> Sinkronisasi
-          </button>
         </div>
 
         <div class="stats-grid" id="statsGrid"></div>
@@ -869,6 +875,7 @@
                 <option value="Viewer">Viewer</option>
                 <option value="Bendahara">Bendahara</option>
                 <option value="Admin">Admin</option>
+                <option value="Publik">Publik</option>
               </select>
             </div>
             <div class="form-group">
@@ -903,11 +910,7 @@
                 <div style="width:100px; height:100px; display:flex; align-items:center; justify-content:center;">
                   <img id="preview-logo-login" src="" class="app-logo-login-img"
                     style="display:none; width:100%; height:100%; object-fit:contain;">
-                  <svg class="app-logo-login-default" style="width:64px; height:64px; color:var(--text3);"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                  </svg>
+                  <img class="app-logo-login-default" src="./icons/PisgahColor.png" style="width:64px; height:64px; object-fit:contain;">
                 </div>
                 <label for="logoLoginUpload" class="btn btn-primary" style="width:100%; justify-content:center;">
                   <script>document.write(getIcon('image', 'lucide-sm'))</script> Pilih Gambar
@@ -926,11 +929,7 @@
                 <div style="width:100px; height:100px; display:flex; align-items:center; justify-content:center;">
                   <img id="preview-logo-sidebar" src="" class="app-logo-sidebar-img"
                     style="display:none; width:100%; height:100%; object-fit:contain;">
-                  <svg class="app-logo-sidebar-default" style="width:64px; height:64px; color:var(--text3);"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                  </svg>
+                  <img class="app-logo-sidebar-default" src="./icons/PisgahColor.png" style="width:64px; height:64px; object-fit:contain;">
                 </div>
                 <label for="logoSidebarUpload" class="btn btn-primary" style="width:100%; justify-content:center;">
                   <script>document.write(getIcon('image', 'lucide-sm'))</script> Pilih Gambar
@@ -941,6 +940,39 @@
                   onclick="resetLogo('logo_sidebar')">Hapus Logo</button>
               </div>
             </div>
+          </div>
+          
+          <div class="form-section-title" style="margin-top: 32px;">Nama Aplikasi</div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Nama Utama</label>
+              <input class="form-input" type="text" id="settingAppName" placeholder="Misal: PISGAH BISDAC">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sub Nama</label>
+              <input class="form-input" type="text" id="settingAppSubtitle" placeholder="Misal: Gereja Masehi Advent">
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; margin-top: 16px;">
+            <button class="btn btn-primary" onclick="saveAppTextFromInputs()">Simpan Nama</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-roles">
+        <div class="card" style="max-width:900px; margin:0 auto; padding: 24px;">
+          <h2 style="margin-bottom: 24px; color: var(--text);">Hak Akses Menu & Staff</h2>
+          
+          <div style="margin-bottom: 24px; border-bottom: 1px solid var(--glass-border); display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px;" id="roleTabs">
+            <!-- Tabs injected via JS -->
+          </div>
+          
+          <div id="roleContent" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Role Permissions injected via JS -->
+          </div>
+          
+          <div style="display: flex; justify-content: flex-end; margin-top: 32px;">
+            <button class="btn btn-primary" onclick="saveRolePermissions()">Simpan Hak Akses</button>
           </div>
         </div>
       </div>
@@ -1245,6 +1277,138 @@
       const sidebarLogoEls = document.querySelectorAll('.app-logo-sidebar-img'); const sidebarDefaultEls = document.querySelectorAll('.app-logo-sidebar-default');
       if (systemConfig.logo_sidebar && systemConfig.logo_sidebar.trim() !== '') { sidebarLogoEls.forEach(el => { el.src = systemConfig.logo_sidebar; el.style.display = 'block'; }); sidebarDefaultEls.forEach(el => { el.style.display = 'none'; }); }
       else { sidebarLogoEls.forEach(el => { el.style.display = 'none'; el.src = ''; }); sidebarDefaultEls.forEach(el => { el.style.display = 'block'; }); }
+
+      const appName = systemConfig.app_name || 'PISGAH BISDAC';
+      const appSubtitle = systemConfig.app_subtitle || 'Gereja Masehi Advent';
+      document.querySelectorAll('.app-name-display').forEach(el => el.textContent = appName);
+      document.querySelectorAll('.app-subtitle-display').forEach(el => el.textContent = appSubtitle);
+
+      const inputName = document.getElementById('settingAppName');
+      if (inputName) inputName.value = systemConfig.app_name || '';
+      const inputSub = document.getElementById('settingAppSubtitle');
+      if (inputSub) inputSub.value = systemConfig.app_subtitle || '';
+    }
+
+    async function saveAppTextFromInputs() {
+      const name = document.getElementById('settingAppName').value;
+      const subtitle = document.getElementById('settingAppSubtitle').value;
+      systemConfig['app_name'] = name;
+      systemConfig['app_subtitle'] = subtitle;
+      localStorage.setItem('PiKaChu_config', JSON.stringify(systemConfig));
+      applyConfig();
+      try {
+        await apiPostWithFallback('saveConfig', { key: 'app_name', value: name });
+        await apiPostWithFallback('saveConfig', { key: 'app_subtitle', value: subtitle });
+        notify('Nama aplikasi berhasil disimpan', 'success');
+      } catch (err) { }
+    }
+
+    // === ROLE MANAGEMENT ===
+    let selectedRoleTab = 'Admin';
+    const allRoles = ['Admin', 'Bendahara', 'Viewer', 'Publik'];
+    const allMenus = [
+      { id: 'dashboard', label: 'Dashboard Utama' },
+      { id: 'pemasukan', label: 'Pemasukan' },
+      { id: 'pengeluaran', label: 'Pengeluaran' },
+      { id: 'laporan', label: 'Laporan Keuangan' },
+      { id: 'riwayat', label: 'Riwayat (Histori)' },
+      { id: 'masterData', label: 'Kategori, Departemen & Unit' },
+      { id: 'users', label: 'Manajemen User' },
+      { id: 'settings', label: 'Pengaturan Web' }
+    ];
+
+    function renderRoles() {
+      if (!systemConfig.rolePermissions) {
+        systemConfig.rolePermissions = {
+          Admin: { menus: { dashboard: {view:true, edit:true, del:true}, pemasukan: {view:true, edit:true, del:true}, pengeluaran: {view:true, edit:true, del:true}, laporan: {view:true, edit:true, del:true}, riwayat: {view:true, edit:true, del:true}, masterData: {view:true, edit:true, del:true}, users: {view:true, edit:true, del:true}, settings: {view:true, edit:true, del:true} }, isAnonymous: false },
+          Bendahara: { menus: { dashboard: {view:true, edit:true, del:true}, pemasukan: {view:true, edit:true, del:true}, pengeluaran: {view:true, edit:true, del:true}, laporan: {view:true, edit:true, del:true}, riwayat: {view:true, edit:true, del:true}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, settings: {view:false, edit:false, del:false} }, isAnonymous: false },
+          Viewer: { menus: { dashboard: {view:true, edit:false, del:false}, pemasukan: {view:false, edit:false, del:false}, pengeluaran: {view:false, edit:false, del:false}, laporan: {view:true, edit:false, del:false}, riwayat: {view:true, edit:false, del:false}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, settings: {view:false, edit:false, del:false} }, isAnonymous: false },
+          Publik: { menus: { dashboard: {view:true, edit:false, del:false}, pemasukan: {view:false, edit:false, del:false}, pengeluaran: {view:false, edit:false, del:false}, laporan: {view:false, edit:false, del:false}, riwayat: {view:true, edit:false, del:false}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, settings: {view:false, edit:false, del:false} }, isAnonymous: true }
+        };
+      }
+
+      document.getElementById('roleTabs').innerHTML = allRoles.map(r => `
+        <button class="btn ${selectedRoleTab === r ? 'btn-primary' : 'btn-ghost'}" onclick="selectedRoleTab='${r}'; renderRoles();" style="border-radius:20px; white-space:nowrap; padding: 6px 16px;">
+          ${r}
+        </button>
+      `).join('');
+
+      const perms = systemConfig.rolePermissions[selectedRoleTab] || { menus: {}, isAnonymous: false };
+      
+      let html = '';
+      if (selectedRoleTab !== 'Admin') {
+        html += `<div style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:16px;">
+          <div style="font-weight:700; color:var(--text); margin-bottom:8px;">Opsi Khusus: Mode Anonim</div>
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="roleAnonCheckbox" ${perms.isAnonymous ? 'checked' : ''} onchange="updateRoleAnon('${selectedRoleTab}', this.checked)">
+            <span style="color:var(--text2); font-size:14px;">Sembunyikan kolom sensitif (Pihak/Pemberi dan Unit) di tabel Riwayat. Cocok untuk Publik.</span>
+          </label>
+        </div>`;
+      } else {
+        html += `<div style="padding:16px; background:var(--badge-blue-bg); color:var(--text); border-radius:var(--radius-lg); margin-bottom: 8px;">Role Admin selalu memiliki akses penuh ke semua modul.</div>`;
+      }
+
+      html += `<div class="grid-2" style="gap:16px; margin-top:8px;">`;
+      allMenus.forEach(menu => {
+        const mPerm = perms.menus[menu.id] || { view:false, edit:false, del:false };
+        const disabled = selectedRoleTab === 'Admin' ? 'disabled' : '';
+        html += `
+          <div style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius); padding:16px;">
+            <div style="font-weight:700; color:var(--text); margin-bottom:12px; border-bottom:1px solid var(--glass-border); padding-bottom:8px;">${menu.label}</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+                <span style="color:var(--text2); font-size:14px;">View (Lihat)</span>
+                <input type="checkbox" ${disabled} ${mPerm.view ? 'checked' : ''} onchange="updateRolePerm('${selectedRoleTab}', '${menu.id}', 'view', this.checked)">
+              </label>
+              <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+                <span style="color:var(--text2); font-size:14px;">Edit / Add</span>
+                <input type="checkbox" ${disabled} ${mPerm.edit ? 'checked' : ''} onchange="updateRolePerm('${selectedRoleTab}', '${menu.id}', 'edit', this.checked)">
+              </label>
+              <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+                <span style="color:var(--text2); font-size:14px;">Delete (Hapus)</span>
+                <input type="checkbox" ${disabled} ${mPerm.del ? 'checked' : ''} onchange="updateRolePerm('${selectedRoleTab}', '${menu.id}', 'del', this.checked)">
+              </label>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+      document.getElementById('roleContent').innerHTML = html;
+    }
+
+    function updateRoleAnon(role, checked) {
+      if(!systemConfig.rolePermissions[role]) systemConfig.rolePermissions[role] = {menus:{}, isAnonymous:false};
+      systemConfig.rolePermissions[role].isAnonymous = checked;
+    }
+
+    function updateRolePerm(role, menuId, permType, checked) {
+      if(!systemConfig.rolePermissions[role]) systemConfig.rolePermissions[role] = {menus:{}, isAnonymous:false};
+      if(!systemConfig.rolePermissions[role].menus[menuId]) systemConfig.rolePermissions[role].menus[menuId] = {view:false, edit:false, del:false};
+      systemConfig.rolePermissions[role].menus[menuId][permType] = checked;
+      if(checked && (permType === 'edit' || permType === 'del')) {
+        systemConfig.rolePermissions[role].menus[menuId].view = true;
+        renderRoles();
+      }
+      if(!checked && permType === 'view') {
+        systemConfig.rolePermissions[role].menus[menuId].edit = false;
+        systemConfig.rolePermissions[role].menus[menuId].del = false;
+        renderRoles();
+      }
+    }
+
+    async function saveRolePermissions() {
+      localStorage.setItem('PiKaChu_config', JSON.stringify(systemConfig));
+      applyRoleAccess();
+      const btn = document.querySelector('#page-roles .btn-primary');
+      if (btn) btn.disabled = true;
+      try {
+        await apiPostWithFallback('saveConfig', { key: 'rolePermissions', value: JSON.stringify(systemConfig.rolePermissions) });
+        notify('Hak Akses berhasil disimpan', 'success');
+      } catch (err) {
+        notify('Gagal menyimpan Hak Akses', 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     }
 
     function handleLogoUpload(event, keyType) {
@@ -1385,21 +1549,58 @@
 
     async function launchApp() {
       document.getElementById('loginPage').style.display = 'none'; document.getElementById('app').style.display = 'flex';
+      const syncBtn = document.getElementById('floatingSyncBtn');
+      if (syncBtn) { syncBtn.classList.remove('bottom-8'); syncBtn.classList.add('bottom-28'); }
       document.getElementById('userNameDisplay').textContent = currentUser.nama; document.getElementById('userRoleDisplay').textContent = currentUser.role; document.getElementById('userAvatar').textContent = currentUser.nama.split(' ').map(x => x[0]).join('').substring(0, 2).toUpperCase();
       applyRoleAccess(); await Promise.all([loadSystemConfig(), syncAllData()]); initForms(); showPage('dashboard');
     }
 
     function applyRoleAccess() {
-      const isAdm = currentUser.role === 'Admin'; const isBen = currentUser.role === 'Bendahara' || isAdm;
-      const isViewer = currentUser.role === 'Viewer';
-      document.getElementById('navPemasukan').style.display = isBen ? '' : 'none'; document.getElementById('navPengeluaran').style.display = isBen ? '' : 'none'; document.getElementById('navRiwayat').style.display = isBen ? '' : 'none';
-      if (document.getElementById('botPemasukan')) document.getElementById('botPemasukan').style.display = isBen ? 'flex' : 'none';
-      if (document.getElementById('botPengeluaran')) document.getElementById('botPengeluaran').style.display = isBen ? 'flex' : 'none';
-      const btnJurnal = document.getElementById('btnJurnalDashboard'); if (btnJurnal) btnJurnal.style.display = isBen ? '' : 'none';
-      const recentTransCard = document.getElementById('recentTransCard'); if (recentTransCard) recentTransCard.style.display = isBen ? '' : 'none';
+      let perms = { menus: { dashboard:{view:true,edit:true,del:true}, pemasukan:{view:true,edit:true,del:true}, pengeluaran:{view:true,edit:true,del:true}, laporan:{view:true,edit:true,del:true}, riwayat:{view:true,edit:true,del:true}, masterData:{view:true,edit:true,del:true}, users:{view:true,edit:true,del:true}, settings:{view:true,edit:true,del:true} }, isAnonymous: false };
+      
+      if (systemConfig.rolePermissions && systemConfig.rolePermissions[currentUser.role]) {
+        perms = systemConfig.rolePermissions[currentUser.role];
+      } else if (currentUser.role === 'Admin') {
+        perms = { menus: { dashboard:{view:true,edit:true,del:true}, pemasukan:{view:true,edit:true,del:true}, pengeluaran:{view:true,edit:true,del:true}, laporan:{view:true,edit:true,del:true}, riwayat:{view:true,edit:true,del:true}, masterData:{view:true,edit:true,del:true}, users:{view:true,edit:true,del:true}, settings:{view:true,edit:true,del:true} }, isAnonymous: false };
+      } else if (currentUser.role === 'Viewer') {
+        perms = { menus: { dashboard:{view:true,edit:false,del:false}, pemasukan:{view:false,edit:false,del:false}, pengeluaran:{view:false,edit:false,del:false}, laporan:{view:true,edit:false,del:false}, riwayat:{view:true,edit:false,del:false}, masterData:{view:false,edit:false,del:false}, users:{view:false,edit:false,del:false}, settings:{view:false,edit:false,del:false} }, isAnonymous: false };
+      }
+
+      const mPemasukan = perms.menus.pemasukan || {view:false,edit:false,del:false};
+      document.getElementById('navPemasukan').style.display = mPemasukan.view ? '' : 'none';
+      if (document.getElementById('botPemasukan')) document.getElementById('botPemasukan').style.display = mPemasukan.view ? 'flex' : 'none';
+
+      const mPengeluaran = perms.menus.pengeluaran || {view:false,edit:false,del:false};
+      document.getElementById('navPengeluaran').style.display = mPengeluaran.view ? '' : 'none';
+      if (document.getElementById('botPengeluaran')) document.getElementById('botPengeluaran').style.display = mPengeluaran.view ? 'flex' : 'none';
+
+      const mRiwayat = perms.menus.riwayat || {view:false,edit:false,del:false};
+      document.getElementById('navRiwayat').style.display = mRiwayat.view ? '' : 'none';
+
+      const btnJurnal = document.getElementById('btnJurnalDashboard'); if (btnJurnal) btnJurnal.style.display = (mPemasukan.edit || mPengeluaran.edit) ? '' : 'none';
+      const recentTransCard = document.getElementById('recentTransCard'); if (recentTransCard) recentTransCard.style.display = mRiwayat.view ? '' : 'none';
       const btnPrint = document.getElementById('btnPrintReport'); if (btnPrint) btnPrint.style.display = '';
-      document.getElementById('adminNavLabel').style.display = isAdm ? '' : 'none'; document.getElementById('navMasterIncType').style.display = isAdm ? '' : 'none'; document.getElementById('navMasterDept').style.display = isAdm ? '' : 'none'; document.getElementById('navMasterUnit').style.display = isAdm ? '' : 'none'; document.getElementById('navUsers').style.display = isAdm ? '' : 'none'; document.getElementById('navSettings').style.display = isAdm ? '' : 'none'; document.getElementById('navLogs').style.display = isAdm ? '' : 'none';
-      const sensorContainer = document.getElementById('reportSensorContainer'); if (sensorContainer) sensorContainer.style.display = isViewer ? 'none' : 'flex';
+
+      const mMaster = perms.menus.masterData || {view:false,edit:false,del:false};
+      document.getElementById('navMasterIncType').style.display = mMaster.view ? '' : 'none';
+      document.getElementById('navMasterDept').style.display = mMaster.view ? '' : 'none';
+      document.getElementById('navMasterUnit').style.display = mMaster.view ? '' : 'none';
+
+      const mUsers = perms.menus.users || {view:false,edit:false,del:false};
+      document.getElementById('navUsers').style.display = mUsers.view ? '' : 'none';
+
+      const mSettings = perms.menus.settings || {view:false,edit:false,del:false};
+      document.getElementById('navSettings').style.display = mSettings.view ? '' : 'none';
+      document.getElementById('navRoles').style.display = mSettings.view ? '' : 'none';
+      
+      const showAdminGroup = mMaster.view || mUsers.view || mSettings.view;
+      document.getElementById('adminNavLabel').style.display = showAdminGroup ? '' : 'none';
+
+      const sensorContainer = document.getElementById('reportSensorContainer'); 
+      if (sensorContainer) sensorContainer.style.display = perms.menus.laporan?.edit ? 'flex' : 'none';
+      
+      if (!mPemasukan.edit) { document.querySelectorAll('.btn-save-pemasukan').forEach(el => el.style.display = 'none'); }
+      if (!mPengeluaran.edit) { document.querySelectorAll('.btn-save-pengeluaran').forEach(el => el.style.display = 'none'); }
     }
 
     function updateLastReceipts() {
@@ -1436,9 +1637,14 @@
 
     async function handleManualSync() {
       const btn = document.getElementById('btnSyncData'); const statusTxt = document.getElementById('appStatusText'); const statusDot = document.getElementById('appStatusDot');
+      const floatBtn = document.getElementById('floatingSyncBtn'); const floatIcon = document.getElementById('floatingSyncIcon');
+      if (floatBtn) { floatBtn.disabled = true; }
+      if (floatIcon) { floatIcon.innerHTML = `<i class="fa-solid fa-rotate fa-spin text-amber-500 text-xl md:text-lg"></i>`; }
       if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Sync...'; }
       if (statusTxt) statusTxt.textContent = 'Sync...'; if (statusDot) statusDot.className = 'status-dot loading';
       await checkAPIConnection(); await syncAllData();
+      if (floatBtn) { floatBtn.disabled = false; }
+      if (floatIcon) { floatIcon.innerHTML = '<span class="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span><span class="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>'; }
       if (btn) { btn.disabled = false; btn.innerHTML = safeIcon('refresh', 'lucide-sm') + ' Sinkronisasi'; }
       notify('Data tersinkron!', 'success');
     }
@@ -2251,7 +2457,13 @@
         printBtn.style.display = (giverQ || q || month > 0 || year > 0) ? 'inline-flex' : 'none';
       }
 
-      const isAdmin = currentUser.role === 'Admin'; const canEdit = isAdmin || currentUser.role === 'Bendahara'; const isViewer = currentUser.role === 'Viewer';
+      const perms = (systemConfig.rolePermissions || {})[currentUser.role] || { menus: { riwayat: { view:true, edit:false, del:false } }, isAnonymous: false };
+      const mRiwayat = perms.menus.riwayat || { view:true, edit:false, del:false };
+      const isAdmin = currentUser.role === 'Admin';
+      const canEdit = mRiwayat.edit || isAdmin;
+      const canDel = mRiwayat.del || isAdmin;
+      const isViewer = currentUser.role === 'Viewer';
+      const isAnon = perms.isAnonymous;
 
       if (list.length === 0) {
         document.getElementById('historyListContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Data kosong.</div>';
@@ -2260,19 +2472,19 @@
           const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
           const deleteId = x.transaction_id || x.receipt_no || '';
           let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
-          const pihak = x.type === 'income' ? (isPrivCategory ? '***' : (x.nama_pemberi || '-')) : (x.nama_penerima || '-');
+          const pihak = x.type === 'income' ? (isPrivCategory || isAnon ? '***' : (x.nama_pemberi || '-')) : (isAnon ? '***' : (x.nama_penerima || '-'));
 
           return `
       <tr>
         <td class="fit-col">${fmtDate(x.date)}</td>
         <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
-        <td><span class="badge ${getCatBadge(x.income_type || x.department, x.type !== 'income')}">${x.income_type || x.department || '-'}</span><br><span style="font-size:12px; color:var(--text4)">${isPrivCategory ? '***' : (x.note || '-')}</span></td>
+        <td><span class="badge ${getCatBadge(x.income_type || x.department, x.type !== 'income')}">${x.income_type || x.department || '-'}</span><br><span style="font-size:12px; color:var(--text4)">${isPrivCategory || isAnon ? '***' : (x.note || '-')}</span></td>
         <td class="fit-col"><span class="badge badge-gray">${x.receipt_no || '-'}</span> ${photoBtn}</td>
         <td>${pihak}</td>
         <td class="fit-col ${x.style}" style="text-align:right; font-weight:800;">${x.sign}${fmt(x.amount)}</td>
         <td class="fit-col" style="text-align:right;">
           ${canEdit && deleteId ? `<button class="btn-icon-only" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit')}</button>` : ''}
-          ${isAdmin && deleteId ? `<button class="btn-icon-only" style="color:var(--red-pop)" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash')}</button>` : (!canEdit ? '<span style="color:var(--text4)">-</span>' : '')}
+          ${canDel && deleteId ? `<button class="btn-icon-only" style="color:var(--red-pop)" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash')}</button>` : (!canEdit ? '<span style="color:var(--text4)">-</span>' : '')}
         </td>
       </tr>`;
         }).join('');
@@ -2281,11 +2493,11 @@
           const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
           const isInc = x.type === 'income';
           const deleteId = x.transaction_id || x.receipt_no || '';
-          const pihak = x.type === 'income' ? (isPrivCategory ? '***' : (x.nama_pemberi || '-')) : (x.nama_penerima || '-');
+          const pihak = x.type === 'income' ? (isPrivCategory || isAnon ? '***' : (x.nama_pemberi || '-')) : (isAnon ? '***' : (x.nama_penerima || '-'));
 
           let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
           let editBtn = canEdit && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openEditTrans('${x.type}', '${deleteId}')">✏️ Edit</button>` : '';
-          let delBtn = isAdmin && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--rose-pop);" onclick="deleteTransaction('${x.type}', '${deleteId}')">🗑️ Hapus</button>` : '';
+          let delBtn = canDel && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--rose-pop);" onclick="deleteTransaction('${x.type}', '${deleteId}')">🗑️ Hapus</button>` : '';
 
           return `
           <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
@@ -2300,7 +2512,7 @@
               <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
               <span style="color:var(--text4)">Pihak</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${pihak}</strong>
               <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.income_type || x.department || '-'}</strong>
-              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${isPrivCategory ? '***' : (x.note || '-')}</span>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${isPrivCategory || isAnon ? '***' : (x.note || '-')}</span>
             </div>
             <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
               ${photoBtn}
@@ -2663,10 +2875,10 @@
       document.querySelectorAll('.bottom-nav-item').forEach(n => n.classList.remove('active'));
       const activeNav = document.querySelector(`.nav-item[onclick*="showPage('${pageId}')"]`); if (activeNav) activeNav.classList.add('active');
       const activeBotNav = document.querySelector(`.bottom-nav-item[data-target="${pageId}"]`); if (activeBotNav) activeBotNav.classList.add('active');
-      const titles = { dashboard: 'Dashboard', pemasukan: 'Pemasukan', pengeluaran: 'Pengeluaran', laporan: 'Laporan', riwayat: 'Histori', masterIncType: 'Kategori', masterDept: 'Departemen', masterUnit: 'Unit', users: 'Manajemen User', settings: 'Pengaturan', logs: 'Audit Log' };
+      const titles = { dashboard: 'Dashboard', pemasukan: 'Pemasukan', pengeluaran: 'Pengeluaran', laporan: 'Laporan', riwayat: 'Histori', masterIncType: 'Kategori', masterDept: 'Departemen', masterUnit: 'Unit', users: 'Manajemen User', settings: 'Pengaturan', roles: 'Hak Akses Menu', logs: 'Audit Log' };
       document.getElementById('pageTitle').textContent = titles[pageId] || 'Dashboard';
       closeSidebar();
-      if (pageId === 'dashboard') renderDashboard(); else if (pageId === 'pemasukan') renderIncomeList(); else if (pageId === 'pengeluaran') renderExpenseList(); else if (pageId === 'riwayat') renderHistory(); else if (pageId === 'laporan') { document.getElementById('reportContent').innerHTML = ''; } else if (pageId === 'masterIncType') renderMasterIncTypes(); else if (pageId === 'masterDept') renderMasterDepts(); else if (pageId === 'masterUnit') renderMasterUnits(); else if (pageId === 'users') renderUsers(); else if (pageId === 'logs') renderLogs();
+      if (pageId === 'dashboard') renderDashboard(); else if (pageId === 'pemasukan') renderIncomeList(); else if (pageId === 'pengeluaran') renderExpenseList(); else if (pageId === 'riwayat') renderHistory(); else if (pageId === 'laporan') { document.getElementById('reportContent').innerHTML = ''; } else if (pageId === 'masterIncType') renderMasterIncTypes(); else if (pageId === 'masterDept') renderMasterDepts(); else if (pageId === 'masterUnit') renderMasterUnits(); else if (pageId === 'users') renderUsers(); else if (pageId === 'logs') renderLogs(); else if (pageId === 'roles') renderRoles();
     }
     function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
     function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
@@ -2680,13 +2892,18 @@
           if (document.getElementById('loginBtnText')) document.getElementById('loginBtnText').innerHTML = '<span class="spinner"></span> Memulihkan...';
           const ok = await checkAPIConnection();
           if (ok) { launchApp(); } else { notify('Koneksi gagal. Silakan login kembali.', 'error'); clearToken(); }
-        } else { clearToken(); }
+        }
       }
     };
 
 
   </script>
-
+  <button id="floatingSyncBtn" onclick="handleManualSync()" title="Sinkronisasi Data" class="fixed right-4 md:right-8 bottom-8 md:bottom-8 z-50 w-[3.5rem] h-[3.5rem] md:w-[3rem] md:h-[3rem] backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center cursor-pointer group" style="background: var(--bg-dark); border: 1px solid var(--glass-border); box-shadow: var(--shadow-lg);">
+    <div class="relative flex items-center justify-center w-full h-full" id="floatingSyncIcon">
+      <span class="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
+      <span class="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
+    </div>
+  </button>
 </body>
 
 </html>

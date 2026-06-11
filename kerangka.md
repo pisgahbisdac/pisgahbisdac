@@ -38,7 +38,10 @@ pisgahbisdac/
 1. **Backend via Google Apps Script (GAS)**
    Seluruh data dinamis (Jadwal, Pejabat, Warta, Buku, Pengumuman, dll) ditarik dan dikirim ke **Google Sheets** menggunakan *Google Apps Script*. Endpoint API didefinisikan secara global (misal: `GAS_API_URL` di dalam `indexApp.jsx`).
    
-2. **Single Page Application (SPA) Routing**
+2. **Caching Lokal & Sinkronisasi Manual**
+   Sistem memanfaatkan `localStorage` untuk menyimpan versi terakhir data (caching), memastikan aplikasi dapat dimuat secara instan (di bawah 1 detik). Selain itu, terdapat tombol **Sinkronisasi Manual** melayang (*floating*) berdesain kaca (*glassmorphism*) di sudut kanan bawah. Pengguna dapat menekannya untuk menarik data terbaru secara *real-time* dari Google Sheets tanpa perlu melakukan *refresh* pada browser.
+   
+3. **Single Page Application (SPA) Routing**
    Khusus pada halaman utama (`index.html` -> `indexApp.jsx`), navigasi aplikasi tidak melakukan *reload* halaman. Tampilan berganti secara dinamis menggunakan *state* `activeTab`. Tab yang tersedia meliputi:
    - `home`: Beranda (Video Hero, Pengumuman, Ikon Pintasan)
    - `admin_dashboard`: Panel Kontrol Admin (Kelola Jadwal, Warta, Pejabat, Buku) dengan proteksi *password*.
@@ -50,9 +53,10 @@ pisgahbisdac/
    - **Mobile** (`default`): Sangat padat, *font* kecil (`text-[9px]`), mencegah *horizontal scroll*.
    - **Tablet / iPad** (`md:`): Padding menengah, menggunakan spasi efisien.
    - **Desktop** (`lg:`): Tampilan melebar (100% *width*), ruang baca sangat lega.
-   - **Tema (Light & Dark Mode)**: Modul-modul utama seperti "Selamat Datang" dan "Proyek Gereja" menggunakan efek kaca (*Glassmorphism*) canggih melalui manipulasi warna transparan dan `backdrop-filter: blur()`.
+   - **Tema (Light & Dark Mode)**: Modul-modul utama seperti "Selamat Datang" dan "Proyek Gereja" menggunakan efek kaca (*Glassmorphism*) canggih melalui manipulasi warna transparan dan `backdrop-filter: blur()`. Efek ini juga diterapkan pada tombol-tombol melayang (FAB) seperti tombol Sinkronisasi.
+   - **Lencana Cerdas (Smart Badges)**: Deteksi tipe file otomatis pada dokumen/buku yang diunggah (misalnya, melabeli file presentasi dengan "✓ PPT", dokumen Word dengan "✓ DOC", atau "✓ PDF").
 
-4. **Kompilasi Cepat dengan Vite**
+5. **Kompilasi Cepat dengan Vite**
    Setiap kali ada perubahan pada kode JS atau CSS, *server* Vite langsung menyuntikkannya tanpa memuat ulang penuh browser. Jika kode sudah matang, sistem dikompilasi menjadi bundel aset di dalam `/dist`.
 
 ## 🚀 Perintah Operasional

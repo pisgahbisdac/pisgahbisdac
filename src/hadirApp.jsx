@@ -1502,18 +1502,22 @@ import ReactDOM from 'react-dom/client';
                                 <div className="bg-slate-100 dark:bg-slate-950 border border-amber-500/30 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center p-1.5 shadow-[0_0_15px_rgba(245,158,11,0.2)] shrink-0">
                                     {!logoError ? <img src="./icons/PisgahColor.png" alt="Logo PISGAH" className="w-full h-full object-contain" onError={() => setLogoError(true)} /> : <i className="fa-solid fa-church text-amber-500 dark:text-amber-400 text-lg md:text-xl"></i>}
                                 </div>
-                                <a href="https://pisgahbisdac.app" 
-                                    className="text-center md:text-left block hover:opacity-80 transition-opacity">
+                                <div className="text-center md:text-left block">
   <h1 className="text-lg md:text-xl font-black tracking-wider bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 dark:from-amber-200 dark:via-amber-400 dark:to-yellow-500 bg-clip-text text-transparent">
     PISGAH BISDAC
   </h1>
   <p className="text-[9px] md:text-[10px] text-slate-500 dark:text-slate-400 font-bold tracking-widest uppercase">
     Gereja Masehi Advent Hari Ketujuh
   </p>
-</a>
+</div>
                             </div>
 
                             <div className="flex items-center gap-4 w-full md:w-auto justify-center">
+                                <a href="./index.html" className="flex items-center gap-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 px-3 md:px-4 py-2 rounded-xl transition-all shadow-sm group">
+                                    <i className="fa-solid fa-home text-xs text-slate-400 dark:text-slate-500 group-hover:text-amber-500 transition-colors"></i>
+                                    <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 hidden md:inline-block">Beranda</span>
+                                </a>
+
                                 {/* Tombol Sakelar Mode Terang/Gelap (Kapsul Geser) */}
                                 <button
                                     onClick={() => setIsDarkMode(!isDarkMode)}
@@ -1569,7 +1573,7 @@ import ReactDOM from 'react-dom/client';
 
                     {currentUserRole !== "public" && (
                         <nav className="bg-white/95 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-white/5 sticky top-0 z-40 transition-colors duration-300">
-                            <div className="max-w-7xl mx-auto px-2 md:px-4 flex space-x-1 md:space-x-2 py-2 md:py-3 text-[11px] md:text-xs font-extrabold text-slate-500 dark:text-slate-400 overflow-x-auto no-scrollbar snap-x">
+                            <div className="max-w-7xl mx-auto px-2 md:px-4 flex space-x-1 md:space-x-2 py-2 md:py-3 text-[11px] md:text-xs font-extrabold text-slate-500 dark:text-slate-400 overflow-x-auto no-scrollbar snap-x items-center">
                                 <button onClick={() => setActiveTab("dashboard")} className={`snap-start shrink-0 px-4 md:px-5 py-2.5 md:py-2 rounded-xl md:rounded-full transition-all duration-300 flex items-center gap-2 ${activeTab === "dashboard" ? "bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.5)] scale-[1.05]" : "bg-slate-100 dark:bg-slate-900/50 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"}`}><i className="fa-solid fa-chart-line"></i> Dashboard</button>
                                 {currentUserRole === "admin" && (
                                     <>
@@ -2257,12 +2261,20 @@ import ReactDOM from 'react-dom/client';
                         </div>
                     </footer>
 
-                    <button onClick={() => handlePullFromCloud(false)} disabled={isSyncing} title={isSyncing ? "Menyinkronkan..." : "Sinkronisasi Data"}
-                        className={`fixed z-50 flex items-center justify-center p-4 md:p-3.5 rounded-full text-xl md:text-lg font-black shadow-2xl transition-all duration-200 border backdrop-blur-md bottom-6 md:bottom-8 right-4 md:right-8 ${
-                            isSyncing ? "bg-slate-200 dark:bg-slate-900/80 border-slate-300 dark:border-slate-700/40 text-slate-400 cursor-not-allowed" : "bg-amber-500 border-amber-600 dark:border-amber-400 text-white dark:text-slate-950 hover:bg-amber-600 dark:hover:bg-amber-400 active:scale-90 shadow-amber-500/40"
-                        }`}
+                    <button
+                        onClick={() => { if (!isSyncing) handlePullFromCloud(false); }}
+                        disabled={isSyncing}
+                        className="fixed right-4 md:right-8 z-50 w-[3.5rem] h-[3.5rem] md:w-[3rem] md:h-[3rem] bg-white/30 dark:bg-slate-900/30 hover:bg-white/50 dark:hover:bg-slate-900/50 backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-slate-200/50 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer shadow-lg bottom-6 md:bottom-8 group"
+                        title="Sinkronisasi Data"
                     >
-                        <i className={`fa-solid fa-rotate ${isSyncing ? "fa-spin" : ""}`}></i>
+                        {isSyncing ? (
+                            <i className="fa-solid fa-rotate fa-spin text-amber-500 text-xl md:text-lg"></i>
+                        ) : (
+                            <div className="relative flex items-center justify-center w-full h-full">
+                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
+                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
+                            </div>
+                        )}
                     </button>
 
                     {/* Modal Jemaat */}

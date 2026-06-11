@@ -6219,18 +6219,18 @@ const App = () => {
                                 setShowSyncNotif(true);
                             }
                         }}
-                        className="fixed right-4 md:right-4 z-[90] w-[3rem] h-[3rem] bg-white/80 backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-white/60 cursor-pointer group shadow-lg"
+                        className="fixed right-4 md:right-8 z-[90] w-[3.5rem] h-[3.5rem] md:w-[3rem] md:h-[3rem] bg-white/30 dark:bg-slate-900/30 hover:bg-white/50 dark:hover:bg-slate-900/50 backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-slate-200/50 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer shadow-lg group"
                         style={{
-                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 9rem)'
+                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)'
                         }}
                         title="Sinkronisasi Data"
                     >
                         {isSyncing ? (
-                            <Icon name="RefreshCw" className="w-5 h-5 animate-spin text-navy-500" />
+                            <i className="fa-solid fa-rotate fa-spin text-amber-500 text-xl md:text-lg"></i>
                         ) : (
                             <div className="relative flex items-center justify-center w-full h-full">
-                                <span className="absolute w-3 h-3 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.8)]"></span>
-                                <span className="absolute w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75"></span>
+                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
+                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
                             </div>
                         )}
                     </button>
@@ -6238,29 +6238,14 @@ const App = () => {
                     {/* Floating WhatsApp Button */}
                     <button
                         onClick={() => setActiveTab('hubungi')}
-                    className="fixed right-4 md:right-4 z-[90] p-4 rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center animate-fade-in group"
-                    style={{
-                        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)',
-                        backgroundColor: '#eab308', // gold Tailwind 500
-                        color: '#1a1a2e', // navy gelap untuk kontras
-                        border: '1px solid rgba(234,179,8,0.4)',
-                        boxShadow: '0 0 6px rgba(234,179,8,0.6), 0 0 14px rgba(234,179,8,0.4), 0 0 22px rgba(234,179,8,0.2)',
-                    }}
-                    onMouseOver={(e) => {
-                        e.currentTarget.style.backgroundColor = '#25D366'; // hijau WhatsApp
-                        e.currentTarget.style.borderColor = 'rgba(37,211,102,0.5)';
-                        e.currentTarget.style.color = 'white';
-                        e.currentTarget.style.boxShadow = '0 0 8px rgba(37,211,102,0.6), 0 0 18px rgba(37,211,102,0.4), 0 0 28px rgba(37,211,102,0.25)';
-                    }}
-                    onMouseOut={(e) => {
-                        e.currentTarget.style.backgroundColor = '#eab308';
-                        e.currentTarget.style.borderColor = 'rgba(234,179,8,0.4)';
-                        e.currentTarget.style.color = '#1a1a2e';
-                        e.currentTarget.style.boxShadow = '0 0 6px rgba(234,179,8,0.6), 0 0 14px rgba(234,179,8,0.4), 0 0 22px rgba(234,179,8,0.2)';
-                    }}
-                >
-                    <Icon name="Phone" className="w-6 h-6 md:w-7 md:h-7 drop-shadow-sm transition-colors" />
-                </button>
+                        className="fixed left-4 md:left-6 z-[90] w-[3.5rem] h-[3.5rem] md:w-[3rem] md:h-[3rem] bg-white/30 dark:bg-slate-900/30 hover:bg-white/50 dark:hover:bg-slate-900/50 backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-slate-200/50 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer shadow-lg group"
+                        style={{
+                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)'
+                        }}
+                        title="Hubungi Kami"
+                    >
+                        <i className="fa-brands fa-whatsapp text-[#25D366] text-2xl md:text-xl transition-colors group-hover:text-green-400"></i>
+                    </button>
                 </>
             )}
         </div>
