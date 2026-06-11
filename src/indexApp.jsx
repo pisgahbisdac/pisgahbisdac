@@ -491,11 +491,11 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
 
             {!isPengumumanReallyEmpty() && (
                 <div className="bg-white dark:bg-navy-800/90 p-6 md:p-8 rounded-[2rem] shadow-lg border border-gold-300/50 dark:border-gold-500/30 hover:shadow-xl transition-all duration-300 relative overflow-hidden mb-6 md:mb-8 group">
-                    <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-gold-400 text-navy-900 text-[10px] md:text-[11px] font-black px-4 py-2 rounded-bl-2xl uppercase tracking-widest shadow-sm flex items-center z-10">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-l from-gold-500 to-gold-400 text-navy-900 text-[10px] md:text-[11px] font-black px-4 py-2 rounded-b-2xl uppercase tracking-widest shadow-sm flex items-center z-10">
                         <Icon name="Info" className="w-3 h-3 mr-1" /> Info Terkini
                     </div>
-                    <div className="flex items-center mb-5 border-b border-navy-100/60 dark:border-navy-700/60 pb-5 relative z-10">
-                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-gold-50 to-gold-100 dark:from-navy-700 dark:to-navy-800 flex items-center justify-center mr-4 shrink-0 shadow-inner group-hover:from-gold-400 group-hover:to-gold-500 transition-colors duration-300 border border-gold-200 dark:border-navy-600">
+                    <div className="flex flex-col items-center justify-center mt-6 md:mt-4 mb-5 border-b border-navy-100/60 dark:border-navy-700/60 pb-5 relative z-10 text-center">
+                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-gold-50 to-gold-100 dark:from-navy-700 dark:to-navy-800 flex items-center justify-center mb-3 shrink-0 shadow-inner group-hover:from-gold-400 group-hover:to-gold-500 transition-colors duration-300 border border-gold-200 dark:border-navy-600">
                             <Icon name="Megaphone" className="w-6 h-6 md:w-7 md:h-7 text-gold-600 dark:text-gold-400 group-hover:text-white transition-colors duration-300 drop-shadow-sm" />
                         </div>
                         <div>
@@ -505,17 +505,17 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                             </h3>
                         </div>
                     </div>
-                    <div className="pengumuman-text text-navy-700 dark:text-navy-100 text-[14px] md:text-[15px] whitespace-pre-wrap font-medium leading-relaxed relative z-10" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}>
+                    <div className="pengumuman-text text-navy-700 dark:text-navy-100 text-[14px] md:text-[15px] whitespace-pre-wrap font-medium leading-relaxed relative z-10 text-center" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}>
                     </div>
                 </div>
             )}
 
             {/* Artikel Promosi Pembangunan */}
-            <div className="mt-4 glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
-                <div className="absolute top-0 right-0 bg-gradient-to-l from-gold-500 to-navy-400 text-[9px] md:text-[9px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm flex items-center z-10" style={{ color: '#0b1a30' }}>
+            <div className="mt-4 welcome-box-gradient rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-l from-gold-500 to-navy-400 text-[9px] md:text-[9px] font-black px-3 py-1.5 rounded-b-xl uppercase tracking-widest shadow-sm flex items-center z-10" style={{ color: '#0b1a30' }}>
                     <Icon name="Home" className="w-3 h-3 mr-1" /> Proyek Gereja
                 </div>
-                <div className="p-5 md:p-6 bg-gradient-to-br from-navy-800 via-gold-50/40 to-gold-400"><br />
+                <div className="p-5 md:p-6"><br />
                     <h3 className="text-[1.1rem] md:text-xl font-black text-gold-500 leading-tight mb-2 text-center">
                         Bersama Membangun Rumah Tuhan
                     </h3>
@@ -524,10 +524,10 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                         <p className="mt-2 font-bold">Mari ambil bagian dalam penatalayanan ini!</p>
                     </div>
                     <a href="./pembangunan.html"
-                        className="flex items-center justify-center w-full glass-card hover:glass-card text-navy-800 py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 border border-navy-500 group"
+                        className="flex items-center justify-center text-center w-full bg-white/30 dark:bg-navy-900/40 hover:bg-white/50 dark:hover:bg-navy-900/60 backdrop-blur-md text-navy-900 dark:text-gold-100 py-3.5 px-4 rounded-xl shadow-md hover:shadow-xl transform hover:-translate-y-0.5 active:scale-95 active:translate-y-0 transition-all duration-200 border border-navy-200 dark:border-navy-600 group"
                     >
-                        <span className="text-[11px] md:text-sm font-bold uppercase tracking-widest group-hover:text-gold-300 transition-colors">Klik Untuk Melihat Progres Pembangunan</span>
-                        <Icon name="ChevronRight" className="w-4 h-4 ml-1.5 text-navy-500 group-hover:translate-x-1 transition-transform" />
+                        <span className="text-[11px] md:text-sm font-bold uppercase tracking-widest transition-colors">Klik Untuk Melihat Progres Pembangunan</span>
+                        <Icon name="ChevronRight" className="w-4 h-4 ml-1.5 text-navy-600 dark:text-gold-300 group-hover:translate-x-1 transition-transform shrink-0" />
                     </a>
                 </div>
             </div>
@@ -580,7 +580,8 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                                 title="Video Penting"
                                 frameBorder="1"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen>
+                                allowFullScreen
+                                loading="lazy">
                             </iframe>
                         </div>
                     </div>
@@ -606,7 +607,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
             </div>
 
             {/* --- WARTA TERBARU HOME --- */}
-            {wartaTerbaru && (
+            {sortedWartaHome.length > 0 && (
                 <div className="glass-card p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8 animate-fade-in">
                     <div className="flex items-center justify-between mb-4 border-b border-navy-50 pb-3">
                         <h2 className="text-[1.15rem] font-bold text-navy-900 flex items-center">
@@ -617,78 +618,50 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                         </button>
                     </div>
 
-                    {/* Main Warta (Paling Baru) */}
-                    <div
-                        onClick={() => { setSelectedWarta(wartaTerbaru); setActiveTab('warta'); }}
-                        className="group cursor-pointer bg-white rounded-2xl border border-navy-100/50 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row mb-5"
-                    >
-                        {/* Thumbnail Utama */}
-                        <div className="w-full md:w-2/5 aspect-video md:aspect-auto md:h-auto bg-navy-50 relative overflow-hidden shrink-0">
-                            {(() => {
-                                const rawUrls = parseGambarUrls(wartaTerbaru.gambarUrl);
-                                const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
-                                const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
-                                if (thumb) {
-                                    return <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Thumbnail" referrerPolicy="no-referrer" />;
-                                }
-                                return (
-                                    <div className="flex flex-col items-center justify-center h-full text-navy-300">
-                                        <Icon name="Image" className="w-8 h-8 mb-1 opacity-50" />
-                                        <span className="text-[9px] font-bold uppercase tracking-widest opacity-50">Tanpa Gambar</span>
+                    <div className="flex flex-col gap-5">
+                        {sortedWartaHome.slice(0, 3).map((warta, idx) => {
+                            const rawUrls = parseGambarUrls(warta.gambarUrl);
+                            const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
+                            const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
+
+                            return (
+                                <div
+                                    key={idx}
+                                    onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }}
+                                    className={`group cursor-pointer bg-white rounded-2xl border border-navy-100/50 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col ${idx % 2 === 1 ? 'md:flex-row-reverse' : 'md:flex-row'}`}
+                                >
+                                    {/* Thumbnail Utama */}
+                                    <div className="w-full md:w-2/5 aspect-video md:aspect-auto md:h-auto bg-navy-50 relative overflow-hidden shrink-0">
+                                        {thumb ? (
+                                            <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" alt="Thumbnail" referrerPolicy="no-referrer" />
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center h-full text-navy-300">
+                                                <Icon name="Image" className="w-8 h-8 mb-1 opacity-50" />
+                                                <span className="text-[9px] font-bold uppercase tracking-widest opacity-50">Tanpa Gambar</span>
+                                            </div>
+                                        )}
+                                        {idx === 0 && (
+                                            <div className="absolute top-3 left-3 bg-gold-500 text-white text-[10px] font-black px-2.5 py-1 rounded shadow-sm tracking-wider">
+                                                TERBARU
+                                            </div>
+                                        )}
                                     </div>
-                                );
-                            })()}
-                            <div className="absolute top-3 left-3 bg-gold-500 text-white text-[10px] font-black px-2.5 py-1 rounded shadow-sm tracking-wider">
-                                TERBARU
-                            </div>
-                        </div>
-                        {/* Teks Utama */}
-                        <div className="p-4 md:p-5 flex-1 flex flex-col justify-center">
-                            <h3 className="font-bold text-navy-900 text-base md:text-lg leading-tight mb-2 group-hover:text-gold-600 transition-colors line-clamp-2">
-                                {wartaTerbaru.judul}
-                            </h3>
-                            <div className="text-[10px] font-bold text-navy-500 uppercase tracking-widest mb-2 flex items-center">
-                                <Icon name="Calendar" className="w-3.5 h-3.5 mr-1 text-gold-500" /> {formatDate(wartaTerbaru.tanggal)}
-                            </div>
-                            <p className="text-xs text-navy-600 font-medium line-clamp-2 leading-relaxed">
-                                {truncateText(stripHtml(wartaTerbaru.isi), 120)}
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Warta Sebelumnya (Thumbnail Kecil Satu Baris) */}
-                    {wartaLama.length > 0 && (
-                        <div className="flex overflow-x-auto gap-3 pb-2 hide-scrollbar snap-x">
-                            {wartaLama.map((warta, idx) => {
-                                const rawUrls = parseGambarUrls(warta.gambarUrl);
-                                const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
-                                const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
-
-                                return (
-                                    <div
-                                        key={idx}
-                                        onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }}
-                                        className="snap-start shrink-0 w-[250px] md:w-[280px] group cursor-pointer"
-                                    >
-                                        <div className="aspect-video rounded-xl bg-navy-50 overflow-hidden border border-navy-100/80 mb-2 relative">
-                                            {thumb ? (
-                                                <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Thumb" referrerPolicy="no-referrer" />
-                                            ) : (
-                                                <div className="flex items-center justify-center h-full text-navy-300 bg-white">
-                                                    <Icon name="Image" className="w-6 h-6 opacity-50" />
-                                                </div>
-                                            )}
-                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
-                                        </div>
-                                        <h4 className="font-bold text-[11px] md:text-xs text-navy-800 line-clamp-2 leading-tight group-hover:text-gold-600 transition-colors">
+                                    {/* Teks Utama */}
+                                    <div className="p-4 md:p-5 flex-1 flex flex-col justify-center">
+                                        <h3 className="font-bold text-navy-900 text-base md:text-lg leading-tight mb-2 group-hover:text-gold-600 transition-colors line-clamp-2">
                                             {warta.judul}
-                                        </h4>
-                                        <span className="text-[9px] text-navy-400 font-bold block mt-1">{formatDate(warta.tanggal)}</span>
+                                        </h3>
+                                        <div className="text-[10px] font-bold text-navy-500 uppercase tracking-widest mb-2 flex items-center">
+                                            <Icon name="Calendar" className="w-3.5 h-3.5 mr-1 text-gold-500" /> {formatDate(warta.tanggal)}
+                                        </div>
+                                        <p className="text-xs text-navy-600 font-medium line-clamp-2 leading-relaxed">
+                                            {truncateText(stripHtml(warta.isi), 120)}
+                                        </p>
                                     </div>
-                                );
-                            })}
-                        </div>
-                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             )}
             {/* ------------------------------- */}
@@ -707,7 +680,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
             {/* ── FOOTER LENGKAP ─────────────────────────────────── */}
             <footer className="border-t border-navy-200 pt-8 pb-4 mt-2">
                 {/* Grid info utama */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
 
                     {/* Kolom 1 — Logo & Tagline */}
                     <div className="flex flex-col items-center md:items-start text-center md:text-left gap-3">
@@ -1184,6 +1157,7 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                             className="w-full"
                             style={{ height: '75vh', border: 'none' }}
                             allow="autoplay"
+                            loading="lazy"
                         />
                     ) : (
                         <div className="h-full flex items-center justify-center">
@@ -1351,7 +1325,7 @@ const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, per
                 {/* Background pattern halus */}
                 <div className="absolute inset-0 opacity-30 dark:opacity-10 bg-[radial-gradient(#fbbf24_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
                 {/* Badge */}
-                <div className="absolute top-0 right-0 bg-navy-900 dark:bg-gold-500 text-gold-500 dark:text-navy-900 text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-navy-900 dark:bg-gold-500 text-gold-500 dark:text-navy-900 text-[10px] font-bold px-4 py-1.5 rounded-b-xl uppercase tracking-widest shadow-sm">
                     Jadwal Spesial
                 </div><br />
                 <div className="flex items-center space-x-3 mb-5 border-b border-amber-200 dark:border-gold-800/50 pb-3 relative z-10">
@@ -1490,7 +1464,7 @@ const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPe
         <div className="space-y-6 md:space-y-8 animate-fade-in">
             <div className="bg-navy-900 rounded-[1.5rem] overflow-hidden shadow-lg p-2.5">
                 <div className="relative w-full rounded-xl overflow-hidden" style={{ paddingTop: '56.25%' }}>
-                    <iframe className="absolute top-0 left-0 w-full h-full" src={liveUrl} title="YouTube Live Stream" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                    <iframe className="absolute top-0 left-0 w-full h-full" src={liveUrl} title="YouTube Live Stream" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen loading="lazy"></iframe>
                 </div>
                 <div className="pt-4 pb-2 px-2 text-white flex justify-center w-full">
                     <div className="font-bold text-sm tracking-widest flex items-center bg-gold-400/20 px-5 py-2.5 rounded-full border border-gold-400/30 text-gold-400 uppercase"><span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse mr-2.5"></span> Live </div>
@@ -1500,10 +1474,10 @@ const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPe
             {showPerjamuan && !isRabu && (
                 <div className="bg-gradient-to-r from-gold-400 to-gold-500 text-navy-900 p-5 md:p-6 rounded-[1.25rem] shadow flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in border border-gold-300">
                     <div className="text-center sm:text-left">
-                        <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5"><Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perjamuan</h3>
+                        <h3 className="text-navy-800 text-[1.15rem] leading-none font-bold uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5"><Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perjamuan</h3>
                         <p className="text-sm text-navy-800 font-bold">{formatIndoDate(perjamuanYMD)}</p>
                     </div>
-                    <button onClick={() => setActiveTab('jadwal')} className="bg-navy-900 text-gold-400 hover:text-gold-300 px-6 py-3 rounded-xl text-sm font-bold shadow hover:bg-navy-800 transition shrink-0 w-full sm:w-auto">Lihat Petugas</button>
+                    <button onClick={() => setActiveTab('jadwal')} className="bg-navy-700 text-gold-400 hover:text-gold-300 px-6 py-3 rounded-xl text-sm font-bold shadow hover:bg-navy-800 transition shrink-0 w-full sm:w-auto">Lihat Petugas</button>
                 </div>
             )}
 
@@ -2476,7 +2450,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta 
 // --- KOMPONEN AdminDashboard yang DIPERBAIKI (dengan fitur warta) ---
 const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken,
     youtubeUrl, setYoutubeUrl, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages,
-    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate }) => {
+    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, handleLogout }) => {
     const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan, buku
     const [viewMonth, setViewMonth] = React.useState(new Date().getMonth());
     const [viewYear, setViewYear] = React.useState(new Date().getFullYear());
@@ -3433,7 +3407,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     ];
 
     const currentSubTabLabel = subTabs.find(t => t.id === subTab)?.label || '';
-    const columns = (subTab === 'susunanAcara' || subTab === 'perjamuan') ? ["Status Pengisian"] : getActiveArray(isRabu ? initialJadwalRabu : initialJadwalSabat, subTab).map(p => p.tugas);
+    const columns = ["Status Pengisian"];
 
     const handleEditClick = (date) => {
         setEditingDate(date);
@@ -3956,10 +3930,11 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
                 <div className="flex flex-col sm:flex-row border-b border-navy-50 bg-navy-50/20">
                     <button onClick={() => setAdminTab('jadwal')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors ${adminTab === 'jadwal' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Jadwal</button>
-                    <button onClick={() => setAdminTab('warta')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors ${adminTab === 'warta' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Buat Warta</button>
+                    <button onClick={() => setAdminTab('warta')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'warta' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Buat Warta</button>
                     <button onClick={() => setAdminTab('pelayan')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'pelayan' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Pejabat</button>
                     <button onClick={() => setAdminTab('buku')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'buku' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Buku</button>
                     <button onClick={() => setAdminTab('pengaturan')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'pengaturan' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Pengaturan Admin</button>
+                    <button onClick={() => { if(confirm('Yakin ingin logout dari akun admin?')) handleLogout(); }} className="flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 text-red-600 hover:text-red-700 hover:bg-red-50/50">Logout</button>
                 </div>
 
                 <div className={`p-4 md:p-6 ${adminTab === 'jadwal' ? 'bg-navy-50/30' : 'bg-white'}`}>
@@ -4079,17 +4054,12 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                 </div>
                             </div>
                             <div className="overflow-x-auto">
-                                <table className={`w-full text-left border-collapse ${subTab === 'perjamuan' ? 'w-full min-w-[800px] mx-auto' :
-                                    subTab === 'susunanAcara' ? 'w-full min-w-[300px] mx-auto' :
-                                        subTab === 'diakon' ? 'w-full min:w-[200px] mx-auto' :
-                                            subTab === 'musik' ? 'w-full min:w-[200px] mx-auto' :
-                                                'w-full min-w-[800px] mx-auto'
-                                    }`}>
+                                <table className="jadwal-table text-left border-collapse mx-auto w-full min-w-full">
                                     <thead className="bg-navy-50/50 border-b border-navy-100/60">
                                         <tr>
-                                            <th className="p-4 text-[10px] md:text-xs font-black text-navy-500 uppercase tracking-widest text-center w-36">Tanggal</th>
-                                            {columns.map((col, i) => <th key={i} className="p-4 text-[10px] md:text-xs font-black text-navy-500 uppercase tracking-widest text-center">{col}</th>)}
-                                            <th className="p-4 text-[10px] md:text-xs font-black text-navy-500 uppercase tracking-widest text-center w-28">Edit Jadwal</th>
+                                            <th className="px-2 py-3 lg:p-4 text-[9px] lg:text-xs font-black text-navy-500 uppercase tracking-wider lg:tracking-widest text-center w-20 lg:w-36">Tanggal</th>
+                                            {columns.map((col, i) => <th key={i} className="px-2 py-3 lg:p-4 text-[9px] lg:text-xs font-black text-navy-500 uppercase tracking-wider lg:tracking-widest text-center">{col}</th>)}
+                                            <th className="px-2 py-3 lg:p-4 text-[9px] lg:text-xs font-black text-navy-500 uppercase tracking-wider lg:tracking-widest text-center w-20 lg:w-28">Edit Jadwal</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-navy-50 bg-white">
@@ -4106,9 +4076,9 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
                                             return (
                                                 <tr key={date} className="hover:bg-navy-50/20 transition group">
-                                                    <td className="p-4 text-center align-middle border-r border-navy-50/50 bg-navy-50/10">
-                                                        <div className="font-bold text-navy-400 text-xs tracking-wider mb-0.5">{isRabu ? 'RABU' : 'SABTU'}</div>
-                                                        <div className="text-sm font-black text-navy-900">{formatIndoDateShort(date)}</div>
+                                                    <td className="p-2 md:p-3 lg:p-4 text-center align-middle border-r border-navy-50/50 bg-navy-50/10">
+                                                        <div className="font-bold text-navy-400 text-[10px] md:text-[11px] lg:text-xs tracking-wider mb-0.5">{isRabu ? 'RABU' : 'SABTU'}</div>
+                                                        <div className="text-xs md:text-sm lg:text-base font-black text-navy-900">{formatIndoDateShort(date)}</div>
                                                     </td>
 
                                                     {subTab === 'susunanAcara' ? (
@@ -4160,15 +4130,15 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                             </td>
                                                         ) : (
                                                             <>
-                                                                <td className="p-4 text-center align-middle border-r border-navy-50/50">
-                                                                    <span className={`text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm ${isSaved ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-navy-100 text-navy-500 border border-navy-200'}`}>
+                                                                <td className="p-2 lg:p-4 text-center align-middle border-r border-navy-50/50">
+                                                                    <span className={`text-[9px] lg:text-[11px] px-2 lg:px-4 py-1 md:py-1.5 rounded-full font-bold uppercase tracking-wider lg:tracking-widest shadow-sm ${isSaved ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-navy-100 text-navy-500 border border-navy-200'}`}>
                                                                         {isSaved ? 'Sudah Diatur' : 'Default'}
                                                                     </span>
                                                                 </td>
-                                                                <td className="p-4 text-center align-middle">
-                                                                    <div className="flex justify-center space-x-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                        <button onClick={() => handleEditClick(date)} className="p-2.5 text-navy-500 hover:text-gold-500 hover:bg-navy-50 rounded-xl transition-colors" title="Edit Susunan"><Icon name="Edit" className="w-4 h-4" /></button>
-                                                                        {isSaved ? (<button onClick={() => handleDeleteRow(date)} className="p-2.5 text-navy-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Reset Default"><Icon name="Trash" className="w-4 h-4" /></button>) : (<div className="w-10"></div>)}
+                                                                <td className="p-2 lg:p-4 text-center align-middle">
+                                                                    <div className="flex justify-center space-x-1.5 lg:space-x-2">
+                                                                        <button onClick={() => handleEditClick(date)} className="p-2 lg:p-2.5 text-navy-500 hover:text-gold-500 hover:bg-navy-50 rounded-xl transition-colors" title="Edit Susunan"><Icon name="Edit" className="w-3.5 h-3.5 lg:w-4 lg:h-4" /></button>
+                                                                        {isSaved ? (<button onClick={() => handleDeleteRow(date)} className="p-2 lg:p-2.5 text-navy-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Reset Default"><Icon name="Trash" className="w-3.5 h-3.5 lg:w-4 lg:h-4" /></button>) : (<div className="w-8 lg:w-10"></div>)}
                                                                     </div>
                                                                 </td>
                                                             </>
@@ -4221,51 +4191,50 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                             </td>
                                                         ) : (
                                                             <>
-                                                                <td className="p-4 text-center align-middle border-r border-navy-50/50">
-                                                                    <span className={`text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm ${isSaved ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-navy-100 text-navy-500 border border-navy-200'}`}>
+                                                                <td className="p-2 lg:p-4 text-center align-middle border-r border-navy-50/50">
+                                                                    <span className={`text-[9px] lg:text-[11px] px-2 lg:px-4 py-1 md:py-1.5 rounded-full font-bold uppercase tracking-wider lg:tracking-widest shadow-sm ${isSaved ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-navy-100 text-navy-500 border border-navy-200'}`}>
                                                                         {isSaved ? 'Sudah Diatur' : 'Belum Ada'}
                                                                     </span>
                                                                 </td>
-                                                                <td className="p-4 text-center align-middle">
-                                                                    <div className="flex justify-center space-x-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                        <button onClick={() => handleEditClick(date)} className="p-2.5 text-navy-500 hover:text-gold-500 hover:bg-navy-50 rounded-xl transition-colors" title="Edit Petugas"><Icon name="Edit" className="w-4 h-4" /></button>
-                                                                        {isSaved ? (<button onClick={() => handleDeleteRow(date)} className="p-2.5 text-navy-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Hapus (Kembali ke Default)"><Icon name="Trash" className="w-4 h-4" /></button>) : (<div className="w-10"></div>)}
+                                                                <td className="p-2 lg:p-4 text-center align-middle">
+                                                                    <div className="flex justify-center space-x-1.5 lg:space-x-2">
+                                                                        <button onClick={() => handleEditClick(date)} className="p-2 lg:p-2.5 text-navy-500 hover:text-gold-500 hover:bg-navy-50 rounded-xl transition-colors" title="Edit Petugas"><Icon name="Edit" className="w-3.5 h-3.5 lg:w-4 lg:h-4" /></button>
+                                                                        {isSaved ? (<button onClick={() => handleDeleteRow(date)} className="p-2 lg:p-2.5 text-navy-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Hapus (Kembali ke Default)"><Icon name="Trash" className="w-3.5 h-3.5 lg:w-4 lg:h-4" /></button>) : (<div className="w-8 lg:w-10"></div>)}
                                                                     </div>
                                                                 </td>
                                                             </>
                                                         )
                                                     ) : (
-                                                        <>
-                                                            {getActiveArray(isRabu ? initialJadwalRabu : initialJadwalSabat, subTab).map((baseP, i) => {
-                                                                const savedP = dataArray.find(item => item.tugas === baseP.tugas);
-                                                                const displayName = savedP ? savedP.nama : baseP.nama;
-                                                                return (
-                                                                    <td key={i} className="p-4 text-center align-middle border-r border-navy-50/50">
-                                                                        {isEditing ? (
-                                                                            <input type="text" value={editForm[i]?.nama || ''} onChange={(e) => handleEditFormChange(i, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 focus:border-gold-500 outline-none shadow-inner bg-navy-50/50 min-w-[120px]" />
-                                                                        ) : (
-                                                                            <div className="flex flex-col items-center min-w-[120px]">
-                                                                                <span className="font-bold text-navy-900 text-sm mb-1.5">{displayName || '-'}</span>
-                                                                                <span className={`text-[9px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-widest shadow-sm ${savedP && savedP.nama ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-navy-50 text-navy-400 border border-navy-100'}`}>{savedP && savedP.nama ? 'Tersimpan' : 'Kosong'}</span>
-                                                                            </div>
-                                                                        )}
-                                                                    </td>
-                                                                )
-                                                            })}
-                                                            <td className="p-4 text-center align-middle">
-                                                                {isEditing ? (
-                                                                    <div className="flex justify-center space-x-1.5 min-w-[80px]">
-                                                                        <button onClick={() => handleSaveRow(date)} disabled={isSavingJadwal} className={`p-2.5 text-navy-900 bg-gold-400 hover:bg-gold-500 rounded-xl transition-colors shadow-sm ${isSavingJadwal ? 'opacity-50' : ''}`}><Icon name="Check" className="w-4 h-4" /></button>
-                                                                        <button onClick={() => setEditingDate(null)} className="p-2.5 text-navy-600 bg-navy-100 hover:bg-navy-200 rounded-xl transition-colors"><Icon name="X" className="w-4 h-4" /></button>
-                                                                    </div>
-                                                                ) : (
-                                                                    <div className="flex justify-center space-x-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity min-w-[80px]">
-                                                                        <button onClick={() => handleEditClick(date)} className="p-2.5 text-navy-500 hover:text-gold-500 hover:bg-navy-50 rounded-xl transition-colors" title="Edit Baris"><Icon name="Edit" className="w-4 h-4" /></button>
-                                                                        {isSaved ? (<button onClick={() => handleDeleteRow(date)} className="p-2.5 text-navy-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Hapus (Kembali ke Default)"><Icon name="Trash" className="w-4 h-4" /></button>) : (<div className="w-10"></div>)}
-                                                                    </div>
-                                                                )}
+                                                        isEditing ? (
+                                                            <td colSpan="2" className="p-4 bg-gold-50/30">
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 text-left">
+                                                                    {editForm.map((p, i) => (
+                                                                        <div key={i} className="space-y-1 p-3 bg-white rounded-xl border border-navy-100 shadow-sm h-fit">
+                                                                            <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
+                                                                            <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                                <div className="mt-5 flex justify-end space-x-3">
+                                                                    <button onClick={() => setEditingDate(null)} className="px-5 py-2.5 text-navy-600 bg-navy-100 hover:bg-navy-200 rounded-xl text-sm font-bold transition-colors">Batal</button>
+                                                                    <button onClick={() => handleSaveRow(date)} disabled={isSavingJadwal} className={`px-5 py-2.5 text-navy-900 bg-gold-400 hover:bg-gold-500 rounded-xl text-sm font-bold transition-colors shadow-sm ${isSavingJadwal ? 'opacity-50' : ''}`}><Icon name="Check" className="w-4 h-4 mr-1.5 inline" /> Simpan Petugas</button>
+                                                                </div>
                                                             </td>
-                                                        </>
+                                                        ) : (
+                                                            <>
+                                                                <td className="p-2 lg:p-4 text-center align-middle border-r border-navy-50/50">
+                                                                    <span className={`text-[9px] lg:text-[11px] px-2 lg:px-4 py-1 md:py-1.5 rounded-full font-bold uppercase tracking-wider lg:tracking-widest shadow-sm ${isSaved ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-navy-100 text-navy-500 border border-navy-200'}`}>
+                                                                        {isSaved ? 'Sudah Diatur' : 'Default'}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="p-2 lg:p-4 text-center align-middle">
+                                                                    <div className="flex justify-center space-x-1.5 lg:space-x-2 min-w-[60px] lg:min-w-[80px]">
+                                                                        <button onClick={() => handleEditClick(date)} className="p-2 lg:p-2.5 text-navy-500 hover:text-gold-500 hover:bg-navy-50 rounded-xl transition-colors" title="Edit Baris"><Icon name="Edit" className="w-3.5 h-3.5 lg:w-4 lg:h-4" /></button>
+                                                                        {isSaved ? (<button onClick={() => handleDeleteRow(date)} className="p-2 lg:p-2.5 text-navy-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Hapus (Kembali ke Default)"><Icon name="Trash" className="w-3.5 h-3.5 lg:w-4 lg:h-4" /></button>) : (<div className="w-8 lg:w-10"></div>)}
+                                                                    </div>
+                                                                </td>
+                                                            </>
+                                                        )
                                                     )}
                                                 </tr>
                                             )
@@ -4815,17 +4784,17 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                 <button onClick={() => setPengaturanSubTab('pengumuman')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'pengumuman' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                                     Pengumuman
                                 </button>
-                                <button onClick={() => setPengaturanSubTab('kontak')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'kontak' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
-                                    Lokasi
-                                </button>
-                                <button onClick={() => setPengaturanSubTab('password')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'password' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
-                                    Password
-                                </button>
                                 <button
                                     onClick={() => setPengaturanSubTab('perjamuan')}
                                     className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'perjamuan' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}
                                 >
                                     Perjamuan
+                                </button>
+                                <button onClick={() => setPengaturanSubTab('kontak')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'kontak' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                                    Lokasi
+                                </button>
+                                <button onClick={() => setPengaturanSubTab('password')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'password' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                                    Password
                                 </button>
                             </div>
                             <button onClick={() => scrollPengaturanTabs('right')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kanan">
@@ -5969,7 +5938,7 @@ const App = () => {
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} />;
+            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
             default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta}
                 refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} />;
@@ -6030,60 +5999,8 @@ const App = () => {
                             </button>
                         )}
 
-                        {/* Menu Burger Mobile (Diantara Search dan Login) - Otomatis Hide karena menu sudah kosong */}
-
-                        {(tabs.filter(t => !['belajar', 'warta', 'home', 'jadwal', 'live', 'persembahan', 'hubungi'].includes(t.id)).length > 0 || isAdminLoggedIn) && (
-                            <div className="relative flex items-center">
-                                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className={`w-10 h-10 bg-white border border-navy-100/60 rounded-full hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm ${isMobileMenuOpen ? 'text-gold-500' : 'text-navy-600'}`} title="Menu Lainnya">
-                                    <Icon name={isMobileMenuOpen ? "X" : "Menu"} className="w-4 h-4" />
-                                </button>
-
-                                {isMobileMenuOpen && (
-                                    <>
-                                        {/* Overlay untuk menutup menu saat klik di luar */}
-                                        <div className="fixed inset-0 z-40" onClick={() => setIsMobileMenuOpen(false)}></div>
-
-                                        {/* Dropdown Box */}
-                                        <div className="absolute top-12 right-0 w-48 bg-white/80 backdrop-blur-md border border-navy-100/50 rounded-2xl shadow-xl py-2 z-50 animate-fade-in flex flex-col overflow-hidden">
-                                            {tabs.filter(t => !['belajar', 'warta', 'home', 'jadwal', 'live', 'persembahan', 'hubungi'].includes(t.id)).map(tab => (
-                                                <button
-                                                    key={tab.id}
-                                                    onClick={() => { setActiveTab(tab.id); setIsMobileMenuOpen(false); }}
-                                                    className={`w-full text-left px-4 py-3 flex md:hidden items-center space-x-3 hover:bg-navy-50/70 transition-colors ${activeTab === tab.id ? 'text-gold-600 font-bold bg-gold-50/30' : 'text-navy-700 font-medium'}`}
-                                                >
-                                                    <Icon name={tab.icon} className="w-[1.15rem] h-[1.15rem]" />
-                                                    <span className="text-sm">{tab.label}</span>
-                                                </button>
-                                            ))}
-
-                                            {/* Logout Button - Hanya tampil saat user sudah login sebagai admin */}
-                                            {isAdminLoggedIn && (
-                                                <>
-                                                    {tabs.filter(t => !['belajar', 'warta', 'home', 'jadwal', 'live', 'persembahan', 'hubungi'].includes(t.id)).length > 0 && (
-                                                        <div className="h-px bg-navy-100 my-1"></div>
-                                                    )}
-                                                    <button
-                                                        onClick={() => {
-                                                            if (confirm('Yakin ingin logout dari akun admin?')) {
-                                                                handleLogout();
-                                                                setIsMobileMenuOpen(false);
-                                                            }
-                                                        }}
-                                                        className="w-full text-left px-4 py-3 flex items-center space-x-3 hover:bg-red-50/70 transition-colors text-red-600 font-medium"
-                                                    >
-                                                        <Icon name="LogOut" className="w-[1.15rem] h-[1.15rem]" />
-                                                        <span className="text-sm font-bold">Logout Admin</span>
-                                                    </button>
-                                                </>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        )}
-
                         {isAdminLoggedIn ? (
-                            <button onClick={() => setActiveTab('admin_dashboard')} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-600 hover:text-gold-500 hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm" title="Dashboard Admin"><Icon name="Settings" className="w-4 h-4" /></button>
+                            <button onClick={() => setActiveTab('admin_dashboard')} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-600 hover:text-gold-500 hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm shrink-0" title="Dashboard Admin"><Icon name="Settings" className="w-4 h-4" /></button>
                         ) : (
                             <button onClick={handleAdminClick} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-400 hover:text-navy-600 hover:bg-navy-50/50 transition flex items-center justify-center shrink-0 shadow-sm" title="Login Admin"><Icon name="LogIn" className="w-4 h-4" /></button>
                         )}
@@ -6096,7 +6013,7 @@ const App = () => {
             </main>
 
             {/* Navigasi Mobile (Disembunyikan di Desktop dengan md:hidden) */}
-            <nav className="md:hidden fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg bg-white/90 backdrop-blur-xl border border-navy-100/50 rounded-3xl z-50 shadow-lg" style={{ bottom: `calc(env(safe-area-inset-bottom, 0px) + 0.75rem)` }}>
+            <nav className="md:hidden fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg bg-white/90 backdrop-blur-xl border border-navy-100/50 rounded-3xl z-50 shadow-lg" style={{ bottom: `calc(env(safe-area-inset-bottom, 0px) + 0.25rem)` }}>
                 <div className="flex justify-around items-end p-2 relative">
                     {/* Kita hanya memanggil 5 menu utama agar Home tepat berada di tengah */}
                     {['belajar', 'warta', 'home', 'jadwal', 'live'].map(tabId => {
@@ -6117,7 +6034,7 @@ const App = () => {
                                     <div className="flex flex-col items-center w-full">
                                         {/* Lingkaran Home Menonjol dengan Efek Glass Glow */}
                                         <div
-                                            className={`absolute -top-6 left-1/2 -translate-x-1/2 flex items-center justify-center w-[3.5rem] h-[3.5rem] rounded-full transition-all duration-500 z-10 backdrop-blur-md ${isActive ? 'bg-gold-500/20 border border-gold-400/50 text-gold-500 shadow-[0_0_15px_rgba(231,174,48,0.4)] scale-110' : 'bg-navy-800/40 border border-white/10 text-navy-400/80 hover:bg-navy-700/50 hover:scale-105 shadow-lg'}`}
+                                            className={`absolute -top-6 left-1/2 -translate-x-1/2 flex items-center justify-center w-[3.5rem] h-[3.5rem] rounded-full transition-all duration-500 z-10 backdrop-blur-md ${isActive ? 'bg-gold-500/20 border-2 border-gold-500 text-gold-500 shadow-[0_0_15px_rgba(231,174,48,0.6)] scale-110' : 'bg-navy-800/40 border border-gold-500/50 text-navy-400/80 hover:bg-navy-700/50 hover:scale-105 hover:border-gold-500/80 shadow-lg'}`}
                                         >
                                             <Icon name={tab.icon} className={`w-6 h-6 transition-all duration-300 ${isActive ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
                                         </div>
@@ -6146,7 +6063,7 @@ const App = () => {
                     onClick={() => setActiveTab('hubungi')}
                     className="fixed right-4 md:right-4 z-[90] p-4 rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center animate-fade-in group"
                     style={{
-                        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.5rem)',
+                        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)',
                         backgroundColor: '#eab308', // gold Tailwind 500
                         color: '#1a1a2e', // navy gelap untuk kontras
                         border: '1px solid rgba(234,179,8,0.4)',

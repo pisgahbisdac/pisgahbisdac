@@ -186,7 +186,10 @@
         }
 
         .welcome-box-gradient {
-            background: linear-gradient(135deg, #e09f26 0%, #eff6ff 30%, #ffffff 60%, #dfd9d3 100%);
+            background: linear-gradient(135deg, rgba(231, 174, 48, 0.2) 0%, rgba(255, 255, 255, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .glass-card {
@@ -445,11 +448,11 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Fix icon kalender di dark mode */
-        .dark input[type="date"]::-webkit-calendar-picker-indicator,
-        .dark input[type="month"]::-webkit-calendar-picker-indicator,
+        html.dark input[type="date"]::-webkit-calendar-picker-indicator,
+        html.dark input[type="month"]::-webkit-calendar-picker-indicator,
         [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
         [data-theme="dark"] input[type="month"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
+            filter: invert(68%) sepia(74%) saturate(675%) hue-rotate(355deg) brightness(99%) contrast(90%);
         }
         .dark input[type="date"], .dark input[type="month"],
         [data-theme="dark"] input[type="date"], [data-theme="dark"] input[type="month"] {
@@ -803,7 +806,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   /* ----------------------------------------------------
      KILL HORIZONTAL SCROLL ON MOBILE (Except .allow-scroll)
      ---------------------------------------------------- */
-  table:not(.allow-scroll) { min-width: 0 !important; width: 100% !important; }
+  table:not(.allow-scroll):not(.jadwal-table) { min-width: 0 !important; width: 100% !important; }
   .scrollable-x:not(.allow-scroll) { overflow-x: hidden !important; }
   .table-wrap:not(.allow-scroll), .card, .page, .main, body {
     overflow-x: hidden !important;
@@ -860,7 +863,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   tr.empty-row { display: block; padding: 20px 12px; text-align: center; border: 1px dashed var(--glass-border2); border-radius: var(--radius-lg); background: var(--empty-bg); margin-top: 10px; }
   tr.empty-row td { display: block; width: 100%; padding: 0 !important; border: none !important; }
   
-  td { padding: 0 !important; border: none !important; display: flex; align-items: center; white-space: normal; line-height: 1.4; }
+  .mobile-list-table td, .table-log td, .table-report td, .table-history td { padding: 0 !important; border: none !important; display: flex; align-items: center; white-space: normal; line-height: 1.4; }
   table.allow-scroll td, table.allow-scroll th { display: table-cell !important; padding: 12px 16px !important; border-bottom: 1px solid var(--glass-border) !important; white-space: nowrap !important; font-size: 13px !important; }
   table.allow-scroll tr { display: table-row !important; border: none !important; padding: 0 !important; background: transparent !important; box-shadow: none !important; }
   table.allow-scroll tbody { display: table-row-group !important; padding: 0 !important; gap: 0 !important; }
@@ -1065,6 +1068,7 @@ th {
 }
 
 td { padding: 16px; border-bottom: 1px solid var(--glass-border); color: var(--text); vertical-align: middle; }
+table.jadwal-table td { border-bottom: none !important; }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: var(--table-hover); }
 

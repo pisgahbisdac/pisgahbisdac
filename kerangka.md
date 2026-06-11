@@ -1,6 +1,6 @@
 # Kerangka & Panduan Proyek Pisgah Bisdac (Vite)
 
-Dokumen ini berisi penjelasan struktur direktori terbaru setelah proyek berhasil dimigrasikan dari React (Babel CDN) & Tailwind CDN ke **Vite**. Panduan ini berguna sebagai referensi jika ada penambahan fitur atau modifikasi di kemudian hari.
+Dokumen ini berisi penjelasan struktur direktori dan arsitektur terbaru setelah proyek berhasil dimigrasikan ke **Vite** dan mendapatkan berbagai pembaruan antarmuka (Responsive UI) serta integrasi backend. Panduan ini berguna sebagai referensi jika ada penambahan fitur atau modifikasi di kemudian hari.
 
 ## 📂 Struktur Direktori
 
@@ -8,17 +8,17 @@ Dokumen ini berisi penjelasan struktur direktori terbaru setelah proyek berhasil
 pisgahbisdac/
 ├── node_modules/             # Folder dependensi proyek (otomatis terbuat oleh npm)
 ├── public/                   # Folder untuk aset statis yang tidak perlu dikompilasi
-│   ├── icons/                # Kumpulan ikon SVG dan gambar
+│   ├── icons/                # Kumpulan ikon SVG dan gambar (logo, dll)
 │   ├── manifest.json         # Konfigurasi PWA (Progressive Web App)
 │   └── sw.js                 # Service Worker untuk kapabilitas offline/caching
 ├── src/                      # Folder utama yang berisi kode logika React & JavaScript
 │   ├── index.jsx             # Entry point React untuk halaman utama (index.html)
-│   ├── indexApp.jsx          # Komponen utama React untuk index.html
+│   ├── indexApp.jsx          # Komponen utama React SPA (Home, Jadwal, AdminDashboard, Warta, dll)
 │   ├── hadir.jsx             # Entry point React untuk halaman kehadiran (hadir.html)
-│   ├── hadirApp.jsx          # Komponen utama React untuk hadir.html
+│   ├── hadirApp.jsx          # Komponen utama React untuk manajemen kehadiran
 │   ├── laporanEntry.js       # Entry point Vanilla JS untuk laporan.html
 │   ├── pembangunanEntry.js   # Entry point Vanilla JS untuk pembangunan.html
-│   ├── index.css             # Injeksi instruksi inti Tailwind CSS
+│   ├── index.css             # Injeksi instruksi inti Tailwind CSS & kelas kustom (Glassmorphism)
 │   ├── stylemain.css         # Styling kustom tambahan untuk index.html
 │   ├── stylehadir.css        # Styling kustom tambahan untuk hadir.html
 │   └── stylelaporan.css      # Styling kustom tambahan untuk laporan.html
@@ -33,17 +33,27 @@ pisgahbisdac/
 └── vite.config.js            # Pengaturan Vite (konfigurasi Multi-Page Application)
 ```
 
-## ⚙️ Cara Kerja Aplikasi (Alur Kerja Baru)
+## ⚙️ Arsitektur & Cara Kerja Sistem Saat Ini
 
-1. **Pengembangan (Development)**
-   Aplikasi tidak lagi diproses secara langsung oleh browser web, melainkan oleh Node.js. 
-   Kode React (file `.jsx`) dan Vanilla JS (`.js`) terhubung ke file `.html` melalui tag `<script type="module">`.
+1. **Backend via Google Apps Script (GAS)**
+   Seluruh data dinamis (Jadwal, Pejabat, Warta, Buku, Pengumuman, dll) ditarik dan dikirim ke **Google Sheets** menggunakan *Google Apps Script*. Endpoint API didefinisikan secara global (misal: `GAS_API_URL` di dalam `indexApp.jsx`).
+   
+2. **Single Page Application (SPA) Routing**
+   Khusus pada halaman utama (`index.html` -> `indexApp.jsx`), navigasi aplikasi tidak melakukan *reload* halaman. Tampilan berganti secara dinamis menggunakan *state* `activeTab`. Tab yang tersedia meliputi:
+   - `home`: Beranda (Video Hero, Pengumuman, Ikon Pintasan)
+   - `admin_dashboard`: Panel Kontrol Admin (Kelola Jadwal, Warta, Pejabat, Buku) dengan proteksi *password*.
+   - `warta`, `jadwal`, `belajar`, `live`: Modul-modul tampilan spesifik pengguna.
+   - Tombol *Logout Admin* diintegrasikan langsung secara aman di dalam Admin Dashboard.
 
-2. **Styling**
-   Tailwind tidak lagi dipanggil melalui URL (`cdn.tailwindcss.com`). Sebagai gantinya, Vite dan PostCSS akan memindai seluruh file `.html` dan `.jsx` Anda, lalu secara otomatis membuatkan satu file CSS rapi yang berisi kode CSS final tanpa memberatkan browser.
+3. **Desain Responsif & Glassmorphism (Mobile-First)**
+   Antarmuka dibangun dengan kelas-kelas *utility* Tailwind yang merespons ukuran layar secara persis:
+   - **Mobile** (`default`): Sangat padat, *font* kecil (`text-[9px]`), mencegah *horizontal scroll*.
+   - **Tablet / iPad** (`md:`): Padding menengah, menggunakan spasi efisien.
+   - **Desktop** (`lg:`): Tampilan melebar (100% *width*), ruang baca sangat lega.
+   - **Tema (Light & Dark Mode)**: Modul-modul utama seperti "Selamat Datang" dan "Proyek Gereja" menggunakan efek kaca (*Glassmorphism*) canggih melalui manipulasi warna transparan dan `backdrop-filter: blur()`.
 
-3. **Multi-Page Application (MPA)**
-   Aplikasi Anda memiliki lebih dari 1 halaman (index, hadir, laporan, pembangunan). Semuanya telah didaftarkan di dalam file `vite.config.js`. Vite secara otomatis akan membangun seluruh rute ini.
+4. **Kompilasi Cepat dengan Vite**
+   Setiap kali ada perubahan pada kode JS atau CSS, *server* Vite langsung menyuntikkannya tanpa memuat ulang penuh browser. Jika kode sudah matang, sistem dikompilasi menjadi bundel aset di dalam `/dist`.
 
 ## 🚀 Perintah Operasional
 
@@ -53,26 +63,22 @@ Buka terminal/CMD di dalam folder proyek, lalu gunakan perintah berikut:
 ```bash
 npm run dev
 ```
-Gunakan perintah ini ketika Anda ingin mengedit atau menambahkan kode. Vite akan memberikan sebuah URL lokal (misal: `http://localhost:5173`). Setiap kali Anda menekan "Save" pada editor, halaman akan termuat ulang secara instan (*Hot Reloading*).
+Vite akan memberikan sebuah URL lokal (misal: `http://localhost:5173`). Setiap kali Anda menekan "Save" pada editor, halaman akan termuat ulang secara instan (*Hot Reloading*).
 
 ### 2. Mengkompilasi Aplikasi (Untuk Produksi/Hosting)
 ```bash
 npm run build
 ```
-Perintah ini wajib dijalankan jika Anda sudah selesai mengedit dan siap untuk mempublikasikan web.
-Perintah ini akan mengecilkan (minify) semua gambar, kodingan JS, dan CSS, lalu meletakkannya di dalam folder `dist/`. **Isi dari folder `dist/` inilah yang akan diunggah ke server hosting (seperti Vercel, GitHub Pages, Netlify, atau cPanel).**
+Perintah ini wajib dijalankan jika Anda sudah selesai mengedit dan siap untuk mempublikasikan web. Vite akan mengecilkan (minify) semua gambar, kodingan JS, dan CSS, lalu meletakkannya di dalam folder `dist/`. **Isi dari folder `dist/` inilah yang akan diunggah ke server hosting.**
 
 ### 3. Menguji Hasil Build
 ```bash
 npm run preview
 ```
-Gunakan perintah ini untuk mensimulasikan server hosting lokal terhadap folder `dist/` sebelum Anda mengunggahnya ke internet secara nyata.
+Mensimulasikan server hosting lokal terhadap folder `dist/` sebelum Anda mengunggahnya ke internet.
 
-## 📝 Tips Tambahan Saat Memodifikasi
+## 📝 Panduan Perbaikan (Troubleshooting)
 
-1. **Mengedit Komponen React**
-   Jika ingin mengubah tampilan beranda, Anda kini harus membuka `src/indexApp.jsx`, bukan lagi `index.html`. 
-2. **Mengubah Tema Warna**
-   Tema warna (`gold`, `navy`, `obsidian`) sekarang berada terpusat di `tailwind.config.js`. Mengubah warna di sana akan berdampak ke seluruh komponen web.
-3. **Menginstall Library Baru**
-   Anda tidak perlu lagi menggunakan `<script src="...">` dari unpkg atau cdnjs. Cukup gunakan `npm install nama-library`, lalu di-import di file `.jsx` (misal: `import axios from 'axios';`).
+1. **Ubah Tampilan Beranda/Admin:** Selalu buka `src/indexApp.jsx`. Pastikan mencari komponen fungsional yang tepat (misalnya `<Home />` atau `<AdminDashboard />`).
+2. **Efek Warna Tidak Muncul:** Periksa file `src/index.css` atau `tailwind.config.js`. Banyak pengaturan *glassmorphism* tingkat lanjut dan mode gelap disimpan secara terpusat di CSS tersebut.
+3. **Konfirmasi Admin / Logout:** Fitur sesi (session) admin disimpan secara sementara di *React State* (`adminToken`, `isAdminLoggedIn`) agar tidak membebani memori lokal (localStorage) tanpa persetujuan, sehingga sangat aman.
