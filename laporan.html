@@ -70,7 +70,8 @@
       settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
       eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
       eyeOff: '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/>',
-      image: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>'
+      image: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
+      user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'
     };
 
     function getIcon(name, sizeClass = 'lucide-sm') {
@@ -1596,7 +1597,7 @@
     function isPrivateCategory(category) { if (!category) return false; const cat = category.toLowerCase(); return ['perpuluhan', 'persepuluhan', 'khusus jemaat', 'khusus daerah', 'terpadu', 'pembangunan'].some(c => cat.includes(c)); }
     function safeIcon(name, size) { return typeof getIcon === 'function' ? getIcon(name, size) : ''; }
     function togglePassword(inputId, eyeId) { const input = document.getElementById(inputId); const eyeBtn = document.getElementById(eyeId); if (input.type === "password") { input.type = "text"; eyeBtn.innerHTML = safeIcon('eye', 'lucide-md'); } else { input.type = "password"; eyeBtn.innerHTML = safeIcon('eyeOff', 'lucide-md'); } }
-    function fmt(n) { return 'Rp\u00A0' + Math.round(n || 0).toLocaleString('id-ID'); }
+    function fmt(n) { return Math.round(n || 0).toLocaleString('id-ID'); }
     function fmtInputDate(iso) { if (!iso) return ''; const d = new Date(iso); if (isNaN(d.getTime())) return String(iso).split('T')[0]; return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
     function fmtDate(iso) { if (!iso) return '-'; const d = new Date(iso); if (isNaN(d.getTime())) { const p = String(iso).split('T')[0].split('-'); if (p.length === 3) return `${p[2]}/${p[1]}/${p[0]}`; return String(iso).split('T')[0]; } return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`; }
     function todayStr() { return fmtInputDate(new Date()); }
@@ -2641,23 +2642,23 @@
       if (myUnitFilterActive || giverQ || q || month > 0 || year > 0) {
         // --- Top summary cards with proper gap ---
         summaryHtml = `
-          <div style="margin-bottom:16px; padding:16px 20px; background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg);">
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:20px;">
+          <div style="margin-bottom:16px; padding:14px 16px; background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); overflow:hidden;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px 20px;">
               <div>
-                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Pemasukan</div>
-                <div class="amount-pos" style="font-size:18px; font-weight:800; font-family:monospace;">+${fmt(sumIn)}</div>
+                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Pemasukan</div>
+                <div class="amount-pos" style="font-size:15px; font-weight:800; font-family:monospace; word-break:break-all;">+${fmt(sumIn)}</div>
               </div>
               <div>
-                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Pengeluaran</div>
-                <div class="amount-neg" style="font-size:18px; font-weight:800; font-family:monospace;">-${fmt(sumOut)}</div>
+                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Pengeluaran</div>
+                <div class="amount-neg" style="font-size:15px; font-weight:800; font-family:monospace; word-break:break-all;">-${fmt(sumOut)}</div>
               </div>
               <div>
-                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Bersih</div>
-                <div style="font-size:18px; font-weight:800; font-family:monospace; color:${(sumIn-sumOut) >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(sumIn - sumOut)}</div>
+                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Bersih</div>
+                <div style="font-size:15px; font-weight:800; font-family:monospace; word-break:break-all; color:${(sumIn-sumOut) >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(sumIn - sumOut)}</div>
               </div>
               <div>
-                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Total Data</div>
-                <div style="font-size:18px; font-weight:800; font-family:monospace; color:var(--text)">${list.length} Baris</div>
+                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Total Data</div>
+                <div style="font-size:15px; font-weight:800; font-family:monospace; color:var(--text)">${list.length} Baris</div>
               </div>
             </div>`;
 
@@ -2665,14 +2666,25 @@
         const monthKeys = Object.keys(monthlyBreak);
         if (monthKeys.length > 1) {
           summaryHtml += `
-            <div style="margin-top:16px; border-top:1px solid var(--glass-border); padding-top:14px;">
-              <div style="font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Rincian Per Bulan</div>
-              <div class="table-wrap" style="border:none; margin:0;">
-                <table class="summary-table" style="font-size:12px; width:100%;">
-                  <thead><tr><th style="text-align:left">Bulan</th><th style="text-align:right">Masuk</th><th style="text-align:right">Keluar</th><th style="text-align:right">Bersih</th></tr></thead>
+            <div style="margin-top:14px; border-top:1px solid var(--glass-border); padding-top:12px;">
+              <div style="font-size:10px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Rincian Per Bulan</div>
+              <div>
+                <table style="font-size:11px; width:100%; border-collapse:collapse; table-layout:fixed;">
+                  <colgroup><col style="width:22%"><col style="width:26%"><col style="width:26%"><col style="width:26%"></colgroup>
+                  <thead><tr style="border-bottom:1px solid var(--glass-border);">
+                    <th style="text-align:left; padding:6px 4px 6px 0; color:var(--text3); font-weight:600;">Bulan</th>
+                    <th style="text-align:right; padding:6px 4px; color:var(--text3); font-weight:600;">Masuk</th>
+                    <th style="text-align:right; padding:6px 4px; color:var(--text3); font-weight:600;">Keluar</th>
+                    <th style="text-align:right; padding:6px 0 6px 4px; color:var(--text3); font-weight:600;">Bersih</th>
+                  </tr></thead>
                   <tbody>${monthKeys.map(k => {
                     const v = monthlyBreak[k]; const net = v.inc - v.exp;
-                    return `<tr><td>${k}</td><td class="amount-pos" style="text-align:right">${fmt(v.inc)}</td><td class="amount-neg" style="text-align:right">${fmt(v.exp)}</td><td style="text-align:right; font-weight:700; color:${net >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(net)}</td></tr>`;
+                    return `<tr style="border-bottom:1px solid var(--glass-border);">
+                      <td style="padding:5px 4px 5px 0; color:var(--text); word-break:break-word;">${k}</td>
+                      <td class="amount-pos" style="text-align:right; padding:5px 4px; font-family:monospace; word-break:break-all; font-size:10px;">${fmt(v.inc)}</td>
+                      <td class="amount-neg" style="text-align:right; padding:5px 4px; font-family:monospace; word-break:break-all; font-size:10px;">${fmt(v.exp)}</td>
+                      <td style="text-align:right; padding:5px 0 5px 4px; font-weight:700; font-family:monospace; word-break:break-all; font-size:10px; color:${net >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(net)}</td>
+                    </tr>`;
                   }).join('')}</tbody>
                 </table>
               </div>
@@ -2684,16 +2696,16 @@
         const hasOutCat = Object.keys(catBreakOut).length > 0;
         if (hasInCat || hasOutCat) {
           summaryHtml += `
-            <div style="margin-top:16px; border-top:1px solid var(--glass-border); padding-top:14px;">
-              <div style="font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Rincian Per Kategori</div>
-              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">`;
+            <div style="margin-top:14px; border-top:1px solid var(--glass-border); padding-top:12px;">
+              <div style="font-size:10px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Rincian Per Kategori</div>
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:14px;">`;
           if (hasInCat) {
             summaryHtml += `<div>
               <div style="font-size:10px; font-weight:700; color:var(--accent-green); margin-bottom:6px; text-transform:uppercase;">Pemasukan</div>
               ${Object.entries(catBreakIn).sort((a,b)=>b[1]-a[1]).map(([k,v]) => `
-                <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--glass-border);">
-                  <span style="font-size:12px; color:var(--text2);">${k}</span>
-                  <span class="amount-pos" style="font-size:12px; font-weight:700; font-family:monospace;">${fmt(v)}</span>
+                <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid var(--glass-border); gap:8px;">
+                  <span style="font-size:11px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${k}</span>
+                  <span class="amount-pos" style="font-size:11px; font-weight:700; font-family:monospace; white-space:nowrap;">${fmt(v)}</span>
                 </div>`).join('')}
             </div>`;
           }
@@ -2701,9 +2713,9 @@
             summaryHtml += `<div>
               <div style="font-size:10px; font-weight:700; color:var(--accent-orange); margin-bottom:6px; text-transform:uppercase;">Pengeluaran</div>
               ${Object.entries(catBreakOut).sort((a,b)=>b[1]-a[1]).map(([k,v]) => `
-                <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--glass-border);">
-                  <span style="font-size:12px; color:var(--text2);">${k}</span>
-                  <span class="amount-neg" style="font-size:12px; font-weight:700; font-family:monospace;">${fmt(v)}</span>
+                <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid var(--glass-border); gap:8px;">
+                  <span style="font-size:11px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${k}</span>
+                  <span class="amount-neg" style="font-size:11px; font-weight:700; font-family:monospace; white-space:nowrap;">${fmt(v)}</span>
                 </div>`).join('')}
             </div>`;
           }
