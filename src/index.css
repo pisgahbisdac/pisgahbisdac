@@ -1429,3 +1429,50 @@ tr:hover td { background: var(--table-hover); }
         }
 
 .stat-card.clickable { cursor: pointer; }
+
+/* ======== EFEK SENTUHAN GLOBAL (HAPTIC/VISUAL FEEDBACK) ======== */
+
+/* Transisi halus saat tombol/elemen kembali ke ukuran semula */
+.btn, 
+button, 
+.nav-item, 
+.dash-tx-card, 
+.stat-card.clickable, 
+.menu-item, 
+.action-card,
+.dash-summary-grid > div,
+.theme-toggle-btn,
+.btn-icon-only,
+.btn-ghost {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+/* Efek mengecil dan memudar sedikit saat disentuh/diklik */
+.btn:active:not(:disabled), 
+button:active:not(:disabled), 
+.nav-item:active, 
+.dash-tx-card:active, 
+.stat-card.clickable:active, 
+.menu-item:active,
+.action-card:active,
+.dash-summary-grid > div:active,
+.theme-toggle-btn:active,
+.btn-icon-only:active,
+.btn-ghost:active {
+    transform: scale(0.94) !important;
+    opacity: 0.85 !important;
+    transition: transform 0.05s ease-out, opacity 0.05s ease-out !important; /* Transisi lebih cepat saat ditekan */
+}
+
+/* Abaikan efek mengecil untuk elemen yang sedang disable */
+button:disabled, .btn:disabled {
+    transform: none !important;
+}
+
+/* Hover efek transparan tambahan khusus untuk HP (Mobile) dan PC */
+@media (hover: hover) {
+    .dash-tx-card:hover {
+        background: var(--input-bg);
+        border-color: var(--border-color);
+    }
+}

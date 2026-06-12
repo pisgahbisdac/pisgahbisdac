@@ -396,8 +396,8 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
         { id: 'susunan_ibadah', label: 'Susunan Ibadah', icon: 'List' },
         { id: 'persembahan', label: 'Persembahan & Perpuluhan', icon: 'Gift' },
         { id: 'hubungi', label: 'Hubungi Kami', icon: 'Phone' },
-        { id: 'kehadiran', label: 'Data Kehadiran', icon: 'ListOrdered', isSameTab: true, link: 'hadir.html' },
-        { id: 'laporan', label: 'Laporan Keuangan', icon: 'Megaphone', isSameTab: true, link: 'laporan.html' },
+        { id: 'kehadiran', label: 'Data Kehadiran', icon: 'ListOrdered', isSameTab: true, link: './hadir.html' },
+        { id: 'laporan', label: 'Laporan Keuangan', icon: 'Megaphone', isSameTab: true, link: './laporan.html' },
     ];
 
     const filteredItems = featureItems;

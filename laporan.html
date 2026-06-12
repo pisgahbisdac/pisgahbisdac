@@ -16,11 +16,46 @@
   <link rel="stylesheet" href="/src/index.css">
   <style>
     @media print {
-
       #floatingSyncBtn,
       .no-print {
         display: none !important;
       }
+    }
+    .login-split {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
+    .login-image-side {
+      flex: 1.2;
+      background: url('./church_finance_bg.png') center/cover no-repeat;
+      position: relative;
+      display: none;
+    }
+    .login-image-side::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(11,26,48,0.85) 0%, rgba(11,26,48,0.2) 100%);
+    }
+    .login-image-content {
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      right: 10%;
+      color: white;
+      z-index: 2;
+    }
+    .login-form-side {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--bg-deep);
+    }
+    @media (min-width: 900px) {
+      .login-image-side { display: block; }
     }
   </style>
 </head>
@@ -128,13 +163,10 @@
       const historicalInc = (cachedIncome || []).filter(x => new Date(x.date) <= targetDateEnd);
       const historicalExp = (cachedExpense || []).filter(x => new Date(x.date) <= targetDateEnd);
 
-      console.log("historicalInc length:", historicalInc.length);
-
       let title = "";
       let txList = [];
-      console.log("checking isViewer");
-      const isViewer = currentUser && currentUser.role === 'Viewer';
-      console.log("isViewer:", isViewer);
+      const perms = getRolePerms(currentUser ? currentUser.role : '');
+      const isViewer = perms.isAnonymous;
 
       if (type === 'total' || type === 'bersih') {
         title = type === 'total' ? "Semua Transaksi Saldo" : "Semua Transaksi Kas Bersih";
@@ -178,7 +210,6 @@
         if (initB) txList.push({ isInc: true, overrideAmt: initB, receipt_no: 'SALDO_AWAL', date: '2000-01-01', income_type: 'Saldo Awal Sistem', note: 'Diinput saat setup', nama_pemberi: 'Sistem' });
       }
 
-      console.log("txList length:", txList.length);
       txList.sort((a, b) => new Date(b.date) - new Date(a.date));
 
       document.getElementById('dashDetailTitle').textContent = title;
@@ -242,15 +273,20 @@
         html = summaryHtml + listHtml;
       }
 
-      console.log("setting innerHTML, html length:", html.length);
       document.getElementById('dashDetailContent').innerHTML = html;
       document.getElementById('dashboardDetailModal').style.display = 'flex';
-      console.log("modal displayed");
     }
   </script>
 
-  <div id="loginPage" class="login-page">
-    <div class="login-card">
+  <div id="loginPage" class="login-split">
+    <div class="login-image-side">
+      <div class="login-image-content">
+        <h1 style="font-size: clamp(28px, 4vw, 46px); font-weight: 800; line-height: 1.2; margin-bottom: 16px;">Pengelolaan Transparan,<br>Pelayanan Maksimal.</h1>
+        <p style="font-size: 16px; color: rgba(255,255,255,0.85); line-height: 1.6; max-width: 480px;">Sistem informasi keuangan terintegrasi yang dirancang khusus untuk mempermudah pencatatan, pelaporan, dan transparansi kas jemaat.</p>
+      </div>
+    </div>
+    <div class="login-form-side">
+      <div class="login-card" style="border:none; box-shadow:none; background:transparent; padding:20px; max-width:400px;">
       <div style="display: flex; justify-content: flex-end; margin-top: -20px; margin-bottom: 20px; gap: 8px;">
         <button class="btn btn-ghost theme-toggle-btn" style="padding: 8px; border-radius: 50%;" title="Ubah Tema"
           onclick="toggleTheme()"></button>
@@ -301,8 +337,18 @@
       <button class="login-btn" id="loginBtn" onclick="doLogin()">
         <span id="loginBtnText">Masuk Ke Sistem</span>
       </button>
+
+      <div style="margin-top:24px; position:relative; text-align:center;">
+        <hr style="border:none; border-top:1px solid var(--glass-border); margin:12px 0;">
+        <span style="background:var(--bg-deep); padding:0 12px; position:absolute; top:-10px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--text4);">ATAU</span>
+      </div>
+
+      <button class="btn btn-ghost" onclick="loginAsPublic()" style="width:100%; margin-top:16px; display:flex; justify-content:center; align-items:center; gap:8px;">
+        <script>document.write(getIcon('users', 'lucide-sm'))</script> Masuk Sebagai Publik
+      </button>
     </div>
   </div>
+</div>
 
   <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
 
@@ -335,14 +381,7 @@
         </div>
       </div>
       <nav class="sidebar-nav">
-        <a href="./index.html" style="text-decoration: none;">
-          <div class="nav-item"
-            style="background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text1); margin-bottom: 15px;">
-            <span class="nav-icon" style="color: #f59e0b;">
-              <script>document.write(getIcon('home', 'lucide-md'))</script>
-            </span> Beranda Utama
-          </div>
-        </a>
+
         <div class="nav-section-title">Menu Utama</div>
         <div class="nav-item active" onclick="showPage('dashboard')">
           <span class="nav-icon">
@@ -927,6 +966,7 @@
                 <option value="Viewer">Viewer</option>
                 <option value="Bendahara">Bendahara</option>
                 <option value="Admin">Admin</option>
+                <option value="Publik">Publik</option>
               </select>
             </div>
             <div class="form-group">
@@ -1365,6 +1405,11 @@
     function doLogout() { clearToken(); sessionStorage.removeItem('BISDAC_user'); sessionStorage.removeItem('BISDAC_token'); window.location.reload(); }
     function getCurrentUser() { const u = sessionStorage.getItem('BISDAC_user'); return u ? JSON.parse(u) : null; }
 
+    function loginAsPublic() {
+      // Login langsung di latar belakang tanpa mengisi form di layar
+      doLogin('test', 'Test1117!');
+    }
+
     function getUserUnits(uname = null) {
       const targetUser = uname || (currentUser ? currentUser.username : null);
       if (!systemConfig.userUnits || !targetUser) return [];
@@ -1440,7 +1485,7 @@
 
     // === ROLE MANAGEMENT ===
     let selectedRoleTab = 'Admin';
-    const allRoles = ['Admin', 'Bendahara', 'Viewer'];
+    const allRoles = ['Admin', 'Bendahara', 'Viewer', 'Publik'];
     const allMenus = [
       { id: 'dashboard', label: 'Dashboard Utama' },
       { id: 'pemasukan', label: 'Pemasukan' },
@@ -1462,7 +1507,8 @@
         systemConfig.rolePermissions = {
           Admin: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true } }, isAnonymous: false },
           Bendahara: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
-          Viewer: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: true },
+          Viewer: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
+          Publik: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: false, edit: false, del: false }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: true }
         };
       }
 
@@ -1480,7 +1526,7 @@
           <div style="font-weight:700; color:var(--text); margin-bottom:8px;">Opsi Khusus: Mode Anonim</div>
           <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
             <input type="checkbox" id="roleAnonCheckbox" ${perms.isAnonymous ? 'checked' : ''} onchange="updateRoleAnon('${selectedRoleTab}', this.checked)">
-            <span style="color:var(--text2); font-size:14px;">Sembunyikan kolom sensitif (Pihak/Pemberi dan Unit) di tabel Riwayat. Cocok untuk viewer.</span>
+            <span style="color:var(--text2); font-size:14px;">Sembunyikan kolom sensitif (Pihak/Pemberi dan Unit) di tabel Riwayat. Cocok untuk Publik.</span>
           </label>
         </div>`;
       } else {
@@ -1688,8 +1734,9 @@
       } catch (e) { setStatus('offline', 'Koneksi Gagal'); isServerOnline = false; return false; }
     }
 
-    async function doLogin() {
-      const user = document.getElementById('loginUser').value.trim(); const pass = document.getElementById('loginPass').value;
+    async function doLogin(autoUser, autoPass) {
+      const user = (typeof autoUser === 'string') ? autoUser : document.getElementById('loginUser').value.trim(); 
+      const pass = (typeof autoPass === 'string') ? autoPass : document.getElementById('loginPass').value;
       if (!user || !pass) { notify('Username & Password kosong!', 'error'); return; }
       const btn = document.getElementById('loginBtn'); const txt = document.getElementById('loginBtnText');
       btn.disabled = true; txt.innerHTML = '<span class="btn-spinner"></span> Validasi...';
@@ -1705,7 +1752,10 @@
       document.getElementById('loginPage').style.display = 'none'; document.getElementById('app').style.display = 'flex';
       const syncBtn = document.getElementById('floatingSyncBtn');
       if (syncBtn) { syncBtn.classList.remove('bottom-8'); syncBtn.classList.add('bottom-28'); }
-      document.getElementById('userNameDisplay').textContent = currentUser.nama; document.getElementById('userRoleDisplay').textContent = currentUser.role; document.getElementById('userAvatar').textContent = currentUser.nama.split(' ').map(x => x[0]).join('').substring(0, 2).toUpperCase();
+      const nameStr = currentUser.nama || currentUser.username || 'User';
+      document.getElementById('userNameDisplay').textContent = nameStr; 
+      document.getElementById('userRoleDisplay').textContent = currentUser.role || 'Unknown'; 
+      document.getElementById('userAvatar').textContent = nameStr.split(' ').filter(x=>x).map(x => x[0]).join('').substring(0, 2).toUpperCase();
       applyRoleAccess(); await Promise.all([loadSystemConfig(), syncAllData()]); initForms(); showPage('dashboard');
     }
 
@@ -1719,10 +1769,12 @@
         perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
       } else if (role === 'Viewer') {
         perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
+      } else if (role === 'Publik') {
+        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: false, edit: false, del: false }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: true };
       }
 
       // Strict enforcement
-      if (role === 'viewer') {
+      if (role === 'Publik') {
         perms.isAnonymous = true;
       }
       return perms;
@@ -1843,7 +1895,7 @@
 
     async function handleManualSync() {
       const statusTxt = document.getElementById('appStatusText'); const statusDot = document.getElementById('appStatusDot');
-      const floatBtn = document.getElementById('floatSyncBtn');
+      const floatBtn = document.getElementById('floatingSyncBtn');
       const floatIcon = document.getElementById('floatingSyncIcon');
       if (floatBtn) { floatBtn.disabled = true; }
       const btn = document.getElementById('btnForceSync');
@@ -1896,12 +1948,50 @@
         cachedIncome = Array.isArray(inc.data) ? inc.data : [];
         cachedExpense = Array.isArray(exp.data) ? exp.data : [];
         if (bal && bal.data) cachedSaldo = bal.data;
+
+        if (currentUser && currentUser.role !== 'Admin') {
+          const cUsername = (currentUser.username || '').toLowerCase().trim();
+          const cNama = (currentUser.nama || '').toLowerCase().trim();
+          const isPublik = currentUser.role === 'Publik';
+          
+          const uUnits = getUserUnits(cUsername).map(u => String(u).toLowerCase().trim());
+
+          const hidePhoto = (x) => {
+            if (isPublik) return true; 
+            
+            const pInputBy = String(x.input_by || '').toLowerCase().trim();
+            const pInputter = String(x.inputter || '').toLowerCase().trim();
+            const pUser = String(x.username || '').toLowerCase().trim();
+            const pPemberi = String(x.nama_pemberi || '').toLowerCase().trim();
+            const pPenerima = String(x.nama_penerima || '').toLowerCase().trim();
+            const pUnit = String(x.unit_name || '').toLowerCase().trim();
+            
+            // Check direct ownership
+            if (cUsername && (pInputBy === cUsername || pInputter === cUsername || pUser === cUsername)) return false;
+            if (cNama && (pPemberi.includes(cNama) || pPenerima.includes(cNama))) return false;
+            
+            // Check unit ownership
+            if (uUnits.length > 0) {
+               const matchUnit = uUnits.some(u => pUnit === u || pUnit.includes(u));
+               if (matchUnit) return false;
+            } else {
+               // No units assigned. Operator or Bendahara (Pusat) see everything
+               if (currentUser.role === 'Operator' || currentUser.role === 'Bendahara') return false;
+            }
+            
+            return true;
+          };
+
+          cachedIncome.forEach(x => { if (hidePhoto(x)) x.receipt_photo = ''; });
+          cachedExpense.forEach(x => { if (hidePhoto(x)) x.receipt_photo = ''; });
+        }
       } catch (e) { }
     }
 
     function searchByReceipt() {
       const q = document.getElementById('searchReceiptInput').value.trim().toLowerCase(); const resultDiv = document.getElementById('receiptSearchResult');
-      const isViewer = currentUser && currentUser.role === 'Viewer';
+      const perms = getRolePerms(currentUser.role);
+      const isViewer = perms.isAnonymous;
       if (!q) { resultDiv.style.display = 'none'; return; }
 
       let validUnitNames = [];
@@ -2013,7 +2103,8 @@
 
       if (!cachedSaldo) return;
       const month = parseInt(document.getElementById('dashMonth').value); const year = parseInt(document.getElementById('dashYear').value);
-      const isViewer = currentUser && currentUser.role === 'Viewer';
+      const perms = getRolePerms(currentUser ? currentUser.role : '');
+      const isViewer = perms.isAnonymous;
       let targetDateEnd = month === 0 ? new Date(year, 11, 31, 23, 59, 59) : new Date(year, month, 0, 23, 59, 59);
 
       const filteredInc = (cachedIncome || []).filter(x => { const d = new Date(x.date); return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month); });
@@ -2041,32 +2132,36 @@
       const persentaseKomitmen = (komitmenSaatIni / targetKomitmen) * 100;
       const visualPercentKomitmen = persentaseKomitmen > 100 ? 100 : persentaseKomitmen;
 
+      const isPublik = currentUser && currentUser.role === 'Publik';
+      const clkCls = isPublik ? 'stat-card' : 'stat-card clickable';
+      const oClick = (type) => isPublik ? '' : `onclick="openDashboardDetail('${type}')"`;
+
       document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card clickable" onclick="openDashboardDetail('total')">
+    ${isPublik ? '' : `<div class="${clkCls}" ${oClick('total')}>
       <div class="stat-header"><div class="stat-label">Total Saldo</div><div class="stat-icon c-teal">${safeIcon('shield', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-blue, #3a86ff)">${fmt(calcTotal)}</div>
     </div>
-    <div class="stat-card clickable" onclick="openDashboardDetail('bersih')">
+    <div class="${clkCls}" ${oClick('bersih')}>
       <div class="stat-header"><div class="stat-label">Kas Bersih (Non-Daerah)</div><div class="stat-icon c-moss">${safeIcon('log', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-cyan, #00d2ff)">${fmt(saldoAccrued)}</div>
-    </div>
-    <div class="stat-card clickable" onclick="openDashboardDetail('in')">
+    </div>`}
+    <div class="${clkCls}" ${oClick('in')}>
       <div class="stat-header"><div class="stat-label">Pemasukan Periode</div><div class="stat-icon c-green">${safeIcon('trendUp', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-green, #00e676)">+${fmt(totalIn)}</div>
     </div>
-    <div class="stat-card clickable" onclick="openDashboardDetail('out')">
+    <div class="${clkCls}" ${oClick('out')}>
       <div class="stat-header"><div class="stat-label">Pengeluaran Periode</div><div class="stat-icon c-red">${safeIcon('trendDown', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-orange, #ff6b6b)">-${fmt(totalOut)}</div>
     </div>
-    <div class="stat-card clickable" onclick="openDashboardDetail('jemaat')">
+    <div class="${clkCls}" ${oClick('jemaat')}>
       <div class="stat-header"><div class="stat-label">Kas Jemaat</div><div class="stat-icon c-gold">${safeIcon('church', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-gold, #ffd166)">${fmt(calcJemaat)}</div>
     </div>
-    <div class="stat-card clickable" onclick="openDashboardDetail('daerah')">
+    ${isPublik ? '' : `<div class="${clkCls}" ${oClick('daerah')}>
       <div class="stat-header"><div class="stat-label">Kas Daerah</div><div class="stat-icon c-teal">${safeIcon('mappin', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-purple, #9d4edd)">${fmt(calcDaerah)}</div>
-    </div>
-    <div class="stat-card clickable" onclick="openDashboardDetail('bangun')">
+    </div>`}
+    <div class="${clkCls}" ${oClick('bangun')}>
       <div class="stat-header"><div class="stat-label">Total Dana Pembangunan</div><div class="stat-icon c-teal">${safeIcon('hammer', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-blue, #3a86ff)">${fmt(calcBangun)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
@@ -2075,7 +2170,7 @@
         <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: var(--accent-gold, #ffd166, var(--teal-pop));"></div></div>
       </div>
     </div>
-    <div class="stat-card">
+    ${isPublik ? '' : `<div class="stat-card">
       <div class="stat-header"><div class="stat-label">Komitmen Pembangunan</div><div class="stat-icon c-moss">${safeIcon('hammer', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-cyan, #00d2ff)">${fmt(komitmenSaatIni)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
@@ -2087,9 +2182,13 @@
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Partisipasi Jemaat</div><div class="stat-icon c-red">${safeIcon('users', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--text-main, var(--text))">${totalPemberiPersepuluhan} <span style="font-size:16px; color: var(--text-muted, var(--text4))">/ ${totalAnggotaSistem}</span></div>
-    </div>
-    
+    </div>`}
   `;
+
+      const dashMainGrid = document.querySelector('.dashboard-main-grid');
+      if (dashMainGrid) {
+        dashMainGrid.style.display = isPublik ? 'none' : '';
+      }
 
       const maxVal = Math.max(calcDaerah, calcJemaat, calcBangun, 1);
       document.getElementById('saldoBars').innerHTML = `
@@ -2136,14 +2235,14 @@
       } else {
         let desktopHtml = recent.map(x => {
           const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
-          const shouldHide = isAnon || isPrivCategory;
+          const shouldHide = isViewer && isPrivCategory;
           let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
           return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td><td><span class="badge ${getCatBadge(x.income_type || x.department, x.kind !== 'income')}">${x.income_type || x.department}</span><br><span style="font-size:12px; color:var(--text-muted, var(--text4))">${shouldHide ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td><td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td></tr>`;
         }).join('');
 
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + recent.map(x => {
           const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
-          const shouldHide = isAnon || isPrivCategory;
+          const shouldHide = isViewer && isPrivCategory;
           const isInc = x.kind === 'income';
           let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
           return `
@@ -2319,7 +2418,7 @@
         let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.department, true)}">${x.department}</span><br><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (x.note || '-')}<br>Penerima: ${isAnon ? '***' : (x.nama_penerima || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('');
 
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
-          let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
+          let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
           return `
           <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
@@ -2530,10 +2629,10 @@
     }
 
     function renderReportView() {
-      if (!currentReportData) return;
-      const data = currentReportData;
+      const data = currentReportData; if (!data) return notify('Tidak ada data laporan aktif.', 'error');
+      const s = data.summary; const bal = s.balances || cachedSaldo || { total: 0 }; 
+      const isViewer = getRolePerms(currentUser?.role || '').isAnonymous || (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik'));
       const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-      const s = data.summary; const bal = s.balances || cachedSaldo || { total: 0 }; const isViewer = currentUser && currentUser.role === 'Viewer';
 
       const isSensor = document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false;
 
@@ -2575,7 +2674,8 @@
             const isMasked = isPrivCategory || isSensor;
             const displayNote = isMasked ? '*** (Privasi)' : (x.note || '-');
             let rawPemberi = (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') ? x.nama_pemberi : (x.unit_name || '-');
-            return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td>${isMasked ? '***' : rawPemberi}</td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td>${displayNote}</td><td class="fit-col amount-pos" style="text-align:right">${fmt(x.amount)}</td></tr>`
+            const photoBtn = (x.receipt_photo && !isMasked) ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
+            return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td>${isMasked ? '***' : rawPemberi}</td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${photoBtn}</td><td>${displayNote}</td><td class="fit-col amount-pos" style="text-align:right">${fmt(x.amount)}</td></tr>`
           }).join('')}
               </tbody>
             </table>`;
@@ -2585,7 +2685,7 @@
             const displayNote = isMasked ? '*** (Privasi)' : (x.note || '-');
             let rawPemberi = (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') ? x.nama_pemberi : (x.unit_name || '-');
             let photoBtn = '';
-            if (x.receipt_photo) { photoBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>`; }
+            if (x.receipt_photo && !isMasked) { photoBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>`; }
             return `<div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
                 <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
@@ -2673,17 +2773,41 @@
         if (year !== 0 && d.getFullYear() !== year) return false;
         if (month !== 0 && (d.getMonth() + 1) !== month) return false;
 
-        // HANYA cari berdasarkan No Kuitansi / Referensi
-        if (q && !String(x.receipt_no || '').toLowerCase().includes(q)) return false;
+        const canSearchNames = currentUser && (currentUser.role === 'Admin' || currentUser.role === 'Bendahara');
 
-        // HANYA cari berdasarkan ID Unit
-        if (giverQ) {
-          if (x.type !== 'income') return false; // Pengeluaran tidak terkait unit id
-          let matchedUnitNames = [];
+        if (q) {
+          let m = false;
+          if (String(x.receipt_no || '').toLowerCase().includes(q)) m = true;
+          if (String(x.note || '').toLowerCase().includes(q)) m = true;
+          if (String(x.income_type || '').toLowerCase().includes(q)) m = true;
+          if (String(x.department || '').toLowerCase().includes(q)) m = true;
+          if (String(x.amount || '').includes(q)) m = true;
+          if (String(x.unit_name || '').toLowerCase().includes(q)) m = true;
           if (masterData && masterData.units) {
-            matchedUnitNames = masterData.units.filter(u => String(u.id || '').toLowerCase().includes(giverQ)).map(u => String(u.name).toLowerCase());
+            const matchedUnitNames = masterData.units.filter(u => String(u.id || '').toLowerCase().includes(q)).map(u => String(u.name).toLowerCase());
+            if (matchedUnitNames.includes(String(x.unit_name || '').toLowerCase())) m = true;
           }
-          if (!matchedUnitNames.includes(String(x.unit_name || '').toLowerCase())) return false;
+          if (canSearchNames) {
+            if (String(x.nama_pemberi || '').toLowerCase().includes(q)) m = true;
+            if (String(x.nama_penerima || '').toLowerCase().includes(q)) m = true;
+          }
+          if (!m) return false;
+        }
+
+        if (giverQ) {
+          let matchesGiver = false;
+          if (String(x.receipt_no || '').toLowerCase().includes(giverQ)) matchesGiver = true;
+          if (String(x.amount || '').includes(giverQ)) matchesGiver = true;
+          if (String(x.unit_name || '').toLowerCase().includes(giverQ)) matchesGiver = true;
+          if (masterData && masterData.units) {
+            const matchedUnitNames = masterData.units.filter(u => String(u.id || '').toLowerCase().includes(giverQ)).map(u => String(u.name).toLowerCase());
+            if (matchedUnitNames.includes(String(x.unit_name || '').toLowerCase())) matchesGiver = true;
+          }
+          if (canSearchNames) {
+            if (String(x.nama_pemberi || '').toLowerCase().includes(giverQ)) matchesGiver = true;
+            if (String(x.nama_penerima || '').toLowerCase().includes(giverQ)) matchesGiver = true;
+          }
+          if (!matchesGiver) return false;
         }
 
         const userUnits = getUserUnits();
@@ -2705,7 +2829,7 @@
       const isAdmin = currentUser.role === 'Admin';
       const canEdit = mRiwayat.edit || isAdmin;
       const canDel = mRiwayat.del || isAdmin;
-      const isViewer = currentUser.role === 'Viewer';
+      const isViewer = getRolePerms(currentUser?.role || '').isAnonymous || (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik'));
       const isAnon = perms.isAnonymous;
 
       let sumIn = 0; let sumOut = 0;
@@ -3312,13 +3436,14 @@
 
     window.onload = async () => {
       await loadSystemConfig();
+      const isAvailable = await checkAPIConnection();
+      
       const tk = getToken();
       if (tk) {
         currentUser = getCurrentUser();
         if (currentUser) {
           if (document.getElementById('loginBtnText')) document.getElementById('loginBtnText').innerHTML = '<span class="spinner"></span> Memulihkan...';
-          const ok = await checkAPIConnection();
-          if (ok) { launchApp(); } else { notify('Koneksi gagal. Silakan login kembali.', 'error'); clearToken(); }
+          if (isAvailable) { launchApp(); } else { notify('Koneksi gagal. Silakan login kembali.', 'error'); clearToken(); }
         }
       }
     };

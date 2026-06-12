@@ -24,7 +24,7 @@
     
 
     
-  <link rel="stylesheet" crossorigin href="/assets/index-bIiL6aGj.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-BTFSMxrz.css">
 </head>
 
 <body class="font-sans antialiased text-stone-300 relative leading-relaxed overflow-x-hidden page-pembangunan">
@@ -48,11 +48,11 @@
     <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-300 py-4 px-6 border-b border-transparent">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <!-- Logo -->
-            <a href="https://pisgahbisdac.app/" class="flex items-center gap-3 group">
+            <div class="flex items-center gap-3">
                 <div
-                    class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-2xl overflow-hidden bg-gradient-to-br from-stone-800 to-stone-900 border border-gold-500/30 flex items-center justify-center shadow-2xl transition-transform group-hover:scale-105">
+                    class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-2xl overflow-hidden bg-gradient-to-br from-stone-800 to-stone-900 border border-gold-500/30 flex items-center justify-center shadow-2xl">
                     <img src="./icons/PisgahColor.png" alt="Pisgah"
-                        class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+                        class="w-full h-full object-cover opacity-80">
                     <!-- Decorative border corners -->
                     <div class="absolute top-0 left-0 w-1 h-1 border-t border-l border-gold-500"></div>
                     <div class="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-gold-500"></div>
@@ -64,10 +64,14 @@
                     <p class="text-[8px] text-stone-400 tracking-[0.25em] uppercase font-light mt-1 hidden sm:block">
                         Batam International SDA Church</p>
                 </div>
-            </a>
+            </div>
 
             <!-- Right actions -->
             <div class="flex items-center gap-3">
+                <a href="./index.html" class="flex items-center gap-2 border border-gold-500/20 bg-navy-700 hover:bg-stone-900 hover:border-gold-500/50 px-3 md:px-4 py-2 transition-all duration-300 shadow-md">
+                    <i class="fa-solid fa-home text-xs text-gold-500"></i>
+                    <span class="text-[10px] md:text-xs font-semibold uppercase tracking-[0.15em] text-stone-200 hidden sm:inline-block">Beranda</span>
+                </a>
                 <div class="flex items-center gap-2 border border-gold-500/15 bg-navy-700/50 px-3 py-1">
                     <span id="sync-indicator" class="w-1.5 h-1.5 bg-gold-500 animate-pulse"></span>
                     <span id="sync-text"
@@ -871,6 +875,14 @@
             class="fa-solid fa-circle-check text-gold-500"></i><span id="toast-msg">Berhasil!</span></div>
 
     <!-- =================== CORE JAVASCRIPT =================== -->
+    <!-- Floating Sync Button -->
+    <button id="floatingSyncBtn" onclick="refreshAllData()" title="Sinkronisasi Data" class="fixed right-4 md:right-8 z-50 w-[3.5rem] h-[3.5rem] md:w-[3rem] md:h-[3rem] bg-navy-800/80 hover:bg-navy-700 backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-gold-500/30 hover:border-gold-500/60 cursor-pointer shadow-[0_4px_15px_rgba(0,0,0,0.5)] group" style="bottom: calc(env(safe-area-inset-bottom, 0px) + 2rem);">
+        <div class="relative flex items-center justify-center w-full h-full" id="floatingSyncIcon">
+            <span class="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
+            <span class="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
+        </div>
+    </button>
+
     <script>
         // ==============================
         // CONFIG
@@ -1176,7 +1188,14 @@
         // REFRESH DATA UTAMA
         // ==============================
         async function refreshAllData() {
+            const floatBtn = document.getElementById('floatingSyncBtn');
+            const floatIcon = document.getElementById('floatingSyncIcon');
+            if (floatBtn) { floatBtn.disabled = true; }
+            if (floatIcon) { floatIcon.innerHTML = `<i class="fa-solid fa-rotate fa-spin text-amber-500 text-xl md:text-lg"></i>`; }
+
             const data = await api.get();
+            if (floatBtn) { floatBtn.disabled = false; }
+            if (floatIcon) { floatIcon.innerHTML = '<span class="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span><span class="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>'; }
             if (!data) {
                 if (!globalData) {
                     document.getElementById('judul-web').textContent = "Gagal memuat data.";
