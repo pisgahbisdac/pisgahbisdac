@@ -14,6 +14,15 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <link rel="stylesheet" href="/src/index.css">
+  <style>
+    @media print {
+
+      #floatingSyncBtn,
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
 </head>
 
 <body class="page-laporan">
@@ -252,14 +261,22 @@
       </div>
 
       <div style="display: block; text-align: center;">
-        <div class="logo-container" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; margin-bottom:32px;">
-          <div style="background:var(--card-bg); border:1px solid var(--border-color); width:104px; height:104px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(0,0,0,0.1); flex-shrink: 0;">
-            <img class="app-logo-login-img" src="" alt="Logo" style="display:none; width:76px; height:76px; object-fit:contain;">
-            <img class="app-logo-login-default" src="./icons/PisgahColor.png" alt="Logo Default" style="width:76px; height:76px; object-fit:contain;">
+        <div class="logo-container"
+          style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; margin-bottom:32px;">
+          <div
+            style="background:var(--card-bg); border:1px solid var(--border-color); width:104px; height:104px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(0,0,0,0.1); flex-shrink: 0;">
+            <img class="app-logo-login-img" src="" alt="Logo"
+              style="display:none; width:76px; height:76px; object-fit:contain;">
+            <img class="app-logo-login-default" src="./icons/PisgahColor.png" alt="Logo Default"
+              style="width:76px; height:76px; object-fit:contain;">
           </div>
           <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            <div class="app-name-display" style="font-size:24px; font-weight:900; color:var(--text); letter-spacing:1px; line-height: 1.2;">PISGAH BISDAC</div>
-            <div class="app-subtitle-display" style="font-size:12px; color:var(--text2); font-weight:700; text-transform:uppercase; letter-spacing:1.5px; margin-top:6px;">Gereja Masehi Advent</div>
+            <div class="app-name-display"
+              style="font-size:24px; font-weight:900; color:var(--text); letter-spacing:1px; line-height: 1.2;">PISGAH
+              BISDAC</div>
+            <div class="app-subtitle-display"
+              style="font-size:12px; color:var(--text2); font-weight:700; text-transform:uppercase; letter-spacing:1.5px; margin-top:6px;">
+              Gereja Masehi Advent</div>
           </div>
         </div>
       </div>
@@ -293,13 +310,20 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-logo">
         <div class="logo-badge">
-          <div class="logo-icon" style="width: 48px; height: 48px; background: transparent; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <img class="app-logo-sidebar-img" src="" alt="Logo" style="display:none; width: 40px; height: 40px; object-fit: contain;">
-            <img class="app-logo-sidebar-default" src="./icons/PisgahColor.png" alt="Logo Default" style="width: 40px; height: 40px; object-fit: contain;">
+          <div class="logo-icon"
+            style="width: 48px; height: 48px; background: transparent; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <img class="app-logo-sidebar-img" src="" alt="Logo"
+              style="display:none; width: 40px; height: 40px; object-fit: contain;">
+            <img class="app-logo-sidebar-default" src="./icons/PisgahColor.png" alt="Logo Default"
+              style="width: 40px; height: 40px; object-fit: contain;">
           </div>
           <div style="display: flex; flex-direction: column; justify-content: center;">
-            <div class="app-name-display" style="font-size: 16px; font-weight: 800; color: var(--text); letter-spacing: 0.5px; line-height: 1.2;">PISGAH BISDAC</div>
-            <div class="app-subtitle-display" style="font-size: 9px; color: var(--text-muted, var(--text3)); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">Gereja Masehi Advent</div>
+            <div class="app-name-display"
+              style="font-size: 16px; font-weight: 800; color: var(--text); letter-spacing: 0.5px; line-height: 1.2;">
+              PISGAH BISDAC</div>
+            <div class="app-subtitle-display"
+              style="font-size: 9px; color: var(--text-muted, var(--text3)); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">
+              Gereja Masehi Advent</div>
           </div>
         </div>
       </div>
@@ -312,7 +336,8 @@
       </div>
       <nav class="sidebar-nav">
         <a href="./index.html" style="text-decoration: none;">
-          <div class="nav-item" style="background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text1); margin-bottom: 15px;">
+          <div class="nav-item"
+            style="background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text1); margin-bottom: 15px;">
             <span class="nav-icon" style="color: #f59e0b;">
               <script>document.write(getIcon('home', 'lucide-md'))</script>
             </span> Beranda Utama
@@ -439,9 +464,12 @@
           <span class="topbar-title" id="pageTitle">Dashboard</span>
         </div>
         <div class="topbar-actions" style="display:flex; gap:8px;">
-          <a href="./index.html" class="btn btn-icon-only" title="Kembali ke Beranda" style="display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--text-main); width: 34px; height: 34px;">
-            <svg class="lucide lucide-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+          <a href="./index.html" class="btn btn-icon-only" title="Kembali ke Beranda"
+            style="display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--text-main); width: 34px; height: 34px;">
+            <svg class="lucide lucide-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
             </svg>
           </a>
           <button class="btn btn-icon-only theme-toggle-btn" title="Ubah Tema" onclick="toggleTheme()"></button>
@@ -473,7 +501,9 @@
 
         <div class="card" id="dashUnitToggleContainer" style="display:none; text-align:center; padding:16px;">
           <div style="font-size:16px; font-weight:700; margin-bottom:12px;">Akses Cepat Unit</div>
-          <button class="btn btn-ghost" onclick="goToMyUnitHistory()" style="border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; justify-content:center; padding: 12px;">Lihat Transaksi Unit Saya</button>
+          <button class="btn btn-ghost" onclick="goToMyUnitHistory()"
+            style="border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; justify-content:center; padding: 12px;">Lihat
+            Transaksi Unit Saya</button>
         </div>
 
         <div class="filter-bar">
@@ -770,8 +800,10 @@
                 placeholder="Cari pemberi/penerima/unit..." oninput="renderHistory()">
             </div>
           </div>
-          
-          <button class="btn btn-ghost" id="btnFilterMyUnit" onclick="toggleMyUnitFilter()" style="display:none; border:1px solid var(--accent-blue); color:var(--accent-blue); white-space:nowrap; padding: 6px 12px;">Transaksi Unit Saya</button>
+
+          <button class="btn btn-ghost" id="btnFilterMyUnit" onclick="toggleMyUnitFilter()"
+            style="display:none; border:1px solid var(--accent-blue); color:var(--accent-blue); white-space:nowrap; padding: 6px 12px;">Transaksi
+            Unit Saya</button>
           <select class="select-sm" id="filterMonth" onchange="renderHistory()">
             <option value="0">Semua Bulan</option>
             <option value="1">Jan</option>
@@ -895,15 +927,16 @@
                 <option value="Viewer">Viewer</option>
                 <option value="Bendahara">Bendahara</option>
                 <option value="Admin">Admin</option>
-                <option value="Publik">Publik</option>
               </select>
             </div>
             <div class="form-group">
               <label>Binding Unit Khusus</label>
-              <div id="userUnitContainer" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--glass-border); padding: 12px; border-radius: var(--radius); background: var(--input-bg); display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+              <div id="userUnitContainer"
+                style="max-height: 300px; overflow-y: auto; border: 1px solid var(--glass-border); padding: 12px; border-radius: var(--radius); background: var(--input-bg); display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
                 <!-- Populated dynamically -->
               </div>
-              <div class="form-text">Centang unit yang ingin dihubungkan. User hanya dapat melihat kas unit terpilih.</div>
+              <div class="form-text">Centang unit yang ingin dihubungkan. User hanya dapat melihat kas unit terpilih.
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label">Kata Sandi</label>
@@ -929,7 +962,9 @@
         <div class="card" style="max-width: 500px; margin: 0 auto;">
           <div class="card-header">
             <div class="card-title" style="display:flex; align-items:center; gap:8px;">
-              <span style="color:var(--primary)"><script>document.write(getIcon('user', 'lucide-md'))</script></span>
+              <span style="color:var(--primary)">
+                <script>document.write(getIcon('user', 'lucide-md'))</script>
+              </span>
               Pengaturan Akun
             </div>
           </div>
@@ -948,13 +983,16 @@
           </div>
           <div class="form-group" style="position:relative;">
             <label class="form-label">Konfirmasi Kata Sandi Baru</label>
-            <input type="password" class="form-input" id="myNewPasswordConfirm" placeholder="Ketik ulang kata sandi baru">
-            <span class="eye-btn" id="myNewPasswordConfirmEye" onclick="togglePassword('myNewPasswordConfirm', 'myNewPasswordConfirmEye')">
+            <input type="password" class="form-input" id="myNewPasswordConfirm"
+              placeholder="Ketik ulang kata sandi baru">
+            <span class="eye-btn" id="myNewPasswordConfirmEye"
+              onclick="togglePassword('myNewPasswordConfirm', 'myNewPasswordConfirmEye')">
               <script>document.write(getIcon('eyeOff', 'lucide-md'))</script>
             </span>
             <small style="color:var(--text4); font-size:11px;">Kosongkan jika tidak ingin mengubah sandi.</small>
           </div>
-          <button class="btn btn-primary" style="width:100%; margin-top:8px;" id="btnUpdateMyPassword" onclick="updateMyAccount()">Simpan Perubahan</button>
+          <button class="btn btn-primary" style="width:100%; margin-top:8px;" id="btnUpdateMyPassword"
+            onclick="updateMyAccount()">Simpan Perubahan</button>
         </div>
       </div>
 
@@ -970,7 +1008,8 @@
                 <div style="width:100px; height:100px; display:flex; align-items:center; justify-content:center;">
                   <img id="preview-logo-login" src="" class="app-logo-login-img"
                     style="display:none; width:100%; height:100%; object-fit:contain;">
-                  <img class="app-logo-login-default" src="./icons/PisgahColor.png" style="width:64px; height:64px; object-fit:contain;">
+                  <img class="app-logo-login-default" src="./icons/PisgahColor.png"
+                    style="width:64px; height:64px; object-fit:contain;">
                 </div>
                 <label for="logoLoginUpload" class="btn btn-primary" style="width:100%; justify-content:center;">
                   <script>document.write(getIcon('image', 'lucide-sm'))</script> Pilih Gambar
@@ -989,7 +1028,8 @@
                 <div style="width:100px; height:100px; display:flex; align-items:center; justify-content:center;">
                   <img id="preview-logo-sidebar" src="" class="app-logo-sidebar-img"
                     style="display:none; width:100%; height:100%; object-fit:contain;">
-                  <img class="app-logo-sidebar-default" src="./icons/PisgahColor.png" style="width:64px; height:64px; object-fit:contain;">
+                  <img class="app-logo-sidebar-default" src="./icons/PisgahColor.png"
+                    style="width:64px; height:64px; object-fit:contain;">
                 </div>
                 <label for="logoSidebarUpload" class="btn btn-primary" style="width:100%; justify-content:center;">
                   <script>document.write(getIcon('image', 'lucide-sm'))</script> Pilih Gambar
@@ -1001,7 +1041,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="form-section-title" style="margin-top: 32px;">Nama Aplikasi</div>
           <div class="grid-2">
             <div class="form-group">
@@ -1022,17 +1062,20 @@
       <div class="page" id="page-roles">
         <div class="card" style="max-width:900px; margin:0 auto; padding: 24px;">
           <h2 style="margin-bottom: 24px; color: var(--text);">Hak Akses Menu & Staff</h2>
-          
-          <div style="margin-bottom: 24px; border-bottom: 1px solid var(--glass-border); display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px;" id="roleTabs">
+
+          <div
+            style="margin-bottom: 24px; border-bottom: 1px solid var(--glass-border); display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px;"
+            id="roleTabs">
             <!-- Tabs injected via JS -->
           </div>
-          
+
           <div id="roleContent" style="display: flex; flex-direction: column; gap: 16px;">
             <!-- Role Permissions injected via JS -->
           </div>
-          
+
           <div style="display: flex; justify-content: flex-end; margin-top: 32px;">
-            <button id="btnSaveRolePerms" class="btn btn-primary" onclick="saveRolePermissions()">Simpan Hak Akses</button>
+            <button id="btnSaveRolePerms" class="btn btn-primary" onclick="saveRolePermissions()">Simpan Hak
+              Akses</button>
           </div>
         </div>
       </div>
@@ -1327,13 +1370,13 @@
       if (!systemConfig.userUnits || !targetUser) return [];
       let units = systemConfig.userUnits;
       while (typeof units === 'string') {
-        try { units = JSON.parse(units); } catch(e) { return []; }
+        try { units = JSON.parse(units); } catch (e) { return []; }
       }
       for (const [key, val] of Object.entries(units || {})) {
         if (key.toLowerCase() === targetUser.toLowerCase()) {
-           if (Array.isArray(val)) return val;
-           if (typeof val === 'string') return [val]; // backward compatibility
-           return [];
+          if (Array.isArray(val)) return val;
+          if (typeof val === 'string') return [val]; // backward compatibility
+          return [];
         }
       }
       return [];
@@ -1342,20 +1385,20 @@
     let systemConfig = {};
     async function loadSystemConfig() {
       try {
-        const cached = localStorage.getItem('BISDAC_config'); 
-        if (cached) { 
-          systemConfig = JSON.parse(cached); 
-          if (typeof systemConfig.rolePermissions === 'string') { try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch(e){} }
-          if (typeof systemConfig.userUnits === 'string') { try { systemConfig.userUnits = JSON.parse(systemConfig.userUnits); } catch(e){} }
-          applyConfig(); 
+        const cached = localStorage.getItem('BISDAC_config');
+        if (cached) {
+          systemConfig = JSON.parse(cached);
+          if (typeof systemConfig.rolePermissions === 'string') { try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch (e) { } }
+          if (typeof systemConfig.userUnits === 'string') { try { systemConfig.userUnits = JSON.parse(systemConfig.userUnits); } catch (e) { } }
+          applyConfig();
         }
-        const res = await apiGet('getConfig'); 
-        if (res && res.success) { 
-          systemConfig = { ...systemConfig, ...(res.data || {}) }; 
-          if (typeof systemConfig.rolePermissions === 'string') { try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch(e){} }
-          if (typeof systemConfig.userUnits === 'string') { try { systemConfig.userUnits = JSON.parse(systemConfig.userUnits); } catch(e){} }
-          localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig)); 
-          applyConfig(); 
+        const res = await apiGet('getConfig');
+        if (res && res.success) {
+          systemConfig = { ...systemConfig, ...(res.data || {}) };
+          if (typeof systemConfig.rolePermissions === 'string') { try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch (e) { } }
+          if (typeof systemConfig.userUnits === 'string') { try { systemConfig.userUnits = JSON.parse(systemConfig.userUnits); } catch (e) { } }
+          localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
+          applyConfig();
         }
       } catch (e) { }
     }
@@ -1377,7 +1420,7 @@
       if (inputName) inputName.value = systemConfig.app_name || '';
       const inputSub = document.getElementById('settingAppSubtitle');
       if (inputSub) inputSub.value = systemConfig.app_subtitle || '';
-      
+
       applyRoleAccess();
     }
 
@@ -1397,7 +1440,7 @@
 
     // === ROLE MANAGEMENT ===
     let selectedRoleTab = 'Admin';
-    const allRoles = ['Admin', 'Bendahara', 'Viewer', 'Publik'];
+    const allRoles = ['Admin', 'Bendahara', 'Viewer'];
     const allMenus = [
       { id: 'dashboard', label: 'Dashboard Utama' },
       { id: 'pemasukan', label: 'Pemasukan' },
@@ -1413,14 +1456,13 @@
 
     function renderRoles() {
       if (typeof systemConfig.rolePermissions === 'string') {
-        try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch(e) { systemConfig.rolePermissions = null; }
+        try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch (e) { systemConfig.rolePermissions = null; }
       }
       if (!systemConfig.rolePermissions || typeof systemConfig.rolePermissions !== 'object' || Object.keys(systemConfig.rolePermissions).length === 0) {
         systemConfig.rolePermissions = {
-           Admin: { menus: { dashboard: {view:true, edit:true, del:true}, pemasukan: {view:true, edit:true, del:true}, pengeluaran: {view:true, edit:true, del:true}, laporan: {view:true, edit:true, del:true}, riwayat: {view:true, edit:true, del:true}, masterData: {view:true, edit:true, del:true}, users: {view:true, edit:true, del:true}, akun: {view:true, edit:true, del:true}, settings: {view:true, edit:true, del:true}, logs: {view:true, edit:true, del:true} }, isAnonymous: false },
-           Bendahara: { menus: { dashboard: {view:true, edit:true, del:true}, pemasukan: {view:true, edit:true, del:true}, pengeluaran: {view:true, edit:true, del:true}, laporan: {view:true, edit:true, del:true}, riwayat: {view:true, edit:true, del:true}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, akun: {view:true, edit:true, del:true}, settings: {view:false, edit:false, del:false}, logs: {view:false, edit:false, del:false} }, isAnonymous: false },
-           Viewer: { menus: { dashboard: {view:true, edit:false, del:false}, pemasukan: {view:false, edit:false, del:false}, pengeluaran: {view:false, edit:false, del:false}, laporan: {view:true, edit:false, del:false}, riwayat: {view:true, edit:false, del:false}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, akun: {view:true, edit:true, del:true}, settings: {view:false, edit:false, del:false}, logs: {view:false, edit:false, del:false} }, isAnonymous: false },
-           Publik: { menus: { dashboard: {view:true, edit:false, del:false}, pemasukan: {view:false, edit:false, del:false}, pengeluaran: {view:false, edit:false, del:false}, laporan: {view:false, edit:false, del:false}, riwayat: {view:true, edit:false, del:false}, masterData: {view:false, edit:false, del:false}, users: {view:false, edit:false, del:false}, akun: {view:false, edit:false, del:false}, settings: {view:false, edit:false, del:false}, logs: {view:false, edit:false, del:false} }, isAnonymous: true }
+          Admin: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true } }, isAnonymous: false },
+          Bendahara: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
+          Viewer: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: true },
         };
       }
 
@@ -1431,14 +1473,14 @@
       `).join('');
 
       const perms = systemConfig.rolePermissions[selectedRoleTab] || { menus: {}, isAnonymous: false };
-      
+
       let html = '';
       if (selectedRoleTab !== 'Admin') {
         html += `<div style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:16px;">
           <div style="font-weight:700; color:var(--text); margin-bottom:8px;">Opsi Khusus: Mode Anonim</div>
           <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
             <input type="checkbox" id="roleAnonCheckbox" ${perms.isAnonymous ? 'checked' : ''} onchange="updateRoleAnon('${selectedRoleTab}', this.checked)">
-            <span style="color:var(--text2); font-size:14px;">Sembunyikan kolom sensitif (Pihak/Pemberi dan Unit) di tabel Riwayat. Cocok untuk Publik.</span>
+            <span style="color:var(--text2); font-size:14px;">Sembunyikan kolom sensitif (Pihak/Pemberi dan Unit) di tabel Riwayat. Cocok untuk viewer.</span>
           </label>
         </div>`;
       } else {
@@ -1447,8 +1489,8 @@
 
       html += `<div class="grid-2" style="gap:16px; margin-top:8px;">`;
       allMenus.forEach(menu => {
-        let mPerm = perms.menus[menu.id] || { view:false, edit:false, del:false };
-        if (selectedRoleTab === 'Admin') { mPerm = { view:true, edit:true, del:true }; }
+        let mPerm = perms.menus[menu.id] || { view: false, edit: false, del: false };
+        if (selectedRoleTab === 'Admin') { mPerm = { view: true, edit: true, del: true }; }
         const disabled = selectedRoleTab === 'Admin' ? 'disabled' : '';
         html += `
           <div style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius); padding:16px;">
@@ -1475,25 +1517,25 @@
     }
 
     function updateRoleAnon(role, checked) {
-      if (typeof systemConfig.rolePermissions === 'string') { try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch(e) {} }
-      if(!systemConfig.rolePermissions[role]) systemConfig.rolePermissions[role] = {menus:{}, isAnonymous:false};
+      if (typeof systemConfig.rolePermissions === 'string') { try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch (e) { } }
+      if (!systemConfig.rolePermissions[role]) systemConfig.rolePermissions[role] = { menus: {}, isAnonymous: false };
       systemConfig.rolePermissions[role].isAnonymous = checked;
     }
 
     function updateRolePerm(role, menuId, permType, checked) {
-      if (typeof systemConfig.rolePermissions === 'string') { try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch(e) {} }
-      if(!systemConfig.rolePermissions || typeof systemConfig.rolePermissions !== 'object') return;
-      if(!systemConfig.rolePermissions[role]) systemConfig.rolePermissions[role] = {menus:{}, isAnonymous:false};
-      if(!systemConfig.rolePermissions[role].menus[menuId]) systemConfig.rolePermissions[role].menus[menuId] = {view:false, edit:false, del:false};
+      if (typeof systemConfig.rolePermissions === 'string') { try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch (e) { } }
+      if (!systemConfig.rolePermissions || typeof systemConfig.rolePermissions !== 'object') return;
+      if (!systemConfig.rolePermissions[role]) systemConfig.rolePermissions[role] = { menus: {}, isAnonymous: false };
+      if (!systemConfig.rolePermissions[role].menus[menuId]) systemConfig.rolePermissions[role].menus[menuId] = { view: false, edit: false, del: false };
       systemConfig.rolePermissions[role].menus[menuId][permType] = checked;
-      
+
       localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig)); // AUTO-SAVE to local storage immediately
-      
-      if(checked && (permType === 'edit' || permType === 'del')) {
+
+      if (checked && (permType === 'edit' || permType === 'del')) {
         systemConfig.rolePermissions[role].menus[menuId].view = true;
         renderRoles();
       }
-      if(!checked && permType === 'view') {
+      if (!checked && permType === 'view') {
         systemConfig.rolePermissions[role].menus[menuId].edit = false;
         systemConfig.rolePermissions[role].menus[menuId].del = false;
         renderRoles();
@@ -1667,64 +1709,71 @@
       applyRoleAccess(); await Promise.all([loadSystemConfig(), syncAllData()]); initForms(); showPage('dashboard');
     }
 
-    function applyRoleAccess() {
-      let perms = { menus: { dashboard:{view:true,edit:true,del:true}, pemasukan:{view:true,edit:true,del:true}, pengeluaran:{view:true,edit:true,del:true}, laporan:{view:true,edit:true,del:true}, riwayat:{view:true,edit:true,del:true}, masterData:{view:true,edit:true,del:true}, users:{view:true,edit:true,del:true}, akun:{view:true,edit:true,del:true}, settings:{view:true,edit:true,del:true}, logs:{view:true,edit:true,del:true} }, isAnonymous: false };
-      
-      if (systemConfig.rolePermissions && systemConfig.rolePermissions[currentUser.role]) {
-        perms = systemConfig.rolePermissions[currentUser.role];
-      } else if (currentUser.role === 'Admin') {
-        perms = { menus: { dashboard:{view:true,edit:true,del:true}, pemasukan:{view:true,edit:true,del:true}, pengeluaran:{view:true,edit:true,del:true}, laporan:{view:true,edit:true,del:true}, riwayat:{view:true,edit:true,del:true}, masterData:{view:true,edit:true,del:true}, users:{view:true,edit:true,del:true}, akun:{view:true,edit:true,del:true}, settings:{view:true,edit:true,del:true}, logs:{view:true,edit:true,del:true} }, isAnonymous: false };
-      } else if (currentUser.role === 'Bendahara') {
-        perms = { menus: { dashboard:{view:true,edit:true,del:true}, pemasukan:{view:true,edit:true,del:true}, pengeluaran:{view:true,edit:true,del:true}, laporan:{view:true,edit:true,del:true}, riwayat:{view:true,edit:true,del:true}, masterData:{view:false,edit:false,del:false}, users:{view:false,edit:false,del:false}, akun:{view:true,edit:true,del:true}, settings:{view:false,edit:false,del:false}, logs:{view:false,edit:false,del:false} }, isAnonymous: false };
-      } else if (currentUser.role === 'Viewer') {
-        perms = { menus: { dashboard:{view:true,edit:false,del:false}, pemasukan:{view:false,edit:false,del:false}, pengeluaran:{view:false,edit:false,del:false}, laporan:{view:true,edit:false,del:false}, riwayat:{view:true,edit:false,del:false}, masterData:{view:false,edit:false,del:false}, users:{view:false,edit:false,del:false}, akun:{view:true,edit:true,del:true}, settings:{view:false,edit:false,del:false}, logs:{view:false,edit:false,del:false} }, isAnonymous: false };
-      } else if (currentUser.role === 'Publik') {
-        perms = { menus: { dashboard:{view:true,edit:false,del:false}, pemasukan:{view:false,edit:false,del:false}, pengeluaran:{view:false,edit:false,del:false}, laporan:{view:false,edit:false,del:false}, riwayat:{view:true,edit:false,del:false}, masterData:{view:false,edit:false,del:false}, users:{view:false,edit:false,del:false}, akun:{view:false,edit:false,del:false}, settings:{view:false,edit:false,del:false}, logs:{view:false,edit:false,del:false} }, isAnonymous: true };
+    function getRolePerms(role) {
+      let perms = { menus: {}, isAnonymous: false };
+      if (systemConfig.rolePermissions && systemConfig.rolePermissions[role]) {
+        perms = systemConfig.rolePermissions[role];
+      } else if (role === 'Admin') {
+        perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true } }, isAnonymous: false };
+      } else if (role === 'Bendahara') {
+        perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
+      } else if (role === 'Viewer') {
+        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
       }
 
-      const mPemasukan = perms.menus.pemasukan || {view:false,edit:false,del:false};
+      // Strict enforcement
+      if (role === 'viewer') {
+        perms.isAnonymous = true;
+      }
+      return perms;
+    }
+
+    function applyRoleAccess() {
+      const perms = getRolePerms(currentUser.role);
+
+      const mPemasukan = perms.menus.pemasukan || { view: false, edit: false, del: false };
       document.getElementById('navPemasukan').style.display = mPemasukan.view ? '' : 'none';
       if (document.getElementById('botPemasukan')) document.getElementById('botPemasukan').style.display = mPemasukan.view ? 'flex' : 'none';
 
-      const mPengeluaran = perms.menus.pengeluaran || {view:false,edit:false,del:false};
+      const mPengeluaran = perms.menus.pengeluaran || { view: false, edit: false, del: false };
       document.getElementById('navPengeluaran').style.display = mPengeluaran.view ? '' : 'none';
       if (document.getElementById('botPengeluaran')) document.getElementById('botPengeluaran').style.display = mPengeluaran.view ? 'flex' : 'none';
 
-      const mLaporan = perms.menus.laporan || {view:false,edit:false,del:false};
+      const mLaporan = perms.menus.laporan || { view: false, edit: false, del: false };
       if (document.getElementById('navLaporan')) document.getElementById('navLaporan').style.display = mLaporan.view ? '' : 'none';
       if (document.getElementById('botLaporan')) document.getElementById('botLaporan').style.display = mLaporan.view ? 'flex' : 'none';
 
-      const mRiwayat = perms.menus.riwayat || {view:false,edit:false,del:false};
+      const mRiwayat = perms.menus.riwayat || { view: false, edit: false, del: false };
       document.getElementById('navRiwayat').style.display = mRiwayat.view ? '' : 'none';
 
       const btnJurnal = document.getElementById('btnJurnalDashboard'); if (btnJurnal) btnJurnal.style.display = (mPemasukan.edit || mPengeluaran.edit) ? '' : 'none';
       const recentTransCard = document.getElementById('recentTransCard'); if (recentTransCard) recentTransCard.style.display = mRiwayat.view ? '' : 'none';
       const btnPrint = document.getElementById('btnPrintReport'); if (btnPrint) btnPrint.style.display = '';
 
-      const mMaster = perms.menus.masterData || {view:false,edit:false,del:false};
+      const mMaster = perms.menus.masterData || { view: false, edit: false, del: false };
       document.getElementById('navMasterIncType').style.display = mMaster.view ? '' : 'none';
       document.getElementById('navMasterDept').style.display = mMaster.view ? '' : 'none';
       document.getElementById('navMasterUnit').style.display = mMaster.view ? '' : 'none';
 
-      const mUsers = perms.menus.users || {view:false,edit:false,del:false};
+      const mUsers = perms.menus.users || { view: false, edit: false, del: false };
       document.getElementById('navUsers').style.display = mUsers.view ? '' : 'none';
 
-      const mSettings = perms.menus.settings || {view:false,edit:false,del:false};
+      const mSettings = perms.menus.settings || { view: false, edit: false, del: false };
       document.getElementById('navSettings').style.display = mSettings.view ? '' : 'none';
       document.getElementById('navRoles').style.display = mSettings.view ? '' : 'none';
-      
-      const mAkun = perms.menus.akun || {view:false,edit:false,del:false};
+
+      const mAkun = perms.menus.akun || { view: false, edit: false, del: false };
       document.getElementById('navAkun').style.display = mAkun.view ? '' : 'none';
 
-      const mLogs = perms.menus.logs || {view:false,edit:false,del:false};
+      const mLogs = perms.menus.logs || { view: false, edit: false, del: false };
       if (document.getElementById('navLogs')) document.getElementById('navLogs').style.display = mLogs.view ? '' : 'none';
-      
+
       const showAdminGroup = mMaster.view || mUsers.view || mSettings.view || mLogs.view;
       document.getElementById('adminNavLabel').style.display = showAdminGroup ? '' : 'none';
 
-      const sensorContainer = document.getElementById('reportSensorContainer'); 
+      const sensorContainer = document.getElementById('reportSensorContainer');
       if (sensorContainer) sensorContainer.style.display = perms.menus.laporan?.edit ? 'flex' : 'none';
-      
+
       if (!mPemasukan.edit) { document.querySelectorAll('.btn-save-pemasukan').forEach(el => el.style.display = 'none'); }
       if (!mPengeluaran.edit) { document.querySelectorAll('.btn-save-pengeluaran').forEach(el => el.style.display = 'none'); }
 
@@ -1733,31 +1782,31 @@
 
     let myUnitFilterActive = false;
     function toggleMyUnitFilter() {
-        myUnitFilterActive = !myUnitFilterActive;
-        const btn = document.getElementById('btnFilterMyUnit');
-        if (!btn) return;
-        if (myUnitFilterActive) {
-            btn.style.background = 'var(--accent-blue)';
-            btn.style.color = 'white';
-            btn.innerHTML = 'Hapus Filter Unit Saya';
-        } else {
-            btn.style.background = 'transparent';
-            btn.style.color = 'var(--accent-blue)';
-            btn.innerHTML = 'Transaksi Unit Saya';
-        }
-        renderHistory();
+      myUnitFilterActive = !myUnitFilterActive;
+      const btn = document.getElementById('btnFilterMyUnit');
+      if (!btn) return;
+      if (myUnitFilterActive) {
+        btn.style.background = 'var(--accent-blue)';
+        btn.style.color = 'white';
+        btn.innerHTML = 'Hapus Filter Unit Saya';
+      } else {
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--accent-blue)';
+        btn.innerHTML = 'Transaksi Unit Saya';
+      }
+      renderHistory();
     }
 
     function goToMyUnitHistory() {
-        myUnitFilterActive = true;
-        const btn = document.getElementById('btnFilterMyUnit');
-        if (btn) {
-            btn.style.background = 'var(--accent-blue)';
-            btn.style.color = 'white';
-            btn.innerHTML = 'Hapus Filter Unit Saya';
-        }
-        showPage('riwayat');
-        renderHistory();
+      myUnitFilterActive = true;
+      const btn = document.getElementById('btnFilterMyUnit');
+      if (btn) {
+        btn.style.background = 'var(--accent-blue)';
+        btn.style.color = 'white';
+        btn.innerHTML = 'Hapus Filter Unit Saya';
+      }
+      showPage('riwayat');
+      renderHistory();
     }
 
     function updateLastReceipts() {
@@ -1950,16 +1999,16 @@
     function renderDashboard() {
       const userUnits = getUserUnits();
       if (userUnits.length > 0) {
-         if(document.getElementById('dashSearchCard')) document.getElementById('dashSearchCard').style.display = 'none';
-         if(document.getElementById('dashUnitToggleContainer')) document.getElementById('dashUnitToggleContainer').style.display = 'block';
-         if(document.getElementById('riwayatGlobalSearch')) document.getElementById('riwayatGlobalSearch').style.display = 'none';
-         if(document.getElementById('btnFilterMyUnit')) document.getElementById('btnFilterMyUnit').style.display = 'inline-flex';
-         document.getElementById('dashUnitToggleContainer').innerHTML = `<button class="btn btn-primary" onclick="goToMyUnitHistory()" style="white-space:normal;">Lihat Transaksi Unit Saya (${userUnits.join(', ')})</button>`;
+        if (document.getElementById('dashSearchCard')) document.getElementById('dashSearchCard').style.display = 'none';
+        if (document.getElementById('dashUnitToggleContainer')) document.getElementById('dashUnitToggleContainer').style.display = 'block';
+        if (document.getElementById('riwayatGlobalSearch')) document.getElementById('riwayatGlobalSearch').style.display = 'none';
+        if (document.getElementById('btnFilterMyUnit')) document.getElementById('btnFilterMyUnit').style.display = 'inline-flex';
+        document.getElementById('dashUnitToggleContainer').innerHTML = `<button class="btn btn-primary" onclick="goToMyUnitHistory()" style="white-space:normal;">Lihat Transaksi Unit Saya (${userUnits.join(', ')})</button>`;
       } else {
-         if(document.getElementById('dashSearchCard')) document.getElementById('dashSearchCard').style.display = 'block';
-         if(document.getElementById('dashUnitToggleContainer')) document.getElementById('dashUnitToggleContainer').style.display = 'none';
-         if(document.getElementById('riwayatGlobalSearch')) document.getElementById('riwayatGlobalSearch').style.display = 'flex';
-         if(document.getElementById('btnFilterMyUnit')) document.getElementById('btnFilterMyUnit').style.display = 'none';
+        if (document.getElementById('dashSearchCard')) document.getElementById('dashSearchCard').style.display = 'block';
+        if (document.getElementById('dashUnitToggleContainer')) document.getElementById('dashUnitToggleContainer').style.display = 'none';
+        if (document.getElementById('riwayatGlobalSearch')) document.getElementById('riwayatGlobalSearch').style.display = 'flex';
+        if (document.getElementById('btnFilterMyUnit')) document.getElementById('btnFilterMyUnit').style.display = 'none';
       }
 
       if (!cachedSaldo) return;
@@ -2087,12 +2136,14 @@
       } else {
         let desktopHtml = recent.map(x => {
           const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
+          const shouldHide = isAnon || isPrivCategory;
           let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
-          return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td><td><span class="badge ${getCatBadge(x.income_type || x.department, x.kind !== 'income')}">${x.income_type || x.department}</span><br><span style="font-size:12px; color:var(--text-muted, var(--text4))">${isPrivCategory ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td><td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td></tr>`;
+          return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td><td><span class="badge ${getCatBadge(x.income_type || x.department, x.kind !== 'income')}">${x.income_type || x.department}</span><br><span style="font-size:12px; color:var(--text-muted, var(--text4))">${shouldHide ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td><td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td></tr>`;
         }).join('');
 
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + recent.map(x => {
           const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
+          const shouldHide = isAnon || isPrivCategory;
           const isInc = x.kind === 'income';
           let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
           return `
@@ -2107,7 +2158,7 @@
             <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
               <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
               <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.income_type || x.department}</strong>
-              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${isPrivCategory ? '***' : (x.note || '-')}</span>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${shouldHide ? '***' : (x.note || '-')}</span>
             </div>
             ${photoBtn}
           </div>`;
@@ -2190,11 +2241,13 @@
     }
 
     function renderIncomeList() {
+      const perms = getRolePerms(currentUser.role);
+      const isAnon = perms.isAnonymous;
       const list = [...cachedIncome].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
       if (list.length === 0) {
         document.getElementById('incomeLogContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Kosong.</div>';
       } else {
-        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.income_type, false)}">${x.income_type}</span><br><span style="font-size:12px; color:var(--text4)">${x.note || '-'}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('');
+        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.income_type, false)}">${x.income_type}</span><br><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('');
 
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
           let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
@@ -2210,7 +2263,7 @@
             <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
               <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
               <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.income_type}</strong>
-              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${x.note || '-'}</span>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${isAnon ? '***' : (x.note || '-')}</span>
             </div>
             <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
               ${photoBtn}
@@ -2257,11 +2310,13 @@
     }
 
     function renderExpenseList() {
+      const perms = getRolePerms(currentUser.role);
+      const isAnon = perms.isAnonymous;
       const list = [...cachedExpense].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
       if (list.length === 0) {
         document.getElementById('expenseLogContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Kosong.</div>';
       } else {
-        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.department, true)}">${x.department}</span><br><span style="font-size:12px; color:var(--text4)">${x.note || '-'}<br>Penerima: ${x.nama_penerima || '-'}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('');
+        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.department, true)}">${x.department}</span><br><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (x.note || '-')}<br>Penerima: ${isAnon ? '***' : (x.nama_penerima || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('');
 
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
           let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
@@ -2276,9 +2331,9 @@
             </div>
             <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
               <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
-              <span style="color:var(--text4)">Pihak</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${x.nama_penerima || '-'}</strong>
+              <span style="color:var(--text4)">Pihak</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${isAnon ? '***' : (x.nama_penerima || '-')}</strong>
               <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.department}</strong>
-              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${x.note || '-'}</span>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${isAnon ? '***' : (x.note || '-')}</span>
             </div>
             <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
               ${photoBtn}
@@ -2305,76 +2360,76 @@
       const rc = document.getElementById('reportContent');
 
       rc.innerHTML = '<div style="text-align:center; padding:40px;"><span class="spinner"></span> Menyusun Laporan...</div>';
-      
+
       try {
         // Calculate locally to support "Akumulasi dari awal" instantly
         let totalInc = 0; let totalExp = 0;
         const incByCat = {}; const expByDept = {};
-        
+
         let saldoAwal = (cachedSaldo.initJemaat || 0) + (cachedSaldo.initDaerah || 0) + (cachedSaldo.initBangun || 0);
 
         if (mode === 'bulanan') {
-            const isBefore = (dateStr) => {
-               const d = new Date(dateStr);
-               if (year !== 0 && d.getFullYear() < year) return true;
-               if (year !== 0 && d.getFullYear() === year && month !== 0 && (d.getMonth() + 1) < month) return true;
-               return false;
-            };
-            (cachedIncome || []).forEach(x => { if (isBefore(x.date)) saldoAwal += x.amount; });
-            (cachedExpense || []).forEach(x => { if (isBefore(x.date)) saldoAwal -= x.amount; });
+          const isBefore = (dateStr) => {
+            const d = new Date(dateStr);
+            if (year !== 0 && d.getFullYear() < year) return true;
+            if (year !== 0 && d.getFullYear() === year && month !== 0 && (d.getMonth() + 1) < month) return true;
+            return false;
+          };
+          (cachedIncome || []).forEach(x => { if (isBefore(x.date)) saldoAwal += x.amount; });
+          (cachedExpense || []).forEach(x => { if (isBefore(x.date)) saldoAwal -= x.amount; });
         }
 
         if (saldoAwal !== 0) {
-            incByCat['Saldo Awal'] = [{
-                date: (mode === 'bulanan' && year !== 0 && month !== 0) ? `${year}-${String(month).padStart(2, '0')}-01` : '2000-01-01',
-                income_type: 'Saldo Awal',
-                receipt_no: 'SALDO_AWAL',
-                nama_pemberi: 'Sistem / Akumulasi',
-                source_balance: 'Sistem',
-                amount: saldoAwal,
-                note: mode === 'bulanan' ? 'Saldo kumulatif sebelum periode ini' : 'Saldo Awal Sistem'
-            }];
-            totalInc += saldoAwal;
+          incByCat['Saldo Awal'] = [{
+            date: (mode === 'bulanan' && year !== 0 && month !== 0) ? `${year}-${String(month).padStart(2, '0')}-01` : '2000-01-01',
+            income_type: 'Saldo Awal',
+            receipt_no: 'SALDO_AWAL',
+            nama_pemberi: 'Sistem / Akumulasi',
+            source_balance: 'Sistem',
+            amount: saldoAwal,
+            note: mode === 'bulanan' ? 'Saldo kumulatif sebelum periode ini' : 'Saldo Awal Sistem'
+          }];
+          totalInc += saldoAwal;
         }
 
         const isMatch = (dateStr) => {
           const d = new Date(dateStr);
           if (mode === 'akumulasi') {
-             if (year !== 0) {
-                if (d.getFullYear() > year) return false;
-                if (d.getFullYear() === year && month !== 0 && (d.getMonth() + 1) > month) return false;
-             }
-             return true;
+            if (year !== 0) {
+              if (d.getFullYear() > year) return false;
+              if (d.getFullYear() === year && month !== 0 && (d.getMonth() + 1) > month) return false;
+            }
+            return true;
           } else {
-             if (year !== 0 && d.getFullYear() !== year) return false;
-             if (month !== 0 && (d.getMonth() + 1) !== month) return false;
-             return true;
+            if (year !== 0 && d.getFullYear() !== year) return false;
+            if (month !== 0 && (d.getMonth() + 1) !== month) return false;
+            return true;
           }
         };
 
         (cachedIncome || []).filter(x => isMatch(x.date)).forEach(x => {
-            const cat = x.income_type || 'Lainnya';
-            if (!incByCat[cat]) incByCat[cat] = [];
-            incByCat[cat].push(x);
-            totalInc += x.amount;
+          const cat = x.income_type || 'Lainnya';
+          if (!incByCat[cat]) incByCat[cat] = [];
+          incByCat[cat].push(x);
+          totalInc += x.amount;
         });
 
         (cachedExpense || []).filter(x => isMatch(x.date)).forEach(x => {
-            const dept = x.department || 'Lainnya';
-            if (!expByDept[dept]) expByDept[dept] = [];
-            expByDept[dept].push(x);
-            totalExp += x.amount;
+          const dept = x.department || 'Lainnya';
+          if (!expByDept[dept]) expByDept[dept] = [];
+          expByDept[dept].push(x);
+          totalExp += x.amount;
         });
 
         currentReportData = {
-            summary: { saldoAwal: saldoAwal, periodIncome: totalInc - saldoAwal, totalIncome: totalInc, totalExpense: totalExp, netBalance: totalInc - totalExp, balances: cachedSaldo || { total: 0 } },
-            incByCategory: incByCat,
-            expByDept: expByDept,
-            month: month,
-            year: year,
-            mode: mode
+          summary: { saldoAwal: saldoAwal, periodIncome: totalInc - saldoAwal, totalIncome: totalInc, totalExpense: totalExp, netBalance: totalInc - totalExp, balances: cachedSaldo || { total: 0 } },
+          incByCategory: incByCat,
+          expByDept: expByDept,
+          month: month,
+          year: year,
+          mode: mode
         };
-        
+
         renderReportView();
         const exportBtn = document.getElementById('btnExportExcel');
         if (exportBtn) exportBtn.style.display = 'inline-block';
@@ -2389,8 +2444,8 @@
       }
 
       let allTrans = [];
-      if (currentReportData.incByCat) {
-        Object.values(currentReportData.incByCat).forEach(items => {
+      if (currentReportData.incByCategory) {
+        Object.values(currentReportData.incByCategory).forEach(items => {
           items.forEach(t => allTrans.push({ ...t, transType: 'INCOME' }));
         });
       }
@@ -2645,8 +2700,8 @@
         printBtn.style.display = (giverQ || q || month > 0 || year > 0) ? 'inline-flex' : 'none';
       }
 
-      const perms = (systemConfig.rolePermissions || {})[currentUser.role] || { menus: { riwayat: { view:true, edit:false, del:false } }, isAnonymous: false };
-      const mRiwayat = perms.menus.riwayat || { view:true, edit:false, del:false };
+      const perms = getRolePerms(currentUser.role);
+      const mRiwayat = perms.menus.riwayat || { view: true, edit: false, del: false };
       const isAdmin = currentUser.role === 'Admin';
       const canEdit = mRiwayat.edit || isAdmin;
       const canDel = mRiwayat.del || isAdmin;
@@ -2657,12 +2712,12 @@
       const monthlyBreak = {}; // { 'Jan 2025': {inc:0, exp:0} }
       const catBreakIn = {}; // { 'Perpuluhan': 1234 }
       const catBreakOut = {}; // { 'Gaji': 5678 }
-      const mNamesShort = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+      const mNamesShort = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
       list.forEach(x => {
         if (x.type === 'income') { sumIn += x.amount; const cat = x.income_type || 'Lainnya'; catBreakIn[cat] = (catBreakIn[cat] || 0) + x.amount; }
         else if (x.type === 'expense') { sumOut += x.amount; const cat = x.department || 'Lainnya'; catBreakOut[cat] = (catBreakOut[cat] || 0) + x.amount; }
-        const d = new Date(x.date); const mKey = `${mNamesShort[d.getMonth()+1]} ${d.getFullYear()}`;
-        if (!monthlyBreak[mKey]) monthlyBreak[mKey] = {inc:0, exp:0};
+        const d = new Date(x.date); const mKey = `${mNamesShort[d.getMonth() + 1]} ${d.getFullYear()}`;
+        if (!monthlyBreak[mKey]) monthlyBreak[mKey] = { inc: 0, exp: 0 };
         if (x.type === 'income') monthlyBreak[mKey].inc += x.amount; else monthlyBreak[mKey].exp += x.amount;
       });
       let summaryHtml = '';
@@ -2681,7 +2736,7 @@
               </div>
               <div>
                 <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Bersih</div>
-                <div style="font-size:15px; font-weight:800; font-family:monospace; word-break:break-all; color:${(sumIn-sumOut) >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(sumIn - sumOut)}</div>
+                <div style="font-size:15px; font-weight:800; font-family:monospace; word-break:break-all; color:${(sumIn - sumOut) >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(sumIn - sumOut)}</div>
               </div>
               <div>
                 <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Total Data</div>
@@ -2705,14 +2760,14 @@
                     <th style="text-align:right; padding:6px 0 6px 4px; color:var(--text3); font-weight:600;">Bersih</th>
                   </tr></thead>
                   <tbody>${monthKeys.map(k => {
-                    const v = monthlyBreak[k]; const net = v.inc - v.exp;
-                    return `<tr style="border-bottom:1px solid var(--glass-border);">
+            const v = monthlyBreak[k]; const net = v.inc - v.exp;
+            return `<tr style="border-bottom:1px solid var(--glass-border);">
                       <td style="padding:5px 4px 5px 0; color:var(--text); word-break:break-word;">${k}</td>
                       <td class="amount-pos" style="text-align:right; padding:5px 4px; font-family:monospace; word-break:break-all; font-size:10px;">${fmt(v.inc)}</td>
                       <td class="amount-neg" style="text-align:right; padding:5px 4px; font-family:monospace; word-break:break-all; font-size:10px;">${fmt(v.exp)}</td>
                       <td style="text-align:right; padding:5px 0 5px 4px; font-weight:700; font-family:monospace; word-break:break-all; font-size:10px; color:${net >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(net)}</td>
                     </tr>`;
-                  }).join('')}</tbody>
+          }).join('')}</tbody>
                 </table>
               </div>
             </div>`;
@@ -2729,7 +2784,7 @@
           if (hasInCat) {
             summaryHtml += `<div>
               <div style="font-size:10px; font-weight:700; color:var(--accent-green); margin-bottom:6px; text-transform:uppercase;">Pemasukan</div>
-              ${Object.entries(catBreakIn).sort((a,b)=>b[1]-a[1]).map(([k,v]) => `
+              ${Object.entries(catBreakIn).sort((a, b) => b[1] - a[1]).map(([k, v]) => `
                 <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid var(--glass-border); gap:8px;">
                   <span style="font-size:11px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${k}</span>
                   <span class="amount-pos" style="font-size:11px; font-weight:700; font-family:monospace; white-space:nowrap;">${fmt(v)}</span>
@@ -2739,7 +2794,7 @@
           if (hasOutCat) {
             summaryHtml += `<div>
               <div style="font-size:10px; font-weight:700; color:var(--accent-orange); margin-bottom:6px; text-transform:uppercase;">Pengeluaran</div>
-              ${Object.entries(catBreakOut).sort((a,b)=>b[1]-a[1]).map(([k,v]) => `
+              ${Object.entries(catBreakOut).sort((a, b) => b[1] - a[1]).map(([k, v]) => `
                 <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid var(--glass-border); gap:8px;">
                   <span style="font-size:11px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${k}</span>
                   <span class="amount-neg" style="font-size:11px; font-weight:700; font-family:monospace; white-space:nowrap;">${fmt(v)}</span>
@@ -2756,17 +2811,17 @@
         document.getElementById('historyListContainer').innerHTML = summaryHtml + '<div class="empty-state" style="padding:20px; text-align:center;">Data kosong.</div>';
       } else {
         const userUnits = getUserUnits();
-        
+
         let desktopHtml = list.map(x => {
           const txUnitLower = String(x.unit_name || '').toLowerCase();
           const belongsToUserUnits = userUnits.some(u => u.toLowerCase() === txUnitLower);
-          
+
           const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
           const isOtherUnit = userUnits.length > 0 && x.type === 'income' && !belongsToUserUnits;
-          
+
           // DO NOT HIDE if the transaction belongs to the user's bound units!
           const shouldHide = !belongsToUserUnits && (isAnon || isOtherUnit || isPrivCategory);
-          
+
           const deleteId = x.transaction_id || x.receipt_no || '';
           let photoBtn = (x.receipt_photo && !shouldHide) ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
           const pihak = x.type === 'income' ? (shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
@@ -2789,14 +2844,14 @@
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
           const txUnitLower = String(x.unit_name || '').toLowerCase();
           const belongsToUserUnits = userUnits.some(u => u.toLowerCase() === txUnitLower);
-          
+
           const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
           const isInc = x.type === 'income';
           const isOtherUnit = userUnits.length > 0 && x.type === 'income' && !belongsToUserUnits;
-          
+
           // DO NOT HIDE if the transaction belongs to the user's bound units!
           const shouldHide = !belongsToUserUnits && (isAnon || isOtherUnit || isPrivCategory);
-          
+
           const deleteId = x.transaction_id || x.receipt_no || '';
           const pihak = x.type === 'income' ? (shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
 
@@ -3125,7 +3180,7 @@
       if (p1 && p1 !== p2) { notify('Kata sandi tidak cocok', 'error'); return; }
       if (p1) { const pwErr = validatePassword(p1); if (pwErr) { notify('Sandi tidak valid: ' + pwErr, 'error'); return; } }
       if (newUsername && newUsername.length < 3) { notify('Username minimal 3 karakter', 'error'); return; }
-      
+
       const btn = document.getElementById('btnUpdateMyPassword');
       btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Memproses...';
       try {
@@ -3179,23 +3234,23 @@
       if (password) { const pwErr = validatePassword(password); if (pwErr) { notify('Sandi tidak valid: ' + pwErr, 'error'); return; } }
       if (!editingUser && !password) { notify('Password wajib diisi untuk user baru!', 'error'); return; }
       const btn = document.getElementById('saveUserBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
-      try { 
-        await apiPost('saveUser', { username, nama, role, password, isUpdate: !!editingUser }); 
-        
+      try {
+        await apiPost('saveUser', { username, nama, role, password, isUpdate: !!editingUser });
+
         if (!systemConfig.userUnits) systemConfig.userUnits = {};
         while (typeof systemConfig.userUnits === 'string') {
-          try { systemConfig.userUnits = JSON.parse(systemConfig.userUnits); } catch(e) { systemConfig.userUnits = {}; break; }
+          try { systemConfig.userUnits = JSON.parse(systemConfig.userUnits); } catch (e) { systemConfig.userUnits = {}; break; }
         }
-        
+
         if (unitsArray.length > 0) {
-          Object.keys(systemConfig.userUnits).forEach(k => { if(k.toLowerCase() === username.toLowerCase()) delete systemConfig.userUnits[k]; });
+          Object.keys(systemConfig.userUnits).forEach(k => { if (k.toLowerCase() === username.toLowerCase()) delete systemConfig.userUnits[k]; });
           systemConfig.userUnits[username] = unitsArray;
         } else {
-          Object.keys(systemConfig.userUnits).forEach(k => { if(k.toLowerCase() === username.toLowerCase()) delete systemConfig.userUnits[k]; });
+          Object.keys(systemConfig.userUnits).forEach(k => { if (k.toLowerCase() === username.toLowerCase()) delete systemConfig.userUnits[k]; });
         }
         await apiPostWithFallback('saveConfig', { key: 'userUnits', value: JSON.stringify(systemConfig.userUnits) });
 
-        notify('Berhasil', 'success'); cancelEditUser(); renderUsers(); 
+        notify('Berhasil', 'success'); cancelEditUser(); renderUsers();
       }
       catch (e) { notify(e.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = editingUser ? 'Update' : 'Simpan'; }
     }
@@ -3270,7 +3325,9 @@
 
 
   </script>
-  <button id="floatingSyncBtn" onclick="handleManualSync()" title="Sinkronisasi Data" class="fixed right-4 md:right-8 bottom-8 md:bottom-8 z-50 w-[3.5rem] h-[3.5rem] md:w-[3rem] md:h-[3rem] backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center cursor-pointer group" style="background: var(--bg-dark); border: 1px solid var(--glass-border); box-shadow: var(--shadow-lg);">
+  <button id="floatingSyncBtn" onclick="handleManualSync()" title="Sinkronisasi Data"
+    class="fixed right-4 md:right-8 bottom-8 md:bottom-8 z-50 w-[3.5rem] h-[3.5rem] md:w-[3rem] md:h-[3rem] backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center cursor-pointer group"
+    style="background: var(--bg-dark); border: 1px solid var(--glass-border); box-shadow: var(--shadow-lg);">
     <div class="relative flex items-center justify-center w-full h-full" id="floatingSyncIcon">
       <span class="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
       <span class="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
