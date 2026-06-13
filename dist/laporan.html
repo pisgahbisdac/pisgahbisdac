@@ -15,9 +15,10 @@
 
   <style>
     @media print {
-      body > *:not(#printContainer) {
+      body>*:not(#printContainer) {
         display: none !important;
       }
+
       #printContainer {
         display: block !important;
         width: 100%;
@@ -25,31 +26,37 @@
         color: black;
         zoom: 0.7;
       }
+
       #printContainer * {
         visibility: visible;
       }
+
       @page {
         size: landscape;
         margin: 5mm;
       }
     }
+
     .login-split {
       display: flex;
       min-height: 100vh;
       width: 100%;
     }
+
     .login-image-side {
       flex: 1.2;
       background: url('./church_finance_bg.png') center/cover no-repeat;
       position: relative;
       display: none;
     }
+
     .login-image-side::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(11,26,48,0.85) 0%, rgba(11,26,48,0.2) 100%);
+      background: linear-gradient(135deg, rgba(11, 26, 48, 0.85) 0%, rgba(11, 26, 48, 0.2) 100%);
     }
+
     .login-image-content {
       position: absolute;
       top: 10%;
@@ -58,6 +65,7 @@
       color: white;
       z-index: 2;
     }
+
     .login-form-side {
       flex: 1;
       display: flex;
@@ -66,8 +74,11 @@
       padding: 24px;
       background: var(--bg-deep);
     }
+
     @media (min-width: 900px) {
-      .login-image-side { display: block; }
+      .login-image-side {
+        display: block;
+      }
     }
   </style>
   <link rel="stylesheet" crossorigin href="/assets/index-BTFSMxrz.css">
@@ -294,74 +305,80 @@
   <div id="loginPage" class="login-split">
     <div class="login-image-side">
       <div class="login-image-content">
-        <h1 style="font-size: clamp(28px, 4vw, 46px); font-weight: 800; line-height: 1.2; margin-bottom: 16px;">Pengelolaan Transparan,<br>Pelayanan Maksimal.</h1>
-        <p style="font-size: 16px; color: rgba(255,255,255,0.85); line-height: 1.6; max-width: 480px;">Sistem informasi keuangan terintegrasi yang dirancang khusus untuk mempermudah pencatatan, pelaporan, dan transparansi kas jemaat.</p>
+        <h1 style="font-size: clamp(28px, 4vw, 46px); font-weight: 800; line-height: 1.2; margin-bottom: 16px;">
+          Pengelolaan Transparan,<br>Pelayanan Maksimal.</h1>
+        <p style="font-size: 16px; color: rgba(255,255,255,0.85); line-height: 1.6; max-width: 480px;">Sistem informasi
+          keuangan terintegrasi yang dirancang khusus untuk mempermudah pencatatan, pelaporan, dan transparansi kas
+          jemaat.</p>
       </div>
     </div>
     <div class="login-form-side">
-      <div class="login-card" style="border:none; box-shadow:none; background:transparent; padding:20px; max-width:400px;">
-      <div style="display: flex; justify-content: flex-end; margin-top: -20px; margin-bottom: 20px; gap: 8px;">
-        <button class="btn btn-ghost theme-toggle-btn" style="padding: 8px; border-radius: 50%;" title="Ubah Tema"
-          onclick="toggleTheme()"></button>
-        <button class="btn btn-ghost" style="padding: 8px; border-radius: 50%;" title="Pengaturan Server"
-          onclick="openServerSettingsModal()">
-          <script>document.write(getIcon('settings', 'lucide-md'))</script>
-        </button>
-      </div>
+      <div class="login-card"
+        style="border:none; box-shadow:none; background:transparent; padding:20px; max-width:400px;">
+        <div style="display: flex; justify-content: flex-end; margin-top: -20px; margin-bottom: 20px; gap: 8px;">
+          <button class="btn btn-ghost theme-toggle-btn" style="padding: 8px; border-radius: 50%;" title="Ubah Tema"
+            onclick="toggleTheme()"></button>
+          <button class="btn btn-ghost" style="padding: 8px; border-radius: 50%;" title="Pengaturan Server"
+            onclick="openServerSettingsModal()">
+            <script>document.write(getIcon('settings', 'lucide-md'))</script>
+          </button>
+        </div>
 
-      <div style="display: block; text-align: center;">
-        <div class="logo-container"
-          style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; margin-bottom:32px;">
-          <div
-            style="background:var(--card-bg); border:1px solid var(--border-color); width:104px; height:104px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(0,0,0,0.1); flex-shrink: 0;">
-            <img class="app-logo-login-img" src="" alt="Logo"
-              style="display:none; width:76px; height:76px; object-fit:contain;">
-            <img class="app-logo-login-default" src="./icons/PisgahColor.png" alt="Logo Default"
-              style="width:76px; height:76px; object-fit:contain;">
-          </div>
-          <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            <div class="app-name-display"
-              style="font-size:24px; font-weight:900; color:var(--text); letter-spacing:1px; line-height: 1.2;">PISGAH
-              BISDAC</div>
-            <div class="app-subtitle-display"
-              style="font-size:12px; color:var(--text2); font-weight:700; text-transform:uppercase; letter-spacing:1.5px; margin-top:6px;">
-              Gereja Masehi Advent</div>
+        <div style="display: block; text-align: center;">
+          <div class="logo-container"
+            style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; margin-bottom:32px;">
+            <div
+              style="background:var(--card-bg); border:1px solid var(--border-color); width:104px; height:104px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(0,0,0,0.1); flex-shrink: 0;">
+              <img class="app-logo-login-img" src="" alt="Logo"
+                style="display:none; width:76px; height:76px; object-fit:contain;">
+              <img class="app-logo-login-default" src="./icons/PisgahColor.png" alt="Logo Default"
+                style="width:76px; height:76px; object-fit:contain;">
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+              <div class="app-name-display"
+                style="font-size:24px; font-weight:900; color:var(--text); letter-spacing:1px; line-height: 1.2;">PISGAH
+                BISDAC</div>
+              <div class="app-subtitle-display"
+                style="font-size:12px; color:var(--text2); font-weight:700; text-transform:uppercase; letter-spacing:1.5px; margin-top:6px;">
+                Gereja Masehi Advent</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div id="loginStatus" class="status-bar" style="justify-content:center; margin-bottom:24px; width: 100%;">
-        <div class="status-dot loading" id="statusDot"></div>
-        <span id="statusText">Mengontak Cloud Server...</span>
-      </div>
+        <div id="loginStatus" class="status-bar" style="justify-content:center; margin-bottom:24px; width: 100%;">
+          <div class="status-dot loading" id="statusDot"></div>
+          <span id="statusText">Mengontak Cloud Server...</span>
+        </div>
 
-      <div class="form-group">
-        <label class="form-label">ID Pengguna</label>
-        <input class="form-input" id="loginUser" type="text" placeholder="Masukkan Username" autocomplete="username">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Kata Sandi</label>
-        <input class="form-input" id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password"
-          onkeydown="if(event.key==='Enter') doLogin()" style="padding-right:40px;">
-        <span class="eye-btn" id="loginEye" onclick="togglePassword('loginPass', 'loginEye')" title="Lihat Password">
-          <script>document.write(getIcon('eyeOff', 'lucide-md'))</script>
-        </span>
-      </div>
-      <button class="login-btn" id="loginBtn" onclick="doLogin()">
-        <span id="loginBtnText">Masuk Ke Sistem</span>
-      </button>
+        <div class="form-group">
+          <label class="form-label">ID Pengguna</label>
+          <input class="form-input" id="loginUser" type="text" placeholder="Masukkan Username" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kata Sandi</label>
+          <input class="form-input" id="loginPass" type="password" placeholder="••••••••"
+            autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()" style="padding-right:40px;">
+          <span class="eye-btn" id="loginEye" onclick="togglePassword('loginPass', 'loginEye')" title="Lihat Password">
+            <script>document.write(getIcon('eyeOff', 'lucide-md'))</script>
+          </span>
+        </div>
+        <button class="login-btn" id="loginBtn" onclick="doLogin()">
+          <span id="loginBtnText">Masuk Ke Sistem</span>
+        </button>
 
-      <div style="margin-top:24px; position:relative; text-align:center;">
-        <hr style="border:none; border-top:1px solid var(--glass-border); margin:12px 0;">
-        <span style="background:var(--bg-deep); padding:0 12px; position:absolute; top:-10px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--text4);">ATAU</span>
-      </div>
+        <div style="margin-top:24px; position:relative; text-align:center;">
+          <hr style="border:none; border-top:1px solid var(--glass-border); margin:12px 0;">
+          <span
+            style="background:var(--bg-deep); padding:0 12px; position:absolute; top:-10px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--text4);">ATAU</span>
+        </div>
 
-      <button class="btn btn-ghost" onclick="loginAsPublic()" style="width:100%; margin-top:16px; display:flex; justify-content:center; align-items:center; gap:8px;">
-        <script>document.write(getIcon('users', 'lucide-sm'))</script> Masuk Sebagai Publik
-      </button>
+        <button class="btn btn-ghost" onclick="loginAsPublic()"
+          style="width:100%; margin-top:16px; display:flex; justify-content:center; align-items:center; gap:8px;">
+          <script>document.write(getIcon('users', 'lucide-sm'))</script> Masuk Sebagai Publik
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
   <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
 
@@ -1748,7 +1765,7 @@
     }
 
     async function doLogin(autoUser, autoPass) {
-      const user = (typeof autoUser === 'string') ? autoUser : document.getElementById('loginUser').value.trim(); 
+      const user = (typeof autoUser === 'string') ? autoUser : document.getElementById('loginUser').value.trim();
       const pass = (typeof autoPass === 'string') ? autoPass : document.getElementById('loginPass').value;
       if (!user || !pass) { notify('Username & Password kosong!', 'error'); return; }
       const btn = document.getElementById('loginBtn'); const txt = document.getElementById('loginBtnText');
@@ -1766,9 +1783,9 @@
       const syncBtn = document.getElementById('floatingSyncBtn');
       if (syncBtn) { syncBtn.classList.remove('bottom-8'); syncBtn.classList.add('bottom-28'); }
       const nameStr = currentUser.nama || currentUser.username || 'User';
-      document.getElementById('userNameDisplay').textContent = nameStr; 
-      document.getElementById('userRoleDisplay').textContent = currentUser.role || 'Unknown'; 
-      document.getElementById('userAvatar').textContent = nameStr.split(' ').filter(x=>x).map(x => x[0]).join('').substring(0, 2).toUpperCase();
+      document.getElementById('userNameDisplay').textContent = nameStr;
+      document.getElementById('userRoleDisplay').textContent = currentUser.role || 'Unknown';
+      document.getElementById('userAvatar').textContent = nameStr.split(' ').filter(x => x).map(x => x[0]).join('').substring(0, 2).toUpperCase();
       applyRoleAccess(); await Promise.all([loadSystemConfig(), syncAllData()]); initForms(); showPage('dashboard');
     }
 
@@ -1966,32 +1983,32 @@
           const cUsername = (currentUser.username || '').toLowerCase().trim();
           const cNama = (currentUser.nama || '').toLowerCase().trim();
           const isPublik = currentUser.role === 'Publik';
-          
+
           const uUnits = getUserUnits(cUsername).map(u => String(u).toLowerCase().trim());
 
           const hidePhoto = (x) => {
-            if (isPublik) return true; 
-            
+            if (isPublik) return true;
+
             const pInputBy = String(x.input_by || '').toLowerCase().trim();
             const pInputter = String(x.inputter || '').toLowerCase().trim();
             const pUser = String(x.username || '').toLowerCase().trim();
             const pPemberi = String(x.nama_pemberi || '').toLowerCase().trim();
             const pPenerima = String(x.nama_penerima || '').toLowerCase().trim();
             const pUnit = String(x.unit_name || '').toLowerCase().trim();
-            
+
             // Check direct ownership
             if (cUsername && (pInputBy === cUsername || pInputter === cUsername || pUser === cUsername)) return false;
             if (cNama && (pPemberi.includes(cNama) || pPenerima.includes(cNama))) return false;
-            
+
             // Check unit ownership
             if (uUnits.length > 0) {
-               const matchUnit = uUnits.some(u => pUnit === u || pUnit.includes(u));
-               if (matchUnit) return false;
+              const matchUnit = uUnits.some(u => pUnit === u || pUnit.includes(u));
+              if (matchUnit) return false;
             } else {
-               // No units assigned. Operator or Bendahara (Pusat) see everything
-               if (currentUser.role === 'Operator' || currentUser.role === 'Bendahara') return false;
+              // No units assigned. Operator or Bendahara (Pusat) see everything
+              if (currentUser.role === 'Operator' || currentUser.role === 'Bendahara') return false;
             }
-            
+
             return true;
           };
 
@@ -2140,7 +2157,7 @@
       const targetPembangunan = pembangunanDataCache?.target ? parseInt(pembangunanDataCache.target) : 2500000000;
       const persentaseBangun = (calcBangun / targetPembangunan) * 100; const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
 
-      const komitmenSaatIni = pembangunanDataCache?.komitmen_realisasi ? parseInt(pembangunanDataCache.komitmen_realisasi) : 53376900;
+      const komitmenSaatIni = pembangunanDataCache?.komitmen_realisasi ? parseInt(pembangunanDataCache.komitmen_realisasi) : 63356900;
       const targetKomitmen = pembangunanDataCache?.komitmen_target ? parseInt(pembangunanDataCache.komitmen_target) : 77300000;
       const persentaseKomitmen = (komitmenSaatIni / targetKomitmen) * 100;
       const visualPercentKomitmen = persentaseKomitmen > 100 ? 100 : persentaseKomitmen;
@@ -2584,7 +2601,7 @@
         }
         const t = x.income_type || 'Lain-Lain';
         const amt = parseFloat(x.amount) || 0;
-        
+
         if (t === 'Perpuluhan') { groupedInc[key].perpuluhan += amt; groupedInc[key].isPerorangan = true; }
         else if (t === 'Terpadu') { groupedInc[key].terpadu += amt; groupedInc[key].isPerorangan = true; }
         else if (t === 'Khusus Daerah') groupedInc[key].khususDaerah += amt;
@@ -2622,8 +2639,8 @@
       incOrder.forEach(k => {
         let v = incByCat[k] || 0;
         let displayK = k === 'Terpadu' ? 'Persembahan Terpadu' : k;
-        if(k==='Khusus Daerah') displayK = 'Persembahan Khusus Daerah';
-        if(k==='Khusus Jemaat') displayK = 'Persembahan Khusus Kas Jemaat';
+        if (k === 'Khusus Daerah') displayK = 'Persembahan Khusus Daerah';
+        if (k === 'Khusus Jemaat') displayK = 'Persembahan Khusus Kas Jemaat';
         if (v > 0 || incByCat[k] !== undefined) { rightPanel.push({ label: displayK, val: v, indent: true }); seenInc.add(k); }
       });
       Object.entries(incByCat).forEach(([k, v]) => {
@@ -2686,28 +2703,28 @@
           <tbody>
       `;
 
-      let sumTop = { p:0, t:0, k:0, tot:0, d_p:0, d_t:0, d_k:0, d_tot:0, j_t:0, j_k:0, j_tot:0 };
-      let sumBot = { p:0, t:0, k:0, tot:0, d_p:0, d_t:0, d_k:0, d_tot:0, j_t:0, j_k:0, j_tot:0 };
+      let sumTop = { p: 0, t: 0, k: 0, tot: 0, d_p: 0, d_t: 0, d_k: 0, d_tot: 0, j_t: 0, j_k: 0, j_tot: 0 };
+      let sumBot = { p: 0, t: 0, k: 0, tot: 0, d_p: 0, d_t: 0, d_k: 0, d_tot: 0, j_t: 0, j_k: 0, j_tot: 0 };
 
       let rightIdx = 0;
 
       const renderRow = (isTop, data, rowNum) => {
         let isLabel = (typeof data === 'string' || !data);
         let p = 0, t = 0, k = 0, tot = 0, dp = 0, dt = 0, dk = 0, dtot = 0, jt = 0, jk = 0, jtot = 0;
-        let c1='', c2='', c3='', c4='';
+        let c1 = '', c2 = '', c3 = '', c4 = '';
 
         if (data && !isLabel) {
           p = data.perpuluhan; t = data.terpadu; k = data.khususJemaat;
           tot = p + t + k + data.khususDaerah;
-          
+
           dp = data.allocDaerah || 0;
-          if(dp === 0) { dp = p + (t*0.5) + data.khususDaerah; }
-          dtot = dp; 
-          
+          if (dp === 0) { dp = p + (t * 0.5) + data.khususDaerah; }
+          dtot = dp;
+
           const s = isTop ? sumTop : sumBot;
-          s.p += p; s.t += t; s.k += k; s.tot += tot; 
-          s.d_p += p; s.d_t += (t*0.5); s.d_k += data.khususDaerah; s.d_tot += (p + (t*0.5) + data.khususDaerah); 
-          s.j_t += (t*0.5); s.j_k += k; s.j_tot += ((t*0.5) + k);
+          s.p += p; s.t += t; s.k += k; s.tot += tot;
+          s.d_p += p; s.d_t += (t * 0.5); s.d_k += data.khususDaerah; s.d_tot += (p + (t * 0.5) + data.khususDaerah);
+          s.j_t += (t * 0.5); s.j_k += k; s.j_tot += ((t * 0.5) + k);
 
           c1 = rowNum; c2 = fmtDate(data.tanggal); c3 = data.nama; c4 = data.kwitansi;
         } else if (data === 'label_top') {
@@ -2723,13 +2740,13 @@
 
         let out_dp = '-', out_dt = '-', out_dk = '-', out_dtot = '-', out_jt = '-', out_jk = '-', out_jtot = '-';
         if (data && !isLabel) {
-            out_dp = fmtEx(data.perpuluhan); out_dt = fmtEx(data.terpadu * 0.5); out_dk = fmtEx(data.khususDaerah); out_dtot = fmtEx(data.perpuluhan + data.terpadu*0.5 + data.khususDaerah);
-            out_jt = fmtEx(data.terpadu * 0.5); out_jk = fmtEx(data.khususJemaat); out_jtot = fmtEx(data.terpadu*0.5 + data.khususJemaat);
+          out_dp = fmtEx(data.perpuluhan); out_dt = fmtEx(data.terpadu * 0.5); out_dk = fmtEx(data.khususDaerah); out_dtot = fmtEx(data.perpuluhan + data.terpadu * 0.5 + data.khususDaerah);
+          out_jt = fmtEx(data.terpadu * 0.5); out_jk = fmtEx(data.khususJemaat); out_jtot = fmtEx(data.terpadu * 0.5 + data.khususJemaat);
         } else if (data === 'label_total') {
-            const s = sumTop; const sb = sumBot;
-            out_dp = fmtEx(s.d_p+sb.d_p); out_dt = fmtEx(s.d_t+sb.d_t); out_dk = fmtEx(s.d_k+sb.d_k); out_dtot = fmtEx(s.d_tot+sb.d_tot);
-            out_jt = fmtEx(s.j_t+sb.j_t); out_jk = fmtEx(s.j_k+sb.j_k); out_jtot = fmtEx(s.j_tot+sb.j_tot);
-            p = s.p+sb.p; t = s.t+sb.t; k = s.k+sb.k; tot = s.tot+sb.tot;
+          const s = sumTop; const sb = sumBot;
+          out_dp = fmtEx(s.d_p + sb.d_p); out_dt = fmtEx(s.d_t + sb.d_t); out_dk = fmtEx(s.d_k + sb.d_k); out_dtot = fmtEx(s.d_tot + sb.d_tot);
+          out_jt = fmtEx(s.j_t + sb.j_t); out_jk = fmtEx(s.j_k + sb.j_k); out_jtot = fmtEx(s.j_tot + sb.j_tot);
+          p = s.p + sb.p; t = s.t + sb.t; k = s.k + sb.k; tot = s.tot + sb.tot;
         }
 
         html += `<tr>
@@ -2773,10 +2790,10 @@
       };
 
       renderRow(true, 'label_top', '');
-      topRows.forEach((r, i) => renderRow(true, r, i+1));
-      
+      topRows.forEach((r, i) => renderRow(true, r, i + 1));
+
       renderRow(false, 'label_bot', '');
-      bottomRows.forEach((r, i) => renderRow(false, r, i+1));
+      bottomRows.forEach((r, i) => renderRow(false, r, i + 1));
 
       renderRow(false, 'label_total', '');
 
@@ -2847,7 +2864,7 @@
 
     function renderReportView() {
       const data = currentReportData; if (!data) return notify('Tidak ada data laporan aktif.', 'error');
-      const s = data.summary; const bal = s.balances || cachedSaldo || { total: 0 }; 
+      const s = data.summary; const bal = s.balances || cachedSaldo || { total: 0 };
       const isViewer = getRolePerms(currentUser?.role || '').isAnonymous || (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik'));
       const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -3654,7 +3671,7 @@
     window.onload = async () => {
       await loadSystemConfig();
       const isAvailable = await checkAPIConnection();
-      
+
       const tk = getToken();
       if (tk) {
         currentUser = getCurrentUser();
@@ -3675,7 +3692,7 @@
       <span class="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
     </div>
   </button>
-<div id="printContainer" style="display:none;"></div>
+  <div id="printContainer" style="display:none;"></div>
 </body>
 
 </html>
