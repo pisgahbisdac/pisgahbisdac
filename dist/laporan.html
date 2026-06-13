@@ -15,9 +15,22 @@
 
   <style>
     @media print {
-      #floatingSyncBtn,
-      .no-print {
+      body > *:not(#printContainer) {
         display: none !important;
+      }
+      #printContainer {
+        display: block !important;
+        width: 100%;
+        background: white;
+        color: black;
+        zoom: 0.7;
+      }
+      #printContainer * {
+        visibility: visible;
+      }
+      @page {
+        size: landscape;
+        margin: 5mm;
       }
     }
     .login-split {
@@ -798,7 +811,7 @@
           <button class="btn btn-primary" onclick="loadReport()">Buat Laporan</button>
           <button class="btn btn-ghost" id="btnExportExcel" onclick="exportToExcel()"
             style="color: var(--green-pop); border-color: rgba(5, 150, 105, 0.2);">Export Excel</button>
-          <button class="btn btn-ghost" id="btnPrintReport" onclick="window.print()">Cetak / PDF</button>
+          <button class="btn btn-ghost" id="btnPrintReport" onclick="doPrintReport()">Cetak / PDF</button>
         </div>
 
         <div id="reportSensorContainer"
@@ -2537,77 +2550,281 @@
       }
     }
 
+    function generateComplexReportHtml(isExcel = false) {
+      if (!currentReportData) return '';
+      const month = currentReportData.month;
+      const year = currentReportData.year;
+      const mode = currentReportData.mode;
+
+      const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const periodStr = mode === 'bulanan' ? `${monthNames[month] || '-'} ${year || '-'}` : (mode === 'akumulasi' ? `Akumulasi Thn ${year || '-'}` : (currentReportData.customPeriod || 'Pencarian'));
+
+      const groupedInc = {};
+      let totalInc = 0; let totalExp = 0;
+      const incByCat = {}; const expByDept = {};
+      let saldoAwal = (currentReportData.summary && currentReportData.summary.saldoAwal) || 0;
+
+      const txIn = [];
+      if (currentReportData.incByCategory) {
+        Object.values(currentReportData.incByCategory).forEach(arr => arr.forEach(x => txIn.push(x)));
+      }
+      const txOut = [];
+      if (currentReportData.expByDept) {
+        Object.values(currentReportData.expByDept).forEach(arr => arr.forEach(x => txOut.push(x)));
+      }
+
+      txIn.forEach(x => {
+        const key = x.receipt_no ? x.receipt_no : (x.date + '|' + (x.nama_pemberi || 'Umum'));
+        if (!groupedInc[key]) {
+          groupedInc[key] = {
+            tanggal: x.date, nama: x.nama_pemberi || 'Umum', kwitansi: x.receipt_no || '',
+            perpuluhan: 0, terpadu: 0, khususJemaat: 0, khususDaerah: 0,
+            allocDaerah: 0, allocJemaat: 0, isPerorangan: false
+          };
+        }
+        const t = x.income_type || 'Lain-Lain';
+        const amt = parseFloat(x.amount) || 0;
+        
+        if (t === 'Perpuluhan') { groupedInc[key].perpuluhan += amt; groupedInc[key].isPerorangan = true; }
+        else if (t === 'Terpadu') { groupedInc[key].terpadu += amt; groupedInc[key].isPerorangan = true; }
+        else if (t === 'Khusus Daerah') groupedInc[key].khususDaerah += amt;
+        else groupedInc[key].khususJemaat += amt;
+
+        groupedInc[key].allocDaerah += parseFloat(x.alloc_daerah || 0);
+        groupedInc[key].allocJemaat += parseFloat(x.alloc_jemaat || 0);
+
+        incByCat[t] = (incByCat[t] || 0) + amt;
+        totalInc += amt;
+      });
+
+      txOut.forEach(x => {
+        const d = x.department || 'Lain-Lain';
+        expByDept[d] = (expByDept[d] || 0) + parseFloat(x.amount || 0);
+        totalExp += parseFloat(x.amount || 0);
+      });
+
+      const topRows = [];
+      const bottomRows = [];
+      Object.values(groupedInc).forEach(g => {
+        if (g.isPerorangan || isPrivateCategory(g.nama)) topRows.push(g);
+        else bottomRows.push(g);
+      });
+
+      const sortFn = (a, b) => new Date(a.tanggal) - new Date(b.tanggal) || a.kwitansi.localeCompare(b.kwitansi);
+      topRows.sort(sortFn);
+      bottomRows.sort(sortFn);
+
+      const rightPanel = [];
+      rightPanel.push({ label: 'Saldo Awal Bank bulan ini', val: saldoAwal, bold: true });
+      rightPanel.push({ label: 'PEMASUKAN', val: null, bold: true });
+      const incOrder = ['Perpuluhan', 'Terpadu', 'Khusus Daerah', 'Khusus Jemaat', 'Bunga Bank', 'Lain-Lain'];
+      const seenInc = new Set();
+      incOrder.forEach(k => {
+        let v = incByCat[k] || 0;
+        let displayK = k === 'Terpadu' ? 'Persembahan Terpadu' : k;
+        if(k==='Khusus Daerah') displayK = 'Persembahan Khusus Daerah';
+        if(k==='Khusus Jemaat') displayK = 'Persembahan Khusus Kas Jemaat';
+        if (v > 0 || incByCat[k] !== undefined) { rightPanel.push({ label: displayK, val: v, indent: true }); seenInc.add(k); }
+      });
+      Object.entries(incByCat).forEach(([k, v]) => {
+        if (!seenInc.has(k) && k !== 'Saldo Awal Sistem' && k !== 'Saldo Awal') rightPanel.push({ label: k, val: v, indent: true });
+      });
+      rightPanel.push({ label: 'Total Pemasukan', val: totalInc, bold: true });
+
+      rightPanel.push({ label: 'PENGELUARAN', val: null, bold: true });
+      Object.entries(expByDept).forEach(([k, v]) => rightPanel.push({ label: k, val: v, indent: true }));
+      rightPanel.push({ label: 'Total Pengeluaran', val: totalExp, bold: true });
+
+      const saldoAkhir = saldoAwal + totalInc - totalExp;
+      rightPanel.push({ label: 'Saldo Akhir Bulan ini', val: saldoAkhir, bold: true, isBorderTop: true });
+      rightPanel.push({ label: 'Kas Pada Bank', val: saldoAkhir, indent: true });
+      rightPanel.push({ label: 'CASH ON HAND / Ditangan', val: 0, indent: true });
+      rightPanel.push({ label: 'Balance Saldo Kas Jemaat', val: saldoAkhir, bold: true, large: true, isBorderTop: true });
+
+      const tableStyle = isExcel ? 'border-collapse: collapse; font-family: Calibri, sans-serif; font-size: 10pt;' : 'border-collapse: collapse; width: 100%; font-family: sans-serif; font-size: 6.5pt; table-layout: fixed; word-wrap: break-word;';
+      const thStyle = isExcel ? 'border: 1px solid #000; padding: 4px; font-weight: bold; text-align: center; background-color: #e2e8f0;' : 'border: 1px solid #000; padding: 3px 1px; font-weight: bold; text-align: center; background-color: #e2e8f0; color: #000; font-size: 5.5pt; line-height: 1.1;';
+      const tdStyle = isExcel ? 'border: 1px solid #000; padding: 4px;' : 'border: 1px solid #000; padding: 3px 2px; color: #000; vertical-align: middle;';
+      const numStyle = isExcel ? 'mso-number-format:"\\#\\,\\#\\#0"; text-align: right;' : 'text-align: right; white-space: nowrap;';
+
+      let html = `
+        <div style="margin-bottom: 15px; color: #000; font-family: sans-serif;">
+          <h2 style="margin:0; font-size: 12pt;">DAERAH SUMATERA KAWASAN TENGAH</h2>
+          <h3 style="margin:0; font-size: 10pt;">LAPORAN KEUANGAN JEMAAT</h3>
+          <table style="font-size:9pt; margin-top: 8px; border:none; width: auto;">
+            <tr><td style="font-weight:bold; width: 120px; border:none; padding:2px;">Nama Jemaat:</td><td style="border:none; padding:2px;">PISGAH - BISDAC</td></tr>
+            <tr><td style="font-weight:bold; border:none; padding:2px;">Bulan/Tahun:</td><td style="border:none; padding:2px;">${periodStr}</td></tr>
+          </table>
+        </div>
+        <table style="${tableStyle}">
+          <thead>
+            <tr>
+              <th colspan="8" style="${thStyle}">RINGKASAN</th>
+              <th colspan="4" style="${thStyle}">UANG DAERAH</th>
+              <th colspan="3" style="${thStyle}">UANG JEMAAT</th>
+              <th colspan="2" style="${thStyle}">LAPORAN KEUANGAN</th>
+            </tr>
+            <tr>
+              <th style="${thStyle} width: 2%;">No</th>
+              <th style="${thStyle} width: 4%;">Tanggal</th>
+              <th style="${thStyle} width: 10%;">Nama Unit Pemberi /<br>Perpuluhan & Terpadu</th>
+              <th style="${thStyle} width: 5%;">Nomor<br>Kwitansi</th>
+              <th style="${thStyle} width: 6%;">Perpuluhan</th>
+              <th style="${thStyle} width: 6%;">Persembahan<br>Terpadu</th>
+              <th style="${thStyle} width: 6%;">Persembahan Khusus<br>Kas Jemaat</th>
+              <th style="${thStyle} width: 6.5%;">TOTAL<br>Receipt</th>
+              <th style="${thStyle} width: 6%;">Perpuluhan</th>
+              <th style="${thStyle} width: 6%;">50% Terpadu<br>Daerah</th>
+              <th style="${thStyle} width: 6%;">Persembahan<br>Khusus</th>
+              <th style="${thStyle} width: 6.5%;">Jumlah Uang<br>Daerah</th>
+              <th style="${thStyle} width: 6%;">50% Terpadu<br>Jemaat</th>
+              <th style="${thStyle} width: 6%;">Persembahan Khusus<br>Kas Jemaat</th>
+              <th style="${thStyle} width: 6.5%;">Jumlah Uang<br>Jemaat</th>
+              <th style="${thStyle} width: 11%;">Pemasukan &<br>Pengeluaran Jemaat</th>
+              <th style="${thStyle} width: 6.5%;">TOTAL</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      let sumTop = { p:0, t:0, k:0, tot:0, d_p:0, d_t:0, d_k:0, d_tot:0, j_t:0, j_k:0, j_tot:0 };
+      let sumBot = { p:0, t:0, k:0, tot:0, d_p:0, d_t:0, d_k:0, d_tot:0, j_t:0, j_k:0, j_tot:0 };
+
+      let rightIdx = 0;
+
+      const renderRow = (isTop, data, rowNum) => {
+        let isLabel = (typeof data === 'string' || !data);
+        let p = 0, t = 0, k = 0, tot = 0, dp = 0, dt = 0, dk = 0, dtot = 0, jt = 0, jk = 0, jtot = 0;
+        let c1='', c2='', c3='', c4='';
+
+        if (data && !isLabel) {
+          p = data.perpuluhan; t = data.terpadu; k = data.khususJemaat;
+          tot = p + t + k + data.khususDaerah;
+          
+          dp = data.allocDaerah || 0;
+          if(dp === 0) { dp = p + (t*0.5) + data.khususDaerah; }
+          dtot = dp; 
+          
+          const s = isTop ? sumTop : sumBot;
+          s.p += p; s.t += t; s.k += k; s.tot += tot; 
+          s.d_p += p; s.d_t += (t*0.5); s.d_k += data.khususDaerah; s.d_tot += (p + (t*0.5) + data.khususDaerah); 
+          s.j_t += (t*0.5); s.j_k += k; s.j_tot += ((t*0.5) + k);
+
+          c1 = rowNum; c2 = fmtDate(data.tanggal); c3 = data.nama; c4 = data.kwitansi;
+        } else if (data === 'label_top') {
+          c3 = 'PERPULUHAN & TERPADU';
+        } else if (data === 'label_bot') {
+          c3 = 'PERSEMBAHAN & KHUSUS';
+        } else if (data === 'label_total') {
+          c3 = 'TOTAL';
+        }
+
+        const fmtEx = (n) => n === 0 ? '-' : (isExcel ? n : fmt(n));
+        const bStyle = (data === 'label_total' || isLabel) ? 'font-weight:bold; background-color:#f9fafb;' : '';
+
+        let out_dp = '-', out_dt = '-', out_dk = '-', out_dtot = '-', out_jt = '-', out_jk = '-', out_jtot = '-';
+        if (data && !isLabel) {
+            out_dp = fmtEx(data.perpuluhan); out_dt = fmtEx(data.terpadu * 0.5); out_dk = fmtEx(data.khususDaerah); out_dtot = fmtEx(data.perpuluhan + data.terpadu*0.5 + data.khususDaerah);
+            out_jt = fmtEx(data.terpadu * 0.5); out_jk = fmtEx(data.khususJemaat); out_jtot = fmtEx(data.terpadu*0.5 + data.khususJemaat);
+        } else if (data === 'label_total') {
+            const s = sumTop; const sb = sumBot;
+            out_dp = fmtEx(s.d_p+sb.d_p); out_dt = fmtEx(s.d_t+sb.d_t); out_dk = fmtEx(s.d_k+sb.d_k); out_dtot = fmtEx(s.d_tot+sb.d_tot);
+            out_jt = fmtEx(s.j_t+sb.j_t); out_jk = fmtEx(s.j_k+sb.j_k); out_jtot = fmtEx(s.j_tot+sb.j_tot);
+            p = s.p+sb.p; t = s.t+sb.t; k = s.k+sb.k; tot = s.tot+sb.tot;
+        }
+
+        html += `<tr>
+          <td style="${tdStyle} ${bStyle} text-align:center;">${c1}</td>
+          <td style="${tdStyle} ${bStyle} white-space:nowrap;">${c2}</td>
+          <td style="${tdStyle} ${bStyle}">${c3}</td>
+          <td style="${tdStyle} ${bStyle} mso-number-format:'\\@';">${c4}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : fmtEx(p)}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : fmtEx(t)}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : fmtEx(k)}</td>
+          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${isLabel ? '' : fmtEx(tot)}</td>
+          
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : out_dp}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : out_dt}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : out_dk}</td>
+          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${isLabel ? '' : out_dtot}</td>
+          
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : out_jt}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : out_jk}</td>
+          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${isLabel ? '' : out_jtot}</td>
+        `;
+
+        if (rightIdx < rightPanel.length) {
+          const rp = rightPanel[rightIdx];
+          const b = rp.bold ? 'font-weight:bold;' : '';
+          const l = rp.large ? 'font-size:11pt;' : '';
+          const i = rp.indent ? 'padding-left:20px;' : '';
+          const bt = rp.isBorderTop ? 'border-top: 2px solid #000;' : '';
+          const v = rp.val !== null ? fmtEx(rp.val) : '';
+          html += `
+            <td style="${tdStyle} ${b} ${l} ${i} ${bt}">${rp.label}</td>
+            <td style="${tdStyle} ${numStyle} ${b} ${l} ${bt}">${v}</td>
+          </tr>`;
+        } else {
+          html += `
+            <td style="${tdStyle}"></td>
+            <td style="${tdStyle}"></td>
+          </tr>`;
+        }
+        rightIdx++;
+      };
+
+      renderRow(true, 'label_top', '');
+      topRows.forEach((r, i) => renderRow(true, r, i+1));
+      
+      renderRow(false, 'label_bot', '');
+      bottomRows.forEach((r, i) => renderRow(false, r, i+1));
+
+      renderRow(false, 'label_total', '');
+
+      while (rightIdx < rightPanel.length) {
+        renderRow(false, null, '');
+      }
+
+      html += `</tbody></table>`;
+
+      const signHtml = `
+        <table style="width: 100%; margin-top: 40px; text-align: center; font-family: sans-serif; font-size: 10pt; color: #000; border: none; background: transparent;">
+          <tr>
+            <td style="width: 33%; border: none;">Dibuat Oleh,<br><br><br><br><br><strong>Herbert JS Sagala</strong><br>Bendahara Jemaat</td>
+            <td style="width: 33%; border: none;">Disahkan Oleh,<br><br><br><br><br><strong>Yosep Santoso</strong><br>Ketua Jemaat</td>
+            <td style="width: 33%; border: none;">Mengetahui,<br><br><br><br><br><strong>Pdt. Yoseph Sihotang</strong><br>Gembala Jemaat</td>
+          </tr>
+        </table>
+      `;
+
+      return html + signHtml;
+    }
+
+    function doPrintReport() {
+      if (!currentReportData || (!currentReportData.incByCategory && !currentReportData.expByDept)) {
+        return notify('Laporan kosong. Buat laporan terlebih dahulu.', 'error');
+      }
+      const html = generateComplexReportHtml(false);
+      const container = document.getElementById('printContainer');
+      if (container) {
+        container.innerHTML = html;
+        setTimeout(() => { window.print(); }, 200);
+      }
+    }
+
     function exportToExcel() {
-      if (!currentReportData || (!currentReportData.incByCat && !currentReportData.expByDept)) {
+      if (!currentReportData || (!currentReportData.incByCategory && !currentReportData.expByDept)) {
         return notify('Laporan kosong. Buat laporan terlebih dahulu.', 'error');
       }
 
-      let allTrans = [];
-      if (currentReportData.incByCategory) {
-        Object.values(currentReportData.incByCategory).forEach(items => {
-          items.forEach(t => allTrans.push({ ...t, transType: 'INCOME' }));
-        });
-      }
-      if (currentReportData.expByDept) {
-        Object.values(currentReportData.expByDept).forEach(items => {
-          items.forEach(t => allTrans.push({ ...t, transType: 'EXPENSE' }));
-        });
-      }
-
-      allTrans.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-      let rowsHtml = '';
-      allTrans.forEach((t, index) => {
-        const type = t.transType === 'INCOME' ? 'Pemasukan' : 'Pengeluaran';
-        const category = t.income_type || t.department || '';
-        const pihak = t.nama_pemberi || t.nama_penerima || '';
-        const receipt = t.receipt_no || '';
-        const note = t.note || '';
-        const incAmt = t.transType === 'INCOME' ? t.amount : '';
-        const expAmt = t.transType === 'EXPENSE' ? t.amount : '';
-
-        rowsHtml += `<tr>
-            <td>${index + 1}</td>
-            <td>${fmtDate(t.date)}</td>
-            <td>${type}</td>
-            <td>${category}</td>
-            <td>${pihak}</td>
-            <td>${receipt}</td>
-            <td>${note}</td>
-            <td>${incAmt}</td>
-            <td>${expAmt}</td>
-         </tr>`;
-      });
+      const tableHtml = generateComplexReportHtml(true);
 
       const html = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
         <head>
           <meta charset="utf-8">
-          <style>
-            table { border-collapse: collapse; font-family: sans-serif; }
-            th, td { border: 1px solid #000000; padding: 5px; font-size: 11pt; text-align: left; vertical-align: top; }
-            th { background-color: #e2e8f0; font-weight: bold; }
-          </style>
         </head>
-        <body>
-          <table>
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Tanggal</th>
-                <th>Tipe Transaksi</th>
-                <th>Kategori / Bidang</th>
-                <th>Pihak (Pemberi / Penerima)</th>
-                <th>No. Bukti</th>
-                <th>Catatan</th>
-                <th>Pemasukan (+)</th>
-                <th>Pengeluaran (-)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml}
-            </tbody>
-          </table>
+        <body style="background-color: white;">
+          ${tableHtml}
         </body>
         </html>
       `;
@@ -2616,7 +2833,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Data_Transaksi_${document.getElementById('rptMonth').value}_${document.getElementById('rptYear').value}.xls`;
+      a.download = `Laporan_Keuangan_Jemaat_${document.getElementById('rptMonth').value}_${document.getElementById('rptYear').value}.xls`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -3458,6 +3675,7 @@
       <span class="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
     </div>
   </button>
+<div id="printContainer" style="display:none;"></div>
 </body>
 
 </html>
