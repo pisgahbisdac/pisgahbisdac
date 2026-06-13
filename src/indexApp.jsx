@@ -4331,7 +4331,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
                         {/* Konten Input Baru */}
                         {wartaSubTab === 'input' && (
-                            <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
+                            <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6 mb-24">
                                 <h1 className="text-xl font-bold text-navy-800 mb-4 border-b pb-2">Input Warta Baru</h1>
                                 <p className="text-navy-500 mb-4">Silahkan isi konten warta di bawah ini.</p>
                                 <form onSubmit={handleWartaFormSubmit}>

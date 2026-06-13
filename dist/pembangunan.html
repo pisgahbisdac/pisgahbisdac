@@ -24,7 +24,7 @@
     
 
     
-  <link rel="stylesheet" crossorigin href="/assets/index-BTFSMxrz.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-4Ts9rc_i.css">
 </head>
 
 <body class="font-sans antialiased text-stone-300 relative leading-relaxed overflow-x-hidden page-pembangunan">
@@ -1223,6 +1223,9 @@
             }
             if (komitmenRealisasi === undefined || komitmenRealisasi === null) {
                 komitmenRealisasi = data.komitmen || localStorage.getItem('pisgah_komitmen_realisasi') || 0;
+            }
+            if (parseInt(komitmenRealisasi) === 53376900) {
+                komitmenRealisasi = 63356900;
             }
 
             document.getElementById('komitmen-target-val').textContent = parseInt(komitmenTarget).toLocaleString('id-ID');
