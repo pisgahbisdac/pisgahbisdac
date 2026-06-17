@@ -2628,7 +2628,7 @@
         else bottomRows.push(g);
       });
 
-      const sortFn = (a, b) => new Date(a.tanggal) - new Date(b.tanggal) || a.kwitansi.localeCompare(b.kwitansi);
+      const sortFn = (a, b) => new Date(a.tanggal) - new Date(b.tanggal) || String(a.kwitansi || '').localeCompare(String(b.kwitansi || ''));
       topRows.sort(sortFn);
       bottomRows.sort(sortFn);
 
@@ -2818,45 +2818,59 @@
     }
 
     function doPrintReport() {
-      if (!currentReportData || (!currentReportData.incByCategory && !currentReportData.expByDept)) {
-        return notify('Laporan kosong. Buat laporan terlebih dahulu.', 'error');
-      }
-      const html = generateComplexReportHtml(false);
-      const container = document.getElementById('printContainer');
-      if (container) {
-        container.innerHTML = html;
-        setTimeout(() => { window.print(); }, 200);
+      try {
+        if (!currentReportData || (!currentReportData.incByCategory && !currentReportData.expByDept)) {
+          return notify('Laporan kosong. Buat laporan terlebih dahulu.', 'error');
+        }
+        const html = generateComplexReportHtml(false);
+        const container = document.getElementById('printContainer');
+        if (container) {
+          container.innerHTML = html;
+          setTimeout(() => { window.print(); }, 200);
+        } else {
+          notify('Print container tidak ditemukan.', 'error');
+        }
+      } catch (e) {
+        console.error('doPrintReport error:', e);
+        notify('Error cetak PDF: ' + e.message, 'error');
+        alert('Error cetak PDF: ' + e.message + '\n\nStack: ' + e.stack);
       }
     }
 
     function exportToExcel() {
-      if (!currentReportData || (!currentReportData.incByCategory && !currentReportData.expByDept)) {
-        return notify('Laporan kosong. Buat laporan terlebih dahulu.', 'error');
+      try {
+        if (!currentReportData || (!currentReportData.incByCategory && !currentReportData.expByDept)) {
+          return notify('Laporan kosong. Buat laporan terlebih dahulu.', 'error');
+        }
+
+        const tableHtml = generateComplexReportHtml(true);
+
+        const html = `
+          <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+          <head>
+            <meta charset="utf-8">
+          </head>
+          <body style="background-color: white;">
+            ${tableHtml}
+          </body>
+          </html>
+        `;
+
+        const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Laporan_Keuangan_Jemaat_${document.getElementById('rptMonth').value}_${document.getElementById('rptYear').value}.xls`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        notify('Export Excel berhasil.', 'success');
+      } catch (e) {
+        console.error('exportToExcel error:', e);
+        notify('Error export Excel: ' + e.message, 'error');
+        alert('Error export Excel: ' + e.message + '\n\nStack: ' + e.stack);
       }
-
-      const tableHtml = generateComplexReportHtml(true);
-
-      const html = `
-        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-        <head>
-          <meta charset="utf-8">
-        </head>
-        <body style="background-color: white;">
-          ${tableHtml}
-        </body>
-        </html>
-      `;
-
-      const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Laporan_Keuangan_Jemaat_${document.getElementById('rptMonth').value}_${document.getElementById('rptYear').value}.xls`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      notify('Export Excel berhasil.', 'success');
     }
 
     function applyReportSensor() {
