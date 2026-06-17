@@ -81,7 +81,12 @@
         display: block;
       }
     }
-  </style>
+  
+    .photo-upload-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+    .photo-upload-grid .photo-upload-box { flex: 0 0 calc(33.333% - 7px); min-height: 80px; position: relative; margin-top: 0; }
+    .photo-upload-grid .photo-preview { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-sm); }
+    .remove-photo-btn { position: absolute; top: -5px; right: -5px; background: var(--red); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; padding: 0; }
+</style>
 </head>
 
 <body class="page-laporan">
@@ -254,7 +259,7 @@
           const displayNote = isPrivCategory ? '*** (Privasi)' : (x.note || '-');
 
           let photoBtn = '';
-          if (x.receipt_photo) { photoBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>`; }
+          photoBtn = getPhotoBtnText(x);
 
           listHtml += `
           <div class="dash-tx-card" style="padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--empty-bg);">
@@ -713,16 +718,15 @@
               </div>
 
               <div class="form-group" style="margin-top:20px">
-                <label class="form-label">Foto Kuitansi (Opsional)</label>
-                <label for="incPhotoUpload" class="photo-upload-box">
-                  <div id="incPhotoIcon" style="color:var(--text3);">
-                    <script>document.write(getIcon('image', 'lucide-lg'))</script><br><span
-                      style="margin-top:8px; display:inline-block; font-size:13px;">Unggah foto kuitansi</span>
-                  </div>
-                  <img id="incPhotoPreview" class="photo-preview" src="">
-                </label>
-                <input type="file" id="incPhotoUpload" accept="image/*" style="display:none"
-                  onchange="handleReceiptPhoto(event, 'income')">
+                <label class="form-label">Foto Kuitansi (Opsional) - Max 3</label>
+                <div class="photo-upload-grid" id="incPhotoGrid">
+                  <label for="incPhotoUpload" class="photo-upload-box" id="incPhotoUploadBox" style="display:flex;">
+                    <div style="color:var(--text3); text-align:center;">
+                      <script>document.write(getIcon('image', 'lucide-lg'))</script><br><span style="margin-top:8px; display:inline-block; font-size:11px;">Unggah Foto</span>
+                    </div>
+                  </label>
+                </div>
+                <input type="file" id="incPhotoUpload" accept="image/*" multiple style="display:none" onchange="handleReceiptPhoto(event, 'income')">
               </div>
               <div class="form-group"><label class="form-label">Catatan Tambahan</label><input class="form-input"
                   id="incNote" type="text" placeholder="Opsional..."></div>
@@ -777,16 +781,15 @@
                   id="receiverList"></datalist></div>
             </div>
             <div class="form-group">
-              <label class="form-label">Foto Bukti (Opsional)</label>
-              <label for="expPhotoUpload" class="photo-upload-box">
-                <div id="expPhotoIcon" style="color:var(--text3);">
-                  <script>document.write(getIcon('image', 'lucide-lg'))</script><br><span
-                    style="margin-top:8px; display:inline-block; font-size:13px;">Unggah foto nota</span>
-                </div>
-                <img id="expPhotoPreview" class="photo-preview" src="">
-              </label>
-              <input type="file" id="expPhotoUpload" accept="image/*" style="display:none"
-                onchange="handleReceiptPhoto(event, 'expense')">
+              <label class="form-label">Foto Bukti (Opsional) - Max 3</label>
+              <div class="photo-upload-grid" id="expPhotoGrid">
+                <label for="expPhotoUpload" class="photo-upload-box" id="expPhotoUploadBox" style="display:flex;">
+                  <div style="color:var(--text3); text-align:center;">
+                    <script>document.write(getIcon('image', 'lucide-lg'))</script><br><span style="margin-top:8px; display:inline-block; font-size:11px;">Unggah Nota</span>
+                  </div>
+                </label>
+              </div>
+              <input type="file" id="expPhotoUpload" accept="image/*" multiple style="display:none" onchange="handleReceiptPhoto(event, 'expense')">
             </div>
             <div class="form-group"><label class="form-label">Keterangan</label><input class="form-input" id="expNote"
                 type="text" placeholder="Deskripsi penggunaan..."></div>
@@ -1334,9 +1337,9 @@
   <script>
     const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwL6zRobieJ7Y3Xehr_YbxRXyw26FE9FkOZ35c9NgrWx05ifUF07dv2hq-zaQ1oKEjg/exec';
 
-    let currentIncPhoto = '';
-    let currentExpPhoto = '';
-    let currentEditPhoto = '';
+    let currentIncPhotos = [];
+    let currentExpPhotos = [];
+    let currentEditPhotos = [];
     let currentReportData = null;
 
     function getActiveApiUrl() { const savedUrl = localStorage.getItem('BISDAC_api_url'); return (savedUrl && savedUrl.trim() !== '') ? savedUrl.trim() : DEFAULT_API_URL; }
@@ -1652,58 +1655,163 @@
       reader.readAsDataURL(file);
     }
 
+    
     function handleReceiptPhoto(event, type) {
-      const file = event.target.files[0];
-      if (!file) return;
+      const files = Array.from(event.target.files);
+      if (files.length === 0) return;
 
       const MAX_CHARS = 48000;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const img = new Image();
-        img.onload = function () {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
+      let targetArray = type === 'income' ? currentIncPhotos : (type === 'expense' ? currentExpPhotos : currentEditPhotos);
+      let targetGridId = type === 'income' ? 'incPhotoGrid' : (type === 'expense' ? 'expPhotoGrid' : 'editPhotoGrid');
+      let targetUploadBoxId = type === 'income' ? 'incPhotoUploadBox' : (type === 'expense' ? 'expPhotoUploadBox' : 'editPhotoUploadBox');
 
-          let quality = 0.95;
-          let scale = 1.0;
-          let dataUrl = '';
-          let iterations = 0;
-
-          let baseWidth = img.width;
-          let baseHeight = img.height;
-          const MAX_START = 1600;
-
-          if (baseWidth > baseHeight && baseWidth > MAX_START) {
-            baseHeight *= MAX_START / baseWidth; baseWidth = MAX_START;
-          } else if (baseHeight > MAX_START) {
-            baseWidth *= MAX_START / baseHeight; baseHeight = MAX_START;
-          }
-
-          do {
-            canvas.width = Math.floor(baseWidth * scale);
-            canvas.height = Math.floor(baseHeight * scale);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-            dataUrl = canvas.toDataURL('image/jpeg', quality);
-
-            if (dataUrl.length > MAX_CHARS) {
-              quality -= 0.1;
-              if (quality < 0.4) { quality = 0.8; scale *= 0.8; }
-            }
-            iterations++;
-          } while (dataUrl.length > MAX_CHARS && iterations < 15);
-
-          if (type === 'income') { currentIncPhoto = dataUrl; document.getElementById('incPhotoPreview').src = dataUrl; document.getElementById('incPhotoPreview').style.display = 'block'; document.getElementById('incPhotoIcon').style.display = 'none'; }
-          else if (type === 'expense') { currentExpPhoto = dataUrl; document.getElementById('expPhotoPreview').src = dataUrl; document.getElementById('expPhotoPreview').style.display = 'block'; document.getElementById('expPhotoIcon').style.display = 'none'; }
-          else if (type === 'edit') { currentEditPhoto = dataUrl; document.getElementById('editTransPhotoPreview').src = dataUrl; document.getElementById('editTransPhotoPreview').style.display = 'block'; document.getElementById('editTransPhotoIcon').style.display = 'none'; }
-        }
-        img.src = e.target.result;
+      if (targetArray.length + files.length > 3) {
+        notify('Maksimal 3 foto per transaksi!', 'error');
+        event.target.value = '';
+        return;
       }
-      reader.readAsDataURL(file);
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            let quality = 0.95; let scale = 1.0; let dataUrl = ''; let iterations = 0;
+            let baseWidth = img.width; let baseHeight = img.height; const MAX_START = 1600;
+            if (baseWidth > baseHeight && baseWidth > MAX_START) { baseHeight *= MAX_START / baseWidth; baseWidth = MAX_START; } 
+            else if (baseHeight > MAX_START) { baseWidth *= MAX_START / baseHeight; baseHeight = MAX_START; }
+
+            do {
+              canvas.width = Math.floor(baseWidth * scale);
+              canvas.height = Math.floor(baseHeight * scale);
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              dataUrl = canvas.toDataURL('image/jpeg', quality);
+              if (dataUrl.length > MAX_CHARS) {
+                quality -= 0.1;
+                if (quality < 0.4) { quality = 0.8; scale *= 0.8; }
+              }
+              iterations++;
+            } while (dataUrl.length > MAX_CHARS && iterations < 15);
+
+            targetArray.push(dataUrl);
+            renderPhotoPreview(targetArray, targetGridId, targetUploadBoxId, type);
+          }
+          img.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      });
+      event.target.value = '';
     }
 
-    function openPhotoModal(url) { document.getElementById('photoModalImg').src = url; document.getElementById('receiptPhotoModal').style.display = 'flex'; }
-    function closePhotoModal() { document.getElementById('receiptPhotoModal').style.display = 'none'; document.getElementById('photoModalImg').src = ''; }
+    function removePhoto(index, type) {
+      let targetArray = type === 'income' ? currentIncPhotos : (type === 'expense' ? currentExpPhotos : currentEditPhotos);
+      let targetGridId = type === 'income' ? 'incPhotoGrid' : (type === 'expense' ? 'expPhotoGrid' : 'editPhotoGrid');
+      let targetUploadBoxId = type === 'income' ? 'incPhotoUploadBox' : (type === 'expense' ? 'expPhotoUploadBox' : 'editPhotoUploadBox');
+      
+      targetArray.splice(index, 1);
+      renderPhotoPreview(targetArray, targetGridId, targetUploadBoxId, type);
+    }
+
+    function renderPhotoPreview(arr, gridId, boxId, type) {
+      const grid = document.getElementById(gridId);
+      Array.from(grid.querySelectorAll('.photo-preview-container')).forEach(el => el.remove());
+      
+      arr.forEach((url, i) => {
+        const div = document.createElement('div');
+        div.className = 'photo-upload-box photo-preview-container';
+        div.style.padding = '0';
+        div.style.border = 'none';
+        div.style.display = 'block';
+        div.innerHTML = `<img src="${url}" class="photo-preview"><button class="remove-photo-btn" onclick="removePhoto(${i}, '${type}')">×</button>`;
+        grid.insertBefore(div, document.getElementById(boxId));
+      });
+      
+      document.getElementById(boxId).style.display = arr.length >= 3 ? 'none' : 'flex';
+    }
+
+    function resetPhotoUpload(type) {
+      if (type === 'income') { currentIncPhotos = []; renderPhotoPreview([], 'incPhotoGrid', 'incPhotoUploadBox', 'income'); document.getElementById('incPhotoUpload').value = ''; }
+      else if (type === 'expense') { currentExpPhotos = []; renderPhotoPreview([], 'expPhotoGrid', 'expPhotoUploadBox', 'expense'); document.getElementById('expPhotoUpload').value = ''; }
+      else if (type === 'edit') { currentEditPhotos = []; renderPhotoPreview([], 'editPhotoGrid', 'editPhotoUploadBox', 'edit'); document.getElementById('editTransPhoto').value = ''; }
+    }
+
+    let modalPhotoList = [];
+    let currentPhotoIndex = 0;
+    
+    function openPhotoModal(url, url2 = '', url3 = '') { 
+      modalPhotoList = [url, url2, url3].filter(u => u && u.trim() !== '');
+      if (modalPhotoList.length === 0) return;
+      currentPhotoIndex = 0;
+      updatePhotoModalView();
+      document.getElementById('receiptPhotoModal').style.display = 'flex'; 
+    }
+    
+    function changePhoto(dir) {
+      currentPhotoIndex += dir;
+      if (currentPhotoIndex < 0) currentPhotoIndex = modalPhotoList.length - 1;
+      if (currentPhotoIndex >= modalPhotoList.length) currentPhotoIndex = 0;
+      updatePhotoModalView();
+    }
+    
+    function updatePhotoModalView() {
+      document.getElementById('photoModalImg').src = modalPhotoList[currentPhotoIndex];
+      document.getElementById('prevPhotoBtn').style.display = modalPhotoList.length > 1 ? 'flex' : 'none';
+      document.getElementById('nextPhotoBtn').style.display = modalPhotoList.length > 1 ? 'flex' : 'none';
+      document.getElementById('photoCounter').textContent = modalPhotoList.length > 1 ? `Foto ${currentPhotoIndex + 1} dari ${modalPhotoList.length}` : '';
+    }
+    
+    function closePhotoModal() { 
+      document.getElementById('receiptPhotoModal').style.display = 'none'; 
+      document.getElementById('photoModalImg').src = ''; 
+    }
+    function openPhotoModalById(id, type) {
+      let r = null;
+      if (type === 'income') {
+        r = cachedIncome.find(x => (x.transaction_id || x.receipt_no) === id);
+        if (!r && currentReportData && currentReportData.incByCategory) {
+          const all = Object.values(currentReportData.incByCategory).flat();
+          r = all.find(x => (x.transaction_id || x.receipt_no) === id);
+        }
+      } else {
+        r = cachedExpense.find(x => (x.transaction_id || x.receipt_no) === id);
+        if (!r && currentReportData && currentReportData.expByDept) {
+          const all = Object.values(currentReportData.expByDept).flat();
+          r = all.find(x => (x.transaction_id || x.receipt_no) === id);
+        }
+      }
+      
+      if (!r) {
+        const allTrans = [...cachedIncome, ...cachedExpense];
+        r = allTrans.find(x => (x.transaction_id || x.receipt_no) === id);
+      }
+
+      if (r) {
+        openPhotoModal(r.receipt_photo, r.receipt_photo_2, r.receipt_photo_3);
+      } else {
+        notify('Data foto tidak ditemukan.', 'error');
+      }
+    }
+
+    function getPhotoBtnIcon(r, isMasked = false) {
+      if (isMasked || !r.receipt_photo) return '';
+      let k = r.income_type ? 'income' : 'expense';
+      let id = r.transaction_id || r.receipt_no;
+      let count = 1 + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
+      let content = count > 1 ? `<span style="font-size:10px; margin-left:2px; font-weight:bold">${count}</span>` : '';
+      return `<button class="btn-icon-only" onclick="openPhotoModalById('${id}', '${k}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}${content}</button>`;
+    }
+
+    function getPhotoBtnText(r, isMasked = false) {
+      if (isMasked || !r.receipt_photo) return '';
+      let k = r.income_type ? 'income' : 'expense';
+      let id = r.transaction_id || r.receipt_no;
+      let count = 1 + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
+      let text = count > 1 ? `📸 ${count} Foto` : `📷 Foto`;
+      return `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModalById('${id}', '${k}')">${text}</button>`;
+    }
+
 
     async function resetLogo(keyType) { systemConfig[keyType] = ''; localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig)); applyConfig(); try { await apiPostWithFallback('saveConfig', { key: keyType, value: '' }); notify(`Logo direset.`, 'success'); } catch (err) { } }
 
@@ -2096,7 +2204,7 @@
           const displayNote = isPrivCategory ? '*** (Privasi)' : (found.note || '-');
 
           let photoBtn = '';
-          if (found.receipt_photo) { photoBtn = `<button class="btn btn-ghost" style="padding:4px 8px; font-size:12px; margin-top:8px;" onclick="openPhotoModal('${found.receipt_photo}')">${safeIcon('image', 'lucide-sm')} Lihat Foto</button>`; }
+          photoBtn = getPhotoBtnText(found);
 
           html += `
         <div style="padding: 16px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--empty-bg); margin-bottom: 12px;">
@@ -2267,7 +2375,7 @@
         let desktopHtml = recent.map(x => {
           const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
           const shouldHide = isViewer && isPrivCategory;
-          let photoBtn = x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
+          let photoBtn = getPhotoBtnIcon(x);
           return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td><td><span class="badge ${getCatBadge(x.income_type || x.department, x.kind !== 'income')}">${x.income_type || x.department}</span><br><span style="font-size:12px; color:var(--text-muted, var(--text4))">${shouldHide ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td><td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td></tr>`;
         }).join('');
 
@@ -2275,7 +2383,7 @@
           const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
           const shouldHide = isViewer && isPrivCategory;
           const isInc = x.kind === 'income';
-          let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
+          let photoBtn = getPhotoBtnText(x);
           return `
           <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
@@ -2356,15 +2464,15 @@
           const items = [];
           ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'].forEach(k => { const val = parseFloat(document.getElementById(`incAmt${k.replace(/\s/g, '')}`).value) || 0; if (val > 0) items.push({ income_type: k, amount: val, note }); });
           if (items.length === 0) throw new Error('Isi nominal perpuluhan!');
-          await apiPost('saveBulkIncome', { date, unit_name: unit || '-', receipt_no: receipt, items, receipt_photo_base64: currentIncPhoto });
+          await apiPost('saveBulkIncome', { date, unit_name: unit || '-', receipt_no: receipt, items, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
         } else {
           const amount = parseFloat(document.getElementById('incAmount').value) || 0; if (amount <= 0) throw new Error('Isi nominal!');
-          await apiPost('saveIncome', { date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount, note, alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0, receipt_photo_base64: currentIncPhoto });
+          await apiPost('saveIncome', { date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount, note, alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
         }
         notify('Berhasil disimpan!', 'success');
 
         document.getElementById('incType').value = ''; handleTypeChange(); document.getElementById('incUnit').value = ''; document.getElementById('incGiver').value = ''; document.getElementById('incReceipt').value = ''; document.getElementById('incAmount').value = ''; document.getElementById('incAmtPerpuluhan').value = ''; document.getElementById('incAmtTerpadu').value = ''; document.getElementById('incAmtKhususJemaat').value = ''; document.getElementById('incAmtKhususDaerah').value = ''; document.getElementById('incNote').value = '';
-        currentIncPhoto = ''; document.getElementById('incPhotoUpload').value = ''; document.getElementById('incPhotoPreview').style.display = 'none'; document.getElementById('incPhotoPreview').src = ''; document.getElementById('incPhotoIcon').style.display = 'block';
+        resetPhotoUpload('income');
 
         updateIncomeAlloc(); await syncAllData(); renderIncomeList();
       } catch (err) { notify(err.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = `Posting Pemasukan`; }
@@ -2377,10 +2485,10 @@
       if (list.length === 0) {
         document.getElementById('incomeLogContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Kosong.</div>';
       } else {
-        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.income_type, false)}">${x.income_type}</span><br><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('');
+        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.income_type, false)}">${x.income_type}</span><br><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${getPhotoBtnIcon(x)}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('');
 
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
-          let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
+          let photoBtn = getPhotoBtnText(x);
           return `
           <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
@@ -2431,10 +2539,10 @@
 
       const btn = document.getElementById('savExpBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
       try {
-        await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentExpPhoto, nama_penerima: receiver || '-' });
+        await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentExpPhotos[0] || '', receipt_photo_base64_2: currentExpPhotos[1] || '', receipt_photo_base64_3: currentExpPhotos[2] || '', nama_penerima: receiver || '-' });
         notify('Berhasil!', 'success');
         document.getElementById('expDept').value = ''; document.getElementById('expReceipt').value = ''; document.getElementById('expAmount').value = ''; document.getElementById('expNote').value = ''; document.getElementById('expReceiver').value = '';
-        currentExpPhoto = ''; document.getElementById('expPhotoUpload').value = ''; document.getElementById('expPhotoPreview').style.display = 'none'; document.getElementById('expPhotoPreview').src = ''; document.getElementById('expPhotoIcon').style.display = 'block';
+        resetPhotoUpload('expense');
         await syncAllData(); renderExpenseList();
       } catch (err) { notify(err.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = `Posting Pengeluaran`; }
     }
@@ -2446,10 +2554,10 @@
       if (list.length === 0) {
         document.getElementById('expenseLogContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Kosong.</div>';
       } else {
-        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.department, true)}">${x.department}</span><br><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (x.note || '-')}<br>Penerima: ${isAnon ? '***' : (x.nama_penerima || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('');
+        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.department, true)}">${x.department}</span><br><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (x.note || '-')}<br>Penerima: ${isAnon ? '***' : (x.nama_penerima || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span>${getPhotoBtnIcon(x)}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('');
 
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
-          let photoBtn = x.receipt_photo ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
+          let photoBtn = getPhotoBtnText(x);
           return `
           <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
@@ -2923,7 +3031,7 @@
             const isMasked = isPrivCategory || isSensor;
             const displayNote = isMasked ? '*** (Privasi)' : (x.note || '-');
             let rawPemberi = (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') ? x.nama_pemberi : (x.unit_name || '-');
-            const photoBtn = (x.receipt_photo && !isMasked) ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
+            const photoBtn = getPhotoBtnIcon(x, isMasked);
             return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td>${isMasked ? '***' : rawPemberi}</td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${photoBtn}</td><td>${displayNote}</td><td class="fit-col amount-pos" style="text-align:right">${fmt(x.amount)}</td></tr>`
           }).join('')}
               </tbody>
@@ -2934,7 +3042,7 @@
             const displayNote = isMasked ? '*** (Privasi)' : (x.note || '-');
             let rawPemberi = (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') ? x.nama_pemberi : (x.unit_name || '-');
             let photoBtn = '';
-            if (x.receipt_photo && !isMasked) { photoBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>`; }
+            photoBtn = getPhotoBtnText(x, isMasked);
             return `<div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
                 <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
@@ -2970,13 +3078,13 @@
           const desktopHtml = `<table class="table-report">
               <thead><tr><th class="fit-col">Tanggal</th><th class="fit-col">Sumber Kas</th><th class="fit-col">Ref</th><th>Keperluan</th><th class="fit-col" style="text-align:right">Subtotal</th></tr></thead>
               <tbody>
-                ${items.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge badge-gold">${x.source_balance}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${x.receipt_photo ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : ''}</td><td>${x.note || '-'}${x.nama_penerima ? `<br><small style="color:var(--text3)">Penerima: ${x.nama_penerima}</small>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('')}
+                ${items.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge badge-gold">${x.source_balance}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${getPhotoBtnIcon(x)}</td><td>${x.note || '-'}${x.nama_penerima ? `<br><small style="color:var(--text3)">Penerima: ${x.nama_penerima}</small>` : ''}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('')}
               </tbody>
             </table>`;
 
           const mobileHtml = `<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">${items.map(x => {
             let photoBtn = '';
-            if (x.receipt_photo) { photoBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>`; }
+            photoBtn = getPhotoBtnText(x);
             return `<div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
                 <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
@@ -3196,7 +3304,7 @@
           const shouldHide = !belongsToUserUnits && (isAnon || isOtherUnit || isPrivCategory);
 
           const deleteId = x.transaction_id || x.receipt_no || '';
-          let photoBtn = (x.receipt_photo && !shouldHide) ? `<button class="btn-icon-only" onclick="openPhotoModal('${x.receipt_photo}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}</button>` : '';
+          let photoBtn = getPhotoBtnIcon(x, shouldHide);
           const pihak = x.type === 'income' ? (shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
 
           return `
@@ -3228,7 +3336,7 @@
           const deleteId = x.transaction_id || x.receipt_no || '';
           const pihak = x.type === 'income' ? (shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
 
-          let photoBtn = (x.receipt_photo && !shouldHide) ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openPhotoModal('${x.receipt_photo}')">📷 Foto</button>` : '';
+          let photoBtn = getPhotoBtnText(x, shouldHide);
           let editBtn = canEdit && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openEditTrans('${x.type}', '${deleteId}')">✏️ Edit</button>` : '';
           let delBtn = canDel && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--rose-pop);" onclick="deleteTransaction('${x.type}', '${deleteId}')">🗑️ Hapus</button>` : '';
 
@@ -3393,7 +3501,7 @@
 
     function closeEditModal() {
       if (document.getElementById('editTransModal')) document.getElementById('editTransModal').style.display = 'none';
-      currentEditTransaction = null; currentEditPhoto = '';
+      currentEditTransaction = null; currentEditPhotos = [];
       if (document.getElementById('editPhotoUpload')) document.getElementById('editPhotoUpload').value = '';
       if (document.getElementById('editTransPhotoPreview')) { document.getElementById('editTransPhotoPreview').style.display = 'none'; document.getElementById('editTransPhotoPreview').src = ''; }
       if (document.getElementById('editTransPhotoIcon')) document.getElementById('editTransPhotoIcon').style.display = 'block';
@@ -3434,7 +3542,7 @@
               receipt_no: receipt,
               unit_name: unit,
               items: items,
-              receipt_photo_base64: currentEditPhoto,
+              receipt_photo_base64: currentEditPhotos[0] || '', receipt_photo_base64_2: currentEditPhotos[1] || '', receipt_photo_base64_3: currentEditPhotos[2] || '',
               original_photo: currentEditTransaction.original.receipt_photo
             };
             await apiPostWithFallback('editBulkIncome', payload);
@@ -3446,7 +3554,7 @@
               type: 'income',
               transaction_id: currentEditTransaction.id,
               date, receipt_no: receipt, amount, note,
-              receipt_photo_base64: currentEditPhoto,
+              receipt_photo_base64: currentEditPhotos[0] || '', receipt_photo_base64_2: currentEditPhotos[1] || '', receipt_photo_base64_3: currentEditPhotos[2] || '',
               original: currentEditTransaction.original,
               income_type: cat,
               unit_name: unit,
@@ -3465,7 +3573,7 @@
             type: 'expense',
             transaction_id: currentEditTransaction.id,
             date, receipt_no: receipt, amount, note,
-            receipt_photo_base64: currentEditPhoto,
+            receipt_photo_base64: currentEditPhotos[0] || '', receipt_photo_base64_2: currentEditPhotos[1] || '', receipt_photo_base64_3: currentEditPhotos[2] || '',
             original: currentEditTransaction.original,
             department: cat,
             source_balance: source,
