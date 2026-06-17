@@ -44,6 +44,26 @@ Sistem ini menggunakan *Role-Based Access Control* (RBAC) pada antarmuka *Lapora
 - **FR 4.1:** Pengguna dapat memfilter histori berdasarkan rentang waktu (Bulan dan Tahun), jenis transaksi, atau melakukan pencarian berdasarkan kata kunci.
 - **FR 4.2:** Tersedia fitur untuk men-Cetak atau men-Download rekapitulasi transaksi (Laporan PDF/Excel).
 
+### 3.5 Tanda Tangan Dinamis pada Laporan PDF
+- **FR 5.1:** Admin dapat mengatur gambar tanda tangan para pejabat gereja (Bendahara Jemaat, Ketua Pembangunan, Ketua Jemaat, Pendeta) melalui menu **Administrasi > Tanda Tangan**.
+- **FR 5.2:** Foto tanda tangan yang diunggah akan di-resize secara otomatis (max 300px) dan disimpan sebagai Base64 ke sheet **Config** di backend.
+- **FR 5.3:** Gambar tanda tangan **hanya** akan tercetak dalam Laporan PDF jika **semua transaksi** (Pemasukan & Pengeluaran) pada bulan tersebut telah **di-Approve** oleh Ketua Jemaat dan Pendeta.
+- **FR 5.4:** Jika ada 1 saja transaksi yang belum disetujui, laporan akan tetap dicetak namun dengan baris tanda tangan kosong untuk mengakomodasi tanda tangan basah secara manual.
+- **FR 5.5:** Terdapat opsi checkbox **"Tanda Tangan Manual (Cetak Kosong)"** di halaman Laporan Bulanan. Jika dicentang, laporan PDF akan selalu mengosongkan gambar tanda tangan.
+
+### 3.6 Laporan Keuangan Pembangunan
+- **FR 6.1:** Tersedia tombol khusus **"Cetak Lap. Pembangunan"** di halaman Laporan Bulanan untuk mencetak laporan khusus dana pembangunan.
+- **FR 6.2:** Laporan Pembangunan mengkalkulasi saldo awal kas pembangunan dan merinci seluruh mutasi (donasi langsung, alokasi pembangunan, serta pengeluaran dari sumber Pembangunan).
+- **FR 6.3:** Laporan Pembangunan memiliki **4 kolom tanda tangan**: Bendahara Jemaat, Ketua Pembangunan, Ketua Jemaat, dan Gembala Jemaat — dengan validasi approval yang sama seperti Laporan Keuangan Utama.
+
+### 3.7 Tutup Buku (Closing Month)
+- **FR 7.1:** Admin dapat melakukan **Tutup Buku** melalui tombol **"Manajemen Tutup Buku"** di halaman Laporan Bulanan.
+- **FR 7.2:** Fitur ini membuka jendela Pop-up (Modal) yang memungkinkan Admin memilih **Bulan dan Tahun** secara bebas untuk ditutup atau dibuka.
+- **FR 7.3:** Sistem menampilkan status terkini dari periode yang dipilih (*Terkunci* atau *Terbuka*).
+- **FR 7.4:** Setelah bulan ditutup, sistem akan memblokir **penambahan, pengeditan, dan penghapusan** transaksi (baik pemasukan maupun pengeluaran) pada bulan tersebut.
+- **FR 7.5:** Admin dapat membuka kembali bulan yang terkunci melalui modal yang sama (tombol **Buka Buku**).
+- **FR 7.6:** Status closing disimpan secara permanen ke sheet **Config** (key: `closed_{tahun}_{bulan}`).
+
 ## 4. Persyaratan Non-Fungsional (Non-Functional Requirements)
 
 - **Keamanan & Sinkronisasi:** Menggunakan arsitektur _serverless_ (Google Apps Script). Keamanan pada tingkat backend harus memvalidasi pencegahan edit mutasi jika array `approved_by` telah memuat "Ketua Jemaat" dan "Pendeta".
@@ -52,6 +72,8 @@ Sistem ini menggunakan *Role-Based Access Control* (RBAC) pada antarmuka *Lapora
 - **Offline & Cache:** Memanfaatkan `localStorage` dan `sessionStorage` sebagai _cache layer_ utama. Data tidak diambil ulang (*re-fetched*) kecuali dipaksa melalui tombol "Sinkronisasi Manual" atau *login* awal.
 
 ## 5. Milestone & Rencana ke Depan
-- Menyempurnakan dasbor visual untuk merangkum arus kas harian/bulanan (Telah Tersedia).
-- Menyatukan sistem laporan gereja dengan sistem laporan khusus pembangunan fisik gereja.
+- ✅ Menyempurnakan dasbor visual untuk merangkum arus kas harian/bulanan (Telah Tersedia).
+- ✅ Menyatukan sistem laporan gereja dengan sistem laporan khusus pembangunan fisik gereja.
+- ✅ Tanda Tangan Dinamis pada Laporan PDF (otomatis berdasarkan status Approval).
+- ✅ Manajemen Tutup Buku (Closing Month) untuk mengunci transaksi per bulan.
 - Notifikasi _push_ untuk permintaan penyetujuan (Approval) jika *Service Worker* dan fitur peramban memadai.
