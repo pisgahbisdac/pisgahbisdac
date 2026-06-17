@@ -84,8 +84,9 @@
   
     .photo-upload-grid { display: flex; gap: 10px; flex-wrap: wrap; }
     .photo-upload-grid .photo-upload-box { flex: 0 0 calc(33.333% - 7px); min-height: 80px; position: relative; margin-top: 0; }
-    .photo-upload-grid .photo-preview { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-sm); }
-    .remove-photo-btn { position: absolute; top: -5px; right: -5px; background: var(--red); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; padding: 0; }
+    .photo-preview-container { height: 100px; overflow: hidden; border-radius: var(--radius-sm) !important; border: 2px solid var(--teal-pop) !important; }
+    .photo-preview-container .photo-preview { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: var(--radius-sm); }
+    .remove-photo-btn { position: absolute; top: -6px; right: -6px; background: var(--red); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; padding: 0; line-height: 1; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
 </style>
 </head>
 
@@ -1272,16 +1273,16 @@
           id="editTransPihakLabel">Pihak Terkait</label><input class="form-input" id="editTransPihak" type="text"></div>
 
       <div class="form-group">
-        <label class="form-label">Foto Revisi</label>
-        <label for="editPhotoUpload" class="photo-upload-box">
-          <div id="editTransPhotoIcon" style="color:var(--text3);">
-            <script>document.write(getIcon('image', 'lucide-lg'))</script><br><span
-              style="margin-top:8px; display:inline-block; font-size:13px;">Ganti foto bukti</span>
-          </div>
-          <img id="editTransPhotoPreview" class="photo-preview" src="">
-        </label>
-        <input type="file" id="editPhotoUpload" accept="image/*" style="display:none"
-          onchange="handleReceiptPhoto(event, 'edit')">
+        <label class="form-label">Foto Bukti (Opsional) - Max 3</label>
+        <div class="photo-upload-grid" id="editPhotoGrid">
+          <label for="editTransPhoto" class="photo-upload-box" id="editPhotoUploadBox" style="display:flex;">
+            <div style="color:var(--text3); text-align:center;">
+              <script>document.write(getIcon('image', 'lucide-lg'))</script><br><span style="margin-top:8px; display:inline-block; font-size:11px;">Unggah Foto</span>
+            </div>
+          </label>
+        </div>
+        <input type="file" id="editTransPhoto" accept="image/*" multiple style="display:none" onchange="handleReceiptPhoto(event, 'edit')">
+        <div style="font-size:11px; color:var(--text3); margin-top:4px;">Mengunggah foto baru akan menimpa foto sebelumnya.</div>
       </div>
       <div class="form-group"><label class="form-label">Keterangan</label><input class="form-input" id="editTransNote"
           type="text"></div>
@@ -1727,19 +1728,28 @@
 
     function renderPhotoPreview(arr, gridId, boxId, type) {
       const grid = document.getElementById(gridId);
+      if (!grid) return;
       Array.from(grid.querySelectorAll('.photo-preview-container')).forEach(el => el.remove());
       
       arr.forEach((url, i) => {
         const div = document.createElement('div');
         div.className = 'photo-upload-box photo-preview-container';
-        div.style.padding = '0';
-        div.style.border = 'none';
-        div.style.display = 'block';
-        div.innerHTML = `<img src="${url}" class="photo-preview"><button class="remove-photo-btn" onclick="removePhoto(${i}, '${type}')">×</button>`;
+        div.style.position = 'relative';
+        const img = document.createElement('img');
+        img.src = url;
+        img.className = 'photo-preview';
+        img.alt = 'Foto ' + (i + 1);
+        const btn = document.createElement('button');
+        btn.className = 'remove-photo-btn';
+        btn.innerHTML = '×';
+        btn.setAttribute('onclick', `removePhoto(${i}, '${type}')`);
+        div.appendChild(img);
+        div.appendChild(btn);
         grid.insertBefore(div, document.getElementById(boxId));
       });
       
-      document.getElementById(boxId).style.display = arr.length >= 3 ? 'none' : 'flex';
+      const uploadBox = document.getElementById(boxId);
+      if (uploadBox) uploadBox.style.display = arr.length >= 3 ? 'none' : 'flex';
     }
 
     function resetPhotoUpload(type) {
@@ -3511,15 +3521,17 @@
         if (document.getElementById('editTransAmount')) document.getElementById('editTransAmount').value = trx.amount;
       }
 
+      // Load existing photos into edit preview
+      currentEditPhotos = [trx.receipt_photo, trx.receipt_photo_2, trx.receipt_photo_3].filter(p => p && String(p).trim() !== '');
+      renderPhotoPreview(currentEditPhotos, 'editPhotoGrid', 'editPhotoUploadBox', 'edit');
+
       handleEditTypeChange();
     }
 
     function closeEditModal() {
       if (document.getElementById('editTransModal')) document.getElementById('editTransModal').style.display = 'none';
-      currentEditTransaction = null; currentEditPhotos = [];
-      if (document.getElementById('editPhotoUpload')) document.getElementById('editPhotoUpload').value = '';
-      if (document.getElementById('editTransPhotoPreview')) { document.getElementById('editTransPhotoPreview').style.display = 'none'; document.getElementById('editTransPhotoPreview').src = ''; }
-      if (document.getElementById('editTransPhotoIcon')) document.getElementById('editTransPhotoIcon').style.display = 'block';
+      currentEditTransaction = null;
+      resetPhotoUpload('edit');
     }
 
     async function saveEditTransaction() {
