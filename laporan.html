@@ -327,18 +327,18 @@
 
         let totalVal = totalInc - totalExp;
         let summaryHtml = `
-        <div class="dash-summary-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px;">
-          <div style="background: rgba(5, 150, 105, 0.08); border: 1px solid rgba(5, 150, 105, 0.2); padding: 8px 4px; border-radius: var(--radius); text-align: center; overflow: hidden; display: flex; flex-direction: column; justify-content: center;">
-            <div style="font-size: 8px; color: var(--text3); margin-bottom: 2px; font-weight: 800; text-transform: uppercase; letter-spacing: 0px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Pemasukan</div>
-            <div class="amount-pos" style="font-size: clamp(8px, 2.5vw, 12px); font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; line-height: 1.1;">+${fmt(totalInc)}</div>
+        <div class="dash-summary-grid" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+          <div style="background: rgba(5, 150, 105, 0.08); border: 1px solid rgba(5, 150, 105, 0.2); padding: 12px; border-radius: var(--radius); text-align: center; overflow: hidden; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 11px; color: var(--text3); margin-bottom: 4px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Pemasukan</div>
+            <div class="amount-pos" style="font-size: 20px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2;">+${fmt(totalInc)}</div>
           </div>
-          <div style="background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.2); padding: 8px 4px; border-radius: var(--radius); text-align: center; overflow: hidden; display: flex; flex-direction: column; justify-content: center;">
-            <div style="font-size: 8px; color: var(--text3); margin-bottom: 2px; font-weight: 800; text-transform: uppercase; letter-spacing: 0px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Pengeluaran</div>
-            <div class="amount-neg" style="font-size: clamp(8px, 2.5vw, 12px); font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; line-height: 1.1;">-${fmt(totalExp)}</div>
+          <div style="background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.2); padding: 12px; border-radius: var(--radius); text-align: center; overflow: hidden; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 11px; color: var(--text3); margin-bottom: 4px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Pengeluaran</div>
+            <div class="amount-neg" style="font-size: 20px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2;">-${fmt(totalExp)}</div>
           </div>
-          <div style="background: var(--empty-bg); border: 1px solid var(--glass-border); padding: 8px 4px; border-radius: var(--radius); text-align: center; overflow: hidden; display: flex; flex-direction: column; justify-content: center;">
-            <div style="font-size: 8px; color: var(--text3); margin-bottom: 2px; font-weight: 800; text-transform: uppercase; letter-spacing: 0px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Saldo</div>
-            <div class="${totalVal >= 0 ? 'amount-pos' : 'amount-neg'}" style="font-size: clamp(8px, 2.5vw, 12px); font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; line-height: 1.1;">${totalVal >= 0 ? '+' : ''}${fmt(totalVal)}</div>
+          <div style="background: var(--empty-bg); border: 1px solid var(--glass-border); padding: 12px; border-radius: var(--radius); text-align: center; overflow: hidden; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 11px; color: var(--text3); margin-bottom: 4px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Saldo</div>
+            <div class="${totalVal >= 0 ? 'amount-pos' : 'amount-neg'}" style="font-size: 20px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2;">${totalVal >= 0 ? '+' : ''}${fmt(totalVal)}</div>
           </div>
         </div>
         `;
@@ -518,6 +518,11 @@
           <span class="nav-icon">
             <script>document.write(getIcon('settings', 'lucide-md'))</script>
           </span> Pengaturan Web
+        </div>
+        <div class="nav-item" onclick="showPage('signatures')" id="navSignatures">
+          <span class="nav-icon">
+            <script>document.write(getIcon('file', 'lucide-md'))</script>
+          </span> Tanda Tangan
         </div>
         <div class="nav-item" onclick="showPage('roles')" id="navRoles">
           <span class="nav-icon">
@@ -878,18 +883,33 @@
             style="background-image: none; padding-right: 12px; width: 80px;" title="Ketik tahun">
           <button class="btn btn-primary" onclick="loadReport()">Buat Laporan</button>
           <button class="btn btn-ghost" id="btnExportExcel" onclick="exportToExcel()"
-            style="color: var(--green-pop); border-color: rgba(5, 150, 105, 0.2);">Export Excel</button>
-          <button class="btn btn-ghost" id="btnPrintReport" onclick="doPrintReport()">Cetak / PDF</button>
+            style="color: var(--green-pop); border-color: rgba(5, 150, 105, 0.2); display:none;">Export Excel</button>
+          <button class="btn btn-ghost" id="btnPrintReport" onclick="doPrintReport()" style="display:none;">Cetak / PDF</button>
+          <button class="btn btn-primary" id="btnPembangunanReport" onclick="doPrintPembangunan()" style="display:none; background:var(--gold); border-color:var(--gold); color:#000;">Cetak Lap. Pembangunan</button>
+          <button class="btn btn-danger" id="btnManageClosing" onclick="openClosingModal()" style="display:none;">Manajemen Tutup Buku</button>
         </div>
 
         <div id="reportSensorContainer"
-          style="margin-top: -8px; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; padding: 14px; background: var(--input-bg); border-radius: var(--radius-lg); border: 1px dashed var(--glass-border); max-width: 100%; box-sizing: border-box;">
-          <input type="checkbox" id="sensorPemasukan" onchange="applyReportSensor()"
-            style="width: 20px; height: 20px; accent-color: var(--gold); cursor: pointer; flex-shrink: 0;">
-          <label for="sensorPemasukan"
-            style="color: var(--text); font-size: 14px; cursor: pointer; user-select: none; font-weight: 500;">
-            Aktifkan Sensor Privasi (Sembunyikan Nama Pemberi & Keterangan Pemasukan)
-          </label>
+          style="margin-top: -8px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 16px; padding: 14px; background: var(--input-bg); border-radius: var(--radius-lg); border: 1px dashed var(--glass-border); max-width: 100%; box-sizing: border-box;">
+          
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" id="sensorPemasukan" onchange="applyReportSensor()"
+              style="width: 20px; height: 20px; accent-color: var(--gold); cursor: pointer; flex-shrink: 0;">
+            <label for="sensorPemasukan"
+              style="color: var(--text); font-size: 14px; cursor: pointer; user-select: none; font-weight: 500;">
+              Aktifkan Sensor Privasi
+            </label>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px; padding-left: 16px; border-left: 1px solid var(--glass-border);">
+            <input type="checkbox" id="manualSignature" onchange="applyReportSensor()"
+              style="width: 20px; height: 20px; accent-color: var(--accent-blue); cursor: pointer; flex-shrink: 0;">
+            <label for="manualSignature"
+              style="color: var(--text); font-size: 14px; cursor: pointer; user-select: none; font-weight: 500;">
+              Tanda Tangan Manual (Cetak Kosong)
+            </label>
+          </div>
+
         </div>
 
         <div id="reportContent"></div>
@@ -947,8 +967,15 @@
             <option value="income">Pemasukan Saja</option>
             <option value="expense">Pengeluaran Saja</option>
           </select>
+          <select class="select-sm" id="filterApproval" onchange="renderHistory()">
+            <option value="">Semua Status Approval</option>
+            <option value="pending">Belum Full Approve</option>
+            <option value="approved">Sudah Disetujui</option>
+          </select>
+          <button class="btn btn-ghost" id="btnApproveBulk" onclick="approveBulkTx()"
+            style="display:none; white-space:nowrap; border:1px solid var(--accent-green); color:var(--accent-green); margin-left:auto;">✔️ Approve Semua (0)</button>
           <button class="btn btn-primary" id="btnPrintUnit" onclick="printUnitReport()"
-            style="display:none; white-space:nowrap; margin-left:auto;">Cetak PDF</button>
+            style="display:none; white-space:nowrap; margin-left:8px;">Cetak PDF</button>
         </div>
         <div class="card" style="padding:0;">
           <div id="historyListContainer"></div>
@@ -1046,6 +1073,8 @@
               <select class="form-select" id="userRole">
                 <option value="Viewer">Viewer</option>
                 <option value="Bendahara">Bendahara</option>
+                <option value="Ketua Jemaat">Ketua Jemaat</option>
+                <option value="Pendeta">Pendeta</option>
                 <option value="Admin">Admin</option>
                 <option value="Publik">Publik</option>
               </select>
@@ -1223,6 +1252,105 @@
         </div>
       </div>
     </main>
+  </div>
+
+      <!-- PAGE: SIGNATURES -->
+      <div class="page" id="page-signatures">
+        <div class="card" style="max-width:800px; margin:0 auto;">
+          <div class="form-section-title">Pengaturan Tanda Tangan PDF</div>
+          <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Unggah foto tanda tangan dengan background transparan (PNG). Tanda tangan hanya akan muncul di Laporan PDF apabila <strong>semua transaksi pada bulan tersebut telah disetujui (Approved)</strong> oleh Ketua Jemaat dan Pendeta.</p>
+          
+          <div class="grid-2">
+            <!-- Bendahara Jemaat -->
+            <div style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:16px;">
+              <div style="font-weight:700; font-size:15px; color:var(--text);">Bendahara Jemaat</div>
+              <div style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden;">
+                <img id="preview-sig-bendahara" src="" style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
+                <span id="text-sig-bendahara" style="color: var(--text4); font-size: 12px;">Belum ada TTD</span>
+              </div>
+              <label for="sigBendaharaUpload" class="btn btn-outline" style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah TTD</label>
+              <input type="file" id="sigBendaharaUpload" accept="image/*" style="display:none;" onchange="handleSignatureUpload(this, 'preview-sig-bendahara', 'text-sig-bendahara', 'sig_bendahara')">
+            </div>
+
+            <!-- Ketua Pembangunan -->
+            <div style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:16px;">
+              <div style="font-weight:700; font-size:15px; color:var(--text);">Ketua Pembangunan</div>
+              <div style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden;">
+                <img id="preview-sig-bangun" src="" style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
+                <span id="text-sig-bangun" style="color: var(--text4); font-size: 12px;">Belum ada TTD</span>
+              </div>
+              <label for="sigBangunUpload" class="btn btn-outline" style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah TTD</label>
+              <input type="file" id="sigBangunUpload" accept="image/*" style="display:none;" onchange="handleSignatureUpload(this, 'preview-sig-bangun', 'text-sig-bangun', 'sig_bangun')">
+            </div>
+
+            <!-- Ketua Jemaat -->
+            <div style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:16px;">
+              <div style="font-weight:700; font-size:15px; color:var(--text);">Ketua Jemaat</div>
+              <div style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden;">
+                <img id="preview-sig-ketua" src="" style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
+                <span id="text-sig-ketua" style="color: var(--text4); font-size: 12px;">Belum ada TTD</span>
+              </div>
+              <label for="sigKetuaUpload" class="btn btn-outline" style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah TTD</label>
+              <input type="file" id="sigKetuaUpload" accept="image/*" style="display:none;" onchange="handleSignatureUpload(this, 'preview-sig-ketua', 'text-sig-ketua', 'sig_ketua')">
+            </div>
+
+            <!-- Pendeta Jemaat -->
+            <div style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:16px;">
+              <div style="font-weight:700; font-size:15px; color:var(--text);">Pendeta Jemaat</div>
+              <div style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden;">
+                <img id="preview-sig-pendeta" src="" style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
+                <span id="text-sig-pendeta" style="color: var(--text4); font-size: 12px;">Belum ada TTD</span>
+              </div>
+              <label for="sigPendetaUpload" class="btn btn-outline" style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah TTD</label>
+              <input type="file" id="sigPendetaUpload" accept="image/*" style="display:none;" onchange="handleSignatureUpload(this, 'preview-sig-pendeta', 'text-sig-pendeta', 'sig_pendeta')">
+            </div>
+          </div>
+        </div>
+      </div>
+
+  <!-- MODAL: CLOSING MONTH -->
+  <div id="closingMonthModal" class="sidebar-overlay"
+    style="display:none; justify-content:center; align-items:center; z-index:1200;">
+    <div class="card" style="max-width:440px; width: 100%; padding:32px; margin: 0 16px;">
+      <h3 style="margin-bottom:16px; color: var(--text); display:flex; align-items:center;">
+        <script>document.write(getIcon('lock', 'lucide-lg'))</script> <span style="margin-left: 12px;">Manajemen Tutup Buku</span>
+      </h3>
+      <p style="font-size:14px; color:var(--text2); margin-bottom:24px;">Pilih periode bulan dan tahun yang ingin ditutup atau dibuka akses transaksinya.</p>
+      
+      <div class="form-row keep-row" style="margin-bottom:16px;">
+        <div class="form-group" style="flex:2;">
+          <label class="form-label">Bulan</label>
+          <select class="form-select" id="closingMonthSelect" onchange="updateClosingModalStatus()">
+            <option value="1">Januari</option>
+            <option value="2">Februari</option>
+            <option value="3">Maret</option>
+            <option value="4">April</option>
+            <option value="5">Mei</option>
+            <option value="6">Juni</option>
+            <option value="7">Juli</option>
+            <option value="8">Agustus</option>
+            <option value="9">September</option>
+            <option value="10">Oktober</option>
+            <option value="11">November</option>
+            <option value="12">Desember</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label class="form-label">Tahun</label>
+          <input type="number" class="form-input" id="closingYearInput" value="2026" min="2000" max="2100" onchange="updateClosingModalStatus()">
+        </div>
+      </div>
+
+      <div style="padding:16px; background:var(--input-bg); border-radius:var(--radius); border:1px solid var(--glass-border); text-align:center; margin-bottom:24px;">
+        <div style="font-size:12px; color:var(--text3); margin-bottom:8px;">Status Saat Ini</div>
+        <div id="closingModalStatus" style="font-weight:700; font-size:16px; color:var(--text);">Memuat...</div>
+      </div>
+
+      <div style="display:flex; gap:12px; justify-content:flex-end;">
+        <button class="btn btn-ghost" onclick="closeClosingModal()">Batal</button>
+        <button class="btn btn-danger" id="btnToggleClosingModal" onclick="toggleCloseMonthFromModal()">Tutup Buku</button>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL: SERVER SETTINGS -->
@@ -1450,6 +1578,13 @@
 
       showPage('laporan');
       renderReportView();
+      
+      const container = document.getElementById('printContainer');
+      const content = document.getElementById('reportContent');
+      if (container && content) {
+        container.innerHTML = content.innerHTML;
+      }
+      
       setTimeout(() => { window.print(); }, 500);
     }
 
@@ -1562,6 +1697,23 @@
       const inputSub = document.getElementById('settingAppSubtitle');
       if (inputSub) inputSub.value = systemConfig.app_subtitle || '';
 
+      const sigKeys = ['sig_bendahara', 'sig_bangun', 'sig_ketua', 'sig_pendeta'];
+      sigKeys.forEach(k => {
+        const imgEl = document.getElementById('preview-' + k.replace('_', '-'));
+        const txtEl = document.getElementById('text-' + k.replace('_', '-'));
+        if (imgEl && txtEl) {
+          if (systemConfig[k] && systemConfig[k].trim() !== '') {
+            imgEl.src = systemConfig[k];
+            imgEl.style.display = 'block';
+            txtEl.style.display = 'none';
+          } else {
+            imgEl.src = '';
+            imgEl.style.display = 'none';
+            txtEl.style.display = 'block';
+          }
+        }
+      });
+
       applyRoleAccess();
     }
 
@@ -1581,7 +1733,7 @@
 
     // === ROLE MANAGEMENT ===
     let selectedRoleTab = 'Admin';
-    const allRoles = ['Admin', 'Bendahara', 'Viewer', 'Publik'];
+    const allRoles = ['Admin', 'Ketua Jemaat', 'Pendeta', 'Bendahara', 'Viewer', 'Publik'];
     const allMenus = [
       { id: 'dashboard', label: 'Dashboard Utama' },
       { id: 'pemasukan', label: 'Pemasukan' },
@@ -1595,18 +1747,47 @@
       { id: 'logs', label: 'Audit Log' }
     ];
 
+    function getDefaultRolePerms(role) {
+      const defs = {
+        Admin: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true, approve: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true } }, isAnonymous: false },
+        Bendahara: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
+        Viewer: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
+        Publik: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: false, edit: false, del: false }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: true },
+        "Ketua Jemaat": { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
+        Pendeta: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false }
+      };
+      return defs[role] || { menus: {}, isAnonymous: false };
+    }
+
+    async function resetRolePerms() {
+      const isConfirm = await showCustomConfirm('Reset Hak Akses', `Kembalikan hak akses untuk role ${selectedRoleTab} ke pengaturan default?`);
+      if (!isConfirm) return;
+      if (typeof systemConfig.rolePermissions === 'string') { try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch (e) { systemConfig.rolePermissions = {}; } }
+      if (!systemConfig.rolePermissions) systemConfig.rolePermissions = {};
+      
+      systemConfig.rolePermissions[selectedRoleTab] = getDefaultRolePerms(selectedRoleTab);
+      localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
+      renderRoles();
+      notify(`Hak akses ${selectedRoleTab} di-reset.`, 'success');
+    }
+
     function renderRoles() {
       if (typeof systemConfig.rolePermissions === 'string') {
         try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch (e) { systemConfig.rolePermissions = null; }
       }
       if (!systemConfig.rolePermissions || typeof systemConfig.rolePermissions !== 'object' || Object.keys(systemConfig.rolePermissions).length === 0) {
-        systemConfig.rolePermissions = {
-          Admin: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true } }, isAnonymous: false },
-          Bendahara: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
-          Viewer: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
-          Publik: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: false, edit: false, del: false }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: true }
-        };
+        systemConfig.rolePermissions = {};
+        allRoles.forEach(r => {
+          systemConfig.rolePermissions[r] = getDefaultRolePerms(r);
+        });
       }
+
+      // Pastikan role baru ditambahkan jika sebelumnya tidak ada (legacy config)
+      allRoles.forEach(r => {
+        if (!systemConfig.rolePermissions[r]) {
+          systemConfig.rolePermissions[r] = getDefaultRolePerms(r);
+        }
+      });
 
       document.getElementById('roleTabs').innerHTML = allRoles.map(r => `
         <button class="btn ${selectedRoleTab === r ? 'btn-primary' : 'btn-ghost'}" onclick="selectedRoleTab='${r}'; renderRoles();" style="border-radius:20px; white-space:nowrap; padding: 6px 16px;">
@@ -1614,16 +1795,23 @@
         </button>
       `).join('');
 
-      const perms = systemConfig.rolePermissions[selectedRoleTab] || { menus: {}, isAnonymous: false };
+      const perms = systemConfig.rolePermissions[selectedRoleTab] || getDefaultRolePerms(selectedRoleTab);
 
       let html = '';
       if (selectedRoleTab !== 'Admin') {
-        html += `<div style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:16px;">
-          <div style="font-weight:700; color:var(--text); margin-bottom:8px;">Opsi Khusus: Mode Anonim</div>
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-            <input type="checkbox" id="roleAnonCheckbox" ${perms.isAnonymous ? 'checked' : ''} onchange="updateRoleAnon('${selectedRoleTab}', this.checked)">
-            <span style="color:var(--text2); font-size:14px;">Sembunyikan kolom sensitif (Pihak/Pemberi dan Unit) di tabel Riwayat. Cocok untuk Publik.</span>
-          </label>
+        html += `<div style="display:flex; flex-direction:column; gap:8px;">
+        <div style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:700; color:var(--text); margin-bottom:8px;">Opsi Khusus: Mode Anonim</div>
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="roleAnonCheckbox" ${perms.isAnonymous ? 'checked' : ''} onchange="updateRoleAnon('${selectedRoleTab}', this.checked)">
+                <span style="color:var(--text2); font-size:14px;">Sembunyikan kolom sensitif (Pihak/Pemberi dan Unit) di tabel Riwayat. Cocok untuk Publik.</span>
+              </label>
+            </div>
+            <button class="btn btn-outline" style="border-color:var(--red); color:var(--red); font-size:12px; padding:6px 12px;" onclick="resetRolePerms()">Reset Default</button>
+          </div>
+        </div>
         </div>`;
       } else {
         html += `<div style="padding:16px; background:var(--badge-blue-bg); color:var(--text); border-radius:var(--radius-lg); margin-bottom: 8px;">Role Admin selalu memiliki akses penuh ke semua modul.</div>`;
@@ -1632,7 +1820,7 @@
       html += `<div class="grid-2" style="gap:16px; margin-top:8px;">`;
       allMenus.forEach(menu => {
         let mPerm = perms.menus[menu.id] || { view: false, edit: false, del: false };
-        if (selectedRoleTab === 'Admin') { mPerm = { view: true, edit: true, del: true }; }
+        if (selectedRoleTab === 'Admin') { mPerm = { view: true, edit: true, del: true, approve: true }; }
         const disabled = selectedRoleTab === 'Admin' ? 'disabled' : '';
         html += `
           <div style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius); padding:16px;">
@@ -1650,6 +1838,11 @@
                 <span style="color:var(--text2); font-size:14px;">Delete (Hapus)</span>
                 <input type="checkbox" ${disabled} ${mPerm.del ? 'checked' : ''} onchange="updateRolePerm('${selectedRoleTab}', '${menu.id}', 'del', this.checked)">
               </label>
+              ${menu.id === 'riwayat' ? `
+              <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer; margin-top:4px; padding-top:8px; border-top:1px dashed var(--glass-border);">
+                <span style="color:var(--text2); font-size:14px; font-weight:600;">Approve / Validasi</span>
+                <input type="checkbox" ${disabled} ${mPerm.approve ? 'checked' : ''} onchange="updateRolePerm('${selectedRoleTab}', '${menu.id}', 'approve', this.checked)">
+              </label>` : ''}
             </div>
           </div>
         `;
@@ -1668,18 +1861,19 @@
       if (typeof systemConfig.rolePermissions === 'string') { try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch (e) { } }
       if (!systemConfig.rolePermissions || typeof systemConfig.rolePermissions !== 'object') return;
       if (!systemConfig.rolePermissions[role]) systemConfig.rolePermissions[role] = { menus: {}, isAnonymous: false };
-      if (!systemConfig.rolePermissions[role].menus[menuId]) systemConfig.rolePermissions[role].menus[menuId] = { view: false, edit: false, del: false };
+      if (!systemConfig.rolePermissions[role].menus[menuId]) systemConfig.rolePermissions[role].menus[menuId] = { view: false, edit: false, del: false, approve: false };
       systemConfig.rolePermissions[role].menus[menuId][permType] = checked;
 
       localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig)); // AUTO-SAVE to local storage immediately
 
-      if (checked && (permType === 'edit' || permType === 'del')) {
+      if (checked && (permType === 'edit' || permType === 'del' || permType === 'approve')) {
         systemConfig.rolePermissions[role].menus[menuId].view = true;
         renderRoles();
       }
       if (!checked && permType === 'view') {
         systemConfig.rolePermissions[role].menus[menuId].edit = false;
         systemConfig.rolePermissions[role].menus[menuId].del = false;
+        systemConfig.rolePermissions[role].menus[menuId].approve = false;
         renderRoles();
       }
     }
@@ -1718,11 +1912,36 @@
       reader.readAsDataURL(file);
     }
 
+    function handleSignatureUpload(inputEl, previewId, textId, keyType) {
+      const file = inputEl.files[0]; if (!file) return; notify('Memproses Tanda Tangan...', 'info');
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = async function () {
+          const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
+          const MAX = 300; let w = img.width, h = img.height;
+          if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+          canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL('image/png', 0.8);
+          
+          document.getElementById(previewId).src = dataUrl;
+          document.getElementById(previewId).style.display = 'block';
+          document.getElementById(textId).style.display = 'none';
+          
+          systemConfig[keyType] = dataUrl; localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
+          try { 
+            const res = await apiPostWithFallback('saveConfig', { key: keyType, value: dataUrl }); 
+            if (res.success) notify(`Tanda Tangan tersimpan!`, 'success'); else throw new Error(res.message); 
+          } catch (err) { notify('Gagal: ' + err.message, 'error'); }
+        }
+        img.src = e.target.result;
+      }
+      reader.readAsDataURL(file);
+    }
 
-    function handleReceiptPhoto(event, type) {
+    async function handleReceiptPhoto(event, type) {
       const files = Array.from(event.target.files);
       if (files.length === 0) return;
-
       const MAX_CHARS = 48000;
       let targetArray = type === 'income' ? currentIncPhotos : (type === 'expense' ? currentExpPhotos : currentEditPhotos);
       let targetGridId = type === 'income' ? 'incPhotoGrid' : (type === 'expense' ? 'expPhotoGrid' : 'editPhotoGrid');
@@ -1734,37 +1953,49 @@
         return;
       }
 
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const img = new Image();
-          img.onload = function () {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            let quality = 0.95; let scale = 1.0; let dataUrl = ''; let iterations = 0;
-            let baseWidth = img.width; let baseHeight = img.height; const MAX_START = 1600;
-            if (baseWidth > baseHeight && baseWidth > MAX_START) { baseHeight *= MAX_START / baseWidth; baseWidth = MAX_START; }
-            else if (baseHeight > MAX_START) { baseWidth *= MAX_START / baseHeight; baseHeight = MAX_START; }
+      setStatus('loading', 'Memproses gambar...');
 
-            do {
-              canvas.width = Math.floor(baseWidth * scale);
-              canvas.height = Math.floor(baseHeight * scale);
-              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-              dataUrl = canvas.toDataURL('image/jpeg', quality);
-              if (dataUrl.length > MAX_CHARS) {
-                quality -= 0.1;
-                if (quality < 0.4) { quality = 0.8; scale *= 0.8; }
-              }
-              iterations++;
-            } while (dataUrl.length > MAX_CHARS && iterations < 15);
+      for (const file of files) {
+        try {
+          const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const img = new Image();
+              img.onload = function () {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                let quality = 0.95; let scale = 1.0; let result = ''; let iterations = 0;
+                let baseWidth = img.width; let baseHeight = img.height; const MAX_START = 1600;
+                if (baseWidth > baseHeight && baseWidth > MAX_START) { baseHeight *= MAX_START / baseWidth; baseWidth = MAX_START; }
+                else if (baseHeight > MAX_START) { baseWidth *= MAX_START / baseHeight; baseHeight = MAX_START; }
 
-            targetArray.push(dataUrl);
-            renderPhotoPreview(targetArray, targetGridId, targetUploadBoxId, type);
-          }
-          img.src = e.target.result;
+                do {
+                  canvas.width = Math.floor(baseWidth * scale);
+                  canvas.height = Math.floor(baseHeight * scale);
+                  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                  result = canvas.toDataURL('image/jpeg', quality);
+                  if (result.length > MAX_CHARS) {
+                    quality -= 0.1;
+                    if (quality < 0.4) { quality = 0.8; scale *= 0.8; }
+                  }
+                  iterations++;
+                } while (result.length > MAX_CHARS && iterations < 15);
+                resolve(result);
+              };
+              img.onerror = () => reject(new Error('Format gambar tidak didukung atau rusak.'));
+              img.src = e.target.result;
+            };
+            reader.onerror = () => reject(new Error('Gagal membaca file.'));
+            reader.readAsDataURL(file);
+          });
+          targetArray.push(dataUrl);
+          renderPhotoPreview(targetArray, targetGridId, targetUploadBoxId, type);
+        } catch (err) {
+          notify(err.message, 'error');
         }
-        reader.readAsDataURL(file);
-      });
+      }
+
+      updateAppStatus(); // Reset status dot
       event.target.value = '';
     }
 
@@ -1983,6 +2214,8 @@
         perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
       } else if (role === 'Viewer') {
         perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
+      } else if (role === 'Ketua Jemaat' || role === 'Pendeta') {
+        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
       } else if (role === 'Publik') {
         perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: false, edit: false, del: false }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: true };
       }
@@ -2183,6 +2416,10 @@
             // Check direct ownership
             if (cUsername && (pInputBy === cUsername || pInputter === cUsername || pUser === cUsername)) return false;
             if (cNama && (pPemberi.includes(cNama) || pPenerima.includes(cNama))) return false;
+
+            const rPerms = getRolePerms(currentUser.role);
+            const isApprover = rPerms && rPerms.menus && rPerms.menus.riwayat && rPerms.menus.riwayat.approve;
+            if (isApprover || currentUser.role === 'Pendeta' || currentUser.role === 'Ketua Jemaat') return false;
 
             // Check unit ownership
             if (uUnits.length > 0) {
@@ -2529,6 +2766,10 @@
 
     async function saveIncomeForm() {
       const date = document.getElementById('incDate').value; const type = document.getElementById('incType').value;
+      if (date) {
+        const d = new Date(date);
+        if (checkMonthClosed(d.getMonth() + 1, d.getFullYear())) { notify('Bulan ini sudah ditutup. Tidak dapat menambah transaksi.', 'error'); return; }
+      }
       const unit = document.getElementById('incUnit').value; const giver = document.getElementById('incGiver').value.trim();
       const receipt = document.getElementById('incReceipt').value.trim(); const note = document.getElementById('incNote').value.trim();
 
@@ -2543,7 +2784,11 @@
           await apiPost('saveBulkIncome', { date, unit_name: unit || '-', receipt_no: receipt, items, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
         } else {
           const amount = parseFloat(document.getElementById('incAmount').value) || 0; if (amount <= 0) throw new Error('Isi nominal!');
-          await apiPost('saveIncome', { date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount, note, alloc_pct_daerah: 0, alloc_pct_jemaat: 0, alloc_pct_bangun: 0, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
+          let pctD = 0; let pctJ = 100; let pctB = 0;
+          const tLower = type.toLowerCase();
+          if (type === 'Khusus Daerah' || type === 'Perpuluhan') { pctD = 100; pctJ = 0; }
+          else if (type === 'Terpadu' || tLower.includes('sabat')) { pctD = 50; pctJ = 50; }
+          await apiPost('saveIncome', { date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount, note, alloc_pct_daerah: pctD, alloc_pct_jemaat: pctJ, alloc_pct_bangun: pctB, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
         }
         notify('Berhasil disimpan!', 'success');
 
@@ -2605,6 +2850,10 @@
 
     async function saveExpenseForm() {
       const date = document.getElementById('expDate').value; const dept = document.getElementById('expDept').value;
+      if (date) {
+        const d = new Date(date);
+        if (checkMonthClosed(d.getMonth() + 1, d.getFullYear())) { notify('Bulan ini sudah ditutup. Tidak dapat menambah transaksi.', 'error'); return; }
+      }
       const src = document.getElementById('expSource').value; const receipt = document.getElementById('expReceipt').value.trim();
       const amount = parseFloat(document.getElementById('expAmount').value) || 0; const note = document.getElementById('expNote').value.trim();
       const receiver = document.getElementById('expReceiver').value.trim();
@@ -2680,7 +2929,9 @@
         let totalInc = 0; let totalExp = 0;
         const incByCat = {}; const expByDept = {};
 
-        let saldoAwal = (cachedSaldo.initJemaat || 0) + (cachedSaldo.initDaerah || 0) + (cachedSaldo.initBangun || 0);
+        let saldoAwal = (cachedSaldo.initJemaat || 0) + (cachedSaldo.initDaerah || 0);
+        
+        let saldoAwalJemaat = cachedSaldo.initJemaat || 0;
 
         if (mode === 'bulanan') {
           const isBefore = (dateStr) => {
@@ -2689,21 +2940,19 @@
             if (year !== 0 && d.getFullYear() === year && month !== 0 && (d.getMonth() + 1) < month) return true;
             return false;
           };
-          (cachedIncome || []).forEach(x => { if (isBefore(x.date)) saldoAwal += x.amount; });
-          (cachedExpense || []).forEach(x => { if (isBefore(x.date)) saldoAwal -= x.amount; });
-        }
-
-        if (saldoAwal !== 0) {
-          incByCat['Saldo Awal'] = [{
-            date: (mode === 'bulanan' && year !== 0 && month !== 0) ? `${year}-${String(month).padStart(2, '0')}-01` : '2000-01-01',
-            income_type: 'Saldo Awal',
-            receipt_no: 'SALDO_AWAL',
-            nama_pemberi: 'Sistem / Akumulasi',
-            source_balance: 'Sistem',
-            amount: saldoAwal,
-            note: mode === 'bulanan' ? 'Saldo kumulatif sebelum periode ini' : 'Saldo Awal Sistem'
-          }];
-          totalInc += saldoAwal;
+          (cachedIncome || []).forEach(x => { 
+            const isBangun = (x.income_type || '').toLowerCase().includes('pembangunan') || parseFloat(x.alloc_bangun || 0) > 0;
+            if (isBefore(x.date) && !isBangun) {
+              saldoAwal += parseFloat(x.amount || 0);
+              saldoAwalJemaat += (parseFloat(x.alloc_jemaat) || 0);
+            }
+          });
+          (cachedExpense || []).forEach(x => { 
+            if (isBefore(x.date) && x.source_balance !== 'Pembangunan') {
+              saldoAwal -= parseFloat(x.amount || 0); 
+              if (x.source_balance === 'Kas Jemaat') saldoAwalJemaat -= parseFloat(x.amount || 0);
+            }
+          });
         }
 
         const isMatch = (dateStr) => {
@@ -2722,21 +2971,32 @@
         };
 
         (cachedIncome || []).filter(x => isMatch(x.date)).forEach(x => {
+          const isBangun = (x.income_type || '').toLowerCase().includes('pembangunan') || parseFloat(x.alloc_bangun || 0) > 0;
+          if (isBangun) return;
           const cat = x.income_type || 'Lainnya';
           if (!incByCat[cat]) incByCat[cat] = [];
           incByCat[cat].push(x);
-          totalInc += x.amount;
+          totalInc += parseFloat(x.amount || 0);
         });
 
         (cachedExpense || []).filter(x => isMatch(x.date)).forEach(x => {
+          if (x.source_balance === 'Pembangunan') return;
           const dept = x.department || 'Lainnya';
           if (!expByDept[dept]) expByDept[dept] = [];
           expByDept[dept].push(x);
-          totalExp += x.amount;
+          totalExp += parseFloat(x.amount || 0);
         });
 
         currentReportData = {
-          summary: { saldoAwal: saldoAwal, periodIncome: totalInc - saldoAwal, totalIncome: totalInc, totalExpense: totalExp, netBalance: totalInc - totalExp, balances: cachedSaldo || { total: 0 } },
+          summary: { 
+            saldoAwal: saldoAwal, 
+            saldoAwalJemaat: saldoAwalJemaat, 
+            periodIncome: totalInc, 
+            totalIncome: totalInc + saldoAwal, 
+            totalExpense: totalExp, 
+            netBalance: totalInc + saldoAwal - totalExp, 
+            balances: cachedSaldo || { total: 0 } 
+          },
           incByCategory: incByCat,
           expByDept: expByDept,
           month: month,
@@ -2747,6 +3007,10 @@
         renderReportView();
         const exportBtn = document.getElementById('btnExportExcel');
         if (exportBtn) exportBtn.style.display = 'inline-block';
+        const printBtn = document.getElementById('btnPrintReport');
+        if (printBtn) printBtn.style.display = 'inline-block';
+        const pmbBtn = document.getElementById('btnPembangunanReport');
+        if (pmbBtn) pmbBtn.style.display = 'inline-block';
       } catch (e) {
         rc.innerHTML = `<div style="text-align:center; padding:20px; color:var(--red-pop)">Gagal memuat: ${e.message}</div>`;
       }
@@ -2758,13 +3022,16 @@
       const year = currentReportData.year;
       const mode = currentReportData.mode;
 
+      const isSensor = document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false;
+
       const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
       const periodStr = mode === 'bulanan' ? `${monthNames[month] || '-'} ${year || '-'}` : (mode === 'akumulasi' ? `Akumulasi Thn ${year || '-'}` : (currentReportData.customPeriod || 'Pencarian'));
 
       const groupedInc = {};
       let totalInc = 0; let totalExp = 0;
       const incByCat = {}; const expByDept = {};
-      let saldoAwal = (currentReportData.summary && currentReportData.summary.saldoAwal) || 0;
+      const saldoAwal = (currentReportData.summary && currentReportData.summary.saldoAwal) || 0;
+      const saldoAwalJemaat = (currentReportData.summary && currentReportData.summary.saldoAwalJemaat) || 0;
 
       const txIn = [];
       if (currentReportData.incByCategory) {
@@ -2775,34 +3042,89 @@
         Object.values(currentReportData.expByDept).forEach(arr => arr.forEach(x => txOut.push(x)));
       }
 
+      let allApproved = true;
+      const allTx = [...txIn, ...txOut];
+      if (allTx.length === 0) {
+        allApproved = false;
+      } else {
+        for (let i = 0; i < allTx.length; i++) {
+          const x = allTx[i];
+          const isKetua = x.approved_by && x.approved_by.includes('Ketua Jemaat');
+          const isPendeta = x.approved_by && x.approved_by.includes('Pendeta');
+          if (!isKetua || !isPendeta) { allApproved = false; break; }
+        }
+      }
+
+      const isManualSignature = document.getElementById('manualSignature') ? document.getElementById('manualSignature').checked : false;
+      const useImages = allApproved && !isManualSignature;
+
+      let totalIncJemaat = 0;
+      let totalExpJemaat = 0;
+      const incJemaatByCat = {};
+      const expJemaatByDept = {};
+
       txIn.forEach(x => {
         const key = x.receipt_no ? x.receipt_no : (x.date + '|' + (x.nama_pemberi || 'Umum'));
         if (!groupedInc[key]) {
           groupedInc[key] = {
-            tanggal: x.date, nama: x.nama_pemberi || 'Umum', kwitansi: x.receipt_no || '',
-            perpuluhan: 0, terpadu: 0, khususJemaat: 0, khususDaerah: 0,
-            allocDaerah: 0, allocJemaat: 0, isPerorangan: false
+            tanggal: x.date,
+            nama: x.unit_name && x.unit_name !== '-' ? x.unit_name : (x.nama_pemberi || '-'),
+            hasUnit: !!(x.unit_name && x.unit_name !== '-'),
+            kwitansi: x.receipt_no || '-',
+            perpuluhan: 0,
+            terpadu: 0,
+            khususJemaat: 0,
+            khususDaerah: 0,
+            allocDaerah: 0,
+            allocJemaat: 0,
+            isPerorangan: false
           };
         }
         const t = x.income_type || 'Lain-Lain';
         const amt = parseFloat(x.amount) || 0;
+        let amtJemaat = parseFloat(x.alloc_jemaat) || 0;
+
+        const tLower = t.toLowerCase();
+        const isSabat = tLower.includes('sabat');
+
+        // FORCE STRICT MATH TO PREVENT DATA INCONSISTENCIES
+        if (t === 'Perpuluhan' || t === 'Khusus Daerah') {
+          amtJemaat = 0;
+        } else if (t === 'Terpadu' || isSabat) {
+          amtJemaat = amt * 0.5;
+        } else if (t !== 'Saldo Awal Sistem' && t !== 'Saldo Awal') {
+          amtJemaat = amt; // Khusus Jemaat / Sumbangan / Others get 100%
+        }
 
         if (t === 'Perpuluhan') { groupedInc[key].perpuluhan += amt; groupedInc[key].isPerorangan = true; }
         else if (t === 'Terpadu') { groupedInc[key].terpadu += amt; groupedInc[key].isPerorangan = true; }
+        else if (isSabat) { groupedInc[key].terpadu += amt; }
         else if (t === 'Khusus Daerah') groupedInc[key].khususDaerah += amt;
         else groupedInc[key].khususJemaat += amt;
 
         groupedInc[key].allocDaerah += parseFloat(x.alloc_daerah || 0);
-        groupedInc[key].allocJemaat += parseFloat(x.alloc_jemaat || 0);
+        groupedInc[key].allocJemaat += amtJemaat;
 
         incByCat[t] = (incByCat[t] || 0) + amt;
         totalInc += amt;
+        
+        if (amtJemaat > 0 && t !== 'Saldo Awal Sistem' && t !== 'Saldo Awal') {
+          const jCat = isSabat ? 'Terpadu' : t;
+          incJemaatByCat[jCat] = (incJemaatByCat[jCat] || 0) + amtJemaat;
+          totalIncJemaat += amtJemaat;
+        }
       });
 
       txOut.forEach(x => {
         const d = x.department || 'Lain-Lain';
-        expByDept[d] = (expByDept[d] || 0) + parseFloat(x.amount || 0);
-        totalExp += parseFloat(x.amount || 0);
+        const amt = parseFloat(x.amount || 0);
+        expByDept[d] = (expByDept[d] || 0) + amt;
+        totalExp += amt;
+        
+        if (x.source_balance === 'Kas Jemaat') {
+          expJemaatByDept[d] = (expJemaatByDept[d] || 0) + amt;
+          totalExpJemaat += amt;
+        }
       });
 
       const topRows = [];
@@ -2817,31 +3139,67 @@
       bottomRows.sort(sortFn);
 
       const rightPanel = [];
-      rightPanel.push({ label: 'Saldo Awal Bank bulan ini', val: saldoAwal, bold: true });
+      rightPanel.push({ label: 'Kas Jemaat Terakhir Bulan Sebelumnya', val: saldoAwalJemaat, bold: true });
       rightPanel.push({ label: 'PEMASUKAN', val: null, bold: true });
-      const incOrder = ['Perpuluhan', 'Terpadu', 'Khusus Daerah', 'Khusus Jemaat', 'Bunga Bank', 'Lain-Lain'];
+      
+      const incOrder = ['Terpadu', 'Khusus Jemaat', 'Bunga Bank', 'Lain-Lain'];
       const seenInc = new Set();
       incOrder.forEach(k => {
-        let v = incByCat[k] || 0;
+        let v = incJemaatByCat[k] || 0;
         let displayK = k === 'Terpadu' ? 'Persembahan Terpadu' : k;
-        if (k === 'Khusus Daerah') displayK = 'Persembahan Khusus Daerah';
         if (k === 'Khusus Jemaat') displayK = 'Persembahan Khusus Kas Jemaat';
-        if (v > 0 || incByCat[k] !== undefined) { rightPanel.push({ label: displayK, val: v, indent: true }); seenInc.add(k); }
+        if (v > 0 || incJemaatByCat[k] !== undefined) { rightPanel.push({ label: displayK, val: v, indent: true }); seenInc.add(k); }
       });
-      Object.entries(incByCat).forEach(([k, v]) => {
-        if (!seenInc.has(k) && k !== 'Saldo Awal Sistem' && k !== 'Saldo Awal') rightPanel.push({ label: k, val: v, indent: true });
+      Object.entries(incJemaatByCat).forEach(([k, v]) => {
+        if (!seenInc.has(k)) rightPanel.push({ label: k, val: v, indent: true });
       });
-      rightPanel.push({ label: 'Total Pemasukan', val: totalInc, bold: true });
+      rightPanel.push({ label: 'Total Pemasukan', val: totalIncJemaat, bold: true });
 
       rightPanel.push({ label: 'PENGELUARAN', val: null, bold: true });
-      Object.entries(expByDept).forEach(([k, v]) => rightPanel.push({ label: k, val: v, indent: true }));
-      rightPanel.push({ label: 'Total Pengeluaran', val: totalExp, bold: true });
+      Object.entries(expJemaatByDept).forEach(([k, v]) => rightPanel.push({ label: k, val: v, indent: true }));
+      rightPanel.push({ label: 'Total Pengeluaran', val: totalExpJemaat, bold: true });
 
-      const saldoAkhir = saldoAwal + totalInc - totalExp;
-      rightPanel.push({ label: 'Saldo Akhir Bulan ini', val: saldoAkhir, bold: true, isBorderTop: true });
-      rightPanel.push({ label: 'Kas Pada Bank', val: saldoAkhir, indent: true });
+      const saldoAkhirJemaat = saldoAwalJemaat + totalIncJemaat - totalExpJemaat;
+      rightPanel.push({ label: 'Saldo Akhir Bulan ini', val: saldoAkhirJemaat, bold: true, isBorderTop: true });
+      rightPanel.push({ label: 'Kas Pada Jemaat', val: saldoAkhirJemaat, indent: true });
       rightPanel.push({ label: 'CASH ON HAND / Ditangan', val: 0, indent: true });
-      rightPanel.push({ label: 'Balance Saldo Kas Jemaat', val: saldoAkhir, bold: true, large: true, isBorderTop: true });
+      rightPanel.push({ label: 'Balance Saldo Kas Jemaat', val: saldoAkhirJemaat, bold: true, large: true, isBorderTop: true });
+
+      // Tambahan info Uang Daerah
+      rightPanel.push({ label: '', val: null }); // Spacer
+      
+      let sumTerpaduTotal = 0;
+      Object.entries(incByCat).forEach(([k, amt]) => {
+        if (k === 'Terpadu' || k.toLowerCase().includes('sabat')) {
+          sumTerpaduTotal += amt;
+        }
+      });
+      
+      const sumPerpuluhan = incByCat['Perpuluhan'] || 0;
+      const sumTerpaduDaerah = sumTerpaduTotal / 2;
+      const sumKhususDaerah = incByCat['Khusus Daerah'] || 0;
+      const sumTotalDaerah = sumPerpuluhan + sumTerpaduDaerah + sumKhususDaerah;
+      
+      rightPanel.push({ label: 'Total Uang Daerah', val: sumTotalDaerah, bold: true });
+      rightPanel.push({ label: 'Perpuluhan', val: sumPerpuluhan, indent: true });
+      rightPanel.push({ label: '50% Terpadu Daerah', val: sumTerpaduDaerah, indent: true });
+      rightPanel.push({ label: 'Persembahan Khusus Daerah', val: sumKhususDaerah, indent: true });
+
+      const imgBen = useImages && systemConfig.sig_bendahara ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgBangun = useImages && systemConfig.sig_bangun ? `<img src="${systemConfig.sig_bangun}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgKet = useImages && systemConfig.sig_ketua ? `<img src="${systemConfig.sig_ketua}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgPen = useImages && systemConfig.sig_pendeta ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+
+      const signHtml = `
+        <table style="width: 100%; margin-top: 40px; text-align: center; font-family: sans-serif; font-size: 10pt; color: #000; border: none; background: transparent;">
+          <tr>
+            <td style="width: 25%; border: none; vertical-align: bottom;">Dibuat Oleh,<br>${imgBen}<br><strong>Herbert JS Sagala</strong><br>Bendahara Jemaat</td>
+            <td style="width: 25%; border: none; vertical-align: bottom;">Mengetahui,<br>${imgBangun}<br><strong>Ketua Pembangunan</strong><br>Ketua Pembangunan</td>
+            <td style="width: 25%; border: none; vertical-align: bottom;">Disahkan Oleh,<br>${imgKet}<br><strong>Yosep Santoso</strong><br>Ketua Jemaat</td>
+            <td style="width: 25%; border: none; vertical-align: bottom;">Mengetahui,<br>${imgPen}<br><strong>Pdt. Yoseph Sihotang</strong><br>Gembala Jemaat</td>
+          </tr>
+        </table>
+      `;
 
       const tableStyle = isExcel ? 'border-collapse: collapse; font-family: Calibri, sans-serif; font-size: 10pt;' : 'border-collapse: collapse; width: 100%; font-family: sans-serif; font-size: 6.5pt; table-layout: fixed; word-wrap: break-word;';
       const thStyle = isExcel ? 'border: 1px solid #000; padding: 4px; font-weight: bold; text-align: center; background-color: #e2e8f0;' : 'border: 1px solid #000; padding: 3px 1px; font-weight: bold; text-align: center; background-color: #e2e8f0; color: #000; font-size: 5.5pt; line-height: 1.1;';
@@ -2849,14 +3207,22 @@
       const numStyle = isExcel ? 'mso-number-format:"\\#\\,\\#\\#0"; text-align: right;' : 'text-align: right; white-space: nowrap;';
 
       let html = `
-        <div style="margin-bottom: 15px; color: #000; font-family: sans-serif;">
-          <h2 style="margin:0; font-size: 12pt;">DAERAH SUMATERA KAWASAN TENGAH</h2>
-          <h3 style="margin:0; font-size: 10pt;">LAPORAN KEUANGAN JEMAAT</h3>
-          <table style="font-size:9pt; margin-top: 8px; border:none; width: auto;">
-            <tr><td style="font-weight:bold; width: 120px; border:none; padding:2px;">Nama Jemaat:</td><td style="border:none; padding:2px;">PISGAH - BISDAC</td></tr>
-            <tr><td style="font-weight:bold; border:none; padding:2px;">Bulan/Tahun:</td><td style="border:none; padding:2px;">${periodStr}</td></tr>
-          </table>
-        </div>
+        <table style="width: 100%; border: none; margin-bottom: 20px; color: #000; font-family: sans-serif;">
+          <tr>
+            <td style="width: 100px; border: none; text-align: left; vertical-align: middle; padding: 0;">
+              <img src="./icons/hijau.png" style="width: 80px; height: auto;" alt="Logo Kiri" />
+            </td>
+            <td style="border: none; text-align: center; vertical-align: middle; padding: 0;">
+              <h2 style="margin:0; font-size: 14pt; font-weight: bold;">DAERAH SUMATERA KAWASAN TENGAH</h2>
+              <h3 style="margin:5px 0 0 0; font-size: 12pt;">LAPORAN KEUANGAN JEMAAT</h3>
+              <p style="margin:5px 0 0 0; font-size: 10pt;">Nama Jemaat: <strong>PISGAH - BISDAC</strong></p>
+              <p style="margin:5px 0 0 0; font-size: 10pt;">Bulan/Tahun: <strong>${periodStr}</strong></p>
+            </td>
+            <td style="width: 100px; border: none; text-align: right; vertical-align: middle; padding: 0;">
+              <img src="./icons/PisgahLogoColor.png" style="width: 80px; height: auto;" alt="Logo Kanan" />
+            </td>
+          </tr>
+        </table>
         <table style="${tableStyle}">
           <thead>
             <tr>
@@ -2867,20 +3233,20 @@
             </tr>
             <tr>
               <th style="${thStyle} width: 2%;">No</th>
-              <th style="${thStyle} width: 4%;">Tanggal</th>
-              <th style="${thStyle} width: 10%;">Nama Unit Pemberi /<br>Perpuluhan & Terpadu</th>
-              <th style="${thStyle} width: 5%;">Nomor<br>Kwitansi</th>
-              <th style="${thStyle} width: 6%;">Perpuluhan</th>
-              <th style="${thStyle} width: 6%;">Persembahan<br>Terpadu</th>
-              <th style="${thStyle} width: 6%;">Persembahan Khusus<br>Kas Jemaat</th>
-              <th style="${thStyle} width: 6.5%;">TOTAL<br>Receipt</th>
-              <th style="${thStyle} width: 6%;">Perpuluhan</th>
-              <th style="${thStyle} width: 6%;">50% Terpadu<br>Daerah</th>
-              <th style="${thStyle} width: 6%;">Persembahan<br>Khusus</th>
-              <th style="${thStyle} width: 6.5%;">Jumlah Uang<br>Daerah</th>
-              <th style="${thStyle} width: 6%;">50% Terpadu<br>Jemaat</th>
-              <th style="${thStyle} width: 6%;">Persembahan Khusus<br>Kas Jemaat</th>
-              <th style="${thStyle} width: 6.5%;">Jumlah Uang<br>Jemaat</th>
+              <th style="${thStyle} width: 4.5%;">Tanggal</th>
+              <th style="${thStyle} width: 9.5%;">Nama Unit Pemberi /<br>Perpuluhan & Terpadu</th>
+              <th style="${thStyle} width: 4.5%;">Nomor<br>Kwitansi</th>
+              <th style="${thStyle} width: 5.5%;">Perpuluhan</th>
+              <th style="${thStyle} width: 5.5%;">Persembahan<br>Terpadu</th>
+              <th style="${thStyle} width: 5.5%;">Persembahan Khusus<br>Kas Jemaat</th>
+              <th style="${thStyle} width: 6%;">TOTAL<br>Receipt</th>
+              <th style="${thStyle} width: 5.5%;">Perpuluhan</th>
+              <th style="${thStyle} width: 5.5%;">50% Terpadu<br>Daerah</th>
+              <th style="${thStyle} width: 5.5%;">Persembahan<br>Khusus</th>
+              <th style="${thStyle} width: 6%;">Jumlah Uang<br>Daerah</th>
+              <th style="${thStyle} width: 5.5%;">50% Terpadu<br>Jemaat</th>
+              <th style="${thStyle} width: 5.5%;">Persembahan Khusus<br>Kas Jemaat</th>
+              <th style="${thStyle} width: 6%;">Jumlah Uang<br>Jemaat</th>
               <th style="${thStyle} width: 11%;">Pemasukan &<br>Pengeluaran Jemaat</th>
               <th style="${thStyle} width: 6.5%;">TOTAL</th>
             </tr>
@@ -2911,7 +3277,12 @@
           s.d_p += p; s.d_t += (t * 0.5); s.d_k += data.khususDaerah; s.d_tot += (p + (t * 0.5) + data.khususDaerah);
           s.j_t += (t * 0.5); s.j_k += k; s.j_tot += ((t * 0.5) + k);
 
-          c1 = rowNum; c2 = fmtDate(data.tanggal); c3 = data.nama; c4 = data.kwitansi;
+          const isPrivCategory = isPrivateCategory(data.nama);
+          let dNama = data.nama;
+          if (isPrivCategory) dNama = '*** (Privasi)';
+          else if (isSensor && !data.hasUnit) dNama = '*** (Privasi)';
+
+          c1 = rowNum; c2 = fmtDate(data.tanggal); c3 = dNama; c4 = data.kwitansi;
         } else if (data === 'label_top') {
           c3 = 'PERPULUHAN & TERPADU';
         } else if (data === 'label_bot') {
@@ -2939,19 +3310,19 @@
           <td style="${tdStyle} ${bStyle} white-space:nowrap;">${c2}</td>
           <td style="${tdStyle} ${bStyle}">${c3}</td>
           <td style="${tdStyle} ${bStyle} mso-number-format:'\\@';">${c4}</td>
-          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : fmtEx(p)}</td>
-          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : fmtEx(t)}</td>
-          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : fmtEx(k)}</td>
-          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${isLabel ? '' : fmtEx(tot)}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : fmtEx(p)}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : fmtEx(t)}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : fmtEx(k)}</td>
+          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${(data === 'label_top' || data === 'label_bot') ? '' : fmtEx(tot)}</td>
           
-          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : out_dp}</td>
-          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : out_dt}</td>
-          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : out_dk}</td>
-          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${isLabel ? '' : out_dtot}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : out_dp}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : out_dt}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : out_dk}</td>
+          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${(data === 'label_top' || data === 'label_bot') ? '' : out_dtot}</td>
           
-          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : out_jt}</td>
-          <td style="${tdStyle} ${numStyle} ${bStyle}">${isLabel ? '' : out_jk}</td>
-          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${isLabel ? '' : out_jtot}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : out_jt}</td>
+          <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : out_jk}</td>
+          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${(data === 'label_top' || data === 'label_bot') ? '' : out_jtot}</td>
         `;
 
         if (rightIdx < rightPanel.length) {
@@ -2987,18 +3358,61 @@
       }
 
       html += `</tbody></table>`;
+      
+      // SIGNATURE FOR MAIN REPORT
+      html += signHtml;
 
-      const signHtml = `
-        <table style="width: 100%; margin-top: 40px; text-align: center; font-family: sans-serif; font-size: 10pt; color: #000; border: none; background: transparent;">
-          <tr>
-            <td style="width: 33%; border: none;">Dibuat Oleh,<br><br><br><br><br><strong>Herbert JS Sagala</strong><br>Bendahara Jemaat</td>
-            <td style="width: 33%; border: none;">Disahkan Oleh,<br><br><br><br><br><strong>Yosep Santoso</strong><br>Ketua Jemaat</td>
-            <td style="width: 33%; border: none;">Mengetahui,<br><br><br><br><br><strong>Pdt. Yoseph Sihotang</strong><br>Gembala Jemaat</td>
-          </tr>
-        </table>
+      // --- EXPENSES TABLE ---
+      html += `
+        <div style="page-break-before: always; margin-top: 30px; color: #000; font-family: sans-serif;">
+          <h3 style="margin:0; font-size: 11pt; text-align: center;">LAMPIRAN: RINCIAN PENGELUARAN JEMAAT & DAERAH</h3>
+        </div>
+        <table style="${tableStyle} margin-top: 10px;">
+          <thead>
+            <tr>
+              <th style="${thStyle} width: 5%;">No</th>
+              <th style="${thStyle} width: 12%;">Tanggal</th>
+              <th style="${thStyle} width: 15%;">Sumber Kas</th>
+              <th style="${thStyle} width: 20%;">Bagian / Dept</th>
+              <th style="${thStyle} width: 33%;">Keterangan</th>
+              <th style="${thStyle} width: 15%;">Nominal</th>
+            </tr>
+          </thead>
+          <tbody>
       `;
+      txOut.sort((a, b) => new Date(a.date) - new Date(b.date));
+      if (txOut.length === 0) {
+        html += `<tr><td colspan="6" style="${tdStyle} text-align:center;">Tidak ada pengeluaran pada periode ini.</td></tr>`;
+      } else {
+        let grandExp = 0;
+        txOut.forEach((x, i) => {
+          const amt = parseFloat(x.amount || 0);
+          grandExp += amt;
 
-      return html + signHtml;
+          const isMasked = isSensor && (x.department === 'Diakonia' || x.department === 'Bantuan');
+          const dDept = isMasked ? '***' : (x.department || '-');
+          const dNote = isMasked ? '*** (Privasi)' : (x.note || '-');
+
+          html += `<tr>
+            <td style="${tdStyle} text-align:center;">${i + 1}</td>
+            <td style="${tdStyle} text-align:center;">${fmtDate(x.date)}</td>
+            <td style="${tdStyle}">${x.source_balance || '-'}</td>
+            <td style="${tdStyle}">${dDept}</td>
+            <td style="${tdStyle}">${dNote}</td>
+            <td style="${tdStyle} ${numStyle}">${isExcel ? amt : fmt(amt)}</td>
+          </tr>`;
+        });
+        html += `<tr>
+          <td colspan="5" style="${tdStyle} text-align:right; font-weight:bold; background-color:#f9fafb;">TOTAL PENGELUARAN</td>
+          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${isExcel ? grandExp : fmt(grandExp)}</td>
+        </tr>`;
+      }
+      html += `</tbody></table>`;
+      
+      // SIGNATURE FOR EXPENSES
+      html += signHtml;
+
+      return html;
     }
 
     function doPrintReport() {
@@ -3061,13 +3475,102 @@
       if (currentReportData) renderReportView();
     }
 
+    function openClosingModal() {
+      const modal = document.getElementById('closingMonthModal');
+      const mSel = document.getElementById('closingMonthSelect');
+      const yInp = document.getElementById('closingYearInput');
+      
+      const d = new Date();
+      mSel.value = d.getMonth() + 1;
+      yInp.value = d.getFullYear();
+      
+      if (currentReportData && currentReportData.month > 0 && currentReportData.year > 0) {
+        mSel.value = currentReportData.month;
+        yInp.value = currentReportData.year;
+      }
+      
+      updateClosingModalStatus();
+      modal.style.display = 'flex';
+    }
+
+    function closeClosingModal() {
+      document.getElementById('closingMonthModal').style.display = 'none';
+    }
+
+    function updateClosingModalStatus() {
+      const month = document.getElementById('closingMonthSelect').value;
+      const year = document.getElementById('closingYearInput').value;
+      const key = `closed_${year}_${month}`;
+      const isClosed = systemConfig[key] === 'true';
+      
+      const statusEl = document.getElementById('closingModalStatus');
+      const btn = document.getElementById('btnToggleClosingModal');
+      
+      if (isClosed) {
+        statusEl.innerHTML = '<span style="color:var(--red-pop);">Terkunci (Ditutup)</span>';
+        btn.textContent = 'Buka Buku';
+        btn.className = 'btn btn-outline';
+      } else {
+        statusEl.innerHTML = '<span style="color:var(--green-pop);">Terbuka (Bisa Diedit)</span>';
+        btn.textContent = 'Tutup Buku';
+        btn.className = 'btn btn-danger';
+      }
+    }
+
+    async function toggleCloseMonthFromModal() {
+      const month = document.getElementById('closingMonthSelect').value;
+      const year = document.getElementById('closingYearInput').value;
+      const key = `closed_${year}_${month}`;
+      const isClosed = systemConfig[key] === 'true';
+      
+      const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+      const monthName = mNames[parseInt(month)];
+
+      const msg = isClosed 
+        ? `Buka kembali buku bulan ${monthName} ${year}?`
+        : `Tutup buku bulan ${monthName} ${year}? Setelah ditutup, transaksi pada bulan ini tidak bisa ditambah, diedit, atau dihapus.`;
+        
+      if (await showCustomConfirm(isClosed ? 'Buka Buku' : 'Tutup Buku', msg)) {
+        const newVal = isClosed ? 'false' : 'true';
+        systemConfig[key] = newVal;
+        localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
+        try {
+          await apiPostWithFallback('saveConfig', { key: key, value: newVal });
+          notify(`Bulan ${monthName} ${year} berhasil ${isClosed ? 'dibuka' : 'ditutup'}.`, 'success');
+          updateClosingModalStatus();
+          if (currentReportData) renderReportView(); // update background if open
+        } catch (e) {
+          notify('Gagal menyimpan status tutup buku: ' + e.message, 'error');
+        }
+      }
+    }
+
+    function checkMonthClosed(month, year) {
+      if (!month || !year) return false;
+      return systemConfig[`closed_${year}_${month}`] === 'true';
+    }
+
     function renderReportView() {
       const data = currentReportData; if (!data) return notify('Tidak ada data laporan aktif.', 'error');
       const s = data.summary; const bal = s.balances || cachedSaldo || { total: 0 };
       const isViewer = getRolePerms(currentUser?.role || '').isAnonymous || (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik'));
+      
+      const rolePerms = currentUser ? getRolePerms(currentUser.role) : null;
+      const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
+      const isApprover = currentUser && (canApprove || currentUser.role === 'Admin');
+      
       const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
       const isSensor = document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false;
+
+      const btnManage = document.getElementById('btnManageClosing');
+      if (btnManage) {
+        if (currentUser && currentUser.role === 'Admin') {
+          btnManage.style.display = 'inline-block';
+        } else {
+          btnManage.style.display = 'none';
+        }
+      }
 
       const title = data.customTitle || "FINANCIAL REPORT";
       let periodStr = data.customPeriod || `Period: ${mNames[data.month] || ''} ${data.year || ''}`.trim();
@@ -3107,7 +3610,7 @@
             const isMasked = isPrivCategory || isSensor;
             const displayNote = isMasked ? '*** (Privasi)' : (x.note || '-');
             let rawPemberi = (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') ? x.nama_pemberi : (x.unit_name || '-');
-            const photoBtn = getPhotoBtnIcon(x, isMasked);
+            const photoBtn = getPhotoBtnIcon(x, isMasked && !isApprover);
             return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td>${isMasked ? '***' : rawPemberi}</td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${photoBtn}</td><td>${displayNote}</td><td class="fit-col amount-pos" style="text-align:right">${fmt(x.amount)}</td></tr>`
           }).join('')}
               </tbody>
@@ -3118,7 +3621,7 @@
             const displayNote = isMasked ? '*** (Privasi)' : (x.note || '-');
             let rawPemberi = (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') ? x.nama_pemberi : (x.unit_name || '-');
             let photoBtn = '';
-            photoBtn = getPhotoBtnText(x, isMasked);
+            photoBtn = getPhotoBtnText(x, isMasked && !isApprover);
             return `<div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
                 <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
@@ -3195,6 +3698,7 @@
     function renderHistory() {
       const q = document.getElementById('searchTrans').value.toLowerCase(); const giverQ = (document.getElementById('filterGiver')?.value || '').toLowerCase();
       const type = document.getElementById('filterType').value; const month = parseInt(document.getElementById('filterMonth')?.value || 0); const year = parseInt(document.getElementById('filterYear')?.value || 0);
+      const filterApproval = document.getElementById('filterApproval')?.value || '';
 
       let list = [];
       if (type !== 'expense') (cachedIncome || []).forEach(x => list.push({ ...x, type: 'income', badge: 'badge-green', label: 'In', style: 'amount-pos', sign: '+' }));
@@ -3205,6 +3709,14 @@
         const d = new Date(x.date);
         if (year !== 0 && d.getFullYear() !== year) return false;
         if (month !== 0 && (d.getMonth() + 1) !== month) return false;
+
+        if (filterApproval) {
+          const isKetua = x.approved_by && x.approved_by.includes('Ketua Jemaat');
+          const isPendeta = x.approved_by && x.approved_by.includes('Pendeta');
+          const isApproved = isKetua && isPendeta;
+          if (filterApproval === 'pending' && isApproved) return false;
+          if (filterApproval === 'approved' && !isApproved) return false;
+        }
 
         const canSearchNames = currentUser && (currentUser.role === 'Admin' || currentUser.role === 'Bendahara');
 
@@ -3252,9 +3764,37 @@
       });
 
       window.currentHistoryData = list;
+      
+      const rolePerms = currentUser ? getRolePerms(currentUser.role) : null;
+      const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
+      const isApprover = currentUser && (canApprove || currentUser.role === 'Admin');
+      const roleNeeded = currentUser ? currentUser.role : '';
+
+      let pendingToApprove = [];
+      if (isApprover) {
+        pendingToApprove = list.filter(x => {
+          const deleteId = x.transaction_id || x.receipt_no || '';
+          if (!deleteId) return false;
+          if (!x.approved_by || !x.approved_by.includes(roleNeeded)) return true;
+          return false;
+        });
+      }
+
+      const btnApproveBulk = document.getElementById('btnApproveBulk');
+      if (btnApproveBulk) {
+        if (pendingToApprove.length > 0) {
+          btnApproveBulk.style.display = 'inline-flex';
+          btnApproveBulk.innerHTML = `✔️ Approve Semua (${pendingToApprove.length})`;
+          window.pendingBulkApproveList = pendingToApprove.map(x => ({ type: x.type, id: x.transaction_id || x.receipt_no }));
+        } else {
+          btnApproveBulk.style.display = 'none';
+          window.pendingBulkApproveList = [];
+        }
+      }
+
       const printBtn = document.getElementById('btnPrintUnit');
       if (printBtn) {
-        printBtn.style.display = (giverQ || q || month > 0 || year > 0) ? 'inline-flex' : 'none';
+        printBtn.style.display = (giverQ || q || month > 0 || year > 0 || filterApproval) ? 'inline-flex' : 'none';
       }
 
       const perms = getRolePerms(currentUser.role);
@@ -3380,20 +3920,48 @@
           const shouldHide = !belongsToUserUnits && (isAnon || isOtherUnit || isPrivCategory);
 
           const deleteId = x.transaction_id || x.receipt_no || '';
-          let photoBtn = getPhotoBtnIcon(x, shouldHide);
+          let photoBtn = getPhotoBtnIcon(x, shouldHide && !isApprover);
           const pihak = x.type === 'income' ? (shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
+
+          let approveBadge = '';
+          if (x.approved_by) {
+            const isKetua = x.approved_by.includes('Ketua Jemaat');
+            const isPendeta = x.approved_by.includes('Pendeta');
+            if (isKetua && isPendeta) approveBadge = `<div style="margin-top:4px;"><span class="badge" style="background:var(--accent-green);color:white;font-size:9px;">✅ Disetujui</span></div>`;
+            else approveBadge = `<div style="margin-top:4px;"><span class="badge badge-yellow" style="font-size:9px;">⏳ 1/2 Acc</span></div>`;
+          } else {
+            approveBadge = `<div style="margin-top:4px;"><span class="badge badge-gray" style="font-size:9px;">⏳ Pending</span></div>`;
+          }
+
+          if (isApprover && deleteId) {
+            if (!x.approved_by || !x.approved_by.includes(roleNeeded)) {
+              let approveBtnHtml = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--accent-green);" onclick="approveTx('${x.type}', '${deleteId}')">✔️ Approve</button>`;
+              // Desktop version (shorter text) check context
+              if (this.isDesktopLoop) {
+                 approveBtnHtml = `<button class="btn-icon-only" style="color:var(--accent-green);" title="Approve" onclick="approveTx('${x.type}', '${deleteId}')">✔️</button>`;
+              }
+              approveBtn = approveBtnHtml;
+            } else {
+              let approveBtnHtml = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--text4); cursor:default;" disabled>✅ Approved</button>`;
+              if (this.isDesktopLoop) {
+                 approveBtnHtml = `<button class="btn-icon-only" style="color:var(--text4); cursor:default;" title="Sudah Di-Approve" disabled>✅</button>`;
+              }
+              approveBtn = approveBtnHtml;
+            }
+          }
 
           return `
       <tr>
-        <td class="fit-col">${fmtDate(x.date)}</td>
+        <td class="fit-col">${fmtDate(x.date)}${approveBadge}</td>
         <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
         <td><span class="badge ${getCatBadge(x.income_type || x.department, x.type !== 'income')}">${x.income_type || x.department || '-'}</span><br><span style="font-size:12px; color:var(--text4)">${shouldHide ? '***' : (x.note || '-')}</span></td>
         <td class="fit-col"><span class="badge badge-gray">${x.receipt_no || '-'}</span> ${photoBtn}</td>
         <td>${pihak}</td>
         <td class="fit-col ${x.style}" style="text-align:right; font-weight:800;">${x.sign}${fmt(x.amount)}</td>
-        <td class="fit-col" style="text-align:right;">
-          ${canEdit && deleteId ? `<button class="btn-icon-only" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit')}</button>` : ''}
-          ${canDel && deleteId ? `<button class="btn-icon-only" style="color:var(--red-pop)" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash')}</button>` : (!canEdit ? '<span style="color:var(--text4)">-</span>' : '')}
+        <td class="fit-col" style="text-align:right; white-space:nowrap;">
+          ${approveBtn}
+          ${canEdit && deleteId ? `<button class="btn-icon-only" onclick="openEditTrans('${x.type}', '${deleteId}')">✏️</button>` : ''}
+          ${canDel && deleteId ? `<button class="btn-icon-only" style="color:var(--red-pop)" onclick="deleteTransaction('${x.type}', '${deleteId}')">🗑️</button>` : ''}
         </td>
       </tr>`;
         }).join('');
@@ -3412,7 +3980,26 @@
           const deleteId = x.transaction_id || x.receipt_no || '';
           const pihak = x.type === 'income' ? (shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
 
-          let photoBtn = getPhotoBtnText(x, shouldHide);
+          let photoBtn = getPhotoBtnText(x, shouldHide && !isApprover);
+          let approveBadge = '';
+          if (x.approved_by) {
+            const isKetua = x.approved_by.includes('Ketua Jemaat');
+            const isPendeta = x.approved_by.includes('Pendeta');
+            if (isKetua && isPendeta) approveBadge = `<span class="badge" style="background:var(--accent-green);color:white;font-size:9px;">✅ Disetujui</span>`;
+            else approveBadge = `<span class="badge badge-yellow" style="font-size:9px;">⏳ 1/2 Acc</span>`;
+          } else {
+            approveBadge = `<span class="badge badge-gray" style="font-size:9px;">⏳ Pending</span>`;
+          }
+
+          let approveBtn = '';
+          if (isApprover && deleteId) {
+            if (!x.approved_by || !x.approved_by.includes(roleNeeded)) {
+              approveBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--accent-green);" onclick="approveTx('${x.type}', '${deleteId}')">✔️ Approve</button>`;
+            } else {
+              approveBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--text4); cursor:default;" disabled>✅ Approved</button>`;
+            }
+          }
+
           let editBtn = canEdit && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openEditTrans('${x.type}', '${deleteId}')">✏️ Edit</button>` : '';
           let delBtn = canDel && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--rose-pop);" onclick="deleteTransaction('${x.type}', '${deleteId}')">🗑️ Hapus</button>` : '';
 
@@ -3425,6 +4012,7 @@
               </div>
               <div class="${x.style}" style="font-weight: 700; font-size: 15px; white-space:nowrap;">${x.sign}${fmt(x.amount)}</div>
             </div>
+            <div style="margin-bottom: 6px;">${approveBadge}</div>
             <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
               <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
               <span style="color:var(--text4)">Pihak</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${pihak}</strong>
@@ -3577,18 +4165,48 @@
       renderPhotoPreview(currentEditPhotos, 'editPhotoGrid', 'editPhotoUploadBox', 'edit');
 
       handleEditTypeChange();
+
+      // Check if fully approved and disable fields if so
+      const isFullyApproved = trx.approved_by && trx.approved_by.includes('Ketua Jemaat') && trx.approved_by.includes('Pendeta');
+      const inputsToLock = [
+        'editTransDate', 'editTransReceipt', 'editTransNote', 'editTransCat', 'editTransUnit', 
+        'editTransPihak', 'editTransAmount', 'editTransSource', 'editTransAmtPerpuluhan', 
+        'editTransAmtTerpadu', 'editTransAmtKhususJemaat', 'editTransAmtKhususDaerah'
+      ];
+      inputsToLock.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = isFullyApproved;
+      });
+      
+      if (isFullyApproved) {
+        document.getElementById('editTransNote').placeholder = 'Transaksi disetujui penuh, hanya foto yang bisa diubah.';
+      }
     }
 
     function closeEditModal() {
       if (document.getElementById('editTransModal')) document.getElementById('editTransModal').style.display = 'none';
       currentEditTransaction = null;
       resetPhotoUpload('edit');
+      const inputsToLock = [
+        'editTransDate', 'editTransReceipt', 'editTransNote', 'editTransCat', 'editTransUnit', 
+        'editTransPihak', 'editTransAmount', 'editTransSource', 'editTransAmtPerpuluhan', 
+        'editTransAmtTerpadu', 'editTransAmtKhususJemaat', 'editTransAmtKhususDaerah'
+      ];
+      inputsToLock.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = false;
+      });
+      document.getElementById('editTransNote').placeholder = '';
     }
 
     async function saveEditTransaction() {
       if (!currentEditTransaction) return;
 
       const date = document.getElementById('editTransDate').value;
+      if (date) {
+        const d = new Date(date);
+        if (checkMonthClosed(d.getMonth() + 1, d.getFullYear())) { notify('Bulan ini sudah ditutup. Tidak dapat mengubah transaksi.', 'error'); return; }
+      }
       const receipt = document.getElementById('editTransReceipt').value.trim();
       const note = document.getElementById('editTransNote').value.trim();
       if (!date || !receipt) { notify('Tgl dan Kuitansi wajib diisi!', 'error'); return; }
@@ -3672,10 +4290,61 @@
     }
 
     async function deleteTransaction(type, id) {
+      const arr = type === 'income' ? cachedIncome : cachedExpense;
+      const tx = arr.find(x => x.id === id);
+      if (tx && tx.date) {
+        const d = new Date(tx.date);
+        if (checkMonthClosed(d.getMonth() + 1, d.getFullYear())) { notify('Bulan ini sudah ditutup. Tidak dapat menghapus transaksi.', 'error'); return; }
+      }
       const isConfirm = await showCustomConfirm('Hapus Permanen', 'Anda yakin?');
       if (!isConfirm) return;
       try { await apiPost('deleteRecord', { type, transaction_id: id }); notify('Dihapus.', 'success'); await syncAllData(); renderHistory(); }
       catch (e) { notify(e.message, 'error'); }
+    }
+
+    async function approveTx(type, id) {
+      const isConfirm = await showCustomConfirm('Approve Transaksi', 'Apakah Anda menyetujui transaksi ini?');
+      if (!isConfirm) return;
+      try { 
+        await apiPostWithFallback('approveTransaction', { type, transaction_id: id }); 
+        notify('Transaksi disetujui.', 'success'); 
+        await syncAllData(); 
+        renderHistory(); 
+      }
+      catch (e) { notify(e.message, 'error'); }
+    }
+
+    async function approveBulkTx() {
+      const list = window.pendingBulkApproveList || [];
+      if (list.length === 0) return;
+      const isConfirm = await showCustomConfirm('Approve Semua', `Anda yakin menyetujui ${list.length} transaksi sekaligus? (Mungkin butuh beberapa detik)`);
+      if (!isConfirm) return;
+      
+      const btn = document.getElementById('btnApproveBulk');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Memproses...'; }
+      
+      notify(`Memproses approval ${list.length} transaksi...`, 'info');
+      let successCount = 0;
+      let failCount = 0;
+      
+      for (let i = 0; i < list.length; i++) {
+        try {
+          await apiPostWithFallback('approveTransaction', { type: list[i].type, transaction_id: list[i].id });
+          successCount++;
+        } catch (e) {
+          console.error(e);
+          failCount++;
+        }
+      }
+      
+      if (failCount > 0) {
+        notify(`Selesai. ${successCount} berhasil, ${failCount} gagal.`, 'error');
+      } else {
+        notify(`Berhasil menyetujui ${successCount} transaksi!`, 'success');
+      }
+      
+      if (btn) { btn.disabled = false; btn.innerHTML = `✔️ Approve Semua`; }
+      await handleManualSync();
     }
 
     function editIncType(name, pd, pj, pb) {
@@ -3866,6 +4535,205 @@
       closeSidebar();
       if (pageId === 'dashboard') renderDashboard(); else if (pageId === 'pemasukan') renderIncomeList(); else if (pageId === 'pengeluaran') renderExpenseList(); else if (pageId === 'riwayat') renderHistory(); else if (pageId === 'laporan') { document.getElementById('reportContent').innerHTML = ''; } else if (pageId === 'masterIncType') renderMasterIncTypes(); else if (pageId === 'masterDept') renderMasterDepts(); else if (pageId === 'masterUnit') renderMasterUnits(); else if (pageId === 'users') renderUsers(); else if (pageId === 'logs') renderLogs(); else if (pageId === 'roles') renderRoles();
     }
+    function doPrintPembangunan() {
+      if (!currentReportData) return notify('Generate laporan terlebih dahulu', 'error');
+      if (currentReportData.mode === 'akumulasi') return notify('Laporan Pembangunan hanya tersedia untuk Mode Bulanan', 'error');
+      
+      const html = generatePembangunanReportHtml(currentReportData);
+      const c = document.getElementById('printContainer');
+      c.innerHTML = html;
+      c.style.display = 'block';
+      setTimeout(() => { window.print(); c.style.display = 'none'; }, 500);
+    }
+
+    function generatePembangunanReportHtml(data) {
+      if (!data) return '';
+      const targetMonth = data.month;
+      const targetYear = data.year;
+      const targetDateStart = new Date(targetYear, targetMonth - 1, 1);
+      const targetDateEnd = new Date(targetYear, targetMonth, 0, 23, 59, 59);
+
+      const isManualSignature = document.getElementById('manualSignature') ? document.getElementById('manualSignature').checked : false;
+
+      // Pemasukan & Pengeluaran Bulan Ini
+      const pemBulanIni = (cachedIncome || []).filter(x => {
+        const tDate = new Date(x.date);
+        return tDate >= targetDateStart && tDate <= targetDateEnd && (x.alloc_bangun > 0 || (x.income_type || '').toLowerCase().includes('pembangunan'));
+      }).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      const pengBulanIni = (cachedExpense || []).filter(x => {
+        const tDate = new Date(x.date);
+        return tDate >= targetDateStart && tDate <= targetDateEnd && x.source_balance === 'Pembangunan';
+      }).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      let allApproved = true;
+      const allTx = [...pemBulanIni, ...pengBulanIni];
+      if (allTx.length === 0) {
+        allApproved = false;
+      } else {
+        for (let i = 0; i < allTx.length; i++) {
+          const x = allTx[i];
+          const isKetua = x.approved_by && x.approved_by.includes('Ketua Jemaat');
+          const isPendeta = x.approved_by && x.approved_by.includes('Pendeta');
+          if (!isKetua || !isPendeta) { allApproved = false; break; }
+        }
+      }
+      const useImages = allApproved && !isManualSignature;
+
+
+      // Saldo Awal Pembangunan (dari awal waktu s.d targetDateStart - 1 ms)
+      let calcBangun = cachedSaldo.initBangun || 0;
+      (cachedIncome || []).forEach(i => { if (new Date(i.date) < targetDateStart) calcBangun += (i.alloc_bangun || 0); });
+      (cachedExpense || []).forEach(e => { if (new Date(e.date) < targetDateStart && e.source_balance === 'Pembangunan') calcBangun -= e.amount; });
+      const saldoAwal = calcBangun;
+
+      // Akumulasi Pemasukan
+      let sumPemasukan = 0;
+      let pemRows = pemBulanIni.map(x => {
+        const amt = parseFloat(x.alloc_bangun || x.amount || 0);
+        sumPemasukan += amt;
+        return `<tr>
+          <td style="border:1px solid #000; padding:4px; text-align:center;">${fmtDate(x.date)}</td>
+          <td style="border:1px solid #000; padding:4px;">${x.receipt_no || '-'}</td>
+          <td style="border:1px solid #000; padding:4px;">${x.note || x.nama_pemberi || 'Pembangunan'}</td>
+          <td style="border:1px solid #000; padding:4px; text-align:right;">${fmt(amt)}</td>
+          <td style="border:1px solid #000; padding:4px; text-align:right;"></td>
+        </tr>`;
+      }).join('');
+
+      if (pemBulanIni.length === 0) {
+        pemRows = `<tr><td colspan="5" style="border:1px solid #000; padding:4px; text-align:center;">Kosong</td></tr>`;
+      }
+
+      // Akumulasi Pengeluaran
+      let sumPengeluaran = 0;
+      let pengRows = pengBulanIni.map(x => {
+        const amt = parseFloat(x.amount || 0);
+        sumPengeluaran += amt;
+        return `<tr>
+          <td style="border:1px solid #000; padding:4px; text-align:center;">${fmtDate(x.date)}</td>
+          <td style="border:1px solid #000; padding:4px;">${x.receipt_no || '-'}</td>
+          <td style="border:1px solid #000; padding:4px;">${x.note || 'Pengeluaran Pembangunan'}</td>
+          <td style="border:1px solid #000; padding:4px; text-align:right;">${fmt(amt)}</td>
+          <td style="border:1px solid #000; padding:4px; text-align:right;"></td>
+        </tr>`;
+      }).join('');
+
+      if (pengBulanIni.length === 0) {
+        pengRows = `<tr><td colspan="5" style="border:1px solid #000; padding:4px; text-align:center;">Kosong</td></tr>`;
+      }
+
+      const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+      const monthName = mNames[targetMonth];
+
+      const ts = `border-collapse:collapse; width:100%; font-family:sans-serif; font-size:10pt;`;
+      const th = `border:1px solid #000; padding:4px; font-weight:bold; text-align:center;`;
+
+      let html = `
+        <table style="width: 100%; border: none; margin-bottom: 20px; color: #000; font-family: sans-serif;">
+          <tr>
+            <td style="width: 100px; border: none; text-align: left; vertical-align: middle; padding: 0;">
+              <img src="./icons/hijau.png" style="width: 80px; height: auto;" alt="Logo Kiri" />
+            </td>
+            <td style="border: none; text-align: center; vertical-align: middle; padding: 0;">
+              <h2 style="margin:0; font-size: 14pt; font-weight: bold;">GMAHK Jemaat PISGAH BIDAC</h2>
+              <h3 style="margin:5px 0 0 0; font-size: 12pt;">Laporan Keuangan Pembangunan</h3>
+              <p style="margin:5px 0 0 0; font-size: 10pt;">Bulan/Tahun: <strong>${monthName} ${targetYear}</strong></p>
+            </td>
+            <td style="width: 100px; border: none; text-align: right; vertical-align: middle; padding: 0;">
+              <img src="./icons/PisgahLogoColor.png" style="width: 80px; height: auto;" alt="Logo Kanan" />
+            </td>
+          </tr>
+        </table>
+
+        <div style="font-family:sans-serif; font-weight:bold; margin-bottom:4px;">Pemasukan</div>
+        <table style="${ts}; margin-bottom:16px;">
+          <thead>
+            <tr>
+              <th style="${th} width:15%;">Tanggal</th>
+              <th style="${th} width:20%;">No. Voucher/kwitansi</th>
+              <th style="${th} width:35%;">Deskripsi Penerimaan</th>
+              <th style="${th} width:15%;">Amount IDR</th>
+              <th style="${th} width:15%;">Amount valas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="border:1px solid #000; padding:4px;"></td>
+              <td style="border:1px solid #000; padding:4px;"></td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:yellow;">Saldo Awal</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:yellow;">IDR &nbsp; &nbsp; ${fmt(saldoAwal)}</td>
+              <td style="border:1px solid #000; padding:4px; background-color:yellow;"></td>
+            </tr>
+            <tr><td colspan="5" style="background-color:#4472c4; height:12px; border:1px solid #000;"></td></tr>
+            ${pemRows}
+            <tr>
+              <td style="border:1px solid #000; padding:4px;"></td>
+              <td style="border:1px solid #000; padding:4px;"></td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:#ffc000;">Total pembangunan bulan ini</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:#ffc000;">IDR &nbsp; &nbsp; ${fmt(sumPemasukan)}</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:center; background-color:#ffc000;">$0</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #000; padding:4px;"></td>
+              <td style="border:1px solid #000; padding:4px;"></td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:yellow;">Total saldo Pemasukan</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:yellow;">IDR &nbsp; &nbsp; ${fmt(saldoAwal + sumPemasukan)}</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:center; background-color:yellow;">$0</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="font-family:sans-serif; font-weight:bold; margin-bottom:4px;">Pengeluaran</div>
+        <table style="${ts}">
+          <thead>
+            <tr>
+              <th style="${th} width:15%;">Tanggal</th>
+              <th style="${th} width:20%;">No. Voucher/kwitansi</th>
+              <th style="${th} width:35%;">Deskripsi Pengeluaran</th>
+              <th style="${th} width:15%;">Amount</th>
+              <th style="${th} width:15%;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${pengRows}
+            <tr>
+              <td style="border:1px solid #000; padding:4px;"></td>
+              <td style="border:1px solid #000; padding:4px;"></td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic;">Total saldo Pengeluaran</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right;">IDR &nbsp; &nbsp; ${sumPengeluaran === 0 ? '-' : fmt(sumPengeluaran)}</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">-</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #000; padding:4px;"></td>
+              <td style="border:1px solid #000; padding:4px;"></td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:yellow;">Saldo Akhir Pembangunan</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:yellow;">IDR &nbsp; &nbsp; ${fmt(saldoAwal + sumPemasukan - sumPengeluaran)}</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:center; background-color:yellow;">-</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      const imgBen = useImages && systemConfig.sig_bendahara ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgBangun = useImages && systemConfig.sig_bangun ? `<img src="${systemConfig.sig_bangun}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgKet = useImages && systemConfig.sig_ketua ? `<img src="${systemConfig.sig_ketua}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgPen = useImages && systemConfig.sig_pendeta ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+
+      const signHtml = `
+        <table style="width: 100%; margin-top: 40px; text-align: center; font-family: sans-serif; font-size: 10pt; color: #000; border: none; background: transparent;">
+          <tr>
+            <td style="width: 25%; border: none; vertical-align: bottom;">Dibuat Oleh,<br>${imgBen}<br><strong>Herbert JS Sagala</strong><br>Bendahara Jemaat</td>
+            <td style="width: 25%; border: none; vertical-align: bottom;">Mengetahui,<br>${imgBangun}<br><strong>Ketua Pembangunan</strong><br>Ketua Pembangunan</td>
+            <td style="width: 25%; border: none; vertical-align: bottom;">Disahkan Oleh,<br>${imgKet}<br><strong>Yosep Santoso</strong><br>Ketua Jemaat</td>
+            <td style="width: 25%; border: none; vertical-align: bottom;">Mengetahui,<br>${imgPen}<br><strong>Pdt. Yoseph Sihotang</strong><br>Gembala Jemaat</td>
+          </tr>
+        </table>
+      `;
+
+      return html + signHtml;
+    }
+
     function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
     function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
 

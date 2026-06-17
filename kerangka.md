@@ -25,8 +25,8 @@ pisgahbisdac/
 ├── dist/                     # Folder HASIL KOMPILASI (Production-ready). Digunakan saat hosting.
 ├── index.html                # Halaman utama (berhubungan dengan src/index.jsx)
 ├── hadir.html                # Halaman kehadiran (berhubungan dengan src/hadir.jsx)
-├── laporan.html              # Halaman laporan (berhubungan dengan src/laporanEntry.js)
-├── pembangunan.html          # Halaman pembangunan (berhubungan dengan src/pembangunanEntry.js)
+├── laporan.html              # Halaman manajemen laporan & keuangan (Sistem Role, Approval, dll)
+├── pembangunan.html          # Halaman laporan pembangunan
 ├── package.json              # Daftar library & script npm (Vite, React, Tailwind)
 ├── tailwind.config.js        # Konfigurasi tema warna & desain Tailwind CSS
 ├── postcss.config.js         # Konfigurasi engine proses CSS
@@ -35,29 +35,32 @@ pisgahbisdac/
 
 ## ⚙️ Arsitektur & Cara Kerja Sistem Saat Ini
 
-1. **Backend via Google Apps Script (GAS)**
-   Seluruh data dinamis (Jadwal, Pejabat, Warta, Buku, Pengumuman, dll) ditarik dan dikirim ke **Google Sheets** menggunakan *Google Apps Script*. Endpoint API didefinisikan secara global (misal: `GAS_API_URL` di dalam `indexApp.jsx`).
-   
-2. **Caching Lokal & Sinkronisasi Manual**
-   Sistem memanfaatkan `localStorage` untuk menyimpan versi terakhir data (caching), memastikan aplikasi dapat dimuat secara instan (di bawah 1 detik). Selain itu, terdapat tombol **Sinkronisasi Manual** melayang (*floating*) berdesain kaca (*glassmorphism*) di sudut kanan bawah. Pengguna dapat menekannya untuk menarik data terbaru secara *real-time* dari Google Sheets tanpa perlu melakukan *refresh* pada browser.
-   
-3. **Single Page Application (SPA) Routing**
-   Khusus pada halaman utama (`index.html` -> `indexApp.jsx`), navigasi aplikasi tidak melakukan *reload* halaman. Tampilan berganti secara dinamis menggunakan *state* `activeTab`. Tab yang tersedia meliputi:
-   - `home`: Beranda (Video Hero, Pengumuman, Ikon Pintasan)
-   - `admin_dashboard`: Panel Kontrol Admin (Kelola Jadwal, Warta, Pejabat, Buku) dengan proteksi *password*.
-   - `warta`, `jadwal`, `belajar`, `live`: Modul-modul tampilan spesifik pengguna.
-   - Tombol *Logout Admin* diintegrasikan langsung secara aman di dalam Admin Dashboard.
+### 1. Backend via Google Apps Script (GAS)
+Seluruh data dinamis (Keuangan, Jadwal, Pejabat, Warta, Buku, dll) ditarik dan dikirim ke **Google Sheets** menggunakan *Google Apps Script*. Endpoint API didefinisikan secara global. Pada sistem Laporan, setiap transaksi memiliki ID dan jejak log audit.
 
-3. **Desain Responsif & Glassmorphism (Mobile-First)**
-   Antarmuka dibangun dengan kelas-kelas *utility* Tailwind yang merespons ukuran layar secara persis:
-   - **Mobile** (`default`): Sangat padat, *font* kecil (`text-[9px]`), mencegah *horizontal scroll*.
-   - **Tablet / iPad** (`md:`): Padding menengah, menggunakan spasi efisien.
-   - **Desktop** (`lg:`): Tampilan melebar (100% *width*), ruang baca sangat lega.
-   - **Tema (Light & Dark Mode)**: Modul-modul utama seperti "Selamat Datang" dan "Proyek Gereja" menggunakan efek kaca (*Glassmorphism*) canggih melalui manipulasi warna transparan dan `backdrop-filter: blur()`. Efek ini juga diterapkan pada tombol-tombol melayang (FAB) seperti tombol Sinkronisasi.
-   - **Lencana Cerdas (Smart Badges)**: Deteksi tipe file otomatis pada dokumen/buku yang diunggah (misalnya, melabeli file presentasi dengan "✓ PPT", dokumen Word dengan "✓ DOC", atau "✓ PDF").
+### 2. Caching Lokal & Sinkronisasi Manual
+Sistem memanfaatkan `localStorage` dan `sessionStorage` untuk menyimpan versi terakhir data (caching), memastikan aplikasi dapat dimuat secara instan (di bawah 1 detik). Terdapat sistem auto-sync maupun tombol **Sinkronisasi Manual** untuk menarik pembaruan data secara langsung.
 
-5. **Kompilasi Cepat dengan Vite**
-   Setiap kali ada perubahan pada kode JS atau CSS, *server* Vite langsung menyuntikkannya tanpa memuat ulang penuh browser. Jika kode sudah matang, sistem dikompilasi menjadi bundel aset di dalam `/dist`.
+### 3. Role-Based Access Control (RBAC) pada Laporan Keuangan
+Aplikasi `laporan.html` menerapkan sistem hak akses ketat yang dikonfigurasi melalui menu Master Data > Akun:
+- **Admin:** Memiliki kontrol penuh atas semua fitur, pengaturan sistem, konfigurasi kategori, dan penghapusan permanen.
+- **Bendahara:** Dapat menginput, mengedit, dan menghapus transaksi pemasukan/pengeluaran serta menarik laporan.
+- **Ketua Jemaat & Pendeta:** Berperan sebagai otorisator (*Approver*). Memiliki akses baca penuh ke riwayat transaksi dan dapat melakukan "Approve" atas transaksi yang dimasukkan oleh Bendahara.
+- **Viewer / Publik:** Akses baca (*read-only*) secara terbatas.
+
+### 4. Alur Persetujuan (Approval Workflow)
+Setiap transaksi yang masuk akan berstatus **Pending**. Ketua Jemaat atau Pendeta wajib menekan tombol **Approve**. 
+Jika salah satu menyetujui, status berubah menjadi **1/2 Acc**. Jika keduanya menyetujui, status menjadi **Disetujui penuh (✅)**. 
+**Penting:** Transaksi yang telah disetujui penuh **dikunci (ter-lock)**, sehingga nominal dan data pihak terkait tidak dapat dimodifikasi (baik dari sisi antarmuka maupun backend), kecuali hanya untuk penambahan/perubahan bukti foto.
+
+### 5. Multi-Upload Foto Kuitansi dengan Kompresi
+Aplikasi mengizinkan pengunggahan hingga **3 foto bukti** per transaksi. Sebelum dikirim ke *server*, gambar diproses secara lokal (*client-side*) menggunakan HTML5 Canvas untuk **kompresi otomatis** guna mengurangi beban pengiriman tanpa menghilangkan kejelasan teks pada kuitansi.
+
+### 6. Desain Responsif & Glassmorphism (Mobile-First)
+Antarmuka dibangun dengan kelas *utility* Tailwind yang responsif:
+- **Mobile** (`default`): Optimal untuk layar kecil, meminimalisir tombol besar.
+- **Desktop** (`lg:`): Memanfaatkan *grid* tabel untuk tampilan analitik.
+- **Tema (Light & Dark Mode)**: Dapat di-toggle, didukung oleh skema warna tingkat lanjut (CSS Variables).
 
 ## 🚀 Perintah Operasional
 
@@ -73,7 +76,7 @@ Vite akan memberikan sebuah URL lokal (misal: `http://localhost:5173`). Setiap k
 ```bash
 npm run build
 ```
-Perintah ini wajib dijalankan jika Anda sudah selesai mengedit dan siap untuk mempublikasikan web. Vite akan mengecilkan (minify) semua gambar, kodingan JS, dan CSS, lalu meletakkannya di dalam folder `dist/`. **Isi dari folder `dist/` inilah yang akan diunggah ke server hosting.**
+Perintah ini wajib dijalankan jika Anda sudah selesai mengedit dan siap untuk mempublikasikan web. Vite akan mengecilkan (minify) semua aset JS, dan CSS, lalu meletakkannya di dalam folder `dist/`. **Isi dari folder `dist/` inilah yang akan diunggah ke server hosting.**
 
 ### 3. Menguji Hasil Build
 ```bash
@@ -83,6 +86,6 @@ Mensimulasikan server hosting lokal terhadap folder `dist/` sebelum Anda mengung
 
 ## 📝 Panduan Perbaikan (Troubleshooting)
 
-1. **Ubah Tampilan Beranda/Admin:** Selalu buka `src/indexApp.jsx`. Pastikan mencari komponen fungsional yang tepat (misalnya `<Home />` atau `<AdminDashboard />`).
-2. **Efek Warna Tidak Muncul:** Periksa file `src/index.css` atau `tailwind.config.js`. Banyak pengaturan *glassmorphism* tingkat lanjut dan mode gelap disimpan secara terpusat di CSS tersebut.
-3. **Konfirmasi Admin / Logout:** Fitur sesi (session) admin disimpan secara sementara di *React State* (`adminToken`, `isAdminLoggedIn`) agar tidak membebani memori lokal (localStorage) tanpa persetujuan, sehingga sangat aman.
+1. **Sinkronisasi Kode Apps Script:** Jika Anda mengubah logika persetujuan (approval) atau validasi kolom, jangan lupa memperbarui atau melakukan *New Deployment* pada skrip GAS di Google Cloud, bukan hanya mengeditnya secara lokal.
+2. **Kendala Upload Foto Bersamaan:** Jika upload foto *error* format, sistem sudah dilengkapi `Promise` berurutan pada `handleReceiptPhoto()`. Pastikan peramban tidak memblokir FileReader.
+3. **Konfirmasi Hak Akses:** Sistem login menyimpan token pada `sessionStorage`. Jika Anda membuat role baru, pastikan role tersebut didefinisikan secara _hardcode_ (atau _dynamic config_) pada fungsi `getRolePerms()` di berkas JavaScript klien.
