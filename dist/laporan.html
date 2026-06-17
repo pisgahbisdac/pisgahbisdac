@@ -1292,22 +1292,33 @@
     </div>
   </div>
 
-  <!-- MODAL: IMAGE VIEWER -->
+  <!-- MODAL: IMAGE VIEWER (Gallery) -->
   <div id="receiptPhotoModal" class="sidebar-overlay"
     style="display:none; justify-content:center; align-items:center; z-index:1300;" onclick="closePhotoModal()">
     <div class="card"
-      style="position:relative; max-width:90vw; max-height:90vh; display:flex; flex-direction:column; padding:16px;"
+      style="position:relative; max-width:90vw; max-height:90vh; display:flex; flex-direction:column; padding:16px; align-items:center;"
       onclick="event.stopPropagation()">
-      <button class="btn btn-ghost"
-        style="position:absolute; right:16px; top:16px; border-radius:50%; padding:8px; background:var(--bg-glass); color:var(--text);"
-        onclick="closePhotoModal()">
-        <svg class="lucide lucide-md" viewBox="0 0 24 24">
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-      </button>
-      <img id="photoModalImg" src=""
-        style="max-width:100%; max-height:calc(90vh - 50px); object-fit:contain; border-radius:12px;">
+      <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px; align-items:center;">
+        <span id="photoCounter" style="font-size:13px; color:var(--text3); font-weight:600;"></span>
+        <button class="btn btn-ghost"
+          style="border-radius:50%; padding:8px; background:var(--bg-glass); color:var(--text);"
+          onclick="closePhotoModal()">
+          <svg class="lucide lucide-md" viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div style="position:relative; width:100%; display:flex; justify-content:center; align-items:center; min-height:200px;">
+        <button id="prevPhotoBtn" class="btn btn-ghost"
+          style="position:absolute; left:0; z-index:10; background:rgba(0,0,0,0.45); color:white; border-radius:50%; width:36px; height:36px; display:none; align-items:center; justify-content:center; font-size:20px; padding:0;"
+          onclick="changePhoto(-1)">&#10094;</button>
+        <img id="photoModalImg" src=""
+          style="max-width:100%; max-height:calc(85vh - 80px); object-fit:contain; border-radius:12px;">
+        <button id="nextPhotoBtn" class="btn btn-ghost"
+          style="position:absolute; right:0; z-index:10; background:rgba(0,0,0,0.45); color:white; border-radius:50%; width:36px; height:36px; display:none; align-items:center; justify-content:center; font-size:20px; padding:0;"
+          onclick="changePhoto(1)">&#10095;</button>
+      </div>
     </div>
   </div>
 
@@ -1756,10 +1767,14 @@
     }
     
     function updatePhotoModalView() {
-      document.getElementById('photoModalImg').src = modalPhotoList[currentPhotoIndex];
-      document.getElementById('prevPhotoBtn').style.display = modalPhotoList.length > 1 ? 'flex' : 'none';
-      document.getElementById('nextPhotoBtn').style.display = modalPhotoList.length > 1 ? 'flex' : 'none';
-      document.getElementById('photoCounter').textContent = modalPhotoList.length > 1 ? `Foto ${currentPhotoIndex + 1} dari ${modalPhotoList.length}` : '';
+      const imgEl = document.getElementById('photoModalImg');
+      const prevEl = document.getElementById('prevPhotoBtn');
+      const nextEl = document.getElementById('nextPhotoBtn');
+      const cntEl = document.getElementById('photoCounter');
+      if (imgEl) imgEl.src = modalPhotoList[currentPhotoIndex];
+      if (prevEl) prevEl.style.display = modalPhotoList.length > 1 ? 'flex' : 'none';
+      if (nextEl) nextEl.style.display = modalPhotoList.length > 1 ? 'flex' : 'none';
+      if (cntEl) cntEl.textContent = modalPhotoList.length > 1 ? `Foto ${currentPhotoIndex + 1} dari ${modalPhotoList.length}` : '';
     }
     
     function closePhotoModal() { 
