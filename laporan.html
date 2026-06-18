@@ -2605,6 +2605,8 @@
       let pendingCount = list.filter(x => {
         const deleteId = x.transaction_id || x.receipt_no || '';
         if (!deleteId) return false;
+        const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
+        if (isFullyApproved) return false;
         if (!x.approved_by || !x.approved_by.includes(roleNeeded)) return true;
         return false;
       }).length;
