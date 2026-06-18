@@ -796,8 +796,8 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   .hamburger { display: flex; background: transparent; border: none; color: var(--text); padding: 8px; border-radius: 8px; border: 1px solid var(--glass-border); cursor: pointer; }
   
   /* --- MAXIMIZE WIDTH ON MOBILE --- */
-  .page { padding: 4px; width: 100%; box-sizing: border-box; overflow-x: hidden; }
-  .topbar { padding: 12px 8px; width: 100%; box-sizing: border-box; }
+  .page { padding: 0 2px; width: 100%; box-sizing: border-box; overflow-x: hidden; }
+  .topbar { padding: 10px 4px; width: 100%; box-sizing: border-box; }
   .topbar-title { font-size: 18px; }
   
   .grid-2 { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 100%; box-sizing: border-box; align-items: stretch; }
@@ -808,18 +808,17 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   .keep-row > * { min-width: 0; }
   
   /* Reset Card padding for lists to use full width */
-  .card { padding: 10px; margin-bottom: 8px; width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden; min-width: 0; }
-  .card-header { margin-bottom: 10px; }
-  .card-title { font-size: 15px; }
+  .card { padding: 8px 4px; margin-bottom: 6px; border-radius: 8px; width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden; min-width: 0; }
+  .card-header { margin-bottom: 8px; padding: 8px !important; }
   
-  .filter-bar { flex-direction: row; flex-wrap: wrap; overflow-x: visible; align-items: stretch; padding: 12px; gap: 8px; }
+  .filter-bar { flex-direction: row; flex-wrap: wrap; overflow-x: visible; align-items: stretch; padding: 6px; gap: 6px; }
   .filter-bar > * { flex: 1 1 calc(50% - 8px); width: auto; max-width: 100%; margin: 0 !important; }
   .filter-bar .filter-label { flex: 1 1 100%; margin-bottom: -6px !important; }
   .filter-bar > div, .filter-bar > label { flex: 1 1 100% !important; }
   .filter-bar .btn { flex: 1 1 calc(50% - 8px); padding: 10px; justify-content: center; font-size: 13px; }
   
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; padding-bottom: 12px; overflow-x: visible; }
-  .stat-card { min-width: 0; width: 100%; padding: 12px; margin-bottom: 0; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px; padding-bottom: 8px; overflow-x: visible; }
+  .stat-card { min-width: 0; width: 100%; padding: 8px 6px; margin-bottom: 0; }
   .stat-value { font-size: clamp(11px, 4vw, 17px); letter-spacing: -1px; white-space: nowrap; line-height: 1.1; margin-top: 4px; }
   .stat-label { font-size: 11px; line-height: 1.3; }
 

@@ -3228,9 +3228,10 @@
       } else {
         for (let i = 0; i < allTx.length; i++) {
           const x = allTx[i];
+          const isAdminApp = x.approved_by && x.approved_by.includes('Admin');
           const isKetua = x.approved_by && x.approved_by.includes('Ketua Jemaat');
           const isPendeta = x.approved_by && x.approved_by.includes('Pendeta');
-          if (!isKetua || !isPendeta) { allApproved = false; break; }
+          if (!isAdminApp && (!isKetua || !isPendeta)) { allApproved = false; break; }
         }
       }
 
@@ -3342,7 +3343,7 @@
       rightPanel.push({ label: 'Saldo Akhir Bulan ini', val: saldoAkhirJemaat, bold: true, isBorderTop: true, isColored: true });
       rightPanel.push({ label: 'Kas Pada Jemaat', val: saldoAkhirJemaat, indent: true });
       rightPanel.push({ label: 'CASH ON HAND / Ditangan', val: 0, indent: true });
-      rightPanel.push({ label: '<span style="font-size:6.5pt;">Balance Saldo Kas Jemaat</span>', val: saldoAkhirJemaat, bold: true, large: true, isBorderTop: true, isColored: true });
+      rightPanel.push({ label: '<span style="font-size:6.5pt;">Balance Saldo Kas Jemaat</span>', val: saldoAkhirJemaat, bold: true, large: true, isBorderTop: true, isColoredDark: true });
 
       // Tambahan info Uang Daerah
       rightPanel.push({ label: '', val: null }); // Spacer
@@ -3369,14 +3370,14 @@
 
       rightPanel.push({ label: 'Saldo Awal Daerah', val: saldoAwalDaerah, indent: true, bold: true, isLightDaerah: true });
       rightPanel.push({ label: 'Pengeluaran Daerah', val: sumPengeluaranDaerah, indent: true, isLightDaerah: true });
-      rightPanel.push({ label: 'Total Kewajiban ke Daerah Bulan Ini', val: totalKewajiban, bold: true, isLightDaerah: true });
+      rightPanel.push({ label: 'Kewajiban ke Daerah Bulan Ini', val: totalKewajiban, bold: true, isLightDaerah: true });
 
       rightPanel.push({ label: 'Pemasukan Untuk Daerah Bulan Ini', val: sumPemasukanDaerah, indent: true, bold: true, isLightDaerah: true });
       rightPanel.push({ label: 'Perpuluhan', val: sumPerpuluhan, indent: true, isLightDaerah: true });
       rightPanel.push({ label: '50% Terpadu Daerah', val: sumTerpaduDaerah, indent: true, isLightDaerah: true });
       rightPanel.push({ label: 'Persembahan Khusus Daerah', val: sumKhususDaerah, indent: true, isLightDaerah: true });
 
-      rightPanel.push({ label: '<span style="font-size:6.5pt;">Total Uang Untuk Daerah</span>', val: saldoAkhirDaerah, bold: true, large: true, isBorderTop: true, isColoredDaerah: true });
+      rightPanel.push({ label: '<span style="font-size:6pt;">Total Uang Untuk Daerah</span>', val: saldoAkhirDaerah, bold: true, large: true, isBorderTop: true, isColoredDaerah: true });
 
       const imgBen = useImages && systemConfig.sig_bendahara ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
       const imgKet = useImages && systemConfig.sig_ketua ? `<img src="${systemConfig.sig_ketua}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
@@ -3405,24 +3406,28 @@
       const numStyle = isExcel ? "mso-number-format:'\\#\\,\\#\\#0'; text-align: right;" : 'text-align: right; white-space: nowrap;';
 
       let html = `
-        <table style="width: 100%; border: none; margin-bottom: 20px; color: #000; font-family: sans-serif;">
-          <tr>
-            <td style="width: 100px; border: none; text-align: left; vertical-align: middle; padding: 0;">
-              <img src="./icons/hijau.png" style="width: 80px; height: auto;" alt="Logo Kiri" />
-            </td>
-            <td style="border: none; text-align: center; vertical-align: middle; padding: 0;">
-              <h2 style="margin:0; font-size: 14pt; font-weight: bold;">DAERAH SUMATERA KAWASAN TENGAH</h2>
-              <h3 style="margin:5px 0 0 0; font-size: 12pt;">LAPORAN KEUANGAN JEMAAT</h3>
-              <p style="margin:5px 0 0 0; font-size: 10pt;">Nama Jemaat: <strong>PISGAH - BISDAC</strong></p>
-              <p style="margin:5px 0 0 0; font-size: 10pt;">Bulan/Tahun: <strong>${periodStr}</strong></p>
-            </td>
-            <td style="width: 100px; border: none; text-align: right; vertical-align: middle; padding: 0;">
-              <img src="./icons/PisgahColor.png" style="width: 80px; height: auto;" alt="Logo Kanan" />
-            </td>
-          </tr>
-        </table>
         <table style="${tableStyle}">
           <thead>
+            <tr>
+              <th colspan="17" style="border: none; background: white; padding-bottom: 20px;">
+                <table style="width: 100%; border: none; margin: 0; color: #000; font-family: sans-serif;">
+                  <tr>
+                    <td style="width: 100px; border: none; text-align: left; vertical-align: middle; padding: 0;">
+                      <img src="./icons/hijau.png" style="width: 80px; height: auto;" alt="Logo Kiri" />
+                    </td>
+                    <td style="border: none; text-align: center; vertical-align: middle; padding: 0;">
+                      <h2 style="margin:0; font-size: 14pt; font-weight: bold;">DAERAH SUMATERA KAWASAN TENGAH</h2>
+                      <h3 style="margin:5px 0 0 0; font-size: 12pt;">LAPORAN KEUANGAN JEMAAT</h3>
+                      <p style="margin:5px 0 0 0; font-size: 10pt;">Nama Jemaat: <strong>PISGAH - BISDAC</strong></p>
+                      <p style="margin:5px 0 0 0; font-size: 10pt;">Bulan/Tahun: <strong>${periodStr}</strong></p>
+                    </td>
+                    <td style="width: 100px; border: none; text-align: right; vertical-align: middle; padding: 0;">
+                      <img src="./icons/PisgahColor.png" style="width: 80px; height: auto;" alt="Logo Kanan" />
+                    </td>
+                  </tr>
+                </table>
+              </th>
+            </tr>
             <tr>
               <th colspan="8" style="${thStyle}">RINGKASAN</th>
               <th colspan="4" style="${thStyle}">UANG DAERAH</th>
@@ -3534,11 +3539,12 @@
         if (rightIdx < rightPanel.length) {
           const rp = rightPanel[rightIdx];
           const b = rp.bold ? 'font-weight:bold;' : '';
-          const l = rp.large ? 'font-size:9.5pt;' : '';
+          const l = rp.large ? 'font-size:8pt;' : '';
           const i = rp.indent ? 'padding-left:20px;' : '';
           const bt = rp.isBorderTop ? 'border-top: 2px solid #000;' : '';
           let bg = '';
           if (rp.isColored) bg = 'background-color:#ffd966;';
+          else if (rp.isColoredDark) bg = 'background-color:#f1c232;'; // Darker yellow/gold
           else if (rp.isColoredDaerah) bg = 'background-color:#ff9800; color:#000;';
           else if (rp.isLightDaerah) bg = 'background-color:#ffe0b2; color:#000;';
 
@@ -3575,11 +3581,13 @@
 
       // --- EXPENSES TABLE ---
       html += `
-        <div style="page-break-before: always; margin-top: 30px; color: #000; font-family: sans-serif;">
-          <h3 style="margin:0; font-size: 11pt; text-align: center;">LAMPIRAN: RINCIAN PENGELUARAN JEMAAT & DAERAH</h3>
-        </div>
-        <table style="${tableStyle} margin-top: 10px;">
+        <table style="${tableStyle} margin-top: 30px; page-break-before: always;">
           <thead>
+            <tr>
+              <th colspan="7" style="border: none; padding-bottom: 15px; color: #000; font-family: sans-serif; text-align: center;">
+                <h3 style="margin:0; font-size: 11pt; text-align: center;">LAMPIRAN: RINCIAN PENGELUARAN JEMAAT & DAERAH</h3>
+              </th>
+            </tr>
             <tr>
               <th style="${thStyle} width: 4%;">No</th>
               <th style="${thStyle} width: 10%;">Tanggal</th>
@@ -3667,7 +3675,8 @@
         const iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         document.body.appendChild(iframe);
-        iframe.contentDocument.write(`<html><head><title>Laporan Keuangan</title><style>@media print { body { margin: 0; } }</style></head><body>${html}</body></html>`);
+        const baseUrl = window.location.origin + window.location.pathname;
+        iframe.contentDocument.write(`<html><head><base href="${baseUrl}"><title>Laporan Keuangan</title><style>@page { size: landscape; margin: 1cm; } @media print { body { margin: 0; } }</style></head><body>${html}</body></html>`);
         iframe.contentDocument.close();
         iframe.contentWindow.focus();
         setTimeout(() => {
@@ -4066,9 +4075,10 @@
         if (month !== 0 && (d.getMonth() + 1) !== month) return false;
 
         if (filterApproval) {
+          const isAdminApp = x.approved_by && x.approved_by.includes('Admin');
           const isKetua = x.approved_by && x.approved_by.includes('Ketua Jemaat');
           const isPendeta = x.approved_by && x.approved_by.includes('Pendeta');
-          const isApproved = isKetua && isPendeta;
+          const isApproved = isAdminApp || (isKetua && isPendeta);
           if (filterApproval === 'pending' && isApproved) return false;
           if (filterApproval === 'approved' && !isApproved) return false;
         }
@@ -4158,6 +4168,8 @@
         pendingToApprove = list.filter(x => {
           const deleteId = x.transaction_id || x.receipt_no || '';
           if (!deleteId) return false;
+          const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
+          if (isFullyApproved) return false;
           if (!x.approved_by || !x.approved_by.includes(roleNeeded)) return true;
           return false;
         });
@@ -4203,7 +4215,7 @@
       let summaryHtml = '';
       if (myUnitFilterActive || giverQ || q || month > 0 || year > 0) {
         let totalNeedsApprove = list.filter(x => x.transaction_id || x.receipt_no).length;
-        let totalApproved = list.filter(x => x.approved_by && x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')).length;
+        let totalApproved = list.filter(x => x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')))).length;
 
         // --- Top summary cards with proper gap ---
         summaryHtml = `
@@ -4350,9 +4362,10 @@
 
           let approveBadge = '';
           if (x.approved_by) {
+            const isAdminApp = x.approved_by.includes('Admin');
             const isKetua = x.approved_by.includes('Ketua Jemaat');
             const isPendeta = x.approved_by.includes('Pendeta');
-            if (isKetua && isPendeta) approveBadge = `<div style="margin-top:4px;"><span class="badge" style="background:var(--accent-green);color:white;font-size:9px;">✅ Disetujui</span></div>`;
+            if (isAdminApp || (isKetua && isPendeta)) approveBadge = `<div style="margin-top:4px;"><span class="badge" style="background:var(--accent-green);color:white;font-size:9px;">✅ Disetujui</span></div>`;
             else {
               let pendingWho = [];
               if (!isKetua) pendingWho.push('Ketua');
@@ -4365,18 +4378,17 @@
 
           let approveBtn = '';
           if (isApprover && deleteId) {
-            if (!x.approved_by || !x.approved_by.includes(roleNeeded)) {
-              let approveBtnHtml = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--accent-green);" onclick="approveTx('${x.type}', '${deleteId}')">✔️ Approve</button>`;
-              // Desktop version (shorter text) check context
-              if (this.isDesktopLoop) {
-                approveBtnHtml = `<button class="btn-icon-only" style="color:var(--accent-green);" title="Approve" onclick="approveTx('${x.type}', '${deleteId}')">✔️</button>`;
-              }
-              approveBtn = approveBtnHtml;
-
-            } else {
+            const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
+            if (isFullyApproved || (x.approved_by && x.approved_by.includes(roleNeeded))) {
               let approveBtnHtml = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--text4); cursor:default;" disabled>✅ Approved</button>`;
               if (this.isDesktopLoop) {
                 approveBtnHtml = `<button class="btn-icon-only" style="color:var(--text4); cursor:default;" title="Sudah Di-Approve" disabled>✅</button>`;
+              }
+              approveBtn = approveBtnHtml;
+            } else {
+              let approveBtnHtml = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--accent-green);" onclick="approveTx('${x.type}', '${deleteId}')">✔️ Approve</button>`;
+              if (this.isDesktopLoop) {
+                approveBtnHtml = `<button class="btn-icon-only" style="color:var(--accent-green);" title="Approve" onclick="approveTx('${x.type}', '${deleteId}')">✔️</button>`;
               }
               approveBtn = approveBtnHtml;
             }
@@ -4426,9 +4438,10 @@
           let photoBtn = getPhotoBtnText(x, shouldHide && !isApprover);
           let approveBadge = '';
           if (x.approved_by) {
+            const isAdminApp = x.approved_by.includes('Admin');
             const isKetua = x.approved_by.includes('Ketua Jemaat');
             const isPendeta = x.approved_by.includes('Pendeta');
-            if (isKetua && isPendeta) approveBadge = `<span class="badge" style="background:var(--accent-green);color:white;font-size:9px;">✅ Disetujui</span>`;
+            if (isAdminApp || (isKetua && isPendeta)) approveBadge = `<span class="badge" style="background:var(--accent-green);color:white;font-size:9px;">✅ Disetujui</span>`;
             else {
               let pendingWho = [];
               if (!isKetua) pendingWho.push('Ketua');
@@ -4441,10 +4454,11 @@
 
           let approveBtn = '';
           if (isApprover && deleteId) {
-            if (!x.approved_by || !x.approved_by.includes(roleNeeded)) {
-              approveBtn = `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:rgba(16,185,129,0.1); color:var(--accent-green); border:1px solid rgba(16,185,129,0.2);" onclick="approveTx('${x.type}', '${deleteId}')">✔️ Approve</button>`;
-            } else {
+            const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
+            if (isFullyApproved || (x.approved_by && x.approved_by.includes(roleNeeded))) {
               approveBtn = `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:var(--badge-gray-bg); color:var(--text4); border:1px solid var(--glass-border); cursor:default;" disabled>✅ Approved</button>`;
+            } else {
+              approveBtn = `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:rgba(16,185,129,0.1); color:var(--accent-green); border:1px solid rgba(16,185,129,0.2);" onclick="approveTx('${x.type}', '${deleteId}')">✔️ Approve</button>`;
             }
           }
 
@@ -4634,7 +4648,7 @@
       handleEditTypeChange();
 
       // Check if fully approved and disable fields if so
-      const isFullyApproved = trx.approved_by && trx.approved_by.includes('Ketua Jemaat') && trx.approved_by.includes('Pendeta');
+      const isFullyApproved = trx.approved_by && (trx.approved_by.includes('Admin') || (trx.approved_by.includes('Ketua Jemaat') && trx.approved_by.includes('Pendeta')));
       const inputsToLock = [
         'editTransDate', 'editTransReceipt', 'editTransNote', 'editTransCat', 'editTransUnit',
         'editTransPihak', 'editTransAmount', 'editTransSource', 'editTransAmtPerpuluhan',
@@ -4692,7 +4706,7 @@
             ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'].forEach(k => {
               if (document.getElementById(`editTransAmt${k.replace(/\s/g, '')}`)) {
                 const val = parseFloat(document.getElementById(`editTransAmt${k.replace(/\s/g, '')}`).value) || 0;
-                if (val > 0) items.push({ income_type: k, amount: val, note });
+                if (val > 0) items.push({ income_type: k, amount: val, note, nama_pemberi: pihak });
               }
             });
 
@@ -4704,6 +4718,7 @@
               date: date,
               receipt_no: receipt,
               unit_name: unit,
+              nama_pemberi: pihak,
               items: items,
               receipt_photo_base64: currentEditPhotos[0] || '', receipt_photo_base64_2: currentEditPhotos[1] || '', receipt_photo_base64_3: currentEditPhotos[2] || '',
               original_photo: currentEditTransaction.original.receipt_photo
