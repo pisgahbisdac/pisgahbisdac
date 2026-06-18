@@ -42,20 +42,23 @@
       display: flex;
       min-height: 100vh;
       width: 100%;
+      background: url('./church_finance_bg.png') center/cover no-repeat;
+      position: relative;
+    }
+
+    .login-split::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(11, 26, 48, 0.8) 0%, rgba(11, 26, 48, 0.3) 100%);
+      z-index: 0;
     }
 
     .login-image-side {
       flex: 1.2;
-      background: url('./church_finance_bg.png') center/cover no-repeat;
       position: relative;
       display: none;
-    }
-
-    .login-image-side::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(11, 26, 48, 0.85) 0%, rgba(11, 26, 48, 0.2) 100%);
+      z-index: 1;
     }
 
     .login-image-content {
@@ -65,6 +68,7 @@
       right: 10%;
       color: white;
       z-index: 2;
+      animation: fadeSlideUp 1s ease-out;
     }
 
     .login-form-side {
@@ -73,13 +77,89 @@
       align-items: center;
       justify-content: center;
       padding: 24px;
-      background: var(--bg-deep);
+      z-index: 1;
+      background: rgba(11, 26, 48, 0.4);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-left: 1px solid rgba(255,255,255,0.05);
+      box-shadow: -10px 0 40px rgba(0,0,0,0.3);
+      animation: slideInRight 0.8s ease-out;
+    }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(50px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
     @media (min-width: 900px) {
       .login-image-side {
         display: block;
       }
+    }
+
+    .icon-btn-hover-only {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #FFD700;
+      padding: 8px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon-btn-hover-only:hover {
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
+    }
+
+    .glass-input {
+      background: rgba(0, 0, 0, 0.4) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+      border: 1px solid rgba(255, 215, 0, 0.4) !important;
+      color: #FFD700 !important;
+    }
+    .glass-input::placeholder {
+      color: rgba(255, 215, 0, 0.5) !important;
+    }
+    .glass-input:-webkit-autofill,
+    .glass-input:-webkit-autofill:hover,
+    .glass-input:-webkit-autofill:focus,
+    .glass-input:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px rgba(0, 0, 0, 0.6) inset !important;
+      -webkit-text-fill-color: #FFD700 !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    .glass-panel {
+      background: rgba(0, 0, 0, 0.4) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+      border: 1px solid rgba(255, 215, 0, 0.4) !important;
+      border-radius: 30px !important;
+    }
+
+    .topbar-icon-hover {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text2);
+      padding: 6px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .topbar-icon-hover:hover {
+      transform: scale(1.15);
+      color: var(--primary);
+      filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.5));
     }
 
     .photo-upload-grid {
@@ -383,9 +463,9 @@
   <div id="loginPage" class="login-split">
     <div class="login-image-side">
       <div class="login-image-content">
-        <h1 style="font-size: clamp(28px, 4vw, 46px); font-weight: 800; line-height: 1.2; margin-bottom: 16px;">
+        <h1 style="font-size: clamp(28px, 4vw, 46px); font-weight: 800; line-height: 1.2; margin-bottom: 16px; color: #FFD700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 0 40px rgba(255, 215, 0, 0.3);">
           Pengelolaan Transparan,<br>Pelayanan Maksimal.</h1>
-        <p style="font-size: 16px; color: rgba(255,255,255,0.85); line-height: 1.6; max-width: 480px;">Sistem informasi
+        <p style="font-size: 16px; color: #FFD700; line-height: 1.6; max-width: 480px; text-shadow: 0 0 10px rgba(255,215,0,0.4);">Sistem informasi
           keuangan terintegrasi yang dirancang khusus untuk mempermudah pencatatan, pelaporan, dan transparansi kas
           jemaat.</p>
       </div>
@@ -393,50 +473,52 @@
     <div class="login-form-side">
       <div class="login-card"
         style="border:none; box-shadow:none; background:transparent; padding:20px; max-width:400px;">
-        <div style="display: flex; justify-content: flex-end; margin-top: -20px; margin-bottom: 20px; gap: 8px;">
-          <button class="btn btn-ghost theme-toggle-btn" style="padding: 8px; border-radius: 50%;" title="Ubah Tema"
+        <div style="display: flex; justify-content: space-between; margin-top: -20px; margin-bottom: 20px; gap: 8px;">
+          <button class="icon-btn-hover-only theme-toggle-btn" title="Ubah Tema"
             onclick="toggleTheme()"></button>
-          <button class="btn btn-ghost" style="padding: 8px; border-radius: 50%;" title="Pengaturan Server"
-            onclick="openServerSettingsModal()">
-            <script>document.write(getIcon('settings', 'lucide-md'))</script>
-          </button>
+          <div style="display:flex; gap:8px;">
+            <button class="icon-btn-hover-only" title="Kembali ke Halaman Utama"
+              onclick="window.location.href='index.html'">
+              <script>document.write(getIcon('home', 'lucide-md'))</script>
+            </button>
+          </div>
         </div>
 
         <div style="display: block; text-align: center;">
           <div class="logo-container"
             style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; margin-bottom:32px;">
             <div
-              style="background:var(--card-bg); border:1px solid var(--border-color); width:104px; height:104px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(0,0,0,0.1); flex-shrink: 0;">
+              style="display:flex; align-items:center; justify-content:center; flex-shrink: 0;">
               <img class="app-logo-login-img" src="" alt="Logo"
-                style="display:none; width:76px; height:76px; object-fit:contain;">
+                style="display:none; width:96px; height:96px; object-fit:contain;">
               <img class="app-logo-login-default" src="./icons/PisgahColor.png" alt="Logo Default"
-                style="width:76px; height:76px; object-fit:contain;">
+                style="width:96px; height:96px; object-fit:contain;">
             </div>
             <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
               <div class="app-name-display"
-                style="font-size:24px; font-weight:900; color:var(--text); letter-spacing:1px; line-height: 1.2;">PISGAH
+                style="font-size:24px; font-weight:900; color:#FFD700; letter-spacing:1px; line-height: 1.2; text-shadow: 0 0 15px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.3);">PISGAH
                 BISDAC</div>
               <div class="app-subtitle-display"
-                style="font-size:12px; color:var(--text2); font-weight:700; text-transform:uppercase; letter-spacing:1.5px; margin-top:6px;">
+                style="font-size:12px; color:#FFD700; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; margin-top:6px; text-shadow: 0 0 8px rgba(255,215,0,0.4);">
                 Gereja Masehi Advent</div>
             </div>
           </div>
         </div>
 
-        <div id="loginStatus" class="status-bar" style="justify-content:center; margin-bottom:24px; width: 100%;">
+        <div id="loginStatus" class="status-bar glass-panel" style="justify-content:center; margin-bottom:24px; width: 100%;">
           <div class="status-dot loading" id="statusDot"></div>
-          <span id="statusText">Mengontak Cloud Server...</span>
+          <span id="statusText" style="color: #FFD700;">Mengontak Cloud Server...</span>
         </div>
 
         <div class="form-group">
-          <label class="form-label">ID Pengguna</label>
-          <input class="form-input" id="loginUser" type="text" placeholder="Masukkan Username" autocomplete="username">
+          <label class="form-label" style="color: #FFD700;">ID Pengguna</label>
+          <input class="form-input glass-input" id="loginUser" type="text" placeholder="Masukkan Username" autocomplete="username">
         </div>
         <div class="form-group">
-          <label class="form-label">Kata Sandi</label>
-          <input class="form-input" id="loginPass" type="password" placeholder="••••••••"
+          <label class="form-label" style="color: #FFD700;">Kata Sandi</label>
+          <input class="form-input glass-input" id="loginPass" type="password" placeholder="••••••••"
             autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()" style="padding-right:40px;">
-          <span class="eye-btn" id="loginEye" onclick="togglePassword('loginPass', 'loginEye')" title="Lihat Password">
+          <span class="eye-btn" id="loginEye" onclick="togglePassword('loginPass', 'loginEye')" title="Lihat Password" style="color: #FFD700;">
             <script>document.write(getIcon('eyeOff', 'lucide-md'))</script>
           </span>
         </div>
@@ -445,13 +527,13 @@
         </button>
 
         <div style="margin-top:24px; position:relative; text-align:center;">
-          <hr style="border:none; border-top:1px solid var(--glass-border); margin:12px 0;">
+          <hr style="border:none; border-top:1px solid rgba(255,215,0,0.3); margin:12px 0;">
           <span
-            style="background:var(--bg-deep); padding:0 12px; position:absolute; top:-10px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--text4);">ATAU</span>
+            style="background:rgba(11,26,48,0.8); padding:0 12px; position:absolute; top:-10px; left:50%; transform:translateX(-50%); font-size:12px; color:#FFD700; border-radius:4px;">ATAU</span>
         </div>
 
         <button class="btn btn-ghost" onclick="loginAsPublic()"
-          style="width:100%; margin-top:16px; display:flex; justify-content:center; align-items:center; gap:8px;">
+          style="width:100%; margin-top:16px; display:flex; justify-content:center; align-items:center; gap:8px; color: #FFD700;">
           <script>document.write(getIcon('users', 'lucide-sm'))</script> Masuk Sebagai Publik
         </button>
       </div>
@@ -481,12 +563,21 @@
           </div>
         </div>
       </div>
-      <div class="sidebar-user">
-        <div class="user-avatar" id="userAvatar">U</div>
-        <div>
-          <div class="user-name" id="userNameDisplay">Nama User</div>
-          <div class="user-role" id="userRoleDisplay">Role</div>
+      <div class="sidebar-user" style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 12px; overflow: hidden;">
+          <div class="user-avatar" id="userAvatar">U</div>
+          <div style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+            <div class="user-name" id="userNameDisplay">Nama User</div>
+            <div class="user-role" id="userRoleDisplay">Role</div>
+          </div>
         </div>
+        <button class="btn-icon-only" onclick="doLogout()" title="Keluar" style="color: var(--red-pop); border: 1px solid rgba(220, 38, 38, 0.3); background: rgba(220, 38, 38, 0.1); flex-shrink: 0; padding: 8px; border-radius: 50%;">
+          <svg class="lucide lucide-md" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </button>
       </div>
       <nav class="sidebar-nav">
 
@@ -562,40 +653,32 @@
           </span> Audit Log
         </div>
       </nav>
-      <div class="sidebar-footer">
-        <div class="logout-btn" onclick="doLogout()">
-          <svg class="lucide lucide-md" viewBox="0 0 24 24">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg> Keluar
-        </div>
-      </div>
+      <!-- Sidebar footer removed -->
     </aside>
 
     <nav class="bottom-bar" id="bottomBar">
       <div class="bottom-nav-item" onclick="showPage('pemasukan')" id="botPemasukan" data-target="pemasukan">
         <span class="bottom-nav-icon">
-          <script>document.write(getIcon('trendUp'))</script>
+          <script>document.write(getIcon('trendUp', 'lucide-md'))</script>
         </span><span>Masuk</span>
       </div>
       <div class="bottom-nav-item" onclick="showPage('pengeluaran')" id="botPengeluaran" data-target="pengeluaran">
         <span class="bottom-nav-icon">
-          <script>document.write(getIcon('trendDown'))</script>
+          <script>document.write(getIcon('trendDown', 'lucide-md'))</script>
         </span><span>Keluar</span>
       </div>
       <div class="bottom-nav-item active" onclick="showPage('dashboard')" data-target="dashboard">
         <span class="bottom-nav-icon">
-          <script>document.write(getIcon('home'))</script>
+          <script>document.write(getIcon('home', 'lucide-md'))</script>
         </span><span>Beranda</span>
       </div>
       <div class="bottom-nav-item" onclick="showPage('laporan')" id="botLaporan" data-target="laporan">
         <span class="bottom-nav-icon">
-          <script>document.write(getIcon('log'))</script>
+          <script>document.write(getIcon('log', 'lucide-md'))</script>
         </span><span>Laporan</span>
       </div>
       <div class="bottom-nav-item" onclick="openSidebar()">
-        <span class="bottom-nav-icon"><svg class="lucide" viewBox="0 0 24 24">
+        <span class="bottom-nav-icon"><svg class="lucide lucide-md" viewBox="0 0 24 24">
             <line x1="3" y1="12" x2="21" y2="12" />
             <line x1="3" y1="6" x2="21" y2="6" />
             <line x1="3" y1="18" x2="21" y2="18" />
@@ -614,15 +697,19 @@
           <span class="topbar-title" id="pageTitle">Dashboard</span>
         </div>
         <div class="topbar-actions" style="display:flex; gap:8px;">
-          <a href="./index.html" class="btn btn-icon-only" title="Kembali ke Beranda"
-            style="display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--text-main); width: 34px; height: 34px;">
+          <div class="notification-btn topbar-icon-hover" title="Persetujuan Tertunda"
+            onclick="navigateToApprovals()" style="position:relative; cursor:pointer;">
+            <script>document.write(getIcon('bell', 'lucide-md'))</script>
+            <span class="badge" id="globalApprovalBadge" style="display:none; position:absolute; top:-2px; right:-2px;"></span>
+          </div>
+          <a href="./index.html" class="topbar-icon-hover" title="Kembali ke Beranda" style="text-decoration:none;">
             <svg class="lucide lucide-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
               <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
               <polyline points="9 22 9 12 15 12 15 22" />
             </svg>
           </a>
-          <button class="btn btn-icon-only theme-toggle-btn" title="Ubah Tema" onclick="toggleTheme()"></button>
+          <button class="topbar-icon-hover theme-toggle-btn" title="Ubah Tema" onclick="toggleTheme()"></button>
         </div>
       </div>
 
@@ -1245,8 +1332,21 @@
           <div style="display:flex; justify-content:flex-end; margin-top: 16px;">
             <button class="btn btn-primary" onclick="saveAppTextFromInputs()">Simpan Nama</button>
           </div>
+        </div>
 
-          <div class="form-section-title" style="margin-top: 32px;">Pengaturan Tanda Tangan PDF</div>
+        <div class="card" style="max-width:800px; margin:24px auto 0;">
+          <div class="form-section-title">Pengaturan Server Web App</div>
+          <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Masukkan URL Apps Script untuk mengatur ulang koneksi server database Google Sheets.</p>
+          <div class="form-group">
+            <input class="form-input" id="customApiUrlInput" type="text" placeholder="https://script.google.com/macros/s/.../exec">
+          </div>
+          <div style="display:flex; justify-content:flex-end; margin-top: 16px;">
+            <button class="btn btn-primary" onclick="saveServerSettings()">Simpan URL Server</button>
+          </div>
+        </div>
+
+        <div class="card" style="max-width:800px; margin:24px auto 0;">
+          <div class="form-section-title">Pengaturan Tanda Tangan PDF</div>
           <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Unggah foto tanda tangan dengan background
             transparan (PNG). Tanda tangan hanya akan muncul di Laporan PDF apabila <strong>semua transaksi pada bulan
               tersebut telah disetujui (Approved)</strong> oleh Ketua Jemaat dan Pendeta.</p>
@@ -1452,23 +1552,7 @@
     </div>
   </div>
 
-  <!-- MODAL: SERVER SETTINGS -->
-  <div id="serverSettingsModal" class="sidebar-overlay"
-    style="display:none; justify-content:center; align-items:center; z-index:1200;">
-    <div class="card" style="max-width:440px; width: 100%; padding:32px; margin: 0 16px;">
-      <h3 style="margin-bottom:16px; color: var(--text); display:flex; align-items:center;">
-        <script>document.write(getIcon('settings', 'lucide-lg'))</script> <span style="margin-left: 12px;">Pengaturan
-          Server Web App</span>
-      </h3>
-      <p style="font-size:14px; color:var(--text2); margin-bottom:24px;">Masukkan URL Apps Script:</p>
-      <div class="form-group"><input class="form-input" id="customApiUrlInput" type="text"
-          placeholder="https://script.google.com/macros/s/.../exec"></div>
-      <div style="display:flex; gap:12px; justify-content:flex-end; margin-top: 32px;">
-        <button class="btn btn-ghost" onclick="closeServerSettingsModal()">Batal</button>
-        <button class="btn btn-primary" onclick="saveServerSettings()">Simpan URL</button>
-      </div>
-    </div>
-  </div>
+
 
   <!-- MODAL: CONFIRMATION -->
   <div id="customConfirmModal" class="sidebar-overlay"
@@ -1814,6 +1898,8 @@
       if (inputName) inputName.value = systemConfig.app_name || '';
       const inputSub = document.getElementById('settingAppSubtitle');
       if (inputSub) inputSub.value = systemConfig.app_subtitle || '';
+      const inputServer = document.getElementById('customApiUrlInput');
+      if (inputServer) inputServer.value = localStorage.getItem('BISDAC_api_url') || '';
 
       const sigKeys = ['sig_bendahara', 'sig_bangun', 'sig_ketua', 'sig_pendeta'];
       sigKeys.forEach(k => {
@@ -2293,14 +2379,12 @@
     document.getElementById('confirmYesBtn').addEventListener('click', () => { document.getElementById('customConfirmModal').style.display = 'none'; if (confirmPromiseResolve) confirmPromiseResolve(true); });
     document.getElementById('confirmNoBtn').addEventListener('click', () => { document.getElementById('customConfirmModal').style.display = 'none'; if (confirmPromiseResolve) confirmPromiseResolve(false); });
 
-    function openServerSettingsModal() { document.getElementById('customApiUrlInput').value = localStorage.getItem('BISDAC_api_url') || ''; document.getElementById('serverSettingsModal').style.display = 'flex'; }
-    function closeServerSettingsModal() { document.getElementById('serverSettingsModal').style.display = 'none'; }
     async function saveServerSettings() {
       const newUrl = document.getElementById('customApiUrlInput').value.trim();
       if (newUrl === '') { localStorage.removeItem('BISDAC_api_url'); notify('Menggunakan URL bawaan.', 'success'); }
       else if (!newUrl.startsWith('https://script.google.com/macros/s/')) { notify('URL tidak valid.', 'error'); return; }
       else { localStorage.setItem('BISDAC_api_url', newUrl.endsWith('/') ? newUrl.slice(0, -1) : newUrl); notify('URL diperbarui!', 'success'); }
-      closeServerSettingsModal(); await checkAPIConnection(); updateAppStatus();
+      await checkAPIConnection(); updateAppStatus();
     }
 
     async function checkAPIConnection() {
@@ -5259,8 +5343,8 @@
 
   </script>
   <button id="floatingSyncBtn" onclick="handleManualSync()" title="Sinkronisasi Data"
-    class="fixed right-4 md:right-8 bottom-8 md:bottom-8 z-50 w-[3.5rem] h-[3.5rem] md:w-[3rem] md:h-[3rem] backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center cursor-pointer group"
-    style="background: var(--bg-dark); border: 1px solid var(--glass-border); box-shadow: var(--shadow-lg);">
+    class="fixed right-4 md:right-8 z-50 w-10 h-10 md:w-11 md:h-11 bg-navy-900/40 hover:bg-navy-900/60 backdrop-blur-xl rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-navy-700/50 cursor-pointer shadow-lg group"
+    style="bottom: calc(env(safe-area-inset-bottom, 0px) + 5.25rem);">
     <div class="relative flex items-center justify-center w-full h-full" id="floatingSyncIcon">
       <span class="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
       <span class="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
+import { createPortal } from 'react-dom';
 
 const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwQJWQ2hKXQMdnFqVYr8Tan_9BIKQLtZyM_Wil6y19mRrgiQhEb1KB0hwOvJsPThcIX/exec'; // PASTIKAN UNTUK MENGISI KEMBALI URL GAS ANDA DI SINI
 
@@ -181,7 +182,7 @@ const IosInstallModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 bg-navy-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
-            <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl animate-slide-up" onClick={e => e.stopPropagation()}>
+            <div className="glass-box rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl animate-slide-up" onClick={e => e.stopPropagation()}>
                 <div className="p-6 text-center space-y-4">
                     <div className="w-16 h-16 bg-navy-50 text-navy-900 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
                         <Icon name="Share" className="w-8 h-8" />
@@ -207,7 +208,7 @@ const ManualInstallModal = ({ isOpen, onClose }) => {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/60 backdrop-blur-sm p-4" onClick={onClose}>
-            <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="glass-box rounded-2xl max-w-sm w-full p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
                 <div className="text-center mb-4">
                     <Icon name="Download" className="w-12 h-12 mx-auto text-gold-500" />
                     <h3 className="text-xl font-bold mt-2">Instal Aplikasi</h3>
@@ -607,7 +608,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                         {[...daftarBuku].reverse().slice(0, 4).map(b => (
-                            <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className="bg-white rounded-2xl border border-navy-100/60 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                            <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className="glass-box rounded-2xl border border-navy-100/60 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col">
                                 <div className="h-32 md:h-40 overflow-hidden relative shrink-0">
                                     <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
                                     <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-navy-900/10 to-transparent" />
@@ -648,7 +649,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                             const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
 
                             return (
-                                <div key={idx} onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }} className="bg-white rounded-2xl border border-navy-100/60 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                                <div key={idx} onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }} className="glass-box rounded-2xl border border-navy-100/60 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col">
                                     <div className="h-32 md:h-40 overflow-hidden relative shrink-0 bg-navy-50">
                                         {thumb ? (
                                             <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" alt="Thumbnail" referrerPolicy="no-referrer" />
@@ -856,7 +857,7 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
     ];
 
     return (
-        <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
+        <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
             <div className="relative">
                 <div className="text-center pt-4 pb-6 md:pt-6 md:pb-8">
                     <h2 className="text-xl md:text-[1.75rem] font-black uppercase tracking-widest leading-none text-navy-900">Susunan Ibadah</h2>
@@ -957,7 +958,7 @@ const Belajar = ({ setActiveTab }) => {
     ];
 
     return (
-        <div className="animate-fade-in space-y-6 bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
+        <div className="animate-fade-in space-y-6 glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
             {/* JUDUL HALAMAN */}
             <div className="text-center border-b border-navy-100 pb-5 mb-2">
                 <h1 className="text-2xl md:text-3xl font-black text-navy-900 tracking-tight">
@@ -973,7 +974,7 @@ const Belajar = ({ setActiveTab }) => {
             {/* DAFTAR KARTU */}
             <div className="flex flex-wrap justify-center gap-6">
                 {items.map((item) => (
-                    <div key={item.id} className="w-full sm:w-80 md:w-72 lg:w-64 bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div key={item.id} className="w-full sm:w-80 md:w-72 lg:w-64 glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                         <div className="h-[13rem] overflow-hidden relative">
                             <img src={item.img} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                             <div className="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/20 to-transparent"></div>
@@ -1029,7 +1030,7 @@ const ContactGembala = ({ dataPejabat }) => {
 };
 
 const DetailAlkitab = ({ setActiveTab, dataPejabat }) => (
-    <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
+    <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
         <div className="prose max-w-none">
             <h1 className="text-[2rem] font-extrabold text-navy-900 mb-6 border-b pb-4 border-navy-50">Doktrin Alkitab</h1>
             <img src="https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg" loading="lazy" alt="Bible Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
@@ -1059,7 +1060,7 @@ const Detail28Dasar = ({ setActiveTab, dataPejabat }) => {
     ];
 
     return (
-        <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
+        <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
             <div className="prose max-w-none">
                 <h1 className="text-[2rem] font-extrabold text-navy-900 mb-6 border-b pb-4 border-navy-50">28 Dasar Kepercayaan</h1>
                 <img src="https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjc1L2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9mcEUxNzQ5NDcxNDI3NTExLmpwZw/w:1920,q:75/hope-images/67054013a60919c92d92c959/fpE1749471427511.jpg" loading="lazy" alt="28 Doctrine Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
@@ -1100,7 +1101,7 @@ const Detail28Dasar = ({ setActiveTab, dataPejabat }) => {
 };
 
 const DetailEGW = ({ setActiveTab, dataPejabat }) => (
-    <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
+    <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
         <div className="prose max-w-none">
             <h1 className="text-[2rem] font-extrabold text-navy-900 mb-6 border-b pb-4 border-navy-50">Karunia Nubuat: Ellen G. White</h1>
             <img src="https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg" loading="lazy" alt="EGW Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
@@ -1185,7 +1186,7 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
         return (
             <div className="animate-fade-in relative z-10">
                 {/* Header reader */}
-                <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-4 mb-4 flex items-center gap-3">
+                <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-4 mb-4 flex items-center gap-3">
                     <button
                         onClick={() => setSelectedBook(null)}
                         className="flex items-center justify-center w-10 h-10 rounded-full bg-navy-50 hover:bg-navy-100 text-navy-700 transition shrink-0"
@@ -1206,7 +1207,7 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                     </a>
                 </div>
                 {/* PDF Iframe Viewer */}
-                <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden" style={{ minHeight: '75vh' }}>
+                <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden" style={{ minHeight: '75vh' }}>
                     {selectedBook.pdfUrl ? (
                         <iframe
                             src={selectedBook.pdfUrl}
@@ -1233,9 +1234,9 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
 
     // Mode daftar buku
     return (
-        <div className="animate-fade-in space-y-6 bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
+        <div className="animate-fade-in space-y-6 glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
             {/* Header */}
-            <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden">
+            <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden">
                 <img src="https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg" loading="lazy" alt="Buku" className="w-full h-[14rem] object-cover" />
                 <div className="p-6">
                     <h1 className="text-[1.75rem] font-extrabold text-navy-900 mb-2">Perpustakaan Buku</h1>
@@ -1293,7 +1294,7 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                         {filteredBooks.map(book => (
                             <div
                                 key={book.id}
-                                className="w-full bg-white rounded-2xl shadow-sm border border-navy-100/60 overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                                className="w-full glass-box rounded-2xl shadow-sm border border-navy-100/60 overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
                                 onClick={() => setSelectedBook(book)}
                             >
                                 <div className="h-[10rem] overflow-hidden relative">
@@ -1541,7 +1542,7 @@ const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPe
                 </div>
             )}
 
-            <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
+            <div className="glass-box p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
                 <div className="flex justify-between items-start sm:items-center mb-6 flex-col sm:flex-row gap-4 border-b pb-5 border-navy-50">
                     <div>
                         {/* Label "Hari Ini" atau "Terdekat" */}
@@ -1654,7 +1655,7 @@ const Persembahan = ({ dataPejabat }) => {
 
 const Keanggotaan = ({ setActiveTab }) => (
     <div className="space-y-6 animate-fade-in relative z-10">
-        <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
+        <div className="glass-box p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
             <h2 className="text-[1.3rem] font-black mb-4 text-navy-900 border-b pb-3 border-navy-50">Layanan Keanggotaan</h2>
             <p className="text-sm font-medium text-navy-600 mb-6">Pilih jenis permohonan keanggotaan yang sesuai dengan status Anda saat ini.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
@@ -1662,7 +1663,7 @@ const Keanggotaan = ({ setActiveTab }) => (
                 <button onClick={() => setActiveTab('pindah_masuk')} className="w-full text-left p-5 rounded-[1.25rem] border border-navy-100/50 bg-navy-50/30 hover:bg-navy-50 transition-colors flex items-center justify-between h-full group shadow-sm"><div><h3 className="font-bold text-navy-900 group-hover:text-gold-600 transition-colors">Pindah Masuk - ACMS</h3><p className="text-xs font-medium text-navy-500 mt-1.5 leading-relaxed">Untuk anggota GMAHK yang ingin pindah ke Jemaat PISGAH BISDAC.</p></div><span className="text-gold-500 font-black text-xl ml-4 transform group-hover:translate-x-1 transition-transform">&rarr;</span></button>
             </div>
         </div>
-        <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
+        <div className="glass-box p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
             <h2 className="text-[1.3rem] font-black mb-4 text-navy-900 border-b pb-3 border-navy-50">Jadwal Kegiatan & Pelayanan</h2>
             <p className="text-sm font-medium text-navy-600 mb-6">Lihat jadwal ibadah rutin dan daftar petugas pelayanan jemaat PISGAH BISDAC.</p>
             <button onClick={() => setActiveTab('jadwal')} className="w-full text-left p-5 rounded-[1.25rem] border border-gold-200 bg-gradient-to-br from-gold-50 to-white hover:border-gold-300 transition-colors flex items-center justify-between group shadow-sm"><div className="flex items-center"><div className="w-[3rem] h-[3rem] bg-gold-400 rounded-full flex items-center justify-center text-navy-900 mr-4 shrink-0 shadow-sm"><Icon name="Calendar" className="w-5 h-5" /></div><div><h3 className="font-bold text-navy-900">Lihat Jadwal Jemaat</h3><p className="text-xs font-medium text-navy-600 mt-1">Jadwal petugas ibadah hari Rabu dan Sabat.</p></div></div><span className="text-gold-500 font-black text-xl ml-4 transform group-hover:translate-x-1 transition-transform">&rarr;</span></button>
@@ -1736,7 +1737,7 @@ const MemberBaru = ({ setActiveTab, dataPejabat }) => {
     ];
     return (
         <div className="space-y-6 animate-fade-in relative z-10">
-            <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
+            <div className="glass-box p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
                 <h2 className="text-[1.3rem] font-black mb-3 text-navy-900 border-b pb-3 border-navy-50 flex items-center">
                     <Icon name="BookOpen" className="w-5 h-5 mr-2 text-gold-500" />
                     Langkah Menjadi Anggota Gereja Advent
@@ -1772,7 +1773,7 @@ const MemberBaru = ({ setActiveTab, dataPejabat }) => {
                 </div>
             </div>
 
-            <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
+            <div className="glass-box p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
                 <h2 className="text-[1.3rem] font-black mb-4 text-navy-900 border-b pb-3 border-navy-50">Hubungi Pelayan Jemaat</h2>
                 <p className="text-sm font-medium text-navy-600 mb-6">Silahkan hubungi Pendeta atau Ketua Jemaat kami untuk bimbingan rohani dan persiapan keanggotaan:</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
@@ -1796,7 +1797,7 @@ const PindahMasuk = ({ setActiveTab, dataPejabat }) => {
     );
     return (
         <div className="space-y-6 animate-fade-in relative z-10">
-            <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
+            <div className="glass-box p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
                 <h2 className="text-[1.3rem] font-black mb-4 text-navy-900 border-b pb-3 border-navy-50">Pengurusan ACMS</h2>
                 <p className="text-sm font-medium text-navy-600 mb-6">Silahkan isi formulir ACMS atau hubungi Sekretaris Jemaat kami untuk bantuan kepindahan:</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
@@ -1834,7 +1835,7 @@ const Hubungi = ({ setActiveTab, dataPejabat, kontakGereja }) => {
 
             {/* Kartu Peta Lokasi Gereja */}
             {kontakGereja && (
-                <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden relative">
+                <div className="glass-box p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden relative">
                     <div className="absolute top-0 right-0 bg-gold-400 text-navy-900 text-[10px] font-black px-4 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm">Lokasi Gereja</div>
 
                     <h2 className="text-xl md:text-2xl font-black mb-5 text-navy-900 border-b pb-4 border-navy-50 flex items-center">
@@ -1877,13 +1878,13 @@ const Hubungi = ({ setActiveTab, dataPejabat, kontakGereja }) => {
             )}
 
             {/* Daftar Pejabat / Kontak Berdasarkan Kategori */}
-            <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
+            <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
                 {categories.map((cat, idx) => {
                     const items = dataPejabat.filter(cat.filter);
                     if (items.length === 0) return null;
 
                     return (
-                        <div key={idx} className={`bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6 ${idx !== categories.length - 1 ? 'mb-6' : ''}`}>
+                        <div key={idx} className={`glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6 ${idx !== categories.length - 1 ? 'mb-6' : ''}`}>
                             <h2 className="text-xl md:text-2xl font-black mb-6 text-navy-900">{cat.title}</h2>
                             <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-6 items-stretch">
                                 {items.map((p, i) => (
@@ -1968,7 +1969,7 @@ const FormACMS = ({ setActiveTab }) => {
             <div className="space-y-6 animate-fade-in relative z-10">
                 {showCaptcha && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/60 px-4 backdrop-blur-md">
-                        <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-sm w-full animate-fade-in text-center"><div className="w-16 h-16 bg-gold-100 text-gold-600 rounded-full flex items-center justify-center mx-auto mb-4 scale-110"><Icon name="Shield" className="w-8 h-8" /></div><h3 className="text-2xl font-black text-navy-900 mb-2">Verifikasi Keamanan</h3><p className="text-sm font-medium text-navy-600 mb-6 leading-relaxed">Untuk menghindari spam otomatis, silahkan selesaikan perhitungan sederhana berikut:</p><div className="flex items-center justify-center space-x-3 mb-6 bg-navy-50 p-5 rounded-2xl border border-navy-100/50 shadow-inner"><span className="text-2xl font-black text-navy-800 tracking-wider"> {captcha.num1} + {captcha.num2} = </span><input type="number" value={captchaInput} onChange={(e) => setCaptchaInput(e.target.value)} className={`w-24 p-3 border-2 ${captchaError ? 'border-red-400 bg-red-50 text-red-700' : 'border-navy-200 bg-white text-navy-900 focus:border-gold-500'} rounded-xl text-3xl font-black text-center outline-none transition-colors drop-shadow-sm`} autoFocus onKeyDown={(e) => { if (e.key === 'Enter') verifyAndKirim(); }} /></div>{captchaError && <p className="text-red-500 text-sm mb-6 font-bold animate-pulse">Jawaban salah, silahkan coba lagi.</p>}<div className="flex justify-between space-x-4"><button onClick={() => setShowCaptcha(false)} className="w-1/2 py-3.5 text-navy-600 bg-navy-50 hover:bg-navy-100 rounded-xl transition font-bold">Batal</button><button onClick={verifyAndKirim} className="w-1/2 py-3.5 bg-navy-900 hover:bg-navy-800 text-gold-400 rounded-xl transition font-bold shadow-md">Kirim PDF</button></div></div>
+                        <div className="glass-box rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-sm w-full animate-fade-in text-center"><div className="w-16 h-16 bg-gold-100 text-gold-600 rounded-full flex items-center justify-center mx-auto mb-4 scale-110"><Icon name="Shield" className="w-8 h-8" /></div><h3 className="text-2xl font-black text-navy-900 mb-2">Verifikasi Keamanan</h3><p className="text-sm font-medium text-navy-600 mb-6 leading-relaxed">Untuk menghindari spam otomatis, silahkan selesaikan perhitungan sederhana berikut:</p><div className="flex items-center justify-center space-x-3 mb-6 bg-navy-50 p-5 rounded-2xl border border-navy-100/50 shadow-inner"><span className="text-2xl font-black text-navy-800 tracking-wider"> {captcha.num1} + {captcha.num2} = </span><input type="number" value={captchaInput} onChange={(e) => setCaptchaInput(e.target.value)} className={`w-24 p-3 border-2 ${captchaError ? 'border-red-400 bg-red-50 text-red-700' : 'border-navy-200 bg-white text-navy-900 focus:border-gold-500'} rounded-xl text-3xl font-black text-center outline-none transition-colors drop-shadow-sm`} autoFocus onKeyDown={(e) => { if (e.key === 'Enter') verifyAndKirim(); }} /></div>{captchaError && <p className="text-red-500 text-sm mb-6 font-bold animate-pulse">Jawaban salah, silahkan coba lagi.</p>}<div className="flex justify-between space-x-4"><button onClick={() => setShowCaptcha(false)} className="w-1/2 py-3.5 text-navy-600 bg-navy-50 hover:bg-navy-100 rounded-xl transition font-bold">Batal</button><button onClick={verifyAndKirim} className="w-1/2 py-3.5 bg-navy-900 hover:bg-navy-800 text-gold-400 rounded-xl transition font-bold shadow-md">Kirim PDF</button></div></div>
                     </div>
                 )}
                 <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-4 md:p-5 rounded-[1.5rem] shadow-sm border border-navy-100/60 gap-4">
@@ -1987,7 +1988,7 @@ const FormACMS = ({ setActiveTab }) => {
 
     return (
         <div className="space-y-6 animate-fade-in relative z-10">
-            <div className="bg-white p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60 relative overflow-hidden">
+            <div className="glass-box p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-gold-400 text-navy-900 text-[10px] font-black px-4 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-sm">Form Resmi</div>
                 <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8 border-b pb-5 border-navy-50"><div className="w-14 h-14 bg-navy-50 rounded-full flex items-center justify-center text-navy-900 shadow-inner"><Icon name="BookOpen" className="w-7 h-7" /></div><div><h2 className="text-2xl font-black text-navy-900 tracking-tight">Formulir Pindah Masuk (ACMS)</h2><p className="text-sm font-medium text-navy-500 mt-1">Isi data di bawah ini untuk mengunduh dokumen perpindahan yang siap diberikan ke Majelis.</p></div></div>
                 <form onSubmit={handleSubmit} className="space-y-8">
@@ -2078,7 +2079,7 @@ const LoginModal = ({ isOpen, onClose, onSuccess }) => {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/60 px-4 backdrop-blur-md animate-fade-in">
-            <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-sm w-full relative border border-navy-100/60">
+            <div className="glass-box rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-sm w-full relative border border-navy-100/60">
                 <button onClick={onClose} className="absolute top-4 right-4 text-navy-400 hover:text-red-500 transition-colors bg-navy-50 w-8 h-8 rounded-full flex items-center justify-center font-bold pb-1">&times;</button>
                 <div className="flex justify-center mb-6"><div className="w-16 h-16 bg-navy-50 rounded-full flex items-center justify-center text-gold-500 shadow-inner"><Icon name="Settings" className="w-8 h-8" /></div></div>
                 <h2 className="text-2xl font-black text-center text-navy-900 mb-2 tracking-tight">Admin Login</h2>
@@ -2203,7 +2204,7 @@ const GaleriPublik = () => {
             ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {media.map(item => (
-                        <div key={item.id} className="bg-white rounded-[1.25rem] shadow-sm border border-navy-100/60 overflow-hidden group cursor-pointer hover:shadow-md transition-all">
+                        <div key={item.id} className="glass-box rounded-[1.25rem] shadow-sm border border-navy-100/60 overflow-hidden group cursor-pointer hover:shadow-md transition-all">
                             {item.type === 'video' ? (
                                 <a href={item.url} target="_blank" rel="noopener noreferrer" className="block relative w-full aspect-square bg-navy-900 overflow-hidden">
                                     <img src={formatImageUrl(item.thumbnailUrl || item.url)} alt={item.title} className="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-500" />
@@ -2291,7 +2292,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta 
                         <Icon name="ArrowLeft" className="w-4 h-4 mr-2" /> Kembali
                     </button>
                 </div>
-                <div className="bg-white rounded-[1.5rem] p-6 shadow-sm border border-navy-100/60">
+                <div className="glass-box rounded-[1.5rem] p-6 shadow-sm border border-navy-100/60">
                     <GaleriPublik />
                 </div>
             </div>
@@ -2312,7 +2313,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta 
                     </button>
                 </div>
 
-                <div className="bg-white rounded-[1.5rem] p-5 md:p-8 shadow-sm border border-navy-100/60">
+                <div className="glass-box rounded-[1.5rem] p-5 md:p-8 shadow-sm border border-navy-100/60">
                     <h1 className="text-2xl md:text-3xl font-black text-navy-900 leading-tight mb-4">{selectedWarta.judul}</h1>
                     <div className="flex flex-wrap items-center text-sm text-navy-500 font-medium mb-6 pb-6 border-b border-navy-50">
                         <span className="flex items-center mr-4 mb-2 md:mb-0"><Icon name="Calendar" className="w-4 h-4 mr-1.5 text-gold-500" /> {formatDate(selectedWarta.tanggal)}</span>
@@ -2375,7 +2376,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta 
             </div>
 
             {/* Area Daftar Warta (Thumbnails Grid) */}
-            <div className="bg-white rounded-[1.5rem] p-6 shadow-sm border border-navy-100/60">
+            <div className="glass-box rounded-[1.5rem] p-6 shadow-sm border border-navy-100/60">
                 <div className="flex items-center justify-between border-b border-navy-50 pb-4 mb-6">
                     <h2 className="text-2xl font-black text-navy-900 flex items-center">
                         <Icon name="BookOpen" className="w-6 h-6 mr-2 text-gold-500" /> Warta Jemaat
@@ -3987,7 +3988,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
     return (
         <div className="space-y-6 rounded-[1.25rem] animate-fade-in relative z-10">
-            <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
+            <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
                 <div className="flex flex-col sm:flex-row border-b border-navy-50 bg-navy-50/20">
                     <button onClick={() => setAdminTab('jadwal')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors ${adminTab === 'jadwal' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Jadwal</button>
                     <button onClick={() => setAdminTab('warta')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'warta' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Buat Warta</button>
@@ -4002,7 +4003,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 {/* Modal Edit Warta */}
                 {editWartaModal && (
                     <div className="fixed inset-0 z-[100] flex justify-center bg-navy-900/60 px-4 backdrop-blur-md overflow-y-auto" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 4rem)', paddingBottom: '1rem' }}>
-                        <div className="bg-white rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto relative border border-navy-100/60 mt-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)' }}>
+                        <div className="glass-box rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto relative border border-navy-100/60 mt-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)' }}>
 
                             {/* Tombol Close (absolut, tidak mengapung) */}
                             <button
@@ -4081,7 +4082,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                 <Icon name="ChevronLeft" className="w-5 h-5" />
                             </button>
 
-                            <div ref={scrollContainerRef} className="bg-white rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
+                            <div ref={scrollContainerRef} className="glass-box rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
                                 {subTabs.map(tab => (
                                     <button key={tab.id} onClick={() => { setSubTab(tab.id); setEditingDate(null); }} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors whitespace-nowrap ${subTab === tab.id ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                                         {tab.label}
@@ -4107,7 +4108,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                     <div className="w-10 h-10 bg-navy-50 rounded-full flex items-center justify-center text-gold-500 mr-4 hidden md:flex shrink-0 shadow-inner"><Icon name="Calendar" className="w-5 h-5" /></div>
                                     <div><h3 className="font-black text-xl text-navy-900 tracking-tight">{currentSubTabLabel}</h3><p className="text-[10px] text-navy-500 uppercase tracking-widest font-bold mt-1">Triwulan: {getTriwulan(viewMonth)}</p></div>
                                 </div>
-                                <div className="flex items-center border border-navy-100 rounded-xl overflow-hidden bg-white shadow-sm">
+                                <div className="flex items-center border border-navy-100 rounded-xl overflow-hidden glass-box shadow-sm">
                                     <button onClick={prevMonth} className="p-2.5 hover:bg-navy-50 hover:text-gold-500 transition-colors text-navy-600"><Icon name="ChevronLeft" className="w-5 h-5" /></button>
                                     <div className="px-4 py-2.5 font-black text-sm bg-navy-50 flex items-center min-w-[150px] justify-center text-navy-900 tracking-wide"><Icon name="Calendar" className="w-4 h-4 mr-2 text-gold-500" />{monthNames[viewMonth].toUpperCase()} {viewYear}</div>
                                     <button onClick={nextMonth} className="p-2.5 hover:bg-navy-50 hover:text-gold-500 transition-colors text-navy-600"><Icon name="ChevronRight" className="w-5 h-5" /></button>
@@ -4145,7 +4146,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                         isEditing ? (
                                                             <td colSpan="2" className="p-4 bg-gold-50/30">
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                                                                    <div className="space-y-3 p-5 bg-white rounded-2xl border border-navy-100/60 shadow-sm h-fit">
+                                                                    <div className="space-y-3 p-5 glass-box rounded-2xl border border-navy-100/60 shadow-sm h-fit">
                                                                         <h4 className="font-black text-sm text-navy-800 border-b border-navy-50 pb-2">Sekolah Sabat</h4>
                                                                         <div><label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">Lagu Buka</label><input type="text" value={editForm.ssLaguBuka || ''} onChange={(e) => handleEditFormChangeSusunan('ssLaguBuka', e.target.value)} placeholder="Contoh: LS 210" className="w-full p-2.5 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" /></div>
                                                                         <div><label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">Lagu Tutup</label><input type="text" value={editForm.ssLaguTutup || ''} onChange={(e) => handleEditFormChangeSusunan('ssLaguTutup', e.target.value)} placeholder="Contoh: LS 251" className="w-full p-2.5 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" /></div>
@@ -4313,7 +4314,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                             <button onClick={() => scrollWartaTabs('left')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kiri">
                                 <Icon name="ChevronLeft" className="w-5 h-5" />
                             </button>
-                            <div ref={wartaScrollContainerRef} className="bg-white rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
+                            <div ref={wartaScrollContainerRef} className="glass-box rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
                                 <button onClick={() => setWartaSubTab('input')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${wartaSubTab === 'input' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                                     Input Baru
                                 </button>
@@ -4331,7 +4332,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
                         {/* Konten Input Baru */}
                         {wartaSubTab === 'input' && (
-                            <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6 mb-24">
+                            <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6 mb-24">
                                 <h1 className="text-xl font-bold text-navy-800 mb-4 border-b pb-2">Input Warta Baru</h1>
                                 <p className="text-navy-500 mb-4">Silahkan isi konten warta di bawah ini.</p>
                                 <form onSubmit={handleWartaFormSubmit}>
@@ -4724,7 +4725,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
                         {showNewFolderModal && (
                             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                                <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+                                <div className="glass-box rounded-2xl p-6 max-w-md w-full">
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="text-xl font-bold">Buat Folder Baru</h3>
                                         <button onClick={() => setShowNewFolderModal(false)} className="text-gray-500">&times;</button>
@@ -4831,7 +4832,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                             <button onClick={() => scrollPengaturanTabs('left')} className="hidden md:flex p-2.5 bg-white border border-navy-100 rounded-xl shadow-sm text-navy-500 hover:text-gold-500 hover:border-gold-200 shrink-0 transition" title="Scroll Kiri">
                                 <Icon name="ChevronLeft" className="w-5 h-5" />
                             </button>
-                            <div ref={pengaturanScrollContainerRef} className="bg-white rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
+                            <div ref={pengaturanScrollContainerRef} className="glass-box rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
                                 <button onClick={() => setPengaturanSubTab('youtube')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'youtube' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                                     Youtube
                                 </button>
@@ -5167,7 +5168,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 {adminTab === 'buku' && (
                     <div className="space-y-6">
                         {/* Header & Add Button */}
-                        <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div>
                                 <h2 className="text-2xl font-black text-navy-900">Kelola Buku</h2>
                                 <p className="text-sm text-navy-500 font-medium mt-1">Total: {daftarBuku.length} buku · Tambah, edit, atau hapus buku dari perpustakaan</p>
@@ -5181,7 +5182,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                         </div>
 
                         {/* Container Utama untuk Search dan Daftar Buku agar Kotaknya Simetris */}
-                        <div className="bg-white rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
+                        <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
 
                             {/* Search Bar Admin Buku */}
                             <div className="mb-6">
@@ -5280,9 +5281,9 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                         </div>
 
                         {/* Book Form Modal */}
-                        {bookFormModal && (
-                            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                                <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+                        {bookFormModal && createPortal(
+                            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-40 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 5rem)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)' }}>
+                                <div className="glass-box rounded-2xl max-w-2xl w-full max-h-full overflow-y-auto shadow-2xl">
                                     <div className="sticky top-0 bg-white border-b border-navy-100 p-6 flex items-center justify-between">
                                         <h3 className="text-xl font-black text-navy-900">{editingBook ? 'Edit Buku' : 'Tambah Buku Baru'}</h3>
                                         <button onClick={() => { setBookFormModal(false); setEditingBook(null); setBookFormData({ id: '', title: '', author: '', cover: '', desc: '', category: '', pdfUrl: '' }); }}
@@ -5441,7 +5442,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                     </form>
                                 </div>
                             </div>
-                        )}
+                        , document.body)}
                     </div>
                 )}
             </div>
@@ -5561,7 +5562,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                     {filteredMenus.length > 0 && (
                         <div>
                             <h3 className="text-xs font-black text-navy-500 uppercase tracking-widest mb-3 px-2">Menu</h3>
-                            <div className="bg-white rounded-2xl border border-navy-100/60 overflow-hidden shadow-sm">
+                            <div className="glass-box rounded-2xl border border-navy-100/60 overflow-hidden shadow-sm">
                                 {filteredMenus.map((m, i) => (
                                     <button key={m.id} onClick={() => setActiveTab(m.id)} className="w-full flex items-center p-4 text-left hover:bg-gold-50/50 transition-colors border-b border-navy-50 last:border-0">
                                         <div className="w-10 h-10 rounded-xl bg-navy-50 flex items-center justify-center text-navy-600 mr-4">
@@ -5581,7 +5582,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                             <h3 className="text-xs font-black text-gold-600 uppercase tracking-widest mb-3 px-2">Warta</h3>
                             <div className="space-y-3">
                                 {searchResults.warta.map(w => (
-                                    <div key={w.rowIndex} onClick={() => { setActiveTab('warta'); window.selectedWartaDetail = w; }} className="bg-white rounded-2xl border border-navy-100/60 p-4 cursor-pointer hover:border-gold-300 transition">
+                                    <div key={w.rowIndex} onClick={() => { setActiveTab('warta'); window.selectedWartaDetail = w; }} className="glass-box rounded-2xl border border-navy-100/60 p-4 cursor-pointer hover:border-gold-300 transition">
                                         <div className="font-bold text-navy-900">{w.judul}</div>
                                         <div className="text-xs text-navy-500 mt-1">{w.tanggal}</div>
                                         <div className="text-sm text-navy-600 mt-2 line-clamp-2">{stripHtml(w.isi)}</div>
@@ -5597,7 +5598,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                             <h3 className="text-xs font-black text-green-600 uppercase tracking-widest mb-3 px-2">Pejabat / Pelayan</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 {searchResults.pejabat.map(p => (
-                                    <div key={p.id} className="bg-white rounded-2xl border border-navy-100/60 p-3 flex items-center gap-3">
+                                    <div key={p.id} className="glass-box rounded-2xl border border-navy-100/60 p-3 flex items-center gap-3">
                                         <img src={p.img} className="w-12 h-12 rounded-full object-cover" alt="" />
                                         <div>
                                             <div className="font-bold text-navy-900">{p.nama}</div>
@@ -5640,7 +5641,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                         <div>
                             <h3 className="text-xs font-black text-blue-600 uppercase tracking-widest mb-3 px-2">Jadwal Petugas</h3>
                             {searchResults.jadwal.map(j => (
-                                <div key={j.date} onClick={() => setActiveTab('jadwal')} className="bg-white rounded-2xl border border-navy-100/60 p-4 mb-3 cursor-pointer hover:border-gold-300">
+                                <div key={j.date} onClick={() => setActiveTab('jadwal')} className="glass-box rounded-2xl border border-navy-100/60 p-4 mb-3 cursor-pointer hover:border-gold-300">
                                     <div className="font-bold text-navy-800">{formatIndoDate(j.date)}</div>
                                     <div className="text-xs uppercase">{j.isRabu ? 'RABU' : 'SABAT'}</div>
                                     <div className="mt-2 space-y-1">
@@ -5660,7 +5661,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                     {searchResults.pengumuman && (
                         <div>
                             <h3 className="text-xs font-black text-amber-600 uppercase tracking-widest mb-3 px-2">Pengumuman</h3>
-                            <div onClick={() => setActiveTab('home')} className="bg-white rounded-2xl border border-gold-200 p-4 cursor-pointer hover:shadow-md">
+                            <div onClick={() => setActiveTab('home')} className="glass-box rounded-2xl border border-gold-200 p-4 cursor-pointer hover:shadow-md">
                                 <div className="font-bold text-navy-900">{pengumuman.header || "Pengumuman"}</div>
                                 <div className="text-sm text-navy-600 mt-1 line-clamp-3">{stripHtml(pengumuman.isi)}</div>
                             </div>
@@ -6121,22 +6122,22 @@ const App = () => {
                         {/* Toggle Theme Button */}
                         <button
                             onClick={() => setIsDarkMode(!isDarkMode)}
-                            className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-600 hover:text-gold-500 hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm shrink-0"
+                            className="w-10 h-10 text-navy-600 hover:text-gold-500 hover:scale-110 transition-all flex items-center justify-center shrink-0"
                             title={isDarkMode ? "Ganti ke Mode Terang" : "Ganti ke Mode Gelap"}
                         >
                             <Icon name={isDarkMode ? "Sun" : "Moon"} className="w-5 h-5" />
                         </button>
 
                         {activeTab !== 'search' && (
-                            <button onClick={() => setActiveTab('search')} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-600 hover:text-gold-500 hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm shrink-0" title="Pencarian">
+                            <button onClick={() => setActiveTab('search')} className="w-10 h-10 text-navy-600 hover:text-gold-500 hover:scale-110 transition-all flex items-center justify-center shrink-0" title="Pencarian">
                                 <Icon name="Search" className="w-4 h-4" />
                             </button>
                         )}
 
                         {isAdminLoggedIn ? (
-                            <button onClick={() => setActiveTab('admin_dashboard')} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-600 hover:text-gold-500 hover:bg-navy-50/50 transition flex items-center justify-center shadow-sm shrink-0" title="Dashboard Admin"><Icon name="Settings" className="w-4 h-4" /></button>
+                            <button onClick={() => setActiveTab('admin_dashboard')} className="w-10 h-10 text-navy-600 hover:text-gold-500 hover:scale-110 transition-all flex items-center justify-center shrink-0" title="Dashboard Admin"><Icon name="Settings" className="w-4 h-4" /></button>
                         ) : (
-                            <button onClick={handleAdminClick} className="w-10 h-10 bg-white border border-navy-100/60 rounded-full text-navy-400 hover:text-navy-600 hover:bg-navy-50/50 transition flex items-center justify-center shrink-0 shadow-sm" title="Login Admin"><Icon name="LogIn" className="w-4 h-4" /></button>
+                            <button onClick={handleAdminClick} className="w-10 h-10 text-navy-400 hover:text-gold-500 hover:scale-110 transition-all flex items-center justify-center shrink-0" title="Login Admin"><Icon name="LogIn" className="w-4 h-4" /></button>
                         )}
                     </div>
                 </div>
@@ -6164,48 +6165,25 @@ const App = () => {
             </main>
 
             {/* Navigasi Mobile (Disembunyikan di Desktop dengan md:hidden) */}
-            <nav className="md:hidden fixed left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg bg-white/90 backdrop-blur-xl border border-navy-100/50 rounded-3xl z-50 shadow-lg" style={{ bottom: `calc(env(safe-area-inset-bottom, 0px) + 0.25rem)` }}>
-                <div className="flex justify-around items-end p-2 relative">
-                    {/* Kita hanya memanggil 5 menu utama agar Home tepat berada di tengah */}
-                    {['belajar', 'warta', 'home', 'jadwal', 'live'].map(tabId => {
-                        const tab = tabs.find(t => t.id === tabId);
-                        if (!tab) return null;
-                        const isActive = activeTab.startsWith(tab.id);
-                        const isHome = tab.id === 'home';
+            <nav className="bottom-bar md:hidden" style={{ zIndex: 50 }}>
+                {['belajar', 'warta', 'home', 'jadwal', 'live'].map(tabId => {
+                    const tab = tabs.find(t => t.id === tabId);
+                    if (!tab) return null;
+                    const isActive = activeTab.startsWith(tab.id);
 
-                        return (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`relative flex flex-col items-center justify-end flex-1 pb-1 pt-2 transition-all duration-300 ${isActive ? 'text-gold-500' : 'text-navy-400 hover:text-navy-500'}`}
-                                // Efek glow emas bersinar ketika aktif
-                                style={isActive && !isHome ? { filter: 'drop-shadow(0 0 6px rgba(231,174,48,0.8))' } : {}}
-                            >
-                                {isHome ? (
-                                    <div className="flex flex-col items-center w-full">
-                                        {/* Lingkaran Home Menonjol dengan Efek Glass Glow */}
-                                        <div
-                                            className={`absolute -top-6 left-1/2 -translate-x-1/2 flex items-center justify-center w-[3.5rem] h-[3.5rem] rounded-full transition-all duration-500 z-10 backdrop-blur-md ${isActive ? 'bg-gold-500/20 border-2 border-gold-500 text-gold-500 shadow-[0_0_15px_rgba(231,174,48,0.6)] scale-110' : 'bg-navy-800/40 border border-gold-500/50 text-navy-400/80 hover:bg-navy-700/50 hover:scale-105 hover:border-gold-500/80 shadow-lg'}`}
-                                        >
-                                            <Icon name={tab.icon} className={`w-6 h-6 transition-all duration-300 ${isActive ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
-                                        </div>
-                                        <span className={`text-[10px] font-bold tracking-wide transition-all duration-300 mt-6 ${isActive ? 'opacity-100 text-gold-500' : 'opacity-70 text-navy-400'}`} style={isActive ? { textShadow: '0 0 8px rgba(231,174,48,0.8)' } : {}}>
-                                            {tab.label}
-                                        </span>
-                                    </div>
-                                ) : (
-                                    <>
-                                        {/* Menu biasa */}
-                                        <Icon name={tab.icon} className={`w-[1.4rem] h-[1.4rem] mb-1.5 transition-all duration-300 ${isActive ? 'stroke-[2.5px] -translate-y-1 scale-110' : 'stroke-[2px]'}`} />
-                                        <span className={`text-[10px] font-bold tracking-wide transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
-                                            {tab.label}
-                                        </span>
-                                    </>
-                                )}
-                            </button>
-                        );
-                    })}
-                </div>
+                    return (
+                        <div
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`bottom-nav-item ${isActive ? 'active' : ''}`}
+                        >
+                            <div className="bottom-nav-icon">
+                                <Icon name={tab.icon} />
+                            </div>
+                            <span>{tab.label}</span>
+                        </div>
+                    );
+                })}
             </nav>
 
             {/* Floating Action Button (Hubungi / WA) */}
@@ -6219,9 +6197,9 @@ const App = () => {
                                 setShowSyncNotif(true);
                             }
                         }}
-                        className="fixed right-4 md:right-8 z-[90] w-[3.5rem] h-[3.5rem] md:w-[3rem] md:h-[3rem] bg-white/30 dark:bg-slate-900/30 hover:bg-white/50 dark:hover:bg-slate-900/50 backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-slate-200/50 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer shadow-lg group"
+                        className="fixed right-4 md:right-8 z-[90] w-10 h-10 md:w-11 md:h-11 bg-navy-800/20 dark:bg-navy-900/40 hover:bg-navy-800/30 dark:hover:bg-navy-900/60 backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-navy-200/50 dark:border-navy-700/50 cursor-pointer shadow-lg group"
                         style={{
-                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)'
+                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.25rem)'
                         }}
                         title="Sinkronisasi Data"
                     >
@@ -6238,9 +6216,9 @@ const App = () => {
                     {/* Floating WhatsApp Button */}
                     <button
                         onClick={() => setActiveTab('hubungi')}
-                        className="fixed left-4 md:left-6 z-[90] w-[3.5rem] h-[3.5rem] md:w-[3rem] md:h-[3rem] bg-white/30 dark:bg-slate-900/30 hover:bg-white/50 dark:hover:bg-slate-900/50 backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-slate-200/50 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer shadow-lg group"
+                        className="fixed left-4 md:left-6 z-[90] w-10 h-10 md:w-11 md:h-11 bg-navy-800/20 dark:bg-navy-900/40 hover:bg-navy-800/30 dark:hover:bg-navy-900/60 backdrop-blur-xl rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-navy-200/50 dark:border-navy-700/50 cursor-pointer shadow-lg group"
                         style={{
-                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)'
+                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.25rem)'
                         }}
                         title="Hubungi Kami"
                     >

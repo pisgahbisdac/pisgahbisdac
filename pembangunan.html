@@ -49,14 +49,8 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <!-- Logo -->
             <div class="flex items-center gap-3">
-                <div
-                    class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-2xl overflow-hidden bg-gradient-to-br from-stone-800 to-stone-900 border border-gold-500/30 flex items-center justify-center shadow-2xl">
-                    <img src="./icons/PisgahColor.png" alt="Pisgah"
-                        class="w-full h-full object-cover opacity-80">
-                    <!-- Decorative border corners -->
-                    <div class="absolute top-0 left-0 w-1 h-1 border-t border-l border-gold-500"></div>
-                    <div class="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-gold-500"></div>
-                </div>
+                <img src="./icons/PisgahColor.png" alt="Pisgah"
+                    class="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-md">
                 <div>
                     <h1
                         class="font-serif font-medium text-lg sm:text-2xl text-stone-100 leading-none tracking-[0.1em] uppercase">
@@ -72,18 +66,14 @@
                     <i class="fa-solid fa-home text-xs text-gold-500"></i>
                     <span class="text-[10px] md:text-xs font-semibold uppercase tracking-[0.15em] text-stone-200 hidden sm:inline-block">Beranda</span>
                 </a>
-                <div class="flex items-center gap-2 border border-gold-500/15 bg-navy-700/50 px-3 py-1">
-                    <span id="sync-indicator" class="w-1.5 h-1.5 bg-gold-500 animate-pulse"></span>
-                    <span id="sync-text"
-                        class="text-[9px] font-medium text-stone-400 tracking-[0.2em] uppercase">CONNECTED</span>
-                </div>
+
 
                 <!-- Admin button -->
                 <button id="btn-admin-nav" onclick="openAdminPanel()"
-                    class="flex items-center gap-2 border border-gold-500/20 bg-navy-700 hover:bg-stone-900 hover:border-gold-500/50 px-4 py-2 transition-all duration-300 shadow-md">
+                    class="flex items-center gap-2 border border-gold-500/20 bg-navy-700 hover:bg-stone-900 hover:border-gold-500/50 px-3 md:px-4 py-2 transition-all duration-300 shadow-md">
                     <i id="icon-admin-nav" class="fa-solid fa-user-shield text-xs text-gold-500"></i>
                     <span id="text-admin-nav"
-                        class="text-xs font-semibold uppercase tracking-[0.15em] text-stone-200">Admin</span>
+                        class="hidden sm:inline-block text-[10px] md:text-xs font-semibold uppercase tracking-[0.15em] text-stone-200">Admin</span>
                 </button>
             </div>
         </div>
@@ -116,7 +106,7 @@
 
                     <div class="space-y-4">
                         <h2 id="judul-web"
-                            class="font-serif text-5xl sm:text-7xl lg:text-8xl text-stone-100 font-extralight tracking-tight leading-[1.05]">
+                            class="font-serif text-4xl sm:text-6xl lg:text-7xl text-stone-100 font-extralight tracking-tight leading-[1.05]">
                             Pembelian Lahan <br><span class="italic text-gold-500 font-light">PISGAH BISDAC</span>
                         </h2>
                         <p
@@ -152,9 +142,9 @@
                                         class="text-[9px] tracking-[0.25em] uppercase text-stone-400 block font-semibold">DANA
                                         TERKUMPUL (REALISASI)</span>
                                     <div class="flex items-baseline gap-2">
-                                        <span class="font-serif text-3xl sm:text-4xl text-gold-600">Rp</span>
+                                        <span class="font-serif text-2xl sm:text-4xl text-gold-600">Rp</span>
                                         <h3 id="terkumpul-val"
-                                            class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-gold-500 tracking-tight drop-shadow-md break-words">
+                                            class="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold text-gold-500 tracking-tight drop-shadow-md break-words">
                                             0</h3>
                                     </div>
                                 </div>
@@ -165,14 +155,14 @@
                                         class="text-[9px] tracking-[0.25em] uppercase text-gold-500/80 block font-semibold">KOMITMEN
                                         JEMAAT</span>
                                     <div class="flex flex-wrap items-baseline gap-2">
-                                        <span class="font-serif text-2xl text-stone-500">Rp</span>
+                                        <span class="font-serif text-xl sm:text-2xl text-stone-500">Rp</span>
                                         <h3 id="komitmen-realisasi-val"
-                                            class="font-serif text-3xl sm:text-4xl lg:text-4xl font-semibold text-stone-300 tracking-tight drop-shadow-md break-words">
+                                            class="font-serif text-2xl sm:text-4xl lg:text-4xl font-semibold text-stone-300 tracking-tight drop-shadow-md break-words">
                                             0</h3>
-                                        <span class="text-stone-500 text-xs uppercase tracking-widest px-1">dari</span>
-                                        <span class="font-serif text-xl text-stone-500">Rp</span>
+                                        <span class="text-stone-500 text-[10px] sm:text-xs uppercase tracking-widest px-1">dari</span>
+                                        <span class="font-serif text-lg sm:text-xl text-stone-500">Rp</span>
                                         <h3 id="komitmen-target-val"
-                                            class="font-serif text-2xl sm:text-3xl lg:text-3xl font-medium text-stone-400 tracking-tight break-words">
+                                            class="font-serif text-xl sm:text-3xl lg:text-3xl font-medium text-stone-400 tracking-tight break-words">
                                             0</h3>
                                     </div>
                                 </div>
@@ -183,9 +173,9 @@
                                         class="text-[9px] tracking-[0.25em] uppercase text-gold-500/70 block font-semibold">TARGET
                                         DANA</span>
                                     <div class="flex items-baseline gap-2">
-                                        <span class="font-serif text-3xl sm:text-4xl text-gold-500/50">Rp</span>
+                                        <span class="font-serif text-2xl sm:text-4xl text-gold-500/50">Rp</span>
                                         <h3 id="target-val"
-                                            class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-stone-100 tracking-tight drop-shadow-md break-words">
+                                            class="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold text-stone-100 tracking-tight drop-shadow-md break-words">
                                             0</h3>
                                     </div>
                                 </div>
@@ -247,7 +237,7 @@
                             BANK...</p>
                         <div class="flex items-center justify-center gap-4 flex-wrap">
                             <span id="norek-val"
-                                class="font-serif text-4xl sm:text-6xl text-gold-500 font-light tracking-[0.15em]">0000000000</span>
+                                class="font-serif text-3xl sm:text-5xl lg:text-6xl text-gold-500 font-light tracking-[0.15em]">0000000000</span>
                             <i
                                 class="fa-regular fa-copy text-xl text-stone-400 group-hover:text-gold-500 transition-colors duration-300"></i>
                         </div>
@@ -315,16 +305,16 @@
                                 <div class="flex flex-wrap gap-1.5">
                                     <button type="button" onclick="setJumlah(100000)"
                                         class="text-[9px] uppercase tracking-widest border border-gold-500/10 hover:border-gold-500/40 text-stone-400 px-3 py-1.5 transition-all">Rp
-                                        100K</button>
+                                        100.000</button>
                                     <button type="button" onclick="setJumlah(250000)"
                                         class="text-[9px] uppercase tracking-widest border border-gold-500/10 hover:border-gold-500/40 text-stone-400 px-3 py-1.5 transition-all">Rp
-                                        250K</button>
+                                        250.000</button>
                                     <button type="button" onclick="setJumlah(500000)"
                                         class="text-[9px] uppercase tracking-widest border border-gold-500/10 hover:border-gold-500/40 text-stone-400 px-3 py-1.5 transition-all">Rp
-                                        500K</button>
+                                        500.000</button>
                                     <button type="button" onclick="setJumlah(1000000)"
                                         class="text-[9px] uppercase tracking-widest border border-gold-500/10 hover:border-gold-500/40 text-stone-400 px-3 py-1.5 transition-all">Rp
-                                        1M</button>
+                                        1.000.000</button>
                                 </div>
 
                                 <!-- Bukti Transfer File -->
@@ -408,7 +398,7 @@
                                 <span class="text-[10px] font-semibold text-gold-500 tracking-[0.3em] uppercase">BLUEPRINT
                                     PROGRESS</span>
                                 <h3
-                                    class="font-serif text-3xl sm:text-5xl text-stone-100 font-extralight tracking-tight">
+                                    class="font-serif text-2xl sm:text-4xl lg:text-5xl text-stone-100 font-extralight tracking-tight">
                                     Tahapan Pembangunan</h3>
                             </div>
                             <div class="h-px bg-gradient-to-r from-gold-500/30 to-transparent flex-1 hidden sm:block"></div>
@@ -427,7 +417,7 @@
                                 <span class="text-[10px] font-semibold text-gold-500 tracking-[0.3em] uppercase">CHRONICLES
                                     & BULLETIN</span>
                                 <h3
-                                    class="font-serif text-3xl sm:text-5xl text-stone-100 font-extralight tracking-tight">
+                                    class="font-serif text-2xl sm:text-4xl lg:text-5xl text-stone-100 font-extralight tracking-tight">
                                     Berita & Kabar</h3>
                             </div>
                             <div class="h-px bg-gradient-to-r from-gold-500/30 to-transparent flex-1 hidden sm:block"></div>
@@ -447,7 +437,7 @@
                 <div class="text-center max-w-2xl mx-auto space-y-4 mb-16">
                     <span class="text-[10px] font-semibold text-gold-500 tracking-[0.3em] uppercase">TIM PANITIA
                         PEMBANGUNAN</span>
-                    <h3 class="font-serif text-3xl sm:text-5xl text-stone-100 font-extralight tracking-tight">Dewan
+                    <h3 class="font-serif text-2xl sm:text-4xl lg:text-5xl text-stone-100 font-extralight tracking-tight">Dewan
                         Pengawas & Panitia</h3>
                     <p class="text-stone-400 text-xs sm:text-sm font-light tracking-wide leading-relaxed">
                         Setiap pilar diawasi oleh tim panitia yang menjamin akuntabilitas, keterbukaan, dan keakuratan
@@ -456,7 +446,7 @@
                 </div>
 
                 <!-- Committee container injected by JS -->
-                <div id="panitia-container" class="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto">
+                <div id="panitia-container" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 max-w-5xl mx-auto">
                     <!-- Content Injected via API -->
                 </div>
             </section>
@@ -498,7 +488,7 @@
                             AKTUAL</span>
                     </div>
                     <h2 id="view-modal-title"
-                        class="font-serif text-3xl sm:text-4xl text-stone-100 font-extralight tracking-tight">—</h2>
+                        class="font-serif text-2xl sm:text-4xl text-stone-100 font-extralight tracking-tight">—</h2>
                     <div class="w-16 h-px bg-gold-500"></div>
                     <p id="view-modal-desc"
                         class="text-stone-400 text-sm sm:text-base leading-relaxed whitespace-pre-line tracking-wide font-light">
@@ -875,8 +865,7 @@
             class="fa-solid fa-circle-check text-gold-500"></i><span id="toast-msg">Berhasil!</span></div>
 
     <!-- =================== CORE JAVASCRIPT =================== -->
-    <!-- Floating Sync Button -->
-    <button id="floatingSyncBtn" onclick="refreshAllData()" title="Sinkronisasi Data" class="fixed right-4 md:right-8 z-50 w-[3.5rem] h-[3.5rem] md:w-[3rem] md:h-[3rem] bg-navy-800/80 hover:bg-navy-700 backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-gold-500/30 hover:border-gold-500/60 cursor-pointer shadow-[0_4px_15px_rgba(0,0,0,0.5)] group" style="bottom: calc(env(safe-area-inset-bottom, 0px) + 2rem);">
+    <button id="floatingSyncBtn" onclick="refreshAllData()" title="Sinkronisasi Data" class="fixed right-4 md:right-8 z-50 w-10 h-10 md:w-11 md:h-11 bg-navy-900/30 hover:bg-navy-900/50 backdrop-blur-xl rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-gold-500/20 hover:border-gold-500/40 cursor-pointer shadow-[0_8px_32px_rgba(0,0,0,0.3)] group" style="bottom: calc(env(safe-area-inset-bottom, 0px) + 2rem);">
         <div class="relative flex items-center justify-center w-full h-full" id="floatingSyncIcon">
             <span class="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
             <span class="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
@@ -1012,12 +1001,14 @@
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('navbar');
             if (window.scrollY > 60) {
-                nav.style.background = "rgba(18, 17, 15, 0.95)";
-                nav.style.backdropFilter = "blur(15px)";
+                nav.style.background = "rgba(11, 26, 48, 0.6)";
+                nav.style.backdropFilter = "blur(16px)";
+                nav.style.webkitBackdropFilter = "blur(16px)";
                 nav.style.borderBottomColor = "rgba(197, 168, 128, 0.15)";
             } else {
                 nav.style.background = "transparent";
                 nav.style.backdropFilter = "none";
+                nav.style.webkitBackdropFilter = "none";
                 nav.style.borderBottomColor = "transparent";
             }
         });
@@ -1350,8 +1341,8 @@
             }
 
             panitiaCont.innerHTML = list.map((p, i) => `
-            <div class="glass-dark p-6 flex flex-col items-center text-center relative w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.5rem)] reveal-up animate-fade-in" style="transition-delay: ${i * 50}ms">
-                <div class="w-20 h-20 rounded-full mb-4 overflow-hidden border border-gold-500/20 p-1 flex items-center justify-center">
+            <div class="glass-dark p-4 sm:p-6 flex flex-col items-center text-center relative reveal-up animate-fade-in" style="transition-delay: ${i * 50}ms">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-3 sm:mb-4 overflow-hidden border border-gold-500/20 p-1 flex items-center justify-center">
                     ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover rounded-full opacity-80" onerror="this.style.display='none'">` : `<i class="fa-solid fa-user text-2xl text-stone-500"></i>`}
                 </div>
                 <h5 class="font-serif text-lg text-stone-100 font-light leading-none mb-1.5">${p.nama}</h5>

@@ -2264,7 +2264,8 @@ import ReactDOM from 'react-dom/client';
                     <button
                         onClick={() => { if (!isSyncing) handlePullFromCloud(false); }}
                         disabled={isSyncing}
-                        className="fixed right-4 md:right-8 z-50 w-[3.5rem] h-[3.5rem] md:w-[3rem] md:h-[3rem] bg-white/30 dark:bg-slate-900/30 hover:bg-white/50 dark:hover:bg-slate-900/50 backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-slate-200/50 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer shadow-lg bottom-6 md:bottom-8 group"
+                        className="fixed right-4 md:right-8 z-50 w-10 h-10 md:w-11 md:h-11 bg-navy-800/20 dark:bg-navy-900/40 hover:bg-navy-800/30 dark:hover:bg-navy-900/60 backdrop-blur-xl rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-navy-200/50 dark:border-navy-700/50 cursor-pointer shadow-lg group"
+                        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 4.25rem)' }}
                         title="Sinkronisasi Data"
                     >
                         {isSyncing ? (
