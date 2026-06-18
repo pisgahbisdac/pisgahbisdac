@@ -130,10 +130,39 @@
       line-height: 1;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
     }
+
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
   </style>
 </head>
 
 <body class="page-laporan">
+  <!-- Global Loading Overlay -->
+  <style>
+    @keyframes spinOverlay {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+  <div id="globalLoadingOverlay"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:99999; flex-direction:column; justify-content:center; align-items:center; backdrop-filter:blur(3px);">
+    <div
+      style="width:40px; height:40px; border:4px solid rgba(255,255,255,0.2); border-top:4px solid var(--accent-green); border-radius:50%; animation:spinOverlay 1s linear infinite;">
+    </div>
+    <div id="globalLoadingText"
+      style="margin-top:16px; color:white; font-size:14px; font-weight:600; letter-spacing:0.5px;">Proses sedang
+      berlangsung...</div>
+  </div>
   <script>
     (function () {
       const savedTheme = localStorage.getItem('BISDAC_theme') || 'dark';
@@ -487,6 +516,8 @@
           <span class="nav-icon">
             <script>document.write(getIcon('info', 'lucide-md'))</script>
           </span> Histori Jurnal
+          <span id="navRiwayatBadge" class="badge"
+            style="background:var(--red-pop); color:white; border:none; margin-left:auto; display:none;">0</span>
         </div>
         <div class="nav-section-title" id="adminNavLabel">Administrasi</div>
         <div class="nav-item" onclick="showPage('masterIncType')" id="navMasterIncType">
@@ -519,11 +550,7 @@
             <script>document.write(getIcon('settings', 'lucide-md'))</script>
           </span> Pengaturan Web
         </div>
-        <div class="nav-item" onclick="showPage('signatures')" id="navSignatures">
-          <span class="nav-icon">
-            <script>document.write(getIcon('file', 'lucide-md'))</script>
-          </span> Tanda Tangan
-        </div>
+
         <div class="nav-item" onclick="showPage('roles')" id="navRoles">
           <span class="nav-icon">
             <script>document.write(getIcon('key', 'lucide-md'))</script>
@@ -884,14 +911,18 @@
           <button class="btn btn-primary" onclick="loadReport()">Buat Laporan</button>
           <button class="btn btn-ghost" id="btnExportExcel" onclick="exportToExcel()"
             style="color: var(--green-pop); border-color: rgba(5, 150, 105, 0.2); display:none;">Export Excel</button>
-          <button class="btn btn-ghost" id="btnPrintReport" onclick="doPrintReport()" style="display:none;">Cetak / PDF</button>
-          <button class="btn btn-primary" id="btnPembangunanReport" onclick="doPrintPembangunan()" style="display:none; background:var(--gold); border-color:var(--gold); color:#000;">Cetak Lap. Pembangunan</button>
-          <button class="btn btn-danger" id="btnManageClosing" onclick="openClosingModal()" style="display:none;">Manajemen Tutup Buku</button>
+          <button class="btn btn-ghost" id="btnPrintReport" onclick="doPrintReport()" style="display:none;">Cetak /
+            PDF</button>
+          <button class="btn btn-primary" id="btnPembangunanReport" onclick="doPrintPembangunan()"
+            style="display:none; background:var(--gold); border-color:var(--gold); color:#000;">Cetak Lap.
+            Pembangunan</button>
+          <button class="btn btn-danger" id="btnManageClosing" onclick="openClosingModal()"
+            style="display:none;">Manajemen Tutup Buku</button>
         </div>
 
         <div id="reportSensorContainer"
           style="margin-top: -8px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 16px; padding: 14px; background: var(--input-bg); border-radius: var(--radius-lg); border: 1px dashed var(--glass-border); max-width: 100%; box-sizing: border-box;">
-          
+
           <div style="display: flex; align-items: center; gap: 10px;">
             <input type="checkbox" id="sensorPemasukan" onchange="applyReportSensor()"
               style="width: 20px; height: 20px; accent-color: var(--gold); cursor: pointer; flex-shrink: 0;">
@@ -901,7 +932,8 @@
             </label>
           </div>
 
-          <div style="display: flex; align-items: center; gap: 10px; padding-left: 16px; border-left: 1px solid var(--glass-border);">
+          <div
+            style="display: flex; align-items: center; gap: 10px; padding-left: 16px; border-left: 1px solid var(--glass-border);">
             <input type="checkbox" id="manualSignature" onchange="applyReportSensor()"
               style="width: 20px; height: 20px; accent-color: var(--accent-blue); cursor: pointer; flex-shrink: 0;">
             <label for="manualSignature"
@@ -972,10 +1004,17 @@
             <option value="pending">Belum Full Approve</option>
             <option value="approved">Sudah Disetujui</option>
           </select>
-          <button class="btn btn-ghost" id="btnApproveBulk" onclick="approveBulkTx()"
-            style="display:none; white-space:nowrap; border:1px solid var(--accent-green); color:var(--accent-green); margin-left:auto;">✔️ Approve Semua (0)</button>
-          <button class="btn btn-primary" id="btnPrintUnit" onclick="printUnitReport()"
-            style="display:none; white-space:nowrap; margin-left:8px;">Cetak PDF</button>
+          <div style="margin-left:auto; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px;">
+            <button class="btn btn-ghost" id="btnApproveBulk" onclick="approveBulkTx()"
+              style="display:none; white-space:nowrap; border:1px solid var(--accent-green); color:var(--accent-green);">✔️
+              Approve Semua (0)</button>
+            <button class="btn btn-outline" id="btnExportHistoryExcel" onclick="exportHistoryExcel()"
+              style="display:inline-flex; white-space:nowrap; border-color:var(--glass-border); background:var(--input-bg); align-items:center; gap:6px;">
+              <script>document.write(getIcon('fileText', 'lucide-sm'))</script> Export Excel
+            </button>
+            <button class="btn btn-primary" id="btnPrintUnit" onclick="printUnitReport()"
+              style="display:none; white-space:nowrap;">Cetak PDF</button>
+          </div>
         </div>
         <div class="card" style="padding:0;">
           <div id="historyListContainer"></div>
@@ -1206,6 +1245,113 @@
           <div style="display:flex; justify-content:flex-end; margin-top: 16px;">
             <button class="btn btn-primary" onclick="saveAppTextFromInputs()">Simpan Nama</button>
           </div>
+
+          <div class="form-section-title" style="margin-top: 32px;">Pengaturan Tanda Tangan PDF</div>
+          <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Unggah foto tanda tangan dengan background
+            transparan (PNG). Tanda tangan hanya akan muncul di Laporan PDF apabila <strong>semua transaksi pada bulan
+              tersebut telah disetujui (Approved)</strong> oleh Ketua Jemaat dan Pendeta.</p>
+
+          <div class="grid-2">
+            <!-- Bendahara Jemaat -->
+            <div
+              style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:12px;">
+              <div style="font-weight:700; font-size:15px; color:var(--text); width:100%; text-align:center;">Bendahara
+                Jemaat</div>
+              <div style="width:100%; display:flex; flex-direction:column; gap:6px;">
+                <input type="text" class="form-input" id="sigNameBendahara" placeholder="Nama Lengkap"
+                  onchange="saveSignatureText('sig_name_bendahara', this.value)"
+                  style="text-align:center; font-weight:600;">
+                <input type="text" class="form-input" id="sigTitleBendahara" placeholder="Jabatan"
+                  onchange="saveSignatureText('sig_title_bendahara', this.value)"
+                  style="text-align:center; font-size:13px;">
+              </div>
+              <div
+                style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden; margin-top:4px;">
+                <img id="preview-sig-bendahara" src=""
+                  style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
+                <span id="text-sig-bendahara" style="color: var(--text4); font-size: 12px;">Belum ada TTD</span>
+              </div>
+              <label for="sigBendaharaUpload" class="btn btn-outline"
+                style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah TTD</label>
+              <input type="file" id="sigBendaharaUpload" accept="image/*" style="display:none;"
+                onchange="handleSignatureUpload(this, 'preview-sig-bendahara', 'text-sig-bendahara', 'sig_bendahara')">
+            </div>
+
+            <!-- Ketua Pembangunan -->
+            <div
+              style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:12px;">
+              <div style="font-weight:700; font-size:15px; color:var(--text); width:100%; text-align:center;">Ketua
+                Pembangunan</div>
+              <div style="width:100%; display:flex; flex-direction:column; gap:6px;">
+                <input type="text" class="form-input" id="sigNameBangun" placeholder="Nama Lengkap"
+                  onchange="saveSignatureText('sig_name_bangun', this.value)"
+                  style="text-align:center; font-weight:600;">
+                <input type="text" class="form-input" id="sigTitleBangun" placeholder="Jabatan"
+                  onchange="saveSignatureText('sig_title_bangun', this.value)"
+                  style="text-align:center; font-size:13px;">
+              </div>
+              <div
+                style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden; margin-top:4px;">
+                <img id="preview-sig-bangun" src=""
+                  style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
+                <span id="text-sig-bangun" style="color: var(--text4); font-size: 12px;">Belum ada TTD</span>
+              </div>
+              <label for="sigBangunUpload" class="btn btn-outline"
+                style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah TTD</label>
+              <input type="file" id="sigBangunUpload" accept="image/*" style="display:none;"
+                onchange="handleSignatureUpload(this, 'preview-sig-bangun', 'text-sig-bangun', 'sig_bangun')">
+            </div>
+
+            <!-- Ketua Jemaat -->
+            <div
+              style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:12px;">
+              <div style="font-weight:700; font-size:15px; color:var(--text); width:100%; text-align:center;">Ketua
+                Jemaat</div>
+              <div style="width:100%; display:flex; flex-direction:column; gap:6px;">
+                <input type="text" class="form-input" id="sigNameKetua" placeholder="Nama Lengkap"
+                  onchange="saveSignatureText('sig_name_ketua', this.value)"
+                  style="text-align:center; font-weight:600;">
+                <input type="text" class="form-input" id="sigTitleKetua" placeholder="Jabatan"
+                  onchange="saveSignatureText('sig_title_ketua', this.value)"
+                  style="text-align:center; font-size:13px;">
+              </div>
+              <div
+                style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden; margin-top:4px;">
+                <img id="preview-sig-ketua" src=""
+                  style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
+                <span id="text-sig-ketua" style="color: var(--text4); font-size: 12px;">Belum ada TTD</span>
+              </div>
+              <label for="sigKetuaUpload" class="btn btn-outline"
+                style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah TTD</label>
+              <input type="file" id="sigKetuaUpload" accept="image/*" style="display:none;"
+                onchange="handleSignatureUpload(this, 'preview-sig-ketua', 'text-sig-ketua', 'sig_ketua')">
+            </div>
+
+            <!-- Pendeta Jemaat -->
+            <div
+              style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:12px;">
+              <div style="font-weight:700; font-size:15px; color:var(--text); width:100%; text-align:center;">Pendeta
+                Jemaat</div>
+              <div style="width:100%; display:flex; flex-direction:column; gap:6px;">
+                <input type="text" class="form-input" id="sigNamePendeta" placeholder="Nama Lengkap"
+                  onchange="saveSignatureText('sig_name_pendeta', this.value)"
+                  style="text-align:center; font-weight:600;">
+                <input type="text" class="form-input" id="sigTitlePendeta" placeholder="Jabatan"
+                  onchange="saveSignatureText('sig_title_pendeta', this.value)"
+                  style="text-align:center; font-size:13px;">
+              </div>
+              <div
+                style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden; margin-top:4px;">
+                <img id="preview-sig-pendeta" src=""
+                  style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
+                <span id="text-sig-pendeta" style="color: var(--text4); font-size: 12px;">Belum ada TTD</span>
+              </div>
+              <label for="sigPendetaUpload" class="btn btn-outline"
+                style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah TTD</label>
+              <input type="file" id="sigPendetaUpload" accept="image/*" style="display:none;"
+                onchange="handleSignatureUpload(this, 'preview-sig-pendeta', 'text-sig-pendeta', 'sig_pendeta')">
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1254,69 +1400,19 @@
     </main>
   </div>
 
-      <!-- PAGE: SIGNATURES -->
-      <div class="page" id="page-signatures">
-        <div class="card" style="max-width:800px; margin:0 auto;">
-          <div class="form-section-title">Pengaturan Tanda Tangan PDF</div>
-          <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Unggah foto tanda tangan dengan background transparan (PNG). Tanda tangan hanya akan muncul di Laporan PDF apabila <strong>semua transaksi pada bulan tersebut telah disetujui (Approved)</strong> oleh Ketua Jemaat dan Pendeta.</p>
-          
-          <div class="grid-2">
-            <!-- Bendahara Jemaat -->
-            <div style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:16px;">
-              <div style="font-weight:700; font-size:15px; color:var(--text);">Bendahara Jemaat</div>
-              <div style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden;">
-                <img id="preview-sig-bendahara" src="" style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
-                <span id="text-sig-bendahara" style="color: var(--text4); font-size: 12px;">Belum ada TTD</span>
-              </div>
-              <label for="sigBendaharaUpload" class="btn btn-outline" style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah TTD</label>
-              <input type="file" id="sigBendaharaUpload" accept="image/*" style="display:none;" onchange="handleSignatureUpload(this, 'preview-sig-bendahara', 'text-sig-bendahara', 'sig_bendahara')">
-            </div>
 
-            <!-- Ketua Pembangunan -->
-            <div style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:16px;">
-              <div style="font-weight:700; font-size:15px; color:var(--text);">Ketua Pembangunan</div>
-              <div style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden;">
-                <img id="preview-sig-bangun" src="" style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
-                <span id="text-sig-bangun" style="color: var(--text4); font-size: 12px;">Belum ada TTD</span>
-              </div>
-              <label for="sigBangunUpload" class="btn btn-outline" style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah TTD</label>
-              <input type="file" id="sigBangunUpload" accept="image/*" style="display:none;" onchange="handleSignatureUpload(this, 'preview-sig-bangun', 'text-sig-bangun', 'sig_bangun')">
-            </div>
-
-            <!-- Ketua Jemaat -->
-            <div style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:16px;">
-              <div style="font-weight:700; font-size:15px; color:var(--text);">Ketua Jemaat</div>
-              <div style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden;">
-                <img id="preview-sig-ketua" src="" style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
-                <span id="text-sig-ketua" style="color: var(--text4); font-size: 12px;">Belum ada TTD</span>
-              </div>
-              <label for="sigKetuaUpload" class="btn btn-outline" style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah TTD</label>
-              <input type="file" id="sigKetuaUpload" accept="image/*" style="display:none;" onchange="handleSignatureUpload(this, 'preview-sig-ketua', 'text-sig-ketua', 'sig_ketua')">
-            </div>
-
-            <!-- Pendeta Jemaat -->
-            <div style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:16px;">
-              <div style="font-weight:700; font-size:15px; color:var(--text);">Pendeta Jemaat</div>
-              <div style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden;">
-                <img id="preview-sig-pendeta" src="" style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
-                <span id="text-sig-pendeta" style="color: var(--text4); font-size: 12px;">Belum ada TTD</span>
-              </div>
-              <label for="sigPendetaUpload" class="btn btn-outline" style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah TTD</label>
-              <input type="file" id="sigPendetaUpload" accept="image/*" style="display:none;" onchange="handleSignatureUpload(this, 'preview-sig-pendeta', 'text-sig-pendeta', 'sig_pendeta')">
-            </div>
-          </div>
-        </div>
-      </div>
 
   <!-- MODAL: CLOSING MONTH -->
   <div id="closingMonthModal" class="sidebar-overlay"
     style="display:none; justify-content:center; align-items:center; z-index:1200;">
     <div class="card" style="max-width:440px; width: 100%; padding:32px; margin: 0 16px;">
       <h3 style="margin-bottom:16px; color: var(--text); display:flex; align-items:center;">
-        <script>document.write(getIcon('lock', 'lucide-lg'))</script> <span style="margin-left: 12px;">Manajemen Tutup Buku</span>
+        <script>document.write(getIcon('lock', 'lucide-lg'))</script> <span style="margin-left: 12px;">Manajemen Tutup
+          Buku</span>
       </h3>
-      <p style="font-size:14px; color:var(--text2); margin-bottom:24px;">Pilih periode bulan dan tahun yang ingin ditutup atau dibuka akses transaksinya.</p>
-      
+      <p style="font-size:14px; color:var(--text2); margin-bottom:24px;">Pilih periode bulan dan tahun yang ingin
+        ditutup atau dibuka akses transaksinya.</p>
+
       <div class="form-row keep-row" style="margin-bottom:16px;">
         <div class="form-group" style="flex:2;">
           <label class="form-label">Bulan</label>
@@ -1337,18 +1433,21 @@
         </div>
         <div class="form-group" style="flex:1;">
           <label class="form-label">Tahun</label>
-          <input type="number" class="form-input" id="closingYearInput" value="2026" min="2000" max="2100" onchange="updateClosingModalStatus()">
+          <input type="number" class="form-input" id="closingYearInput" value="2026" min="2000" max="2100"
+            onchange="updateClosingModalStatus()">
         </div>
       </div>
 
-      <div style="padding:16px; background:var(--input-bg); border-radius:var(--radius); border:1px solid var(--glass-border); text-align:center; margin-bottom:24px;">
+      <div
+        style="padding:16px; background:var(--input-bg); border-radius:var(--radius); border:1px solid var(--glass-border); text-align:center; margin-bottom:24px;">
         <div style="font-size:12px; color:var(--text3); margin-bottom:8px;">Status Saat Ini</div>
         <div id="closingModalStatus" style="font-weight:700; font-size:16px; color:var(--text);">Memuat...</div>
       </div>
 
       <div style="display:flex; gap:12px; justify-content:flex-end;">
         <button class="btn btn-ghost" onclick="closeClosingModal()">Batal</button>
-        <button class="btn btn-danger" id="btnToggleClosingModal" onclick="toggleCloseMonthFromModal()">Tutup Buku</button>
+        <button class="btn btn-danger" id="btnToggleClosingModal" onclick="toggleCloseMonthFromModal()">Tutup
+          Buku</button>
       </div>
     </div>
   </div>
@@ -1373,7 +1472,7 @@
 
   <!-- MODAL: CONFIRMATION -->
   <div id="customConfirmModal" class="sidebar-overlay"
-    style="display:none; justify-content:center; align-items:center; z-index:1100;">
+    style="display:none; justify-content:center; align-items:center; z-index:9999;">
     <div class="card" style="max-width:400px; text-align:center; padding:32px; margin: 0 16px;">
       <div style="margin-bottom:20px; color:var(--gold);">
         <svg class="lucide" style="width:56px;height:56px; margin:0 auto;" viewBox="0 0 24 24">
@@ -1578,13 +1677,13 @@
 
       showPage('laporan');
       renderReportView();
-      
+
       const container = document.getElementById('printContainer');
       const content = document.getElementById('reportContent');
       if (container && content) {
         container.innerHTML = content.innerHTML;
       }
-      
+
       setTimeout(() => { window.print(); }, 500);
     }
 
@@ -1603,13 +1702,32 @@
       return data;
     }
 
+    function showGlobalLoading(text = 'Proses sedang berlangsung...') {
+      const overlay = document.getElementById('globalLoadingOverlay');
+      const textEl = document.getElementById('globalLoadingText');
+      if (overlay && textEl) {
+        textEl.innerText = text;
+        overlay.style.display = 'flex';
+      }
+    }
+
+    function hideGlobalLoading() {
+      const overlay = document.getElementById('globalLoadingOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
     async function apiPost(action, payload = {}) {
-      const body = JSON.stringify({ action, token: getToken(), data: payload });
-      const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message || 'Gagal mengirim data.');
-      return data;
+      if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
+      try {
+        const body = JSON.stringify({ action, token: getToken(), data: payload });
+        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Gagal mengirim data.');
+        return data;
+      } finally {
+        if (action !== 'syncData' && !window.isBulkProcessing) hideGlobalLoading();
+      }
     }
 
     async function apiPostWithFallback(action, payload = {}) {
@@ -1715,6 +1833,16 @@
       });
 
       applyRoleAccess();
+
+      // Load signature text inputs
+      if (document.getElementById('sigNameBendahara')) document.getElementById('sigNameBendahara').value = systemConfig.sig_name_bendahara || 'Herbert JS Sagala';
+      if (document.getElementById('sigTitleBendahara')) document.getElementById('sigTitleBendahara').value = systemConfig.sig_title_bendahara || 'Bendahara Jemaat';
+      if (document.getElementById('sigNameBangun')) document.getElementById('sigNameBangun').value = systemConfig.sig_name_bangun || 'Parulian Parhusip';
+      if (document.getElementById('sigTitleBangun')) document.getElementById('sigTitleBangun').value = systemConfig.sig_title_bangun || 'Ketua Pembangunan';
+      if (document.getElementById('sigNameKetua')) document.getElementById('sigNameKetua').value = systemConfig.sig_name_ketua || 'Yosep Santoso';
+      if (document.getElementById('sigTitleKetua')) document.getElementById('sigTitleKetua').value = systemConfig.sig_title_ketua || 'Ketua Jemaat';
+      if (document.getElementById('sigNamePendeta')) document.getElementById('sigNamePendeta').value = systemConfig.sig_name_pendeta || 'Pdt. Joseph Sitohang';
+      if (document.getElementById('sigTitlePendeta')) document.getElementById('sigTitlePendeta').value = systemConfig.sig_title_pendeta || 'Gembala Jemaat';
     }
 
     async function saveAppTextFromInputs() {
@@ -1764,7 +1892,7 @@
       if (!isConfirm) return;
       if (typeof systemConfig.rolePermissions === 'string') { try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch (e) { systemConfig.rolePermissions = {}; } }
       if (!systemConfig.rolePermissions) systemConfig.rolePermissions = {};
-      
+
       systemConfig.rolePermissions[selectedRoleTab] = getDefaultRolePerms(selectedRoleTab);
       localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
       renderRoles();
@@ -1923,15 +2051,15 @@
           if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } }
           canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h);
           const dataUrl = canvas.toDataURL('image/png', 0.8);
-          
+
           document.getElementById(previewId).src = dataUrl;
           document.getElementById(previewId).style.display = 'block';
           document.getElementById(textId).style.display = 'none';
-          
+
           systemConfig[keyType] = dataUrl; localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
-          try { 
-            const res = await apiPostWithFallback('saveConfig', { key: keyType, value: dataUrl }); 
-            if (res.success) notify(`Tanda Tangan tersimpan!`, 'success'); else throw new Error(res.message); 
+          try {
+            const res = await apiPostWithFallback('saveConfig', { key: keyType, value: dataUrl });
+            if (res.success) notify(`Tanda Tangan tersimpan!`, 'success'); else throw new Error(res.message);
           } catch (err) { notify('Gagal: ' + err.message, 'error'); }
         }
         img.src = e.target.result;
@@ -2116,9 +2244,17 @@
       let id = r.transaction_id || r.receipt_no;
       let count = 1 + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
       let text = count > 1 ? `📸 ${count} Foto` : `📷 Foto`;
-      return `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; margin-top:6px;" onclick="openPhotoModalById('${id}', '${k}')">${text}</button>`;
+      return `<button class="btn" style="flex:1; width:100%; justify-content:center; padding:6px 0; font-size:11px; background:rgba(20,184,166,0.1); color:var(--teal-pop); border:1px solid rgba(20,184,166,0.2);" onclick="openPhotoModalById('${id}', '${k}')">${text}</button>`;
     }
 
+
+    async function saveSignatureText(key, value) {
+      systemConfig[key] = value;
+      localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
+      try {
+        await apiPostWithFallback('saveConfig', { key: key, value: value });
+      } catch (err) { }
+    }
 
     async function resetLogo(keyType) { systemConfig[keyType] = ''; localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig)); applyConfig(); try { await apiPostWithFallback('saveConfig', { key: keyType, value: '' }); notify(`Logo direset.`, 'success'); } catch (err) { } }
 
@@ -2421,7 +2557,6 @@
             const isApprover = rPerms && rPerms.menus && rPerms.menus.riwayat && rPerms.menus.riwayat.approve;
             if (isApprover || currentUser.role === 'Pendeta' || currentUser.role === 'Ketua Jemaat') return false;
 
-            // Check unit ownership
             if (uUnits.length > 0) {
               const matchUnit = uUnits.some(u => pUnit === u || pUnit.includes(u));
               if (matchUnit) return false;
@@ -2430,13 +2565,56 @@
               if (currentUser.role === 'Operator' || currentUser.role === 'Bendahara') return false;
             }
 
+            let hasMembers = false;
+            if (masterData && masterData.units) {
+              const uData = masterData.units.find(u => String(u.name).toLowerCase() === pUnit);
+              if (uData && parseInt(uData.jumlah_anggota || 0) > 0) hasMembers = true;
+            }
+            const isExpense = x.type === 'expense';
+            const incType = String(x.income_type || '').toLowerCase();
+            const isTransparentInc = x.type === 'income' && (incType.includes('sabat') || incType.includes('rabu malam') || incType.includes('pembangunan')) && !hasMembers;
+
+            if (isExpense || isTransparentInc) return false;
+
             return true;
           };
 
           cachedIncome.forEach(x => { if (hidePhoto(x)) x.receipt_photo = ''; });
           cachedExpense.forEach(x => { if (hidePhoto(x)) x.receipt_photo = ''; });
         }
+
+        updateGlobalApprovalBadge();
       } catch (e) { }
+    }
+
+    function updateGlobalApprovalBadge() {
+      const badge = document.getElementById('navRiwayatBadge');
+      if (!badge) return;
+
+      const rolePerms = currentUser ? getRolePerms(currentUser.role) : null;
+      const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
+      const isApprover = currentUser && (canApprove || currentUser.role === 'Admin');
+      const roleNeeded = currentUser ? currentUser.role : '';
+
+      if (!isApprover) {
+        badge.style.display = 'none';
+        return;
+      }
+
+      let list = [...(cachedIncome || []), ...(cachedExpense || [])];
+      let pendingCount = list.filter(x => {
+        const deleteId = x.transaction_id || x.receipt_no || '';
+        if (!deleteId) return false;
+        if (!x.approved_by || !x.approved_by.includes(roleNeeded)) return true;
+        return false;
+      }).length;
+
+      if (pendingCount > 0) {
+        badge.innerText = pendingCount;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
     }
 
     function searchByReceipt() {
@@ -2930,7 +3108,7 @@
         const incByCat = {}; const expByDept = {};
 
         let saldoAwal = (cachedSaldo.initJemaat || 0) + (cachedSaldo.initDaerah || 0);
-        
+
         let saldoAwalJemaat = cachedSaldo.initJemaat || 0;
 
         if (mode === 'bulanan') {
@@ -2940,16 +3118,16 @@
             if (year !== 0 && d.getFullYear() === year && month !== 0 && (d.getMonth() + 1) < month) return true;
             return false;
           };
-          (cachedIncome || []).forEach(x => { 
+          (cachedIncome || []).forEach(x => {
             const isBangun = (x.income_type || '').toLowerCase().includes('pembangunan') || parseFloat(x.alloc_bangun || 0) > 0;
             if (isBefore(x.date) && !isBangun) {
               saldoAwal += parseFloat(x.amount || 0);
               saldoAwalJemaat += (parseFloat(x.alloc_jemaat) || 0);
             }
           });
-          (cachedExpense || []).forEach(x => { 
+          (cachedExpense || []).forEach(x => {
             if (isBefore(x.date) && x.source_balance !== 'Pembangunan') {
-              saldoAwal -= parseFloat(x.amount || 0); 
+              saldoAwal -= parseFloat(x.amount || 0);
               if (x.source_balance === 'Kas Jemaat') saldoAwalJemaat -= parseFloat(x.amount || 0);
             }
           });
@@ -2988,14 +3166,14 @@
         });
 
         currentReportData = {
-          summary: { 
-            saldoAwal: saldoAwal, 
-            saldoAwalJemaat: saldoAwalJemaat, 
-            periodIncome: totalInc, 
-            totalIncome: totalInc + saldoAwal, 
-            totalExpense: totalExp, 
-            netBalance: totalInc + saldoAwal - totalExp, 
-            balances: cachedSaldo || { total: 0 } 
+          summary: {
+            saldoAwal: saldoAwal,
+            saldoAwalJemaat: saldoAwalJemaat,
+            periodIncome: totalInc,
+            totalIncome: totalInc + saldoAwal,
+            totalExpense: totalExp,
+            netBalance: totalInc + saldoAwal - totalExp,
+            balances: cachedSaldo || { total: 0 }
           },
           incByCategory: incByCat,
           expByDept: expByDept,
@@ -3022,7 +3200,8 @@
       const year = currentReportData.year;
       const mode = currentReportData.mode;
 
-      const isSensor = document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false;
+      const isViewer = currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik');
+      const isSensor = isViewer || (document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false);
 
       const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
       const periodStr = mode === 'bulanan' ? `${monthNames[month] || '-'} ${year || '-'}` : (mode === 'akumulasi' ? `Akumulasi Thn ${year || '-'}` : (currentReportData.customPeriod || 'Pencarian'));
@@ -3107,7 +3286,7 @@
 
         incByCat[t] = (incByCat[t] || 0) + amt;
         totalInc += amt;
-        
+
         if (amtJemaat > 0 && t !== 'Saldo Awal Sistem' && t !== 'Saldo Awal') {
           const jCat = isSabat ? 'Terpadu' : t;
           incJemaatByCat[jCat] = (incJemaatByCat[jCat] || 0) + amtJemaat;
@@ -3120,7 +3299,7 @@
         const amt = parseFloat(x.amount || 0);
         expByDept[d] = (expByDept[d] || 0) + amt;
         totalExp += amt;
-        
+
         if (x.source_balance === 'Kas Jemaat') {
           expJemaatByDept[d] = (expJemaatByDept[d] || 0) + amt;
           totalExpJemaat += amt;
@@ -3139,9 +3318,9 @@
       bottomRows.sort(sortFn);
 
       const rightPanel = [];
-      rightPanel.push({ label: 'Kas Jemaat Terakhir Bulan Sebelumnya', val: saldoAwalJemaat, bold: true });
+      rightPanel.push({ label: 'Kas Jemaat Terakhir Bulan Sebelumnya', val: saldoAwalJemaat, bold: true, isColored: true });
       rightPanel.push({ label: 'PEMASUKAN', val: null, bold: true });
-      
+
       const incOrder = ['Terpadu', 'Khusus Jemaat', 'Bunga Bank', 'Lain-Lain'];
       const seenInc = new Set();
       incOrder.forEach(k => {
@@ -3153,48 +3332,69 @@
       Object.entries(incJemaatByCat).forEach(([k, v]) => {
         if (!seenInc.has(k)) rightPanel.push({ label: k, val: v, indent: true });
       });
-      rightPanel.push({ label: 'Total Pemasukan', val: totalIncJemaat, bold: true });
+      rightPanel.push({ label: 'Total Pemasukan', val: totalIncJemaat, bold: true, isColored: true });
 
       rightPanel.push({ label: 'PENGELUARAN', val: null, bold: true });
       Object.entries(expJemaatByDept).forEach(([k, v]) => rightPanel.push({ label: k, val: v, indent: true }));
-      rightPanel.push({ label: 'Total Pengeluaran', val: totalExpJemaat, bold: true });
+      rightPanel.push({ label: 'Total Pengeluaran', val: totalExpJemaat, bold: true, isColored: true });
 
       const saldoAkhirJemaat = saldoAwalJemaat + totalIncJemaat - totalExpJemaat;
-      rightPanel.push({ label: 'Saldo Akhir Bulan ini', val: saldoAkhirJemaat, bold: true, isBorderTop: true });
+      rightPanel.push({ label: 'Saldo Akhir Bulan ini', val: saldoAkhirJemaat, bold: true, isBorderTop: true, isColored: true });
       rightPanel.push({ label: 'Kas Pada Jemaat', val: saldoAkhirJemaat, indent: true });
       rightPanel.push({ label: 'CASH ON HAND / Ditangan', val: 0, indent: true });
-      rightPanel.push({ label: 'Balance Saldo Kas Jemaat', val: saldoAkhirJemaat, bold: true, large: true, isBorderTop: true });
+      rightPanel.push({ label: '<span style="font-size:6.5pt;">Balance Saldo Kas Jemaat</span>', val: saldoAkhirJemaat, bold: true, large: true, isBorderTop: true, isColored: true });
 
       // Tambahan info Uang Daerah
       rightPanel.push({ label: '', val: null }); // Spacer
-      
+
       let sumTerpaduTotal = 0;
       Object.entries(incByCat).forEach(([k, amt]) => {
         if (k === 'Terpadu' || k.toLowerCase().includes('sabat')) {
           sumTerpaduTotal += amt;
         }
       });
-      
+
       const sumPerpuluhan = incByCat['Perpuluhan'] || 0;
       const sumTerpaduDaerah = sumTerpaduTotal / 2;
       const sumKhususDaerah = incByCat['Khusus Daerah'] || 0;
-      const sumTotalDaerah = sumPerpuluhan + sumTerpaduDaerah + sumKhususDaerah;
-      
-      rightPanel.push({ label: 'Total Uang Daerah', val: sumTotalDaerah, bold: true });
-      rightPanel.push({ label: 'Perpuluhan', val: sumPerpuluhan, indent: true });
-      rightPanel.push({ label: '50% Terpadu Daerah', val: sumTerpaduDaerah, indent: true });
-      rightPanel.push({ label: 'Persembahan Khusus Daerah', val: sumKhususDaerah, indent: true });
+      const sumPemasukanDaerah = sumPerpuluhan + sumTerpaduDaerah + sumKhususDaerah;
+
+      const saldoAwalDaerah = saldoAwal - saldoAwalJemaat;
+      let sumPengeluaranDaerah = 0;
+      txOut.forEach(x => {
+        if (x.source_balance === 'Daerah') sumPengeluaranDaerah += parseFloat(x.amount || 0);
+      });
+      const totalKewajiban = saldoAwalDaerah - sumPengeluaranDaerah;
+      const saldoAkhirDaerah = totalKewajiban + sumPemasukanDaerah;
+
+      rightPanel.push({ label: 'Saldo Awal Daerah', val: saldoAwalDaerah, indent: true, bold: true, isLightDaerah: true });
+      rightPanel.push({ label: 'Pengeluaran Daerah', val: sumPengeluaranDaerah, indent: true, isLightDaerah: true });
+      rightPanel.push({ label: 'Total Kewajiban ke Daerah Bulan Ini', val: totalKewajiban, bold: true, isLightDaerah: true });
+
+      rightPanel.push({ label: 'Pemasukan Untuk Daerah Bulan Ini', val: sumPemasukanDaerah, indent: true, bold: true, isLightDaerah: true });
+      rightPanel.push({ label: 'Perpuluhan', val: sumPerpuluhan, indent: true, isLightDaerah: true });
+      rightPanel.push({ label: '50% Terpadu Daerah', val: sumTerpaduDaerah, indent: true, isLightDaerah: true });
+      rightPanel.push({ label: 'Persembahan Khusus Daerah', val: sumKhususDaerah, indent: true, isLightDaerah: true });
+
+      rightPanel.push({ label: '<span style="font-size:6.5pt;">Total Uang Untuk Daerah</span>', val: saldoAkhirDaerah, bold: true, large: true, isBorderTop: true, isColoredDaerah: true });
 
       const imgBen = useImages && systemConfig.sig_bendahara ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
       const imgKet = useImages && systemConfig.sig_ketua ? `<img src="${systemConfig.sig_ketua}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
       const imgPen = useImages && systemConfig.sig_pendeta ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
 
+      const nameBen = systemConfig.sig_name_bendahara || 'Herbert JS Sagala';
+      const titleBen = systemConfig.sig_title_bendahara || 'Bendahara Jemaat';
+      const nameKet = systemConfig.sig_name_ketua || 'Yosep Santoso';
+      const titleKet = systemConfig.sig_title_ketua || 'Ketua Jemaat';
+      const namePen = systemConfig.sig_name_pendeta || 'Pdt. Joseph Sitohang';
+      const titlePen = systemConfig.sig_title_pendeta || 'Gembala Jemaat';
+
       const signHtml = `
         <table style="width: 100%; margin-top: 40px; text-align: center; font-family: sans-serif; font-size: 10pt; color: #000; border: none; background: transparent;">
           <tr>
-            <td style="width: 33%; border: none; vertical-align: bottom;">Dibuat Oleh,<br>${imgBen}<br><strong>Herbert JS Sagala</strong><br>Bendahara Jemaat</td>
-            <td style="width: 33%; border: none; vertical-align: bottom;">Disahkan Oleh,<br>${imgKet}<br><strong>Yosep Santoso</strong><br>Ketua Jemaat</td>
-            <td style="width: 33%; border: none; vertical-align: bottom;">Mengetahui,<br>${imgPen}<br><strong>Pdt. Yoseph Sihotang</strong><br>Gembala Jemaat</td>
+            <td style="width: 33%; border: none; vertical-align: bottom;">Dibuat Oleh,<br>${imgBen}<br><strong>${nameBen}</strong><br>${titleBen}</td>
+            <td style="width: 33%; border: none; vertical-align: bottom;">Disahkan Oleh,<br>${imgKet}<br><strong>${nameKet}</strong><br>${titleKet}</td>
+            <td style="width: 33%; border: none; vertical-align: bottom;">Mengetahui,<br>${imgPen}<br><strong>${namePen}</strong><br>${titlePen}</td>
           </tr>
         </table>
       `;
@@ -3202,7 +3402,7 @@
       const tableStyle = isExcel ? 'border-collapse: collapse; font-family: Calibri, sans-serif; font-size: 10pt;' : 'border-collapse: collapse; width: 100%; font-family: sans-serif; font-size: 6.5pt; table-layout: fixed; word-wrap: break-word;';
       const thStyle = isExcel ? 'border: 1px solid #000; padding: 4px; font-weight: bold; text-align: center; background-color: #e2e8f0;' : 'border: 1px solid #000; padding: 3px 1px; font-weight: bold; text-align: center; background-color: #e2e8f0; color: #000; font-size: 5.5pt; line-height: 1.1;';
       const tdStyle = isExcel ? 'border: 1px solid #000; padding: 4px;' : 'border: 1px solid #000; padding: 3px 2px; color: #000; vertical-align: middle;';
-      const numStyle = isExcel ? 'mso-number-format:"\\#\\,\\#\\#0"; text-align: right;' : 'text-align: right; white-space: nowrap;';
+      const numStyle = isExcel ? "mso-number-format:'\\#\\,\\#\\#0'; text-align: right;" : 'text-align: right; white-space: nowrap;';
 
       let html = `
         <table style="width: 100%; border: none; margin-bottom: 20px; color: #000; font-family: sans-serif;">
@@ -3278,7 +3478,7 @@
           const isPrivCategory = isPrivateCategory(data.nama);
           let dNama = data.nama;
           if (isPrivCategory) dNama = '*** (Privasi)';
-          else if (isSensor && !data.hasUnit) dNama = '*** (Privasi)';
+          else if (isSensor) dNama = '*** (Privasi)';
 
           c1 = rowNum; c2 = fmtDate(data.tanggal); c3 = dNama; c4 = data.kwitansi;
         } else if (data === 'label_top') {
@@ -3290,7 +3490,15 @@
         }
 
         const fmtEx = (n) => n === 0 ? '-' : (isExcel ? n : fmt(n));
-        const bStyle = (data === 'label_total' || isLabel) ? 'font-weight:bold; background-color:#f9fafb;' : '';
+        let bStyle = '';
+        let totBg = '#f9fafb';
+        if (data === 'label_total') {
+          bStyle = 'font-weight:bold; background-color:#ffd966;';
+          totBg = '#ffd966';
+        } else if (isLabel) {
+          bStyle = 'font-weight:bold; background-color:#f3f4f6;';
+          totBg = '#f3f4f6';
+        }
 
         let out_dp = '-', out_dt = '-', out_dk = '-', out_dtot = '-', out_jt = '-', out_jk = '-', out_jtot = '-';
         if (data && !isLabel) {
@@ -3311,28 +3519,33 @@
           <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : fmtEx(p)}</td>
           <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : fmtEx(t)}</td>
           <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : fmtEx(k)}</td>
-          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${(data === 'label_top' || data === 'label_bot') ? '' : fmtEx(tot)}</td>
+          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:${totBg};">${(data === 'label_top' || data === 'label_bot') ? '' : fmtEx(tot)}</td>
           
           <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : out_dp}</td>
           <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : out_dt}</td>
           <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : out_dk}</td>
-          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${(data === 'label_top' || data === 'label_bot') ? '' : out_dtot}</td>
+          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:${totBg};">${(data === 'label_top' || data === 'label_bot') ? '' : out_dtot}</td>
           
           <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : out_jt}</td>
           <td style="${tdStyle} ${numStyle} ${bStyle}">${(data === 'label_top' || data === 'label_bot') ? '' : out_jk}</td>
-          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${(data === 'label_top' || data === 'label_bot') ? '' : out_jtot}</td>
+          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:${totBg};">${(data === 'label_top' || data === 'label_bot') ? '' : out_jtot}</td>
         `;
 
         if (rightIdx < rightPanel.length) {
           const rp = rightPanel[rightIdx];
           const b = rp.bold ? 'font-weight:bold;' : '';
-          const l = rp.large ? 'font-size:11pt;' : '';
+          const l = rp.large ? 'font-size:9.5pt;' : '';
           const i = rp.indent ? 'padding-left:20px;' : '';
           const bt = rp.isBorderTop ? 'border-top: 2px solid #000;' : '';
+          let bg = '';
+          if (rp.isColored) bg = 'background-color:#ffd966;';
+          else if (rp.isColoredDaerah) bg = 'background-color:#ff9800; color:#000;';
+          else if (rp.isLightDaerah) bg = 'background-color:#ffe0b2; color:#000;';
+
           const v = rp.val !== null ? fmtEx(rp.val) : '';
           html += `
-            <td style="${tdStyle} ${b} ${l} ${i} ${bt}">${rp.label}</td>
-            <td style="${tdStyle} ${numStyle} ${b} ${l} ${bt}">${v}</td>
+            <td style="${tdStyle} ${b} ${l} ${i} ${bt} ${bg}">${rp.label}</td>
+            <td style="${tdStyle} ${numStyle} ${b} ${l} ${bt} ${bg}">${v}</td>
           </tr>`;
         } else {
           html += `
@@ -3356,7 +3569,7 @@
       }
 
       html += `</tbody></table>`;
-      
+
       // SIGNATURE FOR MAIN REPORT
       html += signHtml;
 
@@ -3368,45 +3581,77 @@
         <table style="${tableStyle} margin-top: 10px;">
           <thead>
             <tr>
-              <th style="${thStyle} width: 5%;">No</th>
-              <th style="${thStyle} width: 12%;">Tanggal</th>
-              <th style="${thStyle} width: 15%;">Sumber Kas</th>
-              <th style="${thStyle} width: 20%;">Bagian / Dept</th>
-              <th style="${thStyle} width: 33%;">Keterangan</th>
-              <th style="${thStyle} width: 15%;">Nominal</th>
+              <th style="${thStyle} width: 4%;">No</th>
+              <th style="${thStyle} width: 10%;">Tanggal</th>
+              <th style="${thStyle} width: 12%;">No Bukti</th>
+              <th style="${thStyle} width: 14%;">Sumber Kas</th>
+              <th style="${thStyle} width: 16%;">Bagian / Dept</th>
+              <th style="${thStyle} width: 30%;">Keterangan</th>
+              <th style="${thStyle} width: 14%;">Nominal</th>
             </tr>
           </thead>
           <tbody>
       `;
-      txOut.sort((a, b) => new Date(a.date) - new Date(b.date));
+      txOut.sort((a, b) => {
+        const sA = (a.source_balance || '').toLowerCase();
+        const sB = (b.source_balance || '').toLowerCase();
+        if (sA < sB) return -1;
+        if (sA > sB) return 1;
+        return new Date(a.date) - new Date(b.date);
+      });
+
       if (txOut.length === 0) {
-        html += `<tr><td colspan="6" style="${tdStyle} text-align:center;">Tidak ada pengeluaran pada periode ini.</td></tr>`;
+        html += `<tr><td colspan="7" style="${tdStyle} text-align:center;">Tidak ada pengeluaran pada periode ini.</td></tr>`;
       } else {
         let grandExp = 0;
+        let currentSource = null;
+        let currentSourceTotal = 0;
+        let rowIdx = 1;
+
         txOut.forEach((x, i) => {
+          const s = x.source_balance || '-';
+
+          if (currentSource !== null && currentSource !== s) {
+            html += `<tr>
+              <td colspan="6" style="${tdStyle} text-align:right; font-weight:bold; background-color:#f3f4f6;">Subtotal ${currentSource}</td>
+              <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f3f4f6;">${isExcel ? currentSourceTotal : fmt(currentSourceTotal)}</td>
+            </tr>`;
+            currentSourceTotal = 0;
+          }
+          currentSource = s;
+
           const amt = parseFloat(x.amount || 0);
           grandExp += amt;
+          currentSourceTotal += amt;
 
-          const isMasked = isSensor && (x.department === 'Diakonia' || x.department === 'Bantuan');
-          const dDept = isMasked ? '***' : (x.department || '-');
-          const dNote = isMasked ? '*** (Privasi)' : (x.note || '-');
+          const dDept = x.department || '-';
+          const dNote = x.note || '-';
 
           html += `<tr>
-            <td style="${tdStyle} text-align:center;">${i + 1}</td>
+            <td style="${tdStyle} text-align:center;">${rowIdx++}</td>
             <td style="${tdStyle} text-align:center;">${fmtDate(x.date)}</td>
+            <td style="${tdStyle} mso-number-format:'\\@';">${x.receipt_no || '-'}</td>
             <td style="${tdStyle}">${x.source_balance || '-'}</td>
             <td style="${tdStyle}">${dDept}</td>
             <td style="${tdStyle}">${dNote}</td>
             <td style="${tdStyle} ${numStyle}">${isExcel ? amt : fmt(amt)}</td>
           </tr>`;
         });
+
+        if (currentSource !== null) {
+          html += `<tr>
+            <td colspan="6" style="${tdStyle} text-align:right; font-weight:bold; background-color:#f3f4f6;">Subtotal ${currentSource}</td>
+            <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f3f4f6;">${isExcel ? currentSourceTotal : fmt(currentSourceTotal)}</td>
+          </tr>`;
+        }
+
         html += `<tr>
-          <td colspan="5" style="${tdStyle} text-align:right; font-weight:bold; background-color:#f9fafb;">TOTAL PENGELUARAN</td>
-          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#f9fafb;">${isExcel ? grandExp : fmt(grandExp)}</td>
+          <td colspan="6" style="${tdStyle} text-align:right; font-weight:bold; background-color:#ffd966;">TOTAL PENGELUARAN</td>
+          <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#ffd966;">${isExcel ? grandExp : fmt(grandExp)}</td>
         </tr>`;
       }
       html += `</tbody></table>`;
-      
+
       // SIGNATURE FOR EXPENSES
       html += signHtml;
 
@@ -3419,11 +3664,16 @@
           return notify('Laporan kosong. Buat laporan terlebih dahulu.', 'error');
         }
         const html = generateComplexReportHtml(false);
-        const printWin = window.open('', '_blank');
-        printWin.document.write(`<html><head><title>Laporan Keuangan</title><style>@media print { body { margin: 0; } }</style></head><body>${html}</body></html>`);
-        printWin.document.close();
-        printWin.focus();
-        setTimeout(() => { printWin.print(); }, 500);
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        iframe.contentDocument.write(`<html><head><title>Laporan Keuangan</title><style>@media print { body { margin: 0; } }</style></head><body>${html}</body></html>`);
+        iframe.contentDocument.close();
+        iframe.contentWindow.focus();
+        setTimeout(() => {
+          iframe.contentWindow.print();
+          setTimeout(() => { document.body.removeChild(iframe); }, 1000);
+        }, 500);
       } catch (e) {
         console.error('doPrintReport error:', e);
         notify('Error cetak PDF: ' + e.message, 'error');
@@ -3467,6 +3717,104 @@
       }
     }
 
+    function exportHistoryExcel() {
+      try {
+        if (!window.currentHistoryData || window.currentHistoryData.length === 0) {
+          return notify('Data histori kosong.', 'error');
+        }
+
+        let tableHtml = `
+          <table border="1" style="border-collapse: collapse; font-family: Calibri, sans-serif; font-size: 10pt;">
+            <thead>
+              <tr style="background-color: #e2e8f0; font-weight: bold; text-align: center;">
+                <th style="padding: 4px;">Tanggal</th>
+                <th style="padding: 4px;">Alur</th>
+                <th style="padding: 4px;">Kategori / Dept</th>
+                <th style="padding: 4px;">Keterangan / Catatan</th>
+                <th style="padding: 4px;">Nomor Bukti</th>
+                <th style="padding: 4px;">Pihak Terkait</th>
+                <th style="padding: 4px;">Nominal</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        const userUnits = getUserUnits();
+        const perms = getRolePerms(currentUser?.role || '');
+        const isViewer = perms.isAnonymous || (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik'));
+        const isAnon = perms.isAnonymous;
+
+        window.currentHistoryData.forEach(x => {
+          const txUnitLower = String(x.unit_name || '').toLowerCase().trim();
+          const belongsToUserUnits = userUnits.some(u => String(u).toLowerCase().trim() === txUnitLower);
+
+          let hasMembers = false;
+          if (masterData && masterData.units) {
+            const uData = masterData.units.find(u => String(u.name).toLowerCase().trim() === txUnitLower);
+            if (uData && parseInt(uData.jumlah_anggota || 0) > 0) hasMembers = true;
+          }
+          const isExpense = x.type === 'expense';
+          const incType = String(x.income_type || '').toLowerCase();
+          const isTransparentInc = x.type === 'income' && (incType.includes('sabat') || incType.includes('rabu malam') || incType.includes('pembangunan')) && !hasMembers;
+          const isTransparent = isExpense || isTransparentInc;
+
+          const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
+          const isOtherUnit = userUnits.length > 0 && x.type === 'income' && !belongsToUserUnits;
+
+          let shouldHide = !belongsToUserUnits && (isAnon || isOtherUnit || isPrivCategory);
+          if (isTransparent) shouldHide = false;
+
+          const isInc = x.type === 'income';
+          const tgl = fmtDate(x.date);
+          const alur = isInc ? 'Pemasukan' : 'Pengeluaran';
+          const ket = x.income_type || x.department || '';
+          const note = shouldHide ? '***' : (x.note || '');
+          const bukti = x.receipt_no || '';
+          const pihakRaw = isInc ? (x.nama_pemberi || '') : (x.nama_penerima || '');
+          const pihak = shouldHide ? '***' : pihakRaw;
+          const nominal = x.amount || 0;
+
+          tableHtml += `
+            <tr>
+              <td style="padding: 4px;">${tgl}</td>
+              <td style="padding: 4px;">${alur}</td>
+              <td style="padding: 4px;">${ket}</td>
+              <td style="padding: 4px;">${note}</td>
+              <td style="padding: 4px; mso-number-format:'\\@';">${bukti}</td>
+              <td style="padding: 4px;">${pihak}</td>
+              <td style="padding: 4px; text-align: right; mso-number-format:'\\#\\,\\#\\#0';">${nominal}</td>
+            </tr>
+          `;
+        });
+
+        tableHtml += `</tbody></table>`;
+
+        const html = `
+          <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+          <head><meta charset="utf-8"></head>
+          <body style="background-color: white;">${tableHtml}</body>
+          </html>
+        `;
+
+        const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+
+        const now = new Date();
+        a.download = `Histori_Transaksi_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}.xls`;
+
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        notify('Export Excel histori berhasil.', 'success');
+      } catch (e) {
+        console.error('exportHistoryExcel error:', e);
+        notify('Error export Excel: ' + e.message, 'error');
+      }
+    }
+
     function applyReportSensor() {
       if (currentReportData) renderReportView();
     }
@@ -3475,16 +3823,16 @@
       const modal = document.getElementById('closingMonthModal');
       const mSel = document.getElementById('closingMonthSelect');
       const yInp = document.getElementById('closingYearInput');
-      
+
       const d = new Date();
       mSel.value = d.getMonth() + 1;
       yInp.value = d.getFullYear();
-      
+
       if (currentReportData && currentReportData.month > 0 && currentReportData.year > 0) {
         mSel.value = currentReportData.month;
         yInp.value = currentReportData.year;
       }
-      
+
       updateClosingModalStatus();
       modal.style.display = 'flex';
     }
@@ -3498,10 +3846,10 @@
       const year = document.getElementById('closingYearInput').value;
       const key = `closed_${year}_${month}`;
       const isClosed = systemConfig[key] === 'true';
-      
+
       const statusEl = document.getElementById('closingModalStatus');
       const btn = document.getElementById('btnToggleClosingModal');
-      
+
       if (isClosed) {
         statusEl.innerHTML = '<span style="color:var(--red-pop);">Terkunci (Ditutup)</span>';
         btn.textContent = 'Buka Buku';
@@ -3518,14 +3866,14 @@
       const year = document.getElementById('closingYearInput').value;
       const key = `closed_${year}_${month}`;
       const isClosed = systemConfig[key] === 'true';
-      
+
       const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
       const monthName = mNames[parseInt(month)];
 
-      const msg = isClosed 
+      const msg = isClosed
         ? `Buka kembali buku bulan ${monthName} ${year}?`
         : `Tutup buku bulan ${monthName} ${year}? Setelah ditutup, transaksi pada bulan ini tidak bisa ditambah, diedit, atau dihapus.`;
-        
+
       if (await showCustomConfirm(isClosed ? 'Buka Buku' : 'Tutup Buku', msg)) {
         const newVal = isClosed ? 'false' : 'true';
         systemConfig[key] = newVal;
@@ -3550,11 +3898,11 @@
       const data = currentReportData; if (!data) return notify('Tidak ada data laporan aktif.', 'error');
       const s = data.summary; const bal = s.balances || cachedSaldo || { total: 0 };
       const isViewer = getRolePerms(currentUser?.role || '').isAnonymous || (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik'));
-      
+
       const rolePerms = currentUser ? getRolePerms(currentUser.role) : null;
       const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
       const isApprover = currentUser && (canApprove || currentUser.role === 'Admin');
-      
+
       const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
       const isSensor = document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false;
@@ -3691,6 +4039,18 @@
       document.getElementById('reportContent').innerHTML = html + '</div>';
     }
 
+    let historySortCol = 'date';
+    let historySortDesc = true;
+    function toggleSortHistory(col) {
+      if (historySortCol === col) {
+        historySortDesc = !historySortDesc;
+      } else {
+        historySortCol = col;
+        historySortDesc = true;
+      }
+      renderHistory();
+    }
+
     function renderHistory() {
       const q = document.getElementById('searchTrans').value.toLowerCase(); const giverQ = (document.getElementById('filterGiver')?.value || '').toLowerCase();
       const type = document.getElementById('filterType').value; const month = parseInt(document.getElementById('filterMonth')?.value || 0); const year = parseInt(document.getElementById('filterYear')?.value || 0);
@@ -3700,7 +4060,6 @@
       if (type !== 'expense') (cachedIncome || []).forEach(x => list.push({ ...x, type: 'income', badge: 'badge-green', label: 'In', style: 'amount-pos', sign: '+' }));
       if (type !== 'income') (cachedExpense || []).forEach(x => list.push({ ...x, type: 'expense', badge: 'badge-red', label: 'Out', style: 'amount-neg', sign: '-' }));
 
-      list.sort((a, b) => new Date(b.date) - new Date(a.date));
       list = list.filter(x => {
         const d = new Date(x.date);
         if (year !== 0 && d.getFullYear() !== year) return false;
@@ -3759,8 +4118,36 @@
         return true;
       });
 
+      list.sort((a, b) => {
+        let valA, valB;
+        if (historySortCol === 'date') {
+          valA = new Date(a.date).getTime(); valB = new Date(b.date).getTime();
+        } else if (historySortCol === 'type') {
+          valA = a.type; valB = b.type;
+        } else if (historySortCol === 'category') {
+          valA = String(a.income_type || a.department || '').toLowerCase(); valB = String(b.income_type || b.department || '').toLowerCase();
+        } else if (historySortCol === 'receipt') {
+          valA = String(a.receipt_no || '').toLowerCase(); valB = String(b.receipt_no || '').toLowerCase();
+        } else if (historySortCol === 'pihak') {
+          valA = String(a.nama_pemberi || a.nama_penerima || '').toLowerCase(); valB = String(b.nama_pemberi || b.nama_penerima || '').toLowerCase();
+        } else if (historySortCol === 'amount') {
+          valA = a.amount || 0; valB = b.amount || 0;
+        }
+
+        if (typeof valA === 'string' && typeof valB === 'string') {
+          const cmp = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+          if (cmp < 0) return historySortDesc ? 1 : -1;
+          if (cmp > 0) return historySortDesc ? -1 : 1;
+          return 0;
+        } else {
+          if (valA < valB) return historySortDesc ? 1 : -1;
+          if (valA > valB) return historySortDesc ? -1 : 1;
+          return 0;
+        }
+      });
+
       window.currentHistoryData = list;
-      
+
       const rolePerms = currentUser ? getRolePerms(currentUser.role) : null;
       const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
       const isApprover = currentUser && (canApprove || currentUser.role === 'Admin');
@@ -3815,25 +4202,32 @@
       });
       let summaryHtml = '';
       if (myUnitFilterActive || giverQ || q || month > 0 || year > 0) {
+        let totalNeedsApprove = list.filter(x => x.transaction_id || x.receipt_no).length;
+        let totalApproved = list.filter(x => x.approved_by && x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')).length;
+
         // --- Top summary cards with proper gap ---
         summaryHtml = `
-          <div style="margin-bottom:16px; padding:14px 16px; background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); overflow:hidden;">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px 20px;">
+          <div style="margin-bottom:16px; padding:16px 20px; background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); overflow:hidden;">
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:16px 24px;">
               <div>
-                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Pemasukan</div>
-                <div class="amount-pos" style="font-size:15px; font-weight:800; font-family:monospace; word-break:break-all;">+${fmt(sumIn)}</div>
+                <div style="font-size:12px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Pemasukan</div>
+                <div class="amount-pos" style="font-size:18px; font-weight:800; font-family:monospace; word-break:break-all;">+${fmt(sumIn)}</div>
               </div>
               <div>
-                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Pengeluaran</div>
-                <div class="amount-neg" style="font-size:15px; font-weight:800; font-family:monospace; word-break:break-all;">-${fmt(sumOut)}</div>
+                <div style="font-size:12px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Pengeluaran</div>
+                <div class="amount-neg" style="font-size:18px; font-weight:800; font-family:monospace; word-break:break-all;">-${fmt(sumOut)}</div>
               </div>
               <div>
-                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Bersih</div>
-                <div style="font-size:15px; font-weight:800; font-family:monospace; word-break:break-all; color:${(sumIn - sumOut) >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(sumIn - sumOut)}</div>
+                <div style="font-size:12px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Bersih</div>
+                <div style="font-size:18px; font-weight:800; font-family:monospace; word-break:break-all; color:${(sumIn - sumOut) >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(sumIn - sumOut)}</div>
               </div>
               <div>
-                <div style="font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Total Data</div>
-                <div style="font-size:15px; font-weight:800; font-family:monospace; color:var(--text)">${list.length} Baris</div>
+                <div style="font-size:12px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Total Data</div>
+                <div style="font-size:18px; font-weight:800; font-family:monospace; color:var(--text)">${list.length} Baris</div>
+              </div>
+              <div>
+                <div style="font-size:12px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Telah Disetujui</div>
+                <div style="font-size:18px; font-weight:800; font-family:monospace; color:${totalApproved === totalNeedsApprove && totalNeedsApprove > 0 ? 'var(--accent-green)' : 'var(--text)'}">${totalApproved} / ${totalNeedsApprove}</div>
               </div>
             </div>`;
 
@@ -3842,27 +4236,51 @@
         if (monthKeys.length > 1) {
           summaryHtml += `
             <div style="margin-top:14px; border-top:1px solid var(--glass-border); padding-top:12px;">
-              <div style="font-size:10px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Rincian Per Bulan</div>
-              <div>
-                <table style="font-size:11px; width:100%; border-collapse:collapse; table-layout:fixed;">
+              <div style="font-size:12px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Rincian Per Bulan</div>
+              
+              <div class="desktop-only">
+                <table style="font-size:13px; width:100%; border-collapse:collapse; table-layout:fixed;">
                   <colgroup><col style="width:22%"><col style="width:26%"><col style="width:26%"><col style="width:26%"></colgroup>
                   <thead><tr style="border-bottom:1px solid var(--glass-border);">
-                    <th style="text-align:left; padding:6px 4px 6px 0; color:var(--text3); font-weight:600;">Bulan</th>
-                    <th style="text-align:right; padding:6px 4px; color:var(--text3); font-weight:600;">Masuk</th>
-                    <th style="text-align:right; padding:6px 4px; color:var(--text3); font-weight:600;">Keluar</th>
-                    <th style="text-align:right; padding:6px 0 6px 4px; color:var(--text3); font-weight:600;">Bersih</th>
+                    <th style="text-align:left; padding:8px 4px 8px 0; color:var(--text3); font-weight:600;">Bulan</th>
+                    <th style="text-align:right; padding:8px 4px; color:var(--text3); font-weight:600;">Masuk</th>
+                    <th style="text-align:right; padding:8px 4px; color:var(--text3); font-weight:600;">Keluar</th>
+                    <th style="text-align:right; padding:8px 0 8px 4px; color:var(--text3); font-weight:600;">Bersih</th>
                   </tr></thead>
                   <tbody>${monthKeys.map(k => {
             const v = monthlyBreak[k]; const net = v.inc - v.exp;
             return `<tr style="border-bottom:1px solid var(--glass-border);">
-                      <td style="padding:5px 4px 5px 0; color:var(--text); word-break:break-word;">${k}</td>
-                      <td class="amount-pos" style="text-align:right; padding:5px 4px; font-family:monospace; word-break:break-all; font-size:10px;">${fmt(v.inc)}</td>
-                      <td class="amount-neg" style="text-align:right; padding:5px 4px; font-family:monospace; word-break:break-all; font-size:10px;">${fmt(v.exp)}</td>
-                      <td style="text-align:right; padding:5px 0 5px 4px; font-weight:700; font-family:monospace; word-break:break-all; font-size:10px; color:${net >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(net)}</td>
+                      <td style="padding:8px 4px 8px 0; color:var(--text); word-break:break-word; font-weight:500;">${k}</td>
+                      <td class="amount-pos" style="text-align:right; padding:8px 4px; font-family:monospace; word-break:break-all; font-size:13px;">${fmt(v.inc)}</td>
+                      <td class="amount-neg" style="text-align:right; padding:8px 4px; font-family:monospace; word-break:break-all; font-size:13px;">${fmt(v.exp)}</td>
+                      <td style="text-align:right; padding:8px 0 8px 4px; font-weight:700; font-family:monospace; word-break:break-all; font-size:13px; color:${net >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(net)}</td>
                     </tr>`;
           }).join('')}</tbody>
                 </table>
               </div>
+
+              <div class="mobile-only">
+                ${monthKeys.map(k => {
+            const v = monthlyBreak[k]; const net = v.inc - v.exp;
+            return `
+                  <div style="padding:10px 0; border-bottom:1px solid var(--glass-border);">
+                    <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:6px;">${k}</div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                      <span style="font-size:13px; color:var(--text3);">Masuk:</span>
+                      <span class="amount-pos" style="font-size:14px; font-family:monospace; font-weight:600;">${fmt(v.inc)}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                      <span style="font-size:13px; color:var(--text3);">Keluar:</span>
+                      <span class="amount-neg" style="font-size:14px; font-family:monospace; font-weight:600;">${fmt(v.exp)}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:6px; padding-top:6px; border-top:1px dashed var(--glass-border);">
+                      <span style="font-size:13px; color:var(--text2); font-weight:600;">Bersih:</span>
+                      <span style="font-size:15px; font-family:monospace; font-weight:800; color:${net >= 0 ? 'var(--accent-green)' : 'var(--accent-orange)'}">${fmt(net)}</span>
+                    </div>
+                  </div>`;
+          }).join('')}
+              </div>
+
             </div>`;
         }
 
@@ -3872,25 +4290,25 @@
         if (hasInCat || hasOutCat) {
           summaryHtml += `
             <div style="margin-top:14px; border-top:1px solid var(--glass-border); padding-top:12px;">
-              <div style="font-size:10px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Rincian Per Kategori</div>
-              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:14px;">`;
+              <div style="font-size:12px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;">Rincian Per Kategori</div>
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:16px;">`;
           if (hasInCat) {
             summaryHtml += `<div>
-              <div style="font-size:10px; font-weight:700; color:var(--accent-green); margin-bottom:6px; text-transform:uppercase;">Pemasukan</div>
+              <div style="font-size:12px; font-weight:700; color:var(--accent-green); margin-bottom:8px; text-transform:uppercase;">Pemasukan</div>
               ${Object.entries(catBreakIn).sort((a, b) => b[1] - a[1]).map(([k, v]) => `
-                <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid var(--glass-border); gap:8px;">
-                  <span style="font-size:11px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${k}</span>
-                  <span class="amount-pos" style="font-size:11px; font-weight:700; font-family:monospace; white-space:nowrap;">${fmt(v)}</span>
+                <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--glass-border); gap:8px;">
+                  <span style="font-size:13px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${k}</span>
+                  <span class="amount-pos" style="font-size:13px; font-weight:700; font-family:monospace; white-space:nowrap;">${fmt(v)}</span>
                 </div>`).join('')}
             </div>`;
           }
           if (hasOutCat) {
             summaryHtml += `<div>
-              <div style="font-size:10px; font-weight:700; color:var(--accent-orange); margin-bottom:6px; text-transform:uppercase;">Pengeluaran</div>
+              <div style="font-size:12px; font-weight:700; color:var(--accent-orange); margin-bottom:8px; text-transform:uppercase;">Pengeluaran</div>
               ${Object.entries(catBreakOut).sort((a, b) => b[1] - a[1]).map(([k, v]) => `
-                <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid var(--glass-border); gap:8px;">
-                  <span style="font-size:11px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${k}</span>
-                  <span class="amount-neg" style="font-size:11px; font-weight:700; font-family:monospace; white-space:nowrap;">${fmt(v)}</span>
+                <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--glass-border); gap:8px;">
+                  <span style="font-size:13px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${k}</span>
+                  <span class="amount-neg" style="font-size:13px; font-weight:700; font-family:monospace; white-space:nowrap;">${fmt(v)}</span>
                 </div>`).join('')}
             </div>`;
           }
@@ -3906,14 +4324,25 @@
         const userUnits = getUserUnits();
 
         let desktopHtml = list.map(x => {
-          const txUnitLower = String(x.unit_name || '').toLowerCase();
-          const belongsToUserUnits = userUnits.some(u => u.toLowerCase() === txUnitLower);
+          const txUnitLower = String(x.unit_name || '').toLowerCase().trim();
+          const belongsToUserUnits = userUnits.some(u => String(u).toLowerCase().trim() === txUnitLower);
+
+          let hasMembers = false;
+          if (masterData && masterData.units) {
+            const uData = masterData.units.find(u => String(u.name).toLowerCase().trim() === txUnitLower);
+            if (uData && parseInt(uData.jumlah_anggota || 0) > 0) hasMembers = true;
+          }
+          const isExpense = x.type === 'expense';
+          const incType = String(x.income_type || '').toLowerCase();
+          const isTransparentInc = x.type === 'income' && (incType.includes('sabat') || incType.includes('rabu malam') || incType.includes('pembangunan')) && !hasMembers;
+          const isTransparent = isExpense || isTransparentInc;
 
           const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
           const isOtherUnit = userUnits.length > 0 && x.type === 'income' && !belongsToUserUnits;
 
           // DO NOT HIDE if the transaction belongs to the user's bound units!
-          const shouldHide = !belongsToUserUnits && (isAnon || isOtherUnit || isPrivCategory);
+          let shouldHide = !belongsToUserUnits && (isAnon || isOtherUnit || isPrivCategory);
+          if (isTransparent) shouldHide = false;
 
           const deleteId = x.transaction_id || x.receipt_no || '';
           let photoBtn = getPhotoBtnIcon(x, shouldHide && !isApprover);
@@ -3924,23 +4353,30 @@
             const isKetua = x.approved_by.includes('Ketua Jemaat');
             const isPendeta = x.approved_by.includes('Pendeta');
             if (isKetua && isPendeta) approveBadge = `<div style="margin-top:4px;"><span class="badge" style="background:var(--accent-green);color:white;font-size:9px;">✅ Disetujui</span></div>`;
-            else approveBadge = `<div style="margin-top:4px;"><span class="badge badge-yellow" style="font-size:9px;">⏳ 1/2 Acc</span></div>`;
+            else {
+              let pendingWho = [];
+              if (!isKetua) pendingWho.push('Ketua');
+              if (!isPendeta) pendingWho.push('Pendeta');
+              approveBadge = `<div style="margin-top:4px;"><span class="badge badge-yellow" style="font-size:9px;" title="Menunggu: ${pendingWho.join(' & ')}">⏳ Menunggu: ${pendingWho.join(' & ')}</span></div>`;
+            }
           } else {
-            approveBadge = `<div style="margin-top:4px;"><span class="badge badge-gray" style="font-size:9px;">⏳ Pending</span></div>`;
+            approveBadge = `<div style="margin-top:4px;"><span class="badge badge-gray" style="font-size:9px;" title="Menunggu: Ketua & Pendeta">⏳ Menunggu: Ketua & Pendeta</span></div>`;
           }
 
+          let approveBtn = '';
           if (isApprover && deleteId) {
             if (!x.approved_by || !x.approved_by.includes(roleNeeded)) {
               let approveBtnHtml = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--accent-green);" onclick="approveTx('${x.type}', '${deleteId}')">✔️ Approve</button>`;
               // Desktop version (shorter text) check context
               if (this.isDesktopLoop) {
-                 approveBtnHtml = `<button class="btn-icon-only" style="color:var(--accent-green);" title="Approve" onclick="approveTx('${x.type}', '${deleteId}')">✔️</button>`;
+                approveBtnHtml = `<button class="btn-icon-only" style="color:var(--accent-green);" title="Approve" onclick="approveTx('${x.type}', '${deleteId}')">✔️</button>`;
               }
               approveBtn = approveBtnHtml;
+
             } else {
               let approveBtnHtml = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--text4); cursor:default;" disabled>✅ Approved</button>`;
               if (this.isDesktopLoop) {
-                 approveBtnHtml = `<button class="btn-icon-only" style="color:var(--text4); cursor:default;" title="Sudah Di-Approve" disabled>✅</button>`;
+                approveBtnHtml = `<button class="btn-icon-only" style="color:var(--text4); cursor:default;" title="Sudah Di-Approve" disabled>✅</button>`;
               }
               approveBtn = approveBtnHtml;
             }
@@ -3963,15 +4399,26 @@
         }).join('');
 
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
-          const txUnitLower = String(x.unit_name || '').toLowerCase();
-          const belongsToUserUnits = userUnits.some(u => u.toLowerCase() === txUnitLower);
+          const txUnitLower = String(x.unit_name || '').toLowerCase().trim();
+          const belongsToUserUnits = userUnits.some(u => String(u).toLowerCase().trim() === txUnitLower);
+
+          let hasMembers = false;
+          if (masterData && masterData.units) {
+            const uData = masterData.units.find(u => String(u.name).toLowerCase().trim() === txUnitLower);
+            if (uData && parseInt(uData.jumlah_anggota || 0) > 0) hasMembers = true;
+          }
+          const isExpense = x.type === 'expense';
+          const incType = String(x.income_type || '').toLowerCase();
+          const isTransparentInc = x.type === 'income' && (incType.includes('sabat') || incType.includes('rabu malam') || incType.includes('pembangunan')) && !hasMembers;
+          const isTransparent = isExpense || isTransparentInc;
 
           const isPrivCategory = isViewer && x.type === 'income' && isPrivateCategory(x.income_type);
           const isInc = x.type === 'income';
           const isOtherUnit = userUnits.length > 0 && x.type === 'income' && !belongsToUserUnits;
 
           // DO NOT HIDE if the transaction belongs to the user's bound units!
-          const shouldHide = !belongsToUserUnits && (isAnon || isOtherUnit || isPrivCategory);
+          let shouldHide = !belongsToUserUnits && (isAnon || isOtherUnit || isPrivCategory);
+          if (isTransparent) shouldHide = false;
 
           const deleteId = x.transaction_id || x.receipt_no || '';
           const pihak = x.type === 'income' ? (shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
@@ -3982,22 +4429,27 @@
             const isKetua = x.approved_by.includes('Ketua Jemaat');
             const isPendeta = x.approved_by.includes('Pendeta');
             if (isKetua && isPendeta) approveBadge = `<span class="badge" style="background:var(--accent-green);color:white;font-size:9px;">✅ Disetujui</span>`;
-            else approveBadge = `<span class="badge badge-yellow" style="font-size:9px;">⏳ 1/2 Acc</span>`;
+            else {
+              let pendingWho = [];
+              if (!isKetua) pendingWho.push('Ketua');
+              if (!isPendeta) pendingWho.push('Pendeta');
+              approveBadge = `<span class="badge badge-yellow" style="font-size:9px;" title="Menunggu: ${pendingWho.join(' & ')}">⏳ Menunggu: ${pendingWho.join(' & ')}</span>`;
+            }
           } else {
-            approveBadge = `<span class="badge badge-gray" style="font-size:9px;">⏳ Pending</span>`;
+            approveBadge = `<span class="badge badge-gray" style="font-size:9px;" title="Menunggu: Ketua & Pendeta">⏳ Menunggu: Ketua & Pendeta</span>`;
           }
 
           let approveBtn = '';
           if (isApprover && deleteId) {
             if (!x.approved_by || !x.approved_by.includes(roleNeeded)) {
-              approveBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--accent-green);" onclick="approveTx('${x.type}', '${deleteId}')">✔️ Approve</button>`;
+              approveBtn = `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:rgba(16,185,129,0.1); color:var(--accent-green); border:1px solid rgba(16,185,129,0.2);" onclick="approveTx('${x.type}', '${deleteId}')">✔️ Approve</button>`;
             } else {
-              approveBtn = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--text4); cursor:default;" disabled>✅ Approved</button>`;
+              approveBtn = `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:var(--badge-gray-bg); color:var(--text4); border:1px solid var(--glass-border); cursor:default;" disabled>✅ Approved</button>`;
             }
           }
 
-          let editBtn = canEdit && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openEditTrans('${x.type}', '${deleteId}')">✏️ Edit</button>` : '';
-          let delBtn = canDel && deleteId ? `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--rose-pop);" onclick="deleteTransaction('${x.type}', '${deleteId}')">🗑️ Hapus</button>` : '';
+          let editBtn = canEdit && deleteId ? `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:var(--input-bg); color:var(--text); border:1px solid var(--glass-border);" onclick="openEditTrans('${x.type}', '${deleteId}')">✏️ Edit</button>` : '';
+          let delBtn = canDel && deleteId ? `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:rgba(244,63,94,0.1); color:var(--rose-pop); border:1px solid rgba(244,63,94,0.2);" onclick="deleteTransaction('${x.type}', '${deleteId}')">🗑️ Hapus</button>` : '';
 
           return `
           <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
@@ -4015,7 +4467,8 @@
               <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.income_type || x.department || '-'}</strong>
               <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${shouldHide ? '***' : (x.note || '-')}</span>
             </div>
-            <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+            <div style="display:flex; gap:6px; margin-top:12px; width:100%;">
+              ${approveBtn}
               ${photoBtn}
               ${editBtn}
               ${delBtn}
@@ -4023,24 +4476,42 @@
           </div>`;
         }).join('') + '</div>';
 
+        const getSortIcon = (col) => {
+          if (historySortCol !== col) return '<span style="opacity:0.3; font-size:10px; margin-left:4px;">↕</span>';
+          return historySortDesc ? '<span style="font-size:10px; margin-left:4px;">▼</span>' : '<span style="font-size:10px; margin-left:4px;">▲</span>';
+        };
+
         document.getElementById('historyListContainer').innerHTML = summaryHtml + `
           <div class="desktop-only table-wrap scrollable" style="border:none;">
             <table class="table-history">
               <thead>
                 <tr>
-                  <th class="fit-col">Tanggal</th>
-                  <th class="fit-col">Alur</th>
-                  <th>Kategori & Keterangan</th>
-                  <th class="fit-col">Bukti</th>
-                  <th>Pihak</th>
-                  <th class="fit-col" style="text-align:right">Nominal</th>
+                  <th class="fit-col" style="cursor:pointer; user-select:none;" onclick="toggleSortHistory('date')">Tanggal ${getSortIcon('date')}</th>
+                  <th class="fit-col" style="cursor:pointer; user-select:none;" onclick="toggleSortHistory('type')">Alur ${getSortIcon('type')}</th>
+                  <th style="cursor:pointer; user-select:none;" onclick="toggleSortHistory('category')">Kategori & Keterangan ${getSortIcon('category')}</th>
+                  <th class="fit-col" style="cursor:pointer; user-select:none;" onclick="toggleSortHistory('receipt')">Bukti ${getSortIcon('receipt')}</th>
+                  <th style="cursor:pointer; user-select:none;" onclick="toggleSortHistory('pihak')">Pihak ${getSortIcon('pihak')}</th>
+                  <th class="fit-col" style="text-align:right; cursor:pointer; user-select:none;" onclick="toggleSortHistory('amount')">Nominal ${getSortIcon('amount')}</th>
                   <th class="fit-col" style="text-align:right">Aksi</th>
                 </tr>
               </thead>
               <tbody>${desktopHtml}</tbody>
             </table>
           </div>
-          <div class="mobile-only" style="padding-bottom:12px;">${mobileHtml}</div>
+          <div class="mobile-only" style="padding-bottom:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding: 0 4px;">
+              <span style="font-size:12px; color:var(--text3); font-weight:600;">Urut Berdasarkan:</span>
+              <select class="select-sm" style="font-size:12px; padding:4px 24px 4px 8px; width:auto; border-radius:var(--radius);" onchange="historySortCol=this.value.split('|')[0]; historySortDesc=(this.value.split('|')[1]==='desc'); renderHistory();">
+                 <option value="date|desc" ${historySortCol === 'date' && historySortDesc ? 'selected' : ''}>Tanggal (Terbaru)</option>
+                 <option value="date|asc" ${historySortCol === 'date' && !historySortDesc ? 'selected' : ''}>Tanggal (Terlama)</option>
+                 <option value="amount|desc" ${historySortCol === 'amount' && historySortDesc ? 'selected' : ''}>Nominal (Tertinggi)</option>
+                 <option value="amount|asc" ${historySortCol === 'amount' && !historySortDesc ? 'selected' : ''}>Nominal (Terendah)</option>
+                 <option value="receipt|asc" ${historySortCol === 'receipt' && !historySortDesc ? 'selected' : ''}>Bukti (A-Z)</option>
+                 <option value="receipt|desc" ${historySortCol === 'receipt' && historySortDesc ? 'selected' : ''}>Bukti (Z-A)</option>
+              </select>
+            </div>
+            ${mobileHtml}
+          </div>
         `;
       }
     }
@@ -4165,15 +4636,15 @@
       // Check if fully approved and disable fields if so
       const isFullyApproved = trx.approved_by && trx.approved_by.includes('Ketua Jemaat') && trx.approved_by.includes('Pendeta');
       const inputsToLock = [
-        'editTransDate', 'editTransReceipt', 'editTransNote', 'editTransCat', 'editTransUnit', 
-        'editTransPihak', 'editTransAmount', 'editTransSource', 'editTransAmtPerpuluhan', 
+        'editTransDate', 'editTransReceipt', 'editTransNote', 'editTransCat', 'editTransUnit',
+        'editTransPihak', 'editTransAmount', 'editTransSource', 'editTransAmtPerpuluhan',
         'editTransAmtTerpadu', 'editTransAmtKhususJemaat', 'editTransAmtKhususDaerah'
       ];
       inputsToLock.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.disabled = isFullyApproved;
       });
-      
+
       if (isFullyApproved) {
         document.getElementById('editTransNote').placeholder = 'Transaksi disetujui penuh, hanya foto yang bisa diubah.';
       }
@@ -4184,8 +4655,8 @@
       currentEditTransaction = null;
       resetPhotoUpload('edit');
       const inputsToLock = [
-        'editTransDate', 'editTransReceipt', 'editTransNote', 'editTransCat', 'editTransUnit', 
-        'editTransPihak', 'editTransAmount', 'editTransSource', 'editTransAmtPerpuluhan', 
+        'editTransDate', 'editTransReceipt', 'editTransNote', 'editTransCat', 'editTransUnit',
+        'editTransPihak', 'editTransAmount', 'editTransSource', 'editTransAmtPerpuluhan',
         'editTransAmtTerpadu', 'editTransAmtKhususJemaat', 'editTransAmtKhususDaerah'
       ];
       inputsToLock.forEach(id => {
@@ -4301,11 +4772,11 @@
     async function approveTx(type, id) {
       const isConfirm = await showCustomConfirm('Approve Transaksi', 'Apakah Anda menyetujui transaksi ini?');
       if (!isConfirm) return;
-      try { 
-        await apiPostWithFallback('approveTransaction', { type, transaction_id: id }); 
-        notify('Transaksi disetujui.', 'success'); 
-        await syncAllData(); 
-        renderHistory(); 
+      try {
+        await apiPostWithFallback('approveTransaction', { type, transaction_id: id });
+        notify('Transaksi disetujui.', 'success');
+        await syncAllData();
+        renderHistory();
       }
       catch (e) { notify(e.message, 'error'); }
     }
@@ -4315,15 +4786,19 @@
       if (list.length === 0) return;
       const isConfirm = await showCustomConfirm('Approve Semua', `Anda yakin menyetujui ${list.length} transaksi sekaligus? (Mungkin butuh beberapa detik)`);
       if (!isConfirm) return;
-      
+
       const btn = document.getElementById('btnApproveBulk');
       if (btn) { btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Memproses...'; }
-      
+
       notify(`Memproses approval ${list.length} transaksi...`, 'info');
       let successCount = 0;
       let failCount = 0;
-      
+
+      window.isBulkProcessing = true;
+      showGlobalLoading(`Memproses 0 dari ${list.length} data...`);
+
       for (let i = 0; i < list.length; i++) {
+        showGlobalLoading(`Memproses ${i + 1} dari ${list.length} data...`);
         try {
           await apiPostWithFallback('approveTransaction', { type: list[i].type, transaction_id: list[i].id });
           successCount++;
@@ -4332,13 +4807,16 @@
           failCount++;
         }
       }
-      
+
+      window.isBulkProcessing = false;
+      hideGlobalLoading();
+
       if (failCount > 0) {
         notify(`Selesai. ${successCount} berhasil, ${failCount} gagal.`, 'error');
       } else {
         notify(`Berhasil menyetujui ${successCount} transaksi!`, 'success');
       }
-      
+
       if (btn) { btn.disabled = false; btn.innerHTML = `✔️ Approve Semua`; }
       await handleManualSync();
     }
@@ -4528,19 +5006,26 @@
       const activeBotNav = document.querySelector(`.bottom-nav-item[data-target="${pageId}"]`); if (activeBotNav) activeBotNav.classList.add('active');
       const titles = { dashboard: 'Dashboard', pemasukan: 'Pemasukan', pengeluaran: 'Pengeluaran', laporan: 'Laporan', riwayat: 'Histori', masterIncType: 'Kategori', masterDept: 'Departemen', masterUnit: 'Unit', users: 'Manajemen User', settings: 'Pengaturan', roles: 'Hak Akses Menu', logs: 'Audit Log' };
       document.getElementById('pageTitle').textContent = titles[pageId] || 'Dashboard';
-      closeSidebar();
+      if (window.innerWidth <= 1100) {
+        closeSidebar();
+      }
       if (pageId === 'dashboard') renderDashboard(); else if (pageId === 'pemasukan') renderIncomeList(); else if (pageId === 'pengeluaran') renderExpenseList(); else if (pageId === 'riwayat') renderHistory(); else if (pageId === 'laporan') { document.getElementById('reportContent').innerHTML = ''; } else if (pageId === 'masterIncType') renderMasterIncTypes(); else if (pageId === 'masterDept') renderMasterDepts(); else if (pageId === 'masterUnit') renderMasterUnits(); else if (pageId === 'users') renderUsers(); else if (pageId === 'logs') renderLogs(); else if (pageId === 'roles') renderRoles();
     }
     function doPrintPembangunan() {
       if (!currentReportData) return notify('Generate laporan terlebih dahulu', 'error');
       if (currentReportData.mode === 'akumulasi') return notify('Laporan Pembangunan hanya tersedia untuk Mode Bulanan', 'error');
-      
+
       const html = generatePembangunanReportHtml(currentReportData);
-      const printWin = window.open('', '_blank');
-      printWin.document.write(`<html><head><title>Laporan Pembangunan</title><style>@media print { body { margin: 0; } }</style></head><body>${html}</body></html>`);
-      printWin.document.close();
-      printWin.focus();
-      setTimeout(() => { printWin.print(); }, 500);
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+      iframe.contentDocument.write(`<html><head><title>Laporan Pembangunan</title><style>@media print { body { margin: 0; } }</style></head><body>${html}</body></html>`);
+      iframe.contentDocument.close();
+      iframe.contentWindow.focus();
+      setTimeout(() => {
+        iframe.contentWindow.print();
+        setTimeout(() => { document.body.removeChild(iframe); }, 1000);
+      }, 500);
     }
 
     function generatePembangunanReportHtml(data) {
@@ -4550,6 +5035,8 @@
       const targetDateStart = new Date(targetYear, targetMonth - 1, 1);
       const targetDateEnd = new Date(targetYear, targetMonth, 0, 23, 59, 59);
 
+      const isViewer = currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik');
+      const isSensor = isViewer || (document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false);
       const isManualSignature = document.getElementById('manualSignature') ? document.getElementById('manualSignature').checked : false;
 
       // Pemasukan & Pengeluaran Bulan Ini
@@ -4589,10 +5076,12 @@
       let pemRows = pemBulanIni.map(x => {
         const amt = parseFloat(x.alloc_bangun || x.amount || 0);
         sumPemasukan += amt;
+        const isMasked = isSensor; // Pembangunan is always considered a private category when sensor is on
+        const dNote = isMasked ? '*** (Privasi)' : (x.note || x.nama_pemberi || 'Pembangunan');
         return `<tr>
           <td style="border:1px solid #000; padding:4px; text-align:center;">${fmtDate(x.date)}</td>
           <td style="border:1px solid #000; padding:4px;">${x.receipt_no || '-'}</td>
-          <td style="border:1px solid #000; padding:4px;">${x.note || x.nama_pemberi || 'Pembangunan'}</td>
+          <td style="border:1px solid #000; padding:4px;">${dNote}</td>
           <td style="border:1px solid #000; padding:4px; text-align:right;">${fmt(amt)}</td>
         </tr>`;
       }).join('');
@@ -4606,10 +5095,12 @@
       let pengRows = pengBulanIni.map(x => {
         const amt = parseFloat(x.amount || 0);
         sumPengeluaran += amt;
+        const isMasked = isSensor;
+        const dNote = isMasked ? '*** (Privasi)' : (x.note || 'Pengeluaran Pembangunan');
         return `<tr>
           <td style="border:1px solid #000; padding:4px; text-align:center;">${fmtDate(x.date)}</td>
           <td style="border:1px solid #000; padding:4px;">${x.receipt_no || '-'}</td>
-          <td style="border:1px solid #000; padding:4px;">${x.note || 'Pengeluaran Pembangunan'}</td>
+          <td style="border:1px solid #000; padding:4px;">${dNote}</td>
           <td style="border:1px solid #000; padding:4px; text-align:right;">${fmt(amt)}</td>
         </tr>`;
       }).join('');
@@ -4636,7 +5127,7 @@
               <p style="margin:5px 0 0 0; font-size: 10pt;">Bulan/Tahun: <strong>${monthName} ${targetYear}</strong></p>
             </td>
             <td style="width: 100px; border: none; text-align: right; vertical-align: middle; padding: 0;">
-              <img src="./icons/pisgahcolor.png" style="width: 80px; height: auto;" alt="Logo Kanan" />
+              <img src="./icons/PisgahColor.png" style="width: 80px; height: auto;" alt="Logo Kanan" />
             </td>
           </tr>
         </table>
@@ -4703,18 +5194,27 @@
         </table>
       `;
 
-      const imgBenJ = useImages && systemConfig.sig_bendahara ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
-      const imgKetP = useImages && systemConfig.sig_bangun ? `<img src="${systemConfig.sig_bangun}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgBen = useImages && systemConfig.sig_bendahara ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgBgn = useImages && systemConfig.sig_bangun ? `<img src="${systemConfig.sig_bangun}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
       const imgKet = useImages && systemConfig.sig_ketua ? `<img src="${systemConfig.sig_ketua}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
       const imgPen = useImages && systemConfig.sig_pendeta ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+
+      const nameBen = systemConfig.sig_name_bendahara || 'Herbert JS Sagala';
+      const titleBen = systemConfig.sig_title_bendahara || 'Bendahara Jemaat';
+      const nameBgn = systemConfig.sig_name_bangun || 'Parulian Parhusip';
+      const titleBgn = systemConfig.sig_title_bangun || 'Ketua Pembangunan';
+      const nameKet = systemConfig.sig_name_ketua || 'Yosep Santoso';
+      const titleKet = systemConfig.sig_title_ketua || 'Ketua Jemaat';
+      const namePen = systemConfig.sig_name_pendeta || 'Pdt. Joseph Sitohang';
+      const titlePen = systemConfig.sig_title_pendeta || 'Gembala Jemaat';
 
       const signHtml = `
         <table style="width: 100%; margin-top: 40px; text-align: center; font-family: sans-serif; font-size: 10pt; color: #000; border: none; background: transparent;">
           <tr>
-            <td style="width: 25%; border: none; vertical-align: bottom;">Dibuat Oleh,<br>${imgBenJ}<br><strong>Herbert JS Sagala</strong><br>Bendahara Jemaat</td>
-            <td style="width: 25%; border: none; vertical-align: bottom;">Disetujui Oleh,<br>${imgKetP}<br><strong>_______________</strong><br>Ketua Pembangunan</td>
-            <td style="width: 25%; border: none; vertical-align: bottom;">Disahkan Oleh,<br>${imgKet}<br><strong>Yosep Santoso</strong><br>Ketua Jemaat</td>
-            <td style="width: 25%; border: none; vertical-align: bottom;">Mengetahui,<br>${imgPen}<br><strong>Pdt. Yoseph Sihotang</strong><br>Gembala Jemaat</td>
+            <td style="width: 25%; border: none; vertical-align: bottom;">Dibuat Oleh,<br>${imgBen}<br><strong>${nameBen}</strong><br>${titleBen}</td>
+            <td style="width: 25%; border: none; vertical-align: bottom;">Disetujui Oleh,<br>${imgBgn}<br><strong>${nameBgn}</strong><br>${titleBgn}</td>
+            <td style="width: 25%; border: none; vertical-align: bottom;">Disahkan Oleh,<br>${imgKet}<br><strong>${nameKet}</strong><br>${titleKet}</td>
+            <td style="width: 25%; border: none; vertical-align: bottom;">Mengetahui,<br>${imgPen}<br><strong>${namePen}</strong><br>${titlePen}</td>
           </tr>
         </table>
       `;
