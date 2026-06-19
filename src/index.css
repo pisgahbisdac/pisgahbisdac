@@ -716,6 +716,16 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .btn-primary:hover { background: var(--primary-hover); color: #111827; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); transform: translateY(-1px); }
 .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--glass-border); }
 .btn-ghost:hover { background: rgba(212, 175, 55, 0.05); color: var(--primary); border-color: var(--primary); }
+
+.btn-logout {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-logout:active {
+  transform: scale(0.85) !important;
+  background: rgba(220, 38, 38, 0.25) !important;
+  opacity: 0.8;
+}
 .btn-success { background: var(--green-pop); color: #111827; font-weight: 700;}
 .btn-success:hover { filter: brightness(1.1); box-shadow: 0 0 15px rgba(5, 150, 105, 0.3); transform: translateY(-1px); }
 .btn-danger { background: rgba(220, 38, 38, 0.1); color: var(--red-pop); border: 1px solid rgba(220, 38, 38, 0.2); }

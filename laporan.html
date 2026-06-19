@@ -563,7 +563,7 @@
           </div>
         </div>
       </div>
-      <div class="sidebar-user" style="display: flex; align-items: center; justify-content: space-between;">
+      <div class="sidebar-user" style="display: flex; flex-direction: column; gap: 16px; align-items: stretch;">
         <div style="display: flex; align-items: center; gap: 12px; overflow: hidden;">
           <div class="user-avatar" id="userAvatar">U</div>
           <div style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
@@ -571,12 +571,13 @@
             <div class="user-role" id="userRoleDisplay">Role</div>
           </div>
         </div>
-        <button class="btn-icon-only" onclick="doLogout()" title="Keluar" style="color: var(--red-pop); border: 1px solid rgba(220, 38, 38, 0.3); background: rgba(220, 38, 38, 0.1); flex-shrink: 0; padding: 8px; border-radius: 50%;">
-          <svg class="lucide lucide-md" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+        <button class="btn btn-logout" onclick="doLogout()" style="width: 100%; justify-content: center; color: var(--red-pop); border: 1px solid rgba(220, 38, 38, 0.2); background: rgba(220, 38, 38, 0.05); padding: 10px; border-radius: var(--radius-lg); font-weight: 600; font-size: 14px;">
+          <svg class="lucide lucide-md" viewBox="0 0 24 24" style="width: 18px; height: 18px; margin-right: 8px;">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
+          Keluar
         </button>
       </div>
       <nav class="sidebar-nav">
@@ -596,6 +597,11 @@
           <span class="nav-icon">
             <script>document.write(getIcon('trendDown', 'lucide-md'))</script>
           </span> Pengeluaran
+        </div>
+        <div class="nav-item" onclick="showPage('pindahbuku')" id="navPindahBuku">
+          <span class="nav-icon">
+            <script>document.write(getIcon('refresh', 'lucide-md'))</script>
+          </span> Pindah Buku (Mutasi)
         </div>
         <div class="nav-section-title">Laporan Keuangan</div>
         <div class="nav-item" onclick="showPage('laporan')" id="navLaporan">
@@ -830,11 +836,18 @@
               <div class="form-row keep-row">
                 <div class="form-group"><label class="form-label">Tanggal Transaksi</label><input class="form-input"
                     id="incDate" type="date"></div>
-                <div class="form-group" id="incAmountSingleGroup"><label class="form-label">Nominal (Rp)</label><input
-                    class="form-input" id="incAmount" type="number" placeholder="0" oninput="updateIncomeAlloc()"></div>
+                <div class="form-group" id="incAmountSingleGroup"><label class="form-label">Nominal Pemasukan (Rp)</label><input
+                    class="form-input" id="incAmount" type="text" inputmode="numeric" placeholder="0" oninput="formatRupiah(this); updateIncomeAlloc()"></div>
               </div>
               <div class="form-group"><label class="form-label">Jenis Pemasukan</label><select class="form-select"
                   id="incType" onchange="handleTypeChange()"></select></div>
+              <div class="form-group">
+                <label class="form-label">Tujuan Dana Masuk</label>
+                <select class="form-select" id="incDestination">
+                  <option value="BANK" selected>Transfer Rekening (Di Bank)</option>
+                  <option value="CASH">Uang Tunai / Cash (Di Tangan)</option>
+                </select>
+              </div>
               <div class="form-row">
                 <div class="form-group"><label class="form-label">Unit (Opsional)</label><select class="form-select"
                     id="incUnit"></select></div>
@@ -854,20 +867,20 @@
                   style="border-bottom:1px solid var(--glass-border); padding-bottom:12px; margin-bottom:16px; color:var(--text);">Rincian
                   Perpuluhan (Rp)</label>
                 <div class="form-row keep-row" style="margin-bottom:12px;">
-                  <div class="form-group"><label class="form-label" style="font-size:12px">Perpuluhan</label><input
-                      class="form-input" id="incAmtPerpuluhan" type="number" placeholder="0"
-                      oninput="updateIncomeAlloc()"></div>
-                  <div class="form-group"><label class="form-label" style="font-size:12px">Terpadu</label><input
-                      class="form-input" id="incAmtTerpadu" type="number" placeholder="0" oninput="updateIncomeAlloc()">
+                  <div class="form-group"><label class="form-label">Perpuluhan / Persepuluhan (Rp)</label><input
+                      class="form-input" id="incAmtPerpuluhan" type="text" inputmode="numeric" placeholder="0"
+                      oninput="formatRupiah(this); updateIncomeAlloc()"></div>
+                  <div class="form-group"><label class="form-label">Dana Terpadu (Rp)</label><input
+                      class="form-input" id="incAmtTerpadu" type="text" inputmode="numeric" placeholder="0" oninput="formatRupiah(this); updateIncomeAlloc()">
                   </div>
                 </div>
                 <div class="form-row keep-row">
-                  <div class="form-group"><label class="form-label" style="font-size:12px">Khusus Jemaat</label><input
-                      class="form-input" id="incAmtKhususJemaat" type="number" placeholder="0"
-                      oninput="updateIncomeAlloc()"></div>
-                  <div class="form-group"><label class="form-label" style="font-size:12px">Khusus Daerah</label><input
-                      class="form-input" id="incAmtKhususDaerah" type="number" placeholder="0"
-                      oninput="updateIncomeAlloc()"></div>
+                  <div class="form-group"><label class="form-label">Khusus Jemaat (Rp)</label><input
+                      class="form-input" id="incAmtKhususJemaat" type="text" inputmode="numeric" placeholder="0"
+                      oninput="formatRupiah(this); updateIncomeAlloc()"></div>
+                  <div class="form-group"><label class="form-label">Khusus Daerah (Rp)</label><input
+                      class="form-input" id="incAmtKhususDaerah" type="text" inputmode="numeric" placeholder="0"
+                      oninput="formatRupiah(this); updateIncomeAlloc()"></div>
                 </div>
               </div>
 
@@ -915,16 +928,19 @@
               <div class="form-group"><label class="form-label">Tanggal</label><input class="form-input" id="expDate"
                   type="date"></div>
               <div class="form-group"><label class="form-label">Nominal Keluar (Rp)</label><input class="form-input"
-                  id="expAmount" type="number" placeholder="0" oninput="checkSaldo()"></div>
+                  id="expAmount" type="text" inputmode="numeric" placeholder="0" oninput="formatRupiah(this); checkSaldo()"></div>
             </div>
             <div class="form-group"><label class="form-label">Departemen / Bidang</label><select class="form-select"
                 id="expDept"></select></div>
             <div class="form-group">
               <label class="form-label">Sumber Kas</label>
               <select class="form-select" id="expSource" onchange="checkSaldo()">
-                <option value="Daerah">Saldo Daerah</option>
-                <option value="Kas Jemaat" selected>Kas Jemaat</option>
-                <option value="Pembangunan">Saldo Pembangunan</option>
+                <option value="Kas Jemaat|BANK" selected>Kas Jemaat [Bank]</option>
+                <option value="Pembangunan|BANK">Kas Pembangunan [Bank]</option>
+                <option value="Daerah|BANK">Kas Daerah [Bank]</option>
+                <option value="Kas Jemaat|CASH">Kas Jemaat [Di Tangan]</option>
+                <option value="Pembangunan|CASH">Kas Pembangunan [Di Tangan]</option>
+                <option value="Daerah|CASH">Kas Daerah [Di Tangan]</option>
               </select>
             </div>
             <div class="form-group"><label class="form-label">Sisa Kas Terpilih</label>
@@ -966,6 +982,56 @@
           <div class="card" style="padding:0;">
             <div class="form-section-title" style="margin: 24px 24px 16px;">Log Keluar Terakhir</div>
             <div id="expenseLogContainer"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: PINDAH BUKU -->
+      <div class="page" id="page-pindahbuku">
+        <div class="grid-2">
+          <div class="card">
+            <div class="form-section-title">Input Setoran Kas ke Bank (Mutasi)</div>
+            <div class="form-row keep-row">
+              <div class="form-group"><label class="form-label">Tanggal</label><input class="form-input" id="mutDate" type="date"></div>
+              <div class="form-group"><label class="form-label">Nominal Disetor (Rp)</label><input class="form-input" id="mutAmount" type="text" inputmode="numeric" placeholder="0" oninput="formatRupiah(this); checkMutSaldo()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sumber Uang Cash</label>
+              <select class="form-select" id="mutSource" onchange="checkMutSaldo()">
+                <option value="Kas Jemaat|CASH" selected>Kas Jemaat [Di Tangan]</option>
+                <option value="Pembangunan|CASH">Kas Pembangunan [Di Tangan]</option>
+                <option value="Daerah|CASH">Kas Daerah [Di Tangan]</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Sisa Cash Tersedia</label>
+              <div class="saldo-display" id="mutSaldoTersedia" style="color:var(--accent-cyan, var(--teal-pop))">Rp 0</div>
+            </div>
+            <div class="saldo-warning" id="mutSaldoWarning">
+              <script>document.write(getIcon('alert', 'lucide-md'))</script> Setoran Melebihi Cash Di Tangan!
+            </div>
+            <div class="form-row" style="margin-top:20px">
+              <div class="form-group">
+                <label class="form-label">Nomor Bukti Setor</label>
+                <input class="form-input" id="mutReceipt" type="text" placeholder="MUT-XXXX">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Foto Bukti Setor (Opsional) - Max 3</label>
+              <div class="photo-upload-grid" id="mutPhotoGrid">
+                <label for="mutPhotoUpload" class="photo-upload-box" id="mutPhotoUploadBox" style="display:flex;">
+                  <div style="color:var(--text3); text-align:center;">
+                    <script>document.write(getIcon('image', 'lucide-lg'))</script><br><span style="margin-top:8px; display:inline-block; font-size:11px;">Unggah Bukti</span>
+                  </div>
+                </label>
+              </div>
+              <input type="file" id="mutPhotoUpload" accept="image/*" multiple style="display:none" onchange="handleReceiptPhoto(event, 'mutasi')">
+            </div>
+            <div class="form-group"><label class="form-label">Keterangan</label><input class="form-input" id="mutNote" type="text" placeholder="Contoh: Setoran tunai mingguan..."></div>
+            <button class="btn btn-primary" style="width:100%; padding:14px;" id="savMutBtn" onclick="saveMutasiForm()">Proses Setoran Bank</button>
+          </div>
+          <div class="card" style="padding:0;">
+            <div class="form-section-title" style="margin: 24px 24px 16px;">Log Setoran Bank Terakhir</div>
+            <div id="mutasiLogContainer"></div>
           </div>
         </div>
       </div>
@@ -1503,7 +1569,7 @@
 
 
   <!-- MODAL: CLOSING MONTH -->
-  <div id="closingMonthModal" class="sidebar-overlay"
+  <div id="closingMonthModal" class="modal-overlay"
     style="display:none; justify-content:center; align-items:center; z-index:1200;">
     <div class="card" style="max-width:440px; width: 100%; padding:32px; margin: 0 16px;">
       <h3 style="margin-bottom:16px; color: var(--text); display:flex; align-items:center;">
@@ -1555,7 +1621,7 @@
 
 
   <!-- MODAL: CONFIRMATION -->
-  <div id="customConfirmModal" class="sidebar-overlay"
+  <div id="customConfirmModal" class="modal-overlay"
     style="display:none; justify-content:center; align-items:center; z-index:9999;">
     <div class="card" style="max-width:400px; text-align:center; padding:32px; margin: 0 16px;">
       <div style="margin-bottom:20px; color:var(--gold);">
@@ -1575,7 +1641,7 @@
   </div>
 
   <!-- MODAL: EDIT TRANSAKSI -->
-  <div id="editTransModal" class="sidebar-overlay"
+  <div id="editTransModal" class="modal-overlay"
     style="display:none; justify-content:center; align-items:center; z-index:1200;">
     <div class="card"
       style="max-width:500px; width: 100%; padding:32px; margin: 0 16px; max-height:90vh; overflow-y:auto;">
@@ -1619,9 +1685,15 @@
       <div class="form-group" id="editTransSourceGroup" style="display:none;">
         <label class="form-label">Sumber Kas</label>
         <select class="form-select" id="editTransSource">
-          <option value="Daerah">Daerah</option>
-          <option value="Kas Jemaat">Kas Jemaat</option>
-          <option value="Pembangunan">Pembangunan</option>
+          <option value="Kas Jemaat (Di Tangan)">Kas Jemaat (Di Tangan)</option>
+          <option value="Kas Jemaat (Bank)">Kas Jemaat (Bank)</option>
+          <option value="Kas Pembangunan (Di Tangan)">Kas Pembangunan (Di Tangan)</option>
+          <option value="Kas Pembangunan (Bank)">Kas Pembangunan (Bank)</option>
+          <option value="Kas Daerah (Di Tangan)">Kas Daerah (Di Tangan)</option>
+          <option value="Kas Daerah (Bank)">Kas Daerah (Bank)</option>
+          <option value="Daerah">Daerah (Legacy)</option>
+          <option value="Kas Jemaat">Kas Jemaat (Legacy)</option>
+          <option value="Pembangunan">Pembangunan (Legacy)</option>
         </select>
       </div>
 
@@ -1645,6 +1717,13 @@
         <div style="font-size:11px; color:var(--text3); margin-top:4px;">Mengunggah foto baru akan menimpa foto
           sebelumnya.</div>
       </div>
+      <div class="form-group" id="editTransDestinationGroup" style="display:none;">
+        <label class="form-label">Tujuan Dana Masuk</label>
+        <select class="form-select" id="editTransDestination">
+          <option value="BANK">Transfer Rekening (Di Bank)</option>
+          <option value="CASH">Uang Tunai / Cash (Di Tangan)</option>
+        </select>
+      </div>
       <div class="form-group"><label class="form-label">Keterangan</label><input class="form-input" id="editTransNote"
           type="text"></div>
       <div style="display:flex; gap:12px; justify-content:flex-end; margin-top: 32px;">
@@ -1655,7 +1734,7 @@
   </div>
 
   <!-- MODAL: IMAGE VIEWER (Gallery) -->
-  <div id="receiptPhotoModal" class="sidebar-overlay"
+  <div id="receiptPhotoModal" class="modal-overlay"
     style="display:none; justify-content:center; align-items:center; z-index:1300;" onclick="closePhotoModal()">
     <div class="card"
       style="position:relative; max-width:90vw; max-height:90vh; display:flex; flex-direction:column; padding:16px; align-items:center;"
@@ -1713,8 +1792,24 @@
 
     let currentIncPhotos = [];
     let currentExpPhotos = [];
+    let currentMutPhotos = [];
     let currentEditPhotos = [];
     let currentReportData = null;
+
+    function parseRupiah(str) {
+      if (!str) return 0;
+      let val = String(str).replace(/[^0-9]/g, '');
+      return parseFloat(val) || 0;
+    }
+
+    function formatRupiah(el) {
+      let val = el.value.replace(/[^0-9]/g, '');
+      if (val) {
+          el.value = parseInt(val).toLocaleString('id-ID');
+      } else {
+          el.value = '';
+      }
+    }
 
     function getActiveApiUrl() { const savedUrl = localStorage.getItem('BISDAC_api_url'); return (savedUrl && savedUrl.trim() !== '') ? savedUrl.trim() : DEFAULT_API_URL; }
     function printUnitReport(searchTermOverride = null) {
@@ -1835,7 +1930,15 @@
       return data;
     }
 
-    function doLogout() { clearToken(); sessionStorage.removeItem('BISDAC_user'); sessionStorage.removeItem('BISDAC_token'); window.location.reload(); }
+    async function doLogout() { 
+      if (typeof showCustomConfirm === 'function') {
+        const yes = await showCustomConfirm('Konfirmasi', 'Apakah Anda yakin ingin keluar?');
+        if (!yes) return;
+      } else {
+        if (!confirm('Apakah Anda yakin ingin keluar?')) return;
+      }
+      clearToken(); sessionStorage.removeItem('BISDAC_user'); sessionStorage.removeItem('BISDAC_token'); window.location.reload(); 
+    }
     function getCurrentUser() { const u = sessionStorage.getItem('BISDAC_user'); return u ? JSON.parse(u) : null; }
 
     function loginAsPublic() {
@@ -2157,9 +2260,9 @@
       const files = Array.from(event.target.files);
       if (files.length === 0) return;
       const MAX_CHARS = 48000;
-      let targetArray = type === 'income' ? currentIncPhotos : (type === 'expense' ? currentExpPhotos : currentEditPhotos);
-      let targetGridId = type === 'income' ? 'incPhotoGrid' : (type === 'expense' ? 'expPhotoGrid' : 'editPhotoGrid');
-      let targetUploadBoxId = type === 'income' ? 'incPhotoUploadBox' : (type === 'expense' ? 'expPhotoUploadBox' : 'editPhotoUploadBox');
+      let targetArray = type === 'income' ? currentIncPhotos : (type === 'expense' ? currentExpPhotos : (type === 'mutasi' ? currentMutPhotos : currentEditPhotos));
+      let targetGridId = type === 'income' ? 'incPhotoGrid' : (type === 'expense' ? 'expPhotoGrid' : (type === 'mutasi' ? 'mutPhotoGrid' : 'editPhotoGrid'));
+      let targetUploadBoxId = type === 'income' ? 'incPhotoUploadBox' : (type === 'expense' ? 'expPhotoUploadBox' : (type === 'mutasi' ? 'mutPhotoUploadBox' : 'editPhotoUploadBox'));
 
       if (targetArray.length + files.length > 3) {
         notify('Maksimal 3 foto per transaksi!', 'error');
@@ -2251,6 +2354,7 @@
     function resetPhotoUpload(type) {
       if (type === 'income') { currentIncPhotos = []; renderPhotoPreview([], 'incPhotoGrid', 'incPhotoUploadBox', 'income'); document.getElementById('incPhotoUpload').value = ''; }
       else if (type === 'expense') { currentExpPhotos = []; renderPhotoPreview([], 'expPhotoGrid', 'expPhotoUploadBox', 'expense'); document.getElementById('expPhotoUpload').value = ''; }
+      else if (type === 'mutasi') { currentMutPhotos = []; renderPhotoPreview([], 'mutPhotoGrid', 'mutPhotoUploadBox', 'mutasi'); document.getElementById('mutPhotoUpload').value = ''; }
       else if (type === 'edit') { currentEditPhotos = []; renderPhotoPreview([], 'editPhotoGrid', 'editPhotoUploadBox', 'edit'); document.getElementById('editTransPhoto').value = ''; }
     }
 
@@ -2666,9 +2770,69 @@
           cachedIncome.forEach(x => { if (hidePhoto(x)) x.receipt_photo = ''; });
           cachedExpense.forEach(x => { if (hidePhoto(x)) x.receipt_photo = ''; });
         }
-
+        calculateExtendedBalances();
         updateGlobalApprovalBadge();
       } catch (e) { }
+    }
+
+    function calculateExtendedBalances() {
+      let calcDaerah = cachedSaldo.initDaerah || 0; let calcJemaat = cachedSaldo.initJemaat || 0; let calcBangun = cachedSaldo.initBangun || 0;
+      let bankDaerah = calcDaerah; let bankJemaat = calcJemaat; let bankBangun = calcBangun;
+      let tanganDaerah = 0; let tanganJemaat = 0; let tanganBangun = 0;
+
+      (cachedIncome || []).forEach(i => { 
+        calcDaerah += (i.alloc_daerah || 0); calcJemaat += (i.alloc_jemaat || 0); calcBangun += (i.alloc_bangun || 0); 
+        const isCashInc = (i.note || '').includes('[CASH]');
+        if (isCashInc) {
+            tanganDaerah += (i.alloc_daerah || 0); tanganJemaat += (i.alloc_jemaat || 0); tanganBangun += (i.alloc_bangun || 0);
+        } else {
+            bankDaerah += (i.alloc_daerah || 0); bankJemaat += (i.alloc_jemaat || 0); bankBangun += (i.alloc_bangun || 0);
+        }
+      });
+
+      (cachedExpense || []).forEach(e => { 
+        const isMutasi = e.department === 'Mutasi Kas / Setor Bank';
+        let srcBase = e.source_balance;
+        
+        // Normalize any explicit labels that were accidentally saved
+        if (srcBase === 'Kas Daerah (Bank)') { srcBase = 'Daerah'; e.note = (e.note || '') + ' [BANK]'; }
+        if (srcBase === 'Kas Daerah (Di Tangan)') { srcBase = 'Daerah'; e.note = (e.note || '') + ' [CASH]'; }
+        if (srcBase === 'Kas Jemaat (Bank)') { srcBase = 'Kas Jemaat'; e.note = (e.note || '') + ' [BANK]'; }
+        if (srcBase === 'Kas Jemaat (Di Tangan)') { srcBase = 'Kas Jemaat'; e.note = (e.note || '') + ' [CASH]'; }
+        if (srcBase === 'Kas Pembangunan (Bank)') { srcBase = 'Pembangunan'; e.note = (e.note || '') + ' [BANK]'; }
+        if (srcBase === 'Kas Pembangunan (Di Tangan)') { srcBase = 'Pembangunan'; e.note = (e.note || '') + ' [CASH]'; }
+
+        const isCashExp = (e.note || '').includes('[CASH]');
+
+        if (srcBase === 'Daerah') { 
+            if (!isMutasi) { 
+                calcDaerah -= e.amount; 
+                if (isCashExp) tanganDaerah -= e.amount; else bankDaerah -= e.amount;
+            } else { tanganDaerah -= e.amount; bankDaerah += e.amount; }
+        }
+        else if (srcBase === 'Kas Jemaat') { 
+            if (!isMutasi) { 
+                calcJemaat -= e.amount; 
+                if (isCashExp) tanganJemaat -= e.amount; else bankJemaat -= e.amount;
+            } else { tanganJemaat -= e.amount; bankJemaat += e.amount; }
+        }
+        else if (srcBase === 'Pembangunan') { 
+            if (!isMutasi) { 
+                calcBangun -= e.amount; 
+                if (isCashExp) tanganBangun -= e.amount; else bankBangun -= e.amount;
+            } else { tanganBangun -= e.amount; bankBangun += e.amount; }
+        }
+      });
+
+      cachedSaldo.daerah = calcDaerah;
+      cachedSaldo.jemaat = calcJemaat;
+      cachedSaldo.bangun = calcBangun;
+      cachedSaldo.bankDaerah = bankDaerah;
+      cachedSaldo.bankJemaat = bankJemaat;
+      cachedSaldo.bankBangun = bankBangun;
+      cachedSaldo.tanganDaerah = tanganDaerah;
+      cachedSaldo.tanganJemaat = tanganJemaat;
+      cachedSaldo.tanganBangun = tanganBangun;
     }
 
     function updateGlobalApprovalBadge() {
@@ -2828,8 +2992,51 @@
       const historicalExp = (cachedExpense || []).filter(x => new Date(x.date) <= targetDateEnd);
 
       let calcDaerah = cachedSaldo.initDaerah || 0; let calcJemaat = cachedSaldo.initJemaat || 0; let calcBangun = cachedSaldo.initBangun || 0;
-      historicalInc.forEach(i => { calcDaerah += (i.alloc_daerah || 0); calcJemaat += (i.alloc_jemaat || 0); calcBangun += (i.alloc_bangun || 0); });
-      historicalExp.forEach(e => { if (e.source_balance === 'Daerah') calcDaerah -= e.amount; else if (e.source_balance === 'Kas Jemaat') calcJemaat -= e.amount; else if (e.source_balance === 'Pembangunan') calcBangun -= e.amount; });
+      let bankDaerah = calcDaerah; let bankJemaat = calcJemaat; let bankBangun = calcBangun;
+      let tanganDaerah = 0; let tanganJemaat = 0; let tanganBangun = 0;
+
+      historicalInc.forEach(i => { 
+        calcDaerah += (i.alloc_daerah || 0); calcJemaat += (i.alloc_jemaat || 0); calcBangun += (i.alloc_bangun || 0); 
+        const isCashInc = (i.note || '').includes('[CASH]');
+        if (isCashInc) {
+            tanganDaerah += (i.alloc_daerah || 0); tanganJemaat += (i.alloc_jemaat || 0); tanganBangun += (i.alloc_bangun || 0);
+        } else {
+            bankDaerah += (i.alloc_daerah || 0); bankJemaat += (i.alloc_jemaat || 0); bankBangun += (i.alloc_bangun || 0);
+        }
+      });
+      historicalExp.forEach(e => { 
+        const isMutasi = e.department === 'Mutasi Kas / Setor Bank';
+        let srcBase = e.source_balance;
+        
+        // Normalize any explicit labels
+        if (srcBase === 'Kas Daerah (Bank)') { srcBase = 'Daerah'; e.note = (e.note || '') + ' [BANK]'; }
+        if (srcBase === 'Kas Daerah (Di Tangan)') { srcBase = 'Daerah'; e.note = (e.note || '') + ' [CASH]'; }
+        if (srcBase === 'Kas Jemaat (Bank)') { srcBase = 'Kas Jemaat'; e.note = (e.note || '') + ' [BANK]'; }
+        if (srcBase === 'Kas Jemaat (Di Tangan)') { srcBase = 'Kas Jemaat'; e.note = (e.note || '') + ' [CASH]'; }
+        if (srcBase === 'Kas Pembangunan (Bank)') { srcBase = 'Pembangunan'; e.note = (e.note || '') + ' [BANK]'; }
+        if (srcBase === 'Kas Pembangunan (Di Tangan)') { srcBase = 'Pembangunan'; e.note = (e.note || '') + ' [CASH]'; }
+
+        const isCashExp = (e.note || '').includes('[CASH]');
+
+        if (srcBase === 'Daerah') { 
+            if (!isMutasi) { 
+                calcDaerah -= e.amount; 
+                if (isCashExp) tanganDaerah -= e.amount; else bankDaerah -= e.amount;
+            } else { tanganDaerah -= e.amount; bankDaerah += e.amount; }
+        }
+        else if (srcBase === 'Kas Jemaat') { 
+            if (!isMutasi) { 
+                calcJemaat -= e.amount; 
+                if (isCashExp) tanganJemaat -= e.amount; else bankJemaat -= e.amount;
+            } else { tanganJemaat -= e.amount; bankJemaat += e.amount; }
+        }
+        else if (srcBase === 'Pembangunan') { 
+            if (!isMutasi) { 
+                calcBangun -= e.amount; 
+                if (isCashExp) tanganBangun -= e.amount; else bankBangun -= e.amount;
+            } else { tanganBangun -= e.amount; bankBangun += e.amount; }
+        }
+      });
 
       const calcTotal = calcDaerah + calcJemaat + calcBangun; const saldoAccrued = calcTotal - calcDaerah;
       const totalIn = filteredInc.reduce((s, x) => s + x.amount, 0); const totalOut = filteredExp.reduce((s, x) => s + x.amount, 0);
@@ -2860,6 +3067,10 @@
     <div class="${clkCls}" ${oClick('bersih')}>
       <div class="stat-header"><div class="stat-label">Kas Bersih (Non-Daerah)</div><div class="stat-icon c-moss">${safeIcon('log', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-cyan, #00d2ff)">${fmt(saldoAccrued)}</div>
+      <div style="font-size: 11px; margin-top: 8px; color: var(--text3); border-top: 1px solid var(--glass-border); padding-top: 6px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>Di Tangan:</span> <strong style="color:var(--text2)">${fmt(tanganJemaat + tanganBangun)}</strong></div>
+        <div style="display:flex; justify-content:space-between"><span>Di Bank:</span> <strong style="color:var(--text2)">${fmt(bankJemaat + bankBangun)}</strong></div>
+      </div>
     </div>`}
     <div class="${clkCls}" ${oClick('in')}>
       <div class="stat-header"><div class="stat-label">Pemasukan Periode</div><div class="stat-icon c-green">${safeIcon('trendUp', 'lucide-lg')}</div></div>
@@ -2872,14 +3083,26 @@
     <div class="${clkCls}" ${oClick('jemaat')}>
       <div class="stat-header"><div class="stat-label">Kas Jemaat</div><div class="stat-icon c-gold">${safeIcon('church', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-gold, #ffd166)">${fmt(calcJemaat)}</div>
+      <div style="font-size: 11px; margin-top: 8px; color: var(--text3); border-top: 1px solid var(--glass-border); padding-top: 6px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>Di Tangan:</span> <strong style="color:var(--accent-gold, #ffd166)">${fmt(tanganJemaat)}</strong></div>
+        <div style="display:flex; justify-content:space-between"><span>Di Bank:</span> <strong style="color:var(--accent-gold, #ffd166)">${fmt(bankJemaat)}</strong></div>
+      </div>
     </div>
     ${isPublik ? '' : `<div class="${clkCls}" ${oClick('daerah')}>
       <div class="stat-header"><div class="stat-label">Kas Daerah</div><div class="stat-icon c-teal">${safeIcon('mappin', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-purple, #9d4edd)">${fmt(calcDaerah)}</div>
+      <div style="font-size: 11px; margin-top: 8px; color: var(--text3); border-top: 1px solid var(--glass-border); padding-top: 6px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>Di Tangan:</span> <strong style="color:var(--accent-purple, #9d4edd)">${fmt(tanganDaerah)}</strong></div>
+        <div style="display:flex; justify-content:space-between"><span>Di Bank:</span> <strong style="color:var(--accent-purple, #9d4edd)">${fmt(bankDaerah)}</strong></div>
+      </div>
     </div>`}
     <div class="${clkCls}" ${oClick('bangun')}>
       <div class="stat-header"><div class="stat-label">Total Dana Pembangunan</div><div class="stat-icon c-teal">${safeIcon('hammer', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-blue, #3a86ff)">${fmt(calcBangun)}</div>
+      <div style="font-size: 11px; margin-top: 8px; color: var(--text3); border-top: 1px solid var(--glass-border); padding-top: 6px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>Di Tangan:</span> <strong style="color:var(--accent-blue, #3a86ff)">${fmt(tanganBangun)}</strong></div>
+        <div style="display:flex; justify-content:space-between"><span>Di Bank:</span> <strong style="color:var(--accent-blue, #3a86ff)">${fmt(bankBangun)}</strong></div>
+      </div>
       <div class="stat-sub" style="margin-top: 12px;">
         <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 2px; font-weight: 700; color: var(--text-muted, var(--accent-gold, #ffd166));"><span>TARGET:</span><span style="color: var(--accent-gold, #ffd166, var(--teal-pop));">${persentaseBangun.toFixed(2)}%</span></div>
         <div style="font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text-muted, var(--accent-gold, #ffd166)); word-break: break-word; line-height: 1.1;">${fmt(targetPembangunan).toUpperCase()}</div>
@@ -3015,17 +3238,30 @@
     function updateIncomeAlloc() {
       const type = document.getElementById('incType').value; let allocD = 0, allocJ = 0, allocB = 0;
       if (type === 'Perpuluhan') {
-        const amtP = parseFloat(document.getElementById('incAmtPerpuluhan').value) || 0; const amtT = parseFloat(document.getElementById('incAmtTerpadu').value) || 0; const amtKJ = parseFloat(document.getElementById('incAmtKhususJemaat').value) || 0; const amtKD = parseFloat(document.getElementById('incAmtKhususDaerah').value) || 0;
+        const amtP = parseRupiah(document.getElementById('incAmtPerpuluhan').value); const amtT = parseRupiah(document.getElementById('incAmtTerpadu').value); const amtKJ = parseRupiah(document.getElementById('incAmtKhususJemaat').value); const amtKD = parseRupiah(document.getElementById('incAmtKhususDaerah').value);
         const getPct = (name) => { const cfg = getIncomeTypeConfig(name); return cfg ? { d: cfg.pct_daerah, j: cfg.pct_jemaat, b: cfg.pct_bangun } : { d: 0, j: 0, b: 0 }; };
         const cp = getPct('Perpuluhan'), ct = getPct('Terpadu'), ckj = getPct('Khusus Jemaat'), ckd = getPct('Khusus Daerah');
         allocD = (amtP * cp.d / 100) + (amtT * ct.d / 100) + (amtKJ * ckj.d / 100) + (amtKD * ckd.d / 100);
         allocJ = (amtP * cp.j / 100) + (amtT * ct.j / 100) + (amtKJ * ckj.j / 100) + (amtKD * ckd.j / 100);
         allocB = (amtP * cp.b / 100) + (amtT * ct.b / 100) + (amtKJ * ckj.b / 100) + (amtKD * ckd.b / 100);
       } else {
-        const amount = parseFloat(document.getElementById('incAmount').value) || 0; const cfg = getIncomeTypeConfig(type);
+        const amount = parseRupiah(document.getElementById('incAmount').value); const cfg = getIncomeTypeConfig(type);
         if (cfg) { allocD = amount * cfg.pct_daerah / 100; allocJ = amount * cfg.pct_jemaat / 100; allocB = amount * cfg.pct_bangun / 100; }
       }
       document.getElementById('allocDaerahVal').textContent = fmt(allocD); document.getElementById('allocJemaatVal').textContent = fmt(allocJ); document.getElementById('allocBangunVal').textContent = fmt(allocB);
+    }
+
+    function isReceiptDuplicate(receipt_no, exclude_id = null) {
+      if (!receipt_no || receipt_no === '-') return false;
+      const allTransactions = [...(cachedIncome || []), ...(cachedExpense || [])];
+      return allTransactions.some(x => {
+         if (String(x.receipt_no).trim().toLowerCase() !== String(receipt_no).trim().toLowerCase()) return false;
+         if (exclude_id) {
+           const xId = x.transaction_id || x.receipt_no;
+           if (String(xId) === String(exclude_id)) return false;
+         }
+         return true;
+      });
     }
 
     async function saveIncomeForm() {
@@ -3038,21 +3274,26 @@
       const receipt = document.getElementById('incReceipt').value.trim(); const note = document.getElementById('incNote').value.trim();
 
       if (!date || !type || !receipt) { notify('Lengkapi data!', 'error'); return; }
+      if (isReceiptDuplicate(receipt)) { notify('No. Kuitansi sudah ada! Gunakan nomor lain.', 'error'); return; }
+
+      const dest = document.getElementById('incDestination') ? document.getElementById('incDestination').value : 'CASH';
+      let finalNote = note;
+      if (dest === 'BANK') finalNote = '[BANK] ' + note;
 
       const btn = document.getElementById('savIncBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
       try {
         if (type === 'Perpuluhan') {
           const items = [];
-          ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'].forEach(k => { const val = parseFloat(document.getElementById(`incAmt${k.replace(/\s/g, '')}`).value) || 0; if (val > 0) items.push({ income_type: k, amount: val, note }); });
+          ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'].forEach(k => { const val = parseRupiah(document.getElementById(`incAmt${k.replace(/\s/g, '')}`).value); if (val > 0) items.push({ income_type: k, amount: val, note: finalNote }); });
           if (items.length === 0) throw new Error('Isi nominal perpuluhan!');
           await apiPost('saveBulkIncome', { date, unit_name: unit || '-', receipt_no: receipt, items, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
         } else {
-          const amount = parseFloat(document.getElementById('incAmount').value) || 0; if (amount <= 0) throw new Error('Isi nominal!');
+          const amount = parseRupiah(document.getElementById('incAmount').value); if (amount <= 0) throw new Error('Isi nominal!');
           let pctD = 0; let pctJ = 100; let pctB = 0;
           const tLower = type.toLowerCase();
           if (type === 'Khusus Daerah' || type === 'Perpuluhan') { pctD = 100; pctJ = 0; }
           else if (type === 'Terpadu' || tLower.includes('sabat')) { pctD = 50; pctJ = 50; }
-          await apiPost('saveIncome', { date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount, note, alloc_pct_daerah: pctD, alloc_pct_jemaat: pctJ, alloc_pct_bangun: pctB, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
+          await apiPost('saveIncome', { date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount, note: finalNote, alloc_pct_daerah: pctD, alloc_pct_jemaat: pctJ, alloc_pct_bangun: pctB, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
         }
         notify('Berhasil disimpan!', 'success');
 
@@ -3070,10 +3311,18 @@
       if (list.length === 0) {
         document.getElementById('incomeLogContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Kosong.</div>';
       } else {
-        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.income_type, false)}">${x.income_type}</span><br><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${getPhotoBtnIcon(x)}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('');
+        let desktopHtml = list.map(x => {
+          let nText = x.note || '-';
+          let bBadge = '';
+          if (nText.startsWith('[BANK] ')) { nText = nText.replace('[BANK] ', ''); bBadge = '<span class="badge badge-green" style="font-size:10px; padding:2px 4px; margin-right:4px;">VIA BANK</span>'; }
+          return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.income_type, false)}">${x.income_type}</span><br><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (bBadge + nText)}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${getPhotoBtnIcon(x)}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`;
+        }).join('');
 
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
           let photoBtn = getPhotoBtnText(x);
+          let nText = x.note || '-';
+          let bBadge = '';
+          if (nText.startsWith('[BANK] ')) { nText = nText.replace('[BANK] ', ''); bBadge = '<span class="badge badge-green" style="font-size:10px; padding:2px 4px; margin-right:4px;">VIA BANK</span>'; }
           return `
           <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
@@ -3086,7 +3335,7 @@
             <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
               <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
               <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.income_type}</strong>
-              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${isAnon ? '***' : (x.note || '-')}</span>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${isAnon ? '***' : (bBadge + nText)}</span>
             </div>
             <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
               ${photoBtn}
@@ -3106,10 +3355,29 @@
       }
     }
 
+    function getSaldoForSource(src) {
+        if (src === 'Daerah|BANK') return cachedSaldo.bankDaerah;
+        if (src === 'Daerah|CASH') return cachedSaldo.tanganDaerah;
+        if (src === 'Kas Jemaat|BANK') return cachedSaldo.bankJemaat;
+        if (src === 'Kas Jemaat|CASH') return cachedSaldo.tanganJemaat;
+        if (src === 'Pembangunan|BANK') return cachedSaldo.bankBangun;
+        if (src === 'Pembangunan|CASH') return cachedSaldo.tanganBangun;
+        if (src === 'Daerah') return cachedSaldo.daerah;
+        if (src === 'Kas Jemaat') return cachedSaldo.jemaat;
+        if (src === 'Pembangunan') return cachedSaldo.bangun;
+        return 0;
+    }
+
     function checkSaldo() {
-      const src = document.getElementById('expSource').value; const amount = parseFloat(document.getElementById('expAmount').value) || 0;
-      let avail = src === 'Daerah' ? cachedSaldo.daerah : (src === 'Kas Jemaat' ? cachedSaldo.jemaat : cachedSaldo.bangun);
+      const src = document.getElementById('expSource').value; const amount = parseRupiah(document.getElementById('expAmount').value);
+      let avail = Math.round(getSaldoForSource(src));
       document.getElementById('saldoTersedia').textContent = fmt(avail); document.getElementById('saldoWarning').style.display = amount > avail ? 'flex' : 'none';
+    }
+
+    function checkMutSaldo() {
+      const src = document.getElementById('mutSource').value; const amount = parseRupiah(document.getElementById('mutAmount').value);
+      let avail = Math.round(getSaldoForSource(src));
+      document.getElementById('mutSaldoTersedia').textContent = fmt(avail); document.getElementById('mutSaldoWarning').style.display = amount > avail ? 'flex' : 'none';
     }
 
     async function saveExpenseForm() {
@@ -3118,12 +3386,19 @@
         const d = new Date(date);
         if (checkMonthClosed(d.getMonth() + 1, d.getFullYear())) { notify('Bulan ini sudah ditutup. Tidak dapat menambah transaksi.', 'error'); return; }
       }
-      const src = document.getElementById('expSource').value; const receipt = document.getElementById('expReceipt').value.trim();
-      const amount = parseFloat(document.getElementById('expAmount').value) || 0; const note = document.getElementById('expNote').value.trim();
+      const rawSrc = document.getElementById('expSource').value; 
+      const receipt = document.getElementById('expReceipt').value.trim();
+      const amount = parseRupiah(document.getElementById('expAmount').value); 
+      let note = document.getElementById('expNote').value.trim();
       const receiver = document.getElementById('expReceiver').value.trim();
 
+      const [src, type] = rawSrc.includes('|') ? rawSrc.split('|') : [rawSrc, ''];
+      if (type === 'BANK' && !note.includes('[BANK]')) note = (note + ' [BANK]').trim();
+      if (type === 'CASH' && !note.includes('[CASH]')) note = (note + ' [CASH]').trim();
+
       if (!date || !dept || !receipt || amount <= 0) { notify('Lengkapi data!', 'error'); return; }
-      let avail = src === 'Daerah' ? cachedSaldo.daerah : (src === 'Kas Jemaat' ? cachedSaldo.jemaat : cachedSaldo.bangun);
+      if (isReceiptDuplicate(receipt)) { notify('No. Bukti/Kuitansi sudah ada! Gunakan nomor lain.', 'error'); return; }
+      let avail = Math.round(getSaldoForSource(rawSrc));
       if (amount > avail) { notify('Saldo tidak cukup!', 'error'); return; }
 
       const btn = document.getElementById('savExpBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
@@ -3134,6 +3409,36 @@
         resetPhotoUpload('expense');
         await syncAllData(); renderExpenseList();
       } catch (err) { notify(err.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = `Posting Pengeluaran`; }
+    }
+
+    async function saveMutasiForm() {
+      const date = document.getElementById('mutDate').value; 
+      const dept = 'Mutasi Kas / Setor Bank';
+      if (date) {
+        const d = new Date(date);
+        if (checkMonthClosed(d.getMonth() + 1, d.getFullYear())) { notify('Bulan ini sudah ditutup. Tidak dapat mutasi.', 'error'); return; }
+      }
+      const rawSrc = document.getElementById('mutSource').value; 
+      const receipt = document.getElementById('mutReceipt').value.trim();
+      const amount = parseRupiah(document.getElementById('mutAmount').value); 
+      let note = document.getElementById('mutNote').value.trim();
+      const receiver = 'Kas Utama (Bank)';
+
+      const [src, type] = rawSrc.includes('|') ? rawSrc.split('|') : [rawSrc, ''];
+
+      if (!date || !receipt || amount <= 0) { notify('Lengkapi data!', 'error'); return; }
+      if (isReceiptDuplicate(receipt)) { notify('No. Bukti Setor sudah ada!', 'error'); return; }
+      let avail = Math.round(getSaldoForSource(rawSrc));
+      if (amount > avail) { notify('Saldo tidak cukup!', 'error'); return; }
+
+      const btn = document.getElementById('savMutBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
+      try {
+        await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentMutPhotos[0] || '', receipt_photo_base64_2: currentMutPhotos[1] || '', receipt_photo_base64_3: currentMutPhotos[2] || '', nama_penerima: receiver });
+        notify('Berhasil Setor ke Bank!', 'success');
+        document.getElementById('mutReceipt').value = ''; document.getElementById('mutAmount').value = ''; document.getElementById('mutNote').value = '';
+        resetPhotoUpload('mutasi');
+        await syncAllData(); renderMutasiList();
+      } catch (err) { notify(err.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = `Proses Setoran Bank`; }
     }
 
     function renderExpenseList() {
@@ -3172,6 +3477,52 @@
           <div class="desktop-only table-wrap" style="border:none;">
             <table class="table-log">
               <thead><tr><th class="fit-col">Tanggal</th><th>Bidang</th><th class="fit-col">Bukti</th><th class="fit-col" style="text-align:right">Nominal</th></tr></thead>
+              <tbody>${desktopHtml}</tbody>
+            </table>
+          </div>
+          <div class="mobile-only" style="padding-bottom:12px;">${mobileHtml}</div>
+        `;
+      }
+    }
+
+    function renderMutasiList() {
+      const perms = getRolePerms(currentUser.role);
+      const isAnon = perms.isAnonymous;
+      const resultDiv = document.getElementById('mutasiLogContainer');
+      if (!resultDiv) return;
+      let list = (cachedExpense || []).filter(x => x.department === 'Mutasi Kas / Setor Bank');
+      list.sort((a, b) => new Date(b.date) - new Date(a.date));
+      list = list.slice(0, 10);
+      if (list.length === 0) {
+        resultDiv.innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Belum ada mutasi setoran bank.</div>';
+      } else {
+        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${getPhotoBtnIcon(x)}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('');
+        
+        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
+          let photoBtn = getPhotoBtnText(x);
+          return `
+          <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
+              <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
+                <span class="badge badge-blue" style="font-size:10px; padding:2px 7px;">MUT</span>
+                <span style="font-size:11px; color:var(--text3); font-family:monospace;">${x.receipt_no}</span>
+              </div>
+              <div class="amount-pos" style="font-weight: 700; font-size: 15px; white-space:nowrap;">+${fmt(x.amount)}</div>
+            </div>
+            <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
+              <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${isAnon ? '***' : (x.note || '-')}</span>
+            </div>
+            <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+              ${photoBtn}
+            </div>
+          </div>`;
+        }).join('') + '</div>';
+
+        resultDiv.innerHTML = `
+          <div class="desktop-only table-wrap" style="border:none;">
+            <table class="table-log">
+              <thead><tr><th class="fit-col">Tanggal</th><th>Keterangan</th><th class="fit-col">Bukti</th><th class="fit-col" style="text-align:right">Nominal</th></tr></thead>
               <tbody>${desktopHtml}</tbody>
             </table>
           </div>
@@ -3940,7 +4291,7 @@
       const month = document.getElementById('closingMonthSelect').value;
       const year = document.getElementById('closingYearInput').value;
       const key = `closed_${year}_${month}`;
-      const isClosed = systemConfig[key] === 'true';
+      const isClosed = String(systemConfig[key]) === 'true';
 
       const statusEl = document.getElementById('closingModalStatus');
       const btn = document.getElementById('btnToggleClosingModal');
@@ -3960,7 +4311,7 @@
       const month = document.getElementById('closingMonthSelect').value;
       const year = document.getElementById('closingYearInput').value;
       const key = `closed_${year}_${month}`;
-      const isClosed = systemConfig[key] === 'true';
+      const isClosed = String(systemConfig[key]) === 'true';
 
       const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
       const monthName = mNames[parseInt(month)];
@@ -3986,7 +4337,7 @@
 
     function checkMonthClosed(month, year) {
       if (!month || !year) return false;
-      return systemConfig[`closed_${year}_${month}`] === 'true';
+      return String(systemConfig[`closed_${year}_${month}`]) === 'true';
     }
 
     function renderReportView() {
@@ -4480,11 +4831,15 @@
             }
           }
 
+          let nText = x.note || '-';
+          let bBadge = '';
+          if (nText.startsWith('[BANK] ')) { nText = nText.replace('[BANK] ', ''); bBadge = '<span class="badge badge-green" style="font-size:10px; padding:2px 4px; margin-right:4px;">VIA BANK</span>'; }
+
           return `
       <tr>
         <td class="fit-col">${fmtDate(x.date)}${approveBadge}</td>
         <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
-        <td><span class="badge ${getCatBadge(x.income_type || x.department, x.type !== 'income')}">${x.income_type || x.department || '-'}</span><br><span style="font-size:12px; color:var(--text4)">${shouldHide ? '***' : (x.note || '-')}</span></td>
+        <td><span class="badge ${getCatBadge(x.income_type || x.department, x.type !== 'income')}">${x.income_type || x.department || '-'}</span><br><span style="font-size:12px; color:var(--text4)">${shouldHide ? '***' : (bBadge + nText)}</span></td>
         <td class="fit-col"><span class="badge badge-gray">${x.receipt_no || '-'}</span> ${photoBtn}</td>
         <td>${pihak}</td>
         <td class="fit-col ${x.style}" style="text-align:right; font-weight:800;">${x.sign}${fmt(x.amount)}</td>
@@ -4565,7 +4920,7 @@
               <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
               <span style="color:var(--text4)">Pihak</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${pihak}</strong>
               <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.income_type || x.department || '-'}</strong>
-              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${shouldHide ? '***' : (x.note || '-')}</span>
+              <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${shouldHide ? '***' : (() => { let nT = x.note || '-'; let bB = ''; if(nT.startsWith('[BANK] ')) { nT = nT.replace('[BANK] ', ''); bB = '<span class="badge badge-green" style="font-size:10px; padding:2px 4px; margin-right:4px;">VIA BANK</span>'; } return bB + nT; })()}</span>
             </div>
             <div style="display:flex; gap:6px; margin-top:12px; width:100%;">
               ${approveBtn}
@@ -4644,7 +4999,16 @@
       if (document.getElementById('editTransModal')) document.getElementById('editTransModal').style.display = 'flex';
       if (document.getElementById('editTransDate')) document.getElementById('editTransDate').value = fmtInputDate(trx.date);
       if (document.getElementById('editTransReceipt')) document.getElementById('editTransReceipt').value = trx.receipt_no || '';
-      if (document.getElementById('editTransNote')) document.getElementById('editTransNote').value = trx.note || '';
+      if (document.getElementById('editTransNote')) {
+        let nT = trx.note || '';
+        let dest = 'CASH';
+        if (nT.startsWith('[BANK] ')) {
+          nT = nT.replace('[BANK] ', '');
+          dest = 'BANK';
+        }
+        document.getElementById('editTransNote').value = nT;
+        if (document.getElementById('editTransDestination')) document.getElementById('editTransDestination').value = dest;
+      }
 
       const catSelect = document.getElementById('editTransCat');
       const subCatSelect = document.getElementById('editTransSubCat');
@@ -4655,6 +5019,7 @@
       currentEditTransaction = { type, id: trx.transaction_id || trx.receipt_no, old_receipt_no: trx.receipt_no, original: trx };
 
       if (type === 'income') {
+        if (document.getElementById('editTransDestinationGroup')) document.getElementById('editTransDestinationGroup').style.display = 'block';
         if (document.getElementById('editTransCatLabel')) document.getElementById('editTransCatLabel').textContent = 'Kategori';
         const perpuluhanGroup = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'];
         const excludeList = ['Persembahan Khusus', ...perpuluhanGroup];
@@ -4710,9 +5075,11 @@
         }
 
       } else {
+        if (document.getElementById('editTransDestinationGroup')) document.getElementById('editTransDestinationGroup').style.display = 'none';
         if (document.getElementById('editTransCatLabel')) document.getElementById('editTransCatLabel').textContent = 'Departemen';
         const existingDepts = [];
         (masterData.departments || []).forEach(x => { existingDepts.push(x.name); if (catSelect) catSelect.add(new Option(x.name, x.name)); });
+        existingDepts.push('Mutasi Kas / Setor Bank'); if (catSelect) catSelect.add(new Option('Mutasi Kas / Setor Bank', 'Mutasi Kas / Setor Bank'));
         if (trx.department && !existingDepts.includes(trx.department) && catSelect) catSelect.add(new Option(trx.department + ' (Histori)', trx.department));
         if (catSelect) catSelect.value = trx.department || '';
 
@@ -4775,8 +5142,14 @@
         if (checkMonthClosed(d.getMonth() + 1, d.getFullYear())) { notify('Bulan ini sudah ditutup. Tidak dapat mengubah transaksi.', 'error'); return; }
       }
       const receipt = document.getElementById('editTransReceipt').value.trim();
-      const note = document.getElementById('editTransNote').value.trim();
+      let note = document.getElementById('editTransNote').value.trim();
+      if (currentEditTransaction.type === 'income') {
+        const dest = document.getElementById('editTransDestination') ? document.getElementById('editTransDestination').value : 'CASH';
+        if (dest === 'BANK') note = '[BANK] ' + note;
+      }
+      
       if (!date || !receipt) { notify('Tgl dan Kuitansi wajib diisi!', 'error'); return; }
+      if (isReceiptDuplicate(receipt, currentEditTransaction.id)) { notify('No. Kuitansi sudah ada! Gunakan nomor lain.', 'error'); return; }
 
       const btn = document.getElementById('btnSaveEditTrans');
       btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Menyimpan...';
@@ -4786,6 +5159,12 @@
           const cat = document.getElementById('editTransCat').value;
           const unit = document.getElementById('editTransUnit').value || '-';
           const pihak = document.getElementById('editTransPihak').value.trim() || 'Umum';
+
+          const sortedPhotos = [...currentEditPhotos].sort((a, b) => {
+            const isA = String(a).startsWith('data:');
+            const isB = String(b).startsWith('data:');
+            return (isA === isB) ? 0 : isA ? -1 : 1;
+          });
 
           if (cat === 'Perpuluhan') {
             const items = [];
@@ -4806,7 +5185,7 @@
               unit_name: unit,
               nama_pemberi: pihak,
               items: items,
-              receipt_photo_base64: currentEditPhotos[0] || '', receipt_photo_base64_2: currentEditPhotos[1] || '', receipt_photo_base64_3: currentEditPhotos[2] || '',
+              receipt_photo_base64: sortedPhotos[0] || '', receipt_photo_base64_2: sortedPhotos[1] || '', receipt_photo_base64_3: sortedPhotos[2] || '',
               original_photo: currentEditTransaction.original.receipt_photo
             };
             await apiPostWithFallback('editBulkIncome', payload);
@@ -4818,7 +5197,7 @@
               type: 'income',
               transaction_id: currentEditTransaction.id,
               date, receipt_no: receipt, amount, note,
-              receipt_photo_base64: currentEditPhotos[0] || '', receipt_photo_base64_2: currentEditPhotos[1] || '', receipt_photo_base64_3: currentEditPhotos[2] || '',
+              receipt_photo_base64: sortedPhotos[0] || '', receipt_photo_base64_2: sortedPhotos[1] || '', receipt_photo_base64_3: sortedPhotos[2] || '',
               original: currentEditTransaction.original,
               income_type: cat,
               unit_name: unit,
@@ -4837,7 +5216,7 @@
             type: 'expense',
             transaction_id: currentEditTransaction.id,
             date, receipt_no: receipt, amount, note,
-            receipt_photo_base64: currentEditPhotos[0] || '', receipt_photo_base64_2: currentEditPhotos[1] || '', receipt_photo_base64_3: currentEditPhotos[2] || '',
+            receipt_photo_base64: sortedPhotos[0] || '', receipt_photo_base64_2: sortedPhotos[1] || '', receipt_photo_base64_3: sortedPhotos[2] || '',
             original: currentEditTransaction.original,
             department: cat,
             source_balance: source,
@@ -5105,12 +5484,12 @@
       document.querySelectorAll('.bottom-nav-item').forEach(n => n.classList.remove('active'));
       const activeNav = document.querySelector(`.nav-item[onclick*="showPage('${pageId}')"]`); if (activeNav) activeNav.classList.add('active');
       const activeBotNav = document.querySelector(`.bottom-nav-item[data-target="${pageId}"]`); if (activeBotNav) activeBotNav.classList.add('active');
-      const titles = { dashboard: 'Dashboard', pemasukan: 'Pemasukan', pengeluaran: 'Pengeluaran', laporan: 'Laporan', riwayat: 'Histori', masterIncType: 'Kategori', masterDept: 'Departemen', masterUnit: 'Unit', users: 'Manajemen User', settings: 'Pengaturan', roles: 'Hak Akses Menu', logs: 'Audit Log' };
+      const titles = { dashboard: 'Dashboard', pemasukan: 'Pemasukan', pengeluaran: 'Pengeluaran', pindahbuku: 'Pindah Buku', laporan: 'Laporan', riwayat: 'Histori', masterIncType: 'Kategori', masterDept: 'Departemen', masterUnit: 'Unit', users: 'Manajemen User', settings: 'Pengaturan', roles: 'Hak Akses Menu', logs: 'Audit Log' };
       document.getElementById('pageTitle').textContent = titles[pageId] || 'Dashboard';
       if (window.innerWidth <= 1100) {
         closeSidebar();
       }
-      if (pageId === 'dashboard') renderDashboard(); else if (pageId === 'pemasukan') renderIncomeList(); else if (pageId === 'pengeluaran') renderExpenseList(); else if (pageId === 'riwayat') renderHistory(); else if (pageId === 'laporan') { document.getElementById('reportContent').innerHTML = ''; } else if (pageId === 'masterIncType') renderMasterIncTypes(); else if (pageId === 'masterDept') renderMasterDepts(); else if (pageId === 'masterUnit') renderMasterUnits(); else if (pageId === 'users') renderUsers(); else if (pageId === 'logs') renderLogs(); else if (pageId === 'roles') renderRoles();
+      if (pageId === 'dashboard') renderDashboard(); else if (pageId === 'pemasukan') renderIncomeList(); else if (pageId === 'pengeluaran') renderExpenseList(); else if (pageId === 'pindahbuku') renderMutasiList(); else if (pageId === 'riwayat') renderHistory(); else if (pageId === 'laporan') { document.getElementById('reportContent').innerHTML = ''; } else if (pageId === 'masterIncType') renderMasterIncTypes(); else if (pageId === 'masterDept') renderMasterDepts(); else if (pageId === 'masterUnit') renderMasterUnits(); else if (pageId === 'users') renderUsers(); else if (pageId === 'logs') renderLogs(); else if (pageId === 'roles') renderRoles();
     }
     function doPrintPembangunan() {
       if (!currentReportData) return notify('Generate laporan terlebih dahulu', 'error');
