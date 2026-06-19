@@ -716,6 +716,8 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .btn-primary:hover { background: var(--primary-hover); color: #111827; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); transform: translateY(-1px); }
 .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--glass-border); }
 .btn-ghost:hover { background: rgba(212, 175, 55, 0.05); color: var(--primary); border-color: var(--primary); }
+.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--input-border); }
+.btn-outline:hover { background: rgba(212, 175, 55, 0.05); color: var(--primary); border-color: var(--primary); box-shadow: 0 0 10px rgba(212, 175, 55, 0.15); transform: translateY(-1px); }
 
 .btn-logout {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -983,38 +985,34 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   .table-history td:nth-child(7) { grid-column: 1 / 3; grid-row: 5; justify-content: flex-end; padding-top: 12px !important; border-top: 1px dashed var(--glass-border) !important; width: 100%; margin-top: 4px;}
 
   /* =============================================
-     MODAL MOBILE FIX — Full-screen bottom sheet
+     MODAL MOBILE FIX — Centered Modals
      ============================================= */
   .modal-overlay {
-    padding: 0 !important;
-    align-items: flex-end !important;
+    padding: 16px !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
   .modal-content {
-    max-width: 100vw !important;
-    width: 100vw !important;
-    border-radius: 20px 20px 0 0 !important;
-    max-height: 95vh !important;
-    min-height: 60vh;
-    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: var(--radius-xl) !important;
+    max-height: 90vh !important;
+    min-height: auto !important;
+    margin: 0 auto !important;
   }
   .modal-header {
-    padding: 14px 16px !important;
+    padding: 16px 20px !important;
     position: sticky;
     top: 0;
     z-index: 10;
     background: var(--bg-dark);
   }
+  /* Remove bottom-sheet drag handle */
   .modal-header::before {
-    content: '';
-    display: block;
-    width: 40px;
-    height: 4px;
-    background: var(--glass-border2);
-    border-radius: 2px;
-    margin: 0 auto 10px;
+    display: none !important;
   }
   .modal-body {
-    padding: 8px 12px 24px !important;
+    padding: 16px 20px 24px !important;
     -webkit-overflow-scrolling: touch;
   }
   .modal-title {
@@ -1064,9 +1062,13 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   /* =============================================
      FORM SECTION MOBILE
      ============================================= */
-  .form-section-title { font-size: 14px !important; margin-bottom: 14px !important; }
-  .form-input, .form-select { padding: 10px 14px; font-size: 14px; }
-  .form-label { font-size: 12px; margin-bottom: 6px; }
+  .form-section-title { font-size: 13px !important; margin-bottom: 10px !important; }
+  .form-input, .form-select { padding: 8px 12px; font-size: 12px; }
+  .form-label { font-size: 11px; margin-bottom: 4px; }
+  .select-sm { padding: 8px 28px 8px 12px; font-size: 12px; }
+  .form-select, .select-sm { background-position: right 10px center; background-size: 14px; }
+  .btn { padding: 8px 14px; font-size: 12px; gap: 6px; }
+  #btnExportHistoryExcel { width: 100%; justify-content: center; margin-top: 4px; }
 
   /* =============================================
      SEARCH RESULTS MOBILE
@@ -1077,18 +1079,57 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   .bottom-bar {
     display: flex; position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 8px); left: 50%; transform: translateX(-50%);
     width: calc(100% - 32px); max-width: 512px; 
+    border-radius: 28px; z-index: 100; justify-content: space-around; align-items: center; padding: 0 16px; 
+    height: 64px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+  
+  @property --hole-x {
+    syntax: '<length-percentage>';
+    inherits: true;
+    initial-value: 50%;
+  }
+  
+  @property --hole-r {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 0px;
+  }
+
+  .bottom-bar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
     background: var(--bg-glass); 
     backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--glass-border);
-    border-radius: 28px; z-index: 100; justify-content: space-around; align-items: center; padding: 0 16px; 
-    height: 64px;
+    border-radius: inherit;
     box-shadow: var(--shadow-lg, 0 10px 30px rgba(0,0,0,0.1));
+    z-index: -10;
+    --hole-x: 50%;
+    --hole-r: 0px;
+    -webkit-mask: radial-gradient(circle at var(--hole-x) 8px, transparent var(--hole-r), black calc(var(--hole-r) + 1px));
+    mask: radial-gradient(circle at var(--hole-x) 8px, transparent var(--hole-r), black calc(var(--hole-r) + 1px));
+    transition: --hole-x 0.3s cubic-bezier(0.4, 0, 0.2, 1), --hole-r 0.3s ease;
   }
-  .bottom-nav-item { display: flex; align-items: center; justify-content: center; color: #64748b; cursor: pointer; flex: 1; transition: all 0.3s ease; position: relative; height: 100%; }
+
+  .bottom-bar:has(.bottom-nav-item.active)::before {
+    --hole-r: 38px;
+  }
+
+  .bottom-bar:has(.bottom-nav-item:nth-child(1).active)::before { --hole-x: calc(10% + 12.8px); }
+  .bottom-bar:has(.bottom-nav-item:nth-child(2).active)::before { --hole-x: calc(30% + 6.4px); }
+  .bottom-bar:has(.bottom-nav-item:nth-child(3).active)::before { --hole-x: 50%; }
+  .bottom-bar:has(.bottom-nav-item:nth-child(4).active)::before { --hole-x: calc(70% - 6.4px); }
+  .bottom-bar:has(.bottom-nav-item:nth-child(5).active)::before { --hole-x: calc(90% - 12.8px); }
+  .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; cursor: pointer; flex: 1; transition: all 0.3s ease; position: relative; height: 100%; gap: 2px; }
   .bottom-nav-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
   
-  /* HIDE ALL TEXT IN BOTTOM NAV */
-  .bottom-nav-item span:last-child { display: none !important; }
+  /* SHOW TEXT BY DEFAULT, HIDE ONLY WHEN ACTIVE */
+  .bottom-nav-item span:last-child { font-size: 10px; font-weight: 600; text-align: center; line-height: 1; margin-top: 2px; transition: all 0.2s; }
+  .bottom-nav-item.active span:last-child { display: none !important; }
 
   /* INACTIVE ICON HOVER */
   .bottom-nav-item:hover { color: #94a3b8; }
@@ -1123,6 +1164,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
     background: var(--bg-glass);
     backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     z-index: -2;
     transform: translateZ(0);
   }

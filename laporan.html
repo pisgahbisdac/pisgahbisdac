@@ -282,6 +282,8 @@
       trendDown: '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
       trendUp: '<polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>',
       check: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+      hourglass: '<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
+      clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
       alert: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
       info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
       home: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
@@ -415,7 +417,7 @@
           photoBtn = getPhotoBtnText(x);
 
           listHtml += `
-          <div class="dash-tx-card" style="padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--empty-bg);">
+          <div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--empty-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px;">
               <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                 <span class="badge ${x.isInc ? 'badge-green' : 'badge-red'}" style="font-size:10px; padding:2px 7px;">${x.isInc ? 'IN' : 'OUT'}</span>
@@ -1062,13 +1064,11 @@
           <input type="number" class="select-sm" id="rptYear" value="2026" min="2000" max="2100"
             style="background-image: none; padding-right: 12px; width: 80px;" title="Ketik tahun">
           <button class="btn btn-primary" onclick="loadReport()">Buat Laporan</button>
-          <button class="btn btn-ghost" id="btnExportExcel" onclick="exportToExcel()"
-            style="color: var(--green-pop); border-color: rgba(5, 150, 105, 0.2); display:none;">Export Excel</button>
-          <button class="btn btn-ghost" id="btnPrintReport" onclick="doPrintReport()" style="display:none;">Cetak /
-            PDF</button>
-          <button class="btn btn-primary" id="btnPembangunanReport" onclick="doPrintPembangunan()"
-            style="display:none; background:var(--gold); border-color:var(--gold); color:#000;">Cetak Lap.
-            Pembangunan</button>
+          <button class="btn" id="btnExportExcel" onclick="exportToExcel()"
+            style="background: #10b981; color: #ffffff; border: none; font-weight: 600; display:none;">Export Excel</button>
+          <button class="btn" id="btnPrintReport" onclick="doPrintReport()" style="background: #ef4444; color: #ffffff; border: none; font-weight: 600; display:none;">Cetak / PDF</button>
+          <button class="btn" id="btnPembangunanReport" onclick="doPrintPembangunan()"
+            style="background: #3b82f6; color: #ffffff; border: none; font-weight: 600; display:none;">Cetak Lap. Pembangunan</button>
           <button class="btn btn-danger" id="btnManageClosing" onclick="openClosingModal()"
             style="display:none;">Manajemen Tutup Buku</button>
         </div>
@@ -1159,10 +1159,10 @@
           </select>
           <div style="margin-left:auto; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px;">
             <button class="btn btn-ghost" id="btnApproveBulk" onclick="approveBulkTx()"
-              style="display:none; white-space:nowrap; border:1px solid var(--accent-green); color:var(--accent-green);">✔️
-              Approve Semua (0)</button>
-            <button class="btn btn-outline" id="btnExportHistoryExcel" onclick="exportHistoryExcel()"
-              style="display:inline-flex; white-space:nowrap; border-color:var(--glass-border); background:var(--input-bg); align-items:center; gap:6px;">
+              style="display:none; white-space:nowrap; border:1px solid var(--accent-green); color:var(--accent-green); display:inline-flex; align-items:center; gap:4px;">
+              <script>document.write(getIcon('check', 'lucide-sm'))</script><span>Approve Semua (0)</span></button>
+            <button class="btn" id="btnExportHistoryExcel" onclick="exportHistoryExcel()"
+              style="white-space:nowrap; background:#10b981; color:#ffffff; border:none; font-weight:600; display:flex; justify-content:center; align-items:center; gap:6px;">
               <script>document.write(getIcon('fileText', 'lucide-sm'))</script> Export Excel
             </button>
             <button class="btn btn-primary" id="btnPrintUnit" onclick="printUnitReport()"
@@ -1735,11 +1735,10 @@
 
   <!-- MODAL: IMAGE VIEWER (Gallery) -->
   <div id="receiptPhotoModal" class="modal-overlay"
-    style="display:none; justify-content:center; align-items:center; z-index:1300;" onclick="closePhotoModal()">
-    <div class="card"
-      style="position:relative; max-width:90vw; max-height:90vh; display:flex; flex-direction:column; padding:16px; align-items:center;"
+    style="display:none; justify-content:center !important; align-items:center !important; z-index:1300; padding:16px !important;" onclick="closePhotoModal()">
+    <div style="position:relative; width:100%; max-width:800px; background:var(--bg-dark); border:1px solid var(--glass-border); border-radius:16px; padding:16px; box-shadow:0 10px 25px rgba(0,0,0,0.5);"
       onclick="event.stopPropagation()">
-      <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px; align-items:center;">
+      <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:12px; align-items:center;">
         <span id="photoCounter" style="font-size:13px; color:var(--text3); font-weight:600;"></span>
         <button class="btn btn-ghost"
           style="border-radius:50%; padding:8px; background:var(--bg-glass); color:var(--text);"
@@ -1750,15 +1749,14 @@
           </svg>
         </button>
       </div>
-      <div
-        style="position:relative; width:100%; display:flex; justify-content:center; align-items:center; min-height:200px;">
+      <div style="position:relative; width:100%; text-align:center; min-height:100px;">
         <button id="prevPhotoBtn" class="btn btn-ghost"
-          style="position:absolute; left:0; z-index:10; background:rgba(0,0,0,0.45); color:white; border-radius:50%; width:36px; height:36px; display:none; align-items:center; justify-content:center; font-size:20px; padding:0;"
+          style="position:absolute; left:0; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.45); color:white; border-radius:50%; width:36px; height:36px; display:none; align-items:center; justify-content:center; font-size:20px; padding:0;"
           onclick="changePhoto(-1)">&#10094;</button>
         <img id="photoModalImg" src=""
-          style="max-width:100%; max-height:calc(85vh - 80px); object-fit:contain; border-radius:12px;">
+          style="max-width:100%; max-height:75vh; object-fit:contain; border-radius:12px; vertical-align:middle; display:inline-block;">
         <button id="nextPhotoBtn" class="btn btn-ghost"
-          style="position:absolute; right:0; z-index:10; background:rgba(0,0,0,0.45); color:white; border-radius:50%; width:36px; height:36px; display:none; align-items:center; justify-content:center; font-size:20px; padding:0;"
+          style="position:absolute; right:0; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.45); color:white; border-radius:50%; width:36px; height:36px; display:none; align-items:center; justify-content:center; font-size:20px; padding:0;"
           onclick="changePhoto(1)">&#10095;</button>
       </div>
     </div>
@@ -2433,7 +2431,7 @@
       let k = r.income_type ? 'income' : 'expense';
       let id = r.transaction_id || r.receipt_no;
       let count = 1 + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
-      let text = count > 1 ? `📸 ${count} Foto` : `📷 Foto`;
+      let text = count > 1 ? `${safeIcon('image', 'lucide-sm')} <span style="margin-left:4px;">${count} Foto</span>` : `${safeIcon('image', 'lucide-sm')} <span style="margin-left:4px;">Foto</span>`;
       return `<button class="btn" style="flex:1; width:100%; justify-content:center; padding:6px 0; font-size:11px; background:rgba(20,184,166,0.1); color:var(--teal-pop); border:1px solid rgba(20,184,166,0.2);" onclick="openPhotoModalById('${id}', '${k}')">${text}</button>`;
     }
 
@@ -2844,7 +2842,7 @@
       const isApprover = currentUser && (canApprove || currentUser.role === 'Admin');
       const roleNeeded = currentUser ? currentUser.role : '';
 
-      if (!isApprover) {
+      if (!isApprover && currentUser.role !== 'Bendahara') {
         badge.style.display = 'none';
         return;
       }
@@ -3179,13 +3177,13 @@
           return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td><td><span class="badge ${getCatBadge(x.income_type || x.department, x.kind !== 'income')}">${x.income_type || x.department}</span><br><span style="font-size:12px; color:var(--text-muted, var(--text4))">${shouldHide ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td><td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td></tr>`;
         }).join('');
 
-        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + recent.map(x => {
+        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column;">' + recent.map(x => {
           const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
           const shouldHide = isViewer && isPrivCategory;
           const isInc = x.kind === 'income';
           let photoBtn = getPhotoBtnText(x);
           return `
-          <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+          <div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
               <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                 <span class="badge ${x.badge}" style="font-size:10px; padding:2px 7px;">${isInc ? 'IN' : 'OUT'}</span>
@@ -3318,13 +3316,13 @@
           return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.income_type, false)}">${x.income_type}</span><br><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (bBadge + nText)}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${getPhotoBtnIcon(x)}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`;
         }).join('');
 
-        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
+        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column;">' + list.map(x => {
           let photoBtn = getPhotoBtnText(x);
           let nText = x.note || '-';
           let bBadge = '';
           if (nText.startsWith('[BANK] ')) { nText = nText.replace('[BANK] ', ''); bBadge = '<span class="badge badge-green" style="font-size:10px; padding:2px 4px; margin-right:4px;">VIA BANK</span>'; }
           return `
-          <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+          <div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
               <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                 <span class="badge badge-blue" style="font-size:10px; padding:2px 7px;">IN</span>
@@ -3450,10 +3448,10 @@
       } else {
         let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span class="badge ${getCatBadge(x.department, true)}">${x.department}</span><br><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (x.note || '-')}<br>Penerima: ${isAnon ? '***' : (x.nama_penerima || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span>${getPhotoBtnIcon(x)}</td><td class="fit-col amount-neg" style="text-align:right">-${fmt(x.amount)}</td></tr>`).join('');
 
-        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
+        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column;">' + list.map(x => {
           let photoBtn = getPhotoBtnText(x);
           return `
-          <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+          <div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
               <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                 <span class="badge badge-red" style="font-size:10px; padding:2px 7px;">OUT</span>
@@ -3498,10 +3496,10 @@
       } else {
         let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${getPhotoBtnIcon(x)}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('');
         
-        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
+        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column;">' + list.map(x => {
           let photoBtn = getPhotoBtnText(x);
           return `
-          <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+          <div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
               <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                 <span class="badge badge-blue" style="font-size:10px; padding:2px 7px;">MUT</span>
@@ -4406,13 +4404,13 @@
               </tbody>
             </table>`;
 
-          const mobileHtml = `<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">${items.map(x => {
+          const mobileHtml = `<div class="dash-detail-list" style="display:flex; flex-direction:column;">${items.map(x => {
             const isMasked = isPrivCategory || isSensor;
             const displayNote = isMasked ? '*** (Privasi)' : (x.note || '-');
             let rawPemberi = (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') ? x.nama_pemberi : (x.unit_name || '-');
             let photoBtn = '';
             photoBtn = getPhotoBtnText(x, isMasked && !isApprover);
-            return `<div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+            return `<div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
                 <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                   <span class="badge badge-green" style="font-size:10px; padding:2px 7px;">IN</span>
@@ -4451,10 +4449,10 @@
               </tbody>
             </table>`;
 
-          const mobileHtml = `<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">${items.map(x => {
+          const mobileHtml = `<div class="dash-detail-list" style="display:flex; flex-direction:column;">${items.map(x => {
             let photoBtn = '';
             photoBtn = getPhotoBtnText(x);
-            return `<div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+            return `<div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
                 <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                   <span class="badge badge-red" style="font-size:10px; padding:2px 7px;">OUT</span>
@@ -4616,7 +4614,7 @@
       if (btnApproveBulk) {
         if (pendingToApprove.length > 0) {
           btnApproveBulk.style.display = 'inline-flex';
-          btnApproveBulk.innerHTML = `✔️ Approve Semua (${pendingToApprove.length})`;
+          btnApproveBulk.innerHTML = `${safeIcon('check', 'lucide-sm')} <span>Approve Semua (${pendingToApprove.length})</span>`;
           window.pendingBulkApproveList = pendingToApprove.map(x => ({ type: x.type, id: x.transaction_id || x.receipt_no }));
         } else {
           btnApproveBulk.style.display = 'none';
@@ -4802,30 +4800,30 @@
             const isAdminApp = x.approved_by.includes('Admin');
             const isKetua = x.approved_by.includes('Ketua Jemaat');
             const isPendeta = x.approved_by.includes('Pendeta');
-            if (isAdminApp || (isKetua && isPendeta)) approveBadge = `<div style="margin-top:4px;"><span class="badge" style="background:var(--accent-green);color:white;font-size:9px;">✅ Disetujui</span></div>`;
+            if (isAdminApp || (isKetua && isPendeta)) approveBadge = `<span class="badge" style="background:var(--accent-green);color:white;font-size:9px;">Disetujui</span>`;
             else {
               let pendingWho = [];
               if (!isKetua) pendingWho.push('Ketua');
               if (!isPendeta) pendingWho.push('Pendeta');
-              approveBadge = `<div style="margin-top:4px;"><span class="badge badge-yellow" style="font-size:9px;" title="Menunggu: ${pendingWho.join(' & ')}">⏳ Menunggu: ${pendingWho.join(' & ')}</span></div>`;
+              approveBadge = `<span class="badge badge-yellow" style="font-size:9px;" title="Menunggu: ${pendingWho.join(' & ')}">Menunggu: ${pendingWho.join(' & ')}</span>`;
             }
           } else {
-            approveBadge = `<div style="margin-top:4px;"><span class="badge badge-gray" style="font-size:9px;" title="Menunggu: Ketua & Pendeta">⏳ Menunggu: Ketua & Pendeta</span></div>`;
+            approveBadge = `<span class="badge badge-gray" style="font-size:9px;" title="Menunggu: Ketua & Pendeta">Menunggu: Ketua & Pendeta</span>`;
           }
 
           let approveBtn = '';
           if (isApprover && deleteId) {
             const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
             if (isFullyApproved || (x.approved_by && x.approved_by.includes(roleNeeded))) {
-              let approveBtnHtml = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--text4); cursor:default;" disabled>✅ Approved</button>`;
+              let approveBtnHtml = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--text4); cursor:default;display:inline-flex;align-items:center;gap:4px;" disabled>${safeIcon('check', 'lucide-sm')} Approved</button>`;
               if (this.isDesktopLoop) {
-                approveBtnHtml = `<button class="btn-icon-only" style="color:var(--text4); cursor:default;" title="Sudah Di-Approve" disabled>✅</button>`;
+                approveBtnHtml = `<button class="btn-icon-only" style="color:var(--text4); cursor:default;" title="Sudah Di-Approve" disabled>${safeIcon('check', 'lucide-sm')}</button>`;
               }
               approveBtn = approveBtnHtml;
             } else {
-              let approveBtnHtml = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--accent-green);" onclick="approveTx('${x.type}', '${deleteId}')">✔️ Approve</button>`;
+              let approveBtnHtml = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--accent-green);display:inline-flex;align-items:center;gap:4px;" onclick="approveTx('${x.type}', '${deleteId}')">${safeIcon('check', 'lucide-sm')} Approve</button>`;
               if (this.isDesktopLoop) {
-                approveBtnHtml = `<button class="btn-icon-only" style="color:var(--accent-green);" title="Approve" onclick="approveTx('${x.type}', '${deleteId}')">✔️</button>`;
+                approveBtnHtml = `<button class="btn-icon-only" style="color:var(--accent-green);" title="Approve" onclick="approveTx('${x.type}', '${deleteId}')">${safeIcon('check', 'lucide-sm')}</button>`;
               }
               approveBtn = approveBtnHtml;
             }
@@ -4837,21 +4835,21 @@
 
           return `
       <tr>
-        <td class="fit-col">${fmtDate(x.date)}${approveBadge}</td>
+        <td class="fit-col">${fmtDate(x.date)}</td>
         <td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td>
         <td><span class="badge ${getCatBadge(x.income_type || x.department, x.type !== 'income')}">${x.income_type || x.department || '-'}</span><br><span style="font-size:12px; color:var(--text4)">${shouldHide ? '***' : (bBadge + nText)}</span></td>
         <td class="fit-col"><span class="badge badge-gray">${x.receipt_no || '-'}</span> ${photoBtn}</td>
         <td>${pihak}</td>
-        <td class="fit-col ${x.style}" style="text-align:right; font-weight:800;">${x.sign}${fmt(x.amount)}</td>
+        <td class="fit-col ${x.style}" style="text-align:right; font-weight:800;">${x.sign}${fmt(x.amount)}<div style="margin-top:4px;">${approveBadge}</div></td>
         <td class="fit-col" style="text-align:right; white-space:nowrap;">
           ${approveBtn}
-          ${canEdit && deleteId ? `<button class="btn-icon-only" onclick="openEditTrans('${x.type}', '${deleteId}')">✏️</button>` : ''}
-          ${canDel && deleteId ? `<button class="btn-icon-only" style="color:var(--red-pop)" onclick="deleteTransaction('${x.type}', '${deleteId}')">🗑️</button>` : ''}
+          ${canEdit && deleteId ? `<button class="btn-icon-only" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit', 'lucide-sm')}</button>` : ''}
+          ${canDel && deleteId ? `<button class="btn-icon-only" style="color:var(--red-pop)" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash', 'lucide-sm')}</button>` : ''}
         </td>
       </tr>`;
         }).join('');
 
-        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column; gap:8px;">' + list.map(x => {
+        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column;">' + list.map(x => {
           const txUnitLower = String(x.unit_name || '').toLowerCase().trim();
           const belongsToUserUnits = userUnits.some(u => String(u).toLowerCase().trim() === txUnitLower);
 
@@ -4877,45 +4875,51 @@
           const pihak = x.type === 'income' ? (shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
 
           let photoBtn = getPhotoBtnText(x, shouldHide && !isApprover);
-          let approveBadge = '';
+          let approveBadgeDesktop = '';
+          let approveBadgeMobile = '';
           if (x.approved_by) {
             const isAdminApp = x.approved_by.includes('Admin');
             const isKetua = x.approved_by.includes('Ketua Jemaat');
             const isPendeta = x.approved_by.includes('Pendeta');
-            if (isAdminApp || (isKetua && isPendeta)) approveBadge = `<span class="badge" style="background:var(--accent-green);color:white;font-size:9px;">✅ Disetujui</span>`;
-            else {
+            if (isAdminApp || (isKetua && isPendeta)) {
+              approveBadgeDesktop = `<span class="badge" style="background:var(--accent-green);color:white;font-size:9px; font-weight:700; letter-spacing:0.3px;">DISETUJUI</span>`;
+              approveBadgeMobile = `<span class="badge" style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); z-index:2; padding:3px 10px; border-radius:12px; border:1px solid rgba(0,0,0,0.05); box-shadow:0 2px 4px rgba(0,0,0,0.1); background:var(--accent-green);color:white;font-size:9px; font-weight:700; letter-spacing:0.3px;">DISETUJUI</span>`;
+            } else {
               let pendingWho = [];
               if (!isKetua) pendingWho.push('Ketua');
               if (!isPendeta) pendingWho.push('Pendeta');
-              approveBadge = `<span class="badge badge-yellow" style="font-size:9px;" title="Menunggu: ${pendingWho.join(' & ')}">⏳ Menunggu: ${pendingWho.join(' & ')}</span>`;
+              approveBadgeDesktop = `<span class="badge badge-yellow" style="font-size:9px; font-weight:700; letter-spacing:0.3px;" title="Menunggu: ${pendingWho.join(' & ')}">MENUNGGU: ${pendingWho.join(' & ').toUpperCase()}</span>`;
+              approveBadgeMobile = `<span class="badge badge-yellow" style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); z-index:2; padding:3px 10px; border-radius:12px; border:1px solid rgba(0,0,0,0.05); box-shadow:0 2px 4px rgba(0,0,0,0.1); background:var(--input-bg); font-size:9px; font-weight:700; letter-spacing:0.3px;" title="Menunggu: ${pendingWho.join(' & ')}">MENUNGGU: ${pendingWho.join(' & ').toUpperCase()}</span>`;
             }
           } else {
-            approveBadge = `<span class="badge badge-gray" style="font-size:9px;" title="Menunggu: Ketua & Pendeta">⏳ Menunggu: Ketua & Pendeta</span>`;
+            approveBadgeDesktop = `<span class="badge badge-gray" style="font-size:9px; font-weight:700; letter-spacing:0.3px;" title="Menunggu: Ketua & Pendeta">MENUNGGU: KETUA & PENDETA</span>`;
+            approveBadgeMobile = `<span class="badge badge-gray" style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); z-index:2; padding:3px 10px; border-radius:12px; border:1px solid rgba(0,0,0,0.05); box-shadow:0 2px 4px rgba(0,0,0,0.1); background:var(--input-bg); font-size:9px; font-weight:700; letter-spacing:0.3px;" title="Menunggu: Ketua & Pendeta">MENUNGGU: KETUA & PENDETA</span>`;
           }
 
           let approveBtn = '';
           if (isApprover && deleteId) {
             const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
             if (isFullyApproved || (x.approved_by && x.approved_by.includes(roleNeeded))) {
-              approveBtn = `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:var(--badge-gray-bg); color:var(--text4); border:1px solid var(--glass-border); cursor:default;" disabled>✅ Approved</button>`;
+              approveBtn = `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:var(--badge-gray-bg); color:var(--text4); border:1px solid var(--glass-border); cursor:default;display:inline-flex;align-items:center;gap:4px;" disabled>${safeIcon('check', 'lucide-sm')} Approved</button>`;
             } else {
-              approveBtn = `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:rgba(16,185,129,0.1); color:var(--accent-green); border:1px solid rgba(16,185,129,0.2);" onclick="approveTx('${x.type}', '${deleteId}')">✔️ Approve</button>`;
+              approveBtn = `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:rgba(16,185,129,0.1); color:var(--accent-green); border:1px solid rgba(16,185,129,0.2);display:inline-flex;align-items:center;gap:4px;" onclick="approveTx('${x.type}', '${deleteId}')">${safeIcon('check', 'lucide-sm')} Approve</button>`;
             }
           }
 
-          let editBtn = canEdit && deleteId ? `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:var(--input-bg); color:var(--text); border:1px solid var(--glass-border);" onclick="openEditTrans('${x.type}', '${deleteId}')">✏️ Edit</button>` : '';
-          let delBtn = canDel && deleteId ? `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:rgba(244,63,94,0.1); color:var(--rose-pop); border:1px solid rgba(244,63,94,0.2);" onclick="deleteTransaction('${x.type}', '${deleteId}')">🗑️ Hapus</button>` : '';
+          let editBtn = canEdit && deleteId ? `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:var(--input-bg); color:var(--text); border:1px solid var(--glass-border);" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit', 'lucide-sm')} <span style="margin-left:4px">Edit</span></button>` : '';
+          let delBtn = canDel && deleteId ? `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:rgba(244,63,94,0.1); color:var(--rose-pop); border:1px solid rgba(244,63,94,0.2);" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash', 'lucide-sm')} <span style="margin-left:4px">Hapus</span></button>` : '';
 
           return `
-          <div class="dash-tx-card" style="padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+          <div class="dash-tx-card" style="position:relative; margin: 20px 12px 12px 12px; padding: 12px 12px 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+            ${approveBadgeMobile}
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
               <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                 <span class="badge ${x.badge}" style="font-size:10px; padding:2px 7px;">${isInc ? 'IN' : 'OUT'}</span>
                 <span style="font-size:11px; color:var(--text3); font-family:monospace;">${x.receipt_no || '-'}</span>
+
               </div>
               <div class="${x.style}" style="font-weight: 700; font-size: 15px; white-space:nowrap;">${x.sign}${fmt(x.amount)}</div>
             </div>
-            <div style="margin-bottom: 6px;">${approveBadge}</div>
             <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
               <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
               <span style="color:var(--text4)">Pihak</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${pihak}</strong>
@@ -4954,7 +4958,7 @@
             </table>
           </div>
           <div class="mobile-only" style="padding-bottom:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding: 0 4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; margin-bottom:16px; padding: 0 12px;">
               <span style="font-size:12px; color:var(--text3); font-weight:600;">Urut Berdasarkan:</span>
               <select class="select-sm" style="font-size:12px; padding:4px 24px 4px 8px; width:auto; border-radius:var(--radius);" onchange="historySortCol=this.value.split('|')[0]; historySortDesc=(this.value.split('|')[1]==='desc'); renderHistory();">
                  <option value="date|desc" ${historySortCol === 'date' && historySortDesc ? 'selected' : ''}>Tanggal (Terbaru)</option>
@@ -5297,7 +5301,7 @@
         notify(`Berhasil menyetujui ${successCount} transaksi!`, 'success');
       }
 
-      if (btn) { btn.disabled = false; btn.innerHTML = `✔️ Approve Semua`; }
+      if (btn) { btn.disabled = false; btn.innerHTML = `${safeIcon('check', 'lucide-sm')} <span style="margin-left:4px;">Approve Semua</span>`; }
       await handleManualSync();
     }
 
