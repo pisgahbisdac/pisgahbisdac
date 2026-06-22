@@ -5405,24 +5405,56 @@
 
       let ths = '';
       let tds = '';
-      items.forEach(x => {
+      
+      const userUnits = getUserUnits();
+      const perms = getRolePerms(currentUser?.role || '');
+      const isViewer = perms.isAnonymous || (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik'));
+      const isAnon = perms.isAnonymous;
+      let receiptHasHiddenItems = false;
+      
+      const parsedItems = items.map(x => {
+        const txUnitLower = String(x.unit_name || '').toLowerCase().trim();
+        const belongsToUserUnits = userUnits.some(u => String(u).toLowerCase().trim() === txUnitLower);
+        let hasMembers = false;
+        if (masterData && masterData.units) {
+          const uData = masterData.units.find(u => String(u.name).toLowerCase().trim() === txUnitLower);
+          if (uData && parseInt(uData.jumlah_anggota || 0) > 0) hasMembers = true;
+        }
+        const incType = String(x.income_type || '').toLowerCase();
+        const isTransparentInc = isIncome && (incType.includes('sabat') || incType.includes('rabu malam') || incType.includes('pembangunan')) && !hasMembers;
+        const isPrivCategory = isViewer && isIncome && isPrivateCategory(x.income_type);
+        const isOtherUnit = userUnits.length > 0 && isIncome && !belongsToUserUnits;
+        let shouldHide = !belongsToUserUnits && (isAnon || isOtherUnit || isPrivCategory);
+        if (isTransparentInc || !isIncome) shouldHide = false;
+        
+        if (shouldHide) receiptHasHiddenItems = true;
+        return { ...x, shouldHide };
+      });
+
+      parsedItems.forEach(x => {
         const amt = parseFloat(x.amount) || 0;
         totalAmt += amt;
-        let details = [];
-        if (parseFloat(x.alloc_daerah) > 0) details.push(`Daerah: Rp ${fmt(x.alloc_daerah)}`);
-        if (parseFloat(x.alloc_jemaat) > 0) details.push(`Jemaat: Rp ${fmt(x.alloc_jemaat)}`);
-        if (parseFloat(x.alloc_bangun) > 0) details.push(`Bangun: Rp ${fmt(x.alloc_bangun)}`);
-        let detailStr = details.length > 0 ? `<br><span style="font-weight: 500; font-size: 10px; color:#444;">(${details.join(' | ')})</span>` : '';
-        
-        let headerTitle = isIncome ? (x.income_type || 'PEMASUKAN') : (x.department || 'PENGELUARAN');
-        ths += `<th style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 11px; font-weight:700; text-transform: uppercase;">${headerTitle}</th>`;
-        
+        let detailStr = '';
         let cleanNote = '';
-        if (x.note && x.note.trim() !== '') {
-           cleanNote = x.note.replace(/\[BANK\]|\[CASH\]/g, '').trim();
-           if (cleanNote) cleanNote = `<br><span style="font-size: 10px; color: #444; font-weight: normal;"><i>Ket: ${cleanNote}</i></span>`;
+        let headerTitle = isIncome ? (x.income_type || 'PEMASUKAN') : (x.department || 'PENGELUARAN');
+        
+        if (x.shouldHide) {
+          headerTitle = '*** (PRIVASI)';
+          cleanNote = '<br><span style="font-size: 10px; color: #444; font-weight: normal;"><i>Ket: ***</i></span>';
+        } else {
+          let details = [];
+          if (parseFloat(x.alloc_daerah) > 0) details.push(`Daerah: Rp ${fmt(x.alloc_daerah)}`);
+          if (parseFloat(x.alloc_jemaat) > 0) details.push(`Jemaat: Rp ${fmt(x.alloc_jemaat)}`);
+          if (parseFloat(x.alloc_bangun) > 0) details.push(`Bangun: Rp ${fmt(x.alloc_bangun)}`);
+          detailStr = details.length > 0 ? `<br><span style="font-weight: 500; font-size: 10px; color:#444;">(${details.join(' | ')})</span>` : '';
+          
+          if (x.note && x.note.trim() !== '') {
+             let rawNote = x.note.replace(/\[BANK\]|\[CASH\]/g, '').trim();
+             if (rawNote) cleanNote = `<br><span style="font-size: 10px; color: #444; font-weight: normal;"><i>Ket: ${rawNote}</i></span>`;
+          }
         }
 
+        ths += `<th style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 11px; font-weight:700; text-transform: uppercase;">${headerTitle}</th>`;
         tds += `<td style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 12px; vertical-align: top;">${fmt(amt)}${detailStr}${cleanNote}</td>`;
       });
       ths += `<th style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 11px; font-weight:800; background: #e8e8e8;">TOTAL</th>`;
@@ -5443,7 +5475,8 @@
         </table>
       `;
 
-      const pihakName = isIncome ? (mainTx.nama_pemberi || mainTx.pihak || 'Umum') : (mainTx.nama_penerima || mainTx.pihak || 'Umum');
+      let pihakName = isIncome ? (mainTx.nama_pemberi || mainTx.pihak || 'Umum') : (mainTx.nama_penerima || mainTx.pihak || 'Umum');
+      if (receiptHasHiddenItems) pihakName = '*** (Privasi)';
       const docTitle = isIncome ? 'BUKTI PEMASUKAN' : 'BUKTI PENGELUARAN';
       const pihakLabel = isIncome ? 'Telah Terima Dari' : 'Dibayarkan Kepada';
       const signLabel1 = isIncome ? 'Penyetor,' : 'Penerima,';
