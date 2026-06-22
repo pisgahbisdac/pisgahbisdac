@@ -778,7 +778,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .login-logo h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--text); font-weight: 700; letter-spacing: -1px; margin-bottom: 4px; }
 .login-btn { width: 100%; padding: 14px; background: var(--primary); color: #111827; border: none; border-radius: var(--radius); font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
 .login-btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
-.eye-btn { position: absolute; right: 14px; top: 36px; cursor: pointer; color: var(--text3); display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; transition: color 0.2s; }
+.eye-btn { position: absolute; right: 14px; bottom: 8px; cursor: pointer; color: var(--text3); display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; transition: color 0.2s; }
 .eye-btn:hover { color: var(--primary); }
 
 .photo-upload-box { border: 1px dashed var(--glass-border2); background: var(--input-bg); border-radius: var(--radius); padding: 24px 16px; text-align: center; cursor: pointer; transition: 0.2s; display: block; position: relative; overflow: hidden; }
@@ -1065,6 +1065,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   .form-section-title { font-size: 13px !important; margin-bottom: 10px !important; }
   .form-input, .form-select { padding: 8px 12px; font-size: 12px; }
   .form-label { font-size: 11px; margin-bottom: 4px; }
+  .eye-btn { bottom: 0px !important; }
   .select-sm { padding: 8px 28px 8px 12px; font-size: 12px; }
   .form-select, .select-sm { background-position: right 10px center; background-size: 14px; }
   .btn { padding: 8px 14px; font-size: 12px; gap: 6px; }
