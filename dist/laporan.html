@@ -243,7 +243,7 @@
       margin-bottom: 16px;
     }
   </style>
-  <link rel="stylesheet" crossorigin href="/assets/index-CpqcDXNY.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-aQLiVyWu.css">
 </head>
 
 <body class="page-laporan">
@@ -604,14 +604,14 @@
             <div class="user-role" id="userRoleDisplay">Role</div>
           </div>
         </div>
-        <button id="btnLogout" class="btn btn-logout" onclick="doLogout()"
+        <button class="btn btn-logout" onclick="doLogout()"
           style="width: 100%; justify-content: center; color: var(--red-pop); border: 1px solid rgba(220, 38, 38, 0.2); background: rgba(220, 38, 38, 0.05); padding: 10px; border-radius: var(--radius-lg); font-weight: 600; font-size: 14px;">
-          <svg id="btnLogoutIcon" class="lucide lucide-md" viewBox="0 0 24 24" style="width: 18px; height: 18px; margin-right: 8px;">
+          <svg class="lucide lucide-md" viewBox="0 0 24 24" style="width: 18px; height: 18px; margin-right: 8px;">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
-          <span id="btnLogoutText">Keluar</span>
+          Keluar
         </button>
       </div>
       <nav class="sidebar-nav">
@@ -1159,7 +1159,18 @@
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
               <input class="form-input" id="searchTrans" style="width:100%; padding-left:40px;" type="text"
-                placeholder="Cari apapun (nama, referensi, unit, dsb)..." oninput="renderHistory()">
+                placeholder="Cari referensi/keterangan..." oninput="renderHistory()">
+            </div>
+            <div style="position:relative; flex:1; min-width:180px;">
+              <svg class="lucide lucide-sm" style="position:absolute; left:14px; top:13px; color:var(--text3)"
+                viewBox="0 0 24 24">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              <input class="form-input" id="filterGiver" style="width:100%; padding-left:40px;" type="text"
+                placeholder="Cari pemberi/penerima/unit..." oninput="renderHistory()">
             </div>
           </div>
 
@@ -1439,34 +1450,6 @@
           </div>
           <div style="display:flex; justify-content:flex-end; margin-top: 16px;">
             <button class="btn btn-primary" onclick="saveAppTextFromInputs()">Simpan Nama</button>
-          </div>
-        </div>
-
-        <div class="card" style="max-width:800px; margin:24px auto 0;">
-          <div class="form-section-title">Pengaturan Pembangunan</div>
-          <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Atur target dana, komitmen, dan realisasi pada dashboard pembangunan.</p>
-          <div class="grid-2">
-            <div class="form-group">
-              <label class="form-label">Target Dana Pembangunan (Total)</label>
-              <input class="form-input" id="targetPembangunanInput" type="text"
-                placeholder="Misal: 2.500.000.000"
-                oninput="formatRupiah(this)"
-                onchange="saveSignatureText('target_pembangunan', parseRupiah(this.value))">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Target Komitmen Jemaat</label>
-              <input class="form-input" id="komitmenTargetInput" type="text"
-                placeholder="Misal: 77.300.000"
-                oninput="formatRupiah(this)"
-                onchange="saveSignatureText('komitmen_target', parseRupiah(this.value))">
-            </div>
-            <div class="form-group" style="grid-column: 1 / -1;">
-              <label class="form-label">Realisasi Komitmen Terkumpul</label>
-              <input class="form-input" id="komitmenRealisasiInput" type="text"
-                placeholder="Misal: 63.356.900"
-                oninput="formatRupiah(this)"
-                onchange="saveSignatureText('komitmen_realisasi', parseRupiah(this.value))">
-            </div>
           </div>
         </div>
 
@@ -1962,7 +1945,7 @@
     function printUnitReport(searchTermOverride = null) {
       if (!window.currentHistoryData || window.currentHistoryData.length === 0) return notify('Tidak ada data untuk dicetak.', 'error');
 
-      const unitSearchTerm = (typeof searchTermOverride === 'string' ? searchTermOverride : '') || (document.getElementById('searchTrans')?.value.trim()) || '';
+      const unitSearchTerm = (typeof searchTermOverride === 'string' ? searchTermOverride : '') || (document.getElementById('filterGiver')?.value.trim() || document.getElementById('searchTrans')?.value.trim()) || '';
 
       const incByCat = {};
       const expByDept = {};
@@ -2021,7 +2004,7 @@
       const url = new URL(getActiveApiUrl());
       url.searchParams.set('action', action); url.searchParams.set('token', getToken() || ''); url.searchParams.set('_t', Date.now());
       Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow', signal: AbortSignal.timeout(30000) });
+      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (!data.success) throw new Error(data.message || 'API Gagal');
@@ -2046,7 +2029,7 @@
       if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
       try {
         const body = JSON.stringify({ action, token: getToken(), data: payload });
-        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body, signal: AbortSignal.timeout(45000) });
+        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (!data.success) throw new Error(data.message || 'Gagal mengirim data.');
@@ -2070,7 +2053,7 @@
     async function login(username, password) {
       const url = new URL(getActiveApiUrl());
       url.searchParams.set('action', 'login'); url.searchParams.set('username', username.trim().toLowerCase()); url.searchParams.set('password', password); url.searchParams.set('_t', Date.now());
-      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow', signal: AbortSignal.timeout(30000) });
+      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.success) { setToken(data.token); sessionStorage.setItem('BISDAC_user', JSON.stringify(data.user)); }
@@ -2078,13 +2061,11 @@
     }
 
     async function doLogout() {
-      if (!currentUser || currentUser.role !== 'Publik') {
-        if (typeof showCustomConfirm === 'function') {
-          const yes = await showCustomConfirm('Konfirmasi', 'Apakah Anda yakin ingin keluar?');
-          if (!yes) return;
-        } else {
-          if (!confirm('Apakah Anda yakin ingin keluar?')) return;
-        }
+      if (typeof showCustomConfirm === 'function') {
+        const yes = await showCustomConfirm('Konfirmasi', 'Apakah Anda yakin ingin keluar?');
+        if (!yes) return;
+      } else {
+        if (!confirm('Apakah Anda yakin ingin keluar?')) return;
       }
       clearToken(); sessionStorage.removeItem('BISDAC_user'); sessionStorage.removeItem('BISDAC_token'); window.location.reload();
     }
@@ -2161,13 +2142,6 @@
       if (inputH2) inputH2.value = systemConfig.header_kuitansi_2 || 'Daerah Sumatera Kawasan Tengah';
       const inputH3 = document.getElementById('headerKuitansi3Input');
       if (inputH3) inputH3.value = systemConfig.header_kuitansi_3 || ('Jemaat ' + (systemConfig.app_title || 'Sistem'));
-
-      const inTP = document.getElementById('targetPembangunanInput');
-      if (inTP) inTP.value = systemConfig.target_pembangunan ? fmt(systemConfig.target_pembangunan) : '';
-      const inTK = document.getElementById('komitmenTargetInput');
-      if (inTK) inTK.value = systemConfig.komitmen_target ? fmt(systemConfig.komitmen_target) : '';
-      const inRK = document.getElementById('komitmenRealisasiInput');
-      if (inRK) inRK.value = systemConfig.komitmen_realisasi ? fmt(systemConfig.komitmen_realisasi) : '';
 
       const sigKeys = ['sig_bendahara', 'sig_bangun', 'sig_ketua', 'sig_pendeta'];
       sigKeys.forEach(k => {
@@ -2670,7 +2644,7 @@
       setStatus('loading', 'Menghubungkan...');
       try {
         const url = getActiveApiUrl(); if (!url || url.trim() === '') { setStatus('offline', 'URL Belum Diset!'); isServerOnline = false; return false; }
-        const res = await fetch(`${url}?action=ping&_t=${Date.now()}`, { method: 'GET', redirect: 'follow', signal: AbortSignal.timeout(45000) });
+        const res = await fetch(`${url}?action=ping&_t=${Date.now()}`, { method: 'GET', redirect: 'follow', signal: AbortSignal.timeout(10000) });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         if (json.success) { setStatus('online', 'Server Online'); isServerOnline = true; return true; }
@@ -2685,6 +2659,7 @@
       const btn = document.getElementById('loginBtn'); const txt = document.getElementById('loginBtnText');
       btn.disabled = true; txt.innerHTML = '<span class="btn-spinner"></span> Validasi...';
       try {
+        const isAvailable = await checkAPIConnection(); if (!isAvailable) { notify('Koneksi server gagal.', 'error'); return; }
         const res = await login(user, pass);
         if (res.success) { currentUser = res.user; notify('Login Berhasil.', 'success'); launchApp(); }
         else { notify(res.message, 'error'); }
@@ -2699,17 +2674,7 @@
       document.getElementById('userNameDisplay').textContent = nameStr;
       document.getElementById('userRoleDisplay').textContent = currentUser.role || 'Unknown';
       document.getElementById('userAvatar').textContent = nameStr.split(' ').filter(x => x).map(x => x[0]).join('').substring(0, 2).toUpperCase();
-      
-      applyRoleAccess(); 
-      // Do not block UI! Run in background:
-      Promise.all([loadSystemConfig(), syncAllData()]).then(() => {
-        initForms();
-        const currentPage = document.querySelector('.page.active')?.id.replace('page-', '') || 'dashboard';
-        if (currentPage === 'dashboard') renderDashboard();
-      }).catch(e => console.error(e));
-      
-      initForms(); // Run once immediately with cached data
-      showPage('dashboard');
+      applyRoleAccess(); await Promise.all([loadSystemConfig(), syncAllData()]); initForms(); showPage('dashboard');
     }
 
     function getRolePerms(role) {
@@ -2788,16 +2753,6 @@
       if (!mPengeluaran.edit) { document.querySelectorAll('.btn-save-pengeluaran').forEach(el => el.style.display = 'none'); }
 
       const userUnits = getUserUnits();
-
-      const btnLogoutText = document.getElementById('btnLogoutText');
-      const btnLogoutIcon = document.getElementById('btnLogoutIcon');
-      if (currentUser.role === 'Publik') {
-        if (btnLogoutText) btnLogoutText.textContent = 'Home / Login';
-        if (btnLogoutIcon) btnLogoutIcon.innerHTML = '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>';
-      } else {
-        if (btnLogoutText) btnLogoutText.textContent = 'Keluar';
-        if (btnLogoutIcon) btnLogoutIcon.innerHTML = '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />';
-      }
     }
 
     let myUnitFilterActive = false;
@@ -3268,12 +3223,12 @@
       const unitsGavePersepuluhan = new Set(); filteredInc.forEach(x => { if ((x.income_type || '').toLowerCase().includes('persepuluhan') || (x.income_type || '').toLowerCase().includes('perpuluhan')) unitsGavePersepuluhan.add(x.unit_name); });
       if (masterData && masterData.units) masterData.units.forEach(u => { if (unitsGavePersepuluhan.has(u.name)) totalPemberiPersepuluhan += (parseInt(u.jumlah_anggota) || 0); });
 
-      const targetPembangunan = (systemConfig.target_pembangunan !== undefined && systemConfig.target_pembangunan !== '') ? parseInt(systemConfig.target_pembangunan) : (pembangunanDataCache?.target ? parseInt(pembangunanDataCache.target) : 2500000000);
+      const targetPembangunan = pembangunanDataCache?.target ? parseInt(pembangunanDataCache.target) : 2500000000;
       const persentaseBangun = (calcBangun / targetPembangunan) * 100; const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
 
-      const targetKomitmen = (systemConfig.komitmen_target !== undefined && systemConfig.komitmen_target !== '') ? parseInt(systemConfig.komitmen_target) : (pembangunanDataCache?.komitmen_target ? parseInt(pembangunanDataCache.komitmen_target) : 77300000);
-      const komitmenSaatIni = (systemConfig.komitmen_realisasi !== undefined && systemConfig.komitmen_realisasi !== '') ? parseInt(systemConfig.komitmen_realisasi) : (pembangunanDataCache?.komitmen_realisasi ? parseInt(pembangunanDataCache.komitmen_realisasi) : 63356900);
-      if ((systemConfig.komitmen_realisasi === undefined || systemConfig.komitmen_realisasi === '') && komitmenSaatIni === 53376900) komitmenSaatIni = 63356900; // Force update pending API cache sync
+      let komitmenSaatIni = pembangunanDataCache?.komitmen_realisasi ? parseInt(pembangunanDataCache.komitmen_realisasi) : 63356900;
+      if (komitmenSaatIni === 53376900) komitmenSaatIni = 63356900; // Force update pending API cache sync
+      const targetKomitmen = pembangunanDataCache?.komitmen_target ? parseInt(pembangunanDataCache.komitmen_target) : 77300000;
       const persentaseKomitmen = (komitmenSaatIni / targetKomitmen) * 100;
       const visualPercentKomitmen = persentaseKomitmen > 100 ? 100 : persentaseKomitmen;
 
@@ -3335,7 +3290,7 @@
         <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentBangun}%; background: var(--accent-gold, #ffd166, var(--teal-pop));"></div></div>
       </div>
     </div>
-    ${(isPublik || targetKomitmen <= 0 || komitmenSaatIni <= 0) ? '' : `<div class="stat-card">
+    ${isPublik ? '' : `<div class="stat-card">
       <div class="stat-header"><div class="stat-label">Komitmen Pembangunan</div><div class="stat-icon c-moss">${safeIcon('hammer', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--accent-cyan, #00d2ff)">${fmt(komitmenSaatIni)}</div>
       <div class="stat-sub" style="margin-top: 12px;">
@@ -3343,11 +3298,11 @@
         <div style="font-size: 11px; margin-bottom: 6px; font-weight: 700; color: var(--text-muted, var(--text3)); word-break: break-word; line-height: 1.1;">${fmt(targetKomitmen).toUpperCase()}</div>
         <div class="saldo-bar-track" style="height: 6px;"><div class="saldo-bar-fill" style="width:${visualPercentKomitmen}%; background: var(--accent-cyan, var(--teal-pop));"></div></div>
       </div>
-    </div>`}
+    </div>
     <div class="stat-card">
       <div class="stat-header"><div class="stat-label">Partisipasi Jemaat</div><div class="stat-icon c-red">${safeIcon('users', 'lucide-lg')}</div></div>
       <div class="stat-value" style="color: var(--text-main, var(--text))">${totalPemberiPersepuluhan} <span style="font-size:16px; color: var(--text-muted, var(--text4))">/ ${totalAnggotaSistem}</span></div>
-    </div>
+    </div>`}
   `;
 
       const dashMainGrid = document.querySelector('.dashboard-main-grid');
@@ -3501,10 +3456,7 @@
       const receipt = document.getElementById('incReceipt').value.trim(); const note = document.getElementById('incNote').value.trim();
 
       if (!date || !type || !receipt) { notify('Lengkapi data!', 'error'); return; }
-      if (isReceiptDuplicate(receipt)) { 
-        const proceed = await showCustomConfirm('Konfirmasi Kuitansi', 'No. Kuitansi sudah ada! Apakah ini kuitansi kolektif dan Anda tetap ingin menyimpannya?');
-        if (!proceed) return;
-      }
+      if (isReceiptDuplicate(receipt)) { notify('No. Kuitansi sudah ada! Gunakan nomor lain.', 'error'); return; }
 
       const dest = document.getElementById('incDestination') ? document.getElementById('incDestination').value : 'CASH';
       let finalNote = note;
@@ -3630,10 +3582,7 @@
       if (type === 'CASH' && !note.includes('[CASH]')) note = (note + ' [CASH]').trim();
 
       if (!date || !dept || !receipt || amount <= 0) { notify('Lengkapi data!', 'error'); return; }
-      if (isReceiptDuplicate(receipt)) {
-        const proceed = await showCustomConfirm('Konfirmasi Kuitansi', 'No. Bukti/Kuitansi sudah ada! Apakah ini kuitansi kolektif dan Anda tetap ingin menyimpannya?');
-        if (!proceed) return;
-      }
+      if (isReceiptDuplicate(receipt)) { notify('No. Bukti/Kuitansi sudah ada! Gunakan nomor lain.', 'error'); return; }
       let avail = Math.round(getSaldoForSource(rawSrc));
       if (amount > avail) { notify('Saldo tidak cukup!', 'error'); return; }
 
@@ -3663,10 +3612,7 @@
       const [src, type] = rawSrc.includes('|') ? rawSrc.split('|') : [rawSrc, ''];
 
       if (!date || !receipt || amount <= 0) { notify('Lengkapi data!', 'error'); return; }
-      if (isReceiptDuplicate(receipt)) {
-        const proceed = await showCustomConfirm('Konfirmasi Kuitansi', 'No. Bukti Setor sudah ada! Apakah Anda tetap ingin menyimpannya?');
-        if (!proceed) return;
-      }
+      if (isReceiptDuplicate(receipt)) { notify('No. Bukti Setor sudah ada!', 'error'); return; }
       let avail = Math.round(getSaldoForSource(rawSrc));
       if (amount > avail) { notify('Saldo tidak cukup!', 'error'); return; }
 
@@ -4737,7 +4683,7 @@
     }
 
     function renderHistory() {
-      const q = document.getElementById('searchTrans').value.toLowerCase();
+      const q = document.getElementById('searchTrans').value.toLowerCase(); const giverQ = (document.getElementById('filterGiver')?.value || '').toLowerCase();
       const type = document.getElementById('filterType').value; const month = parseInt(document.getElementById('filterMonth')?.value || 0); const year = parseInt(document.getElementById('filterYear')?.value || 0);
       const filterApproval = document.getElementById('filterApproval')?.value || '';
 
@@ -4778,6 +4724,22 @@
             if (String(x.nama_penerima || '').toLowerCase().includes(q)) m = true;
           }
           if (!m) return false;
+        }
+
+        if (giverQ) {
+          let matchesGiver = false;
+          if (String(x.receipt_no || '').toLowerCase().includes(giverQ)) matchesGiver = true;
+          if (String(x.amount || '').includes(giverQ)) matchesGiver = true;
+          if (String(x.unit_name || '').toLowerCase().includes(giverQ)) matchesGiver = true;
+          if (masterData && masterData.units) {
+            const matchedUnitNames = masterData.units.filter(u => String(u.id || '').toLowerCase().includes(giverQ)).map(u => String(u.name).toLowerCase());
+            if (matchedUnitNames.includes(String(x.unit_name || '').toLowerCase())) matchesGiver = true;
+          }
+          if (canSearchNames) {
+            if (String(x.nama_pemberi || '').toLowerCase().includes(giverQ)) matchesGiver = true;
+            if (String(x.nama_penerima || '').toLowerCase().includes(giverQ)) matchesGiver = true;
+          }
+          if (!matchesGiver) return false;
         }
 
         const userUnits = getUserUnits();
@@ -4851,7 +4813,7 @@
 
       const printBtn = document.getElementById('btnPrintUnit');
       if (printBtn) {
-        printBtn.style.display = (q || month > 0 || year > 0 || filterApproval) ? 'inline-flex' : 'none';
+        printBtn.style.display = (giverQ || q || month > 0 || year > 0 || filterApproval) ? 'inline-flex' : 'none';
       }
 
       const perms = getRolePerms(currentUser.role);
@@ -4875,7 +4837,7 @@
         if (x.type === 'income') monthlyBreak[mKey].inc += x.amount; else monthlyBreak[mKey].exp += x.amount;
       });
       let summaryHtml = '';
-      if (myUnitFilterActive || q || month > 0 || year > 0) {
+      if (myUnitFilterActive || giverQ || q || month > 0 || year > 0) {
         let totalNeedsApprove = list.filter(x => x.transaction_id || x.receipt_no).length;
         let totalApproved = list.filter(x => x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')))).length;
 
@@ -5393,10 +5355,7 @@
       }
 
       if (!date || !receipt) { notify('Tgl dan Kuitansi wajib diisi!', 'error'); return; }
-      if (receipt !== String(currentEditTransaction.old_receipt_no || '').trim() && isReceiptDuplicate(receipt, currentEditTransaction.id)) {
-        const proceed = await showCustomConfirm('Konfirmasi Kuitansi', 'No. Kuitansi sudah ada! Apakah ini kuitansi kolektif dan Anda tetap ingin menyimpannya?');
-        if (!proceed) return;
-      }
+      if (receipt !== currentEditTransaction.old_receipt_no && isReceiptDuplicate(receipt, currentEditTransaction.id)) { notify('No. Kuitansi sudah ada! Gunakan nomor lain.', 'error'); return; }
 
       const btn = document.getElementById('btnSaveEditTrans');
       btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Menyimpan...';
@@ -5991,19 +5950,6 @@
       if (dot && txt) { dot.className = 'status-dot ' + (isServerOnline ? 'online' : 'offline'); txt.textContent = isServerOnline ? 'Online' : 'Offline'; }
     }
 
-    function updateBottomNavIndicator() {
-      const bottomBar = document.getElementById('bottomBar');
-      if (!bottomBar) return;
-      const activeItem = bottomBar.querySelector('.bottom-nav-item.active');
-      if (activeItem && activeItem.style.display !== 'none') {
-        const rect = activeItem.getBoundingClientRect();
-        const barRect = bottomBar.getBoundingClientRect();
-        const center = rect.left - barRect.left + rect.width / 2;
-        bottomBar.style.setProperty('--hole-x', `${center}px`);
-      }
-    }
-    window.addEventListener('resize', updateBottomNavIndicator);
-
     function showPage(pageId) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       const target = document.getElementById('page-' + pageId); if (target) target.classList.add('active');
@@ -6017,8 +5963,6 @@
         closeSidebar();
       }
       if (pageId === 'dashboard') renderDashboard(); else if (pageId === 'pemasukan') renderIncomeList(); else if (pageId === 'pengeluaran') renderExpenseList(); else if (pageId === 'pindahbuku') renderMutasiList(); else if (pageId === 'riwayat') renderHistory(); else if (pageId === 'laporan') { document.getElementById('reportContent').innerHTML = ''; } else if (pageId === 'masterIncType') renderMasterIncTypes(); else if (pageId === 'masterDept') renderMasterDepts(); else if (pageId === 'masterUnit') renderMasterUnits(); else if (pageId === 'users') renderUsers(); else if (pageId === 'logs') renderLogs(); else if (pageId === 'roles') renderRoles();
-      
-      setTimeout(updateBottomNavIndicator, 50); // Small delay to ensure display is calculated
     }
     function doPrintPembangunan() {
       if (!currentReportData) return notify('Generate laporan terlebih dahulu', 'error');
@@ -6235,20 +6179,17 @@
     function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
 
     window.onload = async () => {
+      await loadSystemConfig();
+      const isAvailable = await checkAPIConnection();
+
       const tk = getToken();
       if (tk) {
         currentUser = getCurrentUser();
         if (currentUser) {
           if (document.getElementById('loginBtnText')) document.getElementById('loginBtnText').innerHTML = '<span class="spinner"></span> Memulihkan...';
-          launchApp();
-          return;
+          if (isAvailable) { launchApp(); } else { notify('Koneksi gagal. Silakan login kembali.', 'error'); clearToken(); }
         }
       }
-
-      setStatus('loading', 'Menghubungkan...');
-      // Run both concurrently without awaiting so the UI is responsive
-      loadSystemConfig();
-      checkAPIConnection();
     };
 
 

@@ -22,7 +22,7 @@
   "homepage": "https://github.com/pisgahbisdac/pisgahbisdac#readme",
   "dependencies": {
     "jsdom": "^29.1.1",
-    "puppeteer": "^25.2.0",
+    "puppeteer": "^19.0.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },
