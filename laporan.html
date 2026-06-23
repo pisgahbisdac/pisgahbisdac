@@ -1552,6 +1552,51 @@
         </div>
 
         <div class="card" style="max-width:800px; margin:24px auto 0;">
+          <div class="form-section-title">Pengaturan Penomoran Kuitansi</div>
+          <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Atur format teks/awalan dan nomor awal untuk sistem auto-generate nomor kuitansi.</p>
+          
+          <div style="font-weight:600; margin-bottom:12px; font-size:14px; color:var(--primary);">Penerimaan Pembangunan</div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Awalan (Prefix)</label>
+              <input class="form-input" id="prefixBangun" type="text" placeholder="Misal: BGN-" onchange="saveSignatureText('receipt_prefix_bangun', this.value)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nomor Awal / Berikutnya</label>
+              <input class="form-input" id="startBangun" type="text" placeholder="Misal: 001" onchange="saveSignatureText('receipt_start_bangun', this.value)">
+            </div>
+          </div>
+
+          <div style="font-weight:600; margin-top:16px; margin-bottom:12px; font-size:14px; color:var(--primary);">Penerimaan Umum (Kolektif, Sabat, dll)</div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Awalan (Prefix)</label>
+              <input class="form-input" id="prefixUmum" type="text" placeholder="Misal: IN-" onchange="saveSignatureText('receipt_prefix_umum', this.value)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nomor Awal / Berikutnya</label>
+              <input class="form-input" id="startUmum" type="text" placeholder="Misal: 001" onchange="saveSignatureText('receipt_start_umum', this.value)">
+            </div>
+          </div>
+
+          <div style="font-weight:600; margin-top:16px; margin-bottom:12px; font-size:14px; color:var(--primary);">Pengeluaran</div>
+          <div class="grid-2">
+              <div class="form-group">
+              <label class="form-label">Awalan (Prefix)</label>
+              <input class="form-input" id="prefixExpense" type="text" placeholder="Misal: OUT-" onchange="saveSignatureText('receipt_prefix_expense', this.value)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nomor Awal / Berikutnya</label>
+              <input class="form-input" id="startExpense" type="text" placeholder="Misal: 001" onchange="saveSignatureText('receipt_start_expense', this.value)">
+            </div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <button class="btn btn-primary" onclick="saveReceiptSettings(this)">Simpan Pengaturan Kuitansi</button>
+          </div>
+        </div>
+
+        <div class="card" style="max-width:800px; margin:24px auto 0;">
           <div class="form-section-title">Pengaturan Format Kuitansi</div>
           <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Atur teks header kuitansi (3 Baris) dan
             nama kota pada kuitansi pencetakan.</p>
@@ -2237,6 +2282,13 @@
       const inRK = document.getElementById('komitmenRealisasiInput');
       if (inRK) inRK.value = systemConfig.komitmen_realisasi ? fmt(systemConfig.komitmen_realisasi) : '';
 
+      if (document.getElementById('prefixBangun')) document.getElementById('prefixBangun').value = systemConfig.receipt_prefix_bangun || '';
+      if (document.getElementById('startBangun')) document.getElementById('startBangun').value = systemConfig.receipt_start_bangun || '';
+      if (document.getElementById('prefixUmum')) document.getElementById('prefixUmum').value = systemConfig.receipt_prefix_umum || '';
+      if (document.getElementById('startUmum')) document.getElementById('startUmum').value = systemConfig.receipt_start_umum || '';
+      if (document.getElementById('prefixExpense')) document.getElementById('prefixExpense').value = systemConfig.receipt_prefix_expense || '';
+      if (document.getElementById('startExpense')) document.getElementById('startExpense').value = systemConfig.receipt_start_expense || '';
+
       const sigKeys = ['sig_bendahara', 'sig_bangun', 'sig_ketua', 'sig_pendeta'];
       sigKeys.forEach(k => {
         const imgEl = document.getElementById('preview-' + k.replace('_', '-'));
@@ -2855,6 +2907,12 @@
       if (!mPemasukan.edit) { document.querySelectorAll('.btn-save-pemasukan').forEach(el => el.style.display = 'none'); }
       if (!mPengeluaran.edit) { document.querySelectorAll('.btn-save-pengeluaran').forEach(el => el.style.display = 'none'); }
 
+      const canEditReceipt = currentUser.role === 'Admin';
+      const incReceipt = document.getElementById('incReceipt');
+      const expReceipt = document.getElementById('expReceipt');
+      if (incReceipt) incReceipt.readOnly = !canEditReceipt;
+      if (expReceipt) expReceipt.readOnly = !canEditReceipt;
+
       const userUnits = getUserUnits();
 
       const btnLogoutText = document.getElementById('btnLogoutText');
@@ -2995,6 +3053,91 @@
       const type = document.getElementById('incType').value; const singleGrp = document.getElementById('incAmountSingleGroup'); const perpGrp = document.getElementById('incPerpuluhanGroup');
       if (singleGrp && perpGrp) { if (type === 'Perpuluhan') { singleGrp.style.display = 'none'; perpGrp.style.display = 'block'; } else { singleGrp.style.display = 'block'; perpGrp.style.display = 'none'; } }
       updateIncomeAlloc();
+      generateReceiptNo('income');
+    }
+
+    function generateReceiptNo(category) {
+      try {
+        if (!systemConfig) { notify('Debug: systemConfig is missing', 'error'); return; }
+        let prefix = '';
+        let startStr = '';
+        let list = [];
+
+        if (category === 'income') {
+        const type = document.getElementById('incType').value || '';
+        
+        if (type.toLowerCase().includes('pembangunan')) {
+          prefix = (systemConfig.receipt_prefix_bangun || '').trim();
+          startStr = (systemConfig.receipt_start_bangun || '').trim();
+        } else {
+          prefix = (systemConfig.receipt_prefix_umum || '').trim();
+          startStr = (systemConfig.receipt_start_umum || '').trim();
+        }
+        list = cachedIncome || [];
+      } else if (category === 'expense') {
+        prefix = (systemConfig.receipt_prefix_keluar || '').trim();
+        startStr = (systemConfig.receipt_start_keluar || '').trim();
+        list = cachedExpense || [];
+      }
+
+      if (!Array.isArray(list)) list = [];
+
+      let startNo = parseInt(startStr, 10);
+      if (isNaN(startNo)) startNo = 1;
+      let digitLength = startStr.length > 0 ? startStr.length : 3;
+
+      let highest = 0;
+      list.forEach(tx => {
+        let rNo = String(tx.receipt_no || '');
+        if (rNo.startsWith(prefix)) {
+          let numPart = rNo.substring(prefix.length);
+          let n = parseInt(numPart, 10);
+          if (!isNaN(n) && n > highest) highest = n;
+        }
+      });
+
+      let nextNo = highest >= startNo ? highest + 1 : startNo;
+      let nextStr = String(nextNo).padStart(digitLength, '0');
+      
+      const newNo = prefix + nextStr;
+      
+      if (category === 'income') {
+        const el = document.getElementById('incReceipt');
+        if (el) {
+          el.value = newNo;
+          notify('Debug: Set incReceipt to ' + newNo, 'success');
+        } else {
+          notify('Debug: incReceipt not found', 'error');
+        }
+      } else {
+        const el = document.getElementById('expReceipt');
+        if (el) {
+          el.value = newNo;
+          notify('Debug: Set expReceipt to ' + newNo, 'success');
+        } else {
+          notify('Debug: expReceipt not found', 'error');
+        }
+      }
+      } catch (e) {
+        alert("Error generating receipt: " + e.message + "\n" + e.stack);
+      }
+    }
+
+    async function saveReceiptSettings(btn) {
+      if (btn) btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
+      try {
+        if(document.getElementById('prefixBangun')) await saveSignatureText('receipt_prefix_bangun', document.getElementById('prefixBangun').value);
+        if(document.getElementById('startBangun')) await saveSignatureText('receipt_start_bangun', document.getElementById('startBangun').value);
+        if(document.getElementById('prefixUmum')) await saveSignatureText('receipt_prefix_umum', document.getElementById('prefixUmum').value);
+        if(document.getElementById('startUmum')) await saveSignatureText('receipt_start_umum', document.getElementById('startUmum').value);
+        if(document.getElementById('prefixExpense')) await saveSignatureText('receipt_prefix_expense', document.getElementById('prefixExpense').value);
+        if(document.getElementById('startExpense')) await saveSignatureText('receipt_start_expense', document.getElementById('startExpense').value);
+        notify('Pengaturan Kuitansi berhasil disimpan', 'success');
+      } catch (err) {
+        notify('Gagal menyimpan: ' + err.message, 'error');
+      } finally {
+        if (btn) btn.innerHTML = 'Simpan Pengaturan Kuitansi';
+      }
     }
 
     async function loadAllTransactions() {
@@ -3615,10 +3758,10 @@
         }
         notify('Berhasil disimpan!', 'success');
 
-        document.getElementById('incType').value = ''; handleTypeChange(); document.getElementById('incUnit').value = ''; document.getElementById('incGiver').value = ''; document.getElementById('incReceipt').value = ''; document.getElementById('incAmount').value = ''; document.getElementById('incAmtPerpuluhan').value = ''; document.getElementById('incAmtTerpadu').value = ''; document.getElementById('incAmtKhususJemaat').value = ''; document.getElementById('incAmtKhususDaerah').value = ''; document.getElementById('incNote').value = '';
+        document.getElementById('incType').value = ''; document.getElementById('incUnit').value = ''; document.getElementById('incGiver').value = ''; document.getElementById('incAmount').value = ''; document.getElementById('incAmtPerpuluhan').value = ''; document.getElementById('incAmtTerpadu').value = ''; document.getElementById('incAmtKhususJemaat').value = ''; document.getElementById('incAmtKhususDaerah').value = ''; document.getElementById('incNote').value = '';
         resetPhotoUpload('income');
 
-        updateIncomeAlloc(); await syncAllData(); renderIncomeList();
+        updateIncomeAlloc(); await syncAllData(); renderIncomeList(); handleTypeChange();
       } catch (err) { notify(err.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = `Posting Pemasukan`; }
     }
 
@@ -3728,9 +3871,9 @@
       try {
         await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentExpPhotos[0] || '', receipt_photo_base64_2: currentExpPhotos[1] || '', receipt_photo_base64_3: currentExpPhotos[2] || '', nama_penerima: receiver || '-' });
         notify('Berhasil!', 'success');
-        document.getElementById('expDept').value = ''; document.getElementById('expReceipt').value = ''; document.getElementById('expAmount').value = ''; document.getElementById('expNote').value = ''; document.getElementById('expReceiver').value = '';
+        document.getElementById('expDept').value = ''; document.getElementById('expAmount').value = ''; document.getElementById('expNote').value = ''; document.getElementById('expReceiver').value = '';
         resetPhotoUpload('expense');
-        await syncAllData(); renderExpenseList();
+        await syncAllData(); renderExpenseList(); generateReceiptNo('expense');
       } catch (err) { notify(err.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = `Posting Pengeluaran`; }
     }
 
@@ -6106,6 +6249,10 @@
       if (window.innerWidth <= 1100) {
         closeSidebar();
       }
+      
+      if (pageId === 'pemasukan') generateReceiptNo('income');
+      if (pageId === 'pengeluaran') generateReceiptNo('expense');
+
       if (pageId === 'dashboard') renderDashboard(); else if (pageId === 'pemasukan') renderIncomeList(); else if (pageId === 'pengeluaran') renderExpenseList(); else if (pageId === 'pindahbuku') renderMutasiList(); else if (pageId === 'riwayat') renderHistory(); else if (pageId === 'laporan') { document.getElementById('reportContent').innerHTML = ''; } else if (pageId === 'masterIncType') renderMasterIncTypes(); else if (pageId === 'masterDept') renderMasterDepts(); else if (pageId === 'masterUnit') renderMasterUnits(); else if (pageId === 'users') renderUsers(); else if (pageId === 'logs') renderLogs(); else if (pageId === 'roles') renderRoles();
 
       setTimeout(updateBottomNavIndicator, 50); // Small delay to ensure display is calculated
