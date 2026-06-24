@@ -2089,8 +2089,11 @@
       const url = new URL(getActiveApiUrl());
       url.searchParams.set('action', action); url.searchParams.set('token', getToken() || ''); url.searchParams.set('_t', Date.now());
       Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' }).catch(() => { localStorage.removeItem('BISDAC_api_url'); throw new Error('Jaringan Error. URL di-reset.'); });
+      if (!res.ok) {
+        if (res.status === 404 || res.status === 400) { localStorage.removeItem('BISDAC_api_url'); }
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = await res.json();
       if (!data.success) {
         if (data.message && data.message.includes('Token tidak valid')) {
@@ -2119,8 +2122,11 @@
       if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
       try {
         const body = JSON.stringify({ action, token: getToken(), data: payload });
-        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body }).catch(() => { localStorage.removeItem('BISDAC_api_url'); throw new Error('Jaringan Error. URL di-reset.'); });
+        if (!res.ok) {
+          if (res.status === 404 || res.status === 400) { localStorage.removeItem('BISDAC_api_url'); }
+          throw new Error(`HTTP ${res.status}`);
+        }
         const data = await res.json();
         if (!data.success) {
           if (data.message && data.message.includes('Token tidak valid')) {
@@ -2148,8 +2154,11 @@
     async function login(username, password) {
       const url = new URL(getActiveApiUrl());
       url.searchParams.set('action', 'login'); url.searchParams.set('username', username.trim().toLowerCase()); url.searchParams.set('password', password); url.searchParams.set('_t', Date.now());
-      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' }).catch(() => { localStorage.removeItem('BISDAC_api_url'); throw new Error('Jaringan Error. URL di-reset.'); });
+      if (!res.ok) {
+        if (res.status === 404 || res.status === 400) { localStorage.removeItem('BISDAC_api_url'); }
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = await res.json();
       if (data.success) { setToken(data.token); sessionStorage.setItem('BISDAC_user', JSON.stringify(data.user)); }
       return data;
@@ -2748,7 +2757,7 @@
       setStatus('loading', 'Menghubungkan...');
       try {
         const url = getActiveApiUrl(); if (!url || url.trim() === '') { setStatus('offline', 'URL Belum Diset!'); isServerOnline = false; return false; }
-        const res = await fetch(`${url}?action=ping&_t=${Date.now()}`, { method: 'GET', redirect: 'follow' });
+        const res = await fetch(`${url}?action=ping&_t=${Date.now()}`, { method: 'GET', redirect: 'follow' }).catch(() => { throw new Error('Jaringan Error'); });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         if (json.success) { setStatus('online', 'Server Online'); isServerOnline = true; return true; }
