@@ -2092,7 +2092,12 @@
       const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      if (!data.success) throw new Error(data.message || 'API Gagal');
+      if (!data.success) {
+        if (data.message && data.message.includes('Token tidak valid')) {
+          setTimeout(() => { clearToken(); sessionStorage.removeItem('BISDAC_user'); window.location.reload(); }, 2500);
+        }
+        throw new Error(data.message || 'API Gagal');
+      }
       return data;
     }
 
@@ -2117,7 +2122,12 @@
         const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        if (!data.success) throw new Error(data.message || 'Gagal mengirim data.');
+        if (!data.success) {
+          if (data.message && data.message.includes('Token tidak valid')) {
+            setTimeout(() => { clearToken(); sessionStorage.removeItem('BISDAC_user'); window.location.reload(); }, 2500);
+          }
+          throw new Error(data.message || 'Gagal mengirim data.');
+        }
         return data;
       } finally {
         if (action !== 'syncData' && !window.isBulkProcessing) hideGlobalLoading();
