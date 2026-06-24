@@ -486,7 +486,7 @@
           photoBtn = getPhotoBtnText(x);
 
           listHtml += `
-          <div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--empty-bg);">
+          <div class="dash-tx-card" style="margin: 0 0 16px 0; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--empty-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px;">
               <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                 <span class="badge ${x.isInc ? 'badge-green' : 'badge-red'}" style="font-size:10px; padding:2px 7px;">${x.isInc ? 'IN' : 'OUT'}</span>
@@ -3499,7 +3499,7 @@
           const isInc = x.kind === 'income';
           let photoBtn = getPhotoBtnText(x);
           return `
-          <div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+          <div class="dash-tx-card" style="margin: 0 0 16px 0; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
               <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                 <span class="badge ${x.badge}" style="font-size:10px; padding:2px 7px;">${isInc ? 'IN' : 'OUT'}</span>
@@ -3644,7 +3644,7 @@
           if (nText.includes('[BANK]')) { nText = nText.replace(/\[BANK\]\s?|\s?\[BANK\]/g, ''); bBadge = '<span class="badge badge-green" style="font-size:10px; padding:2px 4px; margin-right:4px;">VIA BANK</span>'; }
           else if (nText.includes('[CASH]')) { nText = nText.replace(/\[CASH\]\s?|\s?\[CASH\]/g, ''); bBadge = '<span class="badge badge-amber" style="font-size:10px; padding:2px 4px; margin-right:4px;">TUNAI</span>'; }
           return `
-          <div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+          <div class="dash-tx-card" style="margin: 0 0 16px 0; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
               <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                 <span class="badge badge-blue" style="font-size:10px; padding:2px 7px;">IN</span>
@@ -3779,7 +3779,7 @@
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column;">' + list.map(x => {
           let photoBtn = getPhotoBtnText(x);
           return `
-          <div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+          <div class="dash-tx-card" style="margin: 0 0 16px 0; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
               <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                 <span class="badge badge-red" style="font-size:10px; padding:2px 7px;">OUT</span>
@@ -3827,7 +3827,7 @@
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column;">' + list.map(x => {
           let photoBtn = getPhotoBtnText(x);
           return `
-          <div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+          <div class="dash-tx-card" style="margin: 0 0 16px 0; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
               <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                 <span class="badge badge-blue" style="font-size:10px; padding:2px 7px;">MUT</span>
@@ -4739,7 +4739,7 @@
             let rawPemberi = (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') ? x.nama_pemberi : (x.unit_name || '-');
             let photoBtn = '';
             photoBtn = getPhotoBtnText(x, isMasked && !isApprover);
-            return `<div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+            return `<div class="dash-tx-card" style="margin: 0 0 16px 0; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
                 <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                   <span class="badge badge-green" style="font-size:10px; padding:2px 7px;">IN</span>
@@ -4781,7 +4781,7 @@
           const mobileHtml = `<div class="dash-detail-list" style="display:flex; flex-direction:column;">${items.map(x => {
             let photoBtn = '';
             photoBtn = getPhotoBtnText(x);
-            return `<div class="dash-tx-card" style="margin: 0 12px 16px 12px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
+            return `<div class="dash-tx-card" style="margin: 0 0 16px 0; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
                 <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
                   <span class="badge badge-red" style="font-size:10px; padding:2px 7px;">OUT</span>
