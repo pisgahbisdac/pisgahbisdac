@@ -2089,7 +2089,7 @@
       const url = new URL(getActiveApiUrl());
       url.searchParams.set('action', action); url.searchParams.set('token', getToken() || ''); url.searchParams.set('_t', Date.now());
       Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow', signal: AbortSignal.timeout(30000) });
+      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (!data.success) throw new Error(data.message || 'API Gagal');
@@ -2114,7 +2114,7 @@
       if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
       try {
         const body = JSON.stringify({ action, token: getToken(), data: payload });
-        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body, signal: AbortSignal.timeout(45000) });
+        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (!data.success) throw new Error(data.message || 'Gagal mengirim data.');
@@ -2138,7 +2138,7 @@
     async function login(username, password) {
       const url = new URL(getActiveApiUrl());
       url.searchParams.set('action', 'login'); url.searchParams.set('username', username.trim().toLowerCase()); url.searchParams.set('password', password); url.searchParams.set('_t', Date.now());
-      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow', signal: AbortSignal.timeout(30000) });
+      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.success) { setToken(data.token); sessionStorage.setItem('BISDAC_user', JSON.stringify(data.user)); }
@@ -2738,7 +2738,7 @@
       setStatus('loading', 'Menghubungkan...');
       try {
         const url = getActiveApiUrl(); if (!url || url.trim() === '') { setStatus('offline', 'URL Belum Diset!'); isServerOnline = false; return false; }
-        const res = await fetch(`${url}?action=ping&_t=${Date.now()}`, { method: 'GET', redirect: 'follow', signal: AbortSignal.timeout(45000) });
+        const res = await fetch(`${url}?action=ping&_t=${Date.now()}`, { method: 'GET', redirect: 'follow' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         if (json.success) { setStatus('online', 'Server Online'); isServerOnline = true; return true; }
