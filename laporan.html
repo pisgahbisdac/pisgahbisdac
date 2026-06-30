@@ -253,7 +253,7 @@
       color: #d97706;
     }
     .proyek-banner p.desc {
-      font-size: 14px; line-height: 1.6; max-width: 800px; margin: 0 auto 16px auto;
+      font-size: 14px; line-height: 1.6; max-width: 1400px; margin: 0 auto 16px auto;
       color: #475569;
     }
     .proyek-banner p.action {
@@ -1452,7 +1452,7 @@
       </div>
 
       <div class="page" id="page-settings">
-        <div class="card" style="max-width:800px; margin:0 auto;">
+        <div class="card" style="max-width:1400px; margin:0 auto;">
           <div class="form-section-title">Personalisasi Tampilan</div>
           <div class="grid-2">
             <div
@@ -1513,7 +1513,7 @@
           </div>
         </div>
 
-        <div class="card" style="max-width:800px; margin:24px auto 0;">
+        <div class="card" style="max-width:1400px; margin:24px auto 0;">
           <div class="form-section-title">Pengaturan Pembangunan</div>
           <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Atur target dana, komitmen, dan realisasi
             pada dashboard pembangunan.</p>
@@ -1538,7 +1538,7 @@
           </div>
         </div>
 
-        <div class="card" style="max-width:800px; margin:24px auto 0;">
+        <div class="card" style="max-width:1400px; margin:24px auto 0;">
           <div class="form-section-title">Pengaturan Server Web App</div>
           <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Masukkan URL Apps Script untuk mengatur
             ulang koneksi server database Google Sheets.</p>
@@ -1551,7 +1551,7 @@
           </div>
         </div>
 
-        <div class="card" style="max-width:800px; margin:24px auto 0;">
+        <div class="card" style="max-width:1400px; margin:24px auto 0;">
           <div class="form-section-title">Pengaturan Format Kuitansi</div>
           <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Atur teks header kuitansi (3 Baris) dan
             nama kota pada kuitansi pencetakan.</p>
@@ -1581,7 +1581,7 @@
           </div>
         </div>
 
-        <div class="card" style="max-width:800px; margin:24px auto 0;">
+        <div class="card" style="max-width:1400px; margin:24px auto 0;">
           <div class="form-section-title">Pengaturan Tanda Tangan PDF</div>
           <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Unggah foto tanda tangan dengan background
             transparan (PNG). Tanda tangan hanya akan muncul di Laporan PDF apabila <strong>semua transaksi pada bulan
@@ -1692,7 +1692,7 @@
       </div>
 
       <div class="page" id="page-roles">
-        <div class="card" style="max-width:900px; margin:0 auto; padding: 24px;">
+        <div class="card" style="max-width:1500px; margin:0 auto; padding: 24px;">
           <h2 style="margin-bottom: 24px; color: var(--text);">Hak Akses Menu & Staff</h2>
 
           <div
@@ -1908,7 +1908,7 @@
     style="display:none; justify-content:center !important; align-items:center !important; z-index:1300; padding:16px !important;"
     onclick="closePhotoModal()">
     <div
-      style="position:relative; width:100%; max-width:800px; background:var(--bg-dark); border:1px solid var(--glass-border); border-radius:16px; padding:16px; box-shadow:0 10px 25px rgba(0,0,0,0.5);"
+      style="position:relative; width:100%; max-width:1400px; background:var(--bg-dark); border:1px solid var(--glass-border); border-radius:16px; padding:16px; box-shadow:0 10px 25px rgba(0,0,0,0.5);"
       onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:12px; align-items:center;">
         <span id="photoCounter" style="font-size:13px; color:var(--text3); font-weight:600;"></span>
@@ -4122,9 +4122,89 @@
       rightPanel.push({ label: 'Total Pengeluaran', val: totalExpJemaat, bold: true, isColored: true });
 
       const saldoAkhirJemaat = saldoAwalJemaat + totalIncJemaat - totalExpJemaat;
+      
+      const isUpToReportEnd = (dateStr) => {
+        const d = new Date(dateStr);
+        const y = d.getFullYear();
+        const m = d.getMonth() + 1;
+        if (year !== 0 && y > year) return false;
+        if (year !== 0 && y === year && month !== 0 && m > month) return false;
+        return true;
+      };
+
+      const isMatchDate = (dateStr) => {
+        const d = new Date(dateStr);
+        if (mode === 'akumulasi') {
+          if (year !== 0) {
+            if (d.getFullYear() > year) return false;
+            if (d.getFullYear() === year && month !== 0 && (d.getMonth() + 1) > month) return false;
+          }
+          return true;
+        } else {
+          if (year !== 0 && d.getFullYear() !== year) return false;
+          if (month !== 0 && (d.getMonth() + 1) !== month) return false;
+          return true;
+        }
+      };
+
+      let calcBankJ = cachedSaldo.initJemaat || 0; let calcCashJ = 0;
+      let calcBankD = cachedSaldo.initDaerah || 0; let calcCashD = 0;
+
+      (cachedIncome || []).forEach(i => {
+        if (!isUpToReportEnd(i.date)) return;
+        const isCashInc = (i.note || '').includes('[CASH]');
+        let amtJ = parseFloat(i.alloc_jemaat) || 0;
+        let amtD = parseFloat(i.alloc_daerah) || 0;
+
+        if (isMatchDate(i.date)) {
+           const t = i.income_type || 'Lain-Lain';
+           const amt = parseFloat(i.amount) || 0;
+           const tLower = t.toLowerCase();
+           const isSabat = tLower.includes('sabat');
+           if (t === 'Perpuluhan' || t === 'Khusus Daerah') {
+             amtJ = 0; amtD = amt;
+           } else if (t === 'Terpadu' || isSabat) {
+             amtJ = amt * 0.5; amtD = amt * 0.5;
+           } else if (t !== 'Saldo Awal Sistem' && t !== 'Saldo Awal' && !tLower.includes('pembangunan') && !(parseFloat(i.alloc_bangun)>0)) {
+             amtJ = amt; amtD = 0;
+           }
+        }
+
+        if (isCashInc) {
+          calcCashD += amtD; calcCashJ += amtJ;
+        } else {
+          calcBankD += amtD; calcBankJ += amtJ;
+        }
+      });
+
+      (cachedExpense || []).forEach(e => {
+        if (!isUpToReportEnd(e.date)) return;
+        const isMutasi = e.department === 'Mutasi Kas / Setor Bank';
+        let srcBase = e.source_balance;
+        if (srcBase === 'Kas Daerah (Bank)') { srcBase = 'Daerah'; e.note = (e.note || '') + ' [BANK]'; }
+        if (srcBase === 'Kas Daerah (Di Tangan)') { srcBase = 'Daerah'; e.note = (e.note || '') + ' [CASH]'; }
+        if (srcBase === 'Kas Jemaat (Bank)') { srcBase = 'Kas Jemaat'; e.note = (e.note || '') + ' [BANK]'; }
+        if (srcBase === 'Kas Jemaat (Di Tangan)') { srcBase = 'Kas Jemaat'; e.note = (e.note || '') + ' [CASH]'; }
+
+        const isCashExp = (e.note || '').includes('[CASH]');
+        const amt = parseFloat(e.amount || 0);
+        
+        if (srcBase === 'Daerah') {
+          if (!isMutasi) {
+            if (isCashExp) calcCashD -= amt; else calcBankD -= amt;
+          } else { calcCashD -= amt; calcBankD += amt; }
+        }
+        else if (srcBase === 'Kas Jemaat') {
+          if (!isMutasi) {
+            if (isCashExp) calcCashJ -= amt; else calcBankJ -= amt;
+          } else { calcCashJ -= amt; calcBankJ += amt; }
+        }
+      });
+
       rightPanel.push({ label: 'Saldo Akhir Bulan ini', val: saldoAkhirJemaat, bold: true, isBorderTop: true, isColored: true });
       rightPanel.push({ label: 'Kas Pada Jemaat', val: saldoAkhirJemaat, indent: true });
-      rightPanel.push({ label: 'CASH ON HAND / Ditangan', val: 0, indent: true });
+      rightPanel.push({ label: 'CASH ON HAND / Tunai', val: calcCashJ, indent: true });
+      rightPanel.push({ label: 'SALDO DI BANK', val: calcBankJ, indent: true });
       rightPanel.push({ label: '<span style="font-size:6.5pt;">Balance Saldo Kas Jemaat</span>', val: saldoAkhirJemaat, bold: true, large: true, isBorderTop: true, isColoredDark: true });
 
       // Tambahan info Uang Daerah
@@ -4158,7 +4238,8 @@
       rightPanel.push({ label: 'Perpuluhan', val: sumPerpuluhan, indent: true, isLightDaerah: true });
       rightPanel.push({ label: '50% Terpadu Daerah', val: sumTerpaduDaerah, indent: true, isLightDaerah: true });
       rightPanel.push({ label: 'Persembahan Khusus Daerah', val: sumKhususDaerah, indent: true, isLightDaerah: true });
-
+      rightPanel.push({ label: 'Tunai Di Tangan (Daerah)', val: calcCashD, indent: true, isLightDaerah: true });
+      rightPanel.push({ label: 'Saldo Bank (Daerah)', val: calcBankD, indent: true, isLightDaerah: true });
       rightPanel.push({ label: '<span style="font-size:6pt;">Total Uang Untuk Daerah</span>', val: saldoAkhirDaerah, bold: true, large: true, isBorderTop: true, isColoredDaerah: true });
 
       const imgBen = useImages && systemConfig.sig_bendahara ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;

@@ -1497,7 +1497,7 @@ import ReactDOM from 'react-dom/client';
 
                     {/* Header */}
                     <header className="bg-white/90 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-amber-500/20 shadow-sm dark:shadow-lg relative z-20 transition-colors duration-300">
-                        <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div className="max-w-[1500px] mx-auto px-4 py-3 md:py-4 flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex items-center gap-3 w-full justify-center md:justify-start md:w-auto">
                                 <div className="bg-slate-100 dark:bg-slate-950 border border-amber-500/30 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center p-1.5 shadow-[0_0_15px_rgba(245,158,11,0.2)] shrink-0">
                                     {!logoError ? <img src="./icons/PisgahColor.png" alt="Logo PISGAH" className="w-full h-full object-contain" onError={() => setLogoError(true)} /> : <i className="fa-solid fa-church text-amber-500 dark:text-amber-400 text-lg md:text-xl"></i>}
@@ -1573,7 +1573,7 @@ import ReactDOM from 'react-dom/client';
 
                     {currentUserRole !== "public" && (
                         <nav className="bg-white/95 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-white/5 sticky top-0 z-40 transition-colors duration-300">
-                            <div className="max-w-7xl mx-auto px-2 md:px-4 flex space-x-1 md:space-x-2 py-2 md:py-3 text-[11px] md:text-xs font-extrabold text-slate-500 dark:text-slate-400 overflow-x-auto no-scrollbar snap-x items-center">
+                            <div className="max-w-[1500px] mx-auto px-2 md:px-4 flex space-x-1 md:space-x-2 py-2 md:py-3 text-[11px] md:text-xs font-extrabold text-slate-500 dark:text-slate-400 overflow-x-auto no-scrollbar snap-x items-center">
                                 <button onClick={() => setActiveTab("dashboard")} className={`snap-start shrink-0 px-4 md:px-5 py-2.5 md:py-2 rounded-xl md:rounded-full transition-all duration-300 flex items-center gap-2 ${activeTab === "dashboard" ? "bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.5)] scale-[1.05]" : "bg-slate-100 dark:bg-slate-900/50 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"}`}><i className="fa-solid fa-chart-line"></i> Dashboard</button>
                                 {currentUserRole === "admin" && (
                                     <>
@@ -1589,7 +1589,7 @@ import ReactDOM from 'react-dom/client';
                     )}
 
                     {/* Main Content */}
-                    <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 md:py-8 mb-8 md:mb-0">
+                    <main className="flex-1 max-w-[1500px] w-full mx-auto px-4 py-6 md:py-8 mb-8 md:mb-0">
                         
                         {activeTab === "dashboard" && (
                             <section className="space-y-6 md:space-y-8 animate-fadeIn">
@@ -2252,7 +2252,7 @@ import ReactDOM from 'react-dom/client';
 
                     {/* Footer */}
                     <footer className="bg-white dark:bg-slate-950 text-slate-500 py-8 border-t border-slate-200 dark:border-white/5 mt-auto text-xs pb-12 md:pb-8 transition-colors duration-300 relative z-20">
-                        <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center md:flex-row md:justify-between gap-4 text-center md:text-left">
+                        <div className="max-w-[1500px] mx-auto px-4 flex flex-col items-center justify-center md:flex-row md:justify-between gap-4 text-center md:text-left">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-700/50 p-1 bg-slate-100 dark:bg-slate-900"><img src="./icons/PisgahColor.png" alt="Logo" className="w-full h-full object-contain" onError={(e) => e.target.style.display = 'none'} /></div>
                                 <h5 className="text-slate-900 dark:text-white font-black tracking-widest text-[11px]">PISGAH<span className="text-gold-500">BISDAC</span></h5>

@@ -6093,7 +6093,7 @@ const App = () => {
 
             {/* HEADER UTAMA (Responsif untuk Mobile & Desktop) */}
             <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 shadow-sm">
-                <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 gap-3">
+                <div className="max-w-[1500px] mx-auto flex items-center justify-between px-4 py-3 gap-3">
                     <div className="flex items-center gap-2 md:gap-3 flex-1 justify-start">
                         <div className="flex flex-col items-start shrink-0 cursor-pointer" onClick={() => setActiveTab('home')}>
                             {/* Baris 1: Logo + Nama Gereja */}
@@ -6160,7 +6160,7 @@ const App = () => {
                 </div>
             )}
 
-            <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8 pb-32 md:pb-12">
+            <main className="flex-1 max-w-[1500px] mx-auto w-full p-4 md:p-8 pb-32 md:pb-12">
                 {renderContent()}
             </main>
 
