@@ -1,6 +1,36 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 import { createPortal } from 'react-dom';
+import { ChevronLeft, ChevronRight, Play, Maximize, FileText, Download, Share2, Info, BookOpen, Search as SearchIcon, X, CheckCircle, Navigation, MapPin, Calendar, Phone, Mail, Clock, Globe, ArrowRight, User, PlusCircle, PenTool, Layout, File, ExternalLink, Menu, Music, Activity, Megaphone, Video, ArrowLeft, MoreHorizontal, MessageCircle, Heart, Star, Compass, Anchor, Copy, Check, Upload, Trash2, Map } from 'lucide-react';
+import html2pdf from 'html2pdf.js';
+
+// --- PWA & SERVICE WORKER LOGIC ---
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
+    });
+}
+
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+});
+
+window.installPWA = async () => {
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        alert("Aplikasi sudah terinstal dan saat ini sedang dibuka sebagai aplikasi desktop/mobile.");
+        return;
+    }
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+    } else {
+        alert("Pemasangan otomatis tidak dapat dilakukan saat ini.\n\nAlasan yang mungkin:\n1. Anda masih dalam mode pengembangan (Localhost) tanpa HTTPS.\n2. Aplikasi ini sudah terinstal di perangkat Anda.\n3. Browser Anda (seperti Safari/iOS) tidak mendukung tombol ini.\n\nCara Manual: Tekan menu browser (Titik Tiga atau tombol Share) lalu pilih 'Instal Aplikasi' atau 'Tambahkan ke Layar Utama'.");
+    }
+};
+// -----------------------------------
 
 const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwQJWQ2hKXQMdnFqVYr8Tan_9BIKQLtZyM_Wil6y19mRrgiQhEb1KB0hwOvJsPThcIX/exec'; // PASTIKAN UNTUK MENGISI KEMBALI URL GAS ANDA DI SINI
 
@@ -172,11 +202,6 @@ const initialJadwalSabat = {
     ]
 };
 
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-});
 
 const IosInstallModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
@@ -348,40 +373,27 @@ const formatDate = (dateString) => {
     return `${d}/${m}/${y}`;
 };
 
-// --- COMPONENTS ---
 const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook }) => {
     const [currentSlide, setCurrentSlide] = React.useState(0);
 
-    // Safeguard untuk berjaga-jaga jika array gambar kosong (Dipindahkan ke atas)
     const displayImages = heroImages && heroImages.length > 0 ? heroImages : ["./icons/PisgahColor.png"];
 
-    // --- FILTER WARTA TERBARU UNTUK HOME ---
     const sortedWartaHome = React.useMemo(() => {
         return [...(daftarWarta || [])].sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
     }, [daftarWarta]);
 
-    const wartaTerbaru = sortedWartaHome.length > 0 ? sortedWartaHome[0] : null;
-    const wartaLama = sortedWartaHome.length > 1 ? sortedWartaHome.slice(1, 5) : []; // Ambil 4 warta lama untuk carousel baris bawah
-    // ---------------------------------------
-
-    // Auto-slide carousel effect (DIPERBAIKI)
     React.useEffect(() => {
-        // Reset slide ke gambar pertama setiap kali jumlah gambar berubah (tambah/hapus)
         setCurrentSlide(0);
     }, [displayImages.length]);
 
     React.useEffect(() => {
-        // Carousel HANYA akan berjalan otomatis jika gambar lebih dari 1
         if (displayImages.length <= 1) return;
-
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % displayImages.length);
-        }, 6000); // Angka 4000 artinya 4 detik. Ubah angka ini jika ingin lebih lambat/cepat.
-
+        }, 6000);
         return () => clearInterval(timer);
     }, [displayImages.length]);
 
-    //---penentuan pengumuman && pengumuman.isi && ---//
     const isPengumumanReallyEmpty = () => {
         if (!pengumuman || !pengumuman.isi) return true;
         const tempDiv = document.createElement('div');
@@ -393,443 +405,312 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
     const featureItems = [
         { id: 'sekolah_sabat', label: 'Sekolah Sabat', icon: 'BookOpen', isExternal: true, link: 'https://sabbath-school.adventech.io/in' },
         { id: 'lagu_sion', label: 'Lagu Sion', icon: 'Music', isExternal: true, link: 'https://play.lagusion.org/' },
-        { id: 'keanggotaan', label: 'Layanan Anggota', icon: 'Users' },
+        { id: 'keanggotaan', label: 'Keanggotaan', icon: 'Users' },
         { id: 'susunan_ibadah', label: 'Susunan Ibadah', icon: 'List' },
-        { id: 'persembahan', label: 'Persembahan & Perpuluhan', icon: 'Gift' },
-        { id: 'hubungi', label: 'Hubungi Kami', icon: 'Phone' },
-        { id: 'kehadiran', label: 'Data Kehadiran', icon: 'ListOrdered', isSameTab: true, link: './hadir.html' },
+        { id: 'persembahan', label: 'Persembahan', icon: 'Gift' },
+        { id: 'kehadiran', label: 'Kehadiran', icon: 'ListOrdered', isSameTab: true, link: './hadir.html' },
         { id: 'laporan', label: 'Laporan Keuangan', icon: 'Megaphone', isSameTab: true, link: './laporan.html' },
+        { id: 'hubungi', label: 'Kontak', icon: 'Phone' },
     ];
 
-    const filteredItems = featureItems;
-
-    const renderFeatureCard = (item) => {
-        const labelParts = item.label.split(' ');
-        const line1 = labelParts.length > 1 ? labelParts.slice(0, Math.ceil(labelParts.length / 2)).join(' ') : labelParts[0];
-        const line2 = labelParts.length > 1 ? labelParts.slice(Math.ceil(labelParts.length / 2)).join(' ') : '';
-
-        const cardContent = (
+    const renderFeatureItem = (item) => {
+        const content = (
             <>
-                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-navy-50 to-navy-100 dark:from-navy-700/80 dark:to-navy-800/80 group-hover:from-gold-400 group-hover:to-gold-500 transition-all duration-300 flex items-center justify-center mb-3 shadow-inner">
-                    <Icon name={item.icon} className="w-6 h-6 md:w-7 md:h-7 text-navy-600 dark:text-navy-300 group-hover:text-white transition-colors duration-300 drop-shadow-sm" />
+                <div className="w-11 h-11 md:w-14 md:h-14 rounded-[1rem] bg-white dark:bg-navy-700 group-hover:bg-[#4A7045] dark:group-hover:bg-gold-500 flex items-center justify-center mb-1.5 md:mb-2 transition-colors duration-300 shadow-sm border border-[#E2E8D8] dark:border-navy-600 group-hover:border-[#4A7045] dark:group-hover:border-gold-500">
+                    <Icon name={item.icon} className="w-5 h-5 md:w-6 md:h-6 text-[#4A7045] dark:text-gold-400 group-hover:text-white dark:group-hover:text-navy-900 transition-colors duration-300" />
                 </div>
-                <h3 className="font-bold text-[11px] md:text-[13px] leading-tight text-navy-900 dark:text-white group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors duration-300">{line1}{line2 && <><br />{line2}</>}</h3>
+                <span className="font-bold text-[10.5px] md:text-[12px] text-[#2C3F21] dark:text-navy-100 leading-tight text-center w-full max-w-[85px] break-normal">{item.label}</span>
             </>
-        )
-
-        const baseClass = "bg-white dark:bg-navy-800/80 p-3 md:p-4 rounded-3xl shadow-sm border border-navy-100/80 dark:border-navy-700/80 flex flex-col items-center text-center justify-center transition-all duration-300 group backdrop-blur-sm";
-        const borderGlowClass = "hover:border-gold-300 dark:hover:border-gold-500/50 hover:shadow-lg hover:shadow-gold-500/10 hover:-translate-y-1";
-
-        if (item.isSameTab) {
-            return (
-                <a key={item.id} href={item.link} target="_self" className={`${baseClass} ${borderGlowClass} hover:-translate-y-0.5 hover:shadow-md`}>
-                    {cardContent}
-                </a>
-            );
-        }
-
-        if (item.isExternal) {
-            return (
-                <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" className={`${baseClass} ${borderGlowClass} hover:-translate-y-0.5 hover:shadow-md`}>
-                    {cardContent}
-                </a>
-            );
-        }
-        return (
-            <div key={item.id} onClick={() => setActiveTab(item.id)} className={`${baseClass} ${borderGlowClass} cursor-pointer hover:-translate-y-0.5 hover:shadow-md`}>
-                {cardContent}
-            </div>
         );
+
+        const className = "group flex flex-col items-center justify-start p-1.5 md:p-2 rounded-2xl hover:bg-[#F4F7EF] dark:hover:bg-navy-800 transition-all duration-300 cursor-pointer w-[75px] md:w-[90px]";
+
+        if (item.isSameTab) return <a key={item.id} href={item.link} className={className}>{content}</a>;
+        if (item.isExternal) return <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" className={className}>{content}</a>;
+        return <button key={item.id} onClick={() => setActiveTab(item.id)} className={className}>{content}</button>;
     };
 
     return (
-        <div className="animate-fade-in relative z-10">
-            {/* Hero Image + Overlapping Welcome Box */}
-            <div className="w-full relative mb-6 md:mb-10 group mt-0">
-                {/* PERUBAHAN DI SINI: 
-              Menghapus tinggi statis (h-[220px] dll) dan menggantinya dengan aspect-[1500/500],
-              ditambah max-w-[1500px] dan mx-auto agar posisinya di tengah jika layar sangat lebar.
-            */}
-                <div className="w-full aspect-[1500/500] max-w-[1500px] mx-auto overflow-hidden relative z-0 bg-navy-900 rounded-[1.5rem] md:rounded-[2rem] shadow-xl border border-navy-100/20">
+        <div className="animate-fade-in relative z-10 bg-[#FAFAFA] dark:bg-transparent text-[#2C3F21] dark:text-gray-100 font-sans pb-16 transition-colors duration-500">
+            
+            <div className="pt-6 px-4 md:px-8 max-w-[1500px] mx-auto">
+                
+                {/* HERO SECTION */}
+                <div className="relative rounded-[2rem] overflow-hidden shadow-xl border-4 border-[#E2E8D8] dark:border-navy-700 aspect-[4/5] sm:aspect-square md:aspect-[4/3] lg:aspect-[21/9] w-full bg-[#E5E9D8] dark:bg-navy-800 transition-colors duration-500">
                     <div
-                        className="w-full h-full flex transition-transform duration-700 ease-in-out"
+                        className="w-full h-full flex transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]"
                         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                     >
                         {displayImages.map((img, idx) => (
-                            <div key={idx} className="w-full h-full flex-shrink-0 relative">
-                                {/* Background Blur (Mengisi ruang kosong jika gambar tidak proporsional) */}
-                                <div
-                                    className="absolute inset-0 bg-cover bg-center opacity-40 blur-md scale-110 z-0"
-                                    style={{ backgroundImage: `url(${img})` }}
-                                ></div>
-
-                                {/* 🖼️ Gambar Utama: karena kotak sudah proporsional 1500x500, gambar akan pas */}
-                                <img
-                                    src={img}
-                                    alt={`Hero Banner ${idx + 1}`}
-                                    className="w-full h-full object-contain object-center relative z-10"
-                                />
-
-                                {/* Overlay Gelap Tipis agar Teks Welcome Box Tetap Terbaca */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-navy-900/60 to-transparent z-10 pointer-events-none"></div>
-                            </div>
+                            <img key={idx} src={img} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=2000&auto=format&fit=crop"; }} alt={`Hero ${idx}`} className="w-full h-full object-cover flex-shrink-0" />
                         ))}
+                    </div>
+                    {/* Dark overlay for center text readability */}
+                    <div className="absolute inset-0 bg-black/40 z-10 pointer-events-none"></div>
+                    
+                    <div className="absolute top-[8%] md:top-[12%] left-1/2 -translate-x-1/2 w-full max-w-[90%] md:max-w-3xl flex flex-col items-center text-center z-20">
+                        <div className="hidden md:inline-flex bg-white/20 backdrop-blur-md text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-[1rem] items-center mb-6">
+                            <Icon name="Home" className="w-4 h-4 mr-2" /> Gereja Masehi Advent Hari Ketujuh
+                        </div>
+                        <div className="md:hidden bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold px-3 py-1.5 rounded-[0.75rem] inline-flex items-center mb-3">
+                            <Icon name="Home" className="w-3 h-3 mr-1.5" /> GMAHK Pisgah
+                        </div>
+                        <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.15] mb-3 md:mb-6 tracking-tight">
+                            Temukan Damai<br className="hidden md:block" /> Bersama Tuhan
+                        </h1>
+                        <p className="text-white/90 text-xs md:text-lg mb-6 md:mb-8 leading-relaxed font-medium">
+                            Jemaat Pisgah BISDAC, mari beribadah, melayani, dan bertumbuh dalam iman.
+                        </p>
+                        <button onClick={() => setActiveTab('susunan_ibadah')} className="bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-900 text-sm md:text-base font-bold py-2.5 md:py-4 px-6 md:px-10 rounded-full transition-colors flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-1 duration-300 w-fit">
+                            Ibadah Sekarang <Icon name="ChevronRight" className="w-4 h-4 md:w-5 md:h-5 ml-1.5 md:ml-2" />
+                        </button>
                     </div>
 
                     {/* Carousel Controls */}
                     {displayImages.length > 1 && (
-                        <>
-                            <button
-                                onClick={() => setCurrentSlide((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1))}
-                                className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 bg-glass-card hover:bg-black/50 text-navy p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10"
-                            >
-                                <Icon name="ChevronLeft" className="w-5 h-5" />
-                            </button>
-                            <button
-                                onClick={() => setCurrentSlide((prev) => (prev + 1) % displayImages.length)}
-                                className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 bg-glass-card hover:bg-black/50 text-navy p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10"
-                            >
-                                <Icon name="ChevronRight" className="w-5 h-5" />
-                            </button>
-
-                            {/* Pagination Dots */}
-                            <div className="absolute bottom-10 md:bottom-12 left-0 right-0 flex justify-center gap-1.5 z-10">
-                                {displayImages.map((_, idx) => (
-                                    <button
-                                        key={idx}
-                                        onClick={() => setCurrentSlide(idx)}
-                                        className={`h-1.5 rounded-full transition-all duration-300 ${currentSlide === idx ? 'bg-gold-500 w-5' : 'bg-white/60 hover:bg-white w-2'}`}
-                                        aria-label={`Slide ${idx + 1}`}
-                                    />
-                                ))}
-                            </div>
-                        </>
+                        <div className="absolute bottom-10 md:bottom-14 lg:bottom-24 left-0 w-full flex justify-center gap-2 z-20">
+                            {displayImages.map((_, idx) => (
+                                <button key={idx} onClick={() => setCurrentSlide(idx)} className={`h-2.5 rounded-full transition-all duration-500 ${currentSlide === idx ? 'bg-[#4A7045] w-10' : 'bg-white/50 w-3 hover:bg-white'}`} />
+                            ))}
+                        </div>
                     )}
                 </div>
 
-                {/* Welcome Box - overlapping hero */}
-                <div className="relative z-10 px-4 md:px-10 -mt-6 md:-mt-8 max-w-[1500px] mx-auto">
-                    <div className="welcome-box-gradient rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-blue-100/80 px-5 py-3.5 md:px-8 md:py-4 flex items-center justify-center backdrop-blur-sm">
-                        <h2 className="text-[0.95rem] md:text-lg font-bold text-navy-900 flex items-center flex-wrap justify-center gap-x-2">
-                            <span className="text-navy-700"> Selamat Datang di</span>
-                            <img src="./icons/PisgahColor.png" alt="PISGAH" className="h-7 md:h-9 w-auto inline-block" style={{ verticalAlign: 'middle' }} />
-                            <span><span className="text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></span></span>
-                        </h2>
-                    </div>
+                {/* OVERLAPPING QUICK ACTIONS PILL */}
+                <div className="relative z-30 -mt-6 md:-mt-10 lg:-mt-16 mx-4 md:mx-auto max-w-4xl bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-3 md:p-5 shadow-xl border-4 border-white dark:border-navy-700 flex flex-wrap items-start justify-center gap-2 md:gap-4 transition-colors duration-500">
+                    {featureItems.map(item => renderFeatureItem(item))}
                 </div>
             </div>
 
-            {!isPengumumanReallyEmpty() && (
-                <div className={`bg-white dark:bg-navy-800/90 p-6 md:p-8 rounded-[2rem] shadow-lg border border-gold-300/50 dark:border-gold-500/30 hover:shadow-xl transition-all duration-300 relative overflow-hidden group ${pengumuman.marginBawah || 'mb-6 md:mb-8'}`}>
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-l from-gold-500 to-gold-400 text-navy-900 text-[10px] md:text-[11px] font-black px-4 py-2 rounded-b-2xl uppercase tracking-widest shadow-sm flex items-center z-10">
-                        <Icon name="Info" className="w-3 h-3 mr-1" /> Info Terkini
-                    </div>
-                    <div className="flex flex-col items-center justify-center mt-6 md:mt-4 mb-5 border-b border-navy-100/60 dark:border-navy-700/60 pb-5 relative z-10 text-center">
-                        <div>
-                            <h2 className="text-sm font-bold text-navy-400 dark:text-gray-400 uppercase tracking-widest leading-none mb-1.5">PENGUMUMAN JEMAAT</h2>
-                            <h3 className="text-lg md:text-xl font-black text-navy-900 dark:text-white leading-tight">
-                                {pengumuman.header || "Pekan Ini"}
-                            </h3>
-                        </div>
-                    </div>
-                    <div className={`pengumuman-text text-navy-700 dark:text-navy-100 text-[14px] md:text-[15px] whitespace-pre-wrap font-medium leading-relaxed relative z-10 ${pengumuman.kolom === '2' ? 'md:columns-2 md:gap-8 text-left' : pengumuman.kolom === '3' ? 'md:columns-3 md:gap-6 text-left' : 'text-center'}`} dangerouslySetInnerHTML={{ __html: pengumuman.isi }}>
-                    </div>
-                </div>
-            )}
-
-            {/* Artikel Promosi Pembangunan */}
-            <div className="mt-4 welcome-box-gradient rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-l from-gold-500 to-navy-400 text-[9px] md:text-[9px] font-black px-3 py-1.5 rounded-b-xl uppercase tracking-widest shadow-sm flex items-center z-10" style={{ color: '#0b1a30' }}>
-                    <Icon name="Home" className="w-3 h-3 mr-1" /> Proyek Gereja
-                </div>
-                <div className="p-5 md:p-6"><br />
-                    <h3 className="text-[1.1rem] md:text-xl font-black text-gold-500 leading-tight mb-2 text-center">
-                        Bersama Membangun Rumah Tuhan
-                    </h3>
-                    <div className="text-xs md:text-sm font-medium text-navy-600 leading-relaxed mb-5 text-center">
-                        <p>Setiap doa, dukungan, dan persembahan pembangunan Anda adalah fondasi utama dalam mewujudkan tempat ibadah yang lebih nyaman bagi jemaat dan saksi kebaikan Tuhan bagi lingkungan sekitar.</p>
-                        <p className="mt-2 font-bold">Mari ambil bagian dalam penatalayanan ini!</p>
-                    </div>
-                    <a href="./pembangunan.html"
-                        className="flex items-center justify-center text-center w-full bg-white/30 dark:bg-navy-900/40 hover:bg-white/50 dark:hover:bg-navy-900/60 backdrop-blur-md text-navy-900 dark:text-gold-100 py-3.5 px-4 rounded-xl shadow-md hover:shadow-xl transform hover:-translate-y-0.5 active:scale-95 active:translate-y-0 transition-all duration-200 border border-navy-200 dark:border-navy-600 group"
-                    >
-                        <span className="text-[11px] md:text-sm font-bold uppercase tracking-widest transition-colors">Klik Untuk Melihat Progres Pembangunan</span>
-                        <Icon name="ChevronRight" className="w-4 h-4 ml-1.5 text-navy-600 dark:text-gold-300 group-hover:translate-x-1 transition-transform shrink-0" />
-                    </a>
-                </div>
-            </div>
-
-            {/* ✨ MENU FITUR dengan border gold glowing */}
-            <div className="mt-5 grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-4 gap-1.5 md:gap-2 mb-5 md:mb-7">
-                {filteredItems.map(item => renderFeatureCard(item))}
-            </div>
-
-            <div className="glass-card p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                    {/* Artikel Visi Gereja */}
-                    <div className="mt-4 glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-gold-500 to-navy-400 text-[9px] md:text-[9px] font-black px-4 py-1.5 rounded-b-xl uppercase tracking-widest shadow-sm z-10" style={{ color: '#0b1a30' }}>
-                            VISI GEREJA ADVENT
-                        </div>
-                        <div className="p-5 md:p-6"><br />
-                            <h3 className="text-[1.1rem] md:text-l font-black text-navy-500 leading-tight mb-2 text-center">
-                                Selaras dengan <span className="text-gold-500 tracking-tight">wahyu Alkitab,</span> anggota-anggota Gereja Masehi Advent Hari Ketujuh melihat sebagai <span className="text-gold-500 tracking-tight">klimaks</span> agar <span className="text-gold-500 tracking-tight">selaras sepenuhnya</span> dengan <span className="text-gold-500 tracking-tight">kehendak dan kebenaran-Nya yang sempurna.</span>
-                            </h3>
-                        </div>
-                    </div>
-
-                    {/* Artikel Misi Gereja */}
-                    <div className="mt-4 glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-gold-500 to-navy-400 text-[9px] md:text-[9px] font-black px-4 py-1.5 rounded-b-xl uppercase tracking-widest shadow-sm z-10" style={{ color: '#0b1a30' }}>
-                            MISI GEREJA ADVENT
-                        </div>
-                        <div className="p-5 md:p-6"><br />
-                            <h3 className="text-[1.1rem] md:text-l font-black text-navy-500 leading-tight mb-2 text-center">
-                                Untuk memanggil <span className="text-gold-500 tracking-tight">semua orang</span> menjadi <span className="text-gold-500 tracking-tight">murid Yesus Kristus, memberitakan Injil kekal Pekabaran Tiga Malaikat (Wahyu 14:6-12),</span> dan <span className="text-gold-500 tracking-tight">mempersiapkan dunia</span> bagi <span className="text-gold-500 tracking-tight">kedatangan Kristus</span> kembali yang tidak lama lagi.
-                            </h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* UPDATE BUKU TERBARU */}
-            {daftarBuku && daftarBuku.length > 0 && (
-                <div className="glass-card p-5 md:p-6 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8">
-                    <div className="flex justify-between items-end mb-4 px-1">
-                        <div>
-                            <h2 className="text-[1.15rem] font-black text-navy-900 flex items-center">
-                                <Icon name="BookOpen" className="w-5 h-5 mr-2 text-gold-500" /> Pustaka Terbaru
-                            </h2>
-                            <p className="text-xs text-navy-500 font-medium mt-0.5">Buku & Dokumen yang baru ditambahkan</p>
-                        </div>
-                        <button onClick={() => setActiveTab('belajar_perpustakaan')} className="text-[10px] font-bold text-navy-600 uppercase tracking-wider hover:text-gold-600 transition flex items-center gap-1">
-                            Lihat Semua <Icon name="ChevronRight" className="w-3 h-3" />
-                        </button>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-                        {[...daftarBuku].reverse().slice(0, 4).map(b => (
-                            <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className="glass-box rounded-2xl border border-navy-100/60 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col">
-                                <div className="h-32 md:h-40 overflow-hidden relative shrink-0">
-                                    <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-navy-900/10 to-transparent" />
-                                    <DocumentBadge book={b} />
-                                    <span className="absolute top-2 right-2 bg-navy-900/80 backdrop-blur-sm text-gold-400 text-[9px] font-black tracking-wider px-2 py-1 rounded-full shadow-sm">{b.category}</span>
-                                </div>
-                                <div className="p-3 md:p-4 flex-1 flex flex-col justify-between">
-                                    <div>
-                                        <div className="font-bold text-xs md:text-sm text-navy-900 line-clamp-2 leading-tight mb-1">{b.title}</div>
-                                        <div className="text-[10px] md:text-xs text-navy-500 font-semibold">{b.author}</div>
+            {/* PENGUMUMAN & VISI MISI (Split Layout) */}
+            <div className="max-w-[1400px] mx-auto px-4 md:px-8 mt-16 md:mt-24 mb-20">
+                <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-20">
+                    {/* Left: Image Card OR Announcement */}
+                    <div className="w-full lg:w-1/2 relative">
+                        <div className="absolute -top-6 -left-6 w-32 h-32 bg-[#E2E8D8] dark:bg-navy-800 rounded-full z-0 transition-colors duration-500"></div>
+                        <div className="relative z-10 bg-white dark:bg-navy-800/70 p-3 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-navy-700 transition-colors duration-500">
+                            {pengumuman && !isPengumumanReallyEmpty() ? (
+                                <div className="rounded-[2rem] bg-[#F4F7EF] dark:bg-navy-900/50 p-8 min-h-[300px] flex flex-col justify-center items-center text-center relative border border-[#E2E8D8] dark:border-navy-600">
+                                    <div className="absolute top-6 left-6 bg-[#D19B45] dark:bg-gold-600 text-white text-xs font-bold px-4 py-2 rounded-full flex items-center shadow-md">
+                                        <Icon name="Megaphone" className="w-4 h-4 mr-2" /> Pengumuman
                                     </div>
-                                    <div className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold text-navy-600 group-hover:text-gold-600 transition-colors bg-navy-50 px-2 py-1.5 rounded-lg w-max">
-                                        <Icon name="BookOpen" className="w-3 h-3" /> Baca Sekarang
+                                    <h3 className="text-2xl font-bold text-[#2C3F21] dark:text-white mb-6 mt-8">{pengumuman.header || "Pengumuman Pekan Ini"}</h3>
+                                    <div className="text-[#596B4D] dark:text-gray-300 text-base leading-relaxed max-h-[250px] overflow-y-auto custom-scrollbar w-full px-2" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}></div>
+                                </div>
+                            ) : (
+                                <div className="rounded-[2rem] overflow-hidden bg-white dark:bg-navy-900 relative w-full flex items-center justify-center min-h-[250px] shadow-sm">
+                                    <img src={displayImages[0]} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=1000&auto=format&fit=crop"; }} className="w-full h-auto object-contain" alt="Banner" />
+                                    <div className="absolute top-6 left-6 bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-900 text-xs font-bold px-4 py-2 rounded-full flex items-center shadow-md">
+                                        <Icon name="Info" className="w-4 h-4 mr-2" /> Informasi
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* --- WARTA TERBARU HOME --- */}
-            {sortedWartaHome.length > 0 && (
-                <div className="glass-card p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8 animate-fade-in">
-                    <div className="flex items-center justify-between mb-4 border-b border-navy-50 pb-3">
-                        <h2 className="text-[1.15rem] font-bold text-navy-900 flex items-center">
-                            <Icon name="BookOpen" className="w-[1.15rem] h-[1.15rem] mr-2 text-gold-500" /> Warta Terbaru
-                        </h2>
-                        <button onClick={() => { setSelectedWarta(null); setActiveTab('warta'); }} className="text-[10px] md:text-xs font-bold text-gold-600 hover:text-navy-900 transition-colors uppercase tracking-widest flex items-center">
-                            Lihat Semua <Icon name="ChevronRight" className="w-3.5 h-3.5 ml-1" />
+                            )}
+                        </div>
+                        {/* Interactive floating Install App icon */}
+                        <button 
+                            onClick={() => window.installPWA && window.installPWA()} 
+                            title="Instal Aplikasi"
+                            className="absolute -bottom-4 -right-4 bg-white dark:bg-navy-700 hover:bg-[#F4F7EF] dark:hover:bg-navy-600 p-4 rounded-full shadow-lg hover:shadow-xl z-20 flex items-center justify-center border-2 border-[#E2E8D8] dark:border-navy-500 hover:border-[#4A7045] dark:hover:border-gold-500 cursor-pointer group transition-all duration-300 hover:scale-105"
+                        >
+                            <Icon name="Download" className="w-8 h-8 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-                        {sortedWartaHome.slice(0, 4).map((warta, idx) => {
+                    {/* Right: Text Content */}
+                    <div className="w-full lg:w-1/2">
+                        <h2 className="text-3xl md:text-5xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-6 tracking-tight leading-[1.2] transition-colors">
+                            Visi & Misi Gereja
+                        </h2>
+                        
+                        <div className="text-[#596B4D] dark:text-gold-200/80 text-base md:text-lg leading-relaxed mb-8 space-y-5 transition-colors">
+                            <p><strong className="dark:text-gold-400">Visi:</strong> Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar selaras sepenuhnya dengan kehendak dan kebenaran-Nya.</p>
+                            <p><strong className="dark:text-gold-400">Misi:</strong> Memanggil semua orang menjadi murid Yesus Kristus, memberitakan Injil kekal, dan mempersiapkan dunia bagi kedatangan-Nya.</p>
+                        </div>
+                        
+                        <div className="flex gap-4">
+                            <button onClick={() => setActiveTab('warta')} className="bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-900 font-bold py-3.5 px-8 rounded-full transition-colors inline-flex items-center shadow-md">
+                                <Icon name="BookOpen" className="w-5 h-5 mr-2" /> Semua Warta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* WARTA JEMAAT (3 Columns Card Layout) */}
+            <div className="bg-[#E9EEDF] dark:bg-navy-900 rounded-[3.5rem] pt-16 md:pt-24 pb-20 md:pb-28 px-4 md:px-8 mt-10 mb-8 transition-colors duration-500 shadow-sm">
+                <div className="max-w-[1400px] mx-auto">
+                    <div className="text-center mb-12 md:mb-16">
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-4 transition-colors">Berita Terkini?</h2>
+                        <p className="text-[#596B4D] dark:text-gray-300 font-medium text-lg max-w-2xl mx-auto transition-colors">Informasi pelayanan, kegiatan gereja, dan kabar sukacita jemaat pekan ini.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {sortedWartaHome.slice(0, 3).map((warta, idx) => {
                             const rawUrls = parseGambarUrls(warta.gambarUrl);
                             const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
                             const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
 
                             return (
-                                <div key={idx} onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }} className="glass-box rounded-2xl border border-navy-100/60 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col">
-                                    <div className="h-32 md:h-40 overflow-hidden relative shrink-0 bg-navy-50">
+                                <div key={idx} onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }} className="bg-white dark:!bg-navy-800 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col group border border-gray-100 dark:border-navy-700">
+                                    <div className="h-56 overflow-hidden relative m-3 rounded-[1.5rem]">
                                         {thumb ? (
-                                            <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" alt="Thumbnail" referrerPolicy="no-referrer" />
+                                            <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Warta" />
                                         ) : (
-                                            <div className="flex flex-col items-center justify-center h-full text-navy-300 group-hover:scale-105 transition-transform duration-500">
-                                                <Icon name="Image" className="w-6 h-6 mb-1 opacity-50" />
-                                                <span className="text-[9px] font-bold uppercase tracking-widest opacity-50">Tanpa Gambar</span>
+                                            <div className="w-full h-full bg-[#E5E9D8] dark:bg-navy-900 flex items-center justify-center text-[#4A7045] dark:text-navy-600 transition-colors">
+                                                <Icon name="Image" className="w-12 h-12 opacity-30" />
                                             </div>
                                         )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-navy-900/10 to-transparent" />
-                                        {idx === 0 && (
-                                            <span className="absolute top-2 right-2 bg-gold-500 text-white text-[9px] font-black tracking-wider px-2 py-1 rounded-full shadow-sm">TERBARU</span>
-                                        )}
-                                    </div>
-                                    <div className="p-3 md:p-4 flex-1 flex flex-col justify-between">
-                                        <div>
-                                            <div className="font-bold text-xs md:text-sm text-navy-900 line-clamp-2 leading-tight mb-1">{warta.judul}</div>
-                                            <div className="text-[10px] md:text-[11px] text-navy-500 font-medium line-clamp-2 leading-relaxed mb-2">
-                                                {truncateText(stripHtml(warta.isi), 80)}
-                                            </div>
+                                        <div className="absolute top-4 left-4 bg-white/90 dark:bg-navy-900/90 backdrop-blur-sm text-[#2C3F21] dark:text-gold-400 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm transition-colors">
+                                            {formatDate(warta.tanggal)}
                                         </div>
-                                        <div className="flex items-center gap-1.5 text-[9px] md:text-[10px] font-bold text-navy-400">
-                                            <Icon name="Calendar" className="w-3 h-3 text-gold-500" /> {formatDate(warta.tanggal)}
+                                    </div>
+                                    <div className="p-6 md:p-8 pt-4 flex-1 flex flex-col">
+                                        <h3 className="font-extrabold text-[19px] text-[#2C3F21] dark:text-gold-400 leading-tight mb-3 line-clamp-2 transition-colors">{warta.judul}</h3>
+                                        <div className="text-[#6C7D5D] dark:text-gold-100/70 text-sm leading-relaxed mb-8 line-clamp-3 font-medium transition-colors">
+                                            {truncateText(stripHtml(warta.isi), 120)}
+                                        </div>
+                                        <div className="mt-auto">
+                                            <button className="bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-900 hover:bg-[#3A5836] dark:hover:bg-gold-600 font-bold py-3 px-8 rounded-full transition-colors text-sm w-max">
+                                                Baca Lengkap
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             );
                         })}
                     </div>
+                    
+                    {sortedWartaHome.length > 3 && (
+                        <div className="text-center mt-12 flex justify-center space-x-2">
+                             <div className="w-3 h-3 rounded-full bg-[#4A7045]"></div>
+                             <div className="w-3 h-3 rounded-full bg-gray-300"></div>
+                             <div className="w-3 h-3 rounded-full bg-gray-300"></div>
+                        </div>
+                    )}
                 </div>
-            )}
-            {/* ------------------------------- */}
 
-            <div className="glass-card p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 hover:shadow-md transition-shadow mb-5 md:mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-
-                    {/* Video Terbaru */}
+                {/* PUSTAKA & VIDEO SECTION */}
+                <div className="max-w-[1400px] mx-auto mt-20 md:mt-28 space-y-16">
+                    
+                {/* Pustaka */}
+                {daftarBuku && daftarBuku.length > 0 && (
                     <div>
-                        <h2 className="text-[1.15rem] font-bold mb-4 text-navy-900 flex items-center">
-                            <Icon name="Headphones" className="w-[1.15rem] h-[1.15rem] mr-2 text-gold-500" /> Video Penting
+                        <div className="flex justify-between items-end mb-8">
+                            <div>
+                                <h2 className="text-2xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 transition-colors">Pustaka Buku</h2>
+                                <p className="text-[#596B4D] dark:text-gold-200/80 font-medium text-sm md:text-base mt-2 transition-colors">Buku referensi & rohani terbaru.</p>
+                            </div>
+                            <button onClick={() => setActiveTab('belajar_perpustakaan')} className="border-2 border-[#4A7045] dark:border-gold-500 text-[#4A7045] dark:text-gold-500 hover:bg-[#4A7045] dark:hover:bg-gold-500 hover:text-white dark:hover:text-navy-900 font-bold py-2 px-5 rounded-full transition-all flex items-center text-sm md:text-base">
+                                Selengkapnya <Icon name="ArrowRight" className="w-4 h-4 ml-2" />
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                            {[...daftarBuku].reverse().slice(0, 4).map((b, i) => (
+                                <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className={`bg-white dark:!bg-navy-800 rounded-[2rem] border border-[#E9EEDF] dark:border-navy-700 overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex-col ${i === 3 ? 'flex md:hidden lg:flex' : 'flex'}`}>
+                                    <div className="h-40 md:h-56 overflow-hidden relative m-2 rounded-[1.5rem]">
+                                        <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
+                                        <DocumentBadge book={b} className="absolute top-2 left-2" />
+                                        <span className="absolute top-2 right-2 bg-white/90 dark:bg-navy-900/90 backdrop-blur-md text-[#2C3F21] dark:text-gold-400 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm transition-colors">{b.category}</span>
+                                    </div>
+                                    <div className="p-4 md:p-5 flex-1 flex flex-col justify-between">
+                                        <div>
+                                            <div className="font-extrabold text-sm md:text-base text-[#2C3F21] dark:text-gold-400 line-clamp-2 leading-tight mb-1 transition-colors">{b.title}</div>
+                                            <div className="text-xs text-[#6C7D5D] dark:text-gold-200/70 font-medium transition-colors">{b.author}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Video */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+                    <div className="bg-white dark:!bg-navy-800 rounded-[2rem] p-4 md:p-6 shadow-sm border border-[#E9EEDF] dark:border-navy-700 transition-colors">
+                        <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
+                            <Icon name="Video" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" /> Video Penting
                         </h2>
-                        <div className="relative w-full overflow-hidden rounded-[1rem] shadow-sm border border-navy-50" style={{ paddingTop: '56.25%' }}>
-                            <iframe
-                                className="absolute top-0 left-0 w-full h-full"
-                                src={youtubeUrl}
-                                title="Video Penting"
-                                frameBorder="1"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                                loading="lazy">
-                            </iframe>
+                        <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
+                            <iframe className="absolute top-0 left-0 w-full h-full" src={`${youtubeUrl}${youtubeUrl?.includes('?') ? '&' : '?'}vq=hd1080`} title="Video Penting" frameBorder="0" allowFullScreen></iframe>
                         </div>
                     </div>
 
-                    {/* Video Terbaru - ukuran disamakan */}
-                    <div>
-                        <h2 className="text-[1.15rem] font-bold mb-4 text-navy-900 flex items-center">
-                            <Icon name="Video" className="w-[1.15rem] h-[1.15rem] mr-2 text-gold-500" /> Video Terbaru
+                    <div className="bg-white dark:!bg-navy-800 rounded-[2rem] p-4 md:p-6 shadow-sm border border-[#E9EEDF] dark:border-navy-700 transition-colors">
+                        <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
+                            <Icon name="Video" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" /> Youtube Channel
                         </h2>
-                        <div className="relative w-full overflow-hidden rounded-[1rem] shadow-sm border border-navy-50" style={{ paddingTop: '56.25%' }}>
-                            <iframe
-                                className="absolute top-0 left-0 w-full h-full"
-                                src="https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g"
-                                title="Youtube Title"
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                                loading="lazy">
-                            </iframe>
+                        <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
+                            <iframe className="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g&vq=hd1080" title="Youtube Terbaru" frameBorder="0" allowFullScreen></iframe>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div className="flex flex-col items-center justify-center mb-5 md:mb-8 bg-white p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 text-center">
-                <div className="w-16 h-16 mb-4 flex items-center justify-center overflow-hidden rounded-2xl shadow-inner bg-white p-2">
-                    <img src="./icons/PisgahColor.png" alt="Pisgah Logo" className="w-full h-full object-contain" />
-                </div>
-                <h3 className="font-bold text-[1.15rem] text-navy-900 mb-1">Akses Lebih Cepat ⚡</h3>
-                <p className="text-sm text-navy-600 mb-4 px-2">Dapatkan pengalaman terbaik dengan menginstal aplikasi ini ke layar utama Anda (Add to Home Screen).</p>
-                <button onClick={() => window.installPWA && window.installPWA()} className="bg-navy-700 hover:bg-navy-800 text-gold-400 font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center w-full md:w-auto">
-                    <Icon name="Download" className="w-5 h-5 mr-2" /> Download WebApp
-                </button>
             </div>
 
-            {/* ── FOOTER LENGKAP ─────────────────────────────────── */}
-            <footer className="border-t border-navy-200 pt-8 pb-4 mt-2">
-                {/* Grid info utama */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-
-                    {/* Kolom 1 — Logo & Tagline */}
-                    <div className="flex flex-col items-center md:items-start text-center md:text-left gap-3">
-                        <div className="flex items-center gap-2">
-                            <img src="./icons/PisgahColor.png" className="w-8 h-8 object-contain" alt="Logo" />
-                            <span className="text-[25px] font-extrabold text-navy-800 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></span>
+            {/* FOOTER */}
+            <footer className="mt-20 border-t border-[#E9EEDF] dark:border-navy-800 pt-12 pb-6 px-4 md:px-8 max-w-[1400px] mx-auto text-[#596B4D] dark:text-navy-300 transition-colors">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-10 mb-12">
+                    {/* Col 1 */}
+                    <div>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-6">
+                            <img src="./icons/PisgahColor.png" className="w-10 h-10 md:w-12 md:h-12 object-contain" alt="Logo" />
+                            <span className="text-lg sm:text-xl md:text-2xl font-extrabold text-[#2C3F21] dark:text-white tracking-tighter sm:tracking-tight transition-colors">PISGAH<span className="text-[#4A7045] dark:text-gold-500">BISDAC</span></span>
                         </div>
-                        <p className="text-xs text-navy-500 font-medium leading-relaxed max-w-xs">
-                            Gereja Masehi Advent Hari Ketujuh<br />
-                            Jemaat Pisgah BISDAC
-                        </p>
-                        <p className="text-[11px] text-gold-600 font-bold italic">"Tuhan adalah Gembalaku, takkan kekurangan aku." — Mazmur 23:1</p>
+                        <p className="text-xs md:text-sm font-medium leading-relaxed mb-4">Gereja Masehi Advent Hari Ketujuh<br />Jemaat Pisgah BISDAC</p>
+                        <p className="text-xs md:text-sm text-[#D19B45] dark:text-gold-400 font-bold italic transition-colors">"Tuhan adalah Gembalaku, takkan kekurangan aku." — Mazmur 23:1</p>
                     </div>
 
-                    {/* Kolom 2 — Alamat & Jam Ibadah */}
-                    <div className="flex flex-col gap-2 text-center md:text-left">
-                        <p className="text-xs font-black text-navy-700 uppercase tracking-widest mb-1">Alamat & Ibadah</p>
-                        <div className="flex items-start justify-center md:justify-start gap-2 text-xs text-navy-600 font-medium">
-                            <svg className="w-3.5 h-3.5 mt-0.5 shrink-0 text-gold-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                            <span>Ruko Grand California,<br /> Jl. Laksamana Bintan<br />No.11 Blok B 1 & B 2 Unit.1 - 4 & 9,<br />Taman Baloi, Kec. Batam Kota, Kota Batam,<br />Kepulauan Riau 29444</span>
-                        </div>
-                        <div className="flex items-center justify-center md:justify-start gap-2 text-xs text-navy-600 font-medium">
-                            <svg className="w-3.5 h-3.5 shrink-0 text-gold-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" /></svg>
-                            <span>Rabu 19:00 · Sabat 10:00 WIB</span>
-                        </div>
-                        <div className="flex items-center justify-center md:justify-start gap-2 text-xs text-navy-600 font-medium">
-                            <svg className="w-3.5 h-3.5 shrink-0 text-gold-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                            <a href="tel:+6285194344004" className="hover:text-gold-600 transition">+6285194344004</a>
-                        </div>
-                        <div className="flex items-center justify-center md:justify-start gap-2 text-xs text-navy-600 font-medium">
-                            <svg className="w-3.5 h-3.5 shrink-0 text-gold-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                            <a href="mailto:gmahkpisgahbisdac@gmail.com" className="hover:text-gold-600 transition">gmahkpisgahbisdac@gmail.com</a>
+                    {/* Col 2 */}
+                    <div>
+                        <p className="text-sm font-bold text-[#2C3F21] dark:text-gold-400 mb-5 transition-colors">Kontak & Lokasi</p>
+                        <div className="space-y-4">
+                            <div className="flex items-start gap-3 text-sm font-medium">
+                                <Icon name="MapPin" className="w-5 h-5 shrink-0 text-[#4A7045] dark:text-gold-500 transition-colors" />
+                                <span>Ruko Grand California, Jl. Laksamana Bintan No.11 Blok B 1 & B 2, Batam</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-sm font-medium">
+                                <Icon name="Calendar" className="w-5 h-5 shrink-0 text-[#4A7045] dark:text-gold-500 transition-colors" />
+                                <span>Rabu 19:00 · Sabat 10:00 WIB</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-sm font-medium">
+                                <Icon name="Phone" className="w-5 h-5 shrink-0 text-[#4A7045] dark:text-gold-500 transition-colors" />
+                                <a href="tel:+6285194344004" className="hover:text-[#2C3F21] dark:hover:text-gold-400 transition-colors">+6285194344004</a>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Kolom 3 — Sosial Media */}
-                    <div className="flex flex-col gap-2 text-center md:text-left">
-                        <p className="text-xs font-black text-navy-700 uppercase tracking-widest mb-1">Ikuti Kami</p>
-                        <a href="https://www.youtube.com/@turnyeofficial" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start gap-2.5 text-xs text-navy-600 font-medium hover:text-red-600 transition group">
-                            <span className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition shrink-0">
-                                <svg className="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
-                            </span>
-                            YouTube PISGAH BISDAC
-                        </a>
-                        <a href="https://www.instagram.com/pisgahbisdac" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start gap-2.5 text-xs text-navy-600 font-medium hover:text-pink-600 transition group">
-                            <span className="w-7 h-7 rounded-lg bg-pink-50 flex items-center justify-center group-hover:bg-pink-100 transition shrink-0">
-                                <svg className="w-4 h-4 text-pink-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>
-                            </span>
-                            @pisgahbisdac
-                        </a>
-                        <a href="https://www.facebook.com/pisgahbisdac" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start gap-2.5 text-xs text-navy-600 font-medium hover:text-blue-600 transition group">
-                            <span className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition shrink-0">
-                                <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
-                            </span>
-                            PISGAH BISDAC
-                        </a>
-                        <a href="https://wa.me/6285194344004" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start gap-2.5 text-xs text-navy-600 font-medium hover:text-green-600 transition group">
-                            <span className="w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition shrink-0">
-                                <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
-                            </span>
-                            WhatsApp Gereja
-                        </a>
-                    </div>
-                    {/* Kolom 4 — Logo SDA */}
-                    <div className="flex flex-col items-center md:items-start text-center md:text-right gap-3">
-                        {/* Gambar pertama (di atas sendiri) */}
-                        <img src="https://wium.org/wp-content/uploads/2021/08/adventist-wium-denim.svg"
-                            className="w-[500px] h-auto object-contain"
-                            alt="Logo uikb"
-                        />
-                        {/* Container untuk gambar kedua dan ketiga (berdampingan) */}
-                        <div className="flex flex-row items-center gap-3">
-                            <img src="https://hope-documents.fra1.digitaloceanspaces.com/66a17f6ceb51197645b35b77/iBS1727730262776.png"
-                                className="w-[80px] h-auto object-contain"
-                                alt="Logo iwillgo"
-                            />
-                            <img src="/icons/reapslogo.png"
-                                className="w-[200px] h-auto object-contain"
-                                alt="Logo reaps"
-                            />
+                    {/* Col 3 */}
+                    <div>
+                        <p className="text-sm font-bold text-[#2C3F21] dark:text-gold-400 mb-5 transition-colors">Sosial Media</p>
+                        <div className="space-y-4">
+                            <a href="https://www.youtube.com/@turnyeofficial" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm font-bold hover:text-red-600 dark:hover:text-gold-400 transition-colors group">
+                                <span className="w-10 h-10 rounded-full bg-red-50 dark:bg-navy-800 flex items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-navy-700 transition-colors">
+                                    <svg className="w-5 h-5 text-red-600 dark:text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                </span>
+                                YouTube
+                            </a>
+                            <a href="https://www.instagram.com/pisgahbisdac" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm font-bold hover:text-pink-600 dark:hover:text-gold-400 transition-colors group">
+                                <span className="w-10 h-10 rounded-full bg-pink-50 dark:bg-navy-800 flex items-center justify-center group-hover:bg-pink-100 dark:group-hover:bg-navy-700 transition-colors">
+                                    <svg className="w-5 h-5 text-pink-600 dark:text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                                </span>
+                                Instagram
+                            </a>
                         </div>
-                        <p className="text-xs text-navy-500 font-medium leading-relaxed max-w-xs">
-                            {/* teks opsional */}
-                        </p>
+                    </div>
+
+                    {/* Col 4 */}
+                    <div className="flex flex-col items-start lg:items-end gap-6 w-full">
+                        <img src="https://wium.org/wp-content/uploads/2021/08/adventist-wium-denim.svg" className="w-full max-w-[300px] h-auto object-contain opacity-60 grayscale hover:grayscale-0 transition" alt="Logo UIKB" />
+                        <div className="flex items-center justify-start lg:justify-end gap-6 w-full max-w-[300px]">
+                            <img src="https://hope-documents.fra1.digitaloceanspaces.com/66a17f6ceb51197645b35b77/iBS1727730262776.png" className="w-[35%] h-auto object-contain opacity-70 hover:opacity-100 transition" alt="I Will Go" />
+                            <img src="/icons/reapslogo.png" className="w-[55%] h-auto object-contain opacity-70 hover:opacity-100 transition" alt="REAPS" />
+                        </div>
                     </div>
                 </div>
 
-                {/* Divider */}
-                <div className="border-t border-navy-100 pt-4 flex flex-col md:flex-row items-center justify-between gap-2">
-                    <p className="text-[10px] md:text-xs text-navy-400 font-medium tracking-wide">Copyright &copy; 2026 PISGAH BISDAC. All rights reserved.</p>
-                    <p className="text-[10px] md:text-xs text-gold-500 font-bold tracking-widest uppercase">GOD BLESS US 🙏</p>
+                <div className="border-t border-[#E9EEDF] dark:border-navy-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 transition-colors">
+                    <p className="text-sm font-semibold">Copyright &copy; 2026 PISGAH BISDAC.</p>
+                    <p className="text-xs text-[#D19B45] dark:text-gold-400 font-black tracking-widest uppercase bg-white dark:bg-navy-800 px-4 py-2 rounded-full shadow-sm border border-transparent dark:border-navy-700 transition-colors">GOD BLESS US 🙏</p>
                 </div>
             </footer>
         </div>
@@ -1886,9 +1767,9 @@ const Hubungi = ({ setActiveTab, dataPejabat, kontakGereja }) => {
                     return (
                         <div key={idx} className={`glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6 ${idx !== categories.length - 1 ? 'mb-6' : ''}`}>
                             <h2 className="text-xl md:text-2xl font-black mb-6 text-navy-900">{cat.title}</h2>
-                            <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-6 items-stretch">
+                            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 items-stretch">
                                 {items.map((p, i) => (
-                                    <div key={i} className="flex flex-col bg-white p-2 sm:p-3 md:p-5 rounded-xl sm:rounded-2xl md:rounded-[2rem] shadow-sm border border-navy-100/60 hover:shadow-xl transition-all duration-300 group h-full">
+                                    <div key={i} className="w-[calc(50%-0.375rem)] sm:w-[calc(33.333%-0.666rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(20%-1.2rem)] flex flex-col bg-white p-2 sm:p-3 md:p-5 rounded-xl sm:rounded-2xl md:rounded-[2rem] shadow-sm border border-navy-100/60 hover:shadow-xl transition-all duration-300 group">
                                         <div className="text-center mt-1 sm:mt-2 md:mt-3 mb-2 sm:mb-3 md:mb-5">
                                             <h3 className="font-black text-navy-900 text-[11px] sm:text-sm md:text-xl tracking-tight leading-tight group-hover:text-gold-600 transition-colors line-clamp-2 md:line-clamp-none">{p.nama}</h3>
                                             <p className="text-[9px] sm:text-[10px] md:text-xs font-bold text-navy-500 flex items-center justify-center mt-0.5 sm:mt-1 md:mt-2">{p.jabatan}</p>
@@ -6099,8 +5980,7 @@ const App = () => {
                             {/* Baris 1: Logo + Nama Gereja */}
                             <div className="flex items-center">
                                 <img src="./icons/PisgahColor.png" className="w-8 h-8 md:w-8 md:h-8 object-contain opacity-100 mr-1.5" alt="Logo" />
-                                <p className="text-xl md:text-2xl font-bold text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span><br />
-                                </p>
+                                <p className="block md:hidden lg:block text-xl md:text-2xl font-bold text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></p>
                             </div>
                         </div>
                     </div>
