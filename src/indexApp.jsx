@@ -5553,7 +5553,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                         <div>
                             <h3 className="text-xs font-black text-emerald-600 dark:text-gold-500 uppercase tracking-widest mb-3 px-2">Laporan Keuangan</h3>
                             <div 
-                                onClick={() => window.open(`/laporan.html?search=${encodeURIComponent(searchResults.laporan[0].redirectQuery)}`, '_blank')}
+                                onClick={() => window.location.href = `/laporan.html?search=${encodeURIComponent(searchResults.laporan[0].redirectQuery)}`}
                                 className="glass-box rounded-2xl border border-emerald-100/60 dark:border-navy-700 p-5 cursor-pointer hover:shadow-lg hover:border-emerald-300 dark:hover:border-gold-500 transition-all"
                             >
                                 <div className="flex items-center gap-3 mb-3">
