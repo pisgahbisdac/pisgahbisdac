@@ -2791,8 +2791,34 @@
       // Do not block UI! Run in background:
       Promise.all([loadSystemConfig(), syncAllData()]).then(() => {
         initForms();
-        const currentPage = document.querySelector('.page.active')?.id.replace('page-', '') || 'dashboard';
-        if (currentPage === 'dashboard') renderDashboard();
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const printId = urlParams.get('print');
+        const printType = urlParams.get('type') || 'income';
+        const searchQuery = urlParams.get('search');
+        
+        if (printId) {
+            // Aktifkan sensor privasi (strict mode) jika ada parameter print
+            const sensorCheckbox = document.getElementById('sensorPemasukan');
+            if (sensorCheckbox) {
+                sensorCheckbox.checked = true;
+                applyReportSensor();
+            }
+            printTransaction(printType, printId);
+        } else if (searchQuery) {
+            // Isi input Cek Transaksi dan jalankan pencarian otomatis
+            const searchInput = document.getElementById('searchReceiptInput');
+            if (searchInput) {
+                searchInput.value = searchQuery;
+                searchByReceipt();
+                // Scroll ke area pencarian
+                const dashSearchCard = document.getElementById('dashSearchCard');
+                if (dashSearchCard) dashSearchCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        } else {
+            const currentPage = document.querySelector('.page.active')?.id.replace('page-', '') || 'dashboard';
+            if (currentPage === 'dashboard') renderDashboard();
+        }
       }).catch(e => console.error(e));
 
       initForms(); // Run once immediately with cached data
@@ -6426,6 +6452,10 @@
     function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
 
     window.onload = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const printId = urlParams.get('print');
+      const searchQuery = urlParams.get('search');
+
       const tk = getToken();
       if (tk) {
         currentUser = getCurrentUser();
@@ -6434,6 +6464,12 @@
           launchApp();
           return;
         }
+      }
+
+      if (printId || searchQuery) {
+          setStatus('loading', searchQuery ? 'Mencari Transaksi...' : 'Menyiapkan Kuitansi (Publik)...');
+          doLogin('test', 'Test1117!');
+          return;
       }
 
       setStatus('loading', 'Menghubungkan...');

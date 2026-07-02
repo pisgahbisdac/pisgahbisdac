@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Play, Maximize, FileText, Download, Share2, Info, BookOpen, Search as SearchIcon, X, CheckCircle, Navigation, MapPin, Calendar, Phone, Mail, Clock, Globe, ArrowRight, User, PlusCircle, PenTool, Layout, File, ExternalLink, Menu, Music, Activity, Megaphone, Video, ArrowLeft, MoreHorizontal, MessageCircle, Heart, Star, Compass, Anchor, Copy, Check, Upload, Trash2, Map } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
+// searchlaporan: redirect ke laporan.html (Cek Transaksi)
 
 // --- PWA & SERVICE WORKER LOGIC ---
 if ('serviceWorker' in navigator) {
@@ -5344,14 +5345,15 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
 
     // Hasil pencarian
     const searchResults = React.useMemo(() => {
-        if (query.length < 2) return { warta: [], pejabat: [], jadwal: [], buku: [], pengumuman: false };
+        if (query.length < 2) return { warta: [], pejabat: [], jadwal: [], buku: [], pengumuman: false, laporan: [] };
         const q = query.toLowerCase();
         const results = {
             warta: [],
             pejabat: [],
             jadwal: [],
             buku: [],
-            pengumuman: false
+            pengumuman: false,
+            laporan: []
         };
 
         // 1. Warta: cari di judul dan isi
@@ -5413,6 +5415,14 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
             if (cleanPeng.toLowerCase().includes(q) || (pengumuman.header && pengumuman.header.toLowerCase().includes(q))) {
                 results.pengumuman = true;
             }
+        }
+
+        // 6. Laporan Keuangan — tampilkan tombol redirect ke laporan.html
+        // Deteksi jika user mengetik angka (no kuitansi), kode unit, atau kata kunci laporan
+        const isLaporanQuery = /\d{3,}/.test(q) || 
+            ['kuitansi', 'laporan', 'uang', 'transaksi', 'inc-', 'exp-', 'pem', 'rec'].some(kw => q.includes(kw));
+        if (isLaporanQuery) {
+            results.laporan = [{ redirectQuery: query.trim() }];
         }
 
         return results;
@@ -5538,6 +5548,30 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                         </div>
                     )}
 
+                    {/* Hasil Laporan Keuangan — Redirect ke Cek Transaksi di laporan.html */}
+                    {searchResults.laporan && searchResults.laporan.length > 0 && (
+                        <div>
+                            <h3 className="text-xs font-black text-emerald-600 dark:text-gold-500 uppercase tracking-widest mb-3 px-2">Laporan Keuangan</h3>
+                            <div 
+                                onClick={() => window.open(`/laporan.html?search=${encodeURIComponent(searchResults.laporan[0].redirectQuery)}`, '_blank')}
+                                className="glass-box rounded-2xl border border-emerald-100/60 dark:border-navy-700 p-5 cursor-pointer hover:shadow-lg hover:border-emerald-300 dark:hover:border-gold-500 transition-all"
+                            >
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-navy-800 flex items-center justify-center">
+                                        <Icon name="Search" className="w-5 h-5 text-emerald-600 dark:text-gold-400" />
+                                    </div>
+                                    <div>
+                                        <div className="font-bold text-navy-900 dark:text-gold-400">Cari "{searchResults.laporan[0].redirectQuery}" di Laporan Keuangan</div>
+                                        <div className="text-xs text-navy-500 dark:text-navy-300 mt-0.5">Buka halaman Cek Transaksi untuk verifikasi kuitansi & unit</div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center justify-center gap-2 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-navy-800 dark:text-gold-400 dark:hover:bg-navy-700 rounded-xl transition text-sm font-bold">
+                                    <Icon name="ExternalLink" className="w-4 h-4" /> Buka Cek Transaksi
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Hasil Pengumuman */}
                     {searchResults.pengumuman && (
                         <div>
@@ -5549,7 +5583,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                         </div>
                     )}
 
-                    {filteredMenus.length === 0 && searchResults.warta.length === 0 && searchResults.pejabat.length === 0 && searchResults.jadwal.length === 0 && searchResults.buku.length === 0 && !searchResults.pengumuman && (
+                    {filteredMenus.length === 0 && searchResults.warta.length === 0 && searchResults.pejabat.length === 0 && searchResults.jadwal.length === 0 && searchResults.buku.length === 0 && !searchResults.pengumuman && (!searchResults.laporan || searchResults.laporan.length === 0) && (
                         <div className="text-center p-6 border border-dashed border-navy-200 rounded-2xl">
                             <p className="text-sm text-navy-500 font-medium">Tidak ada hasil untuk <span className="font-bold text-navy-900">"{query}"</span></p>
                         </div>
@@ -5663,6 +5697,9 @@ const App = () => {
     const [daftarWarta, setDaftarWarta] = React.useState([]);
     const [daftarBuku, setDaftarBuku] = React.useState([]);
     const [initialBook, setInitialBook] = React.useState(null);
+    
+    // Laporan Keuangan default State
+    // daftarLaporan dihapus — pencarian kini redirect langsung ke laporan.html
 
     // Fungsi refresh warta
     const refreshWarta = async () => {
@@ -5842,6 +5879,7 @@ const App = () => {
                 } catch (e) {
                     console.error('Error fetching books:', e);
                 }
+
 
                 if (data.pengumuman !== undefined) {
                     try {
