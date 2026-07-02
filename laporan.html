@@ -14,7 +14,6 @@
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <link rel="stylesheet" href="/src/index.css">
   <style>
     @media print {
       body>*:not(#printContainer) {
@@ -142,6 +141,10 @@
       color: #FFD700 !important;
     }
 
+    .glass-input::-moz-placeholder {
+      color: rgba(255, 215, 0, 0.5) !important;
+    }
+
     .glass-input::placeholder {
       color: rgba(255, 215, 0, 0.5) !important;
     }
@@ -152,6 +155,7 @@
     .glass-input:-webkit-autofill:active {
       -webkit-box-shadow: 0 0 0 30px rgba(0, 0, 0, 0.6) inset !important;
       -webkit-text-fill-color: #FFD700 !important;
+      -webkit-transition: background-color 5000s ease-in-out 0s;
       transition: background-color 5000s ease-in-out 0s;
     }
 
@@ -204,7 +208,8 @@
     .photo-preview-container .photo-preview {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      -o-object-fit: cover;
+         object-fit: cover;
       display: block;
       border-radius: var(--radius-sm);
     }
@@ -287,6 +292,7 @@
       color: var(--text1);
     }
   </style>
+  <link rel="stylesheet" crossorigin href="/assets/index-BfVOw4Rz.css">
 </head>
 
 <body class="page-laporan">
