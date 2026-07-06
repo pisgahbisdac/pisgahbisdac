@@ -253,6 +253,7 @@
       let totalExp = 0;
 
       window.currentHistoryData.forEach(x => {
+        if (x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank') return;
         if (x.type === 'income') {
           const cat = x.income_type || 'Lainnya';
           if (!incByCat[cat]) incByCat[cat] = [];
@@ -2206,6 +2207,7 @@
         };
 
         (cachedIncome || []).filter(x => isMatch(x.date)).forEach(x => {
+          if (x.income_type === 'Mutasi Kas / Setor Bank') return;
           const isBangun = (x.income_type || '').toLowerCase().includes('pembangunan') || parseFloat(x.alloc_bangun || 0) > 0;
           if (isBangun) return;
           const cat = x.income_type || 'Lainnya';
@@ -2215,14 +2217,12 @@
         });
 
         (cachedExpense || []).filter(x => isMatch(x.date)).forEach(x => {
+          if (x.department === 'Mutasi Kas / Setor Bank') return;
           if (x.source_balance === 'Pembangunan') return;
-          const isMutasi = x.department === 'Mutasi Kas / Setor Bank';
           const dept = x.department || 'Lainnya';
           if (!expByDept[dept]) expByDept[dept] = [];
           expByDept[dept].push(x);
-          if (!isMutasi) {
-            totalExp += parseFloat(x.amount || 0);
-          }
+          totalExp += parseFloat(x.amount || 0);
         });
 
         currentReportData = {
@@ -2276,11 +2276,15 @@
 
       const txIn = [];
       if (currentReportData.incByCategory) {
-        Object.values(currentReportData.incByCategory).forEach(arr => arr.forEach(x => txIn.push(x)));
+        Object.values(currentReportData.incByCategory).forEach(arr => arr.forEach(x => {
+          if (x.income_type !== 'Mutasi Kas / Setor Bank') txIn.push(x);
+        }));
       }
       const txOut = [];
       if (currentReportData.expByDept) {
-        Object.values(currentReportData.expByDept).forEach(arr => arr.forEach(x => txOut.push(x)));
+        Object.values(currentReportData.expByDept).forEach(arr => arr.forEach(x => {
+          if (x.department !== 'Mutasi Kas / Setor Bank') txOut.push(x);
+        }));
       }
 
       let allApproved = true;
@@ -2900,6 +2904,7 @@
         const isAnon = perms.isAnonymous;
 
         window.currentHistoryData.forEach(x => {
+          if (x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank') return;
           const txUnitLower = String(x.unit_name || '').toLowerCase().trim();
           const belongsToUserUnits = userUnits.some(u => String(u).toLowerCase().trim() === txUnitLower);
 
