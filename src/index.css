@@ -469,10 +469,10 @@
   --bg-dark:    #FFFFFF;
   --bg-mid:     #F9FAFB;
   --bg-glass:   rgba(255, 255, 255, 0.7);
-  --primary:    #d4af37;
-  --primary-hover: #b5952f;
-  --gold:       #d4af37; 
-  --gold-light: #f3d57a;
+  --primary:    var(--green-pop);
+  --primary-hover: #047857;
+  --gold:       var(--green-pop); 
+  --gold-light: #34d399;
   --glass-border:  #E5E7EB;
   --glass-border2: #D1D5DB;
   --text:       #111827;
