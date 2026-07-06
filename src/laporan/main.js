@@ -110,25 +110,28 @@
       if (type === 'total' || type === 'bersih') {
         title = type === 'total' ? "Semua Transaksi Saldo" : "Semua Transaksi Kas Bersih";
         historicalInc.forEach(x => { if (type === 'total' || x.alloc_jemaat > 0 || x.alloc_bangun > 0) txList.push({ ...x, isInc: true }); });
-        historicalExp.forEach(x => { if (type === 'total' || x.source_balance === 'Kas Jemaat' || x.source_balance === 'Pembangunan') txList.push({ ...x, isInc: false }); });
+        historicalExp.forEach(x => { 
+          if (x.department === 'Mutasi Kas / Setor Bank') return;
+          if (type === 'total' || x.source_balance === 'Kas Jemaat' || x.source_balance === 'Pembangunan') txList.push({ ...x, isInc: false }); 
+        });
       } else if (type === 'in') {
         title = "Pemasukan Periode Ini";
         filteredInc.forEach(x => txList.push({ ...x, isInc: true }));
       } else if (type === 'out') {
         title = "Pengeluaran Periode Ini";
-        filteredExp.forEach(x => txList.push({ ...x, isInc: false }));
+        filteredExp.forEach(x => { if (x.department !== 'Mutasi Kas / Setor Bank') txList.push({ ...x, isInc: false }); });
       } else if (type === 'jemaat') {
         title = "Rincian Kas Jemaat";
         historicalInc.forEach(x => { if (x.alloc_jemaat > 0) txList.push({ ...x, isInc: true, overrideAmt: x.alloc_jemaat }); });
-        historicalExp.forEach(x => { if (x.source_balance === 'Kas Jemaat') txList.push({ ...x, isInc: false }); });
+        historicalExp.forEach(x => { if (x.department !== 'Mutasi Kas / Setor Bank' && x.source_balance === 'Kas Jemaat') txList.push({ ...x, isInc: false }); });
       } else if (type === 'daerah') {
         title = "Rincian Kas Daerah";
         historicalInc.forEach(x => { if (x.alloc_daerah > 0) txList.push({ ...x, isInc: true, overrideAmt: x.alloc_daerah }); });
-        historicalExp.forEach(x => { if (x.source_balance === 'Daerah') txList.push({ ...x, isInc: false }); });
+        historicalExp.forEach(x => { if (x.department !== 'Mutasi Kas / Setor Bank' && x.source_balance === 'Daerah') txList.push({ ...x, isInc: false }); });
       } else if (type === 'bangun') {
         title = "Rincian Dana Pembangunan";
         historicalInc.forEach(x => { if (x.alloc_bangun > 0) txList.push({ ...x, isInc: true, overrideAmt: x.alloc_bangun }); });
-        historicalExp.forEach(x => { if (x.source_balance === 'Pembangunan') txList.push({ ...x, isInc: false }); });
+        historicalExp.forEach(x => { if (x.department !== 'Mutasi Kas / Setor Bank' && x.source_balance === 'Pembangunan') txList.push({ ...x, isInc: false }); });
       }
 
       if (type === 'jemaat' && cachedSaldo.initJemaat) {
@@ -572,7 +575,7 @@
       });
 
       document.getElementById('roleTabs').innerHTML = allRoles.map(r => `
-        <button class="btn ${selectedRoleTab === r ? 'btn-primary' : 'btn-ghost'}" onclick="selectedRoleTab='${r}'; renderRoles();" style="border-radius:20px; white-space:nowrap; padding: 6px 16px;">
+        <button class="btn ${selectedRoleTab === r ? 'btn-primary' : 'btn-ghost'}" onclick="selectRoleTab('${r}')" style="border-radius:20px; white-space:nowrap; padding: 6px 16px;">
           ${r}
         </button>
       `).join('');
@@ -637,6 +640,11 @@
       if (typeof systemConfig.rolePermissions === 'string') { try { systemConfig.rolePermissions = JSON.parse(systemConfig.rolePermissions); } catch (e) { } }
       if (!systemConfig.rolePermissions[role]) systemConfig.rolePermissions[role] = { menus: {}, isAnonymous: false };
       systemConfig.rolePermissions[role].isAnonymous = checked;
+    }
+
+    function selectRoleTab(role) {
+      selectedRoleTab = role;
+      renderRoles();
     }
 
     function updateRolePerm(role, menuId, permType, checked) {
@@ -1041,16 +1049,25 @@
       let perms = { menus: {}, isAnonymous: false };
       if (systemConfig.rolePermissions && systemConfig.rolePermissions[role]) {
         perms = systemConfig.rolePermissions[role];
+        if (!perms.menus.pindahbuku) {
+          if (role === 'Admin' || role === 'Bendahara') {
+            perms.menus.pindahbuku = { view: true, edit: true, del: true };
+          } else {
+            perms.menus.pindahbuku = { view: false, edit: false, del: false };
+          }
+        }
       } else if (role === 'Admin') {
-        perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true } }, isAnonymous: false };
+        perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true } }, isAnonymous: false };
       } else if (role === 'Bendahara') {
-        perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
+        perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
       } else if (role === 'Viewer') {
-        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
+        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
       } else if (role === 'Ketua Jemaat' || role === 'Pendeta') {
-        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
+        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
       } else if (role === 'Publik') {
-        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: false, edit: false, del: false }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: true };
+        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: false, edit: false, del: false }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: true };
+      } else if (role === 'Operator') {
+        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
       }
 
       // Strict enforcement
@@ -1109,10 +1126,19 @@
       const sensorContainer = document.getElementById('reportSensorContainer');
       if (sensorContainer) sensorContainer.style.display = perms.menus.laporan?.edit ? 'flex' : 'none';
 
+      // Auto-enable Unit Filter for Operators
+      const userUnits = getUserUnits();
+      if (currentUser && currentUser.role === 'Operator' && userUnits.length > 0) {
+        myUnitFilterActive = true;
+        const btnToggle = document.getElementById('btnToggleMyUnit');
+        if (btnToggle) {
+          btnToggle.classList.add('active');
+          btnToggle.innerHTML = safeIcon('filter', 'lucide-sm') + ' Hanya Unit Saya';
+        }
+      }
+
       if (!mPemasukan.edit) { document.querySelectorAll('.btn-save-pemasukan').forEach(el => el.style.display = 'none'); }
       if (!mPengeluaran.edit) { document.querySelectorAll('.btn-save-pengeluaran').forEach(el => el.style.display = 'none'); }
-
-      const userUnits = getUserUnits();
 
       const btnLogoutText = document.getElementById('btnLogoutText');
       const btnLogoutIcon = document.getElementById('btnLogoutIcon');
@@ -1737,6 +1763,13 @@
       document.getElementById('kategoriOutTable').innerHTML = catOutTable + '</tbody></table></div>';
 
       let combined = [...filteredInc.map(x => ({ ...x, kind: 'income', style: 'amount-pos', sign: '+', badge: 'badge-green', label: 'In' })), ...filteredExp.map(x => ({ ...x, kind: 'expense', style: 'amount-neg', sign: '-', badge: 'badge-red', label: 'Out' }))];
+      const uUnitsDash = getUserUnits();
+      if (currentUser && currentUser.role === 'Operator' && uUnitsDash.length > 0) {
+        combined = combined.filter(x => {
+          const txUnitLower = String(x.unit_name || '').toLowerCase().trim();
+          return uUnitsDash.some(u => String(u).toLowerCase().trim() === txUnitLower);
+        });
+      }
       combined = groupTransactions(combined);
       const recent = combined.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
@@ -2016,7 +2049,7 @@
 
       const btn = document.getElementById('savMutBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
       try {
-        await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentMutPhotos[0] || '', receipt_photo_base64_2: currentMutPhotos[1] || '', receipt_photo_base64_3: currentMutPhotos[2] || '', nama_penerima: receiver });
+        await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentMutPhotos[0] || '', receipt_photo_base64_2: currentMutPhotos[1] || '', receipt_photo_base64_3: currentMutPhotos[2] || '', nama_penerima: receiver, approved_by: 'Admin,Ketua Jemaat,Pendeta' });
         notify('Berhasil Setor ke Bank!', 'success');
         document.getElementById('mutReceipt').value = ''; document.getElementById('mutAmount').value = ''; document.getElementById('mutNote').value = '';
         resetPhotoUpload('mutasi');
@@ -2146,9 +2179,13 @@
             }
           });
           (cachedExpense || []).forEach(x => {
-            if (isBefore(x.date) && x.source_balance !== 'Pembangunan') {
+            const isMutasi = x.department === 'Mutasi Kas / Setor Bank';
+            if (isBefore(x.date) && x.source_balance !== 'Pembangunan' && !isMutasi) {
               saldoAwal -= parseFloat(x.amount || 0);
-              if (x.source_balance === 'Kas Jemaat') saldoAwalJemaat -= parseFloat(x.amount || 0);
+              const sb = x.source_balance || '';
+              if (sb === 'Kas Jemaat' || sb === 'Kas Jemaat (Di Tangan)' || sb === 'Kas Jemaat (Bank)') {
+                saldoAwalJemaat -= parseFloat(x.amount || 0);
+              }
             }
           });
         }
@@ -2179,10 +2216,13 @@
 
         (cachedExpense || []).filter(x => isMatch(x.date)).forEach(x => {
           if (x.source_balance === 'Pembangunan') return;
+          const isMutasi = x.department === 'Mutasi Kas / Setor Bank';
           const dept = x.department || 'Lainnya';
           if (!expByDept[dept]) expByDept[dept] = [];
           expByDept[dept].push(x);
-          totalExp += parseFloat(x.amount || 0);
+          if (!isMutasi) {
+            totalExp += parseFloat(x.amount || 0);
+          }
         });
 
         currentReportData = {
@@ -2209,6 +2249,8 @@
         if (printBtn) printBtn.style.display = 'inline-block';
         const pmbBtn = document.getElementById('btnPembangunanReport');
         if (pmbBtn) pmbBtn.style.display = 'inline-block';
+        const pmbExpBtn = document.getElementById('btnExportPembangunanExcel');
+        if (pmbExpBtn) pmbExpBtn.style.display = 'inline-block';
       } catch (e) {
         rc.innerHTML = `<div style="text-align:center; padding:20px; color:var(--red-pop)">Gagal memuat: ${e.message}</div>`;
       }
@@ -2316,14 +2358,16 @@
       });
 
       txOut.forEach(x => {
-        const d = x.department || 'Lain-Lain';
+        const isMutasi = x.department === 'Mutasi Kas / Setor Bank';
+        let d = x.department || 'Lain-Lain';
+        if (isMutasi) d = 'Mutasi Kas / Setor Bank (Pindah Buku)';
         const amt = parseFloat(x.amount || 0);
         expByDept[d] = (expByDept[d] || 0) + amt;
-        totalExp += amt;
+        if (!isMutasi) totalExp += amt;
 
         if (x.source_balance === 'Kas Jemaat') {
           expJemaatByDept[d] = (expJemaatByDept[d] || 0) + amt;
-          totalExpJemaat += amt;
+          if (!isMutasi) totalExpJemaat += amt;
         }
       });
 
@@ -3282,6 +3326,7 @@
 
       const perms = getRolePerms(currentUser.role);
       const mRiwayat = perms.menus.riwayat || { view: true, edit: false, del: false };
+      const mPindahBuku = perms.menus.pindahbuku || { view: false, edit: false, del: false };
       const isAdmin = currentUser.role === 'Admin';
       const canEdit = mRiwayat.edit || isAdmin;
       const canDel = mRiwayat.del || isAdmin;
@@ -3295,10 +3340,19 @@
       const mNamesShort = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
       list.forEach(x => {
         if (x.type === 'income') { sumIn += x.amount; const cat = x.income_type || 'Lainnya'; catBreakIn[cat] = (catBreakIn[cat] || 0) + x.amount; }
-        else if (x.type === 'expense') { sumOut += x.amount; const cat = x.department || 'Lainnya'; catBreakOut[cat] = (catBreakOut[cat] || 0) + x.amount; }
-        const d = new Date(x.date); const mKey = `${mNamesShort[d.getMonth() + 1]} ${d.getFullYear()}`;
-        if (!monthlyBreak[mKey]) monthlyBreak[mKey] = { inc: 0, exp: 0 };
-        if (x.type === 'income') monthlyBreak[mKey].inc += x.amount; else monthlyBreak[mKey].exp += x.amount;
+        else if (x.type === 'expense') {
+          const isMutasi = x.department === 'Mutasi Kas / Setor Bank';
+          if (!isMutasi) {
+            sumOut += x.amount; const cat = x.department || 'Lainnya'; catBreakOut[cat] = (catBreakOut[cat] || 0) + x.amount;
+          }
+        }
+        
+        const isMut = x.department === 'Mutasi Kas / Setor Bank';
+        if (!isMut) {
+          const d = new Date(x.date); const mKey = `${mNamesShort[d.getMonth() + 1]} ${d.getFullYear()}`;
+          if (!monthlyBreak[mKey]) monthlyBreak[mKey] = { inc: 0, exp: 0 };
+          if (x.type === 'income') monthlyBreak[mKey].inc += x.amount; else monthlyBreak[mKey].exp += x.amount;
+        }
       });
       let summaryHtml = '';
       if (myUnitFilterActive || q || month > 0 || year > 0) {
@@ -3424,6 +3478,10 @@
         const userUnits = getUserUnits();
 
         let desktopHtml = list.map(x => {
+          const isMutasi = x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank';
+          const txCanEdit = canEdit || (isMutasi && mPindahBuku.edit);
+          const txCanDel = canDel || (isMutasi && mPindahBuku.del);
+          
           const txUnitLower = String(x.unit_name || '').toLowerCase().trim();
           const belongsToUserUnits = userUnits.some(u => String(u).toLowerCase().trim() === txUnitLower);
 
@@ -3468,17 +3526,9 @@
           if (isApprover && deleteId) {
             const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
             if (isFullyApproved || (x.approved_by && x.approved_by.includes(roleNeeded))) {
-              let approveBtnHtml = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--text4); cursor:default;display:inline-flex;align-items:center;gap:4px;" disabled>${safeIcon('check', 'lucide-sm')} Approved</button>`;
-              if (this.isDesktopLoop) {
-                approveBtnHtml = `<button class="btn-icon-only" style="color:var(--text4); cursor:default;" title="Sudah Di-Approve" disabled>${safeIcon('check', 'lucide-sm')}</button>`;
-              }
-              approveBtn = approveBtnHtml;
+              approveBtn = `<button class="btn-icon-only" style="color:var(--text4); cursor:default;" title="Sudah Di-Approve" disabled>${safeIcon('check', 'lucide-sm')}</button>`;
             } else {
-              let approveBtnHtml = `<button class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:var(--accent-green);display:inline-flex;align-items:center;gap:4px;" onclick="approveTx('${x.type}', '${deleteId}')">${safeIcon('check', 'lucide-sm')} Approve</button>`;
-              if (this.isDesktopLoop) {
-                approveBtnHtml = `<button class="btn-icon-only" style="color:var(--accent-green);" title="Approve" onclick="approveTx('${x.type}', '${deleteId}')">${safeIcon('check', 'lucide-sm')}</button>`;
-              }
-              approveBtn = approveBtnHtml;
+              approveBtn = `<button class="btn-icon-only" style="color:var(--accent-green);" title="Approve" onclick="approveTx('${x.type}', '${deleteId}')">${safeIcon('check', 'lucide-sm')}</button>`;
             }
           }
 
@@ -3498,13 +3548,17 @@
         <td class="fit-col" style="text-align:right; white-space:nowrap;">
           ${approveBtn}
           ${deleteId ? `<button class="btn-icon-only" style="color:var(--text3);" onclick="printTransaction('${x.type}', '${deleteId}')" title="Cetak Kuitansi">${safeIcon('printer', 'lucide-sm')}</button>` : ''}
-          ${canEdit && deleteId ? `<button class="btn-icon-only" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit', 'lucide-sm')}</button>` : ''}
-          ${canDel && deleteId ? `<button class="btn-icon-only" style="color:var(--red-pop)" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash', 'lucide-sm')}</button>` : ''}
+          ${txCanEdit && deleteId ? `<button class="btn-icon-only" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit', 'lucide-sm')}</button>` : ''}
+          ${txCanDel && deleteId ? `<button class="btn-icon-only" style="color:var(--red-pop)" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash', 'lucide-sm')}</button>` : ''}
         </td>
       </tr>`;
         }).join('');
 
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column;">' + list.map(x => {
+          const isMutasi = x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank';
+          const txCanEdit = canEdit || (isMutasi && mPindahBuku.edit);
+          const txCanDel = canDel || (isMutasi && mPindahBuku.del);
+
           const txUnitLower = String(x.unit_name || '').toLowerCase().trim();
           const belongsToUserUnits = userUnits.some(u => String(u).toLowerCase().trim() === txUnitLower);
 
@@ -3561,8 +3615,8 @@
             }
           }
 
-          let editBtn = canEdit && deleteId ? `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:var(--input-bg); color:var(--text); border:1px solid var(--glass-border);" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit', 'lucide-sm')} <span style="margin-left:4px">Edit</span></button>` : '';
-          let delBtn = canDel && deleteId ? `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:rgba(244,63,94,0.1); color:var(--rose-pop); border:1px solid rgba(244,63,94,0.2);" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash', 'lucide-sm')} <span style="margin-left:4px">Hapus</span></button>` : '';
+          let editBtn = txCanEdit && deleteId ? `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:var(--input-bg); color:var(--text); border:1px solid var(--glass-border);" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit', 'lucide-sm')} <span style="margin-left:4px">Edit</span></button>` : '';
+          let delBtn = txCanDel && deleteId ? `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:rgba(244,63,94,0.1); color:var(--rose-pop); border:1px solid rgba(244,63,94,0.2);" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash', 'lucide-sm')} <span style="margin-left:4px">Hapus</span></button>` : '';
 
           let cetakBtn = deleteId ? `<button class="btn" style="padding:4px 8px; font-size:9px; background:var(--input-bg); color:var(--text); border:1px solid var(--glass-border);display:inline-flex;align-items:center;gap:4px;" onclick="printTransaction('${x.type}', '${deleteId}')" title="Cetak">${safeIcon('printer', 'lucide-sm')} Cetak</button>` : '';
 
@@ -4466,7 +4520,43 @@
       }, 15000);
     }
 
-    function generatePembangunanReportHtml(data) {
+    function exportPembangunanExcel() {
+      try {
+        if (!currentReportData) return notify('Generate laporan terlebih dahulu', 'error');
+        if (currentReportData.mode === 'akumulasi') return notify('Laporan Pembangunan hanya tersedia untuk Mode Bulanan', 'error');
+
+        const tableHtml = generatePembangunanReportHtml(currentReportData, true);
+
+        const html = `
+          <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+          <head>
+            <meta charset="utf-8">
+          </head>
+          <body style="background-color: white;">
+            ${tableHtml}
+          </body>
+          </html>
+        `;
+
+        const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const month = document.getElementById('rptMonth') ? document.getElementById('rptMonth').value : currentReportData.month;
+        const year = document.getElementById('rptYear') ? document.getElementById('rptYear').value : currentReportData.year;
+        a.download = 'Laporan_Pembangunan_' + month + '_' + year + '.xls';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        notify('Export Excel Pembangunan berhasil.', 'success');
+      } catch (e) {
+        console.error('exportPembangunanExcel error:', e);
+        notify('Error export Excel: ' + e.message, 'error');
+      }
+    }
+
+    function generatePembangunanReportHtml(data, isExcel = false) {
       if (!data) return '';
       const targetMonth = data.month;
       const targetYear = data.year;
@@ -4508,6 +4598,7 @@
       (cachedIncome || []).forEach(i => { if (new Date(i.date) < targetDateStart) calcBangun += (i.alloc_bangun || 0); });
       (cachedExpense || []).forEach(e => { if (new Date(e.date) < targetDateStart && e.source_balance === 'Pembangunan') calcBangun -= e.amount; });
       const saldoAwal = calcBangun;
+      const fmtEx = (n) => isExcel ? n : fmt(n);
 
       // Akumulasi Pemasukan
       let sumPemasukan = 0;
@@ -4520,7 +4611,7 @@
           <td style="border:1px solid #000; padding:4px; text-align:center;">${fmtDate(x.date)}</td>
           <td style="border:1px solid #000; padding:4px;">${x.receipt_no || '-'}</td>
           <td style="border:1px solid #000; padding:4px;">${dNote}</td>
-          <td style="border:1px solid #000; padding:4px; text-align:right;">${fmt(amt)}</td>
+          <td style="border:1px solid #000; padding:4px; text-align:right;">${fmtEx(amt)}</td>
         </tr>`;
       }).join('');
 
@@ -4539,7 +4630,7 @@
           <td style="border:1px solid #000; padding:4px; text-align:center;">${fmtDate(x.date)}</td>
           <td style="border:1px solid #000; padding:4px;">${x.receipt_no || '-'}</td>
           <td style="border:1px solid #000; padding:4px;">${dNote}</td>
-          <td style="border:1px solid #000; padding:4px; text-align:right;">${fmt(amt)}</td>
+          <td style="border:1px solid #000; padding:4px; text-align:right;">${fmtEx(amt)}</td>
         </tr>`;
       }).join('');
 
@@ -4585,7 +4676,7 @@
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:yellow;">Saldo Awal</td>
-              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:yellow;">IDR &nbsp; &nbsp; ${fmt(saldoAwal)}</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:yellow;">IDR &nbsp; &nbsp; ${fmtEx(saldoAwal)}</td>
             </tr>
             <tr><td colspan="4" style="background-color:#4472c4; height:12px; border:1px solid #000;"></td></tr>
             ${pemRows}
@@ -4593,13 +4684,13 @@
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:#ffc000;">Total pembangunan bulan ini</td>
-              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:#ffc000;">IDR &nbsp; &nbsp; ${fmt(sumPemasukan)}</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:#ffc000;">IDR &nbsp; &nbsp; ${fmtEx(sumPemasukan)}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:yellow;">Total saldo Pemasukan</td>
-              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:yellow;">IDR &nbsp; &nbsp; ${fmt(saldoAwal + sumPemasukan)}</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:yellow;">IDR &nbsp; &nbsp; ${fmtEx(saldoAwal + sumPemasukan)}</td>
             </tr>
           </tbody>
         </table>
@@ -4620,13 +4711,13 @@
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic;">Total saldo Pengeluaran</td>
-              <td style="border:1px solid #000; padding:4px; text-align:right;">IDR &nbsp; &nbsp; ${sumPengeluaran === 0 ? '-' : fmt(sumPengeluaran)}</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right;">IDR &nbsp; &nbsp; ${sumPengeluaran === 0 ? '-' : fmtEx(sumPengeluaran)}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:yellow;">Saldo Akhir Pembangunan</td>
-              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:yellow;">IDR &nbsp; &nbsp; ${fmt(saldoAwal + sumPemasukan - sumPengeluaran)}</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:yellow;">IDR &nbsp; &nbsp; ${fmtEx(saldoAwal + sumPemasukan - sumPengeluaran)}</td>
             </tr>
           </tbody>
         </table>
@@ -4739,6 +4830,7 @@ window.saveEditTransaction = saveEditTransaction;
 window.handleEditTypeChange = handleEditTypeChange;
 window.openBulkPrintModal = openBulkPrintModal;
 window.renderRoles = renderRoles;
+window.selectRoleTab = selectRoleTab;
 window.handleManualSync = handleManualSync;
 window.openSidebar = openSidebar;
 window.formatRupiah = formatRupiah;
@@ -4820,6 +4912,7 @@ window.closeEditModal = closeEditModal;
 window.saveAppTextFromInputs = saveAppTextFromInputs;
 window.getRolePerms = getRolePerms;
 window.exportToExcel = exportToExcel;
+window.exportPembangunanExcel = exportPembangunanExcel;
 window.saveServerSettings = saveServerSettings;
 window.saveIncomeForm = saveIncomeForm;
 window.printTransaction = printTransaction;
