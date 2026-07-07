@@ -529,9 +529,9 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                         </div>
                         
                         <div className="flex gap-4">
-                            <button onClick={() => setActiveTab('warta')} className="bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-900 font-bold py-3.5 px-8 rounded-full transition-colors inline-flex items-center shadow-md">
-                                <Icon name="BookOpen" className="w-5 h-5 mr-2" /> Semua Warta
-                            </button>
+                            <a href="./pembangunan.html" className="bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-900 font-bold py-3.5 px-8 rounded-full transition-colors inline-flex items-center shadow-md">
+                                <Icon name="BookOpen" className="w-5 h-5 mr-2" /> Lihat Progres Pembangunan
+                            </a>
                         </div>
                     </div>
                 </div>

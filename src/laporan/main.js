@@ -1899,11 +1899,16 @@
         } else {
           const amount = parseRupiah(document.getElementById('incAmount').value); if (amount <= 0) throw new Error('Isi nominal!');
           let pctD = 0; let pctJ = 100; let pctB = 0;
-          const tLower = type.toLowerCase();
-          const isSabat13 = tLower.includes('sabat') && tLower.includes('13');
-          const isSabat = tLower.includes('sabat') && !tLower.includes('13');
-          if (type === 'Khusus Daerah' || type === 'Perpuluhan' || isSabat13) { pctD = 100; pctJ = 0; }
-          else if (type === 'Terpadu' || isSabat) { pctD = 50; pctJ = 50; }
+          const cfg = getIncomeTypeConfig(type);
+          if (cfg) {
+            pctD = cfg.pct_daerah; pctJ = cfg.pct_jemaat; pctB = cfg.pct_bangun;
+          } else {
+            const tLower = type.toLowerCase();
+            const isSabat13 = tLower.includes('sabat') && tLower.includes('13');
+            const isSabat = tLower.includes('sabat') && !tLower.includes('13');
+            if (type === 'Khusus Daerah' || type === 'Perpuluhan' || isSabat13) { pctD = 100; pctJ = 0; }
+            else if (type === 'Terpadu' || isSabat) { pctD = 50; pctJ = 50; }
+          }
           await apiPost('saveIncome', { date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount, note: finalNote, alloc_pct_daerah: pctD, alloc_pct_jemaat: pctJ, alloc_pct_bangun: pctB, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
         }
         notify('Berhasil disimpan!', 'success');
@@ -2289,22 +2294,27 @@
         }));
       }
 
-      let allApproved = true;
-      const allTx = [...txIn, ...txOut];
-      if (allTx.length === 0) {
-        allApproved = false;
-      } else {
+      const allTx = [...txIn, ...txOut, ...txMut];
+      const hasTransactions = allTx.length > 0;
+      
+      let gembalaApprovedAll = hasTransactions;
+      let ketuaApprovedAll = hasTransactions;
+      
+      if (hasTransactions) {
         for (let i = 0; i < allTx.length; i++) {
           const x = allTx[i];
           const isAdminApp = x.approved_by && x.approved_by.includes('Admin');
           const isKetua = x.approved_by && x.approved_by.includes('Ketua Jemaat');
           const isPendeta = x.approved_by && x.approved_by.includes('Pendeta');
-          if (!isAdminApp && (!isKetua || !isPendeta)) { allApproved = false; break; }
+          if (!isAdminApp && !isPendeta) gembalaApprovedAll = false;
+          if (!isAdminApp && !isKetua) ketuaApprovedAll = false;
         }
       }
 
       const isManualSignature = document.getElementById('manualSignature') ? document.getElementById('manualSignature').checked : false;
-      const useImages = allApproved && !isManualSignature;
+      const useBenImg = !isManualSignature && hasTransactions && systemConfig.sig_bendahara;
+      const useKetuaImg = !isManualSignature && ketuaApprovedAll && systemConfig.sig_ketua;
+      const useGembalaImg = !isManualSignature && gembalaApprovedAll && systemConfig.sig_pendeta;
 
       let totalIncJemaat = 0;
       let totalExpJemaat = 0;
@@ -2500,18 +2510,36 @@
       // Tambahan info Uang Daerah
       rightPanel.push({ label: '', val: null }); // Spacer
 
-      let sumTerpaduTotal = 0;
+      let sumPerpuluhan = 0;
+      let sumTerpaduDaerah = 0;
+      let sumKhususDaerah = 0;
+
       Object.entries(incByCat).forEach(([k, amt]) => {
-        const kLower = k.toLowerCase();
-        const isSabat = kLower.includes('sabat') && !kLower.includes('13');
-        if (k === 'Terpadu' || isSabat) {
-          sumTerpaduTotal += amt;
+        const cfg = getIncomeTypeConfig(k);
+        let dAmt = 0;
+        if (cfg) {
+          dAmt = amt * (cfg.pct_daerah || 0) / 100;
+        } else {
+          const kLower = k.toLowerCase();
+          const isSabat13 = kLower.includes('sabat') && kLower.includes('13');
+          const isSabat = kLower.includes('sabat') && !kLower.includes('13');
+          if (k === 'Khusus Daerah' || k === 'Perpuluhan' || isSabat13) {
+            dAmt = amt;
+          } else if (k === 'Terpadu' || isSabat) {
+            dAmt = amt / 2;
+          }
+        }
+
+        const kL = k.toLowerCase();
+        if (kL.includes('perpuluhan')) {
+          sumPerpuluhan += dAmt;
+        } else if (kL.includes('terpadu') || (kL.includes('sabat') && !kL.includes('13'))) {
+          sumTerpaduDaerah += dAmt;
+        } else if (dAmt > 0) {
+          sumKhususDaerah += dAmt;
         }
       });
 
-      const sumPerpuluhan = incByCat['Perpuluhan'] || 0;
-      const sumTerpaduDaerah = sumTerpaduTotal / 2;
-      const sumKhususDaerah = incByCat['Khusus Daerah'] || 0;
       const sumPemasukanDaerah = sumPerpuluhan + sumTerpaduDaerah + sumKhususDaerah;
 
       const saldoAwalDaerah = saldoAwal - saldoAwalJemaat;
@@ -2534,9 +2562,9 @@
       rightPanel.push({ label: 'Saldo Bank (Daerah)', val: calcBankD, indent: true, isLightDaerah: true });
       rightPanel.push({ label: '<span style="font-size:6pt;">Total Uang Untuk Daerah</span>', val: saldoAkhirDaerah, bold: true, large: true, isBorderTop: true, isColoredDaerah: true });
 
-      const imgBen = useImages && systemConfig.sig_bendahara ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
-      const imgKet = useImages && systemConfig.sig_ketua ? `<img src="${systemConfig.sig_ketua}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
-      const imgPen = useImages && systemConfig.sig_pendeta ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgBen = useBenImg ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgKet = useKetuaImg ? `<img src="${systemConfig.sig_ketua}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgPen = useGembalaImg ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
 
       const nameBen = systemConfig.sig_name_bendahara || 'Herbert JS Sagala';
       const titleBen = systemConfig.sig_title_bendahara || 'Bendahara Jemaat';
@@ -4589,19 +4617,25 @@
         return tDate >= targetDateStart && tDate <= targetDateEnd && x.source_balance === 'Pembangunan';
       }).sort((a, b) => new Date(a.date) - new Date(b.date));
 
-      let allApproved = true;
       const allTx = [...pemBulanIni, ...pengBulanIni];
-      if (allTx.length === 0) {
-        allApproved = false;
-      } else {
+      const hasTransactions = allTx.length > 0;
+      let gembalaApprovedAll = hasTransactions;
+      let ketuaApprovedAll = hasTransactions;
+      if (hasTransactions) {
         for (let i = 0; i < allTx.length; i++) {
           const x = allTx[i];
+          const isAdminApp = x.approved_by && x.approved_by.includes('Admin');
           const isKetua = x.approved_by && x.approved_by.includes('Ketua Jemaat');
           const isPendeta = x.approved_by && x.approved_by.includes('Pendeta');
-          if (!isKetua || !isPendeta) { allApproved = false; break; }
+          if (!isAdminApp && !isPendeta) gembalaApprovedAll = false;
+          if (!isAdminApp && !isKetua) ketuaApprovedAll = false;
         }
       }
-      const useImages = allApproved && !isManualSignature;
+      
+      const useBenImg = !isManualSignature && hasTransactions && systemConfig.sig_bendahara;
+      const useKetuaImg = !isManualSignature && ketuaApprovedAll && systemConfig.sig_ketua;
+      const useGembalaImg = !isManualSignature && gembalaApprovedAll && systemConfig.sig_pendeta;
+      const useBgnImg = !isManualSignature && ketuaApprovedAll && gembalaApprovedAll && systemConfig.sig_bangun;
 
 
       // Saldo Awal Pembangunan (dari awal waktu s.d targetDateStart - 1 ms)
@@ -4734,10 +4768,10 @@
         </table>
       `;
 
-      const imgBen = useImages && systemConfig.sig_bendahara ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
-      const imgBgn = useImages && systemConfig.sig_bangun ? `<img src="${systemConfig.sig_bangun}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
-      const imgKet = useImages && systemConfig.sig_ketua ? `<img src="${systemConfig.sig_ketua}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
-      const imgPen = useImages && systemConfig.sig_pendeta ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgBen = useBenImg ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgBgn = useBgnImg ? `<img src="${systemConfig.sig_bangun}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgKet = useKetuaImg ? `<img src="${systemConfig.sig_ketua}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgPen = useGembalaImg ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
 
       const nameBen = systemConfig.sig_name_bendahara || 'Herbert JS Sagala';
       const titleBen = systemConfig.sig_title_bendahara || 'Bendahara Jemaat';
