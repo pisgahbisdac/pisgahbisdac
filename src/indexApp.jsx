@@ -491,7 +491,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                             <div className="bg-gradient-to-r from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-5 md:p-6 rounded-[1.5rem] shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in border border-[#C18B35] dark:border-gold-400">
                                 <div className="text-center sm:text-left text-white dark:text-navy-900">
                                     <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5"><Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perjamuan</h3>
-                                    <p className="text-sm font-bold opacity-90">{formatIndoDate(perjamuanYMD)}</p>
+                                    <p className="text-2xl md:text-3xl font-extrabold opacity-95 tracking-tight">{formatIndoDate(perjamuanYMD)}</p>
                                 </div>
                                 <button onClick={() => setActiveTab('jadwal')} className="bg-[#4A7045] hover:bg-[#3A5836] dark:bg-navy-900 dark:hover:bg-navy-800 text-white dark:text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">Lihat Petugas</button>
                             </div>
@@ -505,7 +505,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                                     <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5 text-[#D19B45] dark:text-gold-400">
                                         <Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perpuluhan
                                     </h3>
-                                    <p className="text-sm text-white/90 dark:text-navy-200 font-bold">{formatIndoDate(perpuluhanYMD)}</p>
+                                    <p className="text-2xl md:text-3xl text-white dark:text-navy-200 font-extrabold tracking-tight">{formatIndoDate(perpuluhanYMD)}</p>
                                 </div>
                                 <button onClick={() => setActiveTab('persembahan')} className="relative z-10 bg-[#D19B45] hover:bg-[#C18B35] dark:bg-gold-400 dark:hover:bg-gold-300 text-white dark:text-navy-900 px-6 py-3 rounded-xl text-sm font-black shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">
                                     Transfer Perpuluhan
