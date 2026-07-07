@@ -374,7 +374,7 @@ const formatDate = (dateString) => {
     return `${d}/${m}/${y}`;
 };
 
-const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook }) => {
+const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD }) => {
     const [currentSlide, setCurrentSlide] = React.useState(0);
 
     const displayImages = heroImages && heroImages.length > 0 ? heroImages : ["./icons/PisgahColor.png"];
@@ -483,6 +483,39 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                 </div>
             </div>
 
+            {/* SABAT PERJAMUAN & PERPULUHAN SECTION */}
+            {(showPerjamuan || showPerpuluhan) && (
+                <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
+                    <div className="space-y-4 w-full">
+                        {showPerjamuan && (
+                            <div className="bg-gradient-to-r from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-5 md:p-6 rounded-[1.5rem] shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in border border-[#C18B35] dark:border-gold-400">
+                                <div className="text-center sm:text-left text-white dark:text-navy-900">
+                                    <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5"><Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perjamuan</h3>
+                                    <p className="text-sm font-bold opacity-90">{formatIndoDate(perjamuanYMD)}</p>
+                                </div>
+                                <button onClick={() => setActiveTab('jadwal')} className="bg-[#4A7045] hover:bg-[#3A5836] dark:bg-navy-900 dark:hover:bg-navy-800 text-white dark:text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">Lihat Petugas</button>
+                            </div>
+                        )}
+
+                        {showPerpuluhan && (
+                            <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-navy-900 dark:to-navy-800 p-5 md:p-6 rounded-[1.5rem] shadow-lg border border-[#3A5836] dark:border-navy-700/50 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-gold-400/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 dark:bg-gold-400/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                                <div className="relative z-10 text-center sm:text-left">
+                                    <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5 text-[#D19B45] dark:text-gold-400">
+                                        <Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perpuluhan
+                                    </h3>
+                                    <p className="text-sm text-white/90 dark:text-navy-200 font-bold">{formatIndoDate(perpuluhanYMD)}</p>
+                                </div>
+                                <button onClick={() => setActiveTab('persembahan')} className="relative z-10 bg-[#D19B45] hover:bg-[#C18B35] dark:bg-gold-400 dark:hover:bg-gold-300 text-white dark:text-navy-900 px-6 py-3 rounded-xl text-sm font-black shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">
+                                    Transfer Perpuluhan
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {/* PENGUMUMAN & VISI MISI (Split Layout) */}
             <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-16 md:mt-24 mb-20">
                 <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-20">
@@ -536,6 +569,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                     </div>
                 </div>
             </div>
+
 
             {/* WARTA JEMAAT (3 Columns Card Layout) */}
             <div className="bg-[#E9EEDF] dark:bg-navy-900 rounded-[3.5rem] pt-16 md:pt-24 pb-20 md:pb-28 px-4 md:px-8 mt-10 mb-8 transition-colors duration-500 shadow-sm">
@@ -2393,7 +2427,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta 
 // --- KOMPONEN AdminDashboard yang DIPERBAIKI (dengan fitur warta) ---
 const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken,
     youtubeUrl, setYoutubeUrl, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages,
-    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, handleLogout }) => {
+    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, perpuluhanDate, setPerpuluhanDate, handleLogout }) => {
     const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan, buku
     const [viewMonth, setViewMonth] = React.useState(new Date().getMonth());
     const [viewYear, setViewYear] = React.useState(new Date().getFullYear());
@@ -2492,12 +2526,14 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const [editLiveUrl, setEditLiveUrl] = React.useState(liveUrl);
     const [isSavingLiveUrl, setIsSavingLiveUrl] = React.useState(false);
     const [editPerjamuanDate, setEditPerjamuanDate] = React.useState(perjamuanDate);
+    const [editPerpuluhanDate, setEditPerpuluhanDate] = React.useState(perpuluhanDate);
     const [isSavingPerjamuanDate, setIsSavingPerjamuanDate] = React.useState(false);
 
     // Sync form state when perjamuanDate is fetched/updated from parent App
     React.useEffect(() => {
         setEditPerjamuanDate(perjamuanDate);
-    }, [perjamuanDate]);
+        setEditPerpuluhanDate(perpuluhanDate);
+    }, [perjamuanDate, perpuluhanDate]);
 
     // State Hero Image Array (Carousel)
     const [editHeroImages, setEditHeroImages] = React.useState(heroImages);
@@ -3483,6 +3519,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                     try {
                         const cached = JSON.parse(localStorage.getItem('pisgah_data_cache') || '{}');
                         cached.perjamuanDate = date;
+                        if (perpuluhanDate) cached.perpuluhanDate = perpuluhanDate;
                         localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
                     } catch (e) { }
                     executeSave();
@@ -3626,7 +3663,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         setIsSavingLiveUrl(false);
     };
 
-    // SIMPAN PErjamuan
+    // SIMPAN PErjamuan & Perpuluhan
     const handleSavePerjamuanDate = async (e) => {
         e.preventDefault();
         setIsSavingPerjamuanDate(true);
@@ -3636,7 +3673,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 body: JSON.stringify({
                     action: 'savePerjamuanDate',
                     password: adminToken,
-                    tanggal: editPerjamuanDate
+                    tanggal: editPerjamuanDate,
+                    tanggalPerpuluhan: editPerpuluhanDate
                 })
             });
 
@@ -3655,34 +3693,38 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             }
 
             if (result.success) {
-                alert('Tanggal Perjamuan berhasil disimpan!');
+                alert('Jadwal Sabat Khusus berhasil disimpan!');
                 setPerjamuanDate(editPerjamuanDate);
+                setPerpuluhanDate(editPerpuluhanDate);
                 // Sinkronisasi cache localStorage agar data langsung terupdate saat reload
                 try {
                     const cachedStr = localStorage.getItem('pisgah_data_cache');
                     if (cachedStr) {
                         const cached = JSON.parse(cachedStr);
                         cached.perjamuanDate = editPerjamuanDate;
+                        cached.perpuluhanDate = editPerpuluhanDate;
                         localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
                     }
-                } catch (e) { console.warn('Gagal update cache perjamuan:', e); }
+                } catch (e) { console.warn('Gagal update cache:', e); }
             } else {
                 alert('Gagal: ' + (result.message || 'Akses ditolak.'));
             }
         } catch (err) {
             console.error("Fetch error:", err);
             // Fallback optimis: Biasanya jika jatuh ke catch (karena CORS/redirect), data sebenarnya SUDAH masuk ke spreadsheet.
-            alert('Tanggal Perjamuan berhasil disimpan!');
+            alert('Jadwal Sabat Khusus berhasil disimpan (Optimis)!');
             setPerjamuanDate(editPerjamuanDate);
+            setPerpuluhanDate(editPerpuluhanDate);
             // Sinkronisasi cache localStorage saat fallback juga
             try {
                 const cachedStr = localStorage.getItem('pisgah_data_cache');
                 if (cachedStr) {
                     const cached = JSON.parse(cachedStr);
                     cached.perjamuanDate = editPerjamuanDate;
+                    cached.perpuluhanDate = editPerpuluhanDate;
                     localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
                 }
-            } catch (e) { console.warn('Gagal update cache perjamuan:', e); }
+            } catch (e) { console.warn('Gagal update cache:', e); }
         }
         setIsSavingPerjamuanDate(false);
     };
@@ -4733,6 +4775,12 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                 >
                                     Perjamuan
                                 </button>
+                                <button
+                                    onClick={() => setPengaturanSubTab('perpuluhan')}
+                                    className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'perpuluhan' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}
+                                >
+                                    Perpuluhan
+                                </button>
                                 <button onClick={() => setPengaturanSubTab('kontak')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'kontak' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                                     Lokasi
                                 </button>
@@ -4939,90 +4987,57 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                 {/* Header */}
                                 <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                     <div className="w-12 h-12 bg-gold-50 rounded-full flex items-center justify-center text-gold-600 shadow-inner">
-                                        <Icon name="Gift" className="w-6 h-6" />
+                                        <Icon name="Calendar" className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h3 className="font-black text-navy-900 text-lg tracking-tight">Tanggal Perjamuan Kudus</h3>
+                                        <h3 className="font-black text-navy-900 text-lg tracking-tight">Jadwal Perjamuan Kudus</h3>
                                         <p className="text-xs font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5">
-                                            {perjamuanDate ? (
-                                                <><span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
-                                                    <span className="text-green-600">Aktif · {formatIndoDate(perjamuanDate)}</span></>
-                                            ) : (
-                                                <><span className="w-2 h-2 rounded-full bg-navy-300 inline-block"></span>
-                                                    <span className="text-navy-400">Belum diatur</span></>
-                                            )}
+                                            <span className="text-navy-500">Berlangsung Tiap 3 Bulan</span>
                                         </p>
                                     </div>
                                 </div>
 
-                                {/* Status Banner saat ini */}
-                                {perjamuanDate && (
-                                    <div className="mb-5 bg-gradient-to-r from-gold-50 to-white border border-gold-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-gold-100 rounded-full flex items-center justify-center shrink-0">
-                                                <Icon name="Calendar" className="w-5 h-5 text-gold-600" />
+                                <form onSubmit={handleSavePerjamuanDate} className="space-y-8">
+                                    {/* Perjamuan Section */}
+                                    <div className="space-y-4">
+                                        {perjamuanDate && (
+                                            <div className="bg-gradient-to-r from-gold-50 to-white border border-gold-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 bg-gold-100 rounded-full flex items-center justify-center shrink-0">
+                                                        <Icon name="Calendar" className="w-5 h-5 text-gold-600" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-black text-navy-400 uppercase tracking-widest mb-0.5">Jadwal Aktif</p>
+                                                        <p className="font-black text-navy-900 text-base leading-tight">{formatIndoDate(perjamuanDate)}</p>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-[10px] font-black text-navy-400 uppercase tracking-widest mb-0.5">Jadwal Tersimpan</p>
-                                                <p className="font-black text-navy-900 text-base leading-tight">{formatIndoDate(perjamuanDate)}</p>
+                                        )}
+                                        <div>
+                                            <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">
+                                                Pilih / Ubah Tanggal Perjamuan
+                                            </label>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="date"
+                                                    value={editPerjamuanDate}
+                                                    onChange={e => setEditPerjamuanDate(e.target.value)}
+                                                    className="w-full p-3.5 border-2 border-navy-200 focus:border-gold-500 rounded-xl outline-none transition-all bg-white text-sm font-bold text-navy-900 shadow-sm"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setEditPerjamuanDate('')}
+                                                    className="bg-red-50 hover:bg-red-100 text-red-600 px-4 rounded-xl border border-red-200 font-bold text-sm transition-all shadow-sm whitespace-nowrap"
+                                                >Hapus</button>
                                             </div>
-                                        </div>
-                                        {(() => {
-                                            const today = new Date(); today.setHours(0, 0, 0, 0);
-                                            const tgl = new Date(perjamuanDate);
-                                            const diff = Math.ceil((tgl - today) / (1000 * 60 * 60 * 24));
-                                            if (diff < 0) return (
-                                                <span className="text-[10px] font-bold bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-full uppercase tracking-wide">Sudah Lewat</span>
-                                            );
-                                            if (diff === 0) return (
-                                                <span className="text-[10px] font-bold bg-gold-100 text-gold-700 border border-gold-300 px-3 py-1.5 rounded-full uppercase tracking-wide animate-pulse">Hari Ini!</span>
-                                            );
-                                            return (
-                                                <span className="text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-full uppercase tracking-wide">{diff} hari lagi</span>
-                                            );
-                                        })()}
-                                    </div>
-                                )}
-
-                                <form onSubmit={handleSavePerjamuanDate} className="space-y-4">
-                                    <div>
-                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">
-                                            Pilih / Ubah Tanggal Perjamuan
-                                        </label>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="date"
-                                                value={editPerjamuanDate}
-                                                onChange={e => setEditPerjamuanDate(e.target.value)}
-                                                className="w-full p-3.5 border-2 border-navy-200 focus:border-gold-500 rounded-xl outline-none transition-all bg-white text-sm font-bold text-navy-900 shadow-sm"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => setEditPerjamuanDate('')}
-                                                className="bg-red-50 hover:bg-red-100 text-red-600 px-4 rounded-xl border border-red-200 font-bold text-sm transition-all shadow-sm whitespace-nowrap"
-                                                title="Hapus Tanggal"
-                                            >
-                                                Hapus
-                                            </button>
                                         </div>
                                     </div>
-
-                                    {/* Preview pilihan baru */}
-                                    {editPerjamuanDate && editPerjamuanDate !== perjamuanDate && (
-                                        <div className="bg-navy-50 border border-navy-200 rounded-xl p-4 flex items-center gap-3">
-                                            <Icon name="Info" className="w-4 h-4 text-navy-500 shrink-0" />
-                                            <div>
-                                                <p className="text-[10px] font-bold text-navy-400 uppercase tracking-wider">Akan diubah ke</p>
-                                                <p className="font-black text-navy-900 text-sm">{formatIndoDate(editPerjamuanDate)}</p>
-                                            </div>
-                                        </div>
-                                    )}
 
                                     {/* Info Box */}
                                     <div className="bg-gold-50/60 border border-gold-200/80 rounded-xl p-4 flex gap-3">
                                         <Icon name="Info" className="w-4 h-4 text-gold-600 shrink-0 mt-0.5" />
                                         <p className="text-[11px] text-navy-600 font-medium leading-relaxed">
-                                            Banner <b>Perjamuan Kudus</b> tampil otomatis di halaman <b>Jadwal</b> dan <b>Live</b> sejak hari ini hingga tanggal perjamuan. Setelah tanggal lewat, banner hilang otomatis.
+                                            Banner <b>Perjamuan Kudus</b> akan tampil otomatis di halaman utama sejak pengaturan ini disimpan hingga hari-H. Setelah tanggal lewat, banner akan hilang secara otomatis.
                                         </p>
                                     </div>
 
@@ -5038,6 +5053,84 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                             <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin"></span> Menyimpan...</>
                                         ) : (
                                             <><Icon name="Save" className="w-4 h-4" /> Simpan Tanggal Perjamuan</>
+                                        )}
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+
+                        {/* PERPULUHAN TAB */}
+                        {pengaturanSubTab === 'perpuluhan' && (
+                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm animate-fade-in">
+                                {/* Header */}
+                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                                    <div className="w-12 h-12 bg-navy-50 rounded-full flex items-center justify-center text-navy-600 shadow-inner">
+                                        <Icon name="Gift" className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-black text-navy-900 text-lg tracking-tight">Jadwal Sabat Perpuluhan</h3>
+                                        <p className="text-xs font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5">
+                                            <span className="text-navy-500">Berlangsung Tiap Bulan</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <form onSubmit={handleSavePerjamuanDate} className="space-y-8">
+                                    {/* Perpuluhan Section */}
+                                    <div className="space-y-4">
+                                        {perpuluhanDate && (
+                                            <div className="bg-gradient-to-r from-navy-50 to-white border border-navy-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 bg-navy-100 rounded-full flex items-center justify-center shrink-0">
+                                                        <Icon name="Calendar" className="w-5 h-5 text-navy-600" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-black text-navy-400 uppercase tracking-widest mb-0.5">Jadwal Aktif</p>
+                                                        <p className="font-black text-navy-900 text-base leading-tight">{formatIndoDate(perpuluhanDate)}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div>
+                                            <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">
+                                                Pilih / Ubah Tanggal Perpuluhan
+                                            </label>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="date"
+                                                    value={editPerpuluhanDate}
+                                                    onChange={e => setEditPerpuluhanDate(e.target.value)}
+                                                    className="w-full p-3.5 border-2 border-navy-200 focus:border-gold-500 rounded-xl outline-none transition-all bg-white text-sm font-bold text-navy-900 shadow-sm"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setEditPerpuluhanDate('')}
+                                                    className="bg-red-50 hover:bg-red-100 text-red-600 px-4 rounded-xl border border-red-200 font-bold text-sm transition-all shadow-sm whitespace-nowrap"
+                                                >Hapus</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Info Box */}
+                                    <div className="bg-navy-50/60 border border-navy-200/80 rounded-xl p-4 flex gap-3">
+                                        <Icon name="Info" className="w-4 h-4 text-navy-600 shrink-0 mt-0.5" />
+                                        <p className="text-[11px] text-navy-600 font-medium leading-relaxed">
+                                            Banner <b>Sabat Perpuluhan</b> akan tampil otomatis di halaman utama sejak pengaturan ini disimpan hingga hari-H. Setelah tanggal lewat, banner akan hilang secara otomatis.
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isSavingPerjamuanDate}
+                                        className={`w-full font-bold py-3.5 rounded-xl transition-all flex justify-center items-center gap-2 shadow-md ${isSavingPerjamuanDate
+                                            ? 'bg-navy-300 text-navy-500 cursor-not-allowed'
+                                            : 'bg-navy-900 hover:bg-navy-800 text-gold-400 hover:shadow-lg'
+                                            }`}
+                                    >
+                                        {isSavingPerjamuanDate ? (
+                                            <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin"></span> Menyimpan...</>
+                                        ) : (
+                                            <><Icon name="Save" className="w-4 h-4" /> Simpan Tanggal Perpuluhan</>
                                         )}
                                     </button>
                                 </form>
@@ -5682,6 +5775,7 @@ const App = () => {
     const [liveUrl, setLiveUrl] = React.useState("https://www.youtube.com/embed/live_stream?channel=UCaTPS74NOHACRYU0zInVZ4g");
     const [heroImages, setHeroImages] = React.useState(["./carousel/hero-default.png"]);
     const [perjamuanDate, setPerjamuanDate] = React.useState('');
+    const [perpuluhanDate, setPerpuluhanDate] = React.useState('');
 
     // Default State Kontak Gereja & Peta
     const defaultKontak = {
@@ -5740,6 +5834,15 @@ const App = () => {
         // Tampilkan banner selama tanggal perjamuan belum lewat
         // (muncul sejak sekarang hingga hari-H perjamuan)
         return today <= perjamuanObj;
+    })();
+
+    const perpuluhanYMD = perpuluhanDate ? (perpuluhanDate.includes('T') ? toYMD(new Date(perpuluhanDate)) : perpuluhanDate) : '';
+    const showPerpuluhan = (() => {
+        if (!perpuluhanYMD) return false;
+        const parts = perpuluhanYMD.split('-');
+        const perpuluhanObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        if (isNaN(perpuluhanObj.getTime())) return false;
+        return today <= perpuluhanObj;
     })();
 
     // Fungsi Sinkronisasi Data Jadwal agar selalu sesuai urutan template awal
@@ -5806,6 +5909,7 @@ const App = () => {
                         if (cached.youtubeUrl) setYoutubeUrl(cached.youtubeUrl);
                         if (cached.liveUrl) setLiveUrl(cached.liveUrl);
                         if (cached.perjamuanDate) setPerjamuanDate(cached.perjamuanDate);
+                        if (cached.perpuluhanDate) setPerpuluhanDate(cached.perpuluhanDate);
                         if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
                         if (cached.heroImages) setHeroImages(cached.heroImages);
                         if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
@@ -5833,6 +5937,7 @@ const App = () => {
                 if (data.youtubeUrl) setYoutubeUrl(data.youtubeUrl);
                 if (data.liveUrl) setLiveUrl(data.liveUrl);
                 if (data.perjamuanDate !== undefined) setPerjamuanDate(data.perjamuanDate || '');
+                if (data.perpuluhanDate !== undefined) setPerpuluhanDate(data.perpuluhanDate || '');
                 if (data.kategoriPejabat) setKategoriPejabat(data.kategoriPejabat);
 
                 if (data.kontakGereja) {
@@ -5906,6 +6011,7 @@ const App = () => {
                     youtubeUrl: data.youtubeUrl,
                     liveUrl: data.liveUrl, // Tambahan: Simpan Live URL ke cache
                     perjamuanDate: data.perjamuanDate, // Tambahan: Simpan Tanggal Perjamuan ke cache
+                    perpuluhanDate: data.perpuluhanDate,
                     kategoriPejabat: data.kategoriPejabat,
                     heroImages: newHeroImages,
                     daftarWarta: data.daftarWarta,
@@ -5977,7 +6083,7 @@ const App = () => {
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
+            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} />;
             case 'belajar': return <Belajar setActiveTab={setActiveTab} />;
             case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
@@ -5993,9 +6099,9 @@ const App = () => {
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
+            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
-            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
+            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} />;
         }
     };
 
