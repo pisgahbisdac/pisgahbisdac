@@ -433,9 +433,9 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
 
     return (
         <div className="animate-fade-in relative z-10 bg-[#FAFAFA] dark:bg-transparent text-[#2C3F21] dark:text-gray-100 font-sans pb-16 transition-colors duration-500">
-            
+
             <div className="pt-6 px-4 md:px-8 max-w-[1500px] mx-auto">
-                
+
                 {/* HERO SECTION */}
                 <div className="relative rounded-[2rem] overflow-hidden shadow-xl border-4 border-[#E2E8D8] dark:border-navy-700 aspect-[4/5] sm:aspect-square md:aspect-[4/3] lg:aspect-[21/9] w-full bg-[#E5E9D8] dark:bg-navy-800 transition-colors duration-500">
                     <div
@@ -448,7 +448,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                     </div>
                     {/* Dark overlay for center text readability */}
                     <div className="absolute inset-0 bg-black/40 z-10 pointer-events-none"></div>
-                    
+
                     <div className="absolute top-[8%] md:top-[12%] left-1/2 -translate-x-1/2 w-full max-w-[90%] md:max-w-3xl flex flex-col items-center text-center z-20">
                         <div className="hidden md:inline-flex bg-white/20 backdrop-blur-md text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-[1rem] items-center mb-6">
                             <Icon name="Home" className="w-4 h-4 mr-2" /> Gereja Masehi Advent Hari Ketujuh
@@ -508,8 +508,8 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                             )}
                         </div>
                         {/* Interactive floating Install App icon */}
-                        <button 
-                            onClick={() => window.installPWA && window.installPWA()} 
+                        <button
+                            onClick={() => window.installPWA && window.installPWA()}
                             title="Instal Aplikasi"
                             className="absolute -bottom-4 -right-4 bg-white dark:bg-navy-700 hover:bg-[#F4F7EF] dark:hover:bg-navy-600 p-4 rounded-full shadow-lg hover:shadow-xl z-20 flex items-center justify-center border-2 border-[#E2E8D8] dark:border-navy-500 hover:border-[#4A7045] dark:hover:border-gold-500 cursor-pointer group transition-all duration-300 hover:scale-105"
                         >
@@ -522,15 +522,15 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                         <h2 className="text-3xl md:text-5xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-6 tracking-tight leading-[1.2] transition-colors">
                             Visi & Misi Gereja
                         </h2>
-                        
+
                         <div className="text-[#596B4D] dark:text-gold-200/80 text-base md:text-lg leading-relaxed mb-8 space-y-5 transition-colors">
                             <p><strong className="dark:text-gold-400">Visi:</strong> Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar selaras sepenuhnya dengan kehendak dan kebenaran-Nya.</p>
                             <p><strong className="dark:text-gold-400">Misi:</strong> Memanggil semua orang menjadi murid Yesus Kristus, memberitakan Injil kekal, dan mempersiapkan dunia bagi kedatangan-Nya.</p>
                         </div>
-                        
+
                         <div className="flex gap-4">
                             <a href="./pembangunan.html" className="bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-900 font-bold py-3.5 px-8 rounded-full transition-colors inline-flex items-center shadow-md">
-                                <Icon name="BookOpen" className="w-5 h-5 mr-2" /> Lihat Progres Pembangunan
+                                <Icon name="Home" className="w-5 h-5 mr-2" /> Lihat Progres Pembangunan
                             </a>
                         </div>
                     </div>
@@ -580,72 +580,72 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                             );
                         })}
                     </div>
-                    
+
                     {sortedWartaHome.length > 3 && (
                         <div className="text-center mt-12 flex justify-center space-x-2">
-                             <div className="w-3 h-3 rounded-full bg-[#4A7045]"></div>
-                             <div className="w-3 h-3 rounded-full bg-gray-300"></div>
-                             <div className="w-3 h-3 rounded-full bg-gray-300"></div>
+                            <div className="w-3 h-3 rounded-full bg-[#4A7045]"></div>
+                            <div className="w-3 h-3 rounded-full bg-gray-300"></div>
+                            <div className="w-3 h-3 rounded-full bg-gray-300"></div>
                         </div>
                     )}
                 </div>
 
                 {/* PUSTAKA & VIDEO SECTION */}
                 <div className="max-w-[1400px] mx-auto mt-20 md:mt-28 space-y-16">
-                    
-                {/* Pustaka */}
-                {daftarBuku && daftarBuku.length > 0 && (
-                    <div>
-                        <div className="flex justify-between items-end mb-8">
-                            <div>
-                                <h2 className="text-2xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 transition-colors">Pustaka Buku</h2>
-                                <p className="text-[#596B4D] dark:text-gold-200/80 font-medium text-sm md:text-base mt-2 transition-colors">Buku referensi & rohani terbaru.</p>
+
+                    {/* Pustaka */}
+                    {daftarBuku && daftarBuku.length > 0 && (
+                        <div>
+                            <div className="flex justify-between items-end mb-8">
+                                <div>
+                                    <h2 className="text-2xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 transition-colors">Pustaka Buku</h2>
+                                    <p className="text-[#596B4D] dark:text-gold-200/80 font-medium text-sm md:text-base mt-2 transition-colors">Buku referensi & rohani terbaru.</p>
+                                </div>
+                                <button onClick={() => setActiveTab('belajar_perpustakaan')} className="border-2 border-[#4A7045] dark:border-gold-500 text-[#4A7045] dark:text-gold-500 hover:bg-[#4A7045] dark:hover:bg-gold-500 hover:text-white dark:hover:text-navy-900 font-bold py-2 px-5 rounded-full transition-all flex items-center text-sm md:text-base">
+                                    Selengkapnya <Icon name="ArrowRight" className="w-4 h-4 ml-2" />
+                                </button>
                             </div>
-                            <button onClick={() => setActiveTab('belajar_perpustakaan')} className="border-2 border-[#4A7045] dark:border-gold-500 text-[#4A7045] dark:text-gold-500 hover:bg-[#4A7045] dark:hover:bg-gold-500 hover:text-white dark:hover:text-navy-900 font-bold py-2 px-5 rounded-full transition-all flex items-center text-sm md:text-base">
-                                Selengkapnya <Icon name="ArrowRight" className="w-4 h-4 ml-2" />
-                            </button>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                            {[...daftarBuku].reverse().slice(0, 4).map((b, i) => (
-                                <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className={`bg-white dark:!bg-navy-800 rounded-[2rem] border border-[#E9EEDF] dark:border-navy-700 overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex-col ${i === 3 ? 'flex md:hidden lg:flex' : 'flex'}`}>
-                                    <div className="h-40 md:h-56 overflow-hidden relative m-2 rounded-[1.5rem]">
-                                        <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
-                                        <DocumentBadge book={b} className="absolute top-2 left-2" />
-                                        <span className="absolute top-2 right-2 bg-white/90 dark:bg-navy-900/90 backdrop-blur-md text-[#2C3F21] dark:text-gold-400 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm transition-colors">{b.category}</span>
-                                    </div>
-                                    <div className="p-4 md:p-5 flex-1 flex flex-col justify-between">
-                                        <div>
-                                            <div className="font-extrabold text-sm md:text-base text-[#2C3F21] dark:text-gold-400 line-clamp-2 leading-tight mb-1 transition-colors">{b.title}</div>
-                                            <div className="text-xs text-[#6C7D5D] dark:text-gold-200/70 font-medium transition-colors">{b.author}</div>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                                {[...daftarBuku].reverse().slice(0, 4).map((b, i) => (
+                                    <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className={`bg-white dark:!bg-navy-800 rounded-[2rem] border border-[#E9EEDF] dark:border-navy-700 overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex-col ${i === 3 ? 'flex md:hidden lg:flex' : 'flex'}`}>
+                                        <div className="h-40 md:h-56 overflow-hidden relative m-2 rounded-[1.5rem]">
+                                            <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
+                                            <DocumentBadge book={b} className="absolute top-2 left-2" />
+                                            <span className="absolute top-2 right-2 bg-white/90 dark:bg-navy-900/90 backdrop-blur-md text-[#2C3F21] dark:text-gold-400 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm transition-colors">{b.category}</span>
+                                        </div>
+                                        <div className="p-4 md:p-5 flex-1 flex flex-col justify-between">
+                                            <div>
+                                                <div className="font-extrabold text-sm md:text-base text-[#2C3F21] dark:text-gold-400 line-clamp-2 leading-tight mb-1 transition-colors">{b.title}</div>
+                                                <div className="text-xs text-[#6C7D5D] dark:text-gold-200/70 font-medium transition-colors">{b.author}</div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Video */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-                    <div className="bg-white dark:!bg-navy-800 rounded-[2rem] p-4 md:p-6 shadow-sm border border-[#E9EEDF] dark:border-navy-700 transition-colors">
-                        <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
-                            <Icon name="Video" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" /> Video Penting
-                        </h2>
-                        <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
-                            <iframe className="absolute top-0 left-0 w-full h-full" src={`${youtubeUrl}${youtubeUrl?.includes('?') ? '&' : '?'}vq=hd1080`} title="Video Penting" frameBorder="0" allowFullScreen></iframe>
+                    {/* Video */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+                        <div className="bg-white dark:!bg-navy-800 rounded-[2rem] p-4 md:p-6 shadow-sm border border-[#E9EEDF] dark:border-navy-700 transition-colors">
+                            <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
+                                <Icon name="Video" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" /> Video Penting
+                            </h2>
+                            <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
+                                <iframe className="absolute top-0 left-0 w-full h-full" src={`${youtubeUrl}${youtubeUrl?.includes('?') ? '&' : '?'}vq=hd1080`} title="Video Penting" frameBorder="0" allowFullScreen></iframe>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="bg-white dark:!bg-navy-800 rounded-[2rem] p-4 md:p-6 shadow-sm border border-[#E9EEDF] dark:border-navy-700 transition-colors">
-                        <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
-                            <Icon name="Video" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" /> Youtube Channel
-                        </h2>
-                        <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
-                            <iframe className="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g&vq=hd1080" title="Youtube Terbaru" frameBorder="0" allowFullScreen></iframe>
+                        <div className="bg-white dark:!bg-navy-800 rounded-[2rem] p-4 md:p-6 shadow-sm border border-[#E9EEDF] dark:border-navy-700 transition-colors">
+                            <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
+                                <Icon name="Video" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" /> Youtube Channel
+                            </h2>
+                            <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
+                                <iframe className="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g&vq=hd1080" title="Youtube Terbaru" frameBorder="0" allowFullScreen></iframe>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             </div>
 
             {/* FOOTER */}
@@ -686,13 +686,13 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                         <div className="space-y-4">
                             <a href="https://www.youtube.com/@turnyeofficial" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm font-bold hover:text-red-600 dark:hover:text-gold-400 transition-colors group">
                                 <span className="w-10 h-10 rounded-full bg-red-50 dark:bg-navy-800 flex items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-navy-700 transition-colors">
-                                    <svg className="w-5 h-5 text-red-600 dark:text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                    <svg className="w-5 h-5 text-red-600 dark:text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
                                 </span>
                                 YouTube
                             </a>
                             <a href="https://www.instagram.com/pisgahbisdac" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm font-bold hover:text-pink-600 dark:hover:text-gold-400 transition-colors group">
                                 <span className="w-10 h-10 rounded-full bg-pink-50 dark:bg-navy-800 flex items-center justify-center group-hover:bg-pink-100 dark:group-hover:bg-navy-700 transition-colors">
-                                    <svg className="w-5 h-5 text-pink-600 dark:text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                                    <svg className="w-5 h-5 text-pink-600 dark:text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>
                                 </span>
                                 Instagram
                             </a>
@@ -5324,7 +5324,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                     </form>
                                 </div>
                             </div>
-                        , document.body)}
+                            , document.body)}
                     </div>
                 )}
             </div>
@@ -5419,7 +5419,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
 
         // 6. Laporan Keuangan — tampilkan tombol redirect ke laporan.html
         // Deteksi jika user mengetik angka (no kuitansi), kode unit, atau kata kunci laporan
-        const isLaporanQuery = /\d{3,}/.test(q) || 
+        const isLaporanQuery = /\d{3,}/.test(q) ||
             ['kuitansi', 'laporan', 'uang', 'transaksi', 'inc-', 'exp-', 'pem', 'rec'].some(kw => q.includes(kw));
         if (isLaporanQuery) {
             results.laporan = [{ redirectQuery: query.trim() }];
@@ -5552,7 +5552,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                     {searchResults.laporan && searchResults.laporan.length > 0 && (
                         <div>
                             <h3 className="text-xs font-black text-emerald-600 dark:text-gold-500 uppercase tracking-widest mb-3 px-2">Laporan Keuangan</h3>
-                            <div 
+                            <div
                                 onClick={() => window.location.href = `/laporan.html?search=${encodeURIComponent(searchResults.laporan[0].redirectQuery)}`}
                                 className="glass-box rounded-2xl border border-emerald-100/60 dark:border-navy-700 p-5 cursor-pointer hover:shadow-lg hover:border-emerald-300 dark:hover:border-gold-500 transition-all"
                             >
@@ -5697,7 +5697,7 @@ const App = () => {
     const [daftarWarta, setDaftarWarta] = React.useState([]);
     const [daftarBuku, setDaftarBuku] = React.useState([]);
     const [initialBook, setInitialBook] = React.useState(null);
-    
+
     // Laporan Keuangan default State
     // daftarLaporan dihapus — pencarian kini redirect langsung ke laporan.html
 
