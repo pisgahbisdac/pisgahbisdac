@@ -6146,14 +6146,7 @@ const App = () => {
                     setDaftarRekening([{ id: 1, namaBank: data.legacyNamaBank, rekeningBank: data.legacyRekeningBank, atasNama: data.legacyAtasNama }]);
                 }
                 
-                if (data.daftarQris) {
-                    try {
-                        const parsed = JSON.parse(data.daftarQris);
-                        setDaftarQris(Array.isArray(parsed) ? parsed : []);
-                    } catch(e) { console.error(e); }
-                } else if (data.legacyQrisUrl) {
-                    setDaftarQris([{ id: 1, nama: 'QRIS', qrisUrl: data.legacyQrisUrl }]);
-                }
+
                 if (data.kategoriPejabat) setKategoriPejabat(data.kategoriPejabat);
 
                 if (data.kontakGereja) {
