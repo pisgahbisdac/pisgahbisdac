@@ -1895,7 +1895,7 @@
           const items = [];
           ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'].forEach(k => { const val = parseRupiah(document.getElementById(`incAmt${k.replace(/\s/g, '')}`).value); if (val > 0) items.push({ income_type: k, amount: val, note: finalNote }); });
           if (items.length === 0) throw new Error('Isi nominal perpuluhan!');
-          await apiPost('saveBulkIncome', { date, unit_name: unit || '-', receipt_no: receipt, items, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
+          await apiPost('saveBulkIncome', { date, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, items, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
         } else {
           const amount = parseRupiah(document.getElementById('incAmount').value); if (amount <= 0) throw new Error('Isi nominal!');
           let pctD = 0; let pctJ = 100; let pctB = 0;
@@ -2258,6 +2258,8 @@
         if (pmbBtn) pmbBtn.style.display = 'inline-block';
         const pmbExpBtn = document.getElementById('btnExportPembangunanExcel');
         if (pmbExpBtn) pmbExpBtn.style.display = 'inline-block';
+        const partisipasiBtn = document.getElementById('btnPartisipasiReport');
+        if (partisipasiBtn) partisipasiBtn.style.display = 'inline-block';
       } catch (e) {
         rc.innerHTML = `<div style="text-align:center; padding:20px; color:var(--red-pop)">Gagal memuat: ${e.message}</div>`;
       }
@@ -4968,6 +4970,208 @@ window.cancelEditDept = cancelEditDept;
 window.openEditTrans = openEditTrans;
 window.toggleCloseMonthFromModal = toggleCloseMonthFromModal;
 window.showPage = showPage;
+
+    function doPrintPartisipasi() {
+      if (!currentReportData) return notify('Generate laporan terlebih dahulu', 'error');
+
+      const html = generatePartisipasiReportHtml(currentReportData);
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+      iframe.contentWindow.document.open();
+      iframe.contentWindow.document.write(html);
+      iframe.contentWindow.document.close();
+
+      iframe.contentWindow.focus();
+      setTimeout(() => {
+        iframe.contentWindow.print();
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 1000);
+      }, 500);
+    }
+    window.doPrintPartisipasi = doPrintPartisipasi;
+
+    function generatePartisipasiReportHtml(data) {
+      const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+      let periodStr = `Periode: ${mNames[data.month] || ''} ${data.year || ''}`.trim();
+      if (data.mode === 'akumulasi') {
+        periodStr = `S/d: ${mNames[data.month] || ''} ${data.year || ''}`.trim();
+        if (data.month === 0) periodStr = `S/d: Akhir Tahun ${data.year || ''}`.trim();
+      }
+
+      // Filter incomes
+      const isMatch = (dateStr) => {
+        const d = new Date(dateStr);
+        if (data.mode === 'akumulasi') {
+          if (data.year !== 0) {
+            if (d.getFullYear() > data.year) return false;
+            if (d.getFullYear() === data.year && data.month !== 0 && (d.getMonth() + 1) > data.month) return false;
+          }
+          return true;
+        } else {
+          if (data.year !== 0 && d.getFullYear() !== data.year) return false;
+          if (data.month !== 0 && (d.getMonth() + 1) !== data.month) return false;
+          return true;
+        }
+      };
+
+      const parts = {}; // Group by unit_name -> nama_pemberi -> income_type -> amount
+      let grandTotal = 0;
+      let grandTotalCats = {};
+      let allocDaerah = 0;
+      let allocJemaat = 0;
+      let allocBangun = 0;
+
+      (cachedIncome || []).filter(x => isMatch(x.date)).forEach(x => {
+        if (x.income_type === 'Mutasi Kas / Setor Bank') return;
+        const unit = (x.unit_name && x.unit_name !== '-') ? x.unit_name : 'Lainnya / Tanpa Unit';
+        let pemberi = (x.nama_pemberi && x.nama_pemberi !== '-') ? x.nama_pemberi : 'Hamba Tuhan';
+        const pStr = String(pemberi).toLowerCase();
+        if (pStr.startsWith('kolektif ')) {
+          pemberi = String(pemberi).substring(9).trim();
+        } else if (pStr === 'kolektif') {
+          pemberi = 'Umum';
+        }
+        
+        const cat = x.income_type || 'Lainnya';
+        const amt = parseFloat(x.amount || 0);
+
+        if (!parts[unit]) parts[unit] = { total: 0, givers: {}, cats: {} };
+        if (!parts[unit].givers[pemberi]) parts[unit].givers[pemberi] = { total: 0, cats: {} };
+        
+        if (!parts[unit].givers[pemberi].cats[cat]) parts[unit].givers[pemberi].cats[cat] = 0;
+        parts[unit].givers[pemberi].cats[cat] += amt;
+        parts[unit].givers[pemberi].total += amt;
+
+        if (!parts[unit].cats[cat]) parts[unit].cats[cat] = 0;
+        parts[unit].cats[cat] += amt;
+        parts[unit].total += amt;
+
+        if (!grandTotalCats[cat]) grandTotalCats[cat] = 0;
+        grandTotalCats[cat] += amt;
+        grandTotal += amt;
+        
+        allocDaerah += parseFloat(x.alloc_daerah || 0);
+        allocJemaat += parseFloat(x.alloc_jemaat || 0);
+        allocBangun += parseFloat(x.alloc_bangun || 0);
+      });
+
+      let tbodyHtml = '';
+      let no = 1;
+      
+      const sortedUnits = Object.keys(parts).sort((a,b) => a.localeCompare(b));
+
+      sortedUnits.forEach(unit => {
+        const uData = parts[unit];
+        const sortedGivers = Object.keys(uData.givers).sort((a,b) => a.localeCompare(b));
+        
+        tbodyHtml += `
+          <tr style="background-color: #f1f5f9; font-weight: bold;">
+            <td colspan="2" style="padding: 8px; border: 1px solid #e2e8f0; text-align: left; font-size: 14px;">UNIT PEMBERI: ${unit.toUpperCase()}</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: right; font-size: 14px;">Total Unit: Rp ${fmt(uData.total)}</td>
+          </tr>
+        `;
+
+        sortedGivers.forEach(giver => {
+          const gData = uData.givers[giver];
+          
+          let catDetails = [];
+          Object.keys(gData.cats).forEach(cat => {
+            if(gData.cats[cat] > 0) {
+              catDetails.push(`${cat}: Rp ${fmt(gData.cats[cat])}`);
+            }
+          });
+
+          tbodyHtml += `
+            <tr>
+              <td style="padding: 6px 8px; border: 1px solid #e2e8f0; text-align: center; width: 40px; font-size: 12px;">${no++}</td>
+              <td style="padding: 6px 8px; border: 1px solid #e2e8f0; font-size: 12px;">
+                <div style="font-weight: 600;">${giver}</div>
+                <div style="font-size: 10px; color: #64748b; margin-top: 2px;">${catDetails.join(', ')}</div>
+              </td>
+              <td style="padding: 6px 8px; border: 1px solid #e2e8f0; text-align: right; font-size: 12px; font-weight: 500;">Rp ${fmt(gData.total)}</td>
+            </tr>
+          `;
+        });
+      });
+
+      if (sortedUnits.length === 0) {
+        tbodyHtml += `<tr><td colspan="3" style="text-align: center; padding: 20px; color: #64748b; font-style: italic;">Tidak ada data partisipasi di periode ini.</td></tr>`;
+      }
+
+      let grandCatHtml = '';
+      Object.keys(grandTotalCats).forEach(cat => {
+        grandCatHtml += `<div>${cat}: <span style="font-weight:600;">Rp ${fmt(grandTotalCats[cat])}</span></div>`;
+      });
+
+      return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; color: #1e293b; background: white; }
+            h1 { text-align: center; font-size: 18px; margin-bottom: 5px; color: #0f172a; text-transform: uppercase; }
+            h2 { text-align: center; font-size: 14px; margin-bottom: 20px; color: #475569; font-weight: normal; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th { background-color: #f8fafc; padding: 10px; border: 1px solid #cbd5e1; font-size: 12px; color: #334155; text-align: left; }
+            td { border: 1px solid #e2e8f0; }
+            .total-row td { background-color: #f8fafc; font-weight: bold; border-top: 2px solid #94a3b8; }
+            @media print {
+              @page { size: A4 portrait; margin: 15mm; }
+              body { padding: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>LAPORAN PARTISIPASI JEMAAT (PER UNIT PEMBERI)</h1>
+          <h2>${systemConfig.app_name || 'Gereja'} - ${periodStr}</h2>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width:40px; text-align:center;">No</th>
+                <th>Nama Anggota & Rincian Kategori</th>
+                <th style="text-align:right; width:150px;">Total Bantuan</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tbodyHtml}
+              <tr class="total-row">
+                <td colspan="2" style="text-align: right; padding: 12px 8px; font-size: 14px;">GRAND TOTAL:</td>
+                <td style="text-align: right; padding: 12px 8px; font-size: 14px; color: #059669;">Rp ${fmt(grandTotal)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="font-size: 12px; margin-top: 20px; padding: 15px; border: 1px solid #e2e8f0; background-color: #f8fafc; border-radius: 6px;">
+            <div style="font-weight:bold; margin-bottom: 8px;">Ringkasan Grand Total Per Kategori (Seluruh Unit):</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              ${grandCatHtml}
+            </div>
+            
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #cbd5e1;">
+              <div style="font-weight:bold; margin-bottom: 8px; color: #334155;">Ringkasan Alokasi Distribusi:</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-weight: 500;">
+                <div style="color: #ea580c;">Daerah: Rp ${fmt(allocDaerah)}</div>
+                <div style="color: #2563eb;">Jemaat: Rp ${fmt(allocJemaat)}</div>
+                <div style="color: #059669;">Pembangunan: Rp ${fmt(allocBangun)}</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 12px; padding-top: 8px; border-top: 1px dashed #cbd5e1; font-weight: bold; font-size: 14px; text-align: right;">
+              TOTAL KESELURUHAN: Rp ${fmt(grandTotal)}
+            </div>
+          </div>
+          
+          <div style="margin-top: 40px; font-size: 12px; text-align: right; color: #64748b;">
+            Dicetak pada: ${new Date().toLocaleString('id-ID')}
+          </div>
+        </body>
+        </html>
+      `;
+    }
+
 window.apiGet = apiGet;
 window.fmt = fmt;
 window.calculateExtendedBalances = calculateExtendedBalances;
