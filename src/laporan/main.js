@@ -1900,8 +1900,10 @@
           const amount = parseRupiah(document.getElementById('incAmount').value); if (amount <= 0) throw new Error('Isi nominal!');
           let pctD = 0; let pctJ = 100; let pctB = 0;
           const tLower = type.toLowerCase();
-          if (type === 'Khusus Daerah' || type === 'Perpuluhan') { pctD = 100; pctJ = 0; }
-          else if (type === 'Terpadu' || tLower.includes('sabat')) { pctD = 50; pctJ = 50; }
+          const isSabat13 = tLower.includes('sabat') && tLower.includes('13');
+          const isSabat = tLower.includes('sabat') && !tLower.includes('13');
+          if (type === 'Khusus Daerah' || type === 'Perpuluhan' || isSabat13) { pctD = 100; pctJ = 0; }
+          else if (type === 'Terpadu' || isSabat) { pctD = 50; pctJ = 50; }
           await apiPost('saveIncome', { date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount, note: finalNote, alloc_pct_daerah: pctD, alloc_pct_jemaat: pctJ, alloc_pct_bangun: pctB, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
         }
         notify('Berhasil disimpan!', 'success');
@@ -2331,10 +2333,11 @@
         let amtJemaat = parseFloat(x.alloc_jemaat) || 0;
 
         const tLower = t.toLowerCase();
-        const isSabat = tLower.includes('sabat');
+        const isSabat13 = tLower.includes('sabat') && tLower.includes('13');
+        const isSabat = tLower.includes('sabat') && !tLower.includes('13');
 
         // FORCE STRICT MATH TO PREVENT DATA INCONSISTENCIES
-        if (t === 'Perpuluhan' || t === 'Khusus Daerah') {
+        if (t === 'Perpuluhan' || t === 'Khusus Daerah' || isSabat13) {
           amtJemaat = 0;
         } else if (t === 'Terpadu' || isSabat) {
           amtJemaat = amt * 0.5;
@@ -2345,7 +2348,7 @@
         if (t === 'Perpuluhan') { groupedInc[key].perpuluhan += amt; groupedInc[key].isPerorangan = true; }
         else if (t === 'Terpadu') { groupedInc[key].terpadu += amt; groupedInc[key].isPerorangan = true; }
         else if (isSabat) { groupedInc[key].terpadu += amt; }
-        else if (t === 'Khusus Daerah') groupedInc[key].khususDaerah += amt;
+        else if (t === 'Khusus Daerah' || isSabat13) groupedInc[key].khususDaerah += amt;
         else groupedInc[key].khususJemaat += amt;
 
         groupedInc[key].allocDaerah += parseFloat(x.alloc_daerah || 0);
@@ -2446,8 +2449,9 @@
            const t = i.income_type || 'Lain-Lain';
            const amt = parseFloat(i.amount) || 0;
            const tLower = t.toLowerCase();
-           const isSabat = tLower.includes('sabat');
-           if (t === 'Perpuluhan' || t === 'Khusus Daerah') {
+           const isSabat13 = tLower.includes('sabat') && tLower.includes('13');
+           const isSabat = tLower.includes('sabat') && !tLower.includes('13');
+           if (t === 'Perpuluhan' || t === 'Khusus Daerah' || isSabat13) {
              amtJ = 0; amtD = amt;
            } else if (t === 'Terpadu' || isSabat) {
              amtJ = amt * 0.5; amtD = amt * 0.5;
@@ -2498,7 +2502,9 @@
 
       let sumTerpaduTotal = 0;
       Object.entries(incByCat).forEach(([k, amt]) => {
-        if (k === 'Terpadu' || k.toLowerCase().includes('sabat')) {
+        const kLower = k.toLowerCase();
+        const isSabat = kLower.includes('sabat') && !kLower.includes('13');
+        if (k === 'Terpadu' || isSabat) {
           sumTerpaduTotal += amt;
         }
       });
@@ -3887,23 +3893,23 @@
       btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Menyimpan...';
 
       try {
+        const sortedPhotos = [...currentEditPhotos].sort((a, b) => {
+          const isA = String(a).startsWith('data:');
+          const isB = String(b).startsWith('data:');
+          return (isA === isB) ? 0 : isA ? -1 : 1;
+        });
+
+        console.log("=== DEBUG EDIT PHOTOS ===");
+        console.log("currentEditPhotos length:", currentEditPhotos.length);
+        console.log("sortedPhotos length:", sortedPhotos.length);
+        console.log("Photo 1 size:", sortedPhotos[0] ? sortedPhotos[0].length : 0);
+        console.log("Photo 2 size:", sortedPhotos[1] ? sortedPhotos[1].length : 0);
+        console.log("Photo 3 size:", sortedPhotos[2] ? sortedPhotos[2].length : 0);
+
         if (currentEditTransaction.type === 'income') {
           const cat = document.getElementById('editTransCat').value;
           const unit = document.getElementById('editTransUnit').value || '-';
           const pihak = document.getElementById('editTransPihak').value.trim() || 'Umum';
-
-          const sortedPhotos = [...currentEditPhotos].sort((a, b) => {
-            const isA = String(a).startsWith('data:');
-            const isB = String(b).startsWith('data:');
-            return (isA === isB) ? 0 : isA ? -1 : 1;
-          });
-
-          console.log("=== DEBUG EDIT PHOTOS ===");
-          console.log("currentEditPhotos length:", currentEditPhotos.length);
-          console.log("sortedPhotos length:", sortedPhotos.length);
-          console.log("Photo 1 size:", sortedPhotos[0] ? sortedPhotos[0].length : 0);
-          console.log("Photo 2 size:", sortedPhotos[1] ? sortedPhotos[1].length : 0);
-          console.log("Photo 3 size:", sortedPhotos[2] ? sortedPhotos[2].length : 0);
 
           if (cat === 'Perpuluhan') {
             const items = [];
