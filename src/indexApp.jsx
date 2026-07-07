@@ -434,7 +434,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
     return (
         <div className="animate-fade-in relative z-10 bg-[#FAFAFA] dark:bg-transparent text-[#2C3F21] dark:text-gray-100 font-sans pb-16 transition-colors duration-500">
 
-            <div className="pt-6 px-4 md:px-8 max-w-[1500px] mx-auto">
+            <div className="pt-6 px-4 md:px-8 lg:px-[6vw] w-full mx-auto">
 
                 {/* HERO SECTION */}
                 <div className="relative rounded-[2rem] overflow-hidden shadow-xl border-4 border-[#E2E8D8] dark:border-navy-700 aspect-[4/5] sm:aspect-square md:aspect-[4/3] lg:aspect-[21/9] w-full bg-[#E5E9D8] dark:bg-navy-800 transition-colors duration-500">
@@ -484,7 +484,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
             </div>
 
             {/* PENGUMUMAN & VISI MISI (Split Layout) */}
-            <div className="max-w-[1400px] mx-auto px-4 md:px-8 mt-16 md:mt-24 mb-20">
+            <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-16 md:mt-24 mb-20">
                 <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-20">
                     {/* Left: Image Card OR Announcement */}
                     <div className="w-full lg:w-1/2 relative">
@@ -539,7 +539,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
 
             {/* WARTA JEMAAT (3 Columns Card Layout) */}
             <div className="bg-[#E9EEDF] dark:bg-navy-900 rounded-[3.5rem] pt-16 md:pt-24 pb-20 md:pb-28 px-4 md:px-8 mt-10 mb-8 transition-colors duration-500 shadow-sm">
-                <div className="max-w-[1400px] mx-auto">
+                <div className="w-full mx-auto lg:px-[4vw]">
                     <div className="text-center mb-12 md:mb-16">
                         <h2 className="text-3xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-4 transition-colors">Berita Terkini?</h2>
                         <p className="text-[#596B4D] dark:text-gray-300 font-medium text-lg max-w-2xl mx-auto transition-colors">Informasi pelayanan, kegiatan gereja, dan kabar sukacita jemaat pekan ini.</p>
@@ -591,7 +591,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                 </div>
 
                 {/* PUSTAKA & VIDEO SECTION */}
-                <div className="max-w-[1400px] mx-auto mt-20 md:mt-28 space-y-16">
+                <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-20 md:mt-28 space-y-16">
 
                     {/* Pustaka */}
                     {daftarBuku && daftarBuku.length > 0 && (
@@ -649,7 +649,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
             </div>
 
             {/* FOOTER */}
-            <footer className="mt-20 border-t border-[#E9EEDF] dark:border-navy-800 pt-12 pb-6 px-4 md:px-8 max-w-[1400px] mx-auto text-[#596B4D] dark:text-navy-300 transition-colors">
+            <footer className="mt-20 border-t border-[#E9EEDF] dark:border-navy-800 pt-12 pb-6 px-4 md:px-8 lg:px-[6vw] w-full mx-auto text-[#596B4D] dark:text-navy-300 transition-colors">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-10 mb-12">
                     {/* Col 1 */}
                     <div>
@@ -6012,7 +6012,7 @@ const App = () => {
 
             {/* HEADER UTAMA (Responsif untuk Mobile & Desktop) */}
             <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 shadow-sm">
-                <div className="max-w-[1500px] mx-auto flex items-center justify-between px-4 py-3 gap-3">
+                <div className="w-full mx-auto flex items-center justify-between px-4 lg:px-[6vw] py-3 gap-3">
                     <div className="flex items-center gap-2 md:gap-3 flex-1 justify-start">
                         <div className="flex flex-col items-start shrink-0 cursor-pointer" onClick={() => setActiveTab('home')}>
                             {/* Baris 1: Logo + Nama Gereja */}
@@ -6078,7 +6078,7 @@ const App = () => {
                 </div>
             )}
 
-            <main className="flex-1 max-w-[1500px] mx-auto w-full p-4 md:p-8 pb-32 md:pb-12">
+            <main className="flex-1 w-full mx-auto p-4 md:px-8 lg:px-[6vw] pb-32 md:pb-12">
                 {renderContent()}
             </main>
 
