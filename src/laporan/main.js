@@ -2259,7 +2259,13 @@
         const pmbExpBtn = document.getElementById('btnExportPembangunanExcel');
         if (pmbExpBtn) pmbExpBtn.style.display = 'inline-block';
         const partisipasiBtn = document.getElementById('btnPartisipasiReport');
-        if (partisipasiBtn) partisipasiBtn.style.display = 'inline-block';
+        if (partisipasiBtn) {
+          if (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik')) {
+            partisipasiBtn.style.display = 'none';
+          } else {
+            partisipasiBtn.style.display = 'inline-block';
+          }
+        }
       } catch (e) {
         rc.innerHTML = `<div style="text-align:center; padding:20px; color:var(--red-pop)">Gagal memuat: ${e.message}</div>`;
       }
@@ -4972,6 +4978,9 @@ window.toggleCloseMonthFromModal = toggleCloseMonthFromModal;
 window.showPage = showPage;
 
     function doPrintPartisipasi() {
+      if (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik')) {
+        return notify('Anda tidak memiliki akses untuk mencetak laporan ini.', 'error');
+      }
       if (!currentReportData) return notify('Generate laporan terlebih dahulu', 'error');
 
       const html = generatePartisipasiReportHtml(currentReportData);
