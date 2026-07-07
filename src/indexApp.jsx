@@ -1523,21 +1523,83 @@ const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPe
     );
 };
 
-const Persembahan = ({ dataPejabat }) => {
+const Persembahan = ({ dataPejabat, daftarRekening }) => {
     const bendahara = dataPejabat.filter(p => (p.jabatan && p.jabatan.toLowerCase().includes('bendahara')) || (p.kategori && p.kategori.toLowerCase() === 'keuangan'));
-    const qrisUrl = "./icons/notavailable.jpg";
+    
+    // Ensure we have arrays
+    const rekeningList = Array.isArray(daftarRekening) ? daftarRekening : [];
+    
+    // Helper component for individual copy buttons
+    const RekeningItem = ({ rek }) => {
+        const [copied, setCopied] = React.useState(false);
+        const handleCopy = () => {
+            navigator.clipboard.writeText(rek.rekeningBank || '');
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        };
+        const isQrisAvailable = rek.qrisUrl && rek.qrisUrl !== './icons/notavailable.jpg' && rek.qrisUrl.trim() !== '';
+
+        return (
+            <div className="bg-white/70 dark:bg-navy-900/80 border border-navy-100 dark:border-navy-700 rounded-2xl p-6 shadow-sm mb-6 flex flex-col md:flex-row items-center gap-6 md:gap-8 hover:shadow-md transition-shadow">
+                {/* QRIS Section (Left) */}
+                <div className="w-full md:w-1/3 flex flex-col items-center border-b md:border-b-0 md:border-r border-navy-100 dark:border-navy-700 pb-6 md:pb-0 md:pr-8">
+                    <h3 className="font-bold text-navy-900 dark:text-gold-400 mb-3 text-sm flex items-center"><Icon name="Smartphone" className="w-4 h-4 mr-1.5 text-gold-500" /> Scan QRIS</h3>
+                    <div className="w-40 md:w-48 bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-600 p-2.5 rounded-xl shadow-sm mb-4">
+                        <img src={rek.qrisUrl || "./icons/notavailable.jpg"} alt={`QRIS ${rek.namaBank || 'Bank'}`} className="w-full h-auto object-contain rounded-lg" crossOrigin="anonymous" />
+                    </div>
+                    {isQrisAvailable ? (
+                        <a href={rek.qrisUrl} target="_blank" rel="noopener noreferrer" download={`QRIS_${rek.namaBank || 'Gereja'}.jpg`} className="bg-gold-500 hover:bg-gold-400 text-navy-900 px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center w-full shadow-sm"><Icon name="Download" className="w-3.5 h-3.5 mr-1.5" /><span>SIMPAN QRIS</span></a>
+                    ) : (
+                        <span className="bg-navy-50 dark:bg-navy-800 text-navy-400 dark:text-navy-300 px-5 py-2.5 rounded-xl text-[10px] font-bold border border-navy-100 dark:border-navy-700 w-full text-center">QRIS BELUM TERSEDIA</span>
+                    )}
+                </div>
+
+                {/* Transfer Section (Right) */}
+                <div className="w-full md:w-2/3 flex flex-col justify-center items-center text-center text-navy-900 dark:text-gold-400">
+                    <div className="flex items-center justify-center mb-4 min-h-[40px]">
+                        {rek.logoUrl ? (
+                            <img src={rek.logoUrl} alt={rek.namaBank} className="h-12 md:h-14 w-auto object-contain mix-blend-multiply dark:mix-blend-normal dark:bg-white/95 dark:px-4 dark:py-2 dark:rounded-xl dark:shadow-[0_0_20px_rgba(255,255,255,0.4)] dark:box-content" crossOrigin="anonymous" />
+                        ) : (
+                            <h3 className="font-bold text-navy-900 dark:text-gold-400 text-lg flex items-center justify-center">
+                                <Icon name="CreditCard" className="w-5 h-5 mr-2 text-gold-500" /> 
+                                {rek.namaBank || "Bank"}
+                            </h3>
+                        )}
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4 bg-white dark:bg-navy-800 p-4 rounded-xl border border-navy-100 dark:border-navy-600 w-full max-w-md shadow-sm">
+                        <p className="font-extrabold text-2xl md:text-3xl tracking-widest font-mono text-gold-600 dark:text-gold-400">{rek.rekeningBank || "BELUM ADA"}</p>
+                        <button 
+                            onClick={handleCopy}
+                            className="bg-navy-900 dark:bg-navy-700 hover:bg-navy-800 dark:hover:bg-navy-600 text-gold-400 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95"
+                        >
+                            <Icon name={copied ? "Check" : "Copy"} className="w-4 h-4" /> 
+                            {copied ? "Tersalin!" : "Salin"}
+                        </button>
+                    </div>
+                    <div className="space-y-1 text-center w-full">
+                        <p className="text-sm font-bold text-gold-600 dark:text-gold-400"><span className="text-navy-500 dark:text-navy-300 font-normal">Nama Bank:</span> {rek.namaBank || 'MANDIRI'}</p>
+                        <p className="text-sm font-bold text-gold-600 dark:text-gold-400"><span className="text-navy-500 dark:text-navy-300 font-normal">Atas Nama:</span> {rek.atasNama || 'GMAHK PISGAH BISDAC'}</p>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="space-y-4 md:space-y-6 animate-fade-in relative z-10">
             <div className="relative pt-2 md:pt-4">
                 <div className="flex items-center space-x-3 mb-6"><Icon name="Gift" className="w-[1.4rem] h-[1.4rem] text-gold-500" /><h2 className="text-xl font-bold text-navy-900 tracking-tight">Persembahan, Perpuluhan, Ucapan Syukur, dan Donasi</h2></div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-stretch mb-8">
-                    <div className="flex flex-col items-center p-6 bg-white/60 rounded-2xl border border-navy-100/50 h-full justify-center shadow-sm">
-                        <div className="w-40 md:w-48 bg-white border border-navy-100 p-2.5 rounded-xl shadow-sm mb-4"><img src={qrisUrl} alt="QRIS GMAHK PISGAH BISDAC" className="w-full h-auto object-contain rounded-lg" crossOrigin="anonymous" /></div>
-                        <a href={qrisUrl} target="_blank" rel="noopener noreferrer" download="QRIS_GMAHK_PISGAH.jpg" className="bg-navy-900 hover:bg-navy-800 text-gold-400 px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow"><Icon name="Download" className="w-3.5 h-3.5" /><span>QRIS BELUM TERSEDIA</span></a>
-                    </div>
-                    <div className="flex flex-col justify-center text-center p-6 bg-gradient-to-br from-navy-800 to-navy-900 border border-gold-300 rounded-2xl h-full shadow-sm text-gold-400">
-                        <p className="text-xs md:text-sm font-bold mb-1 tracking-wide uppercase">Atau Transfer Bank ke:</p><p className="font-extrabold text-2xl md:text-3xl tracking-widest my-2 font-mono">1090001711043</p><p className="text-xs md:text-sm font-bold opacity-90">MANDIRI </p><p className="text-xs md:text-sm font-bold opacity-90">a.n</p> <p className="text-xs md:text-sm font-bold opacity-90">GMAHK PISGAH BISDAC</p>
-                    </div>
+                
+                <div className="mb-8">
+                    {rekeningList.length > 0 ? (
+                        <div className="space-y-6">
+                            {rekeningList.map((rek, idx) => (
+                                <RekeningItem key={rek.id || idx} rek={rek} />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center p-6 bg-white/60 rounded-2xl border border-navy-100/50 shadow-sm mb-8 text-navy-600 font-medium">Belum ada informasi Rekening atau QRIS yang ditambahkan.</div>
+                    )}
                 </div>
                 <div className="bg-white/60 p-5 md:p-6 rounded-2xl border border-navy-100/50 space-y-6 shadow-sm">
                     <div>
@@ -2427,7 +2489,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta 
 // --- KOMPONEN AdminDashboard yang DIPERBAIKI (dengan fitur warta) ---
 const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken,
     youtubeUrl, setYoutubeUrl, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages,
-    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, perpuluhanDate, setPerpuluhanDate, handleLogout }) => {
+    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, perpuluhanDate, setPerpuluhanDate, daftarRekening, setDaftarRekening, handleLogout }) => {
     const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan, buku
     const [viewMonth, setViewMonth] = React.useState(new Date().getMonth());
     const [viewYear, setViewYear] = React.useState(new Date().getFullYear());
@@ -2529,11 +2591,15 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const [editPerpuluhanDate, setEditPerpuluhanDate] = React.useState(perpuluhanDate);
     const [isSavingPerjamuanDate, setIsSavingPerjamuanDate] = React.useState(false);
 
+    const [editDaftarRekening, setEditDaftarRekening] = React.useState(daftarRekening || []);
+    const [isSavingRekening, setIsSavingRekening] = React.useState(false);
+
     // Sync form state when perjamuanDate is fetched/updated from parent App
     React.useEffect(() => {
         setEditPerjamuanDate(perjamuanDate);
         setEditPerpuluhanDate(perpuluhanDate);
-    }, [perjamuanDate, perpuluhanDate]);
+        setEditDaftarRekening(daftarRekening || []);
+    }, [perjamuanDate, perpuluhanDate, daftarRekening]);
 
     // State Hero Image Array (Carousel)
     const [editHeroImages, setEditHeroImages] = React.useState(heroImages);
@@ -3663,6 +3729,69 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         setIsSavingLiveUrl(false);
     };
 
+    // SIMPAN REKENING & QRIS
+    const handleSaveRekening = async (e) => {
+        e.preventDefault();
+        setIsSavingRekening(true);
+        try {
+            const res = await fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'saveRekening',
+                    password: adminToken,
+                    daftarRekening: editDaftarRekening
+                })
+            });
+
+            const text = await res.text();
+            let result = { success: false };
+
+            try {
+                result = JSON.parse(text);
+            } catch (parseErr) {
+                if (text.includes("success") || text.trim() === '') result = { success: true };
+            }
+
+            if (result.success) {
+                alert('Pengaturan Rekening & QRIS berhasil disimpan!');
+                setDaftarRekening(editDaftarRekening);
+                try {
+                    const cachedStr = localStorage.getItem('pisgah_data_cache');
+                    if (cachedStr) {
+                        const cached = JSON.parse(cachedStr);
+                        cached.daftarRekening = JSON.stringify(editDaftarRekening);
+                        localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
+                    }
+                } catch (e) {}
+            } else {
+                alert('Gagal: ' + (result.message || 'Akses ditolak.'));
+            }
+        } catch (err) {
+            alert('Pengaturan berhasil disimpan (Optimis)!');
+            setDaftarRekening(editDaftarRekening);
+            try {
+                const cachedStr = localStorage.getItem('pisgah_data_cache');
+                if (cachedStr) {
+                    const cached = JSON.parse(cachedStr);
+                    cached.daftarRekening = JSON.stringify(editDaftarRekening);
+                    localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
+                }
+            } catch (e) {}
+        }
+        setIsSavingRekening(false);
+    };
+
+    // --- Helper functions for Rekening/QRIS Array ---
+    const handleAddRekening = () => {
+        setEditDaftarRekening([...editDaftarRekening, { id: Date.now(), namaBank: '', rekeningBank: '', atasNama: '', qrisUrl: '', logoUrl: '' }]);
+    };
+    const handleUpdateRekening = (id, field, value) => {
+        setEditDaftarRekening(editDaftarRekening.map(r => r.id === id ? { ...r, [field]: value } : r));
+    };
+    const handleRemoveRekening = (id) => {
+        setEditDaftarRekening(editDaftarRekening.filter(r => r.id !== id));
+    };
+
     // SIMPAN PErjamuan & Perpuluhan
     const handleSavePerjamuanDate = async (e) => {
         e.preventDefault();
@@ -4784,6 +4913,9 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                 <button onClick={() => setPengaturanSubTab('kontak')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'kontak' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                                     Lokasi
                                 </button>
+                                <button onClick={() => setPengaturanSubTab('rekening')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'rekening' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                                    Rekening & QRIS
+                                </button>
                                 <button onClick={() => setPengaturanSubTab('password')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'password' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                                     Password
                                 </button>
@@ -4889,25 +5021,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                         <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Judul Pengumuman</label>
                                         <input type="text" value={editPengumuman.header} onChange={e => setEditPengumuman({ ...editPengumuman, header: e.target.value })} placeholder="Misal: Pengumuman Penting" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-4" />
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                            <div>
-                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Kolom Teks (Khusus Tablet/PC)</label>
-                                                <select value={editPengumuman.kolom || '1'} onChange={e => setEditPengumuman({ ...editPengumuman, kolom: e.target.value })} className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-bold shadow-sm">
-                                                    <option value="1">1 Kolom (Tengah)</option>
-                                                    <option value="2">2 Kolom (Kiri-Kanan)</option>
-                                                    <option value="3">3 Kolom (Triptych)</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Margin / Jarak Bawah</label>
-                                                <select value={editPengumuman.marginBawah || 'mb-6 md:mb-8'} onChange={e => setEditPengumuman({ ...editPengumuman, marginBawah: e.target.value })} className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-bold shadow-sm">
-                                                    <option value="mb-0">Tidak Ada Jarak (0px)</option>
-                                                    <option value="mb-4">Sempit (16px)</option>
-                                                    <option value="mb-6 md:mb-8">Sedang / Standar (24px-32px)</option>
-                                                    <option value="mb-10 md:mb-14">Lebar (40px-56px)</option>
-                                                </select>
-                                            </div>
-                                        </div>
+
 
                                         <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Isi Pengumuman</label>
                                         <RichTextEditor
@@ -4948,6 +5062,86 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                     </div>
                                     <button type="submit" disabled={isSavingKontak} className={`w-full ${isSavingKontak ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
                                         {isSavingKontak ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Lokasi Peta'}
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+
+                        {/* --- FORM REKENING & QRIS --- */}
+                        {pengaturanSubTab === 'rekening' && (
+                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                                <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6 border-b border-navy-50 pb-5">
+                                    <div className="w-12 h-12 bg-navy-50 rounded-full flex items-center justify-center text-navy-900 shadow-inner shrink-0"><Icon name="CreditCard" className="w-6 h-6" /></div>
+                                    <div>
+                                        <h3 className="font-black text-navy-900 text-lg tracking-tight">Pengaturan Rekening & QRIS</h3>
+                                        <p className="text-xs text-navy-500 font-medium leading-relaxed mt-1">Ubah nomor rekening dan gambar QRIS untuk menu Persembahan.</p>
+                                    </div>
+                                </div>
+                                
+                                <form onSubmit={handleSaveRekening} className="space-y-6">
+                                    <div>
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h4 className="font-bold text-navy-900 text-sm flex items-center"><Icon name="CreditCard" className="w-4 h-4 mr-2 text-gold-500"/>Daftar Opsi Pembayaran</h4>
+                                            <button type="button" onClick={handleAddRekening} className="text-xs bg-navy-100 hover:bg-navy-200 text-navy-700 font-bold px-3 py-1.5 rounded-lg flex items-center transition"><Icon name="Plus" className="w-3.5 h-3.5 mr-1"/> Tambah Opsi</button>
+                                        </div>
+                                        {editDaftarRekening.length === 0 ? (
+                                            <div className="text-center py-4 text-xs text-navy-500 bg-navy-50/50 rounded-xl border border-navy-100">Belum ada pengaturan Rekening & QRIS.</div>
+                                        ) : (
+                                            <div className="space-y-6">
+                                                {editDaftarRekening.map((rek, idx) => (
+                                                    <div key={rek.id || idx} className="bg-navy-50/50 p-5 rounded-2xl border border-navy-200 relative group shadow-sm flex flex-col md:flex-row gap-6">
+                                                        <button type="button" onClick={() => handleRemoveRekening(rek.id)} className="absolute -top-3 -right-3 bg-red-100 text-red-600 p-2 rounded-full hover:bg-red-500 hover:text-white transition opacity-0 group-hover:opacity-100 shadow-md z-10"><Icon name="X" className="w-4 h-4" /></button>
+                                                        
+                                                        {/* QRIS Input Section */}
+                                                        <div className="w-full md:w-1/3 flex flex-col gap-3">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <Icon name="Smartphone" className="w-4 h-4 text-navy-600" />
+                                                                <span className="text-xs font-bold text-navy-800">QRIS (Opsional)</span>
+                                                            </div>
+                                                            {rek.qrisUrl && (
+                                                                <img src={rek.qrisUrl} className="w-24 h-24 rounded-xl object-contain border border-navy-200 bg-white mx-auto md:mx-0 shadow-sm" onError={(e) => e.target.src='./icons/notavailable.jpg'} />
+                                                            )}
+                                                            <div>
+                                                                <label className="block text-[10px] font-bold text-navy-700 mb-1.5 uppercase tracking-widest">Link Gambar QRIS</label>
+                                                                <input type="text" value={rek.qrisUrl || ''} onChange={(e) => handleUpdateRekening(rek.id, 'qrisUrl', e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-lg focus:border-gold-500 outline-none transition-colors bg-white text-xs shadow-sm" placeholder="URL gambar QRIS..." />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Rekening Input Section */}
+                                                        <div className="w-full md:w-2/3 space-y-4">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <Icon name="CreditCard" className="w-4 h-4 text-navy-600" />
+                                                                <span className="text-xs font-bold text-navy-800">Rekening Bank</span>
+                                                            </div>
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                <div>
+                                                                    <label className="block text-[10px] font-bold text-navy-700 mb-1.5 uppercase tracking-widest">Nama Bank</label>
+                                                                    <input type="text" value={rek.namaBank || ''} onChange={(e) => handleUpdateRekening(rek.id, 'namaBank', e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-lg focus:border-gold-500 outline-none transition-colors bg-white text-xs font-bold shadow-sm" placeholder="Contoh: Mandiri" required />
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-[10px] font-bold text-navy-700 mb-1.5 uppercase tracking-widest">Link Logo Bank (Opsional)</label>
+                                                                    <input type="text" value={rek.logoUrl || ''} onChange={(e) => handleUpdateRekening(rek.id, 'logoUrl', e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-lg focus:border-gold-500 outline-none transition-colors bg-white text-xs shadow-sm" placeholder="URL gambar logo..." />
+                                                                </div>
+                                                            </div>
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                <div>
+                                                                    <label className="block text-[10px] font-bold text-navy-700 mb-1.5 uppercase tracking-widest">Atas Nama</label>
+                                                                    <input type="text" value={rek.atasNama || ''} onChange={(e) => handleUpdateRekening(rek.id, 'atasNama', e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-lg focus:border-gold-500 outline-none transition-colors bg-white text-xs font-bold shadow-sm" placeholder="Contoh: GMAHK Pisgah" required />
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-[10px] font-bold text-navy-700 mb-1.5 uppercase tracking-widest">Nomor Rekening</label>
+                                                                    <input type="text" value={rek.rekeningBank || ''} onChange={(e) => handleUpdateRekening(rek.id, 'rekeningBank', e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-lg focus:border-gold-500 outline-none transition-colors bg-white text-sm font-bold shadow-sm font-mono tracking-wider" placeholder="Contoh: 1090001711043" required />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <button type="submit" disabled={isSavingRekening} className={`w-full ${isSavingRekening ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex items-center justify-center`}>
+                                        {isSavingRekening ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Pengaturan'}
                                     </button>
                                 </form>
                             </div>
@@ -5776,6 +5970,7 @@ const App = () => {
     const [heroImages, setHeroImages] = React.useState(["./carousel/hero-default.png"]);
     const [perjamuanDate, setPerjamuanDate] = React.useState('');
     const [perpuluhanDate, setPerpuluhanDate] = React.useState('');
+    const [daftarRekening, setDaftarRekening] = React.useState([{ id: 1, namaBank: 'Mandiri', rekeningBank: '1090001711043', atasNama: 'GMAHK PISGAH BISDAC', qrisUrl: '' }]);
 
     // Default State Kontak Gereja & Peta
     const defaultKontak = {
@@ -5910,6 +6105,10 @@ const App = () => {
                         if (cached.liveUrl) setLiveUrl(cached.liveUrl);
                         if (cached.perjamuanDate) setPerjamuanDate(cached.perjamuanDate);
                         if (cached.perpuluhanDate) setPerpuluhanDate(cached.perpuluhanDate);
+                        if (cached.daftarRekening) {
+                            try { setDaftarRekening(JSON.parse(cached.daftarRekening)); } catch(e) {}
+                        }
+
                         if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
                         if (cached.heroImages) setHeroImages(cached.heroImages);
                         if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
@@ -5938,6 +6137,23 @@ const App = () => {
                 if (data.liveUrl) setLiveUrl(data.liveUrl);
                 if (data.perjamuanDate !== undefined) setPerjamuanDate(data.perjamuanDate || '');
                 if (data.perpuluhanDate !== undefined) setPerpuluhanDate(data.perpuluhanDate || '');
+                if (data.daftarRekening) {
+                    try {
+                        const parsed = JSON.parse(data.daftarRekening);
+                        setDaftarRekening(Array.isArray(parsed) ? parsed : []);
+                    } catch(e) { console.error(e); }
+                } else if (data.legacyRekeningBank) {
+                    setDaftarRekening([{ id: 1, namaBank: data.legacyNamaBank, rekeningBank: data.legacyRekeningBank, atasNama: data.legacyAtasNama }]);
+                }
+                
+                if (data.daftarQris) {
+                    try {
+                        const parsed = JSON.parse(data.daftarQris);
+                        setDaftarQris(Array.isArray(parsed) ? parsed : []);
+                    } catch(e) { console.error(e); }
+                } else if (data.legacyQrisUrl) {
+                    setDaftarQris([{ id: 1, nama: 'QRIS', qrisUrl: data.legacyQrisUrl }]);
+                }
                 if (data.kategoriPejabat) setKategoriPejabat(data.kategoriPejabat);
 
                 if (data.kontakGereja) {
@@ -6012,6 +6228,7 @@ const App = () => {
                     liveUrl: data.liveUrl, // Tambahan: Simpan Live URL ke cache
                     perjamuanDate: data.perjamuanDate, // Tambahan: Simpan Tanggal Perjamuan ke cache
                     perpuluhanDate: data.perpuluhanDate,
+                    daftarRekening: data.daftarRekening !== undefined ? data.daftarRekening : JSON.stringify(daftarRekening),
                     kategoriPejabat: data.kategoriPejabat,
                     heroImages: newHeroImages,
                     daftarWarta: data.daftarWarta,
@@ -6092,14 +6309,14 @@ const App = () => {
             case 'warta': return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta} selectedWarta={selectedWartaDetail} setSelectedWarta={setSelectedWartaDetail} />;
             case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} liveUrl={liveUrl} />;
             case 'jadwal': return <Jadwal activeRabu={jadwalKhususRabu} activeSabat={jadwalKhususSabat} rabuYMD={displayRabuYMD} sabatYMD={displaySabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} />;
-            case 'persembahan': return <Persembahan dataPejabat={dataPejabat} />;
+            case 'persembahan': return <Persembahan dataPejabat={dataPejabat} daftarRekening={daftarRekening} />;
             case 'keanggotaan': return <Keanggotaan setActiveTab={setActiveTab} />;
             case 'member_baru': return <MemberBaru setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'pindah_masuk': return <PindahMasuk setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} />;
+            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
             default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} />;
         }
