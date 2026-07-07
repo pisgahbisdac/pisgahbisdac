@@ -1,5 +1,5 @@
     (function () {
-      const savedTheme = localStorage.getItem('BISDAC_theme') || 'dark';
+      const savedTheme = localStorage.getItem('BISDAC_theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
     })();
 
