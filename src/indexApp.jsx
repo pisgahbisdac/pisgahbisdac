@@ -572,7 +572,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
 
 
             {/* WARTA JEMAAT (3 Columns Card Layout) */}
-            <div className="bg-[#E9EEDF] dark:bg-navy-900 rounded-[3.5rem] pt-16 md:pt-24 pb-20 md:pb-28 px-4 md:px-8 mt-10 mb-8 transition-colors duration-500 shadow-sm">
+            <div className="bg-[#E9EEDF] dark:bg-navy-800/80 rounded-[3.5rem] pt-16 md:pt-24 pb-20 md:pb-28 px-4 md:px-8 mt-10 mb-8 transition-colors duration-500 shadow-sm border border-transparent dark:border-navy-700/50">
                 <div className="w-full mx-auto lg:px-[4vw]">
                     <div className="text-center mb-12 md:mb-16">
                         <h2 className="text-3xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-4 transition-colors">Berita Terkini?</h2>
@@ -586,7 +586,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                             const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
 
                             return (
-                                <div key={idx} onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }} className="bg-white dark:!bg-navy-800 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col group border border-gray-100 dark:border-navy-700">
+                                <div key={idx} onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }} className="bg-white dark:!bg-navy-900/90 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col group border border-gray-100 dark:border-navy-700">
                                     <div className="h-56 overflow-hidden relative m-3 rounded-[1.5rem]">
                                         {thumb ? (
                                             <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Warta" />
