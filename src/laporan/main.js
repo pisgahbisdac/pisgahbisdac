@@ -2294,7 +2294,7 @@
         }));
       }
 
-      const allTx = [...txIn, ...txOut, ...txMut];
+      const allTx = [...txIn, ...txOut];
       const hasTransactions = allTx.length > 0;
       
       let gembalaApprovedAll = hasTransactions;
