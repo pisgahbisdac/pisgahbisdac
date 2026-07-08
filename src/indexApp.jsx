@@ -1525,10 +1525,10 @@ const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPe
 
 const Persembahan = ({ dataPejabat, daftarRekening }) => {
     const bendahara = dataPejabat.filter(p => (p.jabatan && p.jabatan.toLowerCase().includes('bendahara')) || (p.kategori && p.kategori.toLowerCase() === 'keuangan'));
-    
+
     // Ensure we have arrays
     const rekeningList = Array.isArray(daftarRekening) ? daftarRekening : [];
-    
+
     // Helper component for individual copy buttons
     const RekeningItem = ({ rek }) => {
         const [copied, setCopied] = React.useState(false);
@@ -1561,18 +1561,18 @@ const Persembahan = ({ dataPejabat, daftarRekening }) => {
                             <img src={rek.logoUrl} alt={rek.namaBank} className="h-12 md:h-14 w-auto object-contain mix-blend-multiply dark:mix-blend-normal dark:bg-white/95 dark:px-4 dark:py-2 dark:rounded-xl dark:shadow-[0_0_20px_rgba(255,255,255,0.4)] dark:box-content" crossOrigin="anonymous" />
                         ) : (
                             <h3 className="font-bold text-navy-900 dark:text-gold-400 text-lg flex items-center justify-center">
-                                <Icon name="CreditCard" className="w-5 h-5 mr-2 text-gold-500" /> 
+                                <Icon name="CreditCard" className="w-5 h-5 mr-2 text-gold-500" />
                                 {rek.namaBank || "Bank"}
                             </h3>
                         )}
                     </div>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4 bg-white dark:bg-navy-800 p-4 rounded-xl border border-navy-100 dark:border-navy-600 w-full max-w-md shadow-sm">
                         <p className="font-extrabold text-2xl md:text-3xl tracking-widest font-mono text-gold-600 dark:text-gold-400">{rek.rekeningBank || "BELUM ADA"}</p>
-                        <button 
+                        <button
                             onClick={handleCopy}
                             className="bg-navy-900 dark:bg-navy-700 hover:bg-navy-800 dark:hover:bg-navy-600 text-gold-400 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95"
                         >
-                            <Icon name={copied ? "Check" : "Copy"} className="w-4 h-4" /> 
+                            <Icon name={copied ? "Check" : "Copy"} className="w-4 h-4" />
                             {copied ? "Tersalin!" : "Salin"}
                         </button>
                     </div>
@@ -1589,7 +1589,7 @@ const Persembahan = ({ dataPejabat, daftarRekening }) => {
         <div className="space-y-4 md:space-y-6 animate-fade-in relative z-10">
             <div className="relative pt-2 md:pt-4">
                 <div className="flex items-center space-x-3 mb-6"><Icon name="Gift" className="w-[1.4rem] h-[1.4rem] text-gold-500" /><h2 className="text-xl font-bold text-navy-900 tracking-tight">Persembahan, Perpuluhan, Ucapan Syukur, dan Donasi</h2></div>
-                
+
                 <div className="mb-8">
                     {rekeningList.length > 0 ? (
                         <div className="space-y-6">
@@ -1957,7 +1957,7 @@ const FormACMS = ({ setActiveTab }) => {
                 <div className="bg-navy-100/50 shadow-inner overflow-x-auto border border-navy-200 rounded-[1.5rem] p-4 sm:p-8 relative">
                     <div className="absolute top-4 right-4 text-xs font-bold text-navy-400 uppercase tracking-widest bg-white/50 px-3 py-1 rounded-full backdrop-blur-sm z-10 pointer-events-none">Preview Saja</div>
                     <div className="w-max mx-auto shadow-xl bg-white relative rounded overflow-hidden">
-                        <div id="pdf-content" className="p-10 bg-white text-black text-sm relative" style={{ width: '210mm', minHeight: '297mm', fontFamily: '"Open Sans", sans-serif', boxSizing: 'border-box' }}><p className="text-[10px] text-gray-500 absolute top-4 right-10 leading-none">Form ACMS-03</p><div className="flex justify-between items-center mb-10 mt-6"><div className="w-[180px] flex justify-start"><img src="./icons/acms.png" alt="ACMS Logo" crossOrigin="anonymous" className="h-[60px] object-contain block" /></div><div className="flex-1 text-center px-4"><h2 className="font-bold text-[16px] leading-tight">PERMOHONAN PERPINDAHAN ANGGOTA</h2><h2 className="font-bold text-[16px] leading-tight mt-1">GMAHK DAERAH SUMATERA KAWASAN TENGAH</h2><h2 className="font-bold text-[16px] leading-tight mt-1">JEMAAT PISGAH BISDAC</h2></div><div className="w-[180px] flex flex-col items-center"><div className="border border-black bg-[#dce6f1] font-bold py-1 w-full text-center text-[12px]">DIISI OLEH PEMOHON</div><p className="italic text-center mt-1 text-[12px] leading-snug">Bagi Pemohon yang namanya <br /><span className="font-bold not-italic">SUDAH</span> ada di ACMS</p></div></div><div className="mb-6"><p className="font-bold mb-2">A. PROFIL PEMOHON <span className="font-normal text-[11px]">(Mohon diisi sesuai dengan KTP/Akte Kelahiran / identitas lainnya menggunakan huruf besar)</span></p><table className="w-full ml-4" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}><tbody><tr><td className="w-1/4 py-1 align-top">1. Nama Lengkap</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.namaLengkap}</span></td></tr><tr><td className="w-1/4 py-1 align-top">2. Jenis Kelamin</td><td className="w-3/4 py-1 align-top">: {formData.jenisKelamin}</td></tr><tr><td className="w-1/4 py-1 align-top">3. Tanggal Lahir</td><td className="w-3/4 py-1 align-top">: {formatDate(formData.tanggalLahir)}</td></tr><tr><td className="w-1/4 py-1 align-top">4. Nama Ibu</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.namaIbu}</span></td></tr><tr><td className="w-1/4 py-1 align-top">5. Baptisan</td><td className="w-3/4 py-1"></td></tr><tr><td className="w-1/4 py-1 pl-4 align-top">- tanggal</td><td className="w-3/4 py-1 align-top">: {formatDate(formData.baptisanTanggal)}</td></tr><tr><td className="w-1/4 py-1 pl-4 align-top">- tempat</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.baptisanTempat}</span></td></tr><tr><td className="w-1/4 py-1 pl-4 align-top">- pendeta</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.baptisanPendeta}</span></td></tr></tbody></table></div><div className="mb-8"><p className="font-bold mb-2">B. PERNYATAAN PEMOHON</p><table className="w-full ml-4 mb-4" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}><tbody><tr><td className="w-[80%] py-1 align-top">1. Apakah Anda dalam masa disiplin Gereja?</td><td className="w-[20%] py-1 font-bold align-top">: {formData.masaDisiplin}</td></tr><tr><td className="w-[80%] py-1 align-top">2. Apakah Anda sudah pernah mengajukan permohonan perpindahan keanggotaan?</td><td className="w-[20%] py-1 font-bold align-top">: {formData.pernahPindah}</td></tr></tbody></table><p className="mb-2">Dengan ini saya memohon agar memindahkan keanggotaan saya dari:</p><table className="w-full ml-4 mb-4" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}><tbody><tr><td className="w-1/4 py-1 align-top">1. Nama Jemaat Asal</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.jemaatAsalNama}</span></td></tr><tr><td className="w-1/4 py-1 align-top">2. Alamat Jemaat Asal</td><td className="w-3/4 py-1 align-top">: {formData.jemaatAsalAlamat}</td></tr><tr><td className="w-1/4 py-1 align-top">3. Nama Sekretaris</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.jemaatAsalSekretaris}</span></td></tr><tr><td className="w-1/4 py-1 align-top">4. Telp/Email Aktif</td><td className="w-3/4 py-1 align-top">: {formData.jemaatAsalKontak}</td></tr></tbody></table><p className="mb-6">Demikian permohonan ini saya ajukan tanpa ada paksaan dari pihak manapun.</p><div className="flex justify-end pr-10"><div className="text-center w-64"><p>Tempat/Tanggal diajukan:</p><p className="mb-14">Surabaya, {formatDate(new Date())}</p><p className="border-t border-black pt-1 uppercase leading-none">( {formData.namaLengkap || '..........................'} )</p><p className="text-[11px] mt-1">Nama dan Tanda Tangan Pemohon</p></div></div></div><div className="mb-6 mt-10 pt-6 border-t-[1.5px] border-dashed border-gray-400"><p className="font-bold text-center mb-5 tracking-wide text-[13px]">DIISI OLEH SEKRETARIS JEMAAT</p><p className="font-bold mb-2 text-[13px]">C. DATA KEPUTUSAN MAJELIS</p><table className="w-full ml-4" style={{ borderCollapse: 'separate', borderSpacing: '0 6px' }}><tbody><tr><td className="w-[40%] py-1.5 align-bottom">1. Keputusan Majelis Tanggal</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom"> Nomor Keputusan</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom">2. Di proses tanggal</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom">3. Ketua Jemaat</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom">4. Gembala Jemaat</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr></tbody></table><div className="flex justify-end pr-10 mt-8"><div className="text-center w-64"><p className="mb-14">20........</p><p className="border-t border-black pt-1 leading-none">( ........................................ )</p><p className="text-[11px] mt-1">Nama dan Tanda Tangan Sekretaris Jemaat</p></div></div></div><div className="mt-8 pt-4 border-t border-gray-200 flex justify-between items-center text-[10px] text-gray-400 font-sans"><p>ACMS v.3.03</p><p>&copy; Copyright by PISGAH BISDAC 2026</p></div></div>
+                        <div id="pdf-content" className="p-10 bg-white text-black text-sm relative" style={{ width: '210mm', minHeight: '297mm', fontFamily: '"Open Sans", sans-serif', boxSizing: 'border-box' }}><p className="text-[10px] text-gray-500 absolute top-4 right-10 leading-none">Form ACMS-03</p><div className="flex justify-between items-center mb-10 mt-6"><div className="w-[180px] flex justify-start"><img src="./icons/acms.png" alt="ACMS Logo" crossOrigin="anonymous" className="h-[60px] object-contain block" /></div><div className="flex-1 text-center px-4"><h2 className="font-bold text-[16px] leading-tight">PERMOHONAN PERPINDAHAN ANGGOTA</h2><h2 className="font-bold text-[16px] leading-tight mt-1">GMAHK DAERAH SUMATERA KAWASAN TENGAH</h2><h2 className="font-bold text-[16px] leading-tight mt-1">JEMAAT PISGAH BISDAC</h2></div><div className="w-[180px] flex flex-col items-center"><div className="border border-black bg-[#dce6f1] font-bold py-1 w-full text-center text-[12px]">DIISI OLEH PEMOHON</div><p className="italic text-center mt-1 text-[12px] leading-snug">Bagi Pemohon yang namanya <br /><span className="font-bold not-italic">SUDAH</span> ada di ACMS</p></div></div><div className="mb-6"><p className="font-bold mb-2">A. PROFIL PEMOHON <span className="font-normal text-[11px]">(Mohon diisi sesuai dengan KTP/Akte Kelahiran / identitas lainnya menggunakan huruf besar)</span></p><table className="w-full ml-4" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}><tbody><tr><td className="w-1/4 py-1 align-top">1. Nama Lengkap</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.namaLengkap}</span></td></tr><tr><td className="w-1/4 py-1 align-top">2. Jenis Kelamin</td><td className="w-3/4 py-1 align-top">: {formData.jenisKelamin}</td></tr><tr><td className="w-1/4 py-1 align-top">3. Tanggal Lahir</td><td className="w-3/4 py-1 align-top">: {formatDate(formData.tanggalLahir)}</td></tr><tr><td className="w-1/4 py-1 align-top">4. Nama Ibu</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.namaIbu}</span></td></tr><tr><td className="w-1/4 py-1 align-top">5. Baptisan</td><td className="w-3/4 py-1"></td></tr><tr><td className="w-1/4 py-1 pl-4 align-top">- tanggal</td><td className="w-3/4 py-1 align-top">: {formatDate(formData.baptisanTanggal)}</td></tr><tr><td className="w-1/4 py-1 pl-4 align-top">- tempat</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.baptisanTempat}</span></td></tr><tr><td className="w-1/4 py-1 pl-4 align-top">- pendeta</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.baptisanPendeta}</span></td></tr></tbody></table></div><div className="mb-8"><p className="font-bold mb-2">B. PERNYATAAN PEMOHON</p><table className="w-full ml-4 mb-4" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}><tbody><tr><td className="w-[80%] py-1 align-top">1. Apakah Anda dalam masa disiplin Gereja?</td><td className="w-[20%] py-1 font-bold align-top">: {formData.masaDisiplin}</td></tr><tr><td className="w-[80%] py-1 align-top">2. Apakah Anda sudah pernah mengajukan permohonan perpindahan keanggotaan?</td><td className="w-[20%] py-1 font-bold align-top">: {formData.pernahPindah}</td></tr></tbody></table><p className="mb-2">Dengan ini saya memohon agar memindahkan keanggotaan saya dari:</p><table className="w-full ml-4 mb-4" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}><tbody><tr><td className="w-1/4 py-1 align-top">1. Nama Jemaat Asal</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.jemaatAsalNama}</span></td></tr><tr><td className="w-1/4 py-1 align-top">2. Alamat Jemaat Asal</td><td className="w-3/4 py-1 align-top">: {formData.jemaatAsalAlamat}</td></tr><tr><td className="w-1/4 py-1 align-top">3. Nama Sekretaris</td><td className="w-3/4 py-1 align-top">: <span className="uppercase">{formData.jemaatAsalSekretaris}</span></td></tr><tr><td className="w-1/4 py-1 align-top">4. Telp/Email Aktif</td><td className="w-3/4 py-1 align-top">: {formData.jemaatAsalKontak}</td></tr></tbody></table><p className="mb-6">Demikian permohonan ini saya ajukan tanpa ada paksaan dari pihak manapun.</p><div className="flex justify-end pr-10"><div className="text-center w-64"><p>Tempat/Tanggal diajukan:</p><p className="mb-14">Batam, {formatDate(new Date())}</p><p className="border-t border-black pt-1 uppercase leading-none">( {formData.namaLengkap || '..........................'} )</p><p className="text-[11px] mt-1">Nama dan Tanda Tangan Pemohon</p></div></div></div><div className="mb-6 mt-10 pt-6 border-t-[1.5px] border-dashed border-gray-400"><p className="font-bold text-center mb-5 tracking-wide text-[13px]">DIISI OLEH SEKRETARIS JEMAAT</p><p className="font-bold mb-2 text-[13px]">C. DATA KEPUTUSAN MAJELIS</p><table className="w-full ml-4" style={{ borderCollapse: 'separate', borderSpacing: '0 6px' }}><tbody><tr><td className="w-[40%] py-1.5 align-bottom">1. Keputusan Majelis Tanggal</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom"> Nomor Keputusan</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom">2. Di proses tanggal</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom">3. Ketua Jemaat</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr><tr><td className="w-[40%] py-1.5 align-bottom">4. Gembala Jemaat</td><td className="w-[60%] py-1.5 border-b border-dotted border-gray-500 align-bottom">: </td></tr></tbody></table><div className="flex justify-end pr-10 mt-8"><div className="text-center w-64"><p className="mb-14">20........</p><p className="border-t border-black pt-1 leading-none">( ........................................ )</p><p className="text-[11px] mt-1">Nama dan Tanda Tangan Sekretaris Jemaat</p></div></div></div><div className="mt-8 pt-4 border-t border-gray-200 flex justify-between items-center text-[10px] text-gray-400 font-sans"><p>ACMS v.3.03</p><p>&copy; Copyright by PISGAH BISDAC 2026</p></div></div>
                     </div>
                 </div>
             </div>
@@ -3762,7 +3762,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                         cached.daftarRekening = JSON.stringify(editDaftarRekening);
                         localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
                     }
-                } catch (e) {}
+                } catch (e) { }
             } else {
                 alert('Gagal: ' + (result.message || 'Akses ditolak.'));
             }
@@ -3776,7 +3776,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                     cached.daftarRekening = JSON.stringify(editDaftarRekening);
                     localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
                 }
-            } catch (e) {}
+            } catch (e) { }
         }
         setIsSavingRekening(false);
     };
@@ -5077,12 +5077,12 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                         <p className="text-xs text-navy-500 font-medium leading-relaxed mt-1">Ubah nomor rekening dan gambar QRIS untuk menu Persembahan.</p>
                                     </div>
                                 </div>
-                                
+
                                 <form onSubmit={handleSaveRekening} className="space-y-6">
                                     <div>
                                         <div className="flex justify-between items-center mb-4">
-                                            <h4 className="font-bold text-navy-900 text-sm flex items-center"><Icon name="CreditCard" className="w-4 h-4 mr-2 text-gold-500"/>Daftar Opsi Pembayaran</h4>
-                                            <button type="button" onClick={handleAddRekening} className="text-xs bg-navy-100 hover:bg-navy-200 text-navy-700 font-bold px-3 py-1.5 rounded-lg flex items-center transition"><Icon name="Plus" className="w-3.5 h-3.5 mr-1"/> Tambah Opsi</button>
+                                            <h4 className="font-bold text-navy-900 text-sm flex items-center"><Icon name="CreditCard" className="w-4 h-4 mr-2 text-gold-500" />Daftar Opsi Pembayaran</h4>
+                                            <button type="button" onClick={handleAddRekening} className="text-xs bg-navy-100 hover:bg-navy-200 text-navy-700 font-bold px-3 py-1.5 rounded-lg flex items-center transition"><Icon name="Plus" className="w-3.5 h-3.5 mr-1" /> Tambah Opsi</button>
                                         </div>
                                         {editDaftarRekening.length === 0 ? (
                                             <div className="text-center py-4 text-xs text-navy-500 bg-navy-50/50 rounded-xl border border-navy-100">Belum ada pengaturan Rekening & QRIS.</div>
@@ -5091,7 +5091,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                 {editDaftarRekening.map((rek, idx) => (
                                                     <div key={rek.id || idx} className="bg-navy-50/50 p-5 rounded-2xl border border-navy-200 relative group shadow-sm flex flex-col md:flex-row gap-6">
                                                         <button type="button" onClick={() => handleRemoveRekening(rek.id)} className="absolute -top-3 -right-3 bg-red-100 text-red-600 p-2 rounded-full hover:bg-red-500 hover:text-white transition opacity-0 group-hover:opacity-100 shadow-md z-10"><Icon name="X" className="w-4 h-4" /></button>
-                                                        
+
                                                         {/* QRIS Input Section */}
                                                         <div className="w-full md:w-1/3 flex flex-col gap-3">
                                                             <div className="flex items-center gap-2 mb-1">
@@ -5099,7 +5099,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                 <span className="text-xs font-bold text-navy-800">QRIS (Opsional)</span>
                                                             </div>
                                                             {rek.qrisUrl && (
-                                                                <img src={rek.qrisUrl} className="w-24 h-24 rounded-xl object-contain border border-navy-200 bg-white mx-auto md:mx-0 shadow-sm" onError={(e) => e.target.src='./icons/notavailable.jpg'} />
+                                                                <img src={rek.qrisUrl} className="w-24 h-24 rounded-xl object-contain border border-navy-200 bg-white mx-auto md:mx-0 shadow-sm" onError={(e) => e.target.src = './icons/notavailable.jpg'} />
                                                             )}
                                                             <div>
                                                                 <label className="block text-[10px] font-bold text-navy-700 mb-1.5 uppercase tracking-widest">Link Gambar QRIS</label>
@@ -6106,7 +6106,7 @@ const App = () => {
                         if (cached.perjamuanDate) setPerjamuanDate(cached.perjamuanDate);
                         if (cached.perpuluhanDate) setPerpuluhanDate(cached.perpuluhanDate);
                         if (cached.daftarRekening) {
-                            try { setDaftarRekening(JSON.parse(cached.daftarRekening)); } catch(e) {}
+                            try { setDaftarRekening(JSON.parse(cached.daftarRekening)); } catch (e) { }
                         }
 
                         if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
@@ -6141,11 +6141,11 @@ const App = () => {
                     try {
                         const parsed = JSON.parse(data.daftarRekening);
                         setDaftarRekening(Array.isArray(parsed) ? parsed : []);
-                    } catch(e) { console.error(e); }
+                    } catch (e) { console.error(e); }
                 } else if (data.legacyRekeningBank) {
                     setDaftarRekening([{ id: 1, namaBank: data.legacyNamaBank, rekeningBank: data.legacyRekeningBank, atasNama: data.legacyAtasNama }]);
                 }
-                
+
 
                 if (data.kategoriPejabat) setKategoriPejabat(data.kategoriPejabat);
 
