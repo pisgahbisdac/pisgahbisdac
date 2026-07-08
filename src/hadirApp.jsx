@@ -1665,7 +1665,7 @@ import DashboardCharts from './components/hadir/DashboardCharts';
                     <button
                         onClick={() => { if (!isSyncing) handlePullFromCloud(false); }}
                         disabled={isSyncing}
-                        className="fixed right-4 md:right-8 z-50 w-10 h-10 md:w-11 md:h-11 bg-navy-800/20 dark:bg-navy-900/40 hover:bg-navy-800/30 dark:hover:bg-navy-900/60 backdrop-blur-xl rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-navy-200/50 dark:border-navy-700/50 cursor-pointer shadow-lg group"
+                        className="fixed left-4 md:left-6 z-50 w-10 h-10 md:w-11 md:h-11 bg-navy-800/20 dark:bg-navy-900/40 hover:bg-navy-800/30 dark:hover:bg-navy-900/60 backdrop-blur-xl rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-navy-200/50 dark:border-navy-700/50 cursor-pointer shadow-lg group"
                         style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 4.25rem)' }}
                         title="Sinkronisasi Data"
                     >
