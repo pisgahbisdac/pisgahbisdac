@@ -1421,6 +1421,7 @@
       let pendingCount = list.filter(x => {
         const deleteId = x.transaction_id || x.receipt_no || '';
         if (!deleteId) return false;
+        if (x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank') return false;
         const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
         if (isFullyApproved) return false;
         if (!x.approved_by || !x.approved_by.includes(roleNeeded)) return true;
@@ -3554,7 +3555,9 @@
           const pihak = x.type === 'income' ? (shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
 
           let approveBadge = '';
-          if (x.approved_by) {
+          if (isMutasi) {
+            approveBadge = `<span class="badge" style="background:var(--accent-green);color:white;font-size:9px;">Disetujui</span>`;
+          } else if (x.approved_by) {
             const isAdminApp = x.approved_by.includes('Admin');
             const isKetua = x.approved_by.includes('Ketua Jemaat');
             const isPendeta = x.approved_by.includes('Pendeta');
@@ -3570,7 +3573,7 @@
           }
 
           let approveBtn = '';
-          if (isApprover && deleteId) {
+          if (isApprover && deleteId && !isMutasi) {
             const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
             if (isFullyApproved || (x.approved_by && x.approved_by.includes(roleNeeded))) {
               approveBtn = `<button class="btn-icon-only" style="color:var(--text4); cursor:default;" title="Sudah Di-Approve" disabled>${safeIcon('check', 'lucide-sm')}</button>`;
@@ -3633,7 +3636,10 @@
           let photoBtn = getPhotoBtnText(x, shouldHide && !isApprover);
           let approveBadgeDesktop = '';
           let approveBadgeMobile = '';
-          if (x.approved_by) {
+          if (isMutasi) {
+            approveBadgeDesktop = `<span class="badge" style="background:var(--accent-green);color:white;font-size:9px; font-weight:700; letter-spacing:0.3px;">DISETUJUI</span>`;
+            approveBadgeMobile = `<span class="badge" style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); z-index:2; padding:3px 10px; border-radius:12px; border:1px solid rgba(0,0,0,0.05); box-shadow:0 2px 4px rgba(0,0,0,0.1); background:var(--accent-green);color:white;font-size:9px; font-weight:700; letter-spacing:0.3px;">DISETUJUI</span>`;
+          } else if (x.approved_by) {
             const isAdminApp = x.approved_by.includes('Admin');
             const isKetua = x.approved_by.includes('Ketua Jemaat');
             const isPendeta = x.approved_by.includes('Pendeta');
@@ -3653,7 +3659,7 @@
           }
 
           let approveBtn = '';
-          if (isApprover && deleteId) {
+          if (isApprover && deleteId && !isMutasi) {
             const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
             if (isFullyApproved || (x.approved_by && x.approved_by.includes(roleNeeded))) {
               approveBtn = `<button class="btn" style="padding:4px 8px; font-size:9px; background:var(--badge-gray-bg); color:var(--text4); border:1px solid var(--glass-border); cursor:default;display:inline-flex;align-items:center;gap:4px;" disabled>${safeIcon('check', 'lucide-sm')} Approved</button>`;
