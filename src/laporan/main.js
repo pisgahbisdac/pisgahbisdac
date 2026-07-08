@@ -1125,7 +1125,7 @@
       document.getElementById('adminNavLabel').style.display = showAdminGroup ? '' : 'none';
 
       const sensorContainer = document.getElementById('reportSensorContainer');
-      if (sensorContainer) sensorContainer.style.display = perms.menus.laporan?.edit ? 'flex' : 'none';
+      if (sensorContainer) sensorContainer.style.display = perms.menus.laporan?.view ? 'flex' : 'none';
 
       // Auto-enable Unit Filter for Operators
       const userUnits = getUserUnits();
@@ -2261,10 +2261,11 @@
         if (pmbExpBtn) pmbExpBtn.style.display = 'inline-block';
         const partisipasiBtn = document.getElementById('btnPartisipasiReport');
         if (partisipasiBtn) {
-          if (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik')) {
-            partisipasiBtn.style.display = 'none';
-          } else {
+          const allowedRoles = ['Admin', 'Bendahara', 'Ketua Jemaat', 'Pendeta', 'Gembala'];
+          if (currentUser && allowedRoles.includes(currentUser.role)) {
             partisipasiBtn.style.display = 'inline-block';
+          } else {
+            partisipasiBtn.style.display = 'none';
           }
         }
       } catch (e) {
@@ -2279,7 +2280,8 @@
       const mode = currentReportData.mode;
 
       const isViewer = currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik');
-      const isSensor = isViewer || (document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false);
+      const isSensorName = isViewer || (document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false);
+      const isSensorUnit = isViewer || (document.getElementById('sensorUnit') ? document.getElementById('sensorUnit').checked : false);
 
       const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
       const periodStr = mode === 'bulanan' ? `${monthNames[month] || '-'} ${year || '-'}` : (mode === 'akumulasi' ? `Akumulasi Thn ${year || '-'}` : (currentReportData.customPeriod || 'Pencarian'));
@@ -2674,8 +2676,13 @@
 
           const isPrivCategory = isPrivateCategory(data.nama);
           let dNama = data.nama;
-          if (isPrivCategory) dNama = '*** (Privasi)';
-          else if (isSensor) dNama = '*** (Privasi)';
+          if (isPrivCategory) {
+            dNama = '*** (Privasi)';
+          } else if (isTop && data.hasUnit && isSensorUnit) {
+            dNama = 'Unit *** (Privasi)';
+          } else if (isTop && !data.hasUnit && isSensorName) {
+            dNama = '*** (Privasi)';
+          }
 
           c1 = rowNum; c2 = fmtDate(data.tanggal); c3 = dNama; c4 = data.kwitansi;
         } else if (data === 'label_top') {
@@ -4617,7 +4624,8 @@
       const targetDateEnd = new Date(targetYear, targetMonth, 0, 23, 59, 59);
 
       const isViewer = currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik');
-      const isSensor = isViewer || (document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false);
+      const isSensorName = isViewer || (document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false);
+      const isSensorUnit = isViewer || (document.getElementById('sensorUnit') ? document.getElementById('sensorUnit').checked : false);
       const isManualSignature = document.getElementById('manualSignature') ? document.getElementById('manualSignature').checked : false;
 
       // Pemasukan & Pengeluaran Bulan Ini
@@ -4649,7 +4657,7 @@
       const useBenImg = !isManualSignature && hasTransactions && systemConfig.sig_bendahara;
       const useKetuaImg = !isManualSignature && ketuaApprovedAll && systemConfig.sig_ketua;
       const useGembalaImg = !isManualSignature && gembalaApprovedAll && systemConfig.sig_pendeta;
-      const useBgnImg = !isManualSignature && ketuaApprovedAll && gembalaApprovedAll && systemConfig.sig_bangun;
+      const useBgnImg = !isManualSignature && hasTransactions && systemConfig.sig_bangun;
 
 
       // Saldo Awal Pembangunan (dari awal waktu s.d targetDateStart - 1 ms)
@@ -4664,8 +4672,10 @@
       let pemRows = pemBulanIni.map(x => {
         const amt = parseFloat(x.alloc_bangun || x.amount || 0);
         sumPemasukan += amt;
-        const isMasked = isSensor; // Pembangunan is always considered a private category when sensor is on
-        const dNote = isMasked ? '*** (Privasi)' : (x.note || x.nama_pemberi || 'Pembangunan');
+        const hasUnit = !!(x.unit_name && x.unit_name !== '-');
+        let dNote = x.note || x.nama_pemberi || 'Pembangunan';
+        if (hasUnit && isSensorUnit) dNote = 'Unit *** (Privasi)';
+        else if (!hasUnit && isSensorName) dNote = '*** (Privasi)';
         return `<tr>
           <td style="border:1px solid #000; padding:4px; text-align:center;">${fmtDate(x.date)}</td>
           <td style="border:1px solid #000; padding:4px;">${x.receipt_no || '-'}</td>
@@ -4683,8 +4693,10 @@
       let pengRows = pengBulanIni.map(x => {
         const amt = parseFloat(x.amount || 0);
         sumPengeluaran += amt;
-        const isMasked = isSensor;
-        const dNote = isMasked ? '*** (Privasi)' : (x.note || 'Pengeluaran Pembangunan');
+        const hasUnit = !!(x.unit_name && x.unit_name !== '-');
+        let dNote = x.note || 'Pengeluaran Pembangunan';
+        if (hasUnit && isSensorUnit) dNote = 'Unit *** (Privasi)';
+        else if (!hasUnit && isSensorName) dNote = '*** (Privasi)';
         return `<tr>
           <td style="border:1px solid #000; padding:4px; text-align:center;">${fmtDate(x.date)}</td>
           <td style="border:1px solid #000; padding:4px;">${x.receipt_no || '-'}</td>
@@ -4984,7 +4996,8 @@ window.toggleCloseMonthFromModal = toggleCloseMonthFromModal;
 window.showPage = showPage;
 
     function doPrintPartisipasi() {
-      if (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik')) {
+      const allowedRoles = ['Admin', 'Bendahara', 'Ketua Jemaat', 'Pendeta', 'Gembala'];
+      if (!currentUser || !allowedRoles.includes(currentUser.role)) {
         return notify('Anda tidak memiliki akses untuk mencetak laporan ini.', 'error');
       }
       if (!currentReportData) return notify('Generate laporan terlebih dahulu', 'error');
@@ -5038,10 +5051,18 @@ window.showPage = showPage;
       let allocJemaat = 0;
       let allocBangun = 0;
 
+      const isSensorName = document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false;
+      const isSensorUnit = document.getElementById('sensorUnit') ? document.getElementById('sensorUnit').checked : false;
+
       (cachedIncome || []).filter(x => isMatch(x.date)).forEach(x => {
         if (x.income_type === 'Mutasi Kas / Setor Bank') return;
-        const unit = (x.unit_name && x.unit_name !== '-') ? x.unit_name : 'Lainnya / Tanpa Unit';
+        let unit = (x.unit_name && x.unit_name !== '-') ? x.unit_name : 'Lainnya / Tanpa Unit';
         let pemberi = (x.nama_pemberi && x.nama_pemberi !== '-') ? x.nama_pemberi : 'Hamba Tuhan';
+        
+        if (isSensorUnit && unit !== 'Lainnya / Tanpa Unit') {
+          unit = 'Unit *** (Privasi)';
+        }
+        
         const pStr = String(pemberi).toLowerCase();
         if (pStr.startsWith('kolektif ')) {
           pemberi = String(pemberi).substring(9).trim();
@@ -5102,7 +5123,7 @@ window.showPage = showPage;
             <tr>
               <td style="padding: 6px 8px; border: 1px solid #e2e8f0; text-align: center; width: 40px; font-size: 12px;">${no++}</td>
               <td style="padding: 6px 8px; border: 1px solid #e2e8f0; font-size: 12px;">
-                <div style="font-weight: 600;">${giver}</div>
+                <div style="font-weight: 600;">${isSensorName ? '*** (Privasi)' : giver}</div>
                 <div style="font-size: 10px; color: #64748b; margin-top: 2px;">${catDetails.join(', ')}</div>
               </td>
               <td style="padding: 6px 8px; border: 1px solid #e2e8f0; text-align: right; font-size: 12px; font-weight: 500;">Rp ${fmt(gData.total)}</td>
@@ -5159,7 +5180,7 @@ window.showPage = showPage;
             </tbody>
           </table>
 
-          <div style="font-size: 12px; margin-top: 20px; padding: 15px; border: 1px solid #e2e8f0; background-color: #f8fafc; border-radius: 6px;">
+          <div style="font-size: 12px; margin-top: 20px; padding: 15px; border: 1px solid #e2e8f0; background-color: #f8fafc; border-radius: 6px; page-break-inside: avoid; break-inside: avoid;">
             <div style="font-weight:bold; margin-bottom: 8px;">Ringkasan Grand Total Per Kategori (Seluruh Unit):</div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
               ${grandCatHtml}
