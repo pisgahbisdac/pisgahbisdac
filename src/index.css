@@ -1118,6 +1118,12 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
     --hole-r: 38px;
   }
 
+  .bottom-bar:has(.bottom-nav-item:nth-child(1).active)::before { --hole-x: 10%; }
+  .bottom-bar:has(.bottom-nav-item:nth-child(2).active)::before { --hole-x: 30%; }
+  .bottom-bar:has(.bottom-nav-item:nth-child(3).active)::before { --hole-x: 50%; }
+  .bottom-bar:has(.bottom-nav-item:nth-child(4).active)::before { --hole-x: 70%; }
+  .bottom-bar:has(.bottom-nav-item:nth-child(5).active)::before { --hole-x: 90%; }
+
   /* Removed hardcoded nth-child for hole-x, handled by JS now */
   .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; cursor: pointer; flex: 1; transition: all 0.3s ease; position: relative; height: 100%; gap: 2px; }
   .bottom-nav-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
