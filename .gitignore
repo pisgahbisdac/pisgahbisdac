@@ -5,3 +5,6 @@ dist-ssr
 .env.*
 !.env.example
 .DS_Store
+backend_Code.js
+.vscode
+backend/
