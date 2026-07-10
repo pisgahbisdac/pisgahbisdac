@@ -6394,7 +6394,16 @@ const App = () => {
                 </div>
             )}
 
-            <main className="flex-1 w-full mx-auto p-4 md:px-8 lg:px-[6vw] pb-32 md:pb-12">
+            <main className="flex-1 w-full mx-auto p-4 md:px-8 lg:px-4 pb-32 md:pb-12">
+                {activeTab !== 'home' && (
+                    <button 
+                        onClick={() => setActiveTab('home')} 
+                        className="mb-6 flex items-center justify-center px-5 py-2.5 bg-white shadow-sm hover:shadow-md border border-navy-100/60 rounded-2xl text-navy-700 hover:text-navy-900 font-bold transition-all gap-2 group w-max"
+                    >
+                        <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        <span>Kembali</span>
+                    </button>
+                )}
                 {renderContent()}
             </main>
 
