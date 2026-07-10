@@ -814,62 +814,63 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
                     </div>
 
                     {/* TAB CONTENT */}
-
-                    {openSection === 'khotbah' && (
-                        <div className="animate-fade-in">
-                            {renderItem("Pemimpin Acara", getOfficer(activeSabat.khotbah, "Pemimpin Acara"), true)}
-                            {renderItem("Sambutan", getOfficer(activeSabat.khotbah, "Pemimpin Acara"))}
-                            {renderItem("Lagu Pengantar", "LS 408 - Berdiam, Berdiam")}
-                            {renderItem("Lagu Sambutan", "LS 1 - Di Hadapan Hadirat-Mu")}
-                            {renderItem("Doa Buka", getOfficer(activeSabat.khotbah, "Khotbah"))}
-                            {renderItem("Ayat Bersahutan", susunan.kAyatBersahutan)}
-                            {renderItem("Lagu Buka", susunan.kLaguBuka)}
-                            {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Doa Syafaat"))}
-                            <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
-                                <p>"LS 516 - Dengar Ya Tuhan"</p>
+                    <div className="w-full max-w-4xl mx-auto py-2">
+                        {openSection === 'khotbah' && (
+                            <div className="animate-fade-in">
+                                {renderItem("Pemimpin Acara", getOfficer(activeSabat.khotbah, "Pemimpin Acara"), true)}
+                                {renderItem("Sambutan", getOfficer(activeSabat.khotbah, "Pemimpin Acara"))}
+                                {renderItem("Lagu Pengantar", "LS 408 - Berdiam, Berdiam")}
+                                {renderItem("Lagu Sambutan", "LS 1 - Di Hadapan Hadirat-Mu")}
+                                {renderItem("Doa Buka", getOfficer(activeSabat.khotbah, "Khotbah"))}
+                                {renderItem("Ayat Bersahutan", susunan.kAyatBersahutan)}
+                                {renderItem("Lagu Buka", susunan.kLaguBuka)}
+                                {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Doa Syafaat"))}
+                                <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
+                                    <p>"LS 516 - Dengar Ya Tuhan"</p>
+                                </div>
+                                {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
+                                {susunan.kLaguPujian1_show && renderItem("Lagu Persembahan dan Pujian", susunan.kLaguPujian1_judul)}
+                                {renderItem("Pengumpulan Persembahan", "Diakon Berdiri")}
+                                {renderItem("Doa Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
+                                {susunan.kLaguPujian2_show && renderItem("Lagu Pujian", susunan.kLaguPujian2_judul)}
+                                {renderItem("Cerita Anak-anak", getOfficer(activeSabat.khotbah, "Cerita Anak-anak"))}
+                                {susunan.kLaguPujian3_show && renderItem("Lagu Pujian", susunan.kLaguPujian3_judul)}
+                                {renderItem("Ayat Inti", susunan.kAyatInti)}
+                                {renderItem("Lagu Tema - Jemaat Duduk", "Misi Kita")}
+                                {renderItem("Khotbah", getOfficer(activeSabat.khotbah, "Khotbah"), true)}
+                                {renderItem("Lagu Tutup", susunan.kLaguTutup)}
+                                {renderItem("Doa Tutup - Berkat", getOfficer(activeSabat.khotbah, "Khotbah"))}
+                                {renderItem("Pengumuman", "Dept. Komunikasi")}
                             </div>
-                            {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
-                            {susunan.kLaguPujian1_show && renderItem("Lagu Persembahan dan Pujian", susunan.kLaguPujian1_judul)}
-                            {renderItem("Pengumpulan Persembahan", "Diakon Berdiri")}
-                            {renderItem("Doa Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
-                            {susunan.kLaguPujian2_show && renderItem("Lagu Pujian", susunan.kLaguPujian2_judul)}
-                            {renderItem("Cerita Anak-anak", getOfficer(activeSabat.khotbah, "Cerita Anak-anak"))}
-                            {susunan.kLaguPujian3_show && renderItem("Lagu Pujian", susunan.kLaguPujian3_judul)}
-                            {renderItem("Ayat Inti", susunan.kAyatInti)}
-                            {renderItem("Lagu Tema - Jemaat Duduk", "Misi Kita")}
-                            {renderItem("Khotbah", getOfficer(activeSabat.khotbah, "Khotbah"), true)}
-                            {renderItem("Lagu Tutup", susunan.kLaguTutup)}
-                            {renderItem("Doa Tutup - Berkat", getOfficer(activeSabat.khotbah, "Khotbah"))}
-                            {renderItem("Pengumuman", "Dept. Komunikasi")}
-                        </div>
-                    )}
+                        )}
 
-                    {openSection === 'ss' && (
-                        <div className="animate-fade-in">
-                            {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pemimpin Acara"), true)}
-                            {renderItem("Lagu Buka", susunan.ssLaguBuka)}
-                            {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka"))}
-                            {renderItem("Berita Misi", getOfficer(activeSabat.sekolahSabat, "Berita Misi"))}
-                            {renderItem("Diskusi Sekolah Sabat", "Kelas Dewasa, Kelas Pendalaman Alkitab, Kelas Anak-anak")}
-                            {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
-                            {renderItem("Doa Tutup", getOfficer(activeSabat.sekolahSabat, "Doa Tutup"))}
-                            <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
-                                <p>"LS 168 Kita Memiliki Pengharapan"</p>
+                        {openSection === 'ss' && (
+                            <div className="animate-fade-in">
+                                {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pemimpin Acara"), true)}
+                                {renderItem("Lagu Buka", susunan.ssLaguBuka)}
+                                {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka"))}
+                                {renderItem("Berita Misi", getOfficer(activeSabat.sekolahSabat, "Berita Misi"))}
+                                {renderItem("Diskusi Sekolah Sabat", "Kelas Dewasa, Kelas Pendalaman Alkitab, Kelas Anak-anak")}
+                                {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
+                                {renderItem("Doa Tutup", getOfficer(activeSabat.sekolahSabat, "Doa Tutup"))}
+                                <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
+                                    <p>"LS 168 Kita Memiliki Pengharapan"</p>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {openSection === 'diakon' && (
-                        <div className="animate-fade-in">
-                            {activeSabat.diakon.map((p, idx) => <div key={idx}>{renderItem(p.tugas, p.nama)}</div>)}
-                        </div>
-                    )}
+                        {openSection === 'diakon' && (
+                            <div className="animate-fade-in">
+                                {activeSabat.diakon.map((p, idx) => <div key={idx}>{renderItem(p.tugas, p.nama)}</div>)}
+                            </div>
+                        )}
 
-                    {openSection === 'musik' && (
-                        <div className="animate-fade-in">
-                            {activeSabat.musik.map((p, idx) => <div key={idx}>{renderItem(p.tugas, p.nama)}</div>)}
-                        </div>
-                    )}
+                        {openSection === 'musik' && (
+                            <div className="animate-fade-in">
+                                {activeSabat.musik.map((p, idx) => <div key={idx}>{renderItem(p.tugas, p.nama)}</div>)}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
@@ -1456,28 +1457,33 @@ const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPe
     const isRabu = new Date(targetDateStr).getDay() === 3;
 
     return (
-        <div className="space-y-6 md:space-y-8 animate-fade-in">
-            <div className="bg-navy-900 rounded-[1.5rem] overflow-hidden shadow-lg p-2.5">
-                <div className="relative w-full rounded-xl overflow-hidden" style={{ paddingTop: '56.25%' }}>
-                    <iframe className="absolute top-0 left-0 w-full h-full" src={liveUrl} title="YouTube Live Stream" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen loading="lazy"></iframe>
+        <div className="flex flex-col xl:flex-row gap-6 md:gap-8 animate-fade-in items-start">
+            {/* Kolom Kiri: Video & Perjamuan (Sticky on Desktop) */}
+            <div className="w-full xl:w-[55%] flex flex-col gap-6 md:gap-8 xl:sticky xl:top-24">
+                <div className="bg-navy-900 rounded-[1.5rem] overflow-hidden shadow-lg p-2.5">
+                    <div className="relative w-full rounded-xl overflow-hidden" style={{ paddingTop: '56.25%' }}>
+                        <iframe className="absolute top-0 left-0 w-full h-full" src={liveUrl} title="YouTube Live Stream" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen loading="lazy"></iframe>
+                    </div>
+                    <div className="pt-4 pb-2 px-2 text-white flex justify-center w-full">
+                        <div className="font-bold text-sm tracking-widest flex items-center bg-gold-400/20 px-5 py-2.5 rounded-full border border-gold-400/30 text-gold-400 uppercase"><span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse mr-2.5"></span> Live </div>
+                    </div>
                 </div>
-                <div className="pt-4 pb-2 px-2 text-white flex justify-center w-full">
-                    <div className="font-bold text-sm tracking-widest flex items-center bg-gold-400/20 px-5 py-2.5 rounded-full border border-gold-400/30 text-gold-400 uppercase"><span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse mr-2.5"></span> Live </div>
-                </div>
+
+                {showPerjamuan && !isRabu && (
+                    <div className="bg-gradient-to-r from-gold-400 to-gold-500 text-navy-900 p-5 md:p-6 rounded-[1.25rem] shadow flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in border border-gold-300">
+                        <div className="text-center sm:text-left">
+                            <h3 className="text-navy-800 text-[1.15rem] leading-none font-bold uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5"><Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perjamuan</h3>
+                            <p className="text-sm text-navy-800 font-bold">{formatIndoDate(perjamuanYMD)}</p>
+                        </div>
+                        <button onClick={() => setActiveTab('jadwal')} className="bg-navy-700 text-gold-400 hover:text-gold-300 px-6 py-3 rounded-xl text-sm font-bold shadow hover:bg-navy-800 transition shrink-0 w-full sm:w-auto">Lihat Petugas</button>
+                    </div>
+                )}
             </div>
 
-            {showPerjamuan && !isRabu && (
-                <div className="bg-gradient-to-r from-gold-400 to-gold-500 text-navy-900 p-5 md:p-6 rounded-[1.25rem] shadow flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in border border-gold-300">
-                    <div className="text-center sm:text-left">
-                        <h3 className="text-navy-800 text-[1.15rem] leading-none font-bold uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5"><Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perjamuan</h3>
-                        <p className="text-sm text-navy-800 font-bold">{formatIndoDate(perjamuanYMD)}</p>
-                    </div>
-                    <button onClick={() => setActiveTab('jadwal')} className="bg-navy-700 text-gold-400 hover:text-gold-300 px-6 py-3 rounded-xl text-sm font-bold shadow hover:bg-navy-800 transition shrink-0 w-full sm:w-auto">Lihat Petugas</button>
-                </div>
-            )}
-
-            <div className="glass-box p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60">
-                <div className="flex justify-between items-start sm:items-center mb-6 flex-col sm:flex-row gap-4 border-b pb-5 border-navy-50">
+            {/* Kolom Kanan: Jadwal */}
+            <div className="w-full xl:w-[45%]">
+                <div className="glass-box p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60 w-full">
+                    <div className="flex justify-between items-start sm:items-center mb-6 flex-col sm:flex-row gap-4 border-b pb-5 border-navy-50">
                     <div>
                         {/* Label "Hari Ini" atau "Terdekat" */}
                         <h3 className={`text-sm font-bold uppercase tracking-widest mb-3 flex items-center ${isToday ? 'text-red-500' : 'text-gold-500'}`}>
@@ -1536,6 +1542,7 @@ const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPe
                     </div>
                 )}
                 <button onClick={() => setActiveTab('susunan_ibadah')} className="sm:hidden w-full mt-4 flex justify-center items-center text-sm font-medium text-gold-600 hover:text-blue-800 transition bg-navy-50 hover:bg-navy-100 px-4 py-3 rounded-lg">Lihat Susunan Ibadah</button>
+            </div>
             </div>
         </div>
     );
