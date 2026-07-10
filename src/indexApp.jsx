@@ -375,7 +375,7 @@ const formatDate = (dateString) => {
     return `${d}/${m}/${y}`;
 };
 
-const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD }) => {
+const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, kontakGereja }) => {
     const [currentSlide, setCurrentSlide] = React.useState(0);
 
     const displayImages = heroImages && heroImages.length > 0 ? heroImages : ["./icons/PisgahColor.png"];
@@ -545,7 +545,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                                 </div>
                             ) : (
                                 <div className="rounded-[2rem] overflow-hidden bg-white/40 dark:bg-navy-900/40 relative w-full flex items-center justify-center min-h-[250px] shadow-inner border border-white/50 dark:border-white/5">
-                                    <img src={displayImages[0]} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=1000&auto=format&fit=crop"; }} className="w-full h-auto object-contain transition-transform duration-700 hover:scale-105" alt="Banner" />
+                                    <img src={kontakGereja?.informasiImageUrl || displayImages[0]} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=1000&auto=format&fit=crop"; }} className="w-full h-auto object-contain transition-transform duration-700 hover:scale-105" alt="Banner" />
                                     <div className="absolute top-6 left-6 bg-white/80 dark:bg-navy-800/80 backdrop-blur-md text-[#4A7045] dark:text-gold-400 text-xs font-black px-5 py-2.5 rounded-full flex items-center shadow-lg border border-white/50 dark:border-white/10 tracking-wide uppercase">
                                         <Icon name="Info" className="w-4 h-4 mr-2" /> Informasi
                                     </div>
@@ -5091,7 +5091,11 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                         <input type="url" value={editKontakGereja.mapsAppUrl || ''} onChange={e => setEditKontakGereja({ ...editKontakGereja, mapsAppUrl: e.target.value })} placeholder="https://maps.app.goo.gl/..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-4" />
 
                                         <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Peta (Google Maps Embed / iframe)</label>
-                                        <textarea value={editKontakGereja.mapUrl} onChange={e => setEditKontakGereja({ ...editKontakGereja, mapUrl: e.target.value })} required rows="3" placeholder="https://www.google.com/maps/embed?pb=..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono shadow-sm"></textarea>
+                                        <textarea value={editKontakGereja.mapUrl} onChange={e => setEditKontakGereja({ ...editKontakGereja, mapUrl: e.target.value })} required rows="3" placeholder="https://www.google.com/maps/embed?pb=..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono shadow-sm mb-4"></textarea>
+
+                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">URL Gambar Banner Informasi (Opsional)</label>
+                                        <input type="url" value={editKontakGereja.informasiImageUrl || ''} onChange={e => setEditKontakGereja({ ...editKontakGereja, informasiImageUrl: e.target.value })} placeholder="URL Gambar Banner Informasi (Opsional)" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm" />
+
                                         <p className="text-[10px] text-navy-500 mt-2 font-medium leading-relaxed bg-navy-50 p-3 rounded-xl border border-navy-100 shadow-inner">
                                             <b>Cara mendapatkan link Peta Embed:</b><br />1. Cari gereja Anda di Google Maps (via Browser PC).<br />2. Klik tombol <b>Bagikan (Share)</b> &gt; pilih tab <b>Sematkan Peta (Embed a map)</b>.<br />3. Salin URL/Tautan yang ada di dalam tanda kutip <span className="text-gold-600 font-mono font-bold">src="..."</span> dan tempelkan pada kolom di atas.
                                         </p>
@@ -6028,7 +6032,8 @@ const App = () => {
     // Default State Kontak Gereja & Peta
     const defaultKontak = {
         alamat: "GMAHK PISGAH BISDAC\nAlamat gereja Anda belum diatur. Silahkan atur melalui Admin Dashboard.",
-        mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15956.123281231682!2d104.032646!3d1.127814!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31d98921bf232f1f%3A0xc3b832b8429b9f9!2sGMAHK%20Pisgah%20Bisdac!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"
+        mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15956.123281231682!2d104.032646!3d1.127814!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31d98921bf232f1f%3A0xc3b832b8429b9f9!2sGMAHK%20Pisgah%20Bisdac!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid",
+        informasiImageUrl: ""
     };
     const [kontakGereja, setKontakGereja] = React.useState(defaultKontak);
 
@@ -6346,7 +6351,7 @@ const App = () => {
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} />;
+            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} kontakGereja={kontakGereja} />;
             case 'belajar': return <Belajar setActiveTab={setActiveTab} />;
             case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
@@ -6362,9 +6367,9 @@ const App = () => {
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} />;
+            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} kontakGereja={kontakGereja} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
-            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} />;
+            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} kontakGereja={kontakGereja} />;
         }
     };
 
