@@ -14,10 +14,10 @@
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <script type="module" crossorigin src="/assets/laporan-DYW9Yquc.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-CMoWKSIX.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="stylesheet" crossorigin href="/assets/laporan-CrsETj2r.css">
-  <link rel="stylesheet" crossorigin href="/assets/index-Dy5ojNxc.css">
+  <link rel="stylesheet" crossorigin href="/assets/laporan-DLl9-j_y.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-BAH_9Uy4.css">
 </head>
 
 <body class="page-laporan">
@@ -1536,6 +1536,20 @@
     </div>
   </button>
   <div id="printContainer" style="display:none;"></div>
+  <script>
+    let _laporanLastScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      const currentScrollY = window.scrollY;
+      const fab = document.getElementById('floatingSyncBtn');
+      if (fab) {
+        if (currentScrollY > _laporanLastScrollY && currentScrollY > 50) {
+          fab.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+        } else if (currentScrollY < _laporanLastScrollY) {
+          fab.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+        }
+      }
+      _laporanLastScrollY = currentScrollY;
+    }, { passive: true });
+  </script>
 </body>
-
 </html>
