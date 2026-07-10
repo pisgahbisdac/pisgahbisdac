@@ -794,8 +794,8 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
                 </div>
 
                 <div className="flex flex-col border-b border-navy-100 overflow-hidden bg-white">
-                    {/* TABS SCROLLABLE */}
-                    <div className="flex flex-col overflow-hidden mb-2">
+                    {/* TABS SCROLLABLE (Hanya Mobile) */}
+                    <div className="flex flex-col overflow-hidden mb-2 lg:hidden">
                         <div className="flex items-center gap-2 pb-1 md:pb-2">
                             <div className="bg-white/60 rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-1.5 gap-2 hide-scrollbar scroll-smooth">
                                 {susunanTabs.map(tab => (
@@ -813,39 +813,40 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
                         <p className="text-[10px] italic text-center pb-3 md:hidden text-navy-400">scroll ke samping untuk lihat susunan yang lain &rarr;</p>
                     </div>
 
-                    {/* TAB CONTENT */}
-                    <div className="w-full max-w-4xl mx-auto py-2">
-                        {openSection === 'khotbah' && (
-                            <div className="animate-fade-in">
-                                {renderItem("Pemimpin Acara", getOfficer(activeSabat.khotbah, "Pemimpin Acara"), true)}
-                                {renderItem("Sambutan", getOfficer(activeSabat.khotbah, "Pemimpin Acara"))}
-                                {renderItem("Lagu Pengantar", "LS 408 - Berdiam, Berdiam")}
-                                {renderItem("Lagu Sambutan", "LS 1 - Di Hadapan Hadirat-Mu")}
-                                {renderItem("Doa Buka", getOfficer(activeSabat.khotbah, "Khotbah"))}
-                                {renderItem("Ayat Bersahutan", susunan.kAyatBersahutan)}
-                                {renderItem("Lagu Buka", susunan.kLaguBuka)}
-                                {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Doa Syafaat"))}
-                                <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
-                                    <p>"LS 516 - Dengar Ya Tuhan"</p>
-                                </div>
-                                {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
-                                {susunan.kLaguPujian1_show && renderItem("Lagu Persembahan dan Pujian", susunan.kLaguPujian1_judul)}
-                                {renderItem("Pengumpulan Persembahan", "Diakon Berdiri")}
-                                {renderItem("Doa Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
-                                {susunan.kLaguPujian2_show && renderItem("Lagu Pujian", susunan.kLaguPujian2_judul)}
-                                {renderItem("Cerita Anak-anak", getOfficer(activeSabat.khotbah, "Cerita Anak-anak"))}
-                                {susunan.kLaguPujian3_show && renderItem("Lagu Pujian", susunan.kLaguPujian3_judul)}
-                                {renderItem("Ayat Inti", susunan.kAyatInti)}
-                                {renderItem("Lagu Tema - Jemaat Duduk", "Misi Kita")}
-                                {renderItem("Khotbah", getOfficer(activeSabat.khotbah, "Khotbah"), true)}
-                                {renderItem("Lagu Tutup", susunan.kLaguTutup)}
-                                {renderItem("Doa Tutup - Berkat", getOfficer(activeSabat.khotbah, "Khotbah"))}
-                                {renderItem("Pengumuman", "Dept. Komunikasi")}
+                    {/* CONTENT AREA: Tab di Mobile, Grid di Desktop */}
+                    <div className="w-full max-w-6xl mx-auto py-2 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:gap-y-8 lg:items-start">
+                        
+                        <div className={`animate-fade-in ${openSection === 'khotbah' ? 'block' : 'hidden'} lg:block`}>
+                            <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 pb-2"><Icon name="List" className="w-4 h-4 mr-2" /> Khotbah / Umum</h3>
+                            {renderItem("Pemimpin Acara", getOfficer(activeSabat.khotbah, "Pemimpin Acara"), true)}
+                            {renderItem("Sambutan", getOfficer(activeSabat.khotbah, "Pemimpin Acara"))}
+                            {renderItem("Lagu Pengantar", "LS 408 - Berdiam, Berdiam")}
+                            {renderItem("Lagu Sambutan", "LS 1 - Di Hadapan Hadirat-Mu")}
+                            {renderItem("Doa Buka", getOfficer(activeSabat.khotbah, "Khotbah"))}
+                            {renderItem("Ayat Bersahutan", susunan.kAyatBersahutan)}
+                            {renderItem("Lagu Buka", susunan.kLaguBuka)}
+                            {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Doa Syafaat"))}
+                            <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
+                                <p>"LS 516 - Dengar Ya Tuhan"</p>
                             </div>
-                        )}
+                            {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
+                            {susunan.kLaguPujian1_show && renderItem("Lagu Persembahan dan Pujian", susunan.kLaguPujian1_judul)}
+                            {renderItem("Pengumpulan Persembahan", "Diakon Berdiri")}
+                            {renderItem("Doa Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
+                            {susunan.kLaguPujian2_show && renderItem("Lagu Pujian", susunan.kLaguPujian2_judul)}
+                            {renderItem("Cerita Anak-anak", getOfficer(activeSabat.khotbah, "Cerita Anak-anak"))}
+                            {susunan.kLaguPujian3_show && renderItem("Lagu Pujian", susunan.kLaguPujian3_judul)}
+                            {renderItem("Ayat Inti", susunan.kAyatInti)}
+                            {renderItem("Lagu Tema - Jemaat Duduk", "Misi Kita")}
+                            {renderItem("Khotbah", getOfficer(activeSabat.khotbah, "Khotbah"), true)}
+                            {renderItem("Lagu Tutup", susunan.kLaguTutup)}
+                            {renderItem("Doa Tutup - Berkat", getOfficer(activeSabat.khotbah, "Khotbah"))}
+                            {renderItem("Pengumuman", "Dept. Komunikasi")}
+                        </div>
 
-                        {openSection === 'ss' && (
-                            <div className="animate-fade-in">
+                        <div className="flex flex-col gap-8">
+                            <div className={`animate-fade-in ${openSection === 'ss' ? 'block' : 'hidden'} lg:block`}>
+                                <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 pb-2"><Icon name="BookOpen" className="w-4 h-4 mr-2" /> Sekolah Sabat</h3>
                                 {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pemimpin Acara"), true)}
                                 {renderItem("Lagu Buka", susunan.ssLaguBuka)}
                                 {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka"))}
@@ -857,19 +858,17 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
                                     <p>"LS 168 Kita Memiliki Pengharapan"</p>
                                 </div>
                             </div>
-                        )}
 
-                        {openSection === 'diakon' && (
-                            <div className="animate-fade-in">
+                            <div className={`animate-fade-in ${openSection === 'diakon' ? 'block' : 'hidden'} lg:block`}>
+                                <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 pb-2"><Icon name="Users" className="w-4 h-4 mr-2" /> Diakon & Diakones</h3>
                                 {activeSabat.diakon.map((p, idx) => <div key={idx}>{renderItem(p.tugas, p.nama)}</div>)}
                             </div>
-                        )}
 
-                        {openSection === 'musik' && (
-                            <div className="animate-fade-in">
+                            <div className={`animate-fade-in ${openSection === 'musik' ? 'block' : 'hidden'} lg:block`}>
+                                <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 pb-2"><Icon name="Music" className="w-4 h-4 mr-2" /> Pelayanan Musik</h3>
                                 {activeSabat.musik.map((p, idx) => <div key={idx}>{renderItem(p.tugas, p.nama)}</div>)}
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -6443,13 +6442,15 @@ const App = () => {
 
             <main className="flex-1 w-full mx-auto p-4 md:px-8 lg:px-4 pb-32 md:pb-12">
                 {activeTab !== 'home' && !hideGlobalBack && (
-                    <button 
-                        onClick={() => window.history.back()} 
-                        className="mb-6 flex items-center justify-center px-5 py-2.5 bg-white shadow-sm hover:shadow-md border border-navy-100/60 rounded-2xl text-navy-700 hover:text-navy-900 font-bold transition-all gap-2 group w-max"
-                    >
-                        <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                        <span>Kembali</span>
-                    </button>
+                    <div className="sticky top-16 md:top-[4.5rem] z-[35] -mx-4 md:-mx-8 lg:-mx-4 px-4 md:px-8 lg:px-4 py-3 mb-6 bg-gray-50/80 dark:bg-navy-950/80 backdrop-blur-xl border-b border-navy-100/30 dark:border-navy-700/30 shadow-sm transition-all">
+                        <button 
+                            onClick={() => window.history.back()} 
+                            className="flex items-center justify-center px-5 py-2.5 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group w-max"
+                        >
+                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                            <span>Kembali</span>
+                        </button>
+                    </div>
                 )}
                 {renderContent()}
             </main>
