@@ -1329,7 +1329,10 @@ const renderPerjamuanGroup = (title, members) => (
     </div>
 );
 
-const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, perjamuanYMD, activePerjamuan }) => (
+const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, perjamuanYMD, activePerjamuan }) => {
+    const [isPerjamuanExpanded, setIsPerjamuanExpanded] = React.useState(false);
+
+    return (
     <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
         {/* Tombol GDrive Jadwal Lengkap */}
         <div className="bg-white dark:bg-navy-800/70 p-5 md:p-6 rounded-[1.25rem] shadow-sm border border-navy-100/60 dark:border-navy-700 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -1351,21 +1354,30 @@ const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, per
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-navy-900 dark:bg-gold-500 text-gold-500 dark:text-navy-900 text-[10px] font-bold px-4 py-1.5 rounded-b-xl uppercase tracking-widest shadow-sm">
                     Jadwal Spesial
                 </div><br />
-                <div className="flex items-center space-x-3 mb-5 border-b border-amber-200 dark:border-gold-800/50 pb-3 relative z-10">
-                    <div className="w-10 h-10 bg-amber-100 dark:bg-gold-900/40 rounded-full flex items-center justify-center text-amber-600 dark:text-gold-400">
+                <div 
+                    className={`flex items-center space-x-3 cursor-pointer group relative z-10 transition-colors ${isPerjamuanExpanded ? 'mb-5 border-b border-amber-200 dark:border-gold-800/50 pb-3' : ''}`}
+                    onClick={() => setIsPerjamuanExpanded(!isPerjamuanExpanded)}
+                >
+                    <div className="w-10 h-10 bg-amber-100 dark:bg-gold-900/40 rounded-full flex items-center justify-center text-amber-600 dark:text-gold-400 group-hover:scale-110 transition-transform">
                         <Icon name="Gift" className="w-5 h-5" />
                     </div>
-                    <div>
-                        <h2 className="text-xl font-black text-navy-900 dark:text-white leading-tight">Pelayanan Perjamuan Kudus</h2>
+                    <div className="flex-1">
+                        <h2 className="text-xl font-black text-navy-900 dark:text-white leading-tight group-hover:text-amber-700 dark:group-hover:text-gold-300 transition-colors">Pelayanan Perjamuan Kudus</h2>
                         <p className="text-sm font-bold text-navy-700 dark:text-amber-200/90 mt-0.5">{formatIndoDate(perjamuanYMD)}</p>
                     </div>
+                    <div className="text-amber-600 dark:text-gold-400 p-2 rounded-full bg-amber-100/50 dark:bg-gold-900/30 group-hover:bg-amber-200 dark:group-hover:bg-gold-800/50 transition-colors">
+                        <Icon name={isPerjamuanExpanded ? "ChevronUp" : "ChevronDown"} className="w-5 h-5" />
+                    </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
-                    {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 3))}
-                    {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(3, 7))}
-                    {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(7, 11))}
-                    {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(11, 16))}
-                </div>
+                
+                {isPerjamuanExpanded && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10 animate-fade-in">
+                        {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 3))}
+                        {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(3, 7))}
+                        {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(7, 11))}
+                        {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(11, 16))}
+                    </div>
+                )}
             </div>
         )}
 
