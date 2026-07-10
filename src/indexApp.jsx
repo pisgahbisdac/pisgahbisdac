@@ -1485,8 +1485,8 @@ const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPe
 
     return (
         <div className="flex flex-col xl:flex-row gap-6 md:gap-8 animate-fade-in items-start">
-            {/* Kolom Kiri: Video & Perjamuan (Sticky on All Devices) */}
-            <div className="w-full xl:w-[55%] flex flex-col gap-6 md:gap-8 sticky top-[4.5rem] md:top-20 xl:top-24 z-40">
+            {/* Kolom Kiri: Video & Perjamuan (Scrolls normally) */}
+            <div className="w-full xl:w-[55%] flex flex-col gap-6 md:gap-8">
                 <div className="bg-navy-900 rounded-[1.5rem] overflow-hidden shadow-lg p-2.5">
                     <div className="relative w-full rounded-xl overflow-hidden" style={{ paddingTop: '56.25%' }}>
                         <iframe className="absolute top-0 left-0 w-full h-full" src={liveUrl} title="YouTube Live Stream" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen loading="lazy"></iframe>
