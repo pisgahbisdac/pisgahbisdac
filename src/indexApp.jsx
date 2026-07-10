@@ -573,7 +573,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
 
             {/* WARTA JEMAAT (3 Columns Card Layout) */}
             <div className="bg-[#E9EEDF] dark:bg-navy-800/80 rounded-[3.5rem] pt-16 md:pt-24 pb-20 md:pb-28 px-4 md:px-8 mt-10 mb-8 transition-colors duration-500 shadow-sm border border-transparent dark:border-navy-700/50">
-                <div className="w-full mx-auto lg:px-[4vw]">
+                <div className="w-full mx-auto lg:px-4">
                     <div className="text-center mb-12 md:mb-16">
                         <h2 className="text-3xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-4 transition-colors">Berita Terkini?</h2>
                         <p className="text-[#596B4D] dark:text-gray-300 font-medium text-lg max-w-2xl mx-auto transition-colors">Informasi pelayanan, kegiatan gereja, dan kabar sukacita jemaat pekan ini.</p>
@@ -625,7 +625,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                 </div>
 
                 {/* PUSTAKA & VIDEO SECTION */}
-                <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-20 md:mt-28 space-y-16">
+                <div className="w-full mx-auto px-4 md:px-8 lg:px-4 mt-20 md:mt-28 space-y-16">
 
                     {/* Pustaka */}
                     {daftarBuku && daftarBuku.length > 0 && (
