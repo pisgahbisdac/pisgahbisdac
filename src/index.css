@@ -598,8 +598,8 @@
 .bubbles-container {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    overflow: visible;
-    z-index: 1;
+    overflow: hidden;
+    z-index: 0;
     border-radius: inherit;
     pointer-events: none;
 }
@@ -1128,7 +1128,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   #receiptSearchResult .badge { font-size: 11px; padding: 4px 8px; }
 
   .bottom-bar {
-    display: flex; position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 8px); left: 50%; transform: translateX(-50%);
+    display: flex; position: fixed; bottom: env(safe-area-inset-bottom, 0px); left: 50%; transform: translateX(-50%);
     width: calc(100% - 32px); max-width: 512px; 
     border-radius: 28px; z-index: 100; justify-content: space-around; align-items: center; padding: 0 16px; 
     height: 64px;
@@ -1137,18 +1137,6 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
     box-shadow: none;
   }
   
-  @property --hole-x {
-    syntax: '<length-percentage>';
-    inherits: true;
-    initial-value: 50%;
-  }
-  
-  @property --hole-r {
-    syntax: '<length>';
-    inherits: true;
-    initial-value: 0px;
-  }
-
   .bottom-bar::before {
     content: '';
     position: absolute;
@@ -1159,20 +1147,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
     border-radius: inherit;
     box-shadow: var(--shadow-lg, 0 10px 30px rgba(0,0,0,0.1));
     z-index: -10;
-    -webkit-mask: radial-gradient(circle at var(--hole-x) 8px, transparent var(--hole-r), black calc(var(--hole-r) + 1px));
-    mask: radial-gradient(circle at var(--hole-x) 8px, transparent var(--hole-r), black calc(var(--hole-r) + 1px));
-    transition: --hole-x 0.3s cubic-bezier(0.4, 0, 0.2, 1), --hole-r 0.3s ease;
   }
-
-  .bottom-bar:has(.bottom-nav-item.active)::before {
-    --hole-r: 38px;
-  }
-
-  .bottom-bar:has(.bottom-nav-item:nth-child(1).active)::before { --hole-x: 10%; }
-  .bottom-bar:has(.bottom-nav-item:nth-child(2).active)::before { --hole-x: 30%; }
-  .bottom-bar:has(.bottom-nav-item:nth-child(3).active)::before { --hole-x: 50%; }
-  .bottom-bar:has(.bottom-nav-item:nth-child(4).active)::before { --hole-x: 70%; }
-  .bottom-bar:has(.bottom-nav-item:nth-child(5).active)::before { --hole-x: 90%; }
 
   /* Removed hardcoded nth-child for hole-x, handled by JS now */
   .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; cursor: pointer; flex: 1; transition: all 0.3s ease; position: relative; height: 100%; gap: 2px; }
