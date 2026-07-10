@@ -306,6 +306,7 @@ const Icon = ({ name, className }) => {
         ArrowLeft: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg>,
         ChevronRight: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6" /></svg>,
         ChevronDown: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9" /></svg>,
+        ChevronUp: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="18 15 12 9 6 15" /></svg>,
         Check: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12" /></svg>,
         X: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>,
         Edit: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>,
@@ -511,21 +512,26 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                 </div>
 
                 {/* SABAT PERJAMUAN & PERPULUHAN SECTION */}
-                {(showPerjamuan || showPerpuluhan) && (
+                {(showPerjamuan || showPerpuluhan) && (() => {
+                    // Cek tanggal mana yang lebih dekat (lebih awal)
+                    const isPerjamuanEarlier = new Date(perjamuanYMD) <= new Date(perpuluhanYMD);
+                    return (
                     <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
-                        <div className="space-y-4 w-full">
+                        <div className="flex flex-col gap-4 w-full">
                             {showPerjamuan && (
-                                <div className="bg-gradient-to-r from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-5 md:p-6 rounded-[1.5rem] shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in border border-[#C18B35] dark:border-gold-400">
-                                    <div className="text-center sm:text-left text-white dark:text-navy-900">
+                                <div className={`bg-gradient-to-br from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-5 md:p-6 rounded-[1.5rem] shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in border border-[#C18B35] dark:border-gold-400 ${!isPerjamuanEarlier ? 'order-2' : 'order-1'}`}>
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 dark:bg-navy-900/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 dark:bg-navy-900/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                                    <div className="relative z-10 text-center sm:text-left text-white dark:text-navy-900">
                                         <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5"><Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perjamuan</h3>
                                         <p className="text-2xl md:text-3xl font-extrabold opacity-95 tracking-tight">{formatIndoDate(perjamuanYMD)}</p>
                                     </div>
-                                    <button onClick={() => setActiveTab('jadwal')} className="bg-[#4A7045] hover:bg-[#3A5836] dark:bg-navy-900 dark:hover:bg-navy-800 text-white dark:text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">Lihat Petugas</button>
+                                    <button onClick={() => setActiveTab('jadwal')} className="relative z-10 bg-[#4A7045] hover:bg-[#3A5836] dark:bg-navy-900 dark:hover:bg-navy-800 text-white dark:text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">Lihat Petugas</button>
                                 </div>
                             )}
 
                             {showPerpuluhan && (
-                                <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-navy-900 dark:to-navy-800 p-5 md:p-6 rounded-[1.5rem] shadow-lg border border-[#3A5836] dark:border-navy-700/50 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in">
+                                <div className={`bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-navy-900 dark:to-navy-800 p-5 md:p-6 rounded-[1.5rem] shadow-lg border border-[#3A5836] dark:border-navy-700/50 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in ${isPerjamuanEarlier ? 'order-2' : 'order-1'}`}>
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-gold-400/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
                                     <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 dark:bg-gold-400/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
                                     <div className="relative z-10 text-center sm:text-left">
@@ -541,7 +547,8 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                             )}
                         </div>
                     </div>
-                )}
+                    );
+                })()}
 
                 {/* PENGUMUMAN & VISI MISI (Split Layout) */}
                 <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-24 md:mt-32 mb-28 relative">
@@ -1585,6 +1592,7 @@ const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPe
             </div>
         </div>
     );
+    }
 };
 
 const Persembahan = ({ dataPejabat, daftarRekening }) => {
