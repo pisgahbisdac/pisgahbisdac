@@ -517,24 +517,28 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
             )}
 
             {/* PENGUMUMAN & VISI MISI (Split Layout) */}
-            <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-16 md:mt-24 mb-20">
-                <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-20">
-                    {/* Left: Image Card OR Announcement */}
-                    <div className="w-full lg:w-1/2 relative">
-                        <div className="absolute -top-6 -left-6 w-32 h-32 bg-[#E2E8D8] dark:bg-navy-800 rounded-full z-0 transition-colors duration-500"></div>
-                        <div className="relative z-10 bg-white dark:bg-navy-800/70 p-3 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-navy-700 transition-colors duration-500">
+            <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-24 md:mt-32 mb-28 relative">
+                {/* Background Blobs for Glassmorphism Effect */}
+                <div className="absolute top-1/2 left-0 w-72 h-72 bg-[#D19B45]/20 dark:bg-gold-500/10 rounded-full mix-blend-multiply dark:mix-blend-overlay filter blur-3xl opacity-70 animate-pulse transform -translate-y-1/2 z-0"></div>
+                <div className="absolute top-1/2 right-10 w-80 h-80 bg-[#4A7045]/20 dark:bg-navy-500/20 rounded-full mix-blend-multiply dark:mix-blend-overlay filter blur-3xl opacity-70 animate-pulse transform -translate-y-1/2 z-0" style={{ animationDelay: '2s' }}></div>
+                
+                <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24 relative z-10">
+                    {/* Left: Image Card OR Announcement - GLASSMORPHISM */}
+                    <div className="w-full lg:w-1/2 relative group">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-[#4A7045]/30 to-[#D19B45]/30 rounded-[3rem] blur opacity-50 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                        <div className="relative z-10 bg-white/60 dark:bg-navy-800/40 backdrop-blur-2xl p-4 rounded-[2.5rem] shadow-[0_8px_32px_0_rgba(0,0,0,0.05)] border border-white/80 dark:border-white/10 transition-all duration-500 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.1)]">
                             {pengumuman && !isPengumumanReallyEmpty() ? (
-                                <div className="rounded-[2rem] bg-[#F4F7EF] dark:bg-navy-900/50 p-8 min-h-[300px] flex flex-col justify-center items-center text-center relative border border-[#E2E8D8] dark:border-navy-600">
-                                    <div className="absolute top-6 left-6 bg-[#D19B45] dark:bg-gold-600 text-white text-xs font-bold px-4 py-2 rounded-full flex items-center shadow-md">
-                                        <Icon name="Megaphone" className="w-4 h-4 mr-2" /> Pengumuman
+                                <div className="rounded-[2rem] bg-white/50 dark:bg-navy-900/50 p-8 min-h-[300px] flex flex-col justify-center items-center text-center relative border border-white/60 dark:border-navy-600/50 shadow-inner">
+                                    <div className="absolute top-6 left-6 bg-gradient-to-r from-[#D19B45] to-[#B8863B] dark:from-gold-600 dark:to-gold-500 text-white text-xs font-bold px-5 py-2.5 rounded-full flex items-center shadow-lg backdrop-blur-md border border-white/20">
+                                        <Icon name="Megaphone" className="w-4 h-4 mr-2 drop-shadow-sm" /> Pengumuman
                                     </div>
-                                    <h3 className="text-2xl font-bold text-[#2C3F21] dark:text-white mb-6 mt-8">{pengumuman.header || "Pengumuman Pekan Ini"}</h3>
-                                    <div className="text-[#596B4D] dark:text-gray-300 text-base leading-relaxed max-h-[250px] overflow-y-auto custom-scrollbar w-full px-2" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}></div>
+                                    <h3 className="text-3xl font-extrabold text-[#2C3F21] dark:text-white mb-6 mt-10 drop-shadow-sm">{pengumuman.header || "Pengumuman Pekan Ini"}</h3>
+                                    <div className="text-[#596B4D] dark:text-gray-300 text-base leading-relaxed max-h-[250px] overflow-y-auto custom-scrollbar w-full px-4 font-medium" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}></div>
                                 </div>
                             ) : (
-                                <div className="rounded-[2rem] overflow-hidden bg-white dark:bg-navy-900 relative w-full flex items-center justify-center min-h-[250px] shadow-sm">
-                                    <img src={displayImages[0]} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=1000&auto=format&fit=crop"; }} className="w-full h-auto object-contain" alt="Banner" />
-                                    <div className="absolute top-6 left-6 bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-900 text-xs font-bold px-4 py-2 rounded-full flex items-center shadow-md">
+                                <div className="rounded-[2rem] overflow-hidden bg-white/40 dark:bg-navy-900/40 relative w-full flex items-center justify-center min-h-[250px] shadow-inner border border-white/50 dark:border-white/5">
+                                    <img src={displayImages[0]} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=1000&auto=format&fit=crop"; }} className="w-full h-auto object-contain transition-transform duration-700 hover:scale-105" alt="Banner" />
+                                    <div className="absolute top-6 left-6 bg-white/80 dark:bg-navy-800/80 backdrop-blur-md text-[#4A7045] dark:text-gold-400 text-xs font-black px-5 py-2.5 rounded-full flex items-center shadow-lg border border-white/50 dark:border-white/10 tracking-wide uppercase">
                                         <Icon name="Info" className="w-4 h-4 mr-2" /> Informasi
                                     </div>
                                 </div>
@@ -544,27 +548,35 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                         <button
                             onClick={() => window.installPWA && window.installPWA()}
                             title="Instal Aplikasi"
-                            className="absolute -bottom-4 -right-4 bg-white dark:bg-navy-700 hover:bg-[#F4F7EF] dark:hover:bg-navy-600 p-4 rounded-full shadow-lg hover:shadow-xl z-20 flex items-center justify-center border-2 border-[#E2E8D8] dark:border-navy-500 hover:border-[#4A7045] dark:hover:border-gold-500 cursor-pointer group transition-all duration-300 hover:scale-105"
+                            className="absolute -bottom-6 -right-6 bg-white/80 dark:bg-navy-700/80 backdrop-blur-xl p-5 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] z-20 flex items-center justify-center border border-white/60 dark:border-white/10 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 hover:-translate-y-2"
                         >
-                            <Icon name="Download" className="w-8 h-8 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
+                            <Icon name="Download" className="w-7 h-7 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
                         </button>
                     </div>
-
                     {/* Right: Text Content */}
-                    <div className="w-full lg:w-1/2">
-                        <h2 className="text-3xl md:text-5xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-6 tracking-tight leading-[1.2] transition-colors">
-                            Visi & Misi Gereja
-                        </h2>
+                    <div className="w-full lg:w-1/2 relative">
+                        <div className="bg-white/40 dark:bg-navy-800/30 backdrop-blur-xl border border-white/60 dark:border-white/10 p-8 md:p-12 rounded-[2.5rem] shadow-[0_8px_32px_0_rgba(0,0,0,0.03)] hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.08)] transition-all duration-500">
+                            <h2 className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 mb-8 tracking-tight leading-[1.2] drop-shadow-sm">
+                                Visi & Misi Gereja
+                            </h2>
 
-                        <div className="text-[#596B4D] dark:text-gold-200/80 text-base md:text-lg leading-relaxed mb-8 space-y-5 transition-colors">
-                            <p><strong className="dark:text-gold-400">Visi:</strong> Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar selaras sepenuhnya dengan kehendak dan kebenaran-Nya.</p>
-                            <p><strong className="dark:text-gold-400">Misi:</strong> Memanggil semua orang menjadi murid Yesus Kristus, memberitakan Injil kekal, dan mempersiapkan dunia bagi kedatangan-Nya.</p>
-                        </div>
+                            <div className="text-[#4A7045] dark:text-gold-200/90 text-lg md:text-xl leading-relaxed mb-10 space-y-6">
+                                <p className="flex items-start">
+                                    <span className="pt-1"><strong className="text-[#2C3F21] dark:text-gold-300 font-extrabold mr-2">Visi:</strong> Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">selaras sepenuhnya dengan kehendak dan kebenaran-Nya</span>.</span>
+                                </p>
+                                <p className="flex items-start">
+                                    <span className="pt-1"><strong className="text-[#2C3F21] dark:text-gold-300 font-extrabold mr-2">Misi:</strong> <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">Memanggil semua orang menjadi murid Yesus Kristus</span>, <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">memberitakan Injil kekal</span>, dan <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">mempersiapkan dunia bagi kedatangan-Nya</span>.</span>
+                                </p>
+                            </div>
 
-                        <div className="flex gap-4">
-                            <a href="./pembangunan.html" className="bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-900 font-bold py-3.5 px-8 rounded-full transition-colors inline-flex items-center shadow-md">
-                                <Icon name="Home" className="w-5 h-5 mr-2" /> Lihat Progres Pembangunan
-                            </a>
+                            <div className="flex gap-4">
+                                <a href="./pembangunan.html" className="group bg-white/60 dark:bg-navy-700/50 backdrop-blur-md hover:bg-white dark:hover:bg-navy-600 border border-[#4A7045]/20 dark:border-gold-500/30 text-[#4A7045] dark:text-gold-400 font-bold py-4 px-8 rounded-2xl transition-all duration-300 inline-flex items-center shadow-lg hover:shadow-xl hover:-translate-y-1">
+                                    <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-gold-400 dark:to-gold-600 text-white dark:text-navy-900 rounded-xl p-2 mr-4 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                                        <Icon name="Home" className="w-5 h-5" /> 
+                                    </div>
+                                    Lihat Progres Pembangunan
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -5972,6 +5984,22 @@ const App = () => {
     }, []);
     // -----------------------------------------
     const [hideGlobalBack, setHideGlobalBack] = React.useState(false);
+    const [isScrollingDown, setIsScrollingDown] = React.useState(false);
+
+    React.useEffect(() => {
+        let lastScrollY = window.scrollY;
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+            if (currentScrollY > lastScrollY && currentScrollY > 50) {
+                setIsScrollingDown(true);
+            } else if (currentScrollY < lastScrollY) {
+                setIsScrollingDown(false);
+            }
+            lastScrollY = currentScrollY;
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const [jadwalDB, setJadwalDB] = React.useState({});
     const [dataPejabat, setDataPejabat] = React.useState(initialDataPejabat);
@@ -6451,9 +6479,12 @@ const App = () => {
                                 setShowSyncNotif(true);
                             }
                         }}
-                        className="fixed left-4 md:left-6 z-[90] w-10 h-10 md:w-11 md:h-11 bg-navy-800/20 dark:bg-navy-900/40 hover:bg-navy-800/30 dark:hover:bg-navy-900/60 backdrop-blur-md rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-navy-200/50 dark:border-navy-700/50 cursor-pointer shadow-lg group"
+                        className="fixed left-4 md:left-6 z-[90] w-10 h-10 md:w-11 md:h-11 bg-navy-800/20 dark:bg-navy-900/40 hover:bg-navy-800/30 dark:hover:bg-navy-900/60 backdrop-blur-md rounded-full transition-all duration-300 flex items-center justify-center border border-navy-200/50 dark:border-navy-700/50 cursor-pointer shadow-lg group"
                         style={{
-                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.25rem)'
+                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.25rem)',
+                            transform: isScrollingDown ? 'translateY(100px)' : '',
+                            opacity: isScrollingDown ? 0 : 1,
+                            pointerEvents: isScrollingDown ? 'none' : 'auto'
                         }}
                         title="Sinkronisasi Data"
                     >
@@ -6470,9 +6501,12 @@ const App = () => {
                     {/* Floating WhatsApp Button */}
                     <button
                         onClick={() => setActiveTab('hubungi')}
-                        className="fixed right-4 md:right-8 z-[90] w-10 h-10 md:w-11 md:h-11 bg-navy-800/20 dark:bg-navy-900/40 hover:bg-navy-800/30 dark:hover:bg-navy-900/60 backdrop-blur-xl rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-navy-200/50 dark:border-navy-700/50 cursor-pointer shadow-lg group"
+                        className="fixed right-4 md:right-8 z-[90] w-10 h-10 md:w-11 md:h-11 bg-navy-800/20 dark:bg-navy-900/40 hover:bg-navy-800/30 dark:hover:bg-navy-900/60 backdrop-blur-xl rounded-full transition-all duration-300 flex items-center justify-center border border-navy-200/50 dark:border-navy-700/50 cursor-pointer shadow-lg group"
                         style={{
-                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.25rem)'
+                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.25rem)',
+                            transform: isScrollingDown ? 'translateY(100px)' : '',
+                            opacity: isScrollingDown ? 0 : 1,
+                            pointerEvents: isScrollingDown ? 'none' : 'auto'
                         }}
                         title="Hubungi Kami"
                     >
