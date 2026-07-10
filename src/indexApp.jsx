@@ -563,21 +563,23 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                     </div>
                     {/* Right: Text Content */}
                     <div className="w-full lg:w-1/2 relative">
-                        <div className="glass-box rounded-[2.5rem] p-8 md:p-12 transition-all duration-500">
+                        <div className="glass-box rounded-[2.5rem] p-8 md:p-12 transition-all duration-500 flex flex-col items-center text-center">
                             <h2 className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 mb-8 tracking-tight leading-[1.2] drop-shadow-sm">
                                 Visi & Misi Gereja
                             </h2>
 
-                            <div className="text-[#4A7045] dark:text-gold-200/90 text-lg md:text-xl leading-relaxed mb-10 space-y-6">
-                                <p className="flex items-start">
-                                    <span className="pt-1"><strong className="text-[#2C3F21] dark:text-gold-300 font-extrabold mr-2">Visi:</strong> Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">selaras sepenuhnya dengan kehendak dan kebenaran-Nya</span>.</span>
-                                </p>
-                                <p className="flex items-start">
-                                    <span className="pt-1"><strong className="text-[#2C3F21] dark:text-gold-300 font-extrabold mr-2">Misi:</strong> <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">Memanggil semua orang menjadi murid Yesus Kristus</span>, <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">memberitakan Injil kekal</span>, dan <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">mempersiapkan dunia bagi kedatangan-Nya</span>.</span>
-                                </p>
+                            <div className="text-[#4A7045] dark:text-gold-200/90 text-lg md:text-xl leading-relaxed mb-10 space-y-10 w-full">
+                                <div className="flex flex-col items-center">
+                                    <span className="inline-block px-5 py-2 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-sm mb-4 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Visi</span> 
+                                    <span className="pt-1">Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">selaras sepenuhnya dengan kehendak dan kebenaran-Nya</span>.</span>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    <span className="inline-block px-5 py-2 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-sm mb-4 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Misi</span> 
+                                    <span className="pt-1"><span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">Memanggil semua orang menjadi murid Yesus Kristus</span>, <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">memberitakan Injil kekal</span>, dan <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">mempersiapkan dunia bagi kedatangan-Nya</span>.</span>
+                                </div>
                             </div>
 
-                            <div className="flex gap-4">
+                            <div className="flex gap-4 mt-2">
                                 <a href="./pembangunan.html" className="group bg-white/60 dark:bg-navy-700/50 backdrop-blur-md hover:bg-white dark:hover:bg-navy-600 border border-[#4A7045]/20 dark:border-gold-500/30 text-[#4A7045] dark:text-gold-400 font-bold py-4 px-8 rounded-2xl transition-all duration-300 inline-flex items-center shadow-lg hover:shadow-xl hover:-translate-y-1">
                                     <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-gold-400 dark:to-gold-600 text-white dark:text-navy-900 rounded-xl p-2 mr-4 group-hover:scale-110 transition-transform duration-300 shadow-md">
                                         <Icon name="Home" className="w-5 h-5" /> 
