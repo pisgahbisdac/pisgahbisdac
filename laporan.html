@@ -1535,6 +1535,20 @@
     </div>
   </button>
   <div id="printContainer" style="display:none;"></div>
+  <script>
+    let _laporanLastScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      const currentScrollY = window.scrollY;
+      const fab = document.getElementById('floatingSyncBtn');
+      if (fab) {
+        if (currentScrollY > _laporanLastScrollY && currentScrollY > 50) {
+          fab.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+        } else if (currentScrollY < _laporanLastScrollY) {
+          fab.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+        }
+      }
+      _laporanLastScrollY = currentScrollY;
+    }, { passive: true });
+  </script>
 </body>
-
 </html>

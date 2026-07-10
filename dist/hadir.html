@@ -47,10 +47,10 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
-  <script type="module" crossorigin src="/assets/hadir-Dd0RCVKW.js"></script>
+  <script type="module" crossorigin src="/assets/hadir-CiZ-BHvu.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="modulepreload" crossorigin href="/assets/jsx-runtime-ByBz4OXm.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-CzypYqY4.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-D_kmsaS3.css">
 </head>
 
 <body
@@ -90,6 +90,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
 
 
+    <script>
+        let _hadirLastScrollY = window.scrollY;
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            const fabs = document.querySelectorAll('#floatingSyncBtn, .floating-btn');
+            fabs.forEach(fab => {
+                if (currentScrollY > _hadirLastScrollY && currentScrollY > 50) {
+                    fab.style.transform = 'translateY(100px)';
+                    fab.style.opacity = '0';
+                    fab.style.pointerEvents = 'none';
+                } else if (currentScrollY < _hadirLastScrollY) {
+                    fab.style.transform = '';
+                    fab.style.opacity = '1';
+                    fab.style.pointerEvents = 'auto';
+                }
+            });
+            _hadirLastScrollY = currentScrollY;
+        }, { passive: true });
+    </script>
 </body>
 
 </html>

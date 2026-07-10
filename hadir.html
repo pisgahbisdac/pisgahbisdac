@@ -87,6 +87,25 @@
 
 
     <script type="module" src="/src/hadir.jsx"></script>
+    <script>
+        let _hadirLastScrollY = window.scrollY;
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            const fabs = document.querySelectorAll('#floatingSyncBtn, .floating-btn');
+            fabs.forEach(fab => {
+                if (currentScrollY > _hadirLastScrollY && currentScrollY > 50) {
+                    fab.style.transform = 'translateY(100px)';
+                    fab.style.opacity = '0';
+                    fab.style.pointerEvents = 'none';
+                } else if (currentScrollY < _hadirLastScrollY) {
+                    fab.style.transform = '';
+                    fab.style.opacity = '1';
+                    fab.style.pointerEvents = 'auto';
+                }
+            });
+            _hadirLastScrollY = currentScrollY;
+        }, { passive: true });
+    </script>
 </body>
 
 </html>

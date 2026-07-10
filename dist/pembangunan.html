@@ -24,7 +24,7 @@
     
 
     
-  <link rel="stylesheet" crossorigin href="/assets/index-CzypYqY4.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-D_kmsaS3.css">
 </head>
 
 <body class="font-sans antialiased text-stone-300 relative leading-relaxed overflow-x-hidden page-pembangunan">
@@ -1142,7 +1142,7 @@
                         <div class="flex gap-2 w-full md:w-auto">
                             ${item.bukti ? `<a href="${item.bukti}" target="_blank" class="flex-1 md:flex-none border border-gold-500/20 hover:border-gold-500/50 bg-navy-700 text-stone-300 text-xs font-semibold tracking-wider px-4 py-2 uppercase text-center">Bukti</a>` : ''}
                             ${item.status !== 'Confirmed'
-                            ? `<button onclick="confirmDonasiAdmin(event, '${item.id || item.rowIdx}', ${item.jumlah || 0})" class="flex-1 md:flex-none bg-gold-500 text-navy-800 text-xs font-bold tracking-wider px-4 py-2 uppercase">Setujui</button>`
+                            ? `<button onclick="confirmDonasiAdmin(event, '${item.id || item.rowIdx}', '${item.jumlah || 0}')" class="flex-1 md:flex-none bg-gold-500 text-navy-800 text-xs font-bold tracking-wider px-4 py-2 uppercase">Setujui</button>`
                             : ''
                         }
                         </div>
@@ -1163,7 +1163,11 @@
             const orig = btn.innerHTML;
             btn.innerHTML = 'PROSES...';
             btn.disabled = true;
-            const res = await api.req({ action: 'confirmDonasi', id: idOrRowIdx, rowIdx: idOrRowIdx, jumlah: jumlah });
+            
+            // Clean up jumlah to ensure it's a valid number for the backend
+            const cleanJumlah = Number(jumlah.toString().replace(/[^0-9]/g, '')) || 0;
+            
+            const res = await api.req({ action: 'confirmDonasi', id: idOrRowIdx, rowIdx: idOrRowIdx, jumlah: cleanJumlah });
             if (res && res.success) {
                 showToast('Donasi berhasil disetujui!', 'fa-check-double');
                 loadKonfirmasiAdmin();
@@ -1687,6 +1691,24 @@
         };
     </script>
     
+    <script>
+        let _pembangunanLastScrollY = window.scrollY;
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            const fab = document.getElementById('floatingSyncBtn');
+            if (fab) {
+                if (currentScrollY > _pembangunanLastScrollY && currentScrollY > 50) {
+                    fab.style.transform = 'translateY(100px)';
+                    fab.style.opacity = '0';
+                    fab.style.pointerEvents = 'none';
+                } else if (currentScrollY < _pembangunanLastScrollY) {
+                    fab.style.transform = '';
+                    fab.style.opacity = '1';
+                    fab.style.pointerEvents = 'auto';
+                }
+            }
+            _pembangunanLastScrollY = currentScrollY;
+        }, { passive: true });
+    </script>
 </body>
-
 </html>

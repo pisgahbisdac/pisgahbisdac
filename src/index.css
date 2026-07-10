@@ -610,7 +610,7 @@
     border-radius: 50%;
     box-shadow: 0 8px 32px rgba(74, 112, 69, 0.2);
     animation: float-up linear infinite;
-    bottom: -250px;
+    top: 110%;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
@@ -621,11 +621,11 @@
 }
 
 @keyframes float-up {
-    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    0% { top: 105%; transform: translateX(0); opacity: 0; }
     10% { opacity: 1; }
-    50% { transform: translateY(-1500px) translateX(35px); opacity: 1; }
+    50% { transform: translateX(35px); opacity: 1; }
     90% { opacity: 1; }
-    100% { transform: translateY(-3500px) translateX(-35px); opacity: 0; }
+    100% { top: 0%; transform: translateX(-35px); opacity: 0; }
 }
 
 .bubble-1 { left: 5%; width: 80px; height: 80px; animation-duration: 15s; animation-delay: 0s; }

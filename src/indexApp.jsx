@@ -1338,6 +1338,7 @@ const renderPerjamuanGroup = (title, members) => (
 
 const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, perjamuanYMD, activePerjamuan }) => {
     const [isPerjamuanExpanded, setIsPerjamuanExpanded] = React.useState(false);
+    const isRabuEarlier = new Date(rabuYMD) <= new Date(sabatYMD);
 
     return (
     <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
@@ -1388,8 +1389,9 @@ const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, per
             </div>
         )}
 
-        {/* Rabu */}
-        <div className="bg-white dark:bg-navy-800/70 p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 dark:border-navy-700 relative overflow-hidden group">
+        <div className="flex flex-col gap-6 md:gap-8">
+            {/* Rabu */}
+            <div className={`bg-white dark:bg-navy-800/70 p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 dark:border-navy-700 relative overflow-hidden group ${isRabuEarlier ? 'order-1' : 'order-2'}`}>
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-5 border-b pb-4 border-navy-50 dark:border-navy-700">
                 <div className="flex items-center space-x-3">
                     <Icon name="Calendar" className="w-[1.4rem] h-[1.4rem] text-gold-500" />
@@ -1410,8 +1412,8 @@ const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, per
             </div>
         </div>
 
-        {/* Sabat */}
-        <div className="bg-white dark:bg-navy-800/70 p-5 md:p-7 rounded-[1.5rem] shadow-sm border-t-[6px] border-navy-800 dark:border-gold-600 border-x border-b border-navy-100/60 dark:border-navy-700 relative">
+            {/* Sabat */}
+            <div className={`bg-white dark:bg-navy-800/70 p-5 md:p-7 rounded-[1.5rem] shadow-sm border-t-[6px] border-navy-800 dark:border-gold-600 border-x border-b border-navy-100/60 dark:border-navy-700 relative ${isRabuEarlier ? 'order-2' : 'order-1'}`}>
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 border-b pb-4 border-navy-50 dark:border-navy-700">
                 <div className="flex items-center space-x-3">
                     <Icon name="Calendar" className="w-[1.4rem] h-[1.4rem] text-gold-500" />
@@ -1485,7 +1487,9 @@ const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, per
             </div>
         </div>
     </div>
-);
+    </div>
+    );
+};
 
 const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, perjamuanYMD, activePerjamuan, liveUrl }) => {
     const today = new Date();
@@ -1592,7 +1596,6 @@ const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPe
             </div>
         </div>
     );
-    }
 };
 
 const Persembahan = ({ dataPejabat, daftarRekening }) => {

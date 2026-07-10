@@ -1644,7 +1644,7 @@
       const persentaseBangun = (calcBangun / targetPembangunan) * 100; const visualPercentBangun = persentaseBangun > 100 ? 100 : persentaseBangun;
 
       const targetKomitmen = (systemConfig.komitmen_target !== undefined && systemConfig.komitmen_target !== '') ? parseInt(systemConfig.komitmen_target) : (pembangunanDataCache?.komitmen_target ? parseInt(pembangunanDataCache.komitmen_target) : 77300000);
-      const komitmenSaatIni = (systemConfig.komitmen_realisasi !== undefined && systemConfig.komitmen_realisasi !== '') ? parseInt(systemConfig.komitmen_realisasi) : (pembangunanDataCache?.komitmen_realisasi ? parseInt(pembangunanDataCache.komitmen_realisasi) : 63356900);
+      let komitmenSaatIni = (systemConfig.komitmen_realisasi !== undefined && systemConfig.komitmen_realisasi !== '') ? parseInt(systemConfig.komitmen_realisasi) : (pembangunanDataCache?.komitmen_realisasi ? parseInt(pembangunanDataCache.komitmen_realisasi) : 63356900);
       if ((systemConfig.komitmen_realisasi === undefined || systemConfig.komitmen_realisasi === '') && komitmenSaatIni === 53376900) komitmenSaatIni = 63356900; // Force update pending API cache sync
       const persentaseKomitmen = (komitmenSaatIni / targetKomitmen) * 100;
       const visualPercentKomitmen = persentaseKomitmen > 100 ? 100 : persentaseKomitmen;
