@@ -520,8 +520,8 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
             {/* PENGUMUMAN & VISI MISI (Split Layout) */}
             <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-24 md:mt-32 mb-28 relative">
                 {/* Background Blobs for Glassmorphism Effect */}
-                <div className="absolute top-1/2 left-0 w-72 h-72 bg-[#D19B45]/20 dark:bg-gold-500/10 rounded-full mix-blend-multiply dark:mix-blend-overlay filter blur-3xl opacity-70 animate-pulse transform -translate-y-1/2 z-0"></div>
-                <div className="absolute top-1/2 right-10 w-80 h-80 bg-[#4A7045]/20 dark:bg-navy-500/20 rounded-full mix-blend-multiply dark:mix-blend-overlay filter blur-3xl opacity-70 animate-pulse transform -translate-y-1/2 z-0" style={{ animationDelay: '2s' }}></div>
+                <div className="absolute inset-y-0 -left-10 lg:left-0 w-full lg:w-3/5 bg-gradient-to-r from-[#D19B45]/20 to-[#4A7045]/10 dark:from-gold-500/15 dark:to-navy-500/15 rounded-[100%] mix-blend-multiply dark:mix-blend-overlay filter blur-3xl opacity-70 animate-pulse z-0 scale-110"></div>
+                <div className="absolute inset-y-0 -right-10 lg:right-0 w-full lg:w-3/5 bg-gradient-to-l from-[#4A7045]/20 to-[#D19B45]/10 dark:from-navy-500/15 dark:to-gold-500/15 rounded-[100%] mix-blend-multiply dark:mix-blend-overlay filter blur-3xl opacity-70 animate-pulse z-0 scale-110" style={{ animationDelay: '2s' }}></div>
                 
                 <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24 relative z-10">
                     {/* Left: Image Card OR Announcement - GLASSMORPHISM */}
