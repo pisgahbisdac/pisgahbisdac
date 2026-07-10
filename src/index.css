@@ -622,10 +622,10 @@
 
 @keyframes float-up {
     0% { transform: translateY(0) translateX(0); opacity: 0; }
-    15% { opacity: 1; }
-    50% { transform: translateY(-700px) translateX(35px); opacity: 1; }
-    85% { opacity: 1; }
-    100% { transform: translateY(-1500px) translateX(-35px); opacity: 0; }
+    10% { opacity: 1; }
+    50% { transform: translateY(-1500px) translateX(35px); opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-3500px) translateX(-35px); opacity: 0; }
 }
 
 .bubble-1 { left: 5%; width: 80px; height: 80px; animation-duration: 15s; animation-delay: 0s; }

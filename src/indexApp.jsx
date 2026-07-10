@@ -433,9 +433,20 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
     };
 
     return (
-        <div className="animate-fade-in relative z-10 bg-[#FAFAFA] dark:bg-transparent text-[#2C3F21] dark:text-gray-100 font-sans pb-16 transition-colors duration-500">
+        <div className="animate-fade-in relative z-10 bg-[#FAFAFA] dark:bg-transparent text-[#2C3F21] dark:text-gray-100 font-sans pb-16 transition-colors duration-500 overflow-hidden">
+            {/* Global Floating Bubbles Background for Home Page */}
+            <div className="bubbles-container">
+                <div className="floating-bubble bubble-1"></div>
+                <div className="floating-bubble bubble-2"></div>
+                <div className="floating-bubble bubble-3"></div>
+                <div className="floating-bubble bubble-4"></div>
+                <div className="floating-bubble bubble-5"></div>
+                <div className="floating-bubble bubble-6"></div>
+                <div className="floating-bubble bubble-7"></div>
+                <div className="floating-bubble bubble-8"></div>
+            </div>
 
-            <div className="pt-6 px-4 md:px-8 lg:px-[6vw] w-full mx-auto">
+            <div className="pt-6 px-4 md:px-8 lg:px-[6vw] w-full mx-auto relative z-10">
 
                 {/* HERO SECTION */}
                 <div className="relative rounded-[2rem] overflow-hidden shadow-xl border-4 border-[#E2E8D8] dark:border-navy-700 aspect-[4/5] sm:aspect-square md:aspect-[4/3] lg:aspect-[21/9] w-full bg-[#E5E9D8] dark:bg-navy-800 transition-colors duration-500">
@@ -519,17 +530,6 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
 
             {/* PENGUMUMAN & VISI MISI (Split Layout) */}
             <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-24 md:mt-32 mb-28 relative">
-                {/* Animated Floating Bubbles Background */}
-                <div className="bubbles-container">
-                    <div className="floating-bubble bubble-1"></div>
-                    <div className="floating-bubble bubble-2"></div>
-                    <div className="floating-bubble bubble-3"></div>
-                    <div className="floating-bubble bubble-4"></div>
-                    <div className="floating-bubble bubble-5"></div>
-                    <div className="floating-bubble bubble-6"></div>
-                    <div className="floating-bubble bubble-7"></div>
-                    <div className="floating-bubble bubble-8"></div>
-                </div>
 
                 <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24 relative z-10">
                     {/* Left: Image Card OR Announcement - GLASSMORPHISM */}
