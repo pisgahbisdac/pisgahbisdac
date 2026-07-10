@@ -565,17 +565,6 @@
   position: relative;
   z-index: 1;
 }
-.glass-box::before {
-  content: "";
-  position: absolute;
-  top: 12px; left: 12px; right: 12px; bottom: 12px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
-  z-index: -1;
-  pointer-events: none;
-}
 .glass-box:hover {
   box-shadow: 0 8px 25px rgba(11, 26, 48, 0.12), inset 0 1px 1px rgba(255, 255, 255, 1) !important;
   border-color: var(--primary) !important;
@@ -589,27 +578,12 @@
   position: relative;
   z-index: 1;
 }
-.glass-box-lg::before {
-  content: "";
-  position: absolute;
-  top: 16px; left: 16px; right: 16px; bottom: 16px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
-  z-index: -1;
-  pointer-events: none;
-}
 
 /* Dark Mode Variations for Index App */
 .dark .glass-box {
   background: linear-gradient(135deg, rgba(30, 34, 45, 0.8) 0%, rgba(30, 34, 45, 0.4) 100%) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
-}
-.dark .glass-box::before {
-  background: rgba(15, 23, 42, 0.6);
-  border-color: rgba(255, 255, 255, 0.05);
 }
 .dark .glass-box:hover {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
@@ -619,6 +593,47 @@
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
 }
+
+/* Animated Floating Bubbles Background */
+.bubbles-container {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.floating-bubble {
+    position: absolute;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.2));
+    border-radius: 50%;
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.3);
+    animation: float-up linear infinite;
+    bottom: -20%;
+    opacity: 0.6;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.dark .floating-bubble {
+    background: radial-gradient(circle at 30% 30%, rgba(212, 175, 55, 0.5), rgba(212, 175, 55, 0.1));
+    box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+}
+
+@keyframes float-up {
+    0% { transform: translateY(0) scale(0.8) translateX(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    50% { transform: translateY(-50vh) scale(1.2) translateX(20px); }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-120vh) scale(0.8) translateX(-20px); opacity: 0; }
+}
+
+.bubble-1 { left: 10%; width: 60px; height: 60px; animation-duration: 12s; animation-delay: 0s; }
+.bubble-2 { left: 30%; width: 100px; height: 100px; animation-duration: 18s; animation-delay: 2s; }
+.bubble-3 { left: 60%; width: 45px; height: 45px; animation-duration: 15s; animation-delay: 4s; }
+.bubble-4 { left: 80%; width: 120px; height: 120px; animation-duration: 22s; animation-delay: 1s; }
+.bubble-5 { left: 45%; width: 80px; height: 80px; animation-duration: 16s; animation-delay: 6s; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body.page-laporan { font-family: 'Inter', sans-serif; background: var(--bg-deep); color: var(--text); min-height: 100vh; display: flex; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
