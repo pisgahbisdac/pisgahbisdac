@@ -526,16 +526,14 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                     <div className="floating-bubble bubble-3"></div>
                     <div className="floating-bubble bubble-4"></div>
                     <div className="floating-bubble bubble-5"></div>
+                    <div className="floating-bubble bubble-6"></div>
+                    <div className="floating-bubble bubble-7"></div>
+                    <div className="floating-bubble bubble-8"></div>
                 </div>
 
-                {/* Background Blobs for Glassmorphism Effect */}
-                <div className="absolute inset-y-0 -left-10 lg:left-0 w-full lg:w-3/5 bg-gradient-to-r from-[#D19B45]/50 to-[#4A7045]/30 dark:from-gold-500/30 dark:to-navy-500/30 rounded-[100%] filter blur-3xl opacity-100 animate-pulse z-0 scale-110"></div>
-                <div className="absolute inset-y-0 -right-10 lg:right-0 w-full lg:w-3/5 bg-gradient-to-l from-[#4A7045]/50 to-[#D19B45]/30 dark:from-navy-500/30 dark:to-gold-500/30 rounded-[100%] filter blur-3xl opacity-100 animate-pulse z-0 scale-110" style={{ animationDelay: '2s' }}></div>
-                
                 <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24 relative z-10">
                     {/* Left: Image Card OR Announcement - GLASSMORPHISM */}
                     <div className="w-full lg:w-1/2 relative group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-[#4A7045]/30 to-[#D19B45]/30 rounded-[3rem] blur opacity-50 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
                         <div className="relative z-10 bg-white/60 dark:bg-navy-800/40 backdrop-blur-2xl p-4 rounded-[2.5rem] shadow-[0_8px_32px_0_rgba(0,0,0,0.05)] border border-white/80 dark:border-white/10 transition-all duration-500 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.1)]">
                             {pengumuman && !isPengumumanReallyEmpty() ? (
                                 <div className="rounded-[2rem] bg-white/50 dark:bg-navy-900/50 p-8 min-h-[300px] flex flex-col justify-center items-center text-center relative border border-white/60 dark:border-navy-600/50 shadow-inner">
