@@ -1037,11 +1037,16 @@ const DetailEGW = ({ setActiveTab, dataPejabat }) => (
     </div>
 );
 
-const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpened }) => {
+const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpened, setHideGlobalBack }) => {
     const [selectedBook, setSelectedBook] = React.useState(initialBook || null);
     const [booksFromServer, setBooksFromServer] = React.useState([]);
     const [isLoadingBooks, setIsLoadingBooks] = React.useState(true);
     const [searchQuery, setSearchQuery] = React.useState(''); // State ini sebelumnya hilang
+
+    React.useEffect(() => {
+        if (setHideGlobalBack) setHideGlobalBack(!!selectedBook);
+        return () => { if (setHideGlobalBack) setHideGlobalBack(false); }
+    }, [selectedBook, setHideGlobalBack]);
 
     // Reset initialBook ketika dibuka dari menu pencarian
     React.useEffect(() => {
@@ -2213,9 +2218,14 @@ const GaleriPublik = () => {
     );
 };
 // ========== WARTA PAGE DENGAN THUMBNAIL & MODAL (6 per halaman) ==========
-const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta }) => {
+const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta, setHideGlobalBack }) => {
     const [showGallery, setShowGallery] = React.useState(false);
     const [currentPage, setCurrentPage] = React.useState(1);
+
+    React.useEffect(() => {
+        if (setHideGlobalBack) setHideGlobalBack(!!selectedWarta || showGallery);
+        return () => { if (setHideGlobalBack) setHideGlobalBack(false); }
+    }, [selectedWarta, showGallery, setHideGlobalBack]);
 
     // State untuk fitur Modal (Pop-up Detail Warta)
     const [modalSlide, setModalSlide] = React.useState(0);
@@ -5961,6 +5971,7 @@ const App = () => {
         return () => window.removeEventListener('popstate', handlePopState);
     }, []);
     // -----------------------------------------
+    const [hideGlobalBack, setHideGlobalBack] = React.useState(false);
 
     const [jadwalDB, setJadwalDB] = React.useState({});
     const [dataPejabat, setDataPejabat] = React.useState(initialDataPejabat);
@@ -6298,8 +6309,8 @@ const App = () => {
             case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'belajar_egw': return <DetailEGW setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
-            case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} initialBook={initialBook} onBookOpened={() => setInitialBook(null)} />;
-            case 'warta': return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta} selectedWarta={selectedWartaDetail} setSelectedWarta={setSelectedWartaDetail} />;
+            case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} initialBook={initialBook} onBookOpened={() => setInitialBook(null)} setHideGlobalBack={setHideGlobalBack} />;
+            case 'warta': return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta} selectedWarta={selectedWartaDetail} setSelectedWarta={setSelectedWartaDetail} setHideGlobalBack={setHideGlobalBack} />;
             case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} liveUrl={liveUrl} />;
             case 'jadwal': return <Jadwal activeRabu={jadwalKhususRabu} activeSabat={jadwalKhususSabat} rabuYMD={displayRabuYMD} sabatYMD={displaySabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} />;
             case 'persembahan': return <Persembahan dataPejabat={dataPejabat} daftarRekening={daftarRekening} />;
@@ -6395,9 +6406,9 @@ const App = () => {
             )}
 
             <main className="flex-1 w-full mx-auto p-4 md:px-8 lg:px-4 pb-32 md:pb-12">
-                {activeTab !== 'home' && (
+                {activeTab !== 'home' && !hideGlobalBack && (
                     <button 
-                        onClick={() => setActiveTab('home')} 
+                        onClick={() => window.history.back()} 
                         className="mb-6 flex items-center justify-center px-5 py-2.5 bg-white shadow-sm hover:shadow-md border border-navy-100/60 rounded-2xl text-navy-700 hover:text-navy-900 font-bold transition-all gap-2 group w-max"
                     >
                         <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
