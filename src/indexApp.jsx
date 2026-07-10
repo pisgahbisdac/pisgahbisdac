@@ -942,7 +942,10 @@ const Belajar = ({ setActiveTab }) => {
                                 </a>
                             ) : (
                                 <button onClick={() => setActiveTab(`belajar_${item.id}`)} className="w-full py-3.5 rounded-xl font-bold transition-all duration-300 flex items-center justify-center space-x-2 bg-navy-50 hover:bg-navy-100 text-navy-800">
-                                    <span className="tracking-wide">Pelajari Detail</span><Icon name="BookOpen" className="w-[1.15rem] h-[1.15rem]" />
+                                    <span className="tracking-wide">
+                                        {item.id === 'perpustakaan' ? 'Baca Buku' : 'Pelajari Detail'}
+                                    </span>
+                                    <Icon name="BookOpen" className="w-[1.15rem] h-[1.15rem]" />
                                 </button>
                             )}
                         </div>
