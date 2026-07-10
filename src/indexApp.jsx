@@ -2275,7 +2275,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
     const [modalSlide, setModalSlide] = React.useState(0);
     const [imageErrors, setImageErrors] = React.useState({});
 
-    const ITEMS_PER_PAGE = 6;
+    const ITEMS_PER_PAGE = 12;
 
     // Reset ke halaman 1 setiap kali daftarWarta berubah
     React.useEffect(() => {
@@ -2423,8 +2423,8 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                     </div>
                 ) : (
                     <>
-                        {/* GRID KARTU WARTA (2 KOLOM) */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                        {/* GRID KARTU WARTA (4 KOLOM) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
                             {paginatedWarta.map((warta) => {
                                 const rawUrls = parseGambarUrls(warta.gambarUrl);
                                 const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
@@ -2481,7 +2481,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                                                     <Icon name="Edit" className="w-3 h-3 mr-1 text-gold-400" />
                                                     {warta.penulis || 'Admin'}
                                                 </span>
-                                                <span className="text-[10px] text-gold-600 font-bold uppercase tracking-widest flex items-center group-hover:text-navy-900 transition-colors">
+                                                <span className="bg-gold-500 hover:bg-gold-600 text-white dark:text-navy-900 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center shadow-sm transition-colors group-hover:shadow-md">
                                                     Baca <Icon name="ChevronRight" className="w-3 h-3 ml-0.5" />
                                                 </span>
                                             </div>
