@@ -286,6 +286,9 @@ const Icon = ({ name, className }) => {
         Sun: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg>,
         Moon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>,
         Home: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>,
+        ClipboardCheck: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>,
+        Church: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m18 7 4 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9l4-2" /><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4" /><path d="M18 22V5l-6-3-6 3v17" /><path d="M12 7v5" /><path d="M10 9h4" /></svg>,
+        BarChart: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 3v18h18" /><path d="M18 17V9" /><path d="M13 17V5" /><path d="M8 17v-3" /></svg>,
         BookOpen: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>,
         Warta: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" /><path d="M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14" /><path d="M8 6v8" /></svg>,
         Video: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 8-6 4 6 4V8Z" /><rect width="14" height="12" x="2" y="6" rx="2" ry="2" /></svg>,
@@ -410,8 +413,8 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
         { id: 'keanggotaan', label: 'Keanggotaan', icon: 'Users' },
         { id: 'susunan_ibadah', label: 'Susunan Ibadah', icon: 'List' },
         { id: 'persembahan', label: 'Persembahan', icon: 'Gift' },
-        { id: 'kehadiran', label: 'Kehadiran', icon: 'ListOrdered', isSameTab: true, link: './hadir.html' },
-        { id: 'laporan', label: 'Laporan Keuangan', icon: 'Megaphone', isSameTab: true, link: './laporan.html' },
+        { id: 'kehadiran', label: 'Kehadiran', icon: 'ClipboardCheck', isSameTab: true, link: './hadir.html' },
+        { id: 'laporan', label: 'Laporan Keuangan', icon: 'BarChart', isSameTab: true, link: './laporan.html' },
         { id: 'hubungi', label: 'Kontak', icon: 'Phone' },
     ];
 
@@ -433,271 +436,284 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
     };
 
     return (
-        <div className="animate-fade-in relative z-10 bg-[#FAFAFA] dark:bg-transparent text-[#2C3F21] dark:text-gray-100 font-sans pb-16 transition-colors duration-500 overflow-hidden">
-            {/* Global Floating Bubbles Background for Home Page */}
-            <div className="bubbles-container">
-                <div className="floating-bubble bubble-1"></div>
-                <div className="floating-bubble bubble-2"></div>
-                <div className="floating-bubble bubble-3"></div>
-                <div className="floating-bubble bubble-4"></div>
-                <div className="floating-bubble bubble-5"></div>
-                <div className="floating-bubble bubble-6"></div>
-                <div className="floating-bubble bubble-7"></div>
-                <div className="floating-bubble bubble-8"></div>
-            </div>
+        <div className="animate-fade-in relative z-10 bg-[#FAFAFA] dark:bg-transparent text-[#2C3F21] dark:text-gray-100 font-sans pb-16 transition-colors duration-500">
+            {/* Wrapper to restrict bubbles to only float up from the green Warta box to the Carousel */}
+            <div className="relative overflow-hidden w-full pb-10">
+                {/* Global Floating Bubbles Background for Home Page */}
+                <div className="bubbles-container">
+                    <div className="floating-bubble bubble-1"></div>
+                    <div className="floating-bubble bubble-2"></div>
+                    <div className="floating-bubble bubble-3"></div>
+                    <div className="floating-bubble bubble-4"></div>
+                    <div className="floating-bubble bubble-5"></div>
+                    <div className="floating-bubble bubble-6"></div>
+                    <div className="floating-bubble bubble-7"></div>
+                    <div className="floating-bubble bubble-8"></div>
+                </div>
 
-            <div className="pt-6 px-4 md:px-8 lg:px-[6vw] w-full mx-auto relative z-10">
+                <div className="pt-6 px-4 md:px-8 lg:px-[6vw] w-full mx-auto relative z-10">
 
-                {/* HERO SECTION */}
-                <div className="relative rounded-[2rem] overflow-hidden shadow-xl border-4 border-[#E2E8D8] dark:border-navy-700 aspect-[4/5] sm:aspect-square md:aspect-[4/3] lg:aspect-[21/9] w-full bg-[#E5E9D8] dark:bg-navy-800 transition-colors duration-500">
-                    <div
-                        className="w-full h-full flex transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]"
-                        style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                    >
-                        {displayImages.map((img, idx) => (
-                            <img key={idx} src={img} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=2000&auto=format&fit=crop"; }} alt={`Hero ${idx}`} className="w-full h-full object-cover flex-shrink-0" />
-                        ))}
-                    </div>
-                    {/* Dark overlay for center text readability */}
-                    <div className="absolute inset-0 bg-black/40 z-10 pointer-events-none"></div>
-
-                    <div className="absolute top-[8%] md:top-[12%] left-1/2 -translate-x-1/2 w-full max-w-[90%] md:max-w-3xl flex flex-col items-center text-center z-20">
-                        <div className="hidden md:inline-flex bg-white/20 backdrop-blur-md text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-[1rem] items-center mb-6">
-                            <Icon name="Home" className="w-4 h-4 mr-2" /> Gereja Masehi Advent Hari Ketujuh
-                        </div>
-                        <div className="md:hidden bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold px-3 py-1.5 rounded-[0.75rem] inline-flex items-center mb-3">
-                            <Icon name="Home" className="w-3 h-3 mr-1.5" /> GMAHK Pisgah
-                        </div>
-                        <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.15] mb-3 md:mb-6 tracking-tight">
-                            Temukan Damai<br className="hidden md:block" /> Bersama Tuhan
-                        </h1>
-                        <p className="text-white/90 text-xs md:text-lg mb-6 md:mb-8 leading-relaxed font-medium">
-                            Jemaat Pisgah BISDAC, mari beribadah, melayani, dan bertumbuh dalam iman.
-                        </p>
-                        <button onClick={() => setActiveTab('susunan_ibadah')} className="bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-900 text-sm md:text-base font-bold py-2.5 md:py-4 px-6 md:px-10 rounded-full transition-colors flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-1 duration-300 w-fit">
-                            Ibadah Sekarang <Icon name="ChevronRight" className="w-4 h-4 md:w-5 md:h-5 ml-1.5 md:ml-2" />
-                        </button>
-                    </div>
-
-                    {/* Carousel Controls */}
-                    {displayImages.length > 1 && (
-                        <div className="absolute bottom-10 md:bottom-14 lg:bottom-24 left-0 w-full flex justify-center gap-2 z-20">
-                            {displayImages.map((_, idx) => (
-                                <button key={idx} onClick={() => setCurrentSlide(idx)} className={`h-2.5 rounded-full transition-all duration-500 ${currentSlide === idx ? 'bg-[#4A7045] w-10' : 'bg-white/50 w-3 hover:bg-white'}`} />
+                    {/* HERO SECTION */}
+                    <div className="relative rounded-[2rem] overflow-hidden shadow-xl border-4 border-[#E2E8D8] dark:border-navy-700 aspect-[4/5] sm:aspect-square md:aspect-[4/3] lg:aspect-[21/9] w-full bg-[#E5E9D8] dark:bg-navy-800 transition-colors duration-500">
+                        <div
+                            className="w-full h-full flex transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                        >
+                            {displayImages.map((img, idx) => (
+                                <img key={idx} src={img} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=2000&auto=format&fit=crop"; }} alt={`Hero ${idx}`} className="w-full h-full object-cover flex-shrink-0" />
                             ))}
                         </div>
-                    )}
-                </div>
+                        {/* Dark overlay for center text readability */}
+                        <div className="absolute inset-0 bg-black/40 z-10 pointer-events-none"></div>
 
-                {/* OVERLAPPING QUICK ACTIONS PILL */}
-                <div className="relative z-30 -mt-6 md:-mt-10 lg:-mt-16 mx-4 md:mx-auto max-w-4xl bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-3 md:p-5 shadow-xl border-4 border-white dark:border-navy-700 flex flex-wrap items-start justify-center gap-2 md:gap-4 transition-colors duration-500">
-                    {featureItems.map(item => renderFeatureItem(item))}
-                </div>
-            </div>
-
-            {/* SABAT PERJAMUAN & PERPULUHAN SECTION */}
-            {(showPerjamuan || showPerpuluhan) && (
-                <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
-                    <div className="space-y-4 w-full">
-                        {showPerjamuan && (
-                            <div className="bg-gradient-to-r from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-5 md:p-6 rounded-[1.5rem] shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in border border-[#C18B35] dark:border-gold-400">
-                                <div className="text-center sm:text-left text-white dark:text-navy-900">
-                                    <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5"><Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perjamuan</h3>
-                                    <p className="text-2xl md:text-3xl font-extrabold opacity-95 tracking-tight">{formatIndoDate(perjamuanYMD)}</p>
-                                </div>
-                                <button onClick={() => setActiveTab('jadwal')} className="bg-[#4A7045] hover:bg-[#3A5836] dark:bg-navy-900 dark:hover:bg-navy-800 text-white dark:text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">Lihat Petugas</button>
+                        {/* Content */}
+                        {/* Content */}
+                        <div className="absolute top-[5%] md:top-[8%] lg:top-[10%] left-1/2 -translate-x-1/2 w-full max-w-[90%] md:max-w-3xl flex flex-col items-center text-center z-40 pb-6 md:pb-10 lg:pb-12 pointer-events-none">
+                            <div className="hidden md:inline-flex bg-white/20 backdrop-blur-md text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-[1rem] items-center mb-6">
+                                <Icon name="Home" className="w-4 h-4 mr-2" /> Gereja Masehi Advent Hari Ketujuh
                             </div>
-                        )}
+                            <div className="md:hidden bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold px-3 py-1.5 rounded-[0.75rem] inline-flex items-center mb-3 w-max">
+                                <Icon name="Home" className="w-3 h-3 mr-1.5" /> GMAHK Pisgah
+                            </div>
+                            <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.15] mb-3 md:mb-6 tracking-tight">
+                                Temukan Damai<br className="hidden md:block" /> Bersama Tuhan
+                            </h1>
+                            <p className="text-white/90 text-xs md:text-lg mb-4 md:mb-6 leading-relaxed font-medium">
+                                Jemaat Pisgah BISDAC, mari beribadah, melayani, dan bertumbuh dalam iman.
+                            </p>
+                        </div>
 
-                        {showPerpuluhan && (
-                            <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-navy-900 dark:to-navy-800 p-5 md:p-6 rounded-[1.5rem] shadow-lg border border-[#3A5836] dark:border-navy-700/50 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-gold-400/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 dark:bg-gold-400/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-                                <div className="relative z-10 text-center sm:text-left">
-                                    <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5 text-[#D19B45] dark:text-gold-400">
-                                        <Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perpuluhan
-                                    </h3>
-                                    <p className="text-2xl md:text-3xl text-white dark:text-navy-200 font-extrabold tracking-tight">{formatIndoDate(perpuluhanYMD)}</p>
-                                </div>
-                                <button onClick={() => setActiveTab('persembahan')} className="relative z-10 bg-[#D19B45] hover:bg-[#C18B35] dark:bg-gold-400 dark:hover:bg-gold-300 text-white dark:text-navy-900 px-6 py-3 rounded-xl text-sm font-black shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">
-                                    Transfer Perpuluhan
-                                </button>
+                        {/* Carousel Controls */}
+                        {displayImages.length > 1 && (
+                            <div className="absolute bottom-10 md:bottom-14 lg:bottom-24 left-0 w-full flex justify-center gap-2 z-20">
+                                {displayImages.map((_, idx) => (
+                                    <button key={idx} onClick={() => setCurrentSlide(idx)} className={`h-2.5 rounded-full transition-all duration-500 ${currentSlide === idx ? 'bg-[#4A7045] w-10' : 'bg-white/50 w-3 hover:bg-white'}`} />
+                                ))}
                             </div>
                         )}
                     </div>
+
+                    {/* OVERLAPPING QUICK ACTIONS PILL WITH SMOOTH TAB */}
+                    <div className="relative z-30 -mt-6 md:-mt-10 lg:-mt-16 mx-4 md:mx-auto max-w-4xl flex flex-col items-center">
+                        
+                        {/* The Floating Button */}
+                        <div className="absolute -top-[1.25rem] md:-top-[1.5rem] left-1/2 -translate-x-1/2 z-40">
+                            <button onClick={() => setActiveTab('susunan_ibadah')} className="bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-900 text-sm md:text-base font-bold py-2 md:py-3.5 px-8 md:px-12 rounded-full transition-colors flex items-center transform hover:-translate-y-0.5 duration-300 w-max shadow-lg">
+                                Ibadah Sekarang <Icon name="ChevronRight" className="w-4 h-4 md:w-5 md:h-5 ml-1.5 md:ml-2" />
+                            </button>
+                        </div>
+
+                        {/* Main Pill */}
+                        <div className="relative w-full bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-3 md:p-5 pt-8 md:pt-10 shadow-xl border-4 border-white dark:border-navy-700 flex flex-wrap items-start justify-center gap-2 md:gap-4 transition-colors duration-500 z-10">
+                            {featureItems.map(item => renderFeatureItem(item))}
+                        </div>
+                    </div>
                 </div>
-            )}
 
-            {/* PENGUMUMAN & VISI MISI (Split Layout) */}
-            <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-24 md:mt-32 mb-28 relative">
-
-                <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24 relative z-10">
-                    {/* Left: Image Card OR Announcement - GLASSMORPHISM */}
-                    <div className="w-full lg:w-1/2 relative group">
-                        <div className="relative z-10 bg-white/60 dark:bg-navy-800/40 backdrop-blur-2xl p-4 rounded-[2.5rem] shadow-[0_8px_32px_0_rgba(0,0,0,0.05)] border border-white/80 dark:border-white/10 transition-all duration-500 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.1)]">
-                            {pengumuman && !isPengumumanReallyEmpty() ? (
-                                <div className="rounded-[2rem] bg-white/50 dark:bg-navy-900/50 p-8 min-h-[300px] flex flex-col justify-center items-center text-center relative border border-white/60 dark:border-navy-600/50 shadow-inner">
-                                    <div className="absolute top-6 left-6 bg-gradient-to-r from-[#D19B45] to-[#B8863B] dark:from-gold-600 dark:to-gold-500 text-white text-xs font-bold px-5 py-2.5 rounded-full flex items-center shadow-lg backdrop-blur-md border border-white/20">
-                                        <Icon name="Megaphone" className="w-4 h-4 mr-2 drop-shadow-sm" /> Pengumuman
+                {/* SABAT PERJAMUAN & PERPULUHAN SECTION */}
+                {(showPerjamuan || showPerpuluhan) && (
+                    <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
+                        <div className="space-y-4 w-full">
+                            {showPerjamuan && (
+                                <div className="bg-gradient-to-r from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-5 md:p-6 rounded-[1.5rem] shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in border border-[#C18B35] dark:border-gold-400">
+                                    <div className="text-center sm:text-left text-white dark:text-navy-900">
+                                        <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5"><Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perjamuan</h3>
+                                        <p className="text-2xl md:text-3xl font-extrabold opacity-95 tracking-tight">{formatIndoDate(perjamuanYMD)}</p>
                                     </div>
-                                    <h3 className="text-3xl font-extrabold text-[#2C3F21] dark:text-white mb-6 mt-10 drop-shadow-sm">{pengumuman.header || "Pengumuman Pekan Ini"}</h3>
-                                    <div className="text-[#596B4D] dark:text-gray-300 text-base leading-relaxed max-h-[250px] overflow-y-auto custom-scrollbar w-full px-4 font-medium" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}></div>
+                                    <button onClick={() => setActiveTab('jadwal')} className="bg-[#4A7045] hover:bg-[#3A5836] dark:bg-navy-900 dark:hover:bg-navy-800 text-white dark:text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">Lihat Petugas</button>
                                 </div>
-                            ) : (
-                                <div className="rounded-[2rem] overflow-hidden bg-white/40 dark:bg-navy-900/40 relative w-full flex items-center justify-center min-h-[250px] shadow-inner border border-white/50 dark:border-white/5">
-                                    <img src={kontakGereja?.informasiImageUrl || displayImages[0]} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=1000&auto=format&fit=crop"; }} className="w-full h-auto object-contain transition-transform duration-700 hover:scale-105" alt="Banner" />
-                                    <div className="absolute top-6 left-6 bg-white/80 dark:bg-navy-800/80 backdrop-blur-md text-[#4A7045] dark:text-gold-400 text-xs font-black px-5 py-2.5 rounded-full flex items-center shadow-lg border border-white/50 dark:border-white/10 tracking-wide uppercase">
-                                        <Icon name="Info" className="w-4 h-4 mr-2" /> Informasi
+                            )}
+
+                            {showPerpuluhan && (
+                                <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-navy-900 dark:to-navy-800 p-5 md:p-6 rounded-[1.5rem] shadow-lg border border-[#3A5836] dark:border-navy-700/50 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-gold-400/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 dark:bg-gold-400/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                                    <div className="relative z-10 text-center sm:text-left">
+                                        <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5 text-[#D19B45] dark:text-gold-400">
+                                            <Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perpuluhan
+                                        </h3>
+                                        <p className="text-2xl md:text-3xl text-white dark:text-navy-200 font-extrabold tracking-tight">{formatIndoDate(perpuluhanYMD)}</p>
                                     </div>
+                                    <button onClick={() => setActiveTab('persembahan')} className="relative z-10 bg-[#D19B45] hover:bg-[#C18B35] dark:bg-gold-400 dark:hover:bg-gold-300 text-white dark:text-navy-900 px-6 py-3 rounded-xl text-sm font-black shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">
+                                        Transfer Perpuluhan
+                                    </button>
                                 </div>
                             )}
                         </div>
-                        {/* Interactive floating Install App icon */}
-                        <button
-                            onClick={() => window.installPWA && window.installPWA()}
-                            title="Instal Aplikasi"
-                            className="absolute -bottom-6 -right-6 bg-white/80 dark:bg-navy-700/80 backdrop-blur-xl p-5 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] z-20 flex items-center justify-center border border-white/60 dark:border-white/10 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 hover:-translate-y-2"
-                        >
-                            <Icon name="MonitorDown" className="w-7 h-7 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
-                        </button>
                     </div>
-                    {/* Right: Text Content */}
-                    <div className="w-full lg:w-1/2 relative">
-                        <div className="glass-box rounded-[2.5rem] p-8 md:p-12 transition-all duration-500 flex flex-col items-center text-center">
-                            <h2 className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 mb-8 tracking-tight leading-[1.2] drop-shadow-sm">
-                                Visi & Misi Gereja
-                            </h2>
+                )}
 
-                            <div className="text-[#4A7045] dark:text-gold-200/90 text-lg md:text-xl leading-relaxed mb-10 space-y-10 w-full">
-                                <div className="flex flex-col items-center">
-                                    <span className="inline-block px-5 py-2 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-sm mb-4 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Visi</span> 
-                                    <span className="pt-1">Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">selaras sepenuhnya dengan kehendak dan kebenaran-Nya</span>.</span>
-                                </div>
-                                <div className="flex flex-col items-center">
-                                    <span className="inline-block px-5 py-2 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-sm mb-4 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Misi</span> 
-                                    <span className="pt-1"><span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">Memanggil semua orang menjadi murid Yesus Kristus</span>, <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">memberitakan Injil kekal</span>, dan <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">mempersiapkan dunia bagi kedatangan-Nya</span>.</span>
-                                </div>
-                            </div>
+                {/* PENGUMUMAN & VISI MISI (Split Layout) */}
+                <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-24 md:mt-32 mb-28 relative">
 
-                            <div className="flex gap-4 mt-2">
-                                <a href="./pembangunan.html" className="group bg-white/60 dark:bg-navy-700/50 backdrop-blur-md hover:bg-white dark:hover:bg-navy-600 border border-[#4A7045]/20 dark:border-gold-500/30 text-[#4A7045] dark:text-gold-400 font-bold py-4 px-8 rounded-2xl transition-all duration-300 inline-flex items-center shadow-lg hover:shadow-xl hover:-translate-y-1">
-                                    <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-gold-400 dark:to-gold-600 text-white dark:text-navy-900 rounded-xl p-2 mr-4 group-hover:scale-110 transition-transform duration-300 shadow-md">
-                                        <Icon name="Home" className="w-5 h-5" /> 
+                    <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24 relative z-10">
+                        {/* Left: Image Card OR Announcement - GLASSMORPHISM */}
+                        <div className="w-full lg:w-1/2 relative group">
+                            <div className="relative z-10 glass-box p-4 rounded-[2.5rem] transition-all duration-500 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.1)]">
+                                {pengumuman && !isPengumumanReallyEmpty() ? (
+                                    <div className="rounded-[2rem] bg-white/50 dark:bg-navy-900/50 p-8 min-h-[300px] flex flex-col justify-center items-center text-center relative border border-white/60 dark:border-navy-600/50 shadow-inner">
+                                        <div className="absolute top-6 left-6 bg-gradient-to-r from-[#D19B45] to-[#B8863B] dark:from-gold-600 dark:to-gold-500 text-white text-xs font-bold px-5 py-2.5 rounded-full flex items-center shadow-lg backdrop-blur-md border border-white/20">
+                                            <Icon name="Megaphone" className="w-4 h-4 mr-2 drop-shadow-sm" /> Pengumuman
+                                        </div>
+                                        <h3 className="text-3xl font-extrabold text-[#2C3F21] dark:text-white mb-6 mt-10 drop-shadow-sm">{pengumuman.header || "Pengumuman Pekan Ini"}</h3>
+                                        <div className="text-[#596B4D] dark:text-gray-300 text-base leading-relaxed max-h-[250px] overflow-y-auto custom-scrollbar w-full px-4 font-medium" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}></div>
                                     </div>
-                                    Lihat Progres Pembangunan
-                                </a>
+                                ) : (
+                                    <div className="rounded-[2rem] overflow-hidden bg-white/40 dark:bg-navy-900/40 relative w-full flex items-center justify-center min-h-[250px] shadow-inner border border-white/50 dark:border-white/5">
+                                        <img src={kontakGereja?.informasiImageUrl || displayImages[0]} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=1000&auto=format&fit=crop"; }} className="w-full h-auto object-contain transition-transform duration-700 hover:scale-105" alt="Banner" />
+                                        <div className="absolute top-6 left-6 bg-white/80 dark:bg-navy-800/80 backdrop-blur-md text-[#4A7045] dark:text-gold-400 text-xs font-black px-5 py-2.5 rounded-full flex items-center shadow-lg border border-white/50 dark:border-white/10 tracking-wide uppercase">
+                                            <Icon name="Info" className="w-4 h-4 mr-2" /> Informasi
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            {/* Interactive floating Install App icon */}
+                            <button
+                                onClick={() => window.installPWA && window.installPWA()}
+                                title="Instal Aplikasi"
+                                className="absolute -bottom-6 -right-6 bg-white/80 dark:bg-navy-700/80 backdrop-blur-xl p-5 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] z-20 flex items-center justify-center border border-white/60 dark:border-white/10 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 hover:-translate-y-2"
+                            >
+                                <Icon name="MonitorDown" className="w-7 h-7 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
+                            </button>
+                        </div>
+                        {/* Right: Text Content */}
+                        <div className="w-full lg:w-1/2 relative">
+                            <div className="glass-box rounded-[2.5rem] p-8 md:p-12 transition-all duration-500 flex flex-col items-center text-center">
+                                <h2 className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 mb-8 tracking-tight leading-[1.2] drop-shadow-sm">
+                                    Visi & Misi GMAHK
+                                </h2>
+
+                                <div className="text-[#4A7045] dark:text-gold-200/90 text-lg md:text-xl leading-relaxed mb-10 space-y-10 w-full">
+                                    <div className="flex flex-col items-center">
+                                        <span className="inline-block px-5 py-2 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-sm mb-4 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Visi</span>
+                                        <span className="pt-1">Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">selaras sepenuhnya dengan kehendak dan kebenaran-Nya</span>.</span>
+                                    </div>
+                                    <div className="flex flex-col items-center">
+                                        <span className="inline-block px-5 py-2 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-sm mb-4 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Misi</span>
+                                        <span className="pt-1"><span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">Memanggil semua orang menjadi murid Yesus Kristus</span>, <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">memberitakan Injil kekal</span>, dan <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">mempersiapkan dunia bagi kedatangan-Nya</span>.</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4 mt-2">
+                                    <a href="./pembangunan.html" className="group bg-white/60 dark:bg-navy-700/50 backdrop-blur-md hover:bg-white dark:hover:bg-navy-600 border border-[#4A7045]/20 dark:border-gold-500/30 text-[#4A7045] dark:text-gold-400 font-bold py-4 px-8 rounded-2xl transition-all duration-300 inline-flex items-center shadow-lg hover:shadow-xl hover:-translate-y-1">
+                                        <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-gold-400 dark:to-gold-600 text-white dark:text-navy-900 rounded-xl p-2 mr-4 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                                            <Icon name="Church" className="w-5 h-5" />
+                                        </div>
+                                        Lihat Progres Pembangunan
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
 
-            {/* WARTA JEMAAT (3 Columns Card Layout) */}
-            <div className="bg-[#E9EEDF] dark:bg-navy-800/80 rounded-[3.5rem] pt-16 md:pt-24 pb-20 md:pb-28 px-4 md:px-8 mt-10 mb-8 transition-colors duration-500 shadow-sm border border-transparent dark:border-navy-700/50">
-                <div className="w-full mx-auto lg:px-4">
-                    <div className="text-center mb-12 md:mb-16">
-                        <h2 className="text-3xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-4 transition-colors">Berita Terkini?</h2>
-                        <p className="text-[#596B4D] dark:text-gray-300 font-medium text-lg max-w-2xl mx-auto transition-colors">Informasi pelayanan, kegiatan gereja, dan kabar sukacita jemaat pekan ini.</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {sortedWartaHome.slice(0, 3).map((warta, idx) => {
-                            const rawUrls = parseGambarUrls(warta.gambarUrl);
-                            const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
-                            const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
-
-                            return (
-                                <div key={idx} onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }} className="bg-white dark:!bg-navy-900/90 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col group border border-gray-100 dark:border-navy-700">
-                                    <div className="h-56 overflow-hidden relative m-3 rounded-[1.5rem]">
-                                        {thumb ? (
-                                            <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Warta" />
-                                        ) : (
-                                            <div className="w-full h-full bg-[#E5E9D8] dark:bg-navy-900 flex items-center justify-center text-[#4A7045] dark:text-navy-600 transition-colors">
-                                                <Icon name="Image" className="w-12 h-12 opacity-30" />
-                                            </div>
-                                        )}
-                                        <div className="absolute top-4 left-4 bg-white/90 dark:bg-navy-900/90 backdrop-blur-sm text-[#2C3F21] dark:text-gold-400 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm transition-colors">
-                                            {formatDate(warta.tanggal)}
-                                        </div>
-                                    </div>
-                                    <div className="p-6 md:p-8 pt-4 flex-1 flex flex-col">
-                                        <h3 className="font-extrabold text-[19px] text-[#2C3F21] dark:text-gold-400 leading-tight mb-3 line-clamp-2 transition-colors">{warta.judul}</h3>
-                                        <div className="text-[#6C7D5D] dark:text-gold-100/70 text-sm leading-relaxed mb-8 line-clamp-3 font-medium transition-colors">
-                                            {truncateText(stripHtml(warta.isi), 120)}
-                                        </div>
-                                        <div className="mt-auto">
-                                            <button className="bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-900 hover:bg-[#3A5836] dark:hover:bg-gold-600 font-bold py-3 px-8 rounded-full transition-colors text-sm w-max">
-                                                Baca Lengkap
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    {sortedWartaHome.length > 3 && (
-                        <div className="text-center mt-12 flex justify-center space-x-2">
-                            <div className="w-3 h-3 rounded-full bg-[#4A7045]"></div>
-                            <div className="w-3 h-3 rounded-full bg-gray-300"></div>
-                            <div className="w-3 h-3 rounded-full bg-gray-300"></div>
+                {/* WARTA JEMAAT (3 Columns Card Layout) */}
+                <div className="glass-box rounded-[3.5rem] pt-16 md:pt-24 pb-20 md:pb-28 px-4 md:px-8 mt-10 mb-8 transition-colors duration-500 relative z-10">
+                    <div className="w-full mx-auto lg:px-4">
+                        <div className="text-center mb-12 md:mb-16">
+                            <h2 className="text-3xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-4 transition-colors">Berita Terkini?</h2>
+                            <p className="text-[#596B4D] dark:text-gray-300 font-medium text-lg max-w-2xl mx-auto transition-colors">Informasi pelayanan, kegiatan gereja, dan kabar sukacita jemaat pekan ini.</p>
                         </div>
-                    )}
-                </div>
 
-                {/* PUSTAKA & VIDEO SECTION */}
-                <div className="w-full mx-auto px-4 md:px-8 lg:px-4 mt-20 md:mt-28 space-y-16">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {sortedWartaHome.slice(0, 3).map((warta, idx) => {
+                                const rawUrls = parseGambarUrls(warta.gambarUrl);
+                                const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
+                                const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
 
-                    {/* Pustaka */}
-                    {daftarBuku && daftarBuku.length > 0 && (
-                        <div>
-                            <div className="flex justify-between items-end mb-8">
-                                <div>
-                                    <h2 className="text-2xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 transition-colors">Pustaka Buku</h2>
-                                    <p className="text-[#596B4D] dark:text-gold-200/80 font-medium text-sm md:text-base mt-2 transition-colors">Buku referensi & rohani terbaru.</p>
-                                </div>
-                                <button onClick={() => setActiveTab('belajar_perpustakaan')} className="border-2 border-[#4A7045] dark:border-gold-500 text-[#4A7045] dark:text-gold-500 hover:bg-[#4A7045] dark:hover:bg-gold-500 hover:text-white dark:hover:text-navy-900 font-bold py-2 px-5 rounded-full transition-all flex items-center text-sm md:text-base">
-                                    Selengkapnya <Icon name="ArrowRight" className="w-4 h-4 ml-2" />
-                                </button>
-                            </div>
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                                {[...daftarBuku].reverse().slice(0, 4).map((b, i) => (
-                                    <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className={`bg-white dark:!bg-navy-800 rounded-[2rem] border border-[#E9EEDF] dark:border-navy-700 overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex-col ${i === 3 ? 'flex md:hidden lg:flex' : 'flex'}`}>
-                                        <div className="h-40 md:h-56 overflow-hidden relative m-2 rounded-[1.5rem]">
-                                            <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
-                                            <DocumentBadge book={b} className="absolute top-2 left-2" />
-                                            <span className="absolute top-2 right-2 bg-white/90 dark:bg-navy-900/90 backdrop-blur-md text-[#2C3F21] dark:text-gold-400 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm transition-colors">{b.category}</span>
+                                return (
+                                    <div key={idx} onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }} className="glass-box rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer flex flex-col group">
+                                        <div className="h-56 overflow-hidden relative m-3 rounded-[1.5rem]">
+                                            {thumb ? (
+                                                <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Warta" />
+                                            ) : (
+                                                <div className="w-full h-full bg-[#E5E9D8] dark:bg-navy-900 flex items-center justify-center text-[#4A7045] dark:text-navy-600 transition-colors">
+                                                    <Icon name="Image" className="w-12 h-12 opacity-30" />
+                                                </div>
+                                            )}
+                                            <div className="absolute top-4 left-4 bg-white/90 dark:bg-navy-900/90 backdrop-blur-sm text-[#2C3F21] dark:text-gold-400 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm transition-colors">
+                                                {formatDate(warta.tanggal)}
+                                            </div>
                                         </div>
-                                        <div className="p-4 md:p-5 flex-1 flex flex-col justify-between">
-                                            <div>
-                                                <div className="font-extrabold text-sm md:text-base text-[#2C3F21] dark:text-gold-400 line-clamp-2 leading-tight mb-1 transition-colors">{b.title}</div>
-                                                <div className="text-xs text-[#6C7D5D] dark:text-gold-200/70 font-medium transition-colors">{b.author}</div>
+                                        <div className="p-6 md:p-8 pt-4 flex-1 flex flex-col">
+                                            <h3 className="font-extrabold text-[19px] text-[#2C3F21] dark:text-gold-400 leading-tight mb-3 line-clamp-2 transition-colors">{warta.judul}</h3>
+                                            <div className="text-[#6C7D5D] dark:text-gold-100/70 text-sm leading-relaxed mb-8 line-clamp-3 font-medium transition-colors">
+                                                {truncateText(stripHtml(warta.isi), 120)}
+                                            </div>
+                                            <div className="mt-auto">
+                                                <button className="bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-900 hover:bg-[#3A5836] dark:hover:bg-gold-600 font-bold py-3 px-8 rounded-full transition-colors text-sm w-max">
+                                                    Baca Lengkap
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Video */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-                        <div className="bg-white dark:!bg-navy-800 rounded-[2rem] p-4 md:p-6 shadow-sm border border-[#E9EEDF] dark:border-navy-700 transition-colors">
-                            <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
-                                <Icon name="Video" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" /> Video Penting
-                            </h2>
-                            <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
-                                <iframe className="absolute top-0 left-0 w-full h-full" src={`${youtubeUrl}${youtubeUrl?.includes('?') ? '&' : '?'}vq=hd1080`} title="Video Penting" frameBorder="0" allowFullScreen></iframe>
-                            </div>
+                                );
+                            })}
                         </div>
 
-                        <div className="bg-white dark:!bg-navy-800 rounded-[2rem] p-4 md:p-6 shadow-sm border border-[#E9EEDF] dark:border-navy-700 transition-colors">
-                            <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
-                                <Icon name="Video" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" /> Youtube Channel
-                            </h2>
-                            <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
-                                <iframe className="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g&vq=hd1080" title="Youtube Terbaru" frameBorder="0" allowFullScreen></iframe>
+                        {sortedWartaHome.length > 3 && (
+                            <div className="text-center mt-12 flex justify-center space-x-2">
+                                <div className="w-3 h-3 rounded-full bg-[#4A7045]"></div>
+                                <div className="w-3 h-3 rounded-full bg-gray-300"></div>
+                                <div className="w-3 h-3 rounded-full bg-gray-300"></div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* PUSTAKA & VIDEO SECTION */}
+                    <div className="w-full mx-auto px-4 md:px-8 lg:px-4 mt-20 md:mt-28 space-y-16">
+
+                        {/* Pustaka */}
+                        {daftarBuku && daftarBuku.length > 0 && (
+                            <div>
+                                <div className="flex justify-between items-end mb-8">
+                                    <div>
+                                        <h2 className="text-2xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 transition-colors">Pustaka Buku</h2>
+                                        <p className="text-[#596B4D] dark:text-gold-200/80 font-medium text-sm md:text-base mt-2 transition-colors">Buku referensi & rohani terbaru.</p>
+                                    </div>
+                                    <button onClick={() => setActiveTab('belajar_perpustakaan')} className="border-2 border-[#4A7045] dark:border-gold-500 text-[#4A7045] dark:text-gold-500 hover:bg-[#4A7045] dark:hover:bg-gold-500 hover:text-white dark:hover:text-navy-900 font-bold py-2 px-5 rounded-full transition-all flex items-center text-sm md:text-base">
+                                        Selengkapnya <Icon name="ArrowRight" className="w-4 h-4 ml-2" />
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                                    {[...daftarBuku].reverse().slice(0, 4).map((b, i) => (
+                                        <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className={`glass-box rounded-[2rem] overflow-hidden cursor-pointer hover:-translate-y-1 transition-all duration-300 group flex-col ${i === 3 ? 'flex md:hidden lg:flex' : 'flex'}`}>
+                                            <div className="h-40 md:h-56 overflow-hidden relative m-2 rounded-[1.5rem]">
+                                                <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
+                                                <DocumentBadge book={b} className="absolute top-2 left-2" />
+                                                <span className="absolute top-2 right-2 bg-white/90 dark:bg-navy-900/90 backdrop-blur-md text-[#2C3F21] dark:text-gold-400 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm transition-colors">{b.category}</span>
+                                            </div>
+                                            <div className="p-4 md:p-5 flex-1 flex flex-col justify-between">
+                                                <div>
+                                                    <div className="font-extrabold text-sm md:text-base text-[#2C3F21] dark:text-gold-400 line-clamp-2 leading-tight mb-1 transition-colors">{b.title}</div>
+                                                    <div className="text-xs text-[#6C7D5D] dark:text-gold-200/70 font-medium transition-colors">{b.author}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Video */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+                            <div className="glass-box rounded-[2rem] p-4 md:p-6 transition-colors">
+                                <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
+                                    <Icon name="Video" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" /> Video Penting
+                                </h2>
+                                <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
+                                    <iframe className="absolute top-0 left-0 w-full h-full" src={`${youtubeUrl}${youtubeUrl?.includes('?') ? '&' : '?'}vq=hd1080`} title="Video Penting" frameBorder="0" allowFullScreen></iframe>
+                                </div>
+                            </div>
+
+                            <div className="glass-box rounded-[2rem] p-4 md:p-6 transition-colors">
+                                <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
+                                    <Icon name="Video" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" /> Youtube Channel
+                                </h2>
+                                <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
+                                    <iframe className="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g&vq=hd1080" title="Youtube Terbaru" frameBorder="0" allowFullScreen></iframe>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -798,15 +814,15 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
         <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
             <div className="relative">
                 <div className="text-center pt-4 pb-6 md:pt-6 md:pb-8">
-                    <h2 className="text-xl md:text-[1.75rem] font-black uppercase tracking-widest leading-none text-navy-900">Susunan Ibadah</h2>
+                    <h2 className="text-xl md:text-[1.75rem] font-black uppercase tracking-widest leading-none text-navy-900 dark:text-white">Susunan Ibadah</h2>
                     <p className="text-gold-500 font-bold mt-2 text-sm md:text-base">{formatIndoDate(sabatYMD)}</p>
                 </div>
 
-                <div className="flex flex-col border-b border-navy-100 overflow-hidden bg-white">
+                <div className="flex flex-col border-b border-navy-100 dark:border-navy-700/60 overflow-hidden bg-transparent">
                     {/* TABS SCROLLABLE (Hanya Mobile) */}
                     <div className="flex flex-col overflow-hidden mb-2 lg:hidden">
                         <div className="flex items-center gap-2 pb-1 md:pb-2">
-                            <div className="bg-white/60 rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-1.5 gap-2 hide-scrollbar scroll-smooth">
+                            <div className="bg-white/60 dark:bg-navy-800/40 rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 dark:border-navy-700/50 p-1.5 gap-2 hide-scrollbar scroll-smooth">
                                 {susunanTabs.map(tab => (
                                     <button
                                         key={tab.id}
@@ -824,9 +840,9 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
 
                     {/* CONTENT AREA: Tab di Mobile, Grid di Desktop */}
                     <div className="w-full max-w-6xl mx-auto py-2 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:gap-y-8 lg:items-start">
-                        
+
                         <div className={`animate-fade-in ${openSection === 'khotbah' ? 'block' : 'hidden'} lg:block`}>
-                            <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 pb-2"><Icon name="List" className="w-4 h-4 mr-2" /> Khotbah / Umum</h3>
+                            <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 dark:border-navy-700/50 pb-2"><Icon name="List" className="w-4 h-4 mr-2" /> Khotbah / Umum</h3>
                             {renderItem("Pemimpin Acara", getOfficer(activeSabat.khotbah, "Pemimpin Acara"), true)}
                             {renderItem("Sambutan", getOfficer(activeSabat.khotbah, "Pemimpin Acara"))}
                             {renderItem("Lagu Pengantar", "LS 408 - Berdiam, Berdiam")}
@@ -855,7 +871,7 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
 
                         <div className="flex flex-col gap-8">
                             <div className={`animate-fade-in ${openSection === 'ss' ? 'block' : 'hidden'} lg:block`}>
-                                <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 pb-2"><Icon name="BookOpen" className="w-4 h-4 mr-2" /> Sekolah Sabat</h3>
+                                <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 dark:border-navy-700/50 pb-2"><Icon name="BookOpen" className="w-4 h-4 mr-2" /> Sekolah Sabat</h3>
                                 {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pemimpin Acara"), true)}
                                 {renderItem("Lagu Buka", susunan.ssLaguBuka)}
                                 {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka"))}
@@ -869,12 +885,12 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
                             </div>
 
                             <div className={`animate-fade-in ${openSection === 'diakon' ? 'block' : 'hidden'} lg:block`}>
-                                <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 pb-2"><Icon name="Users" className="w-4 h-4 mr-2" /> Diakon & Diakones</h3>
+                                <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 dark:border-navy-700/50 pb-2"><Icon name="Users" className="w-4 h-4 mr-2" /> Diakon & Diakones</h3>
                                 {activeSabat.diakon.map((p, idx) => <div key={idx}>{renderItem(p.tugas, p.nama)}</div>)}
                             </div>
 
                             <div className={`animate-fade-in ${openSection === 'musik' ? 'block' : 'hidden'} lg:block`}>
-                                <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 pb-2"><Icon name="Music" className="w-4 h-4 mr-2" /> Pelayanan Musik</h3>
+                                <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 dark:border-navy-700/50 pb-2"><Icon name="Music" className="w-4 h-4 mr-2" /> Pelayanan Musik</h3>
                                 {activeSabat.musik.map((p, idx) => <div key={idx}>{renderItem(p.tugas, p.nama)}</div>)}
                             </div>
                         </div>
@@ -1492,65 +1508,65 @@ const Live = ({ setActiveTab, activeRabu, activeSabat, rabuYMD, sabatYMD, showPe
             <div className="w-full xl:w-[45%]">
                 <div className="glass-box p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100/60 w-full">
                     <div className="flex justify-between items-start sm:items-center mb-6 flex-col sm:flex-row gap-4 border-b pb-5 border-navy-50">
-                    <div>
-                        {/* Label "Hari Ini" atau "Terdekat" */}
-                        <h3 className={`text-sm font-bold uppercase tracking-widest mb-3 flex items-center ${isToday ? 'text-red-500' : 'text-gold-500'}`}>
-                            {isToday ? "🔥 Hari Ini" : "⏳ Terdekat"}
-                        </h3>
+                        <div>
+                            {/* Label "Hari Ini" atau "Terdekat" */}
+                            <h3 className={`text-sm font-bold uppercase tracking-widest mb-3 flex items-center ${isToday ? 'text-red-500' : 'text-gold-500'}`}>
+                                {isToday ? "🔥 Hari Ini" : "⏳ Terdekat"}
+                            </h3>
 
-                        {/* Baris utama: kiri (judul + tanggal), kanan (tombol) */}
-                        <div className="flex justify-between items-start gap-4">
-                            <div>
-                                <div className="flex items-center space-x-3">
-                                    <Icon name="Calendar" className={`w-[1.4rem] h-[1.4rem] ${isToday ? 'text-red-500' : 'text-gold-500'}`} />
-                                    <h2 className="text-xl font-bold text-navy-900 tracking-tight">{targetJadwal.title}</h2>
+                            {/* Baris utama: kiri (judul + tanggal), kanan (tombol) */}
+                            <div className="flex justify-between items-start gap-4">
+                                <div>
+                                    <div className="flex items-center space-x-3">
+                                        <Icon name="Calendar" className={`w-[1.4rem] h-[1.4rem] ${isToday ? 'text-red-500' : 'text-gold-500'}`} />
+                                        <h2 className="text-xl font-bold text-navy-900 tracking-tight">{targetJadwal.title}</h2>
+                                    </div>
+                                    <p className="text-sm text-navy-500 mt-1 font-medium">
+                                        {formatIndoDate(targetDateStr)} &bull; {targetJadwal.time}
+                                    </p>
                                 </div>
-                                <p className="text-sm text-navy-500 mt-1 font-medium">
-                                    {formatIndoDate(targetDateStr)} &bull; {targetJadwal.time}
-                                </p>
                             </div>
                         </div>
+                        <button
+                            onClick={() => setActiveTab('susunan_ibadah')}
+                            className="hidden sm:flex mt-4 flex justify-center items-center text-sm font-medium text-gold-600 hover:text-blue-200 transition bg-navy-100 hover:bg-navy-100 px-4 py-3 rounded-lg">
+                            Lihat Susunan Ibadah
+                        </button>
                     </div>
-                    <button
-                        onClick={() => setActiveTab('susunan_ibadah')}
-                        className="hidden sm:flex mt-4 flex justify-center items-center text-sm font-medium text-gold-600 hover:text-blue-200 transition bg-navy-100 hover:bg-navy-100 px-4 py-3 rounded-lg">
-                        Lihat Susunan Ibadah
-                    </button>
+
+                    {isRabu ? (
+                        <div className="flex flex-col">
+                            {targetJadwal.petugas.map((p, idx) => (
+                                <div key={idx} className="flex items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 rounded-xl my-1.5 hover:bg-navy-50/30 transition-colors">
+                                    <span className="text-sm text-navy-500 font-medium w-1/2">{p.tugas}</span>
+                                    <span className="text-sm font-bold text-navy-900 w-1/2 text-right break-words">{p.nama}</span>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            <div className="flex flex-col">
+                                <div className="flex justify-between items-end bg-navy-50/50 px-5 py-3 border border-navy-100/50 rounded-xl mb-3 font-bold text-navy-800 text-sm uppercase tracking-wide shadow-sm">Ibadah Umum / Khotbah<span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.khotbahTime}</span></div>
+                                {targetJadwal.khotbah.map((p, idx) => (
+                                    <div key={idx} className="flex items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 rounded-xl my-1.5 hover:bg-navy-50/30 transition-colors">
+                                        <span className="text-sm text-navy-500 font-medium w-1/2">{p.tugas}</span>
+                                        <span className="text-sm font-bold text-navy-900 text-right w-1/2 break-words">{p.nama}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex flex-col">
+                                <div className="flex justify-between items-end bg-navy-50/50 px-5 py-3 border border-navy-100/50 rounded-xl mb-3 font-bold text-navy-800 text-sm uppercase tracking-wide shadow-sm">Sekolah Sabat<span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.sekolahSabatTime}</span></div>
+                                {targetJadwal.sekolahSabat.map((p, idx) => (
+                                    <div key={idx} className="flex items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 rounded-xl my-1.5 hover:bg-navy-50/30 transition-colors">
+                                        <span className="text-sm text-navy-500 font-medium w-1/2">{p.tugas}</span>
+                                        <span className="text-sm font-bold text-navy-900 text-right w-1/2 break-words">{p.nama}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    <button onClick={() => setActiveTab('susunan_ibadah')} className="sm:hidden w-full mt-4 flex justify-center items-center text-sm font-medium text-gold-600 hover:text-blue-800 transition bg-navy-50 hover:bg-navy-100 px-4 py-3 rounded-lg">Lihat Susunan Ibadah</button>
                 </div>
-
-                {isRabu ? (
-                    <div className="flex flex-col">
-                        {targetJadwal.petugas.map((p, idx) => (
-                            <div key={idx} className="flex items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 rounded-xl my-1.5 hover:bg-navy-50/30 transition-colors">
-                                <span className="text-sm text-navy-500 font-medium w-1/2">{p.tugas}</span>
-                                <span className="text-sm font-bold text-navy-900 w-1/2 text-right break-words">{p.nama}</span>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="space-y-6">
-                        <div className="flex flex-col">
-                            <div className="flex justify-between items-end bg-navy-50/50 px-5 py-3 border border-navy-100/50 rounded-xl mb-3 font-bold text-navy-800 text-sm uppercase tracking-wide shadow-sm">Ibadah Umum / Khotbah<span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.khotbahTime}</span></div>
-                            {targetJadwal.khotbah.map((p, idx) => (
-                                <div key={idx} className="flex items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 rounded-xl my-1.5 hover:bg-navy-50/30 transition-colors">
-                                    <span className="text-sm text-navy-500 font-medium w-1/2">{p.tugas}</span>
-                                    <span className="text-sm font-bold text-navy-900 text-right w-1/2 break-words">{p.nama}</span>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="flex flex-col">
-                            <div className="flex justify-between items-end bg-navy-50/50 px-5 py-3 border border-navy-100/50 rounded-xl mb-3 font-bold text-navy-800 text-sm uppercase tracking-wide shadow-sm">Sekolah Sabat<span className="text-[11px] text-navy-600 font-bold bg-white px-2 py-0.5 rounded-full border border-navy-100">{activeSabat.sekolahSabatTime}</span></div>
-                            {targetJadwal.sekolahSabat.map((p, idx) => (
-                                <div key={idx} className="flex items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 rounded-xl my-1.5 hover:bg-navy-50/30 transition-colors">
-                                    <span className="text-sm text-navy-500 font-medium w-1/2">{p.tugas}</span>
-                                    <span className="text-sm font-bold text-navy-900 text-right w-1/2 break-words">{p.nama}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-                <button onClick={() => setActiveTab('susunan_ibadah')} className="sm:hidden w-full mt-4 flex justify-center items-center text-sm font-medium text-gold-600 hover:text-blue-800 transition bg-navy-50 hover:bg-navy-100 px-4 py-3 rounded-lg">Lihat Susunan Ibadah</button>
-            </div>
             </div>
         </div>
     );
@@ -6456,9 +6472,9 @@ const App = () => {
 
             <main className="flex-1 w-full mx-auto p-4 md:px-8 lg:px-4 pb-32 md:pb-12">
                 {activeTab !== 'home' && !hideGlobalBack && (
-                    <div className="sticky top-16 md:top-[4.5rem] z-[35] -mx-4 md:-mx-8 lg:-mx-4 px-4 md:px-8 lg:px-4 py-3 mb-6 bg-gray-50/80 dark:bg-navy-950/80 backdrop-blur-xl border-b border-navy-100/30 dark:border-navy-700/30 shadow-sm transition-all">
-                        <button 
-                            onClick={() => window.history.back()} 
+                    <div className="sticky top-16 md:top-[4.5rem] z-[35] -mx-4 md:-mx-8 lg:-mx-4 px-4 md:px-8 lg:px-4 py-3 mb-6 bg-white/80 backdrop-blur-md border-b border-navy-50 shadow-sm transition-all">
+                        <button
+                            onClick={() => window.history.back()}
                             className="flex items-center justify-center px-5 py-2.5 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group w-max"
                         >
                             <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
