@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <script type="module" crossorigin src="/assets/laporan-DIc0lCLK.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-DO9LgAyS.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/laporan-DLl9-j_y.css">
   <link rel="stylesheet" crossorigin href="/assets/index-BOziNQc1.css">
@@ -231,6 +231,11 @@
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="key" data-size="lucide-md"></span>
           </span> Hak Akses Menu
+        </div>
+        <div class="nav-item" onclick="showPage('series')" id="navSeries">
+          <span class="nav-icon">
+            <span class="icon-placeholder" data-icon="settings" data-size="lucide-md"></span>
+          </span> No. Series
         </div>
         <div class="nav-item" onclick="showPage('logs')" id="navLogs">
           <span class="nav-icon">
@@ -465,7 +470,10 @@
                     id="incUnit"></select></div>
                 <div class="form-group">
                   <label class="form-label">No. Kuitansi</label>
-                  <input class="form-input" id="incReceipt" type="text" placeholder="INC-XXXX">
+                  <div style="display: flex; gap: 8px;">
+                    <input class="form-input" id="incReceipt" type="text" placeholder="No. Otomatis / Manual">
+                    <button type="button" class="btn" style="padding: 0 12px; background:var(--blue); color:white;" onclick="autoGenerateReceipt('INC')" title="Generate Auto">Auto</button>
+                  </div>
                   <div id="lastIncReceipt" style="font-size:11px; color:var(--text3); margin-top:4px;"></div>
                 </div>
               </div>
@@ -567,9 +575,12 @@
 
             <div class="form-row" style="margin-top:20px">
               <div class="form-group">
-                <label class="form-label">Nomor Bukti</label>
-                <input class="form-input" id="expReceipt" type="text" placeholder="EXP-XXXX">
-                <div id="lastExpReceipt" style="font-size:11px; color:var(--text3); margin-top:4px;"></div>
+                <label class="form-label">No. Bukti/Kuitansi</label>
+                <div style="display: flex; gap: 8px;">
+                  <input class="form-input" id="excReceipt" type="text" placeholder="No. Otomatis / Manual">
+                  <button type="button" class="btn" style="padding: 0 12px; background:var(--blue); color:white;" onclick="autoGenerateReceipt('EXC')" title="Generate Auto">Auto</button>
+                </div>
+                <div id="lastExcReceipt" style="font-size:11px; color:var(--text3); margin-top:4px;"></div>
               </div>
               <div class="form-group"><label class="form-label">Nama Penerima</label><input class="form-input"
                   id="expReceiver" type="text" list="receiverList" placeholder="Penerima / Vendor"><datalist
@@ -1210,6 +1221,100 @@
               <input type="file" id="sigPendetaUpload" accept="image/*" style="display:none;"
                 onchange="handleSignatureUpload(this, 'preview-sig-pendeta', 'text-sig-pendeta', 'sig_pendeta')">
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-series">
+        <div class="card" style="max-width:800px; margin:0 auto; padding: 24px;">
+          <h2 style="margin-bottom: 24px; color: var(--text);">Pengaturan No. Series Kuitansi</h2>
+          <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">
+            Atur range (Mulai s.d Sampai) untuk penomoran kuitansi per bulan.
+          </p>
+          
+          <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+            <div class="form-group" style="flex:1;">
+              <label class="form-label">Bulan</label>
+              <select id="seriesMonth" class="form-input" onchange="loadSeriesConfig()">
+                <option value="1">Januari</option>
+                <option value="2">Februari</option>
+                <option value="3">Maret</option>
+                <option value="4">April</option>
+                <option value="5">Mei</option>
+                <option value="6">Juni</option>
+                <option value="7">Juli</option>
+                <option value="8">Agustus</option>
+                <option value="9">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label class="form-label">Tahun</label>
+              <select id="seriesYear" class="form-input" onchange="loadSeriesConfig()">
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="seriesFormContainer" style="display:flex; flex-direction:column; gap:16px;">
+            <!-- Pemasukan -->
+            <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+              <div style="font-weight:700; margin-bottom:12px;">1. Pemasukan (Format: Angka Saja)</div>
+              <div style="display:flex; gap:16px;">
+                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_Pemasukan_start" class="form-input" placeholder="Contoh: 10600"></div>
+                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_Pemasukan_end" class="form-input" placeholder="Contoh: 10899"></div>
+              </div>
+            </div>
+            <!-- Pemasukan Pembangunan -->
+            <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+              <div style="font-weight:700; margin-bottom:12px;">2. Pemasukan Pembangunan (Prefix: PEMB-)</div>
+              <div style="display:flex; gap:16px;">
+                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_PemasukanPembangunan_start" class="form-input"></div>
+                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_PemasukanPembangunan_end" class="form-input"></div>
+              </div>
+            </div>
+            <!-- Pengeluaran Kas Jemaat -->
+            <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+              <div style="font-weight:700; margin-bottom:12px;">3. Pengeluaran Kas Jemaat (Prefix: COST-)</div>
+              <div style="display:flex; gap:16px;">
+                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_PengeluaranJemaat_start" class="form-input"></div>
+                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_PengeluaranJemaat_end" class="form-input"></div>
+              </div>
+            </div>
+            <!-- Pengeluaran Daerah -->
+            <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+              <div style="font-weight:700; margin-bottom:12px;">4. Pengeluaran Daerah (Prefix: MBR-)</div>
+              <div style="display:flex; gap:16px;">
+                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_PengeluaranDaerah_start" class="form-input"></div>
+                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_PengeluaranDaerah_end" class="form-input"></div>
+              </div>
+            </div>
+            <!-- Pengeluaran Pembangunan -->
+            <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+              <div style="font-weight:700; margin-bottom:12px;">5. Pengeluaran Pembangunan (Prefix: CP-)</div>
+              <div style="display:flex; gap:16px;">
+                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_PengeluaranPembangunan_start" class="form-input"></div>
+                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_PengeluaranPembangunan_end" class="form-input"></div>
+              </div>
+            </div>
+            <!-- Mutasi / Pindah Buku -->
+            <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+              <div style="font-weight:700; margin-bottom:12px;">6. Mutasi / Pindah Buku (Prefix: PB-)</div>
+              <div style="display:flex; gap:16px;">
+                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_Mutasi_start" class="form-input"></div>
+                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_Mutasi_end" class="form-input"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 32px;">
+            <button id="btnSaveSeries" class="btn btn-primary" onclick="saveSeriesConfig()">Simpan No. Series</button>
           </div>
         </div>
       </div>
