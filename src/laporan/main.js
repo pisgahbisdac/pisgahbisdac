@@ -530,13 +530,14 @@
       { id: 'users', label: 'Manajemen User' },
       { id: 'akun', label: 'Pengaturan Akun (Sandi)' },
       { id: 'settings', label: 'Pengaturan Web' },
+      { id: 'series', label: 'Pengaturan No. Series' },
       { id: 'logs', label: 'Audit Log' }
     ];
 
     function getDefaultRolePerms(role) {
       const defs = {
-        Admin: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true, approve: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true } }, isAnonymous: false },
-        Bendahara: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
+        Admin: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true, approve: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, series: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true } }, isAnonymous: false },
+        Bendahara: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, series: { view: true, edit: true, del: true }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
         Viewer: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
         Publik: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: false, edit: false, del: false }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: true },
         "Ketua Jemaat": { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
@@ -1057,10 +1058,17 @@
             perms.menus.pindahbuku = { view: false, edit: false, del: false };
           }
         }
+        if (!perms.menus.series) {
+          if (role === 'Admin' || role === 'Bendahara') {
+            perms.menus.series = { view: true, edit: true, del: true };
+          } else {
+            perms.menus.series = { view: false, edit: false, del: false };
+          }
+        }
       } else if (role === 'Admin') {
-        perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true } }, isAnonymous: false };
+        perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, series: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true } }, isAnonymous: false };
       } else if (role === 'Bendahara') {
-        perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
+        perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, series: { view: true, edit: true, del: true }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
       } else if (role === 'Viewer') {
         perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
       } else if (role === 'Ketua Jemaat' || role === 'Pendeta') {
@@ -1118,10 +1126,13 @@
       const mAkun = perms.menus.akun || { view: false, edit: false, del: false };
       document.getElementById('navAkun').style.display = mAkun.view ? '' : 'none';
 
+      const mSeries = perms.menus.series || { view: false, edit: false, del: false };
+      if (document.getElementById('navSeries')) document.getElementById('navSeries').style.display = mSeries.view ? '' : 'none';
+
       const mLogs = perms.menus.logs || { view: false, edit: false, del: false };
       if (document.getElementById('navLogs')) document.getElementById('navLogs').style.display = mLogs.view ? '' : 'none';
 
-      const showAdminGroup = mMaster.view || mUsers.view || mSettings.view || mLogs.view;
+      const showAdminGroup = mMaster.view || mUsers.view || mSettings.view || mLogs.view || mSeries.view;
       document.getElementById('adminNavLabel').style.display = showAdminGroup ? '' : 'none';
 
       const sensorContainer = document.getElementById('reportSensorContainer');
@@ -4553,7 +4564,7 @@
       document.querySelectorAll('.bottom-nav-item').forEach(n => n.classList.remove('active'));
       const activeNav = document.querySelector(`.nav-item[onclick*="showPage('${pageId}')"]`); if (activeNav) activeNav.classList.add('active');
       const activeBotNav = document.querySelector(`.bottom-nav-item[data-target="${pageId}"]`); if (activeBotNav) activeBotNav.classList.add('active');
-      const titles = { dashboard: 'Dashboard', pemasukan: 'Pemasukan', pengeluaran: 'Pengeluaran', pindahbuku: 'Pindah Buku', laporan: 'Laporan', riwayat: 'Histori', masterIncType: 'Kategori', masterDept: 'Departemen', masterUnit: 'Unit', users: 'Manajemen User', settings: 'Pengaturan', roles: 'Hak Akses Menu', logs: 'Audit Log' };
+      const titles = { dashboard: 'Dashboard', pemasukan: 'Pemasukan', pengeluaran: 'Pengeluaran', pindahbuku: 'Pindah Buku', laporan: 'Laporan', riwayat: 'Histori', masterIncType: 'Kategori', masterDept: 'Departemen', masterUnit: 'Unit', users: 'Manajemen User', settings: 'Pengaturan Web', series: 'No. Series', roles: 'Hak Akses Menu', logs: 'Audit Log' };
       document.getElementById('pageTitle').textContent = titles[pageId] || 'Dashboard';
       if (window.innerWidth <= 1100) {
         closeSidebar();
@@ -5228,3 +5239,155 @@ window.isPrivateCategory = isPrivateCategory;
 window.doLogout = doLogout;
 window.preLoadLogos = preLoadLogos;
 window.handleTypeChange = handleTypeChange;
+
+// --- No. Series Config & Auto Generate ---
+function loadSeriesConfig() {
+  const month = document.getElementById('seriesMonth').value;
+  const year = document.getElementById('seriesYear').value;
+  const key = `${year}-${month.padStart(2, '0')}`;
+  
+  if (!systemConfig.receipt_series) systemConfig.receipt_series = {};
+  const config = systemConfig.receipt_series[key] || {};
+  
+  const cats = ['Pemasukan', 'PemasukanPembangunan', 'PengeluaranJemaat', 'PengeluaranDaerah', 'PengeluaranPembangunan', 'Mutasi'];
+  cats.forEach(cat => {
+    document.getElementById(`series_${cat}_start`).value = config[cat] ? config[cat].start : '';
+    document.getElementById(`series_${cat}_end`).value = config[cat] ? config[cat].end : '';
+  });
+}
+
+async function saveSeriesConfig() {
+  const month = document.getElementById('seriesMonth').value;
+  const year = document.getElementById('seriesYear').value;
+  const key = `${year}-${month.padStart(2, '0')}`;
+  
+  if (!systemConfig.receipt_series) systemConfig.receipt_series = {};
+  if (!systemConfig.receipt_series[key]) systemConfig.receipt_series[key] = {};
+  
+  const cats = ['Pemasukan', 'PemasukanPembangunan', 'PengeluaranJemaat', 'PengeluaranDaerah', 'PengeluaranPembangunan', 'Mutasi'];
+  cats.forEach(cat => {
+    const start = document.getElementById(`series_${cat}_start`).value;
+    const end = document.getElementById(`series_${cat}_end`).value;
+    if (start || end) {
+      systemConfig.receipt_series[key][cat] = {
+        start: start ? parseInt(start) : null,
+        end: end ? parseInt(end) : null
+      };
+    } else {
+      delete systemConfig.receipt_series[key][cat];
+    }
+  });
+  
+  localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
+  
+  showGlobalLoading();
+  try {
+    const res = await apiPostWithFallback('saveConfig', { key: 'receipt_series', value: JSON.stringify(systemConfig.receipt_series) });
+    if (res.success) notify('Pengaturan No. Series disimpan', 'success');
+    else throw new Error(res.message);
+  } catch(e) {
+    notify('Gagal menyimpan No. Series: ' + e.message, 'error');
+  }
+  hideGlobalLoading();
+}
+
+function getNextReceiptNumber(dateStr, typeCat, prefix) {
+  if (!dateStr) return { err: 'Pilih tanggal terlebih dahulu' };
+  const d = new Date(dateStr);
+  const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`;
+  if (!systemConfig.receipt_series || !systemConfig.receipt_series[key] || !systemConfig.receipt_series[key][typeCat]) {
+    return { err: `No. Series untuk ${typeCat} bulan ${key} belum diatur!` };
+  }
+  const config = systemConfig.receipt_series[key][typeCat];
+  if (!config.start) return { err: `Nomor Mulai untuk ${typeCat} bulan ${key} belum diatur!` };
+  
+  let allTx = [];
+  if (typeCat.startsWith('Pemasukan')) allTx = window.cachedIncome || [];
+  else if (typeCat.startsWith('Pengeluaran') || typeCat === 'Mutasi') allTx = window.cachedExpense || [];
+  
+  let maxNum = -1;
+  
+  allTx.forEach(tx => {
+    if (!tx.date || !tx.date.startsWith(key)) return;
+    
+    let matchCat = false;
+    if (typeCat === 'PemasukanPembangunan' && tx.income_type === 'Pembangunan') matchCat = true;
+    else if (typeCat === 'Pemasukan' && tx.income_type !== 'Pembangunan' && tx.income_type !== 'Saldo Awal Sistem') matchCat = true;
+    else if (typeCat === 'PengeluaranJemaat' && tx.source_balance === 'Jemaat' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
+    else if (typeCat === 'PengeluaranDaerah' && tx.source_balance === 'Daerah' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
+    else if (typeCat === 'PengeluaranPembangunan' && tx.source_balance === 'Pembangunan' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
+    else if (typeCat === 'Mutasi' && tx.department === 'Mutasi Kas / Setor Bank') matchCat = true;
+    
+    if (matchCat && tx.receipt_no) {
+      let rNumStr = String(tx.receipt_no).trim();
+      if (prefix === '') {
+        if (/^\d+$/.test(rNumStr)) {
+          let num = parseInt(rNumStr);
+          if (num > maxNum && num >= config.start && (config.end ? num <= config.end : true)) maxNum = num;
+        }
+      } else {
+        if (rNumStr.startsWith(prefix)) {
+          let numPart = rNumStr.substring(prefix.length);
+          if (/^\d+$/.test(numPart)) {
+            let num = parseInt(numPart);
+            if (num > maxNum && num >= config.start && (config.end ? num <= config.end : true)) maxNum = num;
+          }
+        }
+      }
+    }
+  });
+  
+  let nextNum = maxNum === -1 ? config.start : maxNum + 1;
+  if (config.end && nextNum > config.end) {
+    return { err: `Nomor seri untuk ${typeCat} bulan ${key} sudah habis (melewati ${config.end}). Silakan perbarui pengaturan No. Series.` };
+  }
+  
+  return { val: prefix + nextNum };
+}
+
+window.autoGenerateReceipt = function(formType) {
+  let dateInput, inputElem, typeCat, prefix;
+  if (formType === 'INC') {
+    dateInput = document.getElementById('incDate').value;
+    inputElem = document.getElementById('incReceipt');
+    let incType = document.getElementById('incType').value;
+    if (incType === 'Pembangunan') {
+      typeCat = 'PemasukanPembangunan'; prefix = 'PEMB-';
+    } else {
+      typeCat = 'Pemasukan'; prefix = '';
+    }
+  } else if (formType === 'EXC') {
+    dateInput = document.getElementById('excDate').value;
+    inputElem = document.getElementById('excReceipt');
+    let source = document.getElementById('excSource').value;
+    if (source === 'Jemaat') { typeCat = 'PengeluaranJemaat'; prefix = 'COST-'; }
+    else if (source === 'Daerah') { typeCat = 'PengeluaranDaerah'; prefix = 'MBR-'; }
+    else if (source === 'Pembangunan') { typeCat = 'PengeluaranPembangunan'; prefix = 'CP-'; }
+  } else if (formType === 'PB') {
+    dateInput = document.getElementById('pbDate').value;
+    inputElem = document.getElementById('pbReceipt');
+    typeCat = 'Mutasi'; prefix = 'PB-';
+  }
+  
+  const res = getNextReceiptNumber(dateInput, typeCat, prefix);
+  if (res.err) {
+    notify(res.err, 'error');
+  } else {
+    inputElem.value = res.val;
+  }
+};
+window.loadSeriesConfig = loadSeriesConfig;
+window.saveSeriesConfig = saveSeriesConfig;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const curY = new Date().getFullYear();
+  let html = '';
+  for(let y = 2024; y <= curY + 5; y++) {
+    html += `<option value="${y}" ${y === curY ? 'selected' : ''}>${y}</option>`;
+  }
+  let seriesYearEl = document.getElementById('seriesYear');
+  if (seriesYearEl) {
+    seriesYearEl.innerHTML = html;
+    document.getElementById('seriesMonth').value = (new Date().getMonth() + 1).toString();
+  }
+});
