@@ -707,7 +707,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .nav-item { 
   display: flex; align-items: center; gap: 12px; 
   padding: 12px; margin-bottom: 4px;
-  cursor: pointer; color: var(--text2); 
+  cursor: pointer; color: var(--text); 
   font-size: 14px; font-weight: 500;
   border-radius: var(--radius);
   transition: all 0.2s; 
@@ -833,7 +833,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .photo-preview { max-height: 140px; object-fit: contain; display: none; margin: 0 auto; border-radius: 8px; }
 
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
-.form-row { display: flex; gap: 16px; width: 100%; }
+.form-row, .keep-row { display: flex; flex-direction: column !important; gap: 0 !important; width: 100%; }
 .form-row > * { flex: 1; min-width: 0; }
 
 .card { background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); position: relative; z-index: 1; overflow: visible; margin-bottom: 24px; min-width: 0; max-width: 100%; box-sizing: border-box; transition: all 0.3s ease; }
@@ -921,7 +921,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   .grid-2 > * { min-width: 0; max-width: 100%; box-sizing: border-box; }
   .form-row { flex-direction: column; gap: 0; width: 100%; box-sizing: border-box; }
   
-  .keep-row { flex-direction: row !important; gap: 10px !important; }
+  .keep-row { flex-direction: column !important; gap: 0 !important; }
   .keep-row > * { min-width: 0; }
   
   /* Reset Card padding for lists to use full width */
@@ -1285,7 +1285,7 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 
 .table-wrap { overflow-x: auto; border-radius: var(--radius); width: 100%; max-width: 100%; border: 1px solid var(--glass-border); box-sizing: border-box; -webkit-overflow-scrolling: touch; }
 .table-wrap.scrollable { max-height: 70vh; overflow-y: auto; border: none; }
-table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 14px; }
+table { width: 100%; min-width: 100%; border-collapse: collapse; font-size: 14px; }
 .summary-table { min-width: 100% !important; } 
 
 th { 
@@ -1670,4 +1670,71 @@ button:disabled, .btn:disabled {
         background: var(--input-bg);
         border-color: var(--border-color);
     }
+}
+
+/* --- Table Column Resizer --- */
+.resizer {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 6px;
+  cursor: col-resize;
+  user-select: none;
+  bottom: 0;
+  z-index: 20;
+  background-color: transparent;
+  transition: background-color 0.2s;
+}
+.resizer:hover,
+.resizer.resizing {
+  background: rgba(148, 163, 184, 0.5); /* subtle gray on hover/drag */
+}
+
+/* --- Sidebar Auto-Hide (Mini Sidebar) --- */
+@media (min-width: 1101px) {
+  .sidebar { 
+    width: 72px; 
+    overflow-x: hidden; 
+    white-space: nowrap; 
+    transition: width 0.3s cubic-bezier(0.4,0,0.2,1); 
+  }
+  .sidebar:hover { 
+    width: 260px; 
+    box-shadow: 4px 0 24px rgba(0,0,0,0.4); 
+  }
+  .main { 
+    margin-left: 72px; 
+    transition: margin-left 0.3s cubic-bezier(0.4,0,0.2,1); 
+  }
+  
+  .sidebar .nav-section-title, 
+  .sidebar .logo-text, 
+  .sidebar .user-name, 
+  .sidebar .user-role,
+  .sidebar .sidebar-text { 
+    opacity: 0; 
+    visibility: hidden;
+    transition: opacity 0.2s; 
+  }
+  
+  .sidebar:hover .nav-section-title, 
+  .sidebar:hover .logo-text, 
+  .sidebar:hover .user-name, 
+  .sidebar:hover .user-role,
+  .sidebar:hover .sidebar-text { 
+    opacity: 1; 
+    visibility: visible;
+    transition-delay: 0.1s; 
+  }
+
+  /* Widen tables by reducing form width on desktop */
+  #page-pemasukan > .grid-2,
+  #page-pengeluaran > .grid-2,
+  #page-pindahbuku > .grid-2,
+  #page-masterIncType > .grid-2,
+  #page-masterDept > .grid-2,
+  #page-masterUnit > .grid-2,
+  #page-users > .grid-2 {
+    grid-template-columns: minmax(500px, 35%) 1fr;
+  }
 }

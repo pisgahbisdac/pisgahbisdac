@@ -1219,7 +1219,7 @@
       if (lblInc) {
         if (cachedIncome && cachedIncome.length > 0) {
           const sortedInc = [...cachedIncome].sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date));
-          lblInc.innerHTML = `No. Kuitansi Terakhir: <strong style="color:var(--text)">${sortedInc[0].receipt_no}</strong>`;
+          lblInc.innerHTML = `No. Kuitansi Terakhir:<br><strong style="color:var(--text)">${sortedInc[0].receipt_no}</strong>`;
         } else {
           lblInc.textContent = 'Belum ada transaksi';
         }
@@ -1228,7 +1228,7 @@
       if (lblExp) {
         if (cachedExpense && cachedExpense.length > 0) {
           const sortedExp = [...cachedExpense].sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date));
-          lblExp.innerHTML = `No. Bukti Terakhir: <strong style="color:var(--text)">${sortedExp[0].receipt_no}</strong>`;
+          lblExp.innerHTML = `No. Bukti Terakhir:<br><strong style="color:var(--text)">${sortedExp[0].receipt_no}</strong>`;
         } else {
           lblExp.textContent = 'Belum ada transaksi';
         }
@@ -4137,9 +4137,9 @@
           cleanNote = '<br><span style="font-size: 10px; color: #444; font-weight: normal;"><i>Ket: ***</i></span>';
         } else {
           let details = [];
-          if (parseFloat(x.alloc_daerah) > 0) details.push(`Daerah: Rp ${fmt(x.alloc_daerah)}`);
-          if (parseFloat(x.alloc_jemaat) > 0) details.push(`Jemaat: Rp ${fmt(x.alloc_jemaat)}`);
-          if (parseFloat(x.alloc_bangun) > 0) details.push(`Bangun: Rp ${fmt(x.alloc_bangun)}`);
+          if (parseFloat(x.alloc_daerah) > 0) details.push(`Daerah: Rp ###${fmt(x.alloc_daerah)}###`);
+          if (parseFloat(x.alloc_jemaat) > 0) details.push(`Jemaat: Rp ###${fmt(x.alloc_jemaat)}###`);
+          if (parseFloat(x.alloc_bangun) > 0) details.push(`Bangun: Rp ###${fmt(x.alloc_bangun)}###`);
           detailStr = details.length > 0 ? `<br><span style="font-weight: 500; font-size: 10px; color:#444;">(${details.join(' | ')})</span>` : '';
 
           if (x.note && x.note.trim() !== '') {
@@ -4149,10 +4149,10 @@
         }
 
         ths += `<th style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 11px; font-weight:700; text-transform: uppercase;">${headerTitle}</th>`;
-        tds += `<td style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 12px; vertical-align: top;">${fmt(amt)}${detailStr}${cleanNote}</td>`;
+        tds += `<td style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 12px; vertical-align: top;">###${fmt(amt)}###${detailStr}${cleanNote}</td>`;
       });
       ths += `<th style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 11px; font-weight:800; background: #e8e8e8;">TOTAL</th>`;
-      tds += `<td style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 12px; font-weight:800; background: #fafafa; vertical-align: top;">${fmt(totalAmt)}</td>`;
+      tds += `<td style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 12px; font-weight:800; background: #fafafa; vertical-align: top;">###${fmt(totalAmt)}###</td>`;
 
       finalTableHtml = `
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #333;">
@@ -4220,7 +4220,7 @@
             <tr>
               <td style="width: 150px; padding: 4px 0; vertical-align: top; white-space: nowrap;"><strong>Total</strong></td>
               <td style="width: 10px; padding: 4px 0; vertical-align: top;">:</td>
-              <td style="padding: 4px 0; vertical-align: top; font-weight: 700; font-size: 14px;">Rp ${fmt(totalAmt)}</td>
+              <td style="padding: 4px 0; vertical-align: top; font-weight: 700; font-size: 14px;">Rp ###${fmt(totalAmt)}###</td>
             </tr>
           </table>
 
@@ -4575,7 +4575,7 @@
       if (window.innerWidth <= 1100) {
         closeSidebar();
       }
-      if (pageId === 'dashboard') renderDashboard(); else if (pageId === 'pemasukan') renderIncomeList(); else if (pageId === 'pengeluaran') renderExpenseList(); else if (pageId === 'pindahbuku') renderMutasiList(); else if (pageId === 'riwayat') renderHistory(); else if (pageId === 'laporan') { document.getElementById('reportContent').innerHTML = ''; } else if (pageId === 'masterIncType') renderMasterIncTypes(); else if (pageId === 'masterDept') renderMasterDepts(); else if (pageId === 'masterUnit') renderMasterUnits(); else if (pageId === 'users') renderUsers(); else if (pageId === 'logs') renderLogs(); else if (pageId === 'roles') renderRoles();
+      if (pageId === 'dashboard') renderDashboard(); else if (pageId === 'pemasukan') renderIncomeList(); else if (pageId === 'pengeluaran') renderExpenseList(); else if (pageId === 'pindahbuku') renderMutasiList(); else if (pageId === 'riwayat') renderHistory(); else if (pageId === 'laporan') { document.getElementById('reportContent').innerHTML = ''; } else if (pageId === 'masterIncType') renderMasterIncTypes(); else if (pageId === 'masterDept') renderMasterDepts(); else if (pageId === 'masterUnit') renderMasterUnits(); else if (pageId === 'users') renderUsers(); else if (pageId === 'logs') renderLogs(); else if (pageId === 'roles') renderRoles(); else if (pageId === 'series') { if(window.loadSeriesConfig) window.loadSeriesConfig(); }
 
       setTimeout(updateBottomNavIndicator, 50); // Small delay to ensure display is calculated
     }
@@ -5246,6 +5246,36 @@ window.doLogout = doLogout;
 window.preLoadLogos = preLoadLogos;
 window.handleTypeChange = handleTypeChange;
 
+window.toggleEditMode = function(containerId, btnId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  let isLocked = container.hasAttribute('disabled');
+  const btn = document.getElementById(btnId);
+  
+  if (isLocked) {
+    container.removeAttribute('disabled');
+    if(btn) {
+      btn.innerHTML = '<span class="icon-placeholder" data-icon="lockOpen" data-size="lucide-md"></span> Mode Edit Aktif';
+      btn.classList.add('badge-gold');
+      btn.classList.remove('badge-gray');
+    }
+  } else {
+    container.setAttribute('disabled', 'disabled');
+    if(btn) {
+      btn.innerHTML = '<span class="icon-placeholder" data-icon="lock" data-size="lucide-md"></span> Mode Edit';
+      btn.classList.remove('badge-gold');
+      btn.classList.add('badge-gray');
+    }
+  }
+  
+  document.querySelectorAll('.icon-placeholder').forEach(el => {
+    if (typeof getIcon === 'function' && el.parentElement) {
+      el.outerHTML = getIcon(el.getAttribute('data-icon'), el.getAttribute('data-size'));
+    }
+  });
+};
+
 // --- No. Series Config & Auto Generate ---
 function loadSeriesConfig() {
   const month = document.getElementById('seriesMonth').value;
@@ -5259,9 +5289,66 @@ function loadSeriesConfig() {
   const config = systemConfig.receipt_series[key] || {};
   
   const cats = ['Pemasukan', 'PemasukanPembangunan', 'PengeluaranJemaat', 'PengeluaranDaerah', 'PengeluaranPembangunan', 'Mutasi'];
+  const prefixes = {
+    'Pemasukan': '',
+    'PemasukanPembangunan': 'PEMB-',
+    'PengeluaranJemaat': 'COST-',
+    'PengeluaranDaerah': 'MBR-',
+    'PengeluaranPembangunan': 'CP-',
+    'Mutasi': 'PB-'
+  };
+
   cats.forEach(cat => {
     document.getElementById(`series_${cat}_start`).value = config[cat] ? config[cat].start : '';
     document.getElementById(`series_${cat}_end`).value = config[cat] ? config[cat].end : '';
+    
+    // Calculate last used number
+    let maxNum = -1;
+    let allTx = [];
+    if (cat.startsWith('Pemasukan')) allTx = window.cachedIncome || [];
+    else if (cat.startsWith('Pengeluaran') || cat === 'Mutasi') allTx = window.cachedExpense || [];
+    
+    let prefix = prefixes[cat] || '';
+    let startNum = config[cat] && config[cat].start ? parseInt(config[cat].start) : -1;
+    let endNum = config[cat] && config[cat].end ? parseInt(config[cat].end) : null;
+    
+    allTx.forEach(tx => {
+      if (!tx.date || !tx.date.startsWith(key)) return;
+      let matchCat = false;
+      if (cat === 'PemasukanPembangunan' && tx.income_type === 'Pembangunan') matchCat = true;
+      else if (cat === 'Pemasukan' && tx.income_type !== 'Pembangunan' && tx.income_type !== 'Saldo Awal Sistem') matchCat = true;
+      else if (cat === 'PengeluaranJemaat' && tx.source_balance === 'Jemaat' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
+      else if (cat === 'PengeluaranDaerah' && tx.source_balance === 'Daerah' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
+      else if (cat === 'PengeluaranPembangunan' && tx.source_balance === 'Pembangunan' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
+      else if (cat === 'Mutasi' && tx.department === 'Mutasi Kas / Setor Bank') matchCat = true;
+      
+      if (matchCat && tx.receipt_no) {
+        let rNumStr = String(tx.receipt_no).trim();
+        if (prefix === '') {
+          if (/^\d+$/.test(rNumStr)) {
+            let num = parseInt(rNumStr);
+            if (num > maxNum && num >= startNum && (endNum ? num <= endNum : true)) maxNum = num;
+          }
+        } else {
+          if (rNumStr.startsWith(prefix)) {
+            let numPart = rNumStr.substring(prefix.length);
+            if (/^\d+$/.test(numPart)) {
+              let num = parseInt(numPart);
+              if (num > maxNum && num >= startNum && (endNum ? num <= endNum : true)) maxNum = num;
+            }
+          }
+        }
+      }
+    });
+    
+    let lastEl = document.getElementById(`series_${cat}_last`);
+    if (lastEl) {
+      if (maxNum === -1) {
+        lastEl.innerHTML = `No. Terakhir Terpakai:<br><strong style="color:var(--text2)">Belum ada</strong>`;
+      } else {
+        lastEl.innerHTML = `No. Terakhir Terpakai:<br><strong style="color:var(--text2)">${prefix}${maxNum}</strong>`;
+      }
+    }
   });
 }
 
@@ -5399,6 +5486,29 @@ window.loadSeriesConfig = loadSeriesConfig;
 window.saveSeriesConfig = saveSeriesConfig;
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Wrap text nodes in sidebar nav items and logout btn to hide them smoothly
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.childNodes.forEach(child => {
+      if (child.nodeType === Node.TEXT_NODE && child.textContent.trim() !== '') {
+        const span = document.createElement('span');
+        span.className = 'sidebar-text';
+        span.textContent = child.textContent;
+        item.replaceChild(span, child);
+      }
+    });
+  });
+  const logoutBtn = document.querySelector('.logout-btn');
+  if (logoutBtn) {
+    logoutBtn.childNodes.forEach(child => {
+      if (child.nodeType === Node.TEXT_NODE && child.textContent.trim() !== '') {
+        const span = document.createElement('span');
+        span.className = 'sidebar-text';
+        span.textContent = child.textContent;
+        logoutBtn.replaceChild(span, child);
+      }
+    });
+  }
+
   const curY = new Date().getFullYear();
   let html = '';
   for(let y = 2024; y <= curY + 5; y++) {
@@ -5409,4 +5519,65 @@ document.addEventListener('DOMContentLoaded', () => {
     seriesYearEl.innerHTML = html;
     document.getElementById('seriesMonth').value = (new Date().getMonth() + 1).toString();
   }
+});
+
+// --- Table Column Resizer ---
+function initTableResizer(table) {
+  if (table.classList.contains('resizable-initialized')) return;
+  table.classList.add('resizable-initialized');
+  
+  const cols = table.querySelectorAll('th');
+  [].forEach.call(cols, function (col) {
+    if (col.querySelector('.resizer')) return;
+    
+    const resizer = document.createElement('div');
+    resizer.classList.add('resizer');
+    col.appendChild(resizer);
+    
+    let x = 0;
+    let w = 0;
+    
+    const mouseDownHandler = function (e) {
+      x = e.clientX;
+      const styles = window.getComputedStyle(col);
+      w = parseInt(styles.width, 10);
+      
+      document.addEventListener('mousemove', mouseMoveHandler);
+      document.addEventListener('mouseup', mouseUpHandler);
+      resizer.classList.add('resizing');
+    };
+    
+    const mouseMoveHandler = function (e) {
+      const dx = e.clientX - x;
+      col.style.width = `${w + dx}px`;
+      col.style.minWidth = `${w + dx}px`;
+      col.style.maxWidth = 'none';
+    };
+    
+    const mouseUpHandler = function () {
+      document.removeEventListener('mousemove', mouseMoveHandler);
+      document.removeEventListener('mouseup', mouseUpHandler);
+      resizer.classList.remove('resizing');
+    };
+    
+    resizer.addEventListener('mousedown', mouseDownHandler);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach(mutation => {
+      mutation.addedNodes.forEach(node => {
+        if (node.nodeType === 1) { // ELEMENT_NODE
+          if (node.tagName === 'TABLE' && (node.classList.contains('table-log') || node.classList.contains('table-report') || node.classList.contains('table-history'))) {
+            initTableResizer(node);
+          }
+          const tables = node.querySelectorAll ? node.querySelectorAll('.table-log, .table-report, .table-history') : [];
+          tables.forEach(initTableResizer);
+        }
+      });
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  document.querySelectorAll('.table-log, .table-report, .table-history').forEach(initTableResizer);
 });

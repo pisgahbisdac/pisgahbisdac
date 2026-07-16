@@ -957,8 +957,12 @@
                 <span class="icon-placeholder" data-icon="user" data-size="lucide-md"></span>
               </span>
               Pengaturan Akun
+              <button id="btnEditAkun" class="badge badge-gray" style="margin-left:auto; cursor:pointer; background:transparent; border:1px solid var(--glass-border); padding:6px 12px; font-family:inherit; color:var(--text3); border-radius:8px; display:flex; gap:6px; align-items:center;" onclick="toggleEditMode('akunFieldset', 'btnEditAkun')">
+                <span class="icon-placeholder" data-icon="lock" data-size="lucide-md"></span> Mode Edit
+              </button>
             </div>
           </div>
+          <fieldset id="akunFieldset" disabled style="border:none; padding:0; margin:0; min-width:0;">
           <div class="form-group">
             <label class="form-label">Username</label>
             <input type="text" class="form-input" id="myNewUsername" placeholder="Username baru">
@@ -984,6 +988,7 @@
           </div>
           <button class="btn btn-primary" style="width:100%; margin-top:8px;" id="btnUpdateMyPassword"
             onclick="updateMyAccount()">Simpan Perubahan</button>
+          </fieldset>
         </div>
       </div>
 
@@ -1229,9 +1234,20 @@
 
       <div class="page" id="page-series">
         <div class="card" style="max-width:800px; margin:0 auto; padding: 24px;">
-          <h2 style="margin-bottom: 24px; color: var(--text);">Pengaturan No. Series Kuitansi</h2>
-          <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">
-            Atur range (Mulai s.d Sampai) untuk penomoran kuitansi per bulan.
+          <div class="card-header">
+            <div class="card-title" style="display:flex; align-items:center; gap:8px;">
+              <span style="color:var(--primary)">
+                <span class="icon-placeholder" data-icon="settings" data-size="lucide-md"></span>
+              </span>
+              No. Series Kuitansi
+              <button id="btnEditSeries" class="badge badge-gray" style="margin-left:auto; cursor:pointer; background:transparent; border:1px solid var(--glass-border); padding:6px 12px; font-family:inherit; color:var(--text3); border-radius:8px; display:flex; gap:6px; align-items:center;" onclick="toggleEditMode('seriesFieldset', 'btnEditSeries')">
+                <span class="icon-placeholder" data-icon="lock" data-size="lucide-md"></span> Mode Edit
+              </button>
+            </div>
+          </div>
+          <p style="font-size:13px; color:var(--text3); margin-top:-4px; margin-bottom:24px; line-height:1.5;">
+            Pengaturan ini berguna agar saat Admin/Bendahara membuat Kuitansi, nomor serinya akan berlanjut secara
+            otomatis sesuai format per bulan yang diatur di bawah ini.
           </p>
           
           <div style="display: flex; gap: 16px; margin-bottom: 24px;">
@@ -1264,6 +1280,7 @@
             </div>
           </div>
 
+          <fieldset id="seriesFieldset" disabled style="border:none; padding:0; margin:0; min-width:0;">
           <div id="seriesFormContainer" style="display:flex; flex-direction:column; gap:16px;">
             <!-- Pemasukan -->
             <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
@@ -1272,6 +1289,7 @@
                 <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_Pemasukan_start" class="form-input" placeholder="Contoh: 10600"></div>
                 <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_Pemasukan_end" class="form-input" placeholder="Contoh: 10899"></div>
               </div>
+              <div id="series_Pemasukan_last" style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
             </div>
             <!-- Pemasukan Pembangunan -->
             <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
@@ -1280,6 +1298,7 @@
                 <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_PemasukanPembangunan_start" class="form-input"></div>
                 <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_PemasukanPembangunan_end" class="form-input"></div>
               </div>
+              <div id="series_PemasukanPembangunan_last" style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
             </div>
             <!-- Pengeluaran Kas Jemaat -->
             <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
@@ -1288,6 +1307,7 @@
                 <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_PengeluaranJemaat_start" class="form-input"></div>
                 <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_PengeluaranJemaat_end" class="form-input"></div>
               </div>
+              <div id="series_PengeluaranJemaat_last" style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
             </div>
             <!-- Pengeluaran Daerah -->
             <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
@@ -1296,6 +1316,7 @@
                 <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_PengeluaranDaerah_start" class="form-input"></div>
                 <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_PengeluaranDaerah_end" class="form-input"></div>
               </div>
+              <div id="series_PengeluaranDaerah_last" style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
             </div>
             <!-- Pengeluaran Pembangunan -->
             <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
@@ -1304,6 +1325,7 @@
                 <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_PengeluaranPembangunan_start" class="form-input"></div>
                 <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_PengeluaranPembangunan_end" class="form-input"></div>
               </div>
+              <div id="series_PengeluaranPembangunan_last" style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
             </div>
             <!-- Mutasi / Pindah Buku -->
             <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
@@ -1312,12 +1334,14 @@
                 <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_Mutasi_start" class="form-input"></div>
                 <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_Mutasi_end" class="form-input"></div>
               </div>
+              <div id="series_Mutasi_last" style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
             </div>
           </div>
 
           <div style="display: flex; justify-content: flex-end; margin-top: 32px;">
             <button id="btnSaveSeries" class="btn btn-primary" onclick="saveSeriesConfig()">Simpan No. Series</button>
           </div>
+          </fieldset>
         </div>
       </div>
 
