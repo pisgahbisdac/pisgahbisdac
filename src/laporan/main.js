@@ -1300,6 +1300,8 @@
         const [inc, exp, bal] = await Promise.all([apiGet('getIncomeList'), apiGet('getExpenseList'), apiGet('getBalances')]);
         cachedIncome = Array.isArray(inc.data) ? inc.data : [];
         cachedExpense = Array.isArray(exp.data) ? exp.data : [];
+        window.cachedIncome = cachedIncome;
+        window.cachedExpense = cachedExpense;
         if (bal && bal.data) cachedSaldo = bal.data;
 
         if (currentUser && currentUser.role !== 'Admin') {
@@ -5374,15 +5376,15 @@ window.autoGenerateReceipt = function(formType) {
       typeCat = 'Pemasukan'; prefix = '';
     }
   } else if (formType === 'EXC') {
-    dateInput = document.getElementById('excDate').value;
+    dateInput = document.getElementById('expDate').value;
     inputElem = document.getElementById('excReceipt');
-    let source = document.getElementById('excSource').value;
-    if (source === 'Jemaat') { typeCat = 'PengeluaranJemaat'; prefix = 'COST-'; }
-    else if (source === 'Daerah') { typeCat = 'PengeluaranDaerah'; prefix = 'MBR-'; }
-    else if (source === 'Pembangunan') { typeCat = 'PengeluaranPembangunan'; prefix = 'CP-'; }
+    let source = document.getElementById('expSource').value;
+    if (source.startsWith('Kas Jemaat')) { typeCat = 'PengeluaranJemaat'; prefix = 'COST-'; }
+    else if (source.startsWith('Daerah')) { typeCat = 'PengeluaranDaerah'; prefix = 'MBR-'; }
+    else if (source.startsWith('Pembangunan')) { typeCat = 'PengeluaranPembangunan'; prefix = 'CP-'; }
   } else if (formType === 'PB') {
-    dateInput = document.getElementById('pbDate').value;
-    inputElem = document.getElementById('pbReceipt');
+    dateInput = document.getElementById('mutDate').value;
+    inputElem = document.getElementById('mutReceipt');
     typeCat = 'Mutasi'; prefix = 'PB-';
   }
   
