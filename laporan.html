@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <script type="module" crossorigin src="/assets/laporan-DO9LgAyS.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-DT06VQh8.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/laporan-DLl9-j_y.css">
   <link rel="stylesheet" crossorigin href="/assets/index-BOziNQc1.css">
@@ -472,7 +472,7 @@
                   <label class="form-label">No. Kuitansi</label>
                   <div style="display: flex; gap: 8px;">
                     <input class="form-input" id="incReceipt" type="text" placeholder="No. Otomatis / Manual">
-                    <button type="button" class="btn" style="padding: 0 12px; background:var(--blue); color:white;" onclick="autoGenerateReceipt('INC')" title="Generate Auto">Auto</button>
+                    <button type="button" class="btn" style="padding: 0 12px; background:#3b82f6; color:white;" onclick="autoGenerateReceipt('INC')" title="Generate Auto">Auto</button>
                   </div>
                   <div id="lastIncReceipt" style="font-size:11px; color:var(--text3); margin-top:4px;"></div>
                 </div>
@@ -578,7 +578,7 @@
                 <label class="form-label">No. Bukti/Kuitansi</label>
                 <div style="display: flex; gap: 8px;">
                   <input class="form-input" id="excReceipt" type="text" placeholder="No. Otomatis / Manual">
-                  <button type="button" class="btn" style="padding: 0 12px; background:var(--blue); color:white;" onclick="autoGenerateReceipt('EXC')" title="Generate Auto">Auto</button>
+                  <button type="button" class="btn" style="padding: 0 12px; background:#3b82f6; color:white;" onclick="autoGenerateReceipt('EXC')" title="Generate Auto">Auto</button>
                 </div>
                 <div id="lastExcReceipt" style="font-size:11px; color:var(--text3); margin-top:4px;"></div>
               </div>
@@ -642,7 +642,10 @@
             <div class="form-row" style="margin-top:20px">
               <div class="form-group">
                 <label class="form-label">Nomor Bukti Setor</label>
-                <input class="form-input" id="mutReceipt" type="text" placeholder="MUT-XXXX">
+                <div style="display: flex; gap: 8px;">
+                  <input class="form-input" id="mutReceipt" type="text" placeholder="MUT-XXXX">
+                  <button type="button" class="btn" style="padding: 0 12px; background:#3b82f6; color:white;" onclick="autoGenerateReceipt('PB')" title="Generate Auto">Auto</button>
+                </div>
               </div>
             </div>
             <div class="form-group">
