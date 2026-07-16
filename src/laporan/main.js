@@ -329,10 +329,13 @@
       }
     }
 
+    window.showGlobalLoading = showGlobalLoading;
+
     function hideGlobalLoading() {
       const overlay = document.getElementById('globalLoadingOverlay');
       if (overlay) overlay.style.display = 'none';
     }
+    window.hideGlobalLoading = hideGlobalLoading;
 
     async function apiPost(action, payload = {}) {
       if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
@@ -4538,6 +4541,7 @@
       icon.innerHTML = type === 'success' ? safeIcon('check', 'lucide-md') : safeIcon('alert', 'lucide-md');
       el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3000);
     }
+    window.notify = notify;
 
     function updateAppStatus() {
       const dot = document.getElementById('appStatusDot'); const txt = document.getElementById('appStatusText');
@@ -5246,6 +5250,9 @@ function loadSeriesConfig() {
   const year = document.getElementById('seriesYear').value;
   const key = `${year}-${month.padStart(2, '0')}`;
   
+  if (typeof systemConfig.receipt_series === 'string') {
+    try { systemConfig.receipt_series = JSON.parse(systemConfig.receipt_series); } catch(e) { systemConfig.receipt_series = {}; }
+  }
   if (!systemConfig.receipt_series) systemConfig.receipt_series = {};
   const config = systemConfig.receipt_series[key] || {};
   
@@ -5261,6 +5268,9 @@ async function saveSeriesConfig() {
   const year = document.getElementById('seriesYear').value;
   const key = `${year}-${month.padStart(2, '0')}`;
   
+  if (typeof systemConfig.receipt_series === 'string') {
+    try { systemConfig.receipt_series = JSON.parse(systemConfig.receipt_series); } catch(e) { systemConfig.receipt_series = {}; }
+  }
   if (!systemConfig.receipt_series) systemConfig.receipt_series = {};
   if (!systemConfig.receipt_series[key]) systemConfig.receipt_series[key] = {};
   
@@ -5280,21 +5290,28 @@ async function saveSeriesConfig() {
   
   localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
   
-  showGlobalLoading();
+  console.log("saveSeriesConfig dipanggil");
+  if (window.showGlobalLoading) window.showGlobalLoading();
   try {
-    const res = await apiPostWithFallback('saveConfig', { key: 'receipt_series', value: JSON.stringify(systemConfig.receipt_series) });
-    if (res.success) notify('Pengaturan No. Series disimpan', 'success');
-    else throw new Error(res.message);
+    const res = await window.apiPostWithFallback('saveConfig', { key: 'receipt_series', value: JSON.stringify(systemConfig.receipt_series) });
+    if (res.success) {
+      if (window.notify) window.notify('Pengaturan No. Series disimpan', 'success');
+      else alert('Pengaturan No. Series disimpan');
+    } else throw new Error(res.message);
   } catch(e) {
-    notify('Gagal menyimpan No. Series: ' + e.message, 'error');
+    if (window.notify) window.notify('Gagal menyimpan No. Series: ' + e.message, 'error');
+    else alert('Gagal menyimpan No. Series: ' + e.message);
   }
-  hideGlobalLoading();
+  if (window.hideGlobalLoading) window.hideGlobalLoading();
 }
 
 function getNextReceiptNumber(dateStr, typeCat, prefix) {
   if (!dateStr) return { err: 'Pilih tanggal terlebih dahulu' };
   const d = new Date(dateStr);
   const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`;
+  if (typeof systemConfig.receipt_series === 'string') {
+    try { systemConfig.receipt_series = JSON.parse(systemConfig.receipt_series); } catch(e) { systemConfig.receipt_series = {}; }
+  }
   if (!systemConfig.receipt_series || !systemConfig.receipt_series[key] || !systemConfig.receipt_series[key][typeCat]) {
     return { err: `No. Series untuk ${typeCat} bulan ${key} belum diatur!` };
   }
