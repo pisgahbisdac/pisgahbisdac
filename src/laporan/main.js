@@ -5464,7 +5464,7 @@ window.autoGenerateReceipt = function(formType) {
     }
   } else if (formType === 'EXC') {
     dateInput = document.getElementById('expDate').value;
-    inputElem = document.getElementById('excReceipt');
+    inputElem = document.getElementById('expReceipt');
     let source = document.getElementById('expSource').value;
     if (source.startsWith('Kas Jemaat')) { typeCat = 'PengeluaranJemaat'; prefix = 'COST-'; }
     else if (source.startsWith('Daerah')) { typeCat = 'PengeluaranDaerah'; prefix = 'MBR-'; }
