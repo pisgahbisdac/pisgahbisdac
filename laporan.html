@@ -13,11 +13,12 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.css" rel="stylesheet">
 
-  <script type="module" crossorigin src="/assets/laporan-C-BLAXKX.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-EE8-A5PW.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/laporan-DLl9-j_y.css">
-  <link rel="stylesheet" crossorigin href="/assets/index-xatkHF0n.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-DjljuEVa.css">
 </head>
 
 <body class="page-laporan">
@@ -91,13 +92,14 @@
             autocomplete="username">
         </div>
         <div class="form-group">
-          <label class="form-label" style="color: var(--primary);">Kata Sandi</label>
-          <input class="form-input glass-input" id="loginPass" type="password" placeholder="••••••••"
-            autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()" style="padding-right:40px;">
-          <span class="eye-btn" id="loginEye" onclick="togglePassword('loginPass', 'loginEye')" title="Lihat Password"
-            style="color: var(--primary);">
-            <span class="icon-placeholder" data-icon="eyeOff" data-size="lucide-md"></span>
-          </span>
+          <div class="password-box">
+            <input class="form-input glass-input" id="loginPass" type="password" placeholder=" "
+              autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
+            <label>Kata Sandi</label>
+            <span class="eye-btn eye-icon" onclick="togglePassword('loginPass', this)">
+              <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
+            </span>
+          </div>
         </div>
         <button class="login-btn" id="loginBtn" onclick="doLogin()">
           <span id="loginBtnText">Masuk Ke Sistem</span>
@@ -156,7 +158,7 @@
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
-          <span id="btnLogoutText">Keluar</span>
+          <span class="sidebar-text" id="btnLogoutText">Keluar</span>
         </button>
       </div>
       <nav class="sidebar-nav">
@@ -450,8 +452,13 @@
             <div class="form-section-title">Catat Pemasukan</div>
             <div>
               <div class="form-row keep-row">
-                <div class="form-group"><label class="form-label">Tanggal Transaksi</label><input class="form-input"
-                    id="incDate" type="date"></div>
+                <div class="form-group"><label class="form-label">Tanggal Transaksi</label>
+                  <div class="premium-date-wrapper">
+                    <input class="form-input premium-date" id="incDate" type="text" placeholder="Pilih Tanggal" readonly>
+                    <span class="icon-placeholder left-icon" data-icon="calendar" data-size="lucide-md"></span>
+                    <span class="icon-placeholder right-icon" data-icon="chevronDown" data-size="lucide-md"></span>
+                  </div>
+                </div>
                 <div class="form-group" id="incAmountSingleGroup"><label class="form-label">Nominal Pemasukan
                     (Rp)</label><input class="form-input" id="incAmount" type="text" inputmode="numeric" placeholder="0"
                     oninput="formatRupiah(this); updateIncomeAlloc()"></div>
@@ -546,8 +553,13 @@
           <div class="card">
             <div class="form-section-title">Input Pengeluaran</div>
             <div class="form-row keep-row">
-              <div class="form-group"><label class="form-label">Tanggal</label><input class="form-input" id="expDate"
-                  type="date"></div>
+              <div class="form-group"><label class="form-label">Tanggal</label>
+                <div class="premium-date-wrapper">
+                  <input class="form-input premium-date" id="expDate" type="text" placeholder="Pilih Tanggal" readonly>
+                  <span class="icon-placeholder left-icon" data-icon="calendar" data-size="lucide-md"></span>
+                  <span class="icon-placeholder right-icon" data-icon="chevronDown" data-size="lucide-md"></span>
+                </div>
+              </div>
               <div class="form-group"><label class="form-label">Nominal Keluar (Rp)</label><input class="form-input"
                   id="expAmount" type="text" inputmode="numeric" placeholder="0"
                   oninput="formatRupiah(this); checkSaldo()"></div>
@@ -617,8 +629,13 @@
           <div class="card">
             <div class="form-section-title">Input Setoran Kas ke Bank (Mutasi)</div>
             <div class="form-row keep-row">
-              <div class="form-group"><label class="form-label">Tanggal</label><input class="form-input" id="mutDate"
-                  type="date"></div>
+              <div class="form-group"><label class="form-label">Tanggal</label>
+                <div class="premium-date-wrapper">
+                  <input class="form-input premium-date" id="mutDate" type="text" placeholder="Pilih Tanggal" readonly>
+                  <span class="icon-placeholder left-icon" data-icon="calendar" data-size="lucide-md"></span>
+                  <span class="icon-placeholder right-icon" data-icon="chevronDown" data-size="lucide-md"></span>
+                </div>
+              </div>
               <div class="form-group"><label class="form-label">Nominal Disetor (Rp)</label><input class="form-input"
                   id="mutAmount" type="text" inputmode="numeric" placeholder="0"
                   oninput="formatRupiah(this); checkMutSaldo()"></div>
@@ -718,6 +735,11 @@
             style="display:none;">Manajemen Tutup Buku</button>
         </div>
 
+        <div class="report-tabs" style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; overflow-x: auto;">
+          <button class="btn tab-btn active" onclick="switchReportTab('umum')" id="tabLaporanUmum" style="flex: 1; min-width: 150px; font-weight: 600; border: none; background: transparent;">Kas Umum & Jemaat</button>
+          <button class="btn tab-btn" onclick="switchReportTab('pembangunan')" id="tabLaporanPembangunan" style="flex: 1; min-width: 150px; font-weight: 600; border: none; background: transparent;">Laporan Pembangunan</button>
+        </div>
+
         <div id="reportSensorContainer"
           style="margin-top: -8px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 16px; padding: 14px; background: var(--input-bg); border-radius: var(--radius-lg); border: 1px dashed var(--glass-border); max-width: 100%; box-sizing: border-box;">
 
@@ -752,7 +774,10 @@
 
         </div>
 
-        <div id="reportContent"></div>
+        <div id="reportContentContainer" style="position: relative; min-height: 200px;">
+          <div id="reportContent" class="tab-panel active"></div>
+          <div id="reportContentPembangunan" class="tab-panel"></div>
+        </div>
       </div>
 
       <!-- PAGE: RIWAYAT -->
@@ -931,12 +956,15 @@
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Kata Sandi</label>
-              <input class="form-input" id="userPassword" type="password" style="padding-right:40px;">
-              <span class="eye-btn" id="userEye" onclick="togglePassword('userPassword', 'userEye')">
-                <span class="icon-placeholder" data-icon="eyeOff" data-size="lucide-md"></span>
+            <div class="password-box">
+              <input class="form-input" id="userPassword" type="password" placeholder=" ">
+              <label>Kata Sandi</label>
+              <span class="eye-btn eye-icon" onclick="togglePassword('userPassword', this)">
+                <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
               </span>
             </div>
+            <div class="password-strength" id="userPassStrength"></div>
+          </div>
             <div style="display:flex; gap:12px; margin-top:10px">
               <button class="btn btn-primary" id="saveUserBtn" onclick="saveUserForm()" style="flex:1">Simpan</button>
               <button class="btn btn-ghost" id="cancelEditUserBtn" onclick="cancelEditUser()"
@@ -971,21 +999,24 @@
           </div>
           <div style="border-top:1px solid var(--glass-border); margin:12px 0;"></div>
           <div class="form-group" style="position:relative;">
-            <label class="form-label">Kata Sandi Baru</label>
-            <input type="password" class="form-input" id="myNewPassword" placeholder="Masukkan kata sandi baru">
-            <span class="eye-btn" id="myNewPasswordEye" onclick="togglePassword('myNewPassword', 'myNewPasswordEye')">
-              <span class="icon-placeholder" data-icon="eyeOff" data-size="lucide-md"></span>
-            </span>
+            <div class="password-box">
+              <input type="password" class="form-input" id="myNewPassword" placeholder=" ">
+              <label>Kata Sandi Baru</label>
+              <span class="eye-btn eye-icon" onclick="togglePassword('myNewPassword', this)">
+                <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
+              </span>
+            </div>
+            <div class="password-strength" id="myNewPassStrength"></div>
           </div>
           <div class="form-group" style="position:relative;">
-            <label class="form-label">Konfirmasi Kata Sandi Baru</label>
-            <input type="password" class="form-input" id="myNewPasswordConfirm"
-              placeholder="Ketik ulang kata sandi baru">
-            <span class="eye-btn" id="myNewPasswordConfirmEye"
-              onclick="togglePassword('myNewPasswordConfirm', 'myNewPasswordConfirmEye')">
-              <span class="icon-placeholder" data-icon="eyeOff" data-size="lucide-md"></span>
-            </span>
-            <small style="color:var(--text4); font-size:11px;">Kosongkan jika tidak ingin mengubah sandi.</small>
+            <div class="password-box">
+              <input type="password" class="form-input" id="myNewPasswordConfirm" placeholder=" ">
+              <label>Konfirmasi Kata Sandi Baru</label>
+              <span class="eye-btn eye-icon" onclick="togglePassword('myNewPasswordConfirm', this)">
+                <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
+              </span>
+            </div>
+            <small style="color:var(--text4); font-size:11px; margin-top:8px; display:block;">Kosongkan jika tidak ingin mengubah sandi.</small>
           </div>
           <button class="btn btn-primary" style="width:100%; margin-top:8px;" id="btnUpdateMyPassword"
             onclick="updateMyAccount()">Simpan Perubahan</button>
@@ -1477,8 +1508,13 @@
           Transaksi</span>
       </h3>
       <div class="form-row keep-row">
-        <div class="form-group"><label class="form-label">Tanggal</label><input class="form-input" id="editTransDate"
-            type="date"></div>
+        <div class="form-group"><label class="form-label">Tanggal</label>
+          <div class="premium-date-wrapper">
+            <input class="form-input premium-date" id="editTransDate" type="text" placeholder="Pilih Tanggal" readonly>
+            <span class="icon-placeholder left-icon" data-icon="calendar" data-size="lucide-md"></span>
+            <span class="icon-placeholder right-icon" data-icon="chevronDown" data-size="lucide-md"></span>
+          </div>
+        </div>
         <div class="form-group"><label class="form-label">Bukti/Ref</label><input class="form-input"
             id="editTransReceipt" type="text"></div>
       </div>
@@ -1583,7 +1619,7 @@
           style="position:absolute; left:0; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.45); color:white; border-radius:50%; width:36px; height:36px; display:none; align-items:center; justify-content:center; font-size:20px; padding:0;"
           onclick="changePhoto(-1)">&#10094;</button>
         <img id="photoModalImg" src=""
-          style="max-width:100%; max-height:75vh; object-fit:contain; border-radius:12px; vertical-align:middle; display:inline-block;">
+          style="width:100%; height:75vh; object-fit:contain; border-radius:12px; vertical-align:middle; display:inline-block;">
         <button id="nextPhotoBtn" class="btn btn-ghost"
           style="position:absolute; right:0; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.45); color:white; border-radius:50%; width:36px; height:36px; display:none; align-items:center; justify-content:center; font-size:20px; padding:0;"
           onclick="changePhoto(1)">&#10095;</button>
@@ -1614,11 +1650,15 @@
         <div style="display:flex; gap:12px;">
           <div class="input-group" style="flex:1;">
             <label class="label">Mulai Tanggal</label>
-            <input type="date" id="bulkPrintStart" class="input">
+          <div class="premium-date-wrapper" style="width:140px;">
+            <input type="text" id="bulkPrintStart" class="input premium-date" placeholder="Awal" readonly>
+          </div>
           </div>
           <div class="input-group" style="flex:1;">
             <label class="label">Hingga Tanggal</label>
-            <input type="date" id="bulkPrintEnd" class="input">
+          <div class="premium-date-wrapper" style="width:140px;">
+            <input type="text" id="bulkPrintEnd" class="input premium-date" placeholder="Akhir" readonly>
+          </div>
           </div>
         </div>
         <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text); cursor:pointer;">
@@ -1668,6 +1708,7 @@
     </div>
   </button>
   <div id="printContainer" style="display:none;"></div>
+  <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.js"></script>
   <script>
     let _laporanLastScrollY = window.scrollY;
     window.addEventListener('scroll', () => {
