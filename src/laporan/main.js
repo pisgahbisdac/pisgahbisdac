@@ -737,7 +737,7 @@
     async function handleReceiptPhoto(event, type) {
       const files = Array.from(event.target.files);
       if (files.length === 0) return;
-      const MAX_CHARS = 48000;
+      const MAX_CHARS = 49500;
       let targetArray = type === 'income' ? currentIncPhotos : (type === 'expense' ? currentExpPhotos : (type === 'mutasi' ? currentMutPhotos : currentEditPhotos));
       let targetGridId = type === 'income' ? 'incPhotoGrid' : (type === 'expense' ? 'expPhotoGrid' : (type === 'mutasi' ? 'mutPhotoGrid' : 'editPhotoGrid'));
       let targetUploadBoxId = type === 'income' ? 'incPhotoUploadBox' : (type === 'expense' ? 'expPhotoUploadBox' : (type === 'mutasi' ? 'mutPhotoUploadBox' : 'editPhotoUploadBox'));
@@ -768,7 +768,7 @@
                   canvas.width = Math.floor(baseWidth * scale);
                   canvas.height = Math.floor(baseHeight * scale);
                   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                  result = canvas.toDataURL('image/jpeg', quality);
+                  result = canvas.toDataURL('image/webp', quality);
                   if (result.length > MAX_CHARS) {
                     quality -= 0.15;
                     if (quality < 0.4) { quality = 0.8; scale *= 0.7; }
@@ -782,7 +782,7 @@
                   canvas.width = Math.floor(baseWidth * scale);
                   canvas.height = Math.floor(baseHeight * scale);
                   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                  result = canvas.toDataURL('image/jpeg', 0.6);
+                  result = canvas.toDataURL('image/webp', 0.6);
                 }
                 resolve(result);
               };
@@ -958,7 +958,7 @@
       return null;
     }
     function safeIcon(name, size) { return typeof getIcon === 'function' ? getIcon(name, size) : ''; }
-    function togglePassword(inputId, eyeId) { const input = document.getElementById(inputId); const eyeBtn = document.getElementById(eyeId); if (input.type === "password") { input.type = "text"; eyeBtn.innerHTML = safeIcon('eye', 'lucide-md'); } else { input.type = "password"; eyeBtn.innerHTML = safeIcon('eyeOff', 'lucide-md'); } }
+    function togglePassword(inputId, eyeId) { const input = document.getElementById(inputId); const eyeBtn = typeof eyeId === 'string' ? document.getElementById(eyeId) : eyeId; if (!input || !eyeBtn) return; if (input.type === "password") { input.type = "text"; eyeBtn.innerHTML = safeIcon('eye', 'lucide-md'); } else { input.type = "password"; eyeBtn.innerHTML = safeIcon('eyeOff', 'lucide-md'); } }
     function fmt(n) { return Math.round(n || 0).toLocaleString('id-ID'); }
     function fmtInputDate(iso) { if (!iso) return ''; const d = new Date(iso); if (isNaN(d.getTime())) return String(iso).split('T')[0]; return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
     function fmtDate(iso) { if (!iso) return '-'; const d = new Date(iso); if (isNaN(d.getTime())) { const p = String(iso).split('T')[0].split('-'); if (p.length === 3) return `${p[2]}/${p[1]}/${p[0]}`; return String(iso).split('T')[0]; } return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`; }
@@ -3263,6 +3263,28 @@
         });
       }
       document.getElementById('reportContent').innerHTML = html + '</div>';
+      
+      const pmbContainer = document.getElementById('reportContentPembangunan');
+      if (pmbContainer) {
+        if (data.mode === 'akumulasi') {
+           pmbContainer.innerHTML = '<div style="text-align:center; padding:40px; font-weight:600; color:var(--text3);">Laporan Pembangunan hanya tersedia pada Mode Bulanan</div>';
+        } else {
+           pmbContainer.innerHTML = generatePembangunanReportHtml(data, false);
+        }
+      }
+    }
+
+    function switchReportTab(tabId) {
+      document.querySelectorAll('.report-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('#reportContentContainer .tab-panel').forEach(panel => panel.classList.remove('active'));
+      
+      if (tabId === 'umum') {
+        document.getElementById('tabLaporanUmum').classList.add('active');
+        document.getElementById('reportContent').classList.add('active');
+      } else if (tabId === 'pembangunan') {
+        document.getElementById('tabLaporanPembangunan').classList.add('active');
+        document.getElementById('reportContentPembangunan').classList.add('active');
+      }
     }
 
     let historySortCol = 'date';
@@ -4649,12 +4671,27 @@
       const pemBulanIni = (cachedIncome || []).filter(x => {
         const tDate = new Date(x.date);
         return tDate >= targetDateStart && tDate <= targetDateEnd && (x.alloc_bangun > 0 || (x.income_type || '').toLowerCase().includes('pembangunan'));
-      }).sort((a, b) => new Date(a.date) - new Date(b.date));
+      });
 
       const pengBulanIni = (cachedExpense || []).filter(x => {
         const tDate = new Date(x.date);
         return tDate >= targetDateStart && tDate <= targetDateEnd && x.source_balance === 'Pembangunan';
-      }).sort((a, b) => new Date(a.date) - new Date(b.date));
+      });
+      
+      pengBulanIni.forEach(x => {
+        if (x.department === 'Mutasi Kas / Setor Bank') {
+          pemBulanIni.push({
+            date: x.date,
+            receipt_no: x.receipt_no,
+            note: x.note || 'Mutasi Setor Ke Bank (Pembangunan)',
+            alloc_bangun: x.amount,
+            approved_by: x.approved_by
+          });
+        }
+      });
+      
+      pemBulanIni.sort((a, b) => new Date(a.date) - new Date(b.date));
+      pengBulanIni.sort((a, b) => new Date(a.date) - new Date(b.date));
 
       const allTx = [...pemBulanIni, ...pengBulanIni];
       const hasTransactions = allTx.length > 0;
@@ -4680,7 +4717,13 @@
       // Saldo Awal Pembangunan (dari awal waktu s.d targetDateStart - 1 ms)
       let calcBangun = cachedSaldo.initBangun || 0;
       (cachedIncome || []).forEach(i => { if (new Date(i.date) < targetDateStart) calcBangun += (i.alloc_bangun || 0); });
-      (cachedExpense || []).forEach(e => { if (new Date(e.date) < targetDateStart && e.source_balance === 'Pembangunan') calcBangun -= e.amount; });
+      (cachedExpense || []).forEach(e => { 
+        if (new Date(e.date) < targetDateStart && e.source_balance === 'Pembangunan') {
+          if (e.department !== 'Mutasi Kas / Setor Bank') {
+            calcBangun -= e.amount; 
+          }
+        }
+      });
       const saldoAwal = calcBangun;
       const fmtEx = (n) => isExcel ? n : fmt(n);
 
@@ -4978,6 +5021,7 @@ window.cancelEditUnit = cancelEditUnit;
 window.searchByReceipt = searchByReceipt;
 window.updateGlobalApprovalBadge = updateGlobalApprovalBadge;
 window.generatePembangunanReportHtml = generatePembangunanReportHtml;
+window.switchReportTab = switchReportTab;
 window.renderIncomeList = renderIncomeList;
 window.login = login;
 window.renderHistory = renderHistory;
@@ -5580,4 +5624,116 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   observer.observe(document.body, { childList: true, subtree: true });
   document.querySelectorAll('.table-log, .table-report, .table-history').forEach(initTableResizer);
+});
+
+// =========================================================
+// PREMIUM UI: DATE PICKER & PASSWORD
+// =========================================================
+
+function initPremiumDatePickers() {
+  const dateInputs = document.querySelectorAll('.premium-date');
+  if (typeof AirDatepicker === 'undefined') return;
+  dateInputs.forEach(input => {
+    if (input.dataset.datepickerInited) return;
+    new AirDatepicker(input, {
+      locale: {
+        days: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+        daysShort: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+        daysMin: ['Mg', 'Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb'],
+        months: ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],
+        monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'],
+        today: 'Hari Ini',
+        clear: 'Hapus',
+        dateFormat: 'yyyy-MM-dd',
+        firstDay: 1
+      },
+      dateFormat: 'yyyy-MM-dd',
+      autoClose: true,
+      onSelect({date, formattedDate, datepicker}) {
+        input.value = formattedDate;
+        input.dispatchEvent(new Event('change'));
+      }
+    });
+    input.dataset.datepickerInited = "true";
+  });
+}
+
+function initPasswordStrength(inputId, containerId) {
+  const input = document.getElementById(inputId);
+  const container = document.getElementById(containerId);
+  if (!input || !container) return;
+
+  const html = `
+    <div class="meter-container">
+      <div class="meter-label">Kekuatan Sandi</div>
+      <div class="meter-text" id="${containerId}-text">Lemah</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="${containerId}-fill"></div></div>
+    <div class="rules">
+      <div class="rule-item" id="${containerId}-rule-8"><i class="fa-solid fa-circle-xmark"></i> 8 Karakter</div>
+      <div class="rule-item" id="${containerId}-rule-up"><i class="fa-solid fa-circle-xmark"></i> A-Z</div>
+      <div class="rule-item" id="${containerId}-rule-low"><i class="fa-solid fa-circle-xmark"></i> a-z</div>
+      <div class="rule-item" id="${containerId}-rule-num"><i class="fa-solid fa-circle-xmark"></i> Angka</div>
+      <div class="rule-item" id="${containerId}-rule-sym"><i class="fa-solid fa-circle-xmark"></i> @#$</div>
+    </div>
+  `;
+  container.innerHTML = html;
+
+  input.addEventListener('input', () => {
+    const val = input.value;
+    let strength = 0;
+    
+    const r8 = val.length >= 8;
+    const rUp = /[A-Z]/.test(val);
+    const rLow = /[a-z]/.test(val);
+    const rNum = /[0-9]/.test(val);
+    const rSym = /[^A-Za-z0-9]/.test(val);
+
+    const updateRule = (id, isValid) => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(isValid) {
+        el.classList.add('valid');
+        el.innerHTML = '<i class="fa-solid fa-circle-check"></i> ' + el.innerText;
+        strength += 20;
+      } else {
+        el.classList.remove('valid');
+        el.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> ' + el.innerText;
+      }
+    };
+
+    updateRule(`${containerId}-rule-8`, r8);
+    updateRule(`${containerId}-rule-up`, rUp);
+    updateRule(`${containerId}-rule-low`, rLow);
+    updateRule(`${containerId}-rule-num`, rNum);
+    updateRule(`${containerId}-rule-sym`, rSym);
+
+    const fill = document.getElementById(`${containerId}-fill`);
+    const text = document.getElementById(`${containerId}-text`);
+    if(!fill || !text) return;
+    
+    fill.style.width = strength + '%';
+    
+    if (strength <= 40) {
+      fill.style.background = 'var(--red)';
+      text.textContent = 'Lemah';
+      text.style.color = 'var(--red)';
+    } else if (strength <= 80) {
+      fill.style.background = 'var(--gold)';
+      text.textContent = 'Sedang';
+      text.style.color = 'var(--gold)';
+    } else {
+      fill.style.background = 'var(--green)';
+      text.textContent = 'Kuat';
+      text.style.color = 'var(--green)';
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    initPremiumDatePickers();
+    initPasswordStrength('userPassword', 'userPassStrength');
+    initPasswordStrength('myNewPassword', 'myNewPassStrength');
+  }, 1000);
 });
