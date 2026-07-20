@@ -40,6 +40,7 @@
       clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
       alert: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
       info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+      bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
       home: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
       key: '<path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/>',
       log: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>',
@@ -1423,37 +1424,48 @@
     }
 
     function updateGlobalApprovalBadge() {
-      const badge = document.getElementById('navRiwayatBadge');
-      if (!badge) return;
+      const navItem = document.getElementById('navRiwayat');
+      const topBadge = document.getElementById('globalApprovalBadge');
+      if (!navItem && !topBadge) return;
 
+      const isAdmin = currentUser && currentUser.role === 'Admin';
       const rolePerms = currentUser ? getRolePerms(currentUser.role) : null;
       const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
-      const isApprover = currentUser && (canApprove || currentUser.role === 'Admin');
+      const isApprover = currentUser && (canApprove || isAdmin);
       const roleNeeded = currentUser ? currentUser.role : '';
 
       if (!isApprover && currentUser.role !== 'Bendahara') {
-        badge.style.display = 'none';
+        if (navItem) navItem.classList.remove('has-notification');
+        if (topBadge) topBadge.style.display = 'none';
         return;
       }
 
       let list = [...(cachedIncome || []), ...(cachedExpense || [])];
-      let pendingCount = list.filter(x => {
+      let pendingCount = 0;
+      list.forEach(x => {
         const deleteId = x.transaction_id || x.receipt_no || '';
-        if (!deleteId) return false;
-        if (x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank') return false;
+        if (!deleteId) return;
+        if (x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank') return;
         const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
-        if (isFullyApproved) return false;
-        if (!x.approved_by || !x.approved_by.includes(roleNeeded)) return true;
-        return false;
-      }).length;
+        if (isFullyApproved) return;
+        if (!x.approved_by || !x.approved_by.includes(roleNeeded)) pendingCount += 1;
+      });
 
       if (pendingCount > 0) {
-        badge.innerText = pendingCount;
-        badge.style.display = 'inline-block';
+        if (navItem) navItem.classList.add('has-notification');
+        if (topBadge) {
+          topBadge.innerText = pendingCount;
+          topBadge.style.display = 'inline-flex';
+        }
       } else {
-        badge.style.display = 'none';
+        if (navItem) navItem.classList.remove('has-notification');
+        if (topBadge) topBadge.style.display = 'none';
       }
     }
+
+    window.navigateToApprovals = function() {
+      showPage('riwayat');
+    };
 
     function searchByReceipt() {
       const q = document.getElementById('searchReceiptInput').value.trim().toLowerCase(); const resultDiv = document.getElementById('receiptSearchResult');

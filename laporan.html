@@ -191,10 +191,8 @@
         </div>
         <div class="nav-item" onclick="showPage('riwayat')" id="navRiwayat">
           <span class="nav-icon">
-            <span class="icon-placeholder" data-icon="info" data-size="lucide-md"></span>
+            <span class="icon-placeholder" id="navRiwayatIcon" data-icon="info" data-size="lucide-md" style="transition: color 0.3s;"></span>
           </span> Histori Jurnal
-          <span id="navRiwayatBadge" class="badge"
-            style="background:var(--red-pop); color:white; border:none; margin-left:auto; display:none;">0</span>
         </div>
         <div class="nav-section-title" id="adminNavLabel">Administrasi</div>
         <div class="nav-item" onclick="showPage('masterIncType')" id="navMasterIncType">
@@ -292,8 +290,8 @@
           <div class="notification-btn topbar-icon-hover" title="Persetujuan Tertunda" onclick="navigateToApprovals()"
             style="position:relative; cursor:pointer;">
             <span class="icon-placeholder" data-icon="bell" data-size="lucide-md"></span>
-            <span class="badge" id="globalApprovalBadge"
-              style="display:none; position:absolute; top:-2px; right:-2px;"></span>
+            <span id="globalApprovalBadge" class="badge"
+              style="display:none; position:absolute; top:-4px; right:-6px; background:var(--red-pop); color:white; border:none; padding: 2px 5px; border-radius: 6px; font-size: 10px; min-width: 16px; height: 16px; line-height: 1;"></span>
           </div>
           <a href="./index.html" class="topbar-icon-hover" id="btnHeaderHomeIcon" title="Kembali ke Beranda"
             style="text-decoration:none;">

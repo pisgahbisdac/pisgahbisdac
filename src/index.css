@@ -725,6 +725,10 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   stroke-width: 2.5px;
 }
 .nav-icon { display: flex; justify-content: center; align-items: center; width: 24px; }
+.nav-item.has-notification { color: var(--red-pop) !important; }
+.nav-item.has-notification .lucide {
+  filter: drop-shadow(0 0 6px var(--red-pop)) !important;
+}
 
 .sidebar-footer { padding: 16px 12px; border-top: 1px solid var(--glass-border); }
 .logout-btn { 
