@@ -767,6 +767,8 @@
                 do {
                   canvas.width = Math.floor(baseWidth * scale);
                   canvas.height = Math.floor(baseHeight * scale);
+                  // Apply Grayscale and High Contrast filter for much better WebP compression
+                  ctx.filter = 'grayscale(100%) contrast(1.4) brightness(1.1)';
                   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                   result = canvas.toDataURL('image/webp', quality);
                   if (result.length > MAX_CHARS) {
@@ -781,6 +783,7 @@
                   scale *= 0.5;
                   canvas.width = Math.floor(baseWidth * scale);
                   canvas.height = Math.floor(baseHeight * scale);
+                  ctx.filter = 'grayscale(100%) contrast(1.4) brightness(1.1)';
                   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                   result = canvas.toDataURL('image/webp', 0.6);
                 }
