@@ -2234,7 +2234,6 @@
         };
 
         (cachedIncome || []).filter(x => isMatch(x.date)).forEach(x => {
-          if (x.income_type === 'Mutasi Kas / Setor Bank') return;
           const isBangun = (x.income_type || '').toLowerCase().includes('pembangunan') || parseFloat(x.alloc_bangun || 0) > 0;
           if (isBangun) return;
           const cat = x.income_type || 'Lainnya';
@@ -2244,7 +2243,6 @@
         });
 
         (cachedExpense || []).filter(x => isMatch(x.date)).forEach(x => {
-          if (x.department === 'Mutasi Kas / Setor Bank') return;
           if (x.source_balance === 'Pembangunan') return;
           const dept = x.department || 'Lainnya';
           if (!expByDept[dept]) expByDept[dept] = [];

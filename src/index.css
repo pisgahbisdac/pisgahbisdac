@@ -715,9 +715,14 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
 .nav-item:hover { color: var(--primary); background: rgba(212, 175, 55, 0.05); }
 .nav-item.active { 
   color: var(--primary); 
-  background: rgba(212, 175, 55, 0.1); 
+  background: transparent; 
   font-weight: 600; 
-  box-shadow: inset 3px 0 0 var(--primary);
+  box-shadow: none;
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
+.nav-item.active .lucide {
+  filter: drop-shadow(0 0 6px var(--primary));
+  stroke-width: 2.5px;
 }
 .nav-icon { display: flex; justify-content: center; align-items: center; width: 24px; }
 
