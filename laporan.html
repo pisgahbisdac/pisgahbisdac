@@ -91,10 +91,10 @@
             autocomplete="username">
         </div>
         <div class="form-group">
+          <label class="form-label" style="color: var(--primary);">Kata Sandi</label>
           <div class="password-box">
-            <input class="form-input glass-input" id="loginPass" type="password" placeholder=" "
+            <input class="form-input glass-input" id="loginPass" type="password" placeholder="Masukkan Kata Sandi"
               autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
-            <label>Kata Sandi</label>
             <span class="eye-btn eye-icon" onclick="togglePassword('loginPass', this)">
               <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
             </span>
@@ -953,9 +953,9 @@
               </div>
             </div>
             <div class="form-group">
+            <label class="form-label">Kata Sandi</label>
             <div class="password-box">
-              <input class="form-input" id="userPassword" type="password" placeholder=" ">
-              <label>Kata Sandi</label>
+              <input class="form-input" id="userPassword" type="password" placeholder="Kata Sandi">
               <span class="eye-btn eye-icon" onclick="togglePassword('userPassword', this)">
                 <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
               </span>
@@ -996,19 +996,19 @@
           </div>
           <div style="border-top:1px solid var(--glass-border); margin:12px 0;"></div>
           <div class="form-group" style="position:relative;">
+            <label class="form-label">Kata Sandi Baru</label>
             <div class="password-box">
-              <input type="password" class="form-input" id="myNewPassword" placeholder=" ">
-              <label>Kata Sandi Baru</label>
+              <input type="password" class="form-input" id="myNewPassword" placeholder="Kosongkan jika tidak diubah">
               <span class="eye-btn eye-icon" onclick="togglePassword('myNewPassword', this)">
                 <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
               </span>
             </div>
             <div class="password-strength" id="myNewPassStrength"></div>
           </div>
-          <div class="form-group" style="position:relative;">
+          <div class="form-group">
+            <label class="form-label">Konfirmasi Kata Sandi Baru</label>
             <div class="password-box">
-              <input type="password" class="form-input" id="myNewPasswordConfirm" placeholder=" ">
-              <label>Konfirmasi Kata Sandi Baru</label>
+              <input type="password" class="form-input" id="myNewPasswordConfirm" placeholder="Ketik ulang sandi baru">
               <span class="eye-btn eye-icon" onclick="togglePassword('myNewPasswordConfirm', this)">
                 <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
               </span>
