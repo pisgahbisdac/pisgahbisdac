@@ -576,9 +576,14 @@
             
             <p id="qrCodeId" style="color:#666; font-family:monospace; margin-top:10px; margin-bottom:10px; font-size:0.85rem; font-weight:bold;"></p>
             
-            <button onclick="window.printBarcode()" class="inv-btn" style="background:#f0f0f0; border:1px solid #ddd; color:#333; font-size:0.8rem; padding:6px 12px; border-radius:6px; cursor:pointer;">
-              <i class="fa-solid fa-print"></i> Cetak Label
-            </button>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <button onclick="window.printBarcode()" class="inv-btn" style="background:#f0f0f0; border:1px solid #ddd; color:#333; font-size:0.8rem; padding:6px 12px; border-radius:6px; cursor:pointer;">
+                <i class="fa-solid fa-file-pdf"></i> Cetak Standar / PDF
+              </button>
+              <button onclick="window.printDirectThermal()" class="inv-btn" style="background:var(--accent); border:none; color:white; font-size:0.8rem; padding:6px 12px; border-radius:6px; cursor:pointer;">
+                <i class="fa-brands fa-bluetooth"></i> Cetak Thermal (Direct)
+              </button>
+            </div>
           </div>
         </div>
         

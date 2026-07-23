@@ -231,6 +231,110 @@ window.viewDetail = function(id) {
   
   document.getElementById('detailModal').style.display = 'flex';
   
+  window.printDirectThermal = async () => {
+    try {
+      if (!('serial' in navigator)) {
+        return showCustomAlert('Browser Anda tidak mendukung Direct Print. Gunakan Google Chrome/Edge di PC atau Chrome di Android.', 'error');
+      }
+      
+      const assetName = document.getElementById('detailName').textContent;
+      const assetId = document.getElementById('detailId').textContent.replace('ID: ', '');
+      const qrSrc = document.getElementById('qrCodeImg').src;
+      
+      // Minta izin akses ke port COM (Munculkan Pilihan Printer)
+      const port = await navigator.serial.requestPort();
+      await port.open({ baudRate: 9600 });
+      const writer = port.writable.getWriter();
+      
+      showCustomAlert('Menghubungkan ke printer...', 'success');
+      
+      // Buat Canvas Virtual (384 dots = 48 bytes = standar printer 58mm)
+      const canvas = document.createElement('canvas');
+      canvas.width = 384; 
+      canvas.height = 340; 
+      const ctx = canvas.getContext('2d');
+      
+      // Background Putih
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Teks PISGAH
+      ctx.fillStyle = '#000000';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.font = 'bold 32px monospace';
+      ctx.fillText('PISGAH', 192, 10);
+      
+      // Load QR Code
+      const qrImg = new Image();
+      qrImg.crossOrigin = 'Anonymous';
+      await new Promise((resolve, reject) => {
+        qrImg.onload = resolve;
+        qrImg.onerror = reject;
+        qrImg.src = qrSrc;
+      });
+      
+      // Gambar QR di tengah
+      ctx.drawImage(qrImg, 92, 55, 200, 200);
+      
+      // Teks ID dan Nama
+      ctx.font = 'bold 24px monospace';
+      ctx.fillText(assetId, 192, 265);
+      
+      ctx.font = '20px monospace';
+      let shortName = assetName.length > 25 ? assetName.substring(0, 22) + '...' : assetName;
+      ctx.fillText(shortName, 192, 295);
+      
+      // Konversi ke bit gambar ESC/POS
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+      const widthBytes = Math.ceil(canvas.width / 8);
+      const height = canvas.height;
+      
+      const buffer = new Uint8Array(8 + (widthBytes * height));
+      // Perintah ESC/POS Print Raster Bit Image (GS v 0)
+      buffer[0] = 0x1D; buffer[1] = 0x76; buffer[2] = 0x30; buffer[3] = 0x00;
+      buffer[4] = widthBytes & 0xFF; buffer[5] = (widthBytes >> 8) & 0xFF;
+      buffer[6] = height & 0xFF; buffer[7] = (height >> 8) & 0xFF;
+      
+      let offset = 8;
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < widthBytes; x++) {
+          let byte = 0;
+          for (let b = 0; b < 8; b++) {
+            const px = x * 8 + b;
+            if (px < canvas.width) {
+              const idx = (y * canvas.width + px) * 4;
+              const lum = (data[idx] * 0.299 + data[idx+1] * 0.587 + data[idx+2] * 0.114);
+              if (data[idx+3] > 128 && lum < 128) byte |= (1 << (7 - b));
+            }
+          }
+          buffer[offset++] = byte;
+        }
+      }
+      
+      // Inisialisasi, rata tengah, dan potong kertas
+      const initCmd = new Uint8Array([0x1B, 0x40]);
+      const alignCenter = new Uint8Array([0x1B, 0x61, 0x01]);
+      const cutCmd = new Uint8Array([0x0A, 0x0A, 0x0A, 0x0A]);
+      
+      await writer.write(initCmd);
+      await writer.write(alignCenter);
+      await writer.write(buffer);
+      await writer.write(cutCmd);
+      
+      writer.releaseLock();
+      await port.close();
+      
+      showCustomAlert('Berhasil dicetak langsung ke printer thermal!', 'success');
+    } catch (err) {
+      console.error(err);
+      if(err.name !== 'NotFoundError') { // NotFoundError occurs if user cancels the prompt
+        showCustomAlert('Gagal print: ' + err.message, 'error');
+      }
+    }
+  };
+  
   window.printBarcode = () => {
     const qrSrc = document.getElementById('qrCodeImg').src;
     const assetName = document.getElementById('detailName').textContent;
