@@ -256,11 +256,14 @@
       window.currentHistoryData.forEach(x => {
         if (x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank') return;
         if (x.type === 'income') {
+          const isBangun = (x.income_type || '').toLowerCase().includes('pembangunan') || parseFloat(x.alloc_bangun || 0) > 0;
+          if (isBangun) return;
           const cat = x.income_type || 'Lainnya';
           if (!incByCat[cat]) incByCat[cat] = [];
           incByCat[cat].push(x);
           totalInc += x.amount;
         } else {
+          if (x.source_balance === 'Pembangunan') return;
           const dept = x.department || 'Lainnya';
           if (!expByDept[dept]) expByDept[dept] = [];
           expByDept[dept].push(x);
@@ -2218,7 +2221,7 @@
       if (!resultDiv) return;
       let list = (cachedExpense || []).filter(x => x.department === 'Mutasi Kas / Setor Bank');
       list.sort((a, b) => new Date(b.date) - new Date(a.date));
-      list = list.slice(0, 10);
+      list = list.slice(0, 15);
       if (list.length === 0) {
         resultDiv.innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Belum ada mutasi setoran bank.</div>';
       } else {
@@ -2672,9 +2675,9 @@
       rightPanel.push({ label: 'Saldo Bank (Daerah)', val: calcBankD, indent: true, isLightDaerah: true });
       rightPanel.push({ label: '<span style="font-size:6pt;">Total Uang Untuk Daerah</span>', val: saldoAkhirDaerah, bold: true, large: true, isBorderTop: true, isColoredDaerah: true });
 
-      const imgBen = useBenImg ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
-      const imgKet = useKetuaImg ? `<img src="${systemConfig.sig_ketua}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
-      const imgPen = useGembalaImg ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgBen = useBenImg ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
+      const imgKet = useKetuaImg ? `<img src="${systemConfig.sig_ketua}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
+      const imgPen = useGembalaImg ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
 
       const nameBen = systemConfig.sig_name_bendahara || 'Herbert JS Sagala';
       const titleBen = systemConfig.sig_title_bendahara || 'Bendahara Jemaat';
@@ -4927,10 +4930,10 @@
         </table>
       `;
 
-      const imgBen = useBenImg ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
-      const imgBgn = useBgnImg ? `<img src="${systemConfig.sig_bangun}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
-      const imgKet = useKetuaImg ? `<img src="${systemConfig.sig_ketua}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
-      const imgPen = useGembalaImg ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; object-fit:contain; margin:5px 0;">` : `<br><br><br><br><br>`;
+      const imgBen = useBenImg ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
+      const imgBgn = useBgnImg ? `<img src="${systemConfig.sig_bangun}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
+      const imgKet = useKetuaImg ? `<img src="${systemConfig.sig_ketua}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
+      const imgPen = useGembalaImg ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
 
       const nameBen = systemConfig.sig_name_bendahara || 'Herbert JS Sagala';
       const titleBen = systemConfig.sig_title_bendahara || 'Bendahara Jemaat';

@@ -732,6 +732,22 @@
             style="display:none;">Manajemen Tutup Buku</button>
         </div>
 
+        <style>
+          .report-tabs .tab-btn {
+            color: var(--text3) !important;
+            border-bottom: 2px solid transparent !important;
+            border-radius: 0 !important;
+            transition: all 0.3s ease;
+          }
+          .report-tabs .tab-btn:hover {
+            color: var(--text) !important;
+            background: rgba(0, 0, 0, 0.02) !important;
+          }
+          .report-tabs .tab-btn.active {
+            color: var(--primary) !important;
+            border-bottom-color: var(--primary) !important;
+          }
+        </style>
         <div class="report-tabs" style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; overflow-x: auto;">
           <button class="btn tab-btn active" onclick="switchReportTab('umum')" id="tabLaporanUmum" style="flex: 1; min-width: 150px; font-weight: 600; border: none; background: transparent;">Kas Umum & Jemaat</button>
           <button class="btn tab-btn" onclick="switchReportTab('pembangunan')" id="tabLaporanPembangunan" style="flex: 1; min-width: 150px; font-weight: 600; border: none; background: transparent;">Laporan Pembangunan</button>
