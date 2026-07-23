@@ -2,7 +2,7 @@
 //  INVENTORY CRUD
 // ============================================================
 function getInventory() {
-  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss    = SpreadsheetApp.openById(INVENTORY_SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEETS.INVENTORY);
   if (!sheet) return { success: true, data: [] };
   const rows  = sheet.getDataRange().getValues();
@@ -40,7 +40,7 @@ function getInventory() {
 }
 
 function saveInventory(data, user) {
-  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss    = SpreadsheetApp.openById(INVENTORY_SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEETS.INVENTORY);
   if (!sheet) return { success: false, message: 'Sheet Inventory tidak ditemukan.' };
   
@@ -116,7 +116,7 @@ function saveInventory(data, user) {
 }
 
 function deleteInventory(data, user) {
-  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss    = SpreadsheetApp.openById(INVENTORY_SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEETS.INVENTORY);
   if (!sheet) return { success: false, message: 'Sheet Inventory tidak ditemukan.' };
   const rows  = sheet.getDataRange().getValues();

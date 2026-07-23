@@ -340,11 +340,32 @@ window.viewDetail = function(id) {
         const logoSize = 80;
         const logoCx = cx;
         const logoCy = 95 + qrSize/2;
+        
+        // Jadikan semua piksel logo menjadi solid black agar tercetak sempurna di thermal
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = logoSize;
+        tempCanvas.height = logoSize;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(logoImg, 0, 0, logoSize, logoSize);
+        
+        const imgData = tempCtx.getImageData(0, 0, logoSize, logoSize);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+          // Jika piksel terlihat (bukan transparan)
+          if (data[i+3] > 20) {
+            data[i] = 0;     // Red = 0 (Hitam)
+            data[i+1] = 0;   // Green = 0
+            data[i+2] = 0;   // Blue = 0
+            data[i+3] = 255; // Opacity 100%
+          }
+        }
+        tempCtx.putImageData(imgData, 0, 0);
+
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.arc(logoCx, logoCy, logoSize / 2 + 8, 0, Math.PI * 2);
         ctx.fill();
-        ctx.drawImage(logoImg, logoCx - logoSize/2, logoCy - logoSize/2, logoSize, logoSize);
+        ctx.drawImage(tempCanvas, logoCx - logoSize/2, logoCy - logoSize/2, logoSize, logoSize);
       }
       
       // Teks ID (di bawah)
