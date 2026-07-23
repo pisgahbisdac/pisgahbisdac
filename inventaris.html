@@ -357,9 +357,9 @@
       height: auto;
     }
   </style>
-  <script type="module" crossorigin src="/assets/inventaris-Ca01xRDi.js"></script>
+  <script type="module" crossorigin src="/assets/inventaris-DmDt1r8c.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-C2MTJA1E.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-1AAkNsa5.css">
 </head>
 <body>
 
@@ -387,7 +387,7 @@
     
     <div class="search-bar">
       <i class="fa-solid fa-search"></i>
-      <input type="text" id="searchInput" placeholder="Cari nama peralatan, lokasi, atau penanggung jawab...">
+      <input type="text" id="searchInput" placeholder="Cari nama peralatan, lokasi, atau penanggung jawab..." autocomplete="off">
     </div>
   </header>
 
@@ -583,7 +583,7 @@
             
             <p id="qrCodeId" style="color:#666; font-family:monospace; margin-top:10px; margin-bottom:10px; font-size:0.85rem; font-weight:bold;"></p>
             
-            <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="admin-only-field" data-display="flex" style="display:none; flex-direction:column; gap:8px;">
               <button onclick="window.printBarcode()" class="inv-btn" style="background:#f0f0f0; border:1px solid #ddd; color:#333; font-size:0.8rem; padding:6px 12px; border-radius:6px; cursor:pointer;">
                 <i class="fa-solid fa-file-pdf"></i> Cetak Standar / PDF
               </button>
