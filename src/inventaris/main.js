@@ -241,13 +241,6 @@ window.viewDetail = function(id) {
       const assetId = document.getElementById('detailId').textContent.replace('ID: ', '');
       const qrSrc = document.getElementById('qrCodeImg').src;
       
-      // Minta izin akses ke port COM (Munculkan Pilihan Printer)
-      const port = await navigator.serial.requestPort();
-      await port.open({ baudRate: 9600 });
-      const writer = port.writable.getWriter();
-      
-      showCustomAlert('Menghubungkan ke printer...', 'success');
-      
       // Buat Canvas Virtual (384 dots = 48 bytes = standar printer 58mm)
       const canvas = document.createElement('canvas');
       canvas.width = 384; 
@@ -258,12 +251,17 @@ window.viewDetail = function(id) {
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
+      // Gambar Kotak Hitam (Border)
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 6;
+      ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+      
       // Teks PISGAH
       ctx.fillStyle = '#000000';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      ctx.font = 'bold 32px monospace';
-      ctx.fillText('PISGAH', 192, 10);
+      ctx.font = 'bold 36px monospace';
+      ctx.fillText('PISGAH', 192, 25);
       
       // Load QR Code
       const qrImg = new Image();
@@ -275,9 +273,30 @@ window.viewDetail = function(id) {
       });
       
       // Gambar QR di tengah
-      ctx.drawImage(qrImg, 92, 55, 200, 200);
+      ctx.drawImage(qrImg, 102, 75, 180, 180);
+      
+      // Gambar Logo Gereja di tengah QR
+      const logoImg = new Image();
+      logoImg.crossOrigin = 'Anonymous';
+      await new Promise((resolve, reject) => {
+        logoImg.onload = resolve;
+        logoImg.onerror = () => resolve(); // tetap lanjut jika logo gagal dimuat
+        logoImg.src = window.location.origin + '/icons/PisgahColor.png';
+      });
+      if (logoImg.complete && logoImg.naturalWidth > 0) {
+        const logoSize = 36;
+        const logoX = 192 - logoSize / 2;
+        const logoY = 165 - logoSize / 2;
+        // Background putih bulat di belakang logo
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(192, 165, logoSize / 2 + 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+      }
       
       // Teks ID dan Nama
+      ctx.fillStyle = '#000000';
       ctx.font = 'bold 24px monospace';
       ctx.fillText(assetId, 192, 265);
       
@@ -285,53 +304,75 @@ window.viewDetail = function(id) {
       let shortName = assetName.length > 25 ? assetName.substring(0, 22) + '...' : assetName;
       ctx.fillText(shortName, 192, 295);
       
-      // Konversi ke bit gambar ESC/POS
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imgData.data;
-      const widthBytes = Math.ceil(canvas.width / 8);
-      const height = canvas.height;
+      // Tampilkan Preview Modal di tengah
+      const modal = document.getElementById('thermalPreviewModal');
+      modal.style.cssText = 'display:flex; position:fixed; top:0; left:0; width:100%; height:100%; z-index:99999; background:#111827; align-items:center; justify-content:center;';
+      document.getElementById('thermalPreviewImg').src = canvas.toDataURL();
       
-      const buffer = new Uint8Array(8 + (widthBytes * height));
-      // Perintah ESC/POS Print Raster Bit Image (GS v 0)
-      buffer[0] = 0x1D; buffer[1] = 0x76; buffer[2] = 0x30; buffer[3] = 0x00;
-      buffer[4] = widthBytes & 0xFF; buffer[5] = (widthBytes >> 8) & 0xFF;
-      buffer[6] = height & 0xFF; buffer[7] = (height >> 8) & 0xFF;
+      const printBtn = document.getElementById('doDirectPrintBtn');
+      const newPrintBtn = printBtn.cloneNode(true);
+      printBtn.parentNode.replaceChild(newPrintBtn, printBtn);
       
-      let offset = 8;
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < widthBytes; x++) {
-          let byte = 0;
-          for (let b = 0; b < 8; b++) {
-            const px = x * 8 + b;
-            if (px < canvas.width) {
-              const idx = (y * canvas.width + px) * 4;
-              const lum = (data[idx] * 0.299 + data[idx+1] * 0.587 + data[idx+2] * 0.114);
-              if (data[idx+3] > 128 && lum < 128) byte |= (1 << (7 - b));
+      newPrintBtn.onclick = async () => {
+        try {
+          const port = await navigator.serial.requestPort();
+          await port.open({ baudRate: 9600 });
+          const writer = port.writable.getWriter();
+          
+          showCustomAlert('Mencetak...', 'success');
+          
+          // Konversi ke bit gambar ESC/POS
+          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imgData.data;
+          const widthBytes = Math.ceil(canvas.width / 8);
+          const height = canvas.height;
+          
+          const buffer = new Uint8Array(8 + (widthBytes * height));
+          buffer[0] = 0x1D; buffer[1] = 0x76; buffer[2] = 0x30; buffer[3] = 0x00;
+          buffer[4] = widthBytes & 0xFF; buffer[5] = (widthBytes >> 8) & 0xFF;
+          buffer[6] = height & 0xFF; buffer[7] = (height >> 8) & 0xFF;
+          
+          let offset = 8;
+          for (let y = 0; y < height; y++) {
+            for (let x = 0; x < widthBytes; x++) {
+              let byte = 0;
+              for (let b = 0; b < 8; b++) {
+                const px = x * 8 + b;
+                if (px < canvas.width) {
+                  const idx = (y * canvas.width + px) * 4;
+                  const lum = (data[idx] * 0.299 + data[idx+1] * 0.587 + data[idx+2] * 0.114);
+                  if (data[idx+3] > 128 && lum < 128) byte |= (1 << (7 - b));
+                }
+              }
+              buffer[offset++] = byte;
             }
           }
-          buffer[offset++] = byte;
+          
+          const initCmd = new Uint8Array([0x1B, 0x40]);
+          const alignCenter = new Uint8Array([0x1B, 0x61, 0x01]);
+          const cutCmd = new Uint8Array([0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A]);
+          
+          await writer.write(initCmd);
+          await writer.write(alignCenter);
+          await writer.write(buffer);
+          await writer.write(cutCmd);
+          
+          writer.releaseLock();
+          await port.close();
+          
+          document.getElementById('thermalPreviewModal').style.display = 'none';
+          showCustomAlert('Berhasil dicetak langsung ke printer thermal!', 'success');
+        } catch (printErr) {
+          console.error(printErr);
+          if (printErr.name !== 'NotFoundError') {
+            showCustomAlert('Gagal print: ' + printErr.message, 'error');
+          }
         }
-      }
+      };
       
-      // Inisialisasi, rata tengah, dan potong kertas
-      const initCmd = new Uint8Array([0x1B, 0x40]);
-      const alignCenter = new Uint8Array([0x1B, 0x61, 0x01]);
-      const cutCmd = new Uint8Array([0x0A, 0x0A, 0x0A, 0x0A]);
-      
-      await writer.write(initCmd);
-      await writer.write(alignCenter);
-      await writer.write(buffer);
-      await writer.write(cutCmd);
-      
-      writer.releaseLock();
-      await port.close();
-      
-      showCustomAlert('Berhasil dicetak langsung ke printer thermal!', 'success');
     } catch (err) {
       console.error(err);
-      if(err.name !== 'NotFoundError') { // NotFoundError occurs if user cancels the prompt
-        showCustomAlert('Gagal print: ' + err.message, 'error');
-      }
+      showCustomAlert('Gagal memuat preview: ' + err.message, 'error');
     }
   };
   
@@ -340,73 +381,36 @@ window.viewDetail = function(id) {
     const assetName = document.getElementById('detailName').textContent;
     const assetId = document.getElementById('detailId').textContent.replace('ID: ', '');
     
-    const printWin = window.open('', '_blank', 'width=700,height=500');
+    const printWin = window.open('', '_blank');
     printWin.document.write(`
       <html>
         <head>
-          <title>Preview Thermal Label - ${assetId}</title>
+          <title>Cetak Label - ${assetId}</title>
           <style>
-            @page { size: 35mm 50mm; margin: 0; }
+            @page { size: A4 portrait; margin: 20mm; }
             body { 
               font-family: 'Inter', sans-serif, monospace; 
               margin: 0; 
-              background: #111827;
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              height: 100vh;
-              color: white;
-            }
-            .toolbar {
-              background: #1f2937;
-              width: 100%;
-              padding: 20px;
-              text-align: center;
-              box-sizing: border-box;
-              border-bottom: 1px solid #374151;
-            }
-            .toolbar button {
-              background: #d4af37;
-              border: none;
-              padding: 12px 24px;
-              font-weight: bold;
-              border-radius: 8px;
-              cursor: pointer;
-              font-size: 16px;
-              color: #000;
-              transition: transform 0.2s;
-            }
-            .toolbar button:hover { transform: scale(1.05); background: #f0c950; }
-            .toolbar p { margin: 10px 0 0 0; font-size: 13px; color: #9ca3af; }
-            
-            .preview-container {
-              flex: 1;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              padding: 20px;
-              width: 100%;
-            }
-            
-            /* Thermal Label Box (Portrait 35mm x 50mm) */
-            .label-box { 
-              width: 35mm; 
-              height: 50mm; 
               background: #fff;
-              border: 1.5px solid #000;
-              border-radius: 4px;
-              box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-              padding: 3mm 2mm; 
+              color: #000;
+            }
+            .label-box { 
+              width: 55mm; 
+              height: 75mm; 
+              background: #fff;
+              border: 2px solid #000;
+              border-radius: 8px;
+              padding: 5mm; 
               box-sizing: border-box;
               display: flex;
               flex-direction: column;
               align-items: center;
               justify-content: space-between;
-              overflow: hidden;
+              margin: 0;
             }
             .label-box h3 { 
               margin: 0; 
-              font-size: 11px; 
+              font-size: 14px; 
               text-transform: uppercase; 
               color: #000;
               text-align: center;
@@ -415,60 +419,28 @@ window.viewDetail = function(id) {
               overflow: hidden;
               text-overflow: ellipsis;
             }
-            .qr-wrapper { position: relative; width: 22mm; height: 22mm; margin: auto 0; }
-            .qr-wrapper img.qr { width: 22mm; height: 22mm; display: block; }
+            .qr-wrapper { position: relative; width: 40mm; height: 40mm; margin: auto 0; }
+            .qr-wrapper img.qr { width: 40mm; height: 40mm; display: block; }
             .qr-wrapper img.logo { 
               position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-              width: 6mm; height: 6mm; background: white; padding: 0.5mm; border-radius: 50%; object-fit: contain; 
+              width: 9mm; height: 9mm; background: white; padding: 1mm; border-radius: 50%; object-fit: contain; 
             }
             .id-text { 
               margin: 0; 
-              font-size: 10px; 
+              font-size: 13px; 
               font-weight: bold; 
               font-family: monospace; 
               color: #000; 
               text-align: center;
             }
-            
-            .print-only { display: none; }
-            
-            /* Print Specific Styles */
-            @media print {
-              body * { visibility: hidden; }
-              body { background: #fff; display: block; height: auto; }
-              .print-only { 
-                display: flex !important; 
-                visibility: visible; 
-                position: absolute; 
-                left: 0; 
-                top: 0; 
-                box-shadow: none; 
-                border: 1.5px solid #000;
-                margin: 0;
-              }
-              .print-only * { visibility: visible; }
-            }
           </style>
+          <script>
+            window.addEventListener('afterprint', function() { window.close(); });
+            window.onload = function() { window.print(); };
+          </script>
         </head>
         <body>
-          <div class="toolbar no-print">
-            <button onclick="window.print()">🖨️ Cetak ke Printer Thermal</button>
-            <p>Pastikan pengaturan ukuran kertas (Paper Size) di printer Anda diatur ke portrait <b>35mm x 50mm</b></p>
-          </div>
-          
-          <div class="preview-container no-print">
-            <div class="label-box">
-              <h3>${assetName}</h3>
-              <div class="qr-wrapper">
-                <img class="qr" src="${qrSrc}">
-                <img class="logo" src="${window.location.origin}/icons/PisgahColor.png">
-              </div>
-              <div class="id-text">${assetId}</div>
-            </div>
-          </div>
-          
-          <!-- Hidden box strictly for printing to avoid UI interference -->
-          <div class="label-box print-only">
+          <div class="label-box">
             <h3>${assetName}</h3>
             <div class="qr-wrapper">
               <img class="qr" src="${qrSrc}">

@@ -668,6 +668,27 @@
 
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <div id="thermalPreviewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:99999; background:#111827; align-items:center; justify-content:center;">
+    <div style="background:#1f2937; border-radius:16px; max-width:400px; width:90%; text-align:center; padding:0; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.1);">
+        <h2 style="font-size: 1.25rem; font-weight: 700; color: #f3f4f6; margin:0;"><i class="fa-solid fa-receipt"></i> Preview Thermal</h2>
+        <button onclick="document.getElementById('thermalPreviewModal').style.display='none'" style="background:none; border:none; color:#9ca3af; font-size:1.2rem; cursor:pointer; padding:4px 8px;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="padding: 24px;">
+        <p style="color:#9ca3af; font-size:0.9rem; margin:0 0 20px 0;">Pastikan printer thermal Bluetooth/USB siap.</p>
+        
+        <div style="background: white; padding: 12px; border-radius: 10px; display: inline-block; margin-bottom: 24px;">
+          <img id="thermalPreviewImg" src="" style="width: 100%; max-width: 250px; display:block;" alt="Preview Label" />
+        </div>
+        
+        <button id="doDirectPrintBtn" style="width:100%; background:var(--accent); border:none; color:white; font-size:1rem; font-weight:600; padding:14px; border-radius:10px; cursor:pointer;">
+          <i class="fa-brands fa-bluetooth"></i> Pilih Printer & Cetak
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="/src/inventarisEntry.js"></script>
 </body>
 </html>
