@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.css" rel="stylesheet">
 
-  <script type="module" crossorigin src="/assets/laporan-D3741Wel.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-D1PNtGcu.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/laporan-DLl9-j_y.css">
   <link rel="stylesheet" crossorigin href="/assets/index-CIe1EaFu.css">
@@ -733,6 +733,22 @@
             style="display:none;">Manajemen Tutup Buku</button>
         </div>
 
+        <style>
+          .report-tabs .tab-btn {
+            color: var(--text3) !important;
+            border-bottom: 2px solid transparent !important;
+            border-radius: 0 !important;
+            transition: all 0.3s ease;
+          }
+          .report-tabs .tab-btn:hover {
+            color: var(--text) !important;
+            background: rgba(0, 0, 0, 0.02) !important;
+          }
+          .report-tabs .tab-btn.active {
+            color: var(--primary) !important;
+            border-bottom-color: var(--primary) !important;
+          }
+        </style>
         <div class="report-tabs" style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; overflow-x: auto;">
           <button class="btn tab-btn active" onclick="switchReportTab('umum')" id="tabLaporanUmum" style="flex: 1; min-width: 150px; font-weight: 600; border: none; background: transparent;">Kas Umum & Jemaat</button>
           <button class="btn tab-btn" onclick="switchReportTab('pembangunan')" id="tabLaporanPembangunan" style="flex: 1; min-width: 150px; font-weight: 600; border: none; background: transparent;">Laporan Pembangunan</button>
