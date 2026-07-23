@@ -444,12 +444,12 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                     <Icon name={item.icon} className="w-5 h-5 md:w-6 md:h-6 text-[#4A7045] dark:text-gold-400 group-hover:text-white dark:group-hover:text-navy-900 transition-colors duration-300" />
                 </div>
                 <div className={textWrapperClass}>
-                    <span className="font-bold text-[10px] md:text-[12px] text-[#2C3F21] dark:text-navy-100 leading-snug text-center">{item.label}</span>
+                    <span className="font-bold text-[8.5px] md:text-[12px] text-[#2C3F21] dark:text-navy-100 leading-tight text-center">{item.label}</span>
                 </div>
             </>
         );
 
-        const className = "group flex flex-col items-center justify-start p-1.5 md:p-2 rounded-2xl hover:bg-[#F4F7EF] dark:hover:bg-navy-800 transition-all duration-300 cursor-pointer w-[25%] md:w-auto md:flex-1 min-w-0";
+        const className = "group flex flex-col items-center justify-start p-1.5 md:p-2 rounded-2xl hover:bg-[#F4F7EF] dark:hover:bg-navy-800 transition-all duration-300 cursor-pointer w-[20%] md:w-auto md:flex-1 min-w-0";
 
         if (item.isSameTab) return <a key={item.id} href={item.link} onClick={(e) => handleMenuClick(e, item)} className={className}>{content}</a>;
         if (item.isExternal) return <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" onClick={(e) => handleMenuClick(e, item)} className={className}>{content}</a>;
@@ -515,7 +515,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                     </div>
 
                     {/* OVERLAPPING QUICK ACTIONS PILL WITH SMOOTH TAB */}
-                    <div className="relative z-30 -mt-6 md:-mt-10 lg:-mt-16 mx-4 md:mx-auto max-w-4xl flex flex-col items-center">
+                    <div className="relative z-30 -mt-6 md:-mt-10 lg:-mt-16 mx-4 md:mx-auto max-w-[95%] md:max-w-5xl lg:max-w-[1100px] flex flex-col items-center">
                         
                         {/* The Floating Button */}
                         <div className="absolute -top-[1.25rem] md:-top-[1.5rem] left-1/2 -translate-x-1/2 z-40">
@@ -525,7 +525,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                         </div>
 
                         {/* Main Pill */}
-                        <div className="relative w-full bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-2 md:p-5 pt-6 md:pt-10 shadow-xl border-4 border-white dark:border-navy-700 flex flex-wrap md:flex-nowrap items-start justify-center md:justify-evenly gap-0.5 md:gap-0 transition-colors duration-500 z-10">
+                        <div className="relative w-full bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-2 md:p-5 pt-6 md:pt-10 shadow-xl border-4 border-white dark:border-navy-700 flex flex-wrap md:flex-nowrap items-start justify-center md:justify-evenly gap-0 transition-colors duration-500 z-10">
                             {featureItems.map(item => renderFeatureItem(item))}
                         </div>
                     </div>
