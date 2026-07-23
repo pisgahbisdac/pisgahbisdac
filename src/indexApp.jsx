@@ -431,7 +431,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
             </>
         );
 
-        const className = "group flex flex-col items-center justify-start p-1.5 md:p-2 rounded-2xl hover:bg-[#F4F7EF] dark:hover:bg-navy-800 transition-all duration-300 cursor-pointer w-[68px] md:w-[85px] flex-shrink-0";
+        const className = "group flex flex-col items-center justify-start p-1.5 md:p-2 rounded-2xl hover:bg-[#F4F7EF] dark:hover:bg-navy-800 transition-all duration-300 cursor-pointer flex-1 min-w-0";
 
         if (item.isSameTab) return <a key={item.id} href={item.link} className={className}>{content}</a>;
         if (item.isExternal) return <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" className={className}>{content}</a>;
@@ -507,7 +507,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                         </div>
 
                         {/* Main Pill */}
-                        <div className="relative w-full bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-3 md:p-5 pt-8 md:pt-10 shadow-xl border-4 border-white dark:border-navy-700 flex flex-nowrap items-start justify-center gap-1 md:gap-3 transition-colors duration-500 z-10 overflow-x-auto">
+                        <div className="relative w-full bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-3 md:p-5 pt-8 md:pt-10 shadow-xl border-4 border-white dark:border-navy-700 flex flex-nowrap items-start justify-evenly gap-0 transition-colors duration-500 z-10">
                             {featureItems.map(item => renderFeatureItem(item))}
                         </div>
                     </div>
