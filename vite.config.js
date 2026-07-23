@@ -10,7 +10,8 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         hadir: resolve(__dirname, 'hadir.html'),
         laporan: resolve(__dirname, 'laporan.html'),
-        pembangunan: resolve(__dirname, 'pembangunan.html')
+        pembangunan: resolve(__dirname, 'pembangunan.html'),
+        inventaris: resolve(__dirname, 'inventaris.html')
       }
     }
   }
