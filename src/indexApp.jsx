@@ -444,7 +444,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                     <Icon name={item.icon} className="w-5 h-5 md:w-6 md:h-6 text-[#4A7045] dark:text-gold-400 group-hover:text-white dark:group-hover:text-navy-900 transition-colors duration-300" />
                 </div>
                 <div className={textWrapperClass}>
-                    <span className="font-bold text-[8.5px] md:text-[12px] text-[#2C3F21] dark:text-navy-100 leading-tight text-center">{item.label}</span>
+                    <span className="font-bold text-[8.5px] md:text-[10px] lg:text-[12px] text-[#2C3F21] dark:text-navy-100 leading-tight text-center break-words">{item.label}</span>
                 </div>
             </>
         );
@@ -515,7 +515,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                     </div>
 
                     {/* OVERLAPPING QUICK ACTIONS PILL WITH SMOOTH TAB */}
-                    <div className="relative z-30 -mt-6 md:-mt-10 lg:-mt-16 mx-4 md:mx-auto max-w-[95%] md:max-w-5xl lg:max-w-[1100px] flex flex-col items-center">
+                    <div className="relative z-30 -mt-6 md:-mt-10 lg:-mt-16 mx-auto w-[95%] md:w-[96%] lg:w-full lg:max-w-[1100px] flex flex-col items-center">
                         
                         {/* The Floating Button */}
                         <div className="absolute -top-[1.25rem] md:-top-[1.5rem] left-1/2 -translate-x-1/2 z-40">

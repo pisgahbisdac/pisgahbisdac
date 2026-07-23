@@ -203,11 +203,27 @@ window.viewDetail = function(id) {
     subItemsContainer.style.display = 'none';
   }
   
-  if (item.photo) {
-    document.getElementById('detailPhoto').src = item.photo;
-    document.getElementById('detailPhoto').style.display = 'block';
+  const photosContainer = document.getElementById('detailPhotosContainer');
+  photosContainer.innerHTML = ''; 
+  
+  const photos = [item.photo, item.photo2, item.photo3, item.photo4].filter(p => p);
+  
+  if (photos.length > 0) {
+    photos.forEach(p => {
+      const img = document.createElement('img');
+      img.src = p;
+      img.style.height = '180px';
+      img.style.maxWidth = '100%';
+      img.style.borderRadius = '12px';
+      img.style.objectFit = 'contain';
+      img.style.border = '1px solid rgba(255,255,255,0.1)';
+      img.style.flexShrink = '0';
+      img.style.backgroundColor = 'rgba(0,0,0,0.2)';
+      photosContainer.appendChild(img);
+    });
+    photosContainer.style.display = 'flex';
   } else {
-    document.getElementById('detailPhoto').style.display = 'none';
+    photosContainer.style.display = 'none';
   }
   
   if (currentUser) {
@@ -274,9 +290,25 @@ window.viewDetail = function(id) {
       ctx.fillStyle = '#000000';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      ctx.font = 'bold 36px monospace';
-      let shortName = assetName.length > 20 ? assetName.substring(0, 17) + '...' : assetName;
-      ctx.fillText(shortName.toUpperCase(), cx, 40);
+      ctx.font = 'bold 26px monospace';
+      
+      let upperName = assetName.toUpperCase();
+      if (upperName.length <= 24) {
+          ctx.fillText(upperName, cx, 45);
+      } else {
+          // Cari spasi terdekat sebelum batas 24 karakter
+          let breakIdx = upperName.lastIndexOf(' ', 24);
+          if (breakIdx === -1) breakIdx = 22; // Jika tidak ada spasi, potong paksa
+          
+          let line1 = upperName.substring(0, breakIdx);
+          let line2 = upperName.substring(breakIdx).trim();
+          if (line2.length > 24) {
+              line2 = line2.substring(0, 21) + '...';
+          }
+          
+          ctx.fillText(line1, cx, 30);
+          ctx.fillText(line2, cx, 60);
+      }
       
       // Load QR Code
       const qrImg = new Image();
@@ -570,35 +602,57 @@ function openFormModal(item = null) {
 // PHOTO UPLOAD logic
 // ==========================================
 document.getElementById('formPhoto').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    const img = new Image();
-    img.onload = function() {
-      // Compress
-      const canvas = document.createElement('canvas');
-      const MAX_WIDTH = 800;
-      const MAX_HEIGHT = 800;
-      let width = img.width;
-      let height = img.height;
-      if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
-      else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
-      
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      
-      const base64 = canvas.toDataURL('image/jpeg', 0.6); // 60% quality
-      window.currentPhotoBase64 = base64;
-      
-      document.getElementById('photoPreviewImg').src = base64;
-      document.getElementById('photoPreview').style.display = 'block';
+  const files = e.target.files;
+  if (!files || files.length === 0) return;
+  
+  if (files.length > 4) {
+    showCustomAlert('Maksimal 4 gambar diperbolehkan. Hanya 4 gambar pertama yang akan diproses.', 'warning');
+  }
+  
+  window.currentPhotosBase64 = []; // Reset
+  const previewContainer = document.getElementById('photoPreview');
+  previewContainer.innerHTML = ''; 
+  previewContainer.style.display = 'flex';
+  
+  const filesToProcess = Array.from(files).slice(0, 4);
+  
+  filesToProcess.forEach((file) => {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const img = new Image();
+      img.onload = function() {
+        // Compress (Keeping 800x800 as requested by user)
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+        if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
+        else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        const base64 = canvas.toDataURL('image/jpeg', 0.6); // 60% quality
+        window.currentPhotosBase64.push(base64);
+        
+        // UI Preview
+        const imgEl = document.createElement('img');
+        imgEl.src = base64;
+        imgEl.style.width = '80px';
+        imgEl.style.height = '80px';
+        imgEl.style.objectFit = 'cover';
+        imgEl.style.borderRadius = '8px';
+        imgEl.style.border = '1px solid var(--glass-border)';
+        imgEl.style.flexShrink = '0';
+        previewContainer.appendChild(imgEl);
+      };
+      img.src = event.target.result;
     };
-    img.src = event.target.result;
-  };
-  reader.readAsDataURL(file);
+    reader.readAsDataURL(file);
+  });
 });
 
 
@@ -758,8 +812,11 @@ document.addEventListener('DOMContentLoaded', () => {
       dispose_price: disposePrice
     };
     
-    if (window.currentPhotoBase64) {
-      payload.photo_base64 = window.currentPhotoBase64;
+    if (window.currentPhotosBase64 && window.currentPhotosBase64.length > 0) {
+      payload.photo_base64 = window.currentPhotosBase64[0] || '';
+      payload.photo2_base64 = window.currentPhotosBase64[1] || '';
+      payload.photo3_base64 = window.currentPhotosBase64[2] || '';
+      payload.photo4_base64 = window.currentPhotosBase64[3] || '';
     }
     
     const btn = document.getElementById('saveBtn');

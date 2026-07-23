@@ -19,6 +19,9 @@ function getInventory() {
         location: r[4],
         pic: r[5],
         photo: r[6],
+        photo2: r[18] || '',
+        photo3: r[19] || '',
+        photo4: r[20] || '',
         created_by: r[7],
         created_at: r[8],
         category: r[9] || '',
@@ -43,6 +46,9 @@ function saveInventory(data, user) {
   
   const rows = sheet.getDataRange().getValues();
   const photo = data.photo_base64 !== undefined ? data.photo_base64 : '';
+  const photo2 = data.photo2_base64 !== undefined ? data.photo2_base64 : '';
+  const photo3 = data.photo3_base64 !== undefined ? data.photo3_base64 : '';
+  const photo4 = data.photo4_base64 !== undefined ? data.photo4_base64 : '';
   
   if (data.isUpdate && data.id) {
     for (let i = 1; i < rows.length; i++) {
@@ -53,6 +59,9 @@ function saveInventory(data, user) {
         if (data.location !== undefined) sheet.getRange(i + 1, 5).setValue(data.location);
         if (data.pic !== undefined) sheet.getRange(i + 1, 6).setValue(data.pic);
         if (data.photo_base64 !== undefined) sheet.getRange(i + 1, 7).setValue(photo);
+        if (data.photo2_base64 !== undefined) sheet.getRange(i + 1, 19).setValue(photo2);
+        if (data.photo3_base64 !== undefined) sheet.getRange(i + 1, 20).setValue(photo3);
+        if (data.photo4_base64 !== undefined) sheet.getRange(i + 1, 21).setValue(photo4);
         if (data.category !== undefined) sheet.getRange(i + 1, 10).setValue(data.category);
         if (data.source !== undefined) sheet.getRange(i + 1, 11).setValue(data.source);
         if (data.taksasi !== undefined) sheet.getRange(i + 1, 12).setValue(parseFloat(data.taksasi) || 0);
@@ -68,10 +77,9 @@ function saveInventory(data, user) {
     }
     return { success: false, message: 'Data inventaris tidak ditemukan.' };
   } else {
-    // Generate new ID: INV-YYYYMMDD-RANDOM
-    const dateStr = new Date().toISOString().slice(0,10).replace(/-/g, '');
-    const rand = Math.floor(100 + Math.random() * 900);
-    const newId = 'INV-' + dateStr + '-' + rand;
+    // Generate new ID: INV-PISBIS-XXXXX
+    const rand = Math.floor(10000 + Math.random() * 90000);
+    const newId = 'INV-PISBIS-' + rand;
     
     sheet.appendRow([
       newId,
@@ -91,7 +99,10 @@ function saveInventory(data, user) {
       data.sub_items || '',
       data.status || 'Active',
       data.dispose_reason || '',
-      parseFloat(data.dispose_price) || 0
+      parseFloat(data.dispose_price) || 0,
+      photo2,
+      photo3,
+      photo4
     ]);
     writeLog(user.username, 'ADD_INVENTORY', newId);
     return { success: true, message: 'Inventaris berhasil ditambahkan.', id: newId };
