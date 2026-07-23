@@ -382,6 +382,19 @@ const formatDate = (dateString) => {
 
 const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, kontakGereja }) => {
     const [currentSlide, setCurrentSlide] = React.useState(0);
+    const [tappedMenu, setTappedMenu] = React.useState(null);
+
+    const handleMenuClick = (e, item) => {
+        if (window.innerWidth < 768 && tappedMenu !== item.id) {
+            e.preventDefault();
+            setTappedMenu(item.id);
+            setTimeout(() => setTappedMenu(null), 3000); // hide after 3 seconds if not clicked again
+            return;
+        }
+        if (!item.isExternal && !item.isSameTab) {
+            setActiveTab(item.id);
+        }
+    };
 
     const displayImages = heroImages && heroImages.length > 0 ? heroImages : ["./icons/PisgahColor.png"];
 
@@ -422,20 +435,25 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
     ];
 
     const renderFeatureItem = (item) => {
+        const isTapped = tappedMenu === item.id;
+        const textWrapperClass = `w-full transition-all duration-300 overflow-hidden flex justify-center ${isTapped ? 'max-h-[30px] opacity-100 mt-1.5' : 'max-h-0 opacity-0 md:max-h-[30px] md:opacity-100 md:mt-1.5'}`;
+        
         const content = (
             <>
-                <div className="w-11 h-11 md:w-14 md:h-14 rounded-[1rem] bg-white dark:bg-navy-700 group-hover:bg-[#4A7045] dark:group-hover:bg-gold-500 flex items-center justify-center mb-1.5 md:mb-2 transition-colors duration-300 shadow-sm border border-[#E2E8D8] dark:border-navy-600 group-hover:border-[#4A7045] dark:group-hover:border-gold-500">
+                <div className="w-11 h-11 md:w-14 md:h-14 rounded-[1rem] bg-white dark:bg-navy-700 group-hover:bg-[#4A7045] dark:group-hover:bg-gold-500 flex items-center justify-center transition-colors duration-300 shadow-sm border border-[#E2E8D8] dark:border-navy-600 group-hover:border-[#4A7045] dark:group-hover:border-gold-500">
                     <Icon name={item.icon} className="w-5 h-5 md:w-6 md:h-6 text-[#4A7045] dark:text-gold-400 group-hover:text-white dark:group-hover:text-navy-900 transition-colors duration-300" />
                 </div>
-                <span className="font-bold text-[10.5px] md:text-[12px] text-[#2C3F21] dark:text-navy-100 leading-tight text-center w-full max-w-[85px] break-normal">{item.label}</span>
+                <div className={textWrapperClass}>
+                    <span className="font-bold text-[10px] md:text-[12px] text-[#2C3F21] dark:text-navy-100 leading-snug text-center">{item.label}</span>
+                </div>
             </>
         );
 
-        const className = "group flex flex-col items-center justify-start p-1.5 md:p-2 rounded-2xl hover:bg-[#F4F7EF] dark:hover:bg-navy-800 transition-all duration-300 cursor-pointer flex-1 min-w-0";
+        const className = "group flex flex-col items-center justify-start p-1.5 md:p-2 rounded-2xl hover:bg-[#F4F7EF] dark:hover:bg-navy-800 transition-all duration-300 cursor-pointer w-[25%] md:w-auto md:flex-1 min-w-0";
 
-        if (item.isSameTab) return <a key={item.id} href={item.link} className={className}>{content}</a>;
-        if (item.isExternal) return <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" className={className}>{content}</a>;
-        return <button key={item.id} onClick={() => setActiveTab(item.id)} className={className}>{content}</button>;
+        if (item.isSameTab) return <a key={item.id} href={item.link} onClick={(e) => handleMenuClick(e, item)} className={className}>{content}</a>;
+        if (item.isExternal) return <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" onClick={(e) => handleMenuClick(e, item)} className={className}>{content}</a>;
+        return <button key={item.id} onClick={(e) => handleMenuClick(e, item)} className={className}>{content}</button>;
     };
 
     return (
@@ -507,7 +525,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
                         </div>
 
                         {/* Main Pill */}
-                        <div className="relative w-full bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-3 md:p-5 pt-8 md:pt-10 shadow-xl border-4 border-white dark:border-navy-700 flex flex-nowrap items-start justify-evenly gap-0 transition-colors duration-500 z-10">
+                        <div className="relative w-full bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-2 md:p-5 pt-6 md:pt-10 shadow-xl border-4 border-white dark:border-navy-700 flex flex-wrap md:flex-nowrap items-start justify-center md:justify-evenly gap-0.5 md:gap-0 transition-colors duration-500 z-10">
                             {featureItems.map(item => renderFeatureItem(item))}
                         </div>
                     </div>

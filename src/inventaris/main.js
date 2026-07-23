@@ -66,7 +66,7 @@ function checkAuth() {
     document.getElementById('userNameDisplay').textContent = `Hi, ${name}`;
     
     // Tampilkan field rahasia (Nilai)
-    document.querySelectorAll('.admin-only-field').forEach(el => el.style.display = 'block');
+    document.querySelectorAll('.admin-only-field').forEach(el => el.style.display = el.dataset.display || 'block');
   } else {
     currentUser = null;
     document.getElementById('loginBtn').style.display = 'block';
@@ -241,27 +241,42 @@ window.viewDetail = function(id) {
       const assetId = document.getElementById('detailId').textContent.replace('ID: ', '');
       const qrSrc = document.getElementById('qrCodeImg').src;
       
-      // Buat Canvas Virtual (384 dots = 48 bytes = standar printer 58mm)
+      // Buat Canvas Virtual Portrait (384 dots lebar = standar printer 58mm)
       const canvas = document.createElement('canvas');
       canvas.width = 384; 
-      canvas.height = 340; 
+      canvas.height = 520; 
       const ctx = canvas.getContext('2d');
+      
+      const cx = canvas.width / 2; // titik tengah horizontal
       
       // Background Putih
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Gambar Kotak Hitam (Border)
+      // Gambar Kotak Hitam dengan Sudut Bulat (Border)
+      const r = 20, bx = 12, by = 12, bw = canvas.width - 24, bh = canvas.height - 24;
       ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 6;
-      ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(bx + r, by);
+      ctx.lineTo(bx + bw - r, by);
+      ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + r);
+      ctx.lineTo(bx + bw, by + bh - r);
+      ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - r, by + bh);
+      ctx.lineTo(bx + r, by + bh);
+      ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - r);
+      ctx.lineTo(bx, by + r);
+      ctx.quadraticCurveTo(bx, by, bx + r, by);
+      ctx.closePath();
+      ctx.stroke();
       
-      // Teks PISGAH
+      // Teks Nama Aset (di atas)
       ctx.fillStyle = '#000000';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
       ctx.font = 'bold 36px monospace';
-      ctx.fillText('PISGAH', 192, 25);
+      let shortName = assetName.length > 20 ? assetName.substring(0, 17) + '...' : assetName;
+      ctx.fillText(shortName.toUpperCase(), cx, 40);
       
       // Load QR Code
       const qrImg = new Image();
@@ -272,37 +287,46 @@ window.viewDetail = function(id) {
         qrImg.src = qrSrc;
       });
       
-      // Gambar QR di tengah
-      ctx.drawImage(qrImg, 102, 75, 180, 180);
+      // Gambar QR besar di tengah
+      const qrSize = 300;
+      ctx.drawImage(qrImg, cx - qrSize/2, 95, qrSize, qrSize);
       
       // Gambar Logo Gereja di tengah QR
       const logoImg = new Image();
       logoImg.crossOrigin = 'Anonymous';
       await new Promise((resolve, reject) => {
         logoImg.onload = resolve;
-        logoImg.onerror = () => resolve(); // tetap lanjut jika logo gagal dimuat
+        logoImg.onerror = () => resolve();
         logoImg.src = window.location.origin + '/icons/PisgahColor.png';
       });
       if (logoImg.complete && logoImg.naturalWidth > 0) {
-        const logoSize = 36;
-        const logoX = 192 - logoSize / 2;
-        const logoY = 165 - logoSize / 2;
-        // Background putih bulat di belakang logo
+        const logoSize = 80;
+        const logoCx = cx;
+        const logoCy = 95 + qrSize/2;
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(192, 165, logoSize / 2 + 4, 0, Math.PI * 2);
+        ctx.arc(logoCx, logoCy, logoSize / 2 + 8, 0, Math.PI * 2);
         ctx.fill();
-        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+        ctx.drawImage(logoImg, logoCx - logoSize/2, logoCy - logoSize/2, logoSize, logoSize);
       }
       
-      // Teks ID dan Nama
+      // Teks ID (di bawah)
       ctx.fillStyle = '#000000';
-      ctx.font = 'bold 24px monospace';
-      ctx.fillText(assetId, 192, 265);
+      ctx.font = 'bold 28px monospace';
+      ctx.fillText(assetId, cx, 420);
       
+      // Garis pemisah kecil
+      ctx.strokeStyle = '#cccccc';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(60, 460);
+      ctx.lineTo(canvas.width - 60, 460);
+      ctx.stroke();
+      
+      // Teks PISGAH kecil di paling bawah
+      ctx.fillStyle = '#888888';
       ctx.font = '20px monospace';
-      let shortName = assetName.length > 25 ? assetName.substring(0, 22) + '...' : assetName;
-      ctx.fillText(shortName, 192, 295);
+      ctx.fillText('PISGAH-BISDAC', cx, 472);
       
       // Tampilkan Preview Modal di tengah
       const modal = document.getElementById('thermalPreviewModal');
@@ -382,6 +406,10 @@ window.viewDetail = function(id) {
     const assetId = document.getElementById('detailId').textContent.replace('ID: ', '');
     
     const printWin = window.open('', '_blank');
+    if (!printWin) {
+      showCustomAlert('Pop-up diblokir oleh browser Anda. Izinkan pop-up untuk pisgahbisdac.app agar dapat mencetak.', 'error');
+      return;
+    }
     printWin.document.write(`
       <html>
         <head>
