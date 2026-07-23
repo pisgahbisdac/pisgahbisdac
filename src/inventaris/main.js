@@ -95,7 +95,7 @@ function renderGrid(data) {
         <div class="inv-badge-status">${item.category ? item.category + ' • ' : ''}${item.location}</div>
         <img src="${photoUrl}" class="inv-asset-photo" alt="${item.name}" onerror="this.src='https://via.placeholder.com/500x300?text=No+Photo'">
         <div class="inv-asset-info">
-          <div class="inv-asset-name">${item.name}</div>
+          <div class="inv-asset-name">${item.name} <span style="font-size:0.85rem; font-weight:normal; color:#bbb;">(${item.qty || 1} ${item.unit || 'Unit'})</span></div>
           
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
             <div class="inv-asset-meta" style="margin-bottom:0 !important; color:var(--accent); font-family:monospace; font-size:0.8rem;"><i class="fa-solid fa-barcode"></i> ${item.id}</div>
@@ -154,6 +154,17 @@ window.viewDetail = function(id) {
   document.getElementById('detailDate').textContent = fmtDate(item.date_acquired);
   document.getElementById('detailLocation').textContent = item.location;
   document.getElementById('detailPic').textContent = item.pic;
+  document.getElementById('detailQty').textContent = item.qty || 1;
+  document.getElementById('detailUnit').textContent = item.unit || 'Unit';
+  
+  const subItemsEl = document.getElementById('detailSubItems');
+  const subItemsContainer = document.getElementById('detailSubItemsContainer');
+  if (item.sub_items) {
+    subItemsEl.textContent = item.sub_items;
+    subItemsContainer.style.display = 'flex';
+  } else {
+    subItemsContainer.style.display = 'none';
+  }
   
   if (item.photo) {
     document.getElementById('detailPhoto').src = item.photo;
@@ -182,6 +193,153 @@ window.viewDetail = function(id) {
   document.getElementById('qrCodeId').textContent = item.id;
   
   document.getElementById('detailModal').style.display = 'flex';
+  
+  window.printBarcode = () => {
+    const qrSrc = document.getElementById('qrCodeImg').src;
+    const assetName = document.getElementById('detailName').textContent;
+    const assetId = document.getElementById('detailId').textContent.replace('ID: ', '');
+    
+    const printWin = window.open('', '_blank', 'width=700,height=500');
+    printWin.document.write(`
+      <html>
+        <head>
+          <title>Preview Thermal Label - ${assetId}</title>
+          <style>
+            @page { size: 35mm 50mm; margin: 0; }
+            body { 
+              font-family: 'Inter', sans-serif, monospace; 
+              margin: 0; 
+              background: #111827;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              height: 100vh;
+              color: white;
+            }
+            .toolbar {
+              background: #1f2937;
+              width: 100%;
+              padding: 20px;
+              text-align: center;
+              box-sizing: border-box;
+              border-bottom: 1px solid #374151;
+            }
+            .toolbar button {
+              background: #d4af37;
+              border: none;
+              padding: 12px 24px;
+              font-weight: bold;
+              border-radius: 8px;
+              cursor: pointer;
+              font-size: 16px;
+              color: #000;
+              transition: transform 0.2s;
+            }
+            .toolbar button:hover { transform: scale(1.05); background: #f0c950; }
+            .toolbar p { margin: 10px 0 0 0; font-size: 13px; color: #9ca3af; }
+            
+            .preview-container {
+              flex: 1;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 20px;
+              width: 100%;
+            }
+            
+            /* Thermal Label Box (Portrait 35mm x 50mm) */
+            .label-box { 
+              width: 35mm; 
+              height: 50mm; 
+              background: #fff;
+              border: 1.5px solid #000;
+              border-radius: 4px;
+              box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+              padding: 3mm 2mm; 
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: space-between;
+              overflow: hidden;
+            }
+            .label-box h3 { 
+              margin: 0; 
+              font-size: 11px; 
+              text-transform: uppercase; 
+              color: #000;
+              text-align: center;
+              width: 100%;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            .qr-wrapper { position: relative; width: 22mm; height: 22mm; margin: auto 0; }
+            .qr-wrapper img.qr { width: 22mm; height: 22mm; display: block; }
+            .qr-wrapper img.logo { 
+              position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+              width: 6mm; height: 6mm; background: white; padding: 0.5mm; border-radius: 50%; object-fit: contain; 
+            }
+            .id-text { 
+              margin: 0; 
+              font-size: 10px; 
+              font-weight: bold; 
+              font-family: monospace; 
+              color: #000; 
+              text-align: center;
+            }
+            
+            .print-only { display: none; }
+            
+            /* Print Specific Styles */
+            @media print {
+              body * { visibility: hidden; }
+              body { background: #fff; display: block; height: auto; }
+              .print-only { 
+                display: flex !important; 
+                visibility: visible; 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                box-shadow: none; 
+                border: 1.5px solid #000;
+                margin: 0;
+              }
+              .print-only * { visibility: visible; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="toolbar no-print">
+            <button onclick="window.print()">🖨️ Cetak ke Printer Thermal</button>
+            <p>Pastikan pengaturan ukuran kertas (Paper Size) di printer Anda diatur ke portrait <b>35mm x 50mm</b></p>
+          </div>
+          
+          <div class="preview-container no-print">
+            <div class="label-box">
+              <h3>${assetName}</h3>
+              <div class="qr-wrapper">
+                <img class="qr" src="${qrSrc}">
+                <img class="logo" src="${window.location.origin}/icons/PisgahColor.png">
+              </div>
+              <div class="id-text">${assetId}</div>
+            </div>
+          </div>
+          
+          <!-- Hidden box strictly for printing to avoid UI interference -->
+          <div class="label-box print-only">
+            <h3>${assetName}</h3>
+            <div class="qr-wrapper">
+              <img class="qr" src="${qrSrc}">
+              <img class="logo" src="${window.location.origin}/icons/PisgahColor.png">
+            </div>
+            <div class="id-text">${assetId}</div>
+          </div>
+        </body>
+      </html>
+    `);
+    printWin.document.close();
+  };
   
   // Setup Action Buttons
   document.getElementById('editBtn').onclick = () => {
@@ -232,6 +390,9 @@ function openFormModal(item = null) {
     document.getElementById('formSource').value = item.source || '';
     document.getElementById('formTaksasi').value = item.taksasi ? fmt(item.taksasi) : '';
     document.getElementById('formPic').value = item.pic;
+    document.getElementById('formQty').value = item.qty || 1;
+    document.getElementById('formUnit').value = item.unit || 'Unit';
+    document.getElementById('formSubItems').value = item.sub_items || '';
     
     if (item.photo) {
       document.getElementById('photoPreviewImg').src = item.photo;
@@ -248,6 +409,9 @@ function openFormModal(item = null) {
     document.getElementById('formSource').value = '';
     document.getElementById('formTaksasi').value = '';
     document.getElementById('formPic').value = '';
+    document.getElementById('formQty').value = '1';
+    document.getElementById('formUnit').value = 'Buah';
+    document.getElementById('formSubItems').value = '';
   }
 }
 
@@ -375,8 +539,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const taks = document.getElementById('formTaksasi').value.replace(/\./g, '');
     const pic = document.getElementById('formPic').value;
     const id = document.getElementById('formId').value;
+    const qty = document.getElementById('formQty').value;
+    const unit = document.getElementById('formUnit').value;
+    const subItems = document.getElementById('formSubItems').value;
     
-    if (!name || !loc || !pic || !cat || !src) return alert('Mohon lengkapi field wajib (*)');
+    if (!name || !loc || !pic || !cat || !src || !qty || !unit) return alert('Mohon lengkapi field wajib (*)');
     
     const payload = {
       isUpdate: !!id,
@@ -388,7 +555,10 @@ document.addEventListener('DOMContentLoaded', () => {
       category: cat,
       source: src,
       taksasi: taks,
-      pic: pic
+      pic: pic,
+      qty: qty,
+      unit: unit,
+      sub_items: subItems
     };
     
     if (window.currentPhotoBase64) {
