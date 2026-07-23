@@ -504,6 +504,25 @@
         </select>
       </div>
       
+      <div class="inv-form-group admin-only-field" style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
+        <label>Status Aset *</label>
+        <select id="formStatus" class="inv-form-control" required onchange="if(this.value==='Disposed') document.getElementById('disposeFields').style.display='block'; else document.getElementById('disposeFields').style.display='none';">
+          <option value="Active">🟢 Aktif (Digunakan)</option>
+          <option value="Disposed">🔴 Disposed (Dikeluarkan / Dijual / Dihapus)</option>
+        </select>
+      </div>
+      
+      <div id="disposeFields" style="display:none; background:rgba(220,38,38,0.1); border-left:3px solid #ef4444; padding:15px; border-radius:6px; margin-bottom:15px;">
+        <div class="inv-form-group" style="margin-bottom:10px;">
+          <label>Justifikasi / Alasan Disposal *</label>
+          <input type="text" id="formDisposeReason" class="inv-form-control" placeholder="Contoh: Rusak total, Dijual, Dihibahkan">
+        </div>
+        <div class="inv-form-group" style="margin-bottom:0;">
+          <label>Harga Jual Disposal (Isi 0 jika tidak dijual)</label>
+          <input type="text" inputmode="numeric" id="formDisposePrice" class="inv-form-control" placeholder="Contoh: 1500000">
+        </div>
+      </div>
+      
       <div class="inv-form-group">
         <label>Taksasi Harga / Perkiraan Nilai Saat Ini (Rp)</label>
         <input type="text" inputmode="numeric" id="formTaksasi" class="inv-form-control" placeholder="Contoh: 4500000">
@@ -565,6 +584,16 @@
         <!-- Kolom Kanan: Rincian Data dan Tombol -->
         <div style="flex: 1; min-width: 300px;">
           <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:20px; height:100%; box-sizing:border-box;">
+            
+            <div id="detailStatusContainer" style="display:none; margin-bottom:15px;">
+              <span id="detailStatusBadge" style="display:inline-block; padding:4px 10px; border-radius:6px; font-weight:bold; font-size:0.85rem;"></span>
+            </div>
+            
+            <div id="detailDisposeInfo" style="display:none; background:rgba(220,38,38,0.1); border-left:3px solid #ef4444; padding:12px; border-radius:6px; margin-bottom:15px; font-size:0.85rem;">
+              <div style="margin-bottom:5px;"><strong>Alasan Disposal:</strong> <span id="detailDisposeReason"></span></div>
+              <div class="admin-only-field"><strong>Harga Jual:</strong> <span id="detailDisposePrice" style="color:#4ade80;"></span></div>
+            </div>
+            
             <div class="inv-asset-meta" style="margin-bottom:12px;"><i class="fa-solid fa-cubes"></i> Jumlah: <span id="detailQty" style="font-weight:bold; color:var(--accent); margin-left:5px;"></span> <span id="detailUnit"></span></div>
             <div id="detailSubItemsContainer" class="inv-asset-meta" style="margin-bottom:12px; display:none; flex-direction:column; align-items:flex-start;">
               <div style="color:rgba(255,255,255,0.7); font-size:0.85rem; margin-bottom:8px;"><i class="fa-solid fa-list"></i> Rincian Set / Sub Item:</div>

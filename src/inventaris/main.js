@@ -89,10 +89,15 @@ function renderGrid(data) {
   
   grid.innerHTML = data.map(item => {
     const photoUrl = item.photo ? item.photo : 'https://images.unsplash.com/photo-1548625361-ec8587d60f58?w=500&q=80';
+    const isDisposed = item.status === 'Disposed';
+    const cardStyle = isDisposed ? 'opacity: 0.7; filter: grayscale(80%); border: 1px solid rgba(239, 68, 68, 0.3);' : '';
+    const badgeHtml = isDisposed 
+      ? `<div class="inv-badge-status" style="background:rgba(239, 68, 68, 0.9); color:white; font-weight:bold;"><i class="fa-solid fa-ban"></i> DISPOSED</div>`
+      : `<div class="inv-badge-status">${item.category ? item.category + ' • ' : ''}${item.location}</div>`;
     
     return `
-      <div class="inv-asset-card" onclick="window.viewDetail('${item.id}')">
-        <div class="inv-badge-status">${item.category ? item.category + ' • ' : ''}${item.location}</div>
+      <div class="inv-asset-card" style="${cardStyle}" onclick="window.viewDetail('${item.id}')">
+        ${badgeHtml}
         <img src="${photoUrl}" class="inv-asset-photo" alt="${item.name}" onerror="this.src='https://via.placeholder.com/500x300?text=No+Photo'">
         <div class="inv-asset-info">
           <div class="inv-asset-name" style="display:flex; align-items:center; gap:8px;">
@@ -161,6 +166,33 @@ window.viewDetail = function(id) {
   document.getElementById('detailPic').textContent = item.pic;
   document.getElementById('detailQty').textContent = item.qty || 1;
   document.getElementById('detailUnit').textContent = item.unit || 'Unit';
+  
+  const statusContainer = document.getElementById('detailStatusContainer');
+  const statusBadge = document.getElementById('detailStatusBadge');
+  const disposeInfo = document.getElementById('detailDisposeInfo');
+  
+  if (item.status === 'Disposed') {
+    statusContainer.style.display = 'block';
+    statusBadge.innerHTML = '<i class="fa-solid fa-ban"></i> Disposed';
+    statusBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+    statusBadge.style.color = '#ef4444';
+    
+    disposeInfo.style.display = 'block';
+    document.getElementById('detailDisposeReason').textContent = item.dispose_reason || '-';
+    
+    if (currentUser && item.dispose_price) {
+      document.getElementById('detailDisposePrice').textContent = `Rp ${fmt(item.dispose_price)}`;
+      document.getElementById('detailDisposePrice').parentElement.style.display = 'block';
+    } else {
+      document.getElementById('detailDisposePrice').parentElement.style.display = 'none';
+    }
+  } else {
+    statusContainer.style.display = 'block';
+    statusBadge.innerHTML = '<i class="fa-solid fa-circle-check"></i> Active';
+    statusBadge.style.background = 'rgba(74, 222, 128, 0.1)';
+    statusBadge.style.color = '#4ade80';
+    disposeInfo.style.display = 'none';
+  }
   
   const subItemsEl = document.getElementById('detailSubItems');
   const subItemsContainer = document.getElementById('detailSubItemsContainer');
@@ -399,6 +431,11 @@ function openFormModal(item = null) {
     document.getElementById('formUnit').value = item.unit || 'Unit';
     document.getElementById('formSubItems').value = item.sub_items || '';
     
+    document.getElementById('formStatus').value = item.status || 'Active';
+    document.getElementById('formDisposeReason').value = item.dispose_reason || '';
+    document.getElementById('formDisposePrice').value = item.dispose_price ? fmt(item.dispose_price) : '';
+    document.getElementById('disposeFields').style.display = (item.status === 'Disposed') ? 'block' : 'none';
+    
     if (item.photo) {
       document.getElementById('photoPreviewImg').src = item.photo;
       imgPreview.style.display = 'block';
@@ -417,6 +454,11 @@ function openFormModal(item = null) {
     document.getElementById('formQty').value = '1';
     document.getElementById('formUnit').value = 'Buah';
     document.getElementById('formSubItems').value = '';
+    
+    document.getElementById('formStatus').value = 'Active';
+    document.getElementById('formDisposeReason').value = '';
+    document.getElementById('formDisposePrice').value = '';
+    document.getElementById('disposeFields').style.display = 'none';
   }
 }
 
@@ -503,6 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Format Ribuan
   document.getElementById('formValue').addEventListener('input', formatRibuanInput);
   document.getElementById('formTaksasi').addEventListener('input', formatRibuanInput);
+  document.getElementById('formDisposePrice').addEventListener('input', formatRibuanInput);
   
   // Login
   document.getElementById('loginBtn').addEventListener('click', () => {
@@ -575,8 +618,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const qty = document.getElementById('formQty').value;
     const unit = document.getElementById('formUnit').value;
     const subItems = document.getElementById('formSubItems').value;
+    const status = document.getElementById('formStatus').value;
+    const disposeReason = document.getElementById('formDisposeReason').value;
+    const disposePrice = document.getElementById('formDisposePrice').value.replace(/\./g, '');
     
     if (!name || !loc || !pic || !cat || !src || !qty || !unit) return showCustomAlert('Mohon lengkapi field wajib (*)', 'error');
+    if (status === 'Disposed' && !disposeReason) return showCustomAlert('Mohon isi Justifikasi / Alasan Disposal', 'error');
     
     const payload = {
       isUpdate: !!id,
@@ -591,7 +638,10 @@ document.addEventListener('DOMContentLoaded', () => {
       pic: pic,
       qty: qty,
       unit: unit,
-      sub_items: subItems
+      sub_items: subItems,
+      status: status,
+      dispose_reason: disposeReason,
+      dispose_price: disposePrice
     };
     
     if (window.currentPhotoBase64) {

@@ -26,7 +26,10 @@ function getInventory() {
         taksasi: r[11] || 0,
         qty: r[12] !== undefined && r[12] !== '' ? parseInt(r[12]) : 1,
         unit: r[13] || 'Unit',
-        sub_items: r[14] || ''
+        sub_items: r[14] || '',
+        status: r[15] || 'Active',
+        dispose_reason: r[16] || '',
+        dispose_price: r[17] || 0
       });
     }
   }
@@ -56,6 +59,9 @@ function saveInventory(data, user) {
         if (data.qty !== undefined) sheet.getRange(i + 1, 13).setValue(parseInt(data.qty) || 1);
         if (data.unit !== undefined) sheet.getRange(i + 1, 14).setValue(data.unit);
         if (data.sub_items !== undefined) sheet.getRange(i + 1, 15).setValue(data.sub_items);
+        if (data.status !== undefined) sheet.getRange(i + 1, 16).setValue(data.status);
+        if (data.dispose_reason !== undefined) sheet.getRange(i + 1, 17).setValue(data.dispose_reason);
+        if (data.dispose_price !== undefined) sheet.getRange(i + 1, 18).setValue(parseFloat(data.dispose_price) || 0);
         writeLog(user.username, 'UPDATE_INVENTORY', data.id);
         return { success: true, message: 'Inventaris berhasil diperbarui.' };
       }
@@ -82,7 +88,10 @@ function saveInventory(data, user) {
       parseFloat(data.taksasi) || 0,
       parseInt(data.qty) || 1,
       data.unit || 'Unit',
-      data.sub_items || ''
+      data.sub_items || '',
+      data.status || 'Active',
+      data.dispose_reason || '',
+      parseFloat(data.dispose_price) || 0
     ]);
     writeLog(user.username, 'ADD_INVENTORY', newId);
     return { success: true, message: 'Inventaris berhasil ditambahkan.', id: newId };
