@@ -597,6 +597,18 @@
     </div>
   </div>
 
+  <!-- Custom Alert Modal -->
+  <div id="customAlertModal" class="inv-modal-overlay" style="z-index: 9999;">
+    <div class="inv-modal-content" style="max-width: 400px !important; text-align: center; padding: 40px 30px;">
+      <div id="alertIcon" style="font-size: 3.5rem; margin-bottom: 20px; color: var(--accent);">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h3 id="alertTitle" style="margin-top:0; color:white; font-size:1.4rem; margin-bottom:12px;">Berhasil</h3>
+      <p id="alertMessage" style="color: rgba(255,255,255,0.8); font-size: 1rem; margin-bottom: 30px; line-height: 1.5;"></p>
+      <button onclick="document.getElementById('customAlertModal').style.display='none'" class="inv-btn inv-btn-primary" style="width: 100%; font-size: 1rem; padding: 12px;">OK Mengerti</button>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
   <script type="module" src="/src/inventarisEntry.js"></script>
 </body>

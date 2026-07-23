@@ -355,11 +355,11 @@ window.viewDetail = function(id) {
     btn.disabled = true;
     try {
       await apiPost('deleteInventory', { id: item.id });
-      alert('Berhasil dihapus!');
+      showCustomAlert('Berhasil dihapus!', 'success');
       document.getElementById('detailModal').style.display = 'none';
       loadData();
     } catch(e) {
-      alert(e.message);
+      showCustomAlert(e.message, 'error');
     } finally {
       btn.innerHTML = oriText;
       btn.disabled = false;
@@ -454,6 +454,34 @@ document.getElementById('formPhoto').addEventListener('change', function(e) {
 // ==========================================
 // EVENT LISTENERS & FORMATTING
 // ==========================================
+window.showCustomAlert = function(msg, type = 'success') {
+  const modal = document.getElementById('customAlertModal');
+  const title = document.getElementById('alertTitle');
+  const message = document.getElementById('alertMessage');
+  const icon = document.getElementById('alertIcon');
+  
+  message.textContent = msg;
+  
+  if (type === 'error') {
+    title.textContent = 'Gagal';
+    title.style.color = '#ef4444';
+    icon.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i>';
+    icon.style.color = '#ef4444';
+  } else if (type === 'warning') {
+    title.textContent = 'Perhatian';
+    title.style.color = '#d4af37';
+    icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+    icon.style.color = '#d4af37';
+  } else {
+    title.textContent = 'Berhasil';
+    title.style.color = 'var(--accent)';
+    icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+    icon.style.color = 'var(--accent)';
+  }
+  
+  modal.style.display = 'flex';
+};
+
 function formatRibuanInput(e) {
   let val = e.target.value.replace(/[^0-9]/g, '');
   if (val) {
@@ -479,7 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('doLoginBtn').addEventListener('click', async () => {
     const u = document.getElementById('loginUsername').value;
     const p = document.getElementById('loginPassword').value;
-    if (!u || !p) return alert('Isi username dan password');
+    if (!u || !p) return showCustomAlert('Isi username dan password', 'error');
     
     const btn = document.getElementById('doLoginBtn');
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
@@ -498,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('BISDAC_name', name);
       }
     } catch(err) {
-      alert(err.message);
+      showCustomAlert(err.message, 'error');
     } finally {
       btn.innerHTML = 'Masuk';
       btn.disabled = false;
@@ -543,7 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const unit = document.getElementById('formUnit').value;
     const subItems = document.getElementById('formSubItems').value;
     
-    if (!name || !loc || !pic || !cat || !src || !qty || !unit) return alert('Mohon lengkapi field wajib (*)');
+    if (!name || !loc || !pic || !cat || !src || !qty || !unit) return showCustomAlert('Mohon lengkapi field wajib (*)', 'error');
     
     const payload = {
       isUpdate: !!id,
@@ -571,11 +599,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     try {
       await apiPost('saveInventory', payload);
-      alert('Berhasil disimpan!');
+      showCustomAlert('Berhasil disimpan!', 'success');
       closeFormModal();
       loadData();
     } catch(e) {
-      alert(e.message);
+      showCustomAlert(e.message, 'error');
     } finally {
       btn.innerHTML = 'Simpan Data';
       btn.disabled = false;
