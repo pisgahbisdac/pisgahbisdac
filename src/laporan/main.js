@@ -2030,6 +2030,76 @@
       document.getElementById('mutSaldoTersedia').textContent = fmt(avail); document.getElementById('mutSaldoWarning').style.display = amount > avail ? 'flex' : 'none';
     }
 
+    function showCashTransactions() {
+      const src = document.getElementById('mutSource').value;
+      const [baseSrc, type] = src.split('|'); 
+      if (type !== 'CASH') return; 
+
+      const inc = window.cachedIncome || [];
+      const exp = window.cachedExpense || [];
+      let history = [];
+
+      inc.forEach(i => {
+        const isCashInc = (i.note || '').includes('[CASH]');
+        let amount = 0;
+        if (baseSrc === 'Daerah') amount = i.alloc_daerah || 0;
+        else if (baseSrc === 'Kas Jemaat') amount = i.alloc_jemaat || 0;
+        else if (baseSrc === 'Pembangunan') amount = i.alloc_bangun || 0;
+
+        if (amount > 0 && isCashInc === (type === 'CASH')) {
+          history.push({ date: i.date, note: i.note, in: amount, out: 0, rawDate: new Date(i.date) });
+        }
+      });
+
+      exp.forEach(e => {
+        const isMutasi = e.department === 'Mutasi Kas / Setor Bank';
+        let srcBase = e.source_balance;
+        if (srcBase === 'Kas Daerah (Bank)') { srcBase = 'Daerah'; e.note = (e.note || '') + ' [BANK]'; }
+        if (srcBase === 'Kas Daerah (Di Tangan)') { srcBase = 'Daerah'; e.note = (e.note || '') + ' [CASH]'; }
+        if (srcBase === 'Kas Jemaat (Bank)') { srcBase = 'Kas Jemaat'; e.note = (e.note || '') + ' [BANK]'; }
+        if (srcBase === 'Kas Jemaat (Di Tangan)') { srcBase = 'Kas Jemaat'; e.note = (e.note || '') + ' [CASH]'; }
+        if (srcBase === 'Kas Pembangunan (Bank)') { srcBase = 'Pembangunan'; e.note = (e.note || '') + ' [BANK]'; }
+        if (srcBase === 'Kas Pembangunan (Di Tangan)') { srcBase = 'Pembangunan'; e.note = (e.note || '') + ' [CASH]'; }
+
+        if (srcBase === baseSrc) {
+          const isCashExp = (e.note || '').includes('[CASH]');
+          if (!isMutasi && isCashExp) {
+             history.push({ date: e.date, note: e.note, in: 0, out: e.amount, rawDate: new Date(e.date) });
+          } else if (isMutasi) {
+             history.push({ date: e.date, note: e.note, in: 0, out: e.amount, rawDate: new Date(e.date) });
+          }
+        }
+      });
+
+      history.sort((a,b) => a.rawDate - b.rawDate);
+      let runSaldo = 0;
+      let html = '';
+      history.forEach(h => {
+        runSaldo += h.in;
+        runSaldo -= h.out;
+        html += `<tr><td>${(h.date||'').substring(0,10)}</td><td>${h.note||''}</td><td style="text-align:right">${h.in > 0 ? fmt(h.in) : '-'}</td><td style="text-align:right">${h.out > 0 ? fmt(h.out) : '-'}</td><td style="text-align:right">${fmt(runSaldo)}</td></tr>`;
+      });
+
+      if (history.length === 0) {
+        html = `<tr><td colspan="5" style="text-align:center">Belum ada mutasi cash untuk sumber ini.</td></tr>`;
+      }
+
+      const tbody = document.getElementById('ledgerTableBody');
+      if (tbody) tbody.innerHTML = html;
+      
+      const subTitle = document.getElementById('ledgerSubTitle');
+      const srcOpt = document.querySelector('#mutSource option:checked');
+      if (subTitle && srcOpt) subTitle.innerText = 'Sumber: ' + srcOpt.text;
+      
+      const modal = document.getElementById('ledgerModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function hideLedgerModal() {
+      const modal = document.getElementById('ledgerModal');
+      if (modal) modal.style.display = 'none';
+    }
+
     async function saveExpenseForm() {
       const date = document.getElementById('expDate').value; const dept = document.getElementById('expDept').value;
       if (date) {
@@ -4686,22 +4756,12 @@
         return tDate >= targetDateStart && tDate <= targetDateEnd && (x.alloc_bangun > 0 || (x.income_type || '').toLowerCase().includes('pembangunan'));
       });
 
-      const pengBulanIni = (cachedExpense || []).filter(x => {
+      let pengBulanIni = (cachedExpense || []).filter(x => {
         const tDate = new Date(x.date);
         return tDate >= targetDateStart && tDate <= targetDateEnd && x.source_balance === 'Pembangunan';
       });
       
-      pengBulanIni.forEach(x => {
-        if (x.department === 'Mutasi Kas / Setor Bank') {
-          pemBulanIni.push({
-            date: x.date,
-            receipt_no: x.receipt_no,
-            note: x.note || 'Mutasi Setor Ke Bank (Pembangunan)',
-            alloc_bangun: x.amount,
-            approved_by: x.approved_by
-          });
-        }
-      });
+      pengBulanIni = pengBulanIni.filter(x => x.department !== 'Mutasi Kas / Setor Bank');
       
       pemBulanIni.sort((a, b) => new Date(a.date) - new Date(b.date));
       pengBulanIni.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -4927,6 +4987,9 @@
 
 
 
+
+window.showCashTransactions = showCashTransactions;
+window.hideLedgerModal = hideLedgerModal;
 
 // --- INJECTED BY REFACTOR SCRIPT ---
 document.addEventListener('DOMContentLoaded', () => {
