@@ -18,13 +18,19 @@
       --accent: #d4af37;
     }
     
-    body {
-      background: var(--bg-dark);
-      color: #eae7e2;
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
+    html, body {
+      background-color: #0b1a30 !important;
+      color: #eae7e2 !important;
+      font-family: 'Inter', sans-serif !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow-x: hidden !important;
+      min-height: 100vh !important;
+    }
+    
+    main {
+      background-color: transparent !important;
+      width: 100% !important;
     }
     
     .hero-section {
@@ -85,77 +91,78 @@
     }
     
     .inventory-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px;
-      padding: 0 20px 60px;
-      max-width: 1200px;
-      margin: 0 auto;
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+      gap: 24px !important;
+      padding: 0 20px 60px !important;
+      max-width: 95% !important;
+      margin: 0 auto !important;
     }
     
-    .asset-card {
-      background: var(--bg-card);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      overflow: hidden;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      cursor: pointer;
-      position: relative;
+    .inv-asset-card {
+      background-color: #1a2639 !important;
+      border: 1px solid rgba(255,255,255,0.1) !important;
+      border-radius: 16px !important;
+      overflow: hidden !important;
+      transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+      cursor: pointer !important;
+      position: relative !important;
     }
     
-    .asset-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      border-color: rgba(212, 175, 55, 0.3);
+    .inv-asset-card:hover {
+      transform: translateY(-5px) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+      border-color: rgba(212, 175, 55, 0.5) !important;
     }
     
-    .asset-photo {
-      width: 100%;
-      height: 200px;
-      -o-object-fit: cover;
-         object-fit: cover;
-      background: #000;
-      border-bottom: 1px solid var(--glass-border);
+    .inv-asset-photo {
+      width: 100% !important;
+      height: 200px !important;
+      -o-object-fit: cover !important;
+         object-fit: cover !important;
+      background-color: #000 !important;
+      border-bottom: 1px solid rgba(255,255,255,0.1) !important;
     }
     
-    .asset-info {
-      padding: 20px;
+    .inv-asset-info {
+      padding: 20px !important;
     }
     
-    .asset-name {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 10px;
+    .inv-asset-name {
+      font-size: 1.2rem !important;
+      font-weight: 600 !important;
+      color: #ffffff !important;
+      margin-bottom: 10px !important;
     }
     
-    .asset-meta {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.6);
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .inv-asset-meta {
+      font-size: 0.9rem !important;
+      color: rgba(255, 255, 255, 0.7) !important;
+      margin-bottom: 6px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
     }
     
-    .asset-value {
-      font-weight: 700;
-      color: #4ade80;
-      margin-top: 15px;
-      font-size: 1.1rem;
+    .inv-asset-value {
+      font-weight: 700 !important;
+      color: #4ade80 !important;
+      margin-top: 15px !important;
+      font-size: 1.1rem !important;
     }
     
-    .badge-status {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(255,255,255,0.2);
+    .inv-badge-status {
+      position: absolute !important;
+      top: 15px !important;
+      right: 15px !important;
+      padding: 4px 12px !important;
+      border-radius: 20px !important;
+      font-size: 0.8rem !important;
+      font-weight: 600 !important;
+      background-color: rgba(0,0,0,0.8) !important;
+      color: #ffffff !important;
+      backdrop-filter: blur(4px) !important;
+      border: 1px solid rgba(255,255,255,0.3) !important;
     }
     
     .top-nav {
@@ -203,7 +210,7 @@
     }
     
     /* Modal styles */
-    .modal-overlay {
+    .inv-modal-overlay {
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.8);
@@ -215,41 +222,93 @@
       padding: 20px;
     }
     
-    .modal-content {
-      background: var(--bg-dark);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      width: 100%;
-      max-width: 500px;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 24px;
-      position: relative;
+    .inv-modal-content {
+      background-color: #0b1a30 !important;
+      border: 1px solid var(--glass-border) !important;
+      border-radius: 16px !important;
+      width: 100% !important;
+      max-width: 500px !important;
+      max-height: 90vh !important;
+      overflow-y: auto !important;
+      padding: 24px !important;
+      position: relative !important;
+      color: #ffffff !important;
     }
     
-    .form-group {
-      margin-bottom: 16px;
+    .inv-form-group {
+      margin-bottom: 16px !important;
     }
     
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      color: rgba(255,255,255,0.8);
-      font-size: 0.9rem;
+    .inv-form-group label {
+      display: block !important;
+      margin-bottom: 8px !important;
+      color: #ffffff !important;
+      font-size: 0.9rem !important;
+      font-weight: 500 !important;
+      background: transparent !important;
     }
     
-    .form-control {
-      width: 100%;
-      padding: 12px;
-      background: rgba(0,0,0,0.2);
-      border: 1px solid var(--glass-border);
-      border-radius: 8px;
-      color: white;
+    .inv-form-control {
+      width: 100% !important;
+      padding: 12px !important;
+      background-color: rgba(255,255,255,0.1) !important;
+      border: 1px solid rgba(255,255,255,0.3) !important;
+      border-radius: 8px !important;
+      color: #ffffff !important;
+      font-size: 1rem !important;
+      box-sizing: border-box !important;
     }
     
-    .form-control:focus {
-      outline: none;
-      border-color: var(--accent);
+    .inv-form-control::-moz-placeholder {
+      color: rgba(255,255,255,0.5) !important;
+    }
+    
+    .inv-form-control::placeholder {
+      color: rgba(255,255,255,0.5) !important;
+    }
+    
+    .inv-form-control:focus {
+      outline: none !important;
+      border-color: #d4af37 !important;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.4) !important;
+      background-color: rgba(255,255,255,0.15) !important;
+    }
+    
+    .inv-form-control option {
+      background-color: #1a2639 !important;
+      color: #ffffff !important;
+    }
+    
+    .inv-btn {
+      padding: 10px 16px !important;
+      border-radius: 8px !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      transition: all 0.2s !important;
+      border: none !important;
+      font-size: 1rem !important;
+      display: inline-block !important;
+      text-align: center !important;
+    }
+    
+    .inv-btn-primary {
+      background-color: #d4af37 !important;
+      color: #000000 !important;
+    }
+    
+    .inv-btn-primary:hover {
+      background-color: #f0c950 !important;
+      transform: scale(1.02) !important;
+    }
+    
+    .inv-btn-outline {
+      background-color: transparent !important;
+      border: 1px solid #d4af37 !important;
+      color: #d4af37 !important;
+    }
+    
+    .inv-btn-outline:hover {
+      background-color: rgba(212, 175, 55, 0.1) !important;
     }
     
     .barcode-container {
@@ -265,7 +324,7 @@
       height: auto;
     }
   </style>
-  <script type="module" crossorigin src="/assets/inventaris-CxwlQ4ZV.js"></script>
+  <script type="module" crossorigin src="/assets/inventaris-CodCDkWH.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/index-CIe1EaFu.css">
 </head>
@@ -307,72 +366,119 @@
   </main>
 
   <!-- Login Modal -->
-  <div id="loginModal" class="modal-overlay">
-    <div class="modal-content" style="max-width:350px;">
+  <div id="loginModal" class="inv-modal-overlay">
+    <div class="inv-modal-content" style="max-width:350px;">
       <h3 style="margin-top:0; color:var(--accent); font-size:1.5rem; text-align:center;">Login Pengurus</h3>
-      <div class="form-group">
+      <div class="inv-form-group">
         <label>Username</label>
-        <input type="text" id="loginUsername" class="form-control">
+        <input type="text" id="loginUsername" class="inv-form-control">
       </div>
-      <div class="form-group">
+      <div class="inv-form-group">
         <label>Password</label>
-        <input type="password" id="loginPassword" class="form-control">
+        <input type="password" id="loginPassword" class="inv-form-control">
       </div>
-      <button id="doLoginBtn" class="btn btn-primary" style="width:100%; margin-top:10px;">Masuk</button>
-      <button onclick="document.getElementById('loginModal').style.display='none'" class="btn" style="width:100%; margin-top:10px; background:transparent; color:white;">Batal</button>
+      <button id="doLoginBtn" class="inv-btn inv-btn-primary" style="width:100%; margin-top:10px;">Masuk</button>
+      <button onclick="document.getElementById('loginModal').style.display='none'" class="inv-btn" style="width:100%; margin-top:10px; background:transparent; color:white;">Batal</button>
+    </div>
+  </div>
+
+  <!-- Logout Modal -->
+  <div id="logoutModal" class="inv-modal-overlay">
+    <div class="inv-modal-content" style="max-width:350px; text-align:center;">
+      <div style="width:60px; height:60px; background:rgba(212, 175, 55, 0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px;">
+        <i class="fa-solid fa-sign-out-alt" style="color:var(--accent); font-size:1.5rem;"></i>
+      </div>
+      <h3 style="margin-top:0; color:white; font-size:1.3rem; margin-bottom:10px;">Keluar Mode Admin</h3>
+      <p style="color:rgba(255,255,255,0.7); font-size:0.95rem; margin-bottom:24px;">Apakah Anda yakin ingin keluar dari mode pengurus?</p>
+      
+      <div style="display:flex; justify-content:center; gap:10px;">
+        <button onclick="document.getElementById('logoutModal').style.display='none'" class="inv-btn inv-btn-outline" style="flex:1; border-color:rgba(255,255,255,0.3); color:white;">Batal</button>
+        <button id="doLogoutBtn" class="inv-btn inv-btn-primary" style="flex:1;">Ya, Keluar</button>
+      </div>
     </div>
   </div>
 
   <!-- Form Modal (Add/Edit) -->
-  <div id="formModal" class="modal-overlay">
-    <div class="modal-content">
+  <div id="formModal" class="inv-modal-overlay">
+    <div class="inv-modal-content">
       <h3 id="formTitle" style="margin-top:0; color:var(--accent); font-size:1.5rem;">Tambah Aset Baru</h3>
       
       <input type="hidden" id="formId">
       
-      <div class="form-group">
+      <div class="inv-form-group">
         <label>Nama Peralatan *</label>
-        <input type="text" id="formName" class="form-control" required>
+        <input type="text" id="formName" class="inv-form-control" required>
       </div>
       
-      <div class="form-group">
+      <div class="inv-form-group">
         <label>Tanggal Perolehan</label>
-        <input type="date" id="formDate" class="form-control">
+        <input type="date" id="formDate" class="inv-form-control">
       </div>
       
-      <div class="form-group admin-only-field">
-        <label>Nilai Perolehan (Rp)</label>
-        <input type="text" id="formValue" class="form-control" placeholder="0">
+      <div class="inv-form-group admin-only-field">
+        <label>Harga Perolehan (Rp)</label>
+        <input type="text" inputmode="numeric" id="formValue" class="inv-form-control" placeholder="Contoh: 1500000">
       </div>
       
-      <div class="form-group">
+      <div class="inv-form-group">
         <label>Lokasi / Status *</label>
-        <input type="text" id="formLocation" class="form-control" placeholder="Contoh: Gudang, Ruang Ibadah" required>
+        <input type="text" id="formLocation" class="inv-form-control" placeholder="Contoh: Gudang, Ruang Ibadah" required>
       </div>
       
-      <div class="form-group">
+      <div class="inv-form-group">
+        <label>Kategori *</label>
+        <select id="formCategory" class="inv-form-control" required>
+          <option value="">Pilih Kategori...</option>
+          <option value="Elektronik & Multimedia">Elektronik & Multimedia</option>
+          <option value="Furnitur & Mebel">Furnitur & Mebel</option>
+          <option value="Alat Musik">Alat Musik</option>
+          <option value="Peralatan Dapur">Peralatan Dapur</option>
+          <option value="Perlengkapan Ibadah">Perlengkapan Ibadah</option>
+          <option value="Kendaraan">Kendaraan</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Asal Barang *</label>
+        <select id="formSource" class="inv-form-control" required>
+          <option value="">Pilih Asal Barang...</option>
+          <option value="Beli Baru">Beli Baru</option>
+          <option value="Beli Bekas">Beli Bekas</option>
+          <option value="Sumbangan Jemaat">Sumbangan Jemaat</option>
+          <option value="Hibah / Bantuan">Hibah / Bantuan Instansi</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Taksasi Harga / Perkiraan Nilai Saat Ini (Rp)</label>
+        <input type="text" inputmode="numeric" id="formTaksasi" class="inv-form-control" placeholder="Contoh: 4500000">
+      </div>
+      
+      <div class="inv-form-group">
         <label>Penanggung Jawab *</label>
-        <input type="text" id="formPic" class="form-control" required>
+        <input type="text" id="formPic" class="inv-form-control" required>
       </div>
       
-      <div class="form-group">
+      <div class="inv-form-group">
         <label>Foto Aset</label>
-        <input type="file" id="formPhoto" class="form-control" accept="image/*">
+        <input type="file" id="formPhoto" class="inv-form-control" accept="image/*">
         <div id="photoPreview" style="margin-top:10px; display:none;">
           <img id="photoPreviewImg" src="" style="max-width:100%; max-height:150px; border-radius:8px; border:1px solid var(--glass-border);">
         </div>
       </div>
       
       <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
-        <button onclick="closeFormModal()" class="btn btn-outline" style="border-color:rgba(255,255,255,0.3); color:white;">Batal</button>
-        <button id="saveBtn" class="btn btn-primary">Simpan Data</button>
+        <button onclick="closeFormModal()" class="inv-btn inv-btn-outline" style="border-color:rgba(255,255,255,0.3); color:white;">Batal</button>
+        <button id="saveBtn" class="inv-btn inv-btn-primary">Simpan Data</button>
       </div>
     </div>
   </div>
 
   <!-- Detail & Barcode Modal -->
-  <div id="detailModal" class="modal-overlay">
-    <div class="modal-content">
+  <div id="detailModal" class="inv-modal-overlay">
+    <div class="inv-modal-content">
       <div style="display:flex; justify-content:space-between; align-items:flex-start;">
         <h3 id="detailName" style="margin-top:0; color:white; font-size:1.5rem; margin-bottom:5px;">Nama Aset</h3>
         <button onclick="document.getElementById('detailModal').style.display='none'" style="background:transparent; border:none; color:white; font-size:1.2rem; cursor:pointer;"><i class="fa-solid fa-times"></i></button>
@@ -382,22 +488,28 @@
       <img id="detailPhoto" src="" style="width:100%; height:auto; border-radius:12px; margin-bottom:20px; display:none;">
       
       <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:15px; margin-bottom:20px;">
-        <div class="asset-meta"><i class="fa-solid fa-calendar"></i> <span id="detailDate"></span></div>
-        <div class="asset-meta"><i class="fa-solid fa-location-dot"></i> <span id="detailLocation"></span></div>
-        <div class="asset-meta"><i class="fa-solid fa-user"></i> <span id="detailPic"></span></div>
-        <div id="detailValueContainer" class="asset-meta admin-only-field" style="margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; display:none;">
-          <i class="fa-solid fa-money-bill-wave"></i> <span id="detailValue" style="color:#4ade80; font-weight:bold; font-size:1.1rem;"></span>
+        <div class="inv-asset-meta"><i class="fa-solid fa-tags"></i> <span id="detailCategory"></span></div>
+        <div class="inv-asset-meta"><i class="fa-solid fa-truck-ramp-box"></i> <span id="detailSource"></span></div>
+        <div class="inv-asset-meta"><i class="fa-solid fa-calendar"></i> <span id="detailDate"></span></div>
+        <div class="inv-asset-meta"><i class="fa-solid fa-location-dot"></i> <span id="detailLocation"></span></div>
+        <div class="inv-asset-meta"><i class="fa-solid fa-user"></i> <span id="detailPic"></span></div>
+        <div id="detailValueContainer" class="inv-asset-meta admin-only-field" style="margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; display:none;">
+          <i class="fa-solid fa-money-bill-wave"></i> Perolehan: <span id="detailValue" style="color:#4ade80; font-weight:bold; font-size:1.1rem; margin-right:15px;"></span>
+        </div>
+        <div id="detailTaksasiContainer" class="inv-asset-meta admin-only-field" style="margin-top:5px; display:none;">
+          <i class="fa-solid fa-chart-line"></i> Taksasi Harga: <span id="detailTaksasi" style="color:#d4af37; font-weight:bold; font-size:1.1rem;"></span>
         </div>
       </div>
       
       <div class="barcode-container">
-        <p style="color:#333; margin-top:0; font-size:0.9rem; font-weight:600;">Barcode Inventaris</p>
-        <svg id="barcodeSVG"></svg>
+        <p style="color:#333; margin-top:0; font-size:0.9rem; font-weight:600; margin-bottom:10px;">Scan QR Code dengan Kamera HP</p>
+        <img id="qrCodeImg" src="" style="width:150px; height:150px; display:block; margin:0 auto;">
+        <p id="qrCodeId" style="color:#666; font-family:monospace; margin-top:10px; margin-bottom:0; font-size:0.85rem; font-weight:bold;"></p>
       </div>
       
       <div id="detailAdminActions" style="display:none; justify-content:space-between; margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1);">
-        <button id="deleteBtn" class="btn" style="background:rgba(220,38,38,0.2); color:#ef4444; border:1px solid rgba(220,38,38,0.5);"><i class="fa-solid fa-trash"></i> Hapus</button>
-        <button id="editBtn" class="btn btn-primary"><i class="fa-solid fa-edit"></i> Edit Data</button>
+        <button id="deleteBtn" class="inv-btn" style="background:rgba(220,38,38,0.2); color:#ef4444; border:1px solid rgba(220,38,38,0.5);"><i class="fa-solid fa-trash"></i> Hapus</button>
+        <button id="editBtn" class="inv-btn inv-btn-primary"><i class="fa-solid fa-edit"></i> Edit Data</button>
       </div>
     </div>
   </div>
