@@ -95,7 +95,12 @@ function renderGrid(data) {
         <div class="inv-badge-status">${item.category ? item.category + ' • ' : ''}${item.location}</div>
         <img src="${photoUrl}" class="inv-asset-photo" alt="${item.name}" onerror="this.src='https://via.placeholder.com/500x300?text=No+Photo'">
         <div class="inv-asset-info">
-          <div class="inv-asset-name">${item.name} <span style="font-size:0.85rem; font-weight:normal; color:#bbb;">(${item.qty || 1} ${item.unit || 'Unit'})</span></div>
+          <div class="inv-asset-name" style="display:flex; align-items:center; gap:8px;">
+            ${item.name}
+            <span style="font-size:0.7rem; font-weight:bold; color:#000; background-color:var(--accent); padding:3px 8px; border-radius:12px; white-space:nowrap;">
+              ${item.qty || 1} ${item.unit || 'Unit'}
+            </span>
+          </div>
           
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
             <div class="inv-asset-meta" style="margin-bottom:0 !important; color:var(--accent); font-family:monospace; font-size:0.8rem;"><i class="fa-solid fa-barcode"></i> ${item.id}</div>
