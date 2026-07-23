@@ -586,6 +586,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
+  document.getElementById('backupBtn').addEventListener('click', () => {
+    document.getElementById('backupModal').style.display = 'flex';
+  });
+  
   document.getElementById('logoutBtn').addEventListener('click', () => {
     document.getElementById('logoutModal').style.display = 'flex';
   });
@@ -619,11 +623,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const unit = document.getElementById('formUnit').value;
     const subItems = document.getElementById('formSubItems').value;
     const status = document.getElementById('formStatus').value;
-    const disposeReason = document.getElementById('formDisposeReason').value;
-    const disposePrice = document.getElementById('formDisposePrice').value.replace(/\./g, '');
+    let disposeReason = document.getElementById('formDisposeReason').value;
+    let disposePrice = document.getElementById('formDisposePrice').value.replace(/\./g, '');
     
     if (!name || !loc || !pic || !cat || !src || !qty || !unit) return showCustomAlert('Mohon lengkapi field wajib (*)', 'error');
     if (status === 'Disposed' && !disposeReason) return showCustomAlert('Mohon isi Justifikasi / Alasan Disposal', 'error');
+    
+    // Pastikan alasan dan harga disposal dihapus jika status bukan Disposed
+    if (status !== 'Disposed') {
+      disposeReason = '';
+      disposePrice = '';
+    }
     
     const payload = {
       isUpdate: !!id,
@@ -676,3 +686,124 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrid(filtered);
   });
 });
+
+// ==========================================
+// EXPORT DATA (BACKUP)
+// ==========================================
+window.exportCSV = function() {
+  if (!inventoryData || inventoryData.length === 0) return showCustomAlert('Tidak ada data untuk di-backup.', 'error');
+  
+  const headers = ['ID', 'TANGGAL_PEROLEHAN', 'NAMA_ASET', 'KATEGORI', 'ASAL_BARANG', 'NILAI_PEROLEHAN', 'TAKSASI_SAAT_INI', 'QTY', 'SATUAN', 'LOKASI', 'PENANGGUNG_JAWAB', 'STATUS', 'JUSTIFIKASI_DISPOSAL', 'HARGA_DISPOSAL', 'RINCIAN'];
+  
+  const rows = inventoryData.map(item => {
+    return [
+      item.id,
+      fmtDate(item.date_acquired) || '',
+      `"${(item.name || '').replace(/"/g, '""')}"`,
+      `"${(item.category || '').replace(/"/g, '""')}"`,
+      `"${(item.source || '').replace(/"/g, '""')}"`,
+      item.value || 0,
+      item.taksasi || 0,
+      item.qty || 1,
+      item.unit || 'Unit',
+      `"${(item.location || '').replace(/"/g, '""')}"`,
+      `"${(item.pic || '').replace(/"/g, '""')}"`,
+      item.status || 'Active',
+      item.status === 'Disposed' ? `"${(item.dispose_reason || '').replace(/"/g, '""').replace(/\n/g, ' ; ')}"` : '""',
+      item.status === 'Disposed' ? (item.dispose_price || 0) : '""',
+      `"${(item.sub_items || '').replace(/"/g, '""').replace(/\n/g, ' ; ')}"`
+    ].join(',');
+  });
+  
+  const csvContent = headers.join(',') + '\n' + rows.join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `Backup_Inventaris_PISGAH_${new Date().toISOString().slice(0,10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  document.getElementById('backupModal').style.display = 'none';
+};
+
+window.exportPDF = function() {
+  if (!inventoryData || inventoryData.length === 0) return showCustomAlert('Tidak ada data untuk di-backup.', 'error');
+  
+  document.getElementById('backupModal').style.display = 'none';
+  showCustomAlert('Sedang menyiapkan PDF. Mohon tunggu beberapa detik...', 'success');
+  
+  const pdfContainer = document.createElement('div');
+  pdfContainer.style.padding = '20px';
+  pdfContainer.style.fontFamily = 'Arial, sans-serif';
+  pdfContainer.style.color = '#333';
+  pdfContainer.style.background = '#fff';
+  
+  let html = `
+    <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">
+      <h2 style="margin: 0; font-size: 24px; color: #1a2e22;">Laporan Backup Inventaris PISGAH</h2>
+      <p style="margin: 5px 0 0; font-size: 14px; color: #666;">Dicetak pada: ${new Date().toLocaleString('id-ID')}</p>
+    </div>
+    <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+      <thead>
+        <tr style="background: #1a2e22; color: white;">
+          <th style="padding: 8px; border: 1px solid #ddd; width: 60px;">Foto</th>
+          <th style="padding: 8px; border: 1px solid #ddd;">ID & Nama</th>
+          <th style="padding: 8px; border: 1px solid #ddd;">Kategori & Lokasi</th>
+          <th style="padding: 8px; border: 1px solid #ddd;">Status & Qty</th>
+          <th style="padding: 8px; border: 1px solid #ddd;">Nilai (Rp)</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  
+  inventoryData.forEach(item => {
+    const photoSrc = item.photo ? item.photo : 'https://via.placeholder.com/60?text=No+Photo';
+    const statusText = item.status === 'Disposed' 
+      ? `<span style="color:red; font-weight:bold;">Disposed</span><br><span style="font-size:8px;">${item.dispose_reason || ''}</span>` 
+      : `<span style="color:green; font-weight:bold;">Active</span>`;
+    
+    html += `
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+            <img src="${photoSrc}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+          </td>
+          <td style="padding: 8px; border: 1px solid #ddd;">
+            <strong style="font-size:12px;">${item.name}</strong><br>
+            <span style="color:#666; font-family:monospace;">${item.id}</span>
+          </td>
+          <td style="padding: 8px; border: 1px solid #ddd;">
+            ${item.category || '-'}<br>
+            <span style="color:#666;">${item.location}</span>
+          </td>
+          <td style="padding: 8px; border: 1px solid #ddd;">
+            ${statusText}<br>
+            ${item.qty || 1} ${item.unit || 'Unit'}
+          </td>
+          <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">
+            Awal: ${fmt(item.value || 0)}<br>
+            <span style="color:#666;">Taksasi: ${fmt(item.taksasi || 0)}</span>
+          </td>
+        </tr>
+    `;
+  });
+  
+  html += `
+      </tbody>
+    </table>
+  `;
+  
+  pdfContainer.innerHTML = html;
+  
+  const opt = {
+    margin:       10,
+    filename:     `Backup_Inventaris_PISGAH_${new Date().toISOString().slice(0,10)}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+  
+  html2pdf().set(opt).from(pdfContainer).save().then(() => {
+    document.getElementById('customAlertModal').style.display = 'none';
+  });
+};
