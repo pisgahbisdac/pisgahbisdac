@@ -2329,6 +2329,7 @@
 
         (cachedExpense || []).filter(x => isMatch(x.date)).forEach(x => {
           if (x.source_balance === 'Pembangunan') return;
+          if (x.department === 'Mutasi Kas / Setor Bank') return;
           const dept = x.department || 'Lainnya';
           if (!expByDept[dept]) expByDept[dept] = [];
           expByDept[dept].push(x);
