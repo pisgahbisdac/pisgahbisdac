@@ -26,7 +26,7 @@ async function apiGet(action, params = {}) {
   url.searchParams.set('_t', Date.now());
   for (let k in params) url.searchParams.set(k, params[k]);
   
-  const res = await fetch(url.toString());
+  const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
   const data = await res.json();
   if (!data.success) throw new Error(data.message || 'API Error');
   return data;
@@ -40,6 +40,8 @@ async function apiPost(action, dataObj) {
   };
   const res = await fetch(getActiveApiUrl(), {
     method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    redirect: 'follow',
     body: JSON.stringify(payload)
   });
   const data = await res.json();
@@ -87,17 +89,27 @@ function renderGrid(data) {
   
   grid.innerHTML = data.map(item => {
     const photoUrl = item.photo ? item.photo : 'https://images.unsplash.com/photo-1548625361-ec8587d60f58?w=500&q=80';
-    const valText = currentUser ? `Rp ${fmt(item.value)}` : '*** (Privasi)';
     
     return `
-      <div class="asset-card" onclick="window.viewDetail('${item.id}')">
-        <div class="badge-status">${item.location}</div>
-        <img src="${photoUrl}" class="asset-photo" alt="${item.name}" onerror="this.src='https://via.placeholder.com/500x300?text=No+Photo'">
-        <div class="asset-info">
-          <div class="asset-name">${item.name}</div>
-          <div class="asset-meta"><i class="fa-solid fa-calendar"></i> ${fmtDate(item.date_acquired)}</div>
-          <div class="asset-meta"><i class="fa-solid fa-user"></i> ${item.pic}</div>
-          ${currentUser ? `<div class="asset-value">Rp ${fmt(item.value)}</div>` : ''}
+      <div class="inv-asset-card" onclick="window.viewDetail('${item.id}')">
+        <div class="inv-badge-status">${item.category ? item.category + ' • ' : ''}${item.location}</div>
+        <img src="${photoUrl}" class="inv-asset-photo" alt="${item.name}" onerror="this.src='https://via.placeholder.com/500x300?text=No+Photo'">
+        <div class="inv-asset-info">
+          <div class="inv-asset-name">${item.name}</div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
+            <div class="inv-asset-meta" style="margin-bottom:0 !important; color:var(--accent); font-family:monospace; font-size:0.8rem;"><i class="fa-solid fa-barcode"></i> ${item.id}</div>
+            <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-solid fa-calendar"></i> ${fmtDate(item.date_acquired)}</div>
+            <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-solid fa-user"></i> ${item.pic}</div>
+            <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-solid fa-truck-ramp-box"></i> ${item.source || '-'}</div>
+          </div>
+          
+          ${currentUser ? `
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">
+              <div style="font-size:0.75rem; color:rgba(255,255,255,0.6);">Perolehan<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem;">Rp ${fmt(item.value)}</span></div>
+              <div style="font-size:0.75rem; color:rgba(255,255,255,0.6); text-align:right;">Taksasi Saat Ini<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem; color:#d4af37;">Rp ${fmt(item.taksasi || 0)}</span></div>
+            </div>
+          ` : ''}
         </div>
       </div>
     `;
@@ -114,6 +126,15 @@ async function loadData() {
     // Sort terbaru ke terlama
     inventoryData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     renderGrid(inventoryData);
+    
+    // Auto-open detail modal if scanned from barcode/QR
+    const urlParams = new URLSearchParams(window.location.search);
+    const scanId = urlParams.get('id');
+    if (scanId) {
+      setTimeout(() => {
+        window.viewDetail(scanId);
+      }, 300);
+    }
   } catch (err) {
     document.getElementById('inventoryGrid').innerHTML = `<div style="grid-column: 1 / -1; text-align:center; padding: 40px; color: #ef4444;">Gagal memuat data: ${err.message}</div>`;
   }
@@ -128,6 +149,8 @@ window.viewDetail = function(id) {
   
   document.getElementById('detailName').textContent = item.name;
   document.getElementById('detailId').textContent = item.id;
+  document.getElementById('detailCategory').textContent = item.category || 'Belum Dikategorikan';
+  document.getElementById('detailSource').textContent = item.source || 'Tidak Diketahui Asalnya';
   document.getElementById('detailDate').textContent = fmtDate(item.date_acquired);
   document.getElementById('detailLocation').textContent = item.location;
   document.getElementById('detailPic').textContent = item.pic;
@@ -142,20 +165,21 @@ window.viewDetail = function(id) {
   if (currentUser) {
     document.getElementById('detailValueContainer').style.display = 'block';
     document.getElementById('detailValue').textContent = `Rp ${fmt(item.value)}`;
+    document.getElementById('detailTaksasiContainer').style.display = 'block';
+    document.getElementById('detailTaksasi').textContent = `Rp ${fmt(item.taksasi || 0)}`;
     document.getElementById('detailAdminActions').style.display = 'flex';
   } else {
     document.getElementById('detailValueContainer').style.display = 'none';
+    document.getElementById('detailTaksasiContainer').style.display = 'none';
     document.getElementById('detailAdminActions').style.display = 'none';
   }
   
-  // Generate Barcode
-  JsBarcode("#barcodeSVG", item.id, {
-    format: "CODE128",
-    lineColor: "#0b1a30",
-    width: 2,
-    height: 40,
-    displayValue: true
-  });
+  // Generate QR Code containing the full URL
+  const fullUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
+  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullUrl)}`;
+  
+  document.getElementById('qrCodeImg').src = qrApiUrl;
+  document.getElementById('qrCodeId').textContent = item.id;
   
   document.getElementById('detailModal').style.display = 'flex';
   
@@ -202,8 +226,11 @@ function openFormModal(item = null) {
     document.getElementById('formId').value = item.id;
     document.getElementById('formName').value = item.name;
     document.getElementById('formDate').value = item.date_acquired ? item.date_acquired.substring(0,10) : '';
-    document.getElementById('formValue').value = item.value;
+    document.getElementById('formValue').value = item.value ? fmt(item.value) : '';
     document.getElementById('formLocation').value = item.location;
+    document.getElementById('formCategory').value = item.category || '';
+    document.getElementById('formSource').value = item.source || '';
+    document.getElementById('formTaksasi').value = item.taksasi ? fmt(item.taksasi) : '';
     document.getElementById('formPic').value = item.pic;
     
     if (item.photo) {
@@ -217,6 +244,9 @@ function openFormModal(item = null) {
     document.getElementById('formDate').value = '';
     document.getElementById('formValue').value = '';
     document.getElementById('formLocation').value = '';
+    document.getElementById('formCategory').value = '';
+    document.getElementById('formSource').value = '';
+    document.getElementById('formTaksasi').value = '';
     document.getElementById('formPic').value = '';
   }
 }
@@ -258,11 +288,24 @@ document.getElementById('formPhoto').addEventListener('change', function(e) {
 
 
 // ==========================================
-// EVENT LISTENERS
+// EVENT LISTENERS & FORMATTING
 // ==========================================
+function formatRibuanInput(e) {
+  let val = e.target.value.replace(/[^0-9]/g, '');
+  if (val) {
+    e.target.value = new Intl.NumberFormat('id-ID').format(val);
+  } else {
+    e.target.value = '';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   checkAuth();
   loadData();
+  
+  // Format Ribuan
+  document.getElementById('formValue').addEventListener('input', formatRibuanInput);
+  document.getElementById('formTaksasi').addEventListener('input', formatRibuanInput);
   
   // Login
   document.getElementById('loginBtn').addEventListener('click', () => {
@@ -282,8 +325,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await apiGet('login', { username: u, password: p });
       if (data.token) {
         localStorage.setItem('BISDAC_token', data.token);
-        localStorage.setItem('BISDAC_role', data.role);
-        localStorage.setItem('BISDAC_name', data.nama);
+        
+        // Handle varying API response structures
+        const role = data.role || (data.user && data.user.role) || '';
+        const name = data.nama || (data.user && data.user.nama) || (data.user && data.user.name) || '';
+        
+        localStorage.setItem('BISDAC_role', role);
+        localStorage.setItem('BISDAC_name', name);
       }
     } catch(err) {
       alert(err.message);
@@ -292,16 +340,23 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.disabled = false;
       document.getElementById('loginModal').style.display = 'none';
       checkAuth();
+      if (currentUser) {
+        loadData(); // Rerender grid and fetch values
+      }
     }
   });
   
   document.getElementById('logoutBtn').addEventListener('click', () => {
-    if (!confirm('Keluar dari mode admin?')) return;
+    document.getElementById('logoutModal').style.display = 'flex';
+  });
+  
+  document.getElementById('doLogoutBtn').addEventListener('click', () => {
     localStorage.removeItem('BISDAC_token');
     localStorage.removeItem('BISDAC_role');
     localStorage.removeItem('BISDAC_name');
     checkAuth();
     renderGrid(inventoryData); // Rerender to hide values
+    document.getElementById('logoutModal').style.display = 'none';
   });
   
   // Add Asset
@@ -313,12 +368,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('saveBtn').addEventListener('click', async () => {
     const name = document.getElementById('formName').value;
     const date = document.getElementById('formDate').value;
-    const val = document.getElementById('formValue').value;
+    const val = document.getElementById('formValue').value.replace(/\./g, '');
     const loc = document.getElementById('formLocation').value;
+    const cat = document.getElementById('formCategory').value;
+    const src = document.getElementById('formSource').value;
+    const taks = document.getElementById('formTaksasi').value.replace(/\./g, '');
     const pic = document.getElementById('formPic').value;
     const id = document.getElementById('formId').value;
     
-    if (!name || !loc || !pic) return alert('Mohon lengkapi field wajib (*)');
+    if (!name || !loc || !pic || !cat || !src) return alert('Mohon lengkapi field wajib (*)');
     
     const payload = {
       isUpdate: !!id,
@@ -327,6 +385,9 @@ document.addEventListener('DOMContentLoaded', () => {
       date_acquired: date,
       value: val,
       location: loc,
+      category: cat,
+      source: src,
+      taksasi: taks,
       pic: pic
     };
     

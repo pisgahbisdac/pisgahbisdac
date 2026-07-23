@@ -20,7 +20,10 @@ function getInventory() {
         pic: r[5],
         photo: r[6],
         created_by: r[7],
-        created_at: r[8]
+        created_at: r[8],
+        category: r[9] || '',
+        source: r[10] || '',
+        taksasi: r[11] || 0
       });
     }
   }
@@ -44,6 +47,9 @@ function saveInventory(data, user) {
         if (data.location !== undefined) sheet.getRange(i + 1, 5).setValue(data.location);
         if (data.pic !== undefined) sheet.getRange(i + 1, 6).setValue(data.pic);
         if (data.photo_base64 !== undefined) sheet.getRange(i + 1, 7).setValue(photo);
+        if (data.category !== undefined) sheet.getRange(i + 1, 10).setValue(data.category);
+        if (data.source !== undefined) sheet.getRange(i + 1, 11).setValue(data.source);
+        if (data.taksasi !== undefined) sheet.getRange(i + 1, 12).setValue(parseFloat(data.taksasi) || 0);
         writeLog(user.username, 'UPDATE_INVENTORY', data.id);
         return { success: true, message: 'Inventaris berhasil diperbarui.' };
       }
@@ -64,7 +70,10 @@ function saveInventory(data, user) {
       data.pic || '',
       photo,
       user.username,
-      new Date().toISOString()
+      new Date().toISOString(),
+      data.category || '',
+      data.source || '',
+      parseFloat(data.taksasi) || 0
     ]);
     writeLog(user.username, 'ADD_INVENTORY', newId);
     return { success: true, message: 'Inventaris berhasil ditambahkan.', id: newId };
