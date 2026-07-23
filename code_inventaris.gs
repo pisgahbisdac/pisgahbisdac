@@ -44,6 +44,12 @@ function saveInventory(data, user) {
   const sheet = ss.getSheetByName(SHEETS.INVENTORY);
   if (!sheet) return { success: false, message: 'Sheet Inventory tidak ditemukan.' };
   
+  // Pastikan header untuk multi-foto terisi otomatis
+  const headers = sheet.getRange(1, 1, 1, 21).getValues()[0];
+  if (!headers[18]) sheet.getRange(1, 19).setValue('pic2');
+  if (!headers[19]) sheet.getRange(1, 20).setValue('pic3');
+  if (!headers[20]) sheet.getRange(1, 21).setValue('pic4');
+  
   const rows = sheet.getDataRange().getValues();
   const photo = data.photo_base64 !== undefined ? data.photo_base64 : '';
   const photo2 = data.photo2_base64 !== undefined ? data.photo2_base64 : '';

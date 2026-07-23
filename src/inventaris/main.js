@@ -219,6 +219,11 @@ window.viewDetail = function(id) {
       img.style.border = '1px solid rgba(255,255,255,0.1)';
       img.style.flexShrink = '0';
       img.style.backgroundColor = 'rgba(0,0,0,0.2)';
+      img.style.cursor = 'pointer';
+      img.onclick = () => {
+        document.getElementById('imagePreviewFull').src = p;
+        document.getElementById('imagePreviewModal').style.display = 'flex';
+      };
       photosContainer.appendChild(img);
     });
     photosContainer.style.display = 'flex';
