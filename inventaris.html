@@ -508,6 +508,113 @@
       max-width: 100%;
       height: auto;
     }
+    
+    /* LIGHT MODE STYLES */
+    body.light-mode {
+      background-color: #f4f7f6 !important;
+      color: #1a1a1a !important;
+    }
+    body.light-mode .hero-section {
+      background: linear-gradient(135deg, rgba(244,247,246,0.95) 0%, rgba(230,235,234,0.98) 100%), url('https://images.unsplash.com/photo-1548625361-ec8587d60f58?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat !important;
+      border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+    }
+    body.light-mode .hero-title {
+      color: #0b1a30;
+      text-shadow: none;
+    }
+    body.light-mode .glass-panel,
+    body.light-mode .inv-asset-card,
+    body.light-mode .inv-list-card {
+      background-color: #ffffff !important;
+      border-color: rgba(0,0,0,0.1) !important;
+      color: #1a1a1a !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
+    }
+    body.light-mode .search-bar input {
+      background-color: #ffffff !important;
+      border-color: rgba(0,0,0,0.2) !important;
+      color: #1a1a1a !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
+    }
+    body.light-mode .search-bar input:focus {
+      background: #ffffff !important;
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.3) !important;
+    }
+    body.light-mode .search-bar i {
+      color: rgba(0,0,0,0.5) !important;
+    }
+    body.light-mode .inv-asset-info, 
+    body.light-mode .inv-list-info {
+      color: #1a1a1a !important;
+    }
+    body.light-mode .inv-asset-photo,
+    body.light-mode .inv-list-photo,
+    body.light-mode .inv-detail-photo {
+      border-bottom-color: rgba(0,0,0,0.1) !important;
+      background-color: #f0f0f0 !important;
+    }
+    body.light-mode .inv-form-control {
+      background: #f4f7f6 !important;
+      border: 1px solid rgba(0,0,0,0.2) !important;
+      color: #1a1a1a !important;
+    }
+    body.light-mode .inv-modal-content {
+      background: #ffffff !important;
+      border: 1px solid rgba(0,0,0,0.1) !important;
+      color: #1a1a1a !important;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;
+    }
+    body.light-mode .inv-modal-content h3,
+    body.light-mode .inv-modal-content label {
+      color: #1a1a1a !important;
+    }
+    body.light-mode .top-nav {
+      background: rgba(244,247,246,0.9) !important;
+      border-bottom: 1px solid rgba(0,0,0,0.1) !important;
+    }
+    body.light-mode .top-nav h2 {
+      color: #1a1a1a !important;
+    }
+    body.light-mode .inv-values-outer, body.light-mode .inv-values-inner {
+      border-color: rgba(0,0,0,0.1) !important;
+    }
+    body.light-mode .detail-grid-item span:first-child {
+      color: rgba(0,0,0,0.6) !important;
+    }
+    body.light-mode .detail-grid-item span:last-child {
+      color: #1a1a1a !important;
+    }
+    body.light-mode .view-btn {
+      color: #1a1a1a !important;
+      border-color: rgba(0,0,0,0.2) !important;
+      background: #ffffff !important;
+    }
+    body.light-mode .view-btn.active {
+      background: var(--accent) !important;
+      color: #000 !important;
+      border-color: var(--accent) !important;
+    }
+    body.light-mode .inv-btn-outline {
+      border-color: rgba(0,0,0,0.3) !important;
+      color: #1a1a1a !important;
+    }
+    body.light-mode #bulkPrintContainer > div {
+      background: rgba(255,255,255,0.95) !important;
+      border-color: rgba(0,0,0,0.1) !important;
+    }
+    body.light-mode #bulkPrintCount {
+      color: #1a1a1a !important;
+    }
+    body.light-mode .detail-grid-item {
+      background: #f9f9f9 !important;
+      border-color: rgba(0,0,0,0.05) !important;
+    }
+    body.light-mode .inv-asset-card p,
+    body.light-mode .inv-list-card p,
+    body.light-mode header p {
+      color: rgba(0,0,0,0.7) !important;
+    }
   </style>
   <script type="module" crossorigin src="/assets/inventaris-DTK_QAdp.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
@@ -522,7 +629,10 @@
       </a>
       <h2 style="margin:0; font-size:1.15rem; color:white; font-weight:600; letter-spacing:0.5px;">Inventaris PISGAH</h2>
     </div>
-    <div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <button id="themeToggleBtn" class="btn btn-outline" style="border:none; width:40px; height:40px; padding:0; border-radius:50%; background:rgba(255,255,255,0.05);" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+        <i class="fa-solid fa-moon"></i>
+      </button>
       <button id="loginBtn" class="btn btn-outline"><i class="fa-solid fa-user-lock"></i> <span class="hide-on-mobile">Login Admin</span></button>
       <div id="adminControls" style="display:none; gap:10px; align-items:center;">
         <span id="userNameDisplay" style="color:var(--accent); margin-right:5px;"></span>
@@ -874,5 +984,38 @@
     </div>
   </div>
 
+    <script>
+      // Theme toggling logic
+      function toggleTheme() {
+        const body = document.body;
+        const isLight = body.classList.toggle('light-mode');
+        localStorage.setItem('pisgahTheme', isLight ? 'light' : 'dark');
+        updateThemeIcon(isLight);
+      }
+      
+      function updateThemeIcon(isLight) {
+        const icon = document.querySelector('#themeToggleBtn i');
+        if (icon) {
+          if (isLight) {
+            icon.className = 'fa-solid fa-sun';
+            icon.style.color = '#f59e0b';
+          } else {
+            icon.className = 'fa-solid fa-moon';
+            icon.style.color = '#eae7e2';
+          }
+        }
+      }
+      
+      // Check saved theme on load
+      document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('pisgahTheme');
+        if (savedTheme === 'light') {
+          document.body.classList.add('light-mode');
+          updateThemeIcon(true);
+        } else {
+          updateThemeIcon(false);
+        }
+      });
+    </script>
 </body>
 </html>
