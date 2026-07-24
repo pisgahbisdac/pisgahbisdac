@@ -100,21 +100,39 @@ window.changeViewMode = function (mode) {
     document.getElementById('btnViewGrid').classList.remove('active');
   }
 
-  const val = document.getElementById('searchInput').value.toLowerCase();
-  if (val) {
-    const filtered = inventoryData.filter(x =>
-      x.name.toLowerCase().includes(val) ||
-      x.location.toLowerCase().includes(val) ||
-      x.pic.toLowerCase().includes(val)
-    );
-    renderGrid(filtered);
-  } else {
-    renderGrid(inventoryData);
-  }
+  window.renderGrid();
 }
 
-function renderGrid(data) {
+window.renderGrid = function() {
   resetSelectAllBtn();
+
+  const val = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase() : '';
+  const filterCategory = document.getElementById('filterCategory') ? document.getElementById('filterCategory').value : '';
+  const filterStatus = document.getElementById('filterStatus') ? document.getElementById('filterStatus').value : '';
+  const filterLoan = document.getElementById('filterLoan') ? document.getElementById('filterLoan').value : '';
+
+  let data = inventoryData;
+
+  if (val || filterCategory || filterStatus || filterLoan) {
+    data = inventoryData.filter(x => {
+      let match = true;
+      if (val) {
+        match = match && (
+          (x.name && x.name.toLowerCase().includes(val)) ||
+          (x.location && x.location.toLowerCase().includes(val)) ||
+          (x.pic && x.pic.toLowerCase().includes(val))
+        );
+      }
+      if (filterCategory) match = match && x.category === filterCategory;
+      if (filterStatus) match = match && (x.status || 'Active') === filterStatus;
+      
+      if (filterLoan) {
+        const currentLoanStatus = x.loan_status || 'Tersedia';
+        match = match && currentLoanStatus === filterLoan;
+      }
+      return match;
+    });
+  }
 
   const grid = document.getElementById('inventoryGrid');
   if (!data || data.length === 0) {
@@ -129,9 +147,17 @@ function renderGrid(data) {
     const photoUrl = item.photo ? item.photo : 'https://images.unsplash.com/photo-1548625361-ec8587d60f58?w=500&q=80';
     const isDisposed = item.status === 'Disposed';
     const cardStyle = isDisposed ? 'opacity: 0.7; filter: grayscale(80%); border: 1px solid rgba(239, 68, 68, 0.3);' : '';
-    const badgeHtml = isDisposed
-      ? `<div class="inv-badge-status" style="background:rgba(239, 68, 68, 0.9); color:white; font-weight:bold;"><i class="fa-solid fa-ban"></i> DISPOSED</div>`
-      : `<div class="inv-badge-status">${item.category || 'Uncategorized'}</div>`;
+      let badgeHtml = '';
+      if (isDisposed) {
+        badgeHtml = `<span class="inv-badge-status" style="background:#ef4444;">Disposed</span>`;
+      } else {
+        const loan = item.loan_status || 'Tersedia';
+        if (loan === 'Dipinjam') {
+          badgeHtml = `<span class="inv-badge-status" style="background:#eab308; color:#fff;">Dipinjam</span>`;
+        } else {
+          badgeHtml = `<span class="inv-badge-status">${item.category || 'Belum Kategori'}</span>`;
+        }
+      }
 
     const checkboxHtml = currentUser ? `<input type="checkbox" class="bulk-qr-checkbox" value="${item.id}" onclick="event.stopPropagation(); window.toggleBulkPrintButton();" style="position:absolute; top:15px; left:15px; z-index:20; width:20px; height:20px; cursor:pointer;" title="Pilih untuk cetak QR">` : '';
 
@@ -212,7 +238,7 @@ async function loadData() {
     inventoryData = response.data || [];
     // Sort terbaru ke terlama
     inventoryData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    renderGrid(inventoryData);
+    window.renderGrid();
 
     // Auto-open detail modal if scanned from barcode/QR
     const urlParams = new URLSearchParams(window.location.search);
@@ -243,6 +269,16 @@ window.viewDetail = function (id) {
   document.getElementById('detailPic').textContent = item.pic;
   document.getElementById('detailQty').textContent = item.qty || 1;
   document.getElementById('detailUnit').textContent = item.unit || 'Unit';
+  
+  const loanBadge = document.getElementById('detailLoanBadge');
+  const loanStatus = item.loan_status || 'Tersedia';
+  if (loanStatus === 'Dipinjam') {
+    loanBadge.style.background = '#eab308';
+    loanBadge.textContent = `Dipinjam oleh: ${item.borrowed_by || '-'} (s.d ${fmtDate(item.expected_return_date) || '-'})`;
+  } else {
+    loanBadge.style.background = '#22c55e';
+    loanBadge.textContent = 'Tersedia';
+  }
 
   const statusContainer = document.getElementById('detailStatusContainer');
   const statusBadge = document.getElementById('detailStatusBadge');
@@ -951,15 +987,16 @@ function openFormModal(item = null) {
     document.getElementById('formLocation').value = item.location;
     document.getElementById('formCategory').value = item.category || '';
     document.getElementById('formSource').value = item.source || '';
-    document.getElementById('formTaksasi').value = item.taksasi ? fmt(item.taksasi) : '';
+    document.getElementById('formTaksasi').value = item.taksasi || '';
     document.getElementById('formPic').value = item.pic;
     document.getElementById('formQty').value = item.qty || 1;
     document.getElementById('formUnit').value = item.unit || 'Unit';
     document.getElementById('formSubItems').value = item.sub_items || '';
-
     document.getElementById('formStatus').value = item.status || 'Active';
     document.getElementById('formDisposeReason').value = item.dispose_reason || '';
-    document.getElementById('formDisposePrice').value = item.dispose_price ? fmt(item.dispose_price) : '';
+    document.getElementById('formDisposePrice').value = item.dispose_price || '';
+    document.getElementById('formDepreciationYears').value = item.depreciation_years || '';
+
     document.getElementById('disposeFields').style.display = (item.status === 'Disposed') ? 'block' : 'none';
 
     // Load existing photos into preview and currentPhotosBase64
@@ -991,6 +1028,7 @@ function openFormModal(item = null) {
     document.getElementById('formStatus').value = 'Active';
     document.getElementById('formDisposeReason').value = '';
     document.getElementById('formDisposePrice').value = '';
+    document.getElementById('formDepreciationYears').value = '';
     document.getElementById('disposeFields').style.display = 'none';
   }
 }
@@ -1225,12 +1263,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!name || !loc || !pic || !cat || !src || !qty || !unit) return showCustomAlert('Mohon lengkapi field wajib (*)', 'error');
     if (status === 'Disposed' && !disposeReason) return showCustomAlert('Mohon isi Justifikasi / Alasan Disposal', 'error');
 
-    // Pastikan alasan dan harga disposal dihapus jika status bukan Disposed
-    if (status !== 'Disposed') {
-      disposeReason = '';
-      disposePrice = '';
-    }
-
     const payload = {
       isUpdate: !!id,
       id: id,
@@ -1246,8 +1278,9 @@ document.addEventListener('DOMContentLoaded', () => {
       unit: unit,
       sub_items: subItems,
       status: status,
-      dispose_reason: disposeReason,
-      dispose_price: disposePrice
+      dispose_reason: status === 'Disposed' ? disposeReason : '',
+      dispose_price: disposePrice,
+      depreciation_years: document.getElementById('formDepreciationYears').value
     };
 
     if (window.currentPhotosBase64 && window.currentPhotosBase64.length > 0) {
@@ -1279,14 +1312,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Search
-  document.getElementById('searchInput').addEventListener('input', (e) => {
-    const val = e.target.value.toLowerCase();
-    const filtered = inventoryData.filter(x =>
-      x.name.toLowerCase().includes(val) ||
-      x.location.toLowerCase().includes(val) ||
-      x.pic.toLowerCase().includes(val)
-    );
-    renderGrid(filtered);
+  document.getElementById('searchInput').addEventListener('input', () => {
+    window.renderGrid();
   });
 });
 
@@ -1407,6 +1434,254 @@ window.exportPDF = function () {
   };
 
   html2pdf().set(opt).from(pdfContainer).save().then(() => {
+    document.getElementById('customAlertModal').style.display = 'none';
+  });
+};
+
+// ==========================================
+// LOAN (PEMINJAMAN)
+// ==========================================
+window.openLoanModal = function() {
+  if (!window.currentDetailId) return;
+  const item = inventoryData.find(x => x.id === window.currentDetailId);
+  if (!item) return;
+
+  document.getElementById('formLoanStatus').value = item.loan_status || 'Tersedia';
+  document.getElementById('formLoanBorrower').value = item.borrowed_by || '';
+  
+  if (item.borrow_date) {
+    document.getElementById('formLoanDate').value = new Date(item.borrow_date).toISOString().split('T')[0];
+  } else {
+    document.getElementById('formLoanDate').value = new Date().toISOString().split('T')[0];
+  }
+
+  if (item.expected_return_date) {
+    document.getElementById('formLoanReturnDate').value = new Date(item.expected_return_date).toISOString().split('T')[0];
+  } else {
+    document.getElementById('formLoanReturnDate').value = '';
+  }
+
+  const d = document.getElementById('loanDetailsFields');
+  d.style.display = (item.loan_status === 'Dipinjam') ? 'block' : 'none';
+
+  document.getElementById('loanModal').style.display = 'flex';
+};
+
+document.getElementById('saveLoanBtn').onclick = async () => {
+  if (!window.currentDetailId) return;
+  const item = inventoryData.find(x => x.id === window.currentDetailId);
+  if (!item) return;
+
+  const status = document.getElementById('formLoanStatus').value;
+  const borrower = document.getElementById('formLoanBorrower').value;
+  const borrowDate = document.getElementById('formLoanDate').value;
+  const returnDate = document.getElementById('formLoanReturnDate').value;
+
+  if (status === 'Dipinjam') {
+    if (!borrower || !borrowDate || !returnDate) {
+      return showCustomAlert('Mohon lengkapi data peminjam dan tanggalnya!', 'error');
+    }
+  }
+
+  const payload = {
+    isUpdate: true,
+    id: item.id,
+    loan_status: status,
+    borrowed_by: status === 'Dipinjam' ? borrower : '',
+    borrow_date: status === 'Dipinjam' ? borrowDate : '',
+    expected_return_date: status === 'Dipinjam' ? returnDate : ''
+  };
+
+  const btn = document.getElementById('saveLoanBtn');
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+  btn.disabled = true;
+
+  try {
+    await apiPost('saveInventory', payload);
+    showCustomAlert('Status Peminjaman berhasil diperbarui!', 'success');
+    document.getElementById('loanModal').style.display = 'none';
+    loadData(); // reload all data to reflect changes
+  } catch (e) {
+    showCustomAlert(e.message, 'error');
+  } finally {
+    btn.innerHTML = 'Simpan Status';
+    btn.disabled = false;
+  }
+};
+
+// ==========================================
+// SERVICE HISTORY (RIWAYAT SERVIS)
+// ==========================================
+window.openServiceModal = function() {
+  if (!window.currentDetailId) return;
+  
+  document.getElementById('formServiceDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('formServiceDesc').value = '';
+  document.getElementById('formServiceCost').value = '';
+  
+  document.getElementById('serviceModal').style.display = 'flex';
+};
+
+document.getElementById('saveServiceBtn').onclick = async () => {
+  if (!window.currentDetailId) return;
+  
+  const date = document.getElementById('formServiceDate').value;
+  const desc = document.getElementById('formServiceDesc').value;
+  const cost = document.getElementById('formServiceCost').value;
+  
+  if (!date || !desc) return showCustomAlert('Tanggal dan Keterangan wajib diisi!', 'error');
+
+  const payload = {
+    inventory_id: window.currentDetailId,
+    service_date: date,
+    description: desc,
+    cost: cost
+  };
+
+  const btn = document.getElementById('saveServiceBtn');
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+  btn.disabled = true;
+
+  try {
+    await apiPost('saveInventoryService', payload);
+    showCustomAlert('Riwayat servis berhasil dicatat!', 'success');
+    document.getElementById('serviceModal').style.display = 'none';
+    loadServiceHistory(window.currentDetailId);
+  } catch (e) {
+    showCustomAlert(e.message, 'error');
+  } finally {
+    btn.innerHTML = 'Simpan Riwayat';
+    btn.disabled = false;
+  }
+};
+
+window.loadServiceHistory = async function(inventoryId) {
+  const container = document.getElementById('serviceHistoryContainer');
+  container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.9rem; padding:15px;"><i class="fa-solid fa-spinner fa-spin"></i> Memuat...</div>`;
+  
+  try {
+    const res = await apiGet('getInventoryService', { inventory_id: inventoryId });
+    if (!res.success) throw new Error(res.message);
+    
+    const logs = res.data;
+    if (!logs || logs.length === 0) {
+      container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.9rem; padding:15px; background:rgba(0,0,0,0.02); border-radius:8px;">Belum ada riwayat servis.</div>`;
+      return;
+    }
+    
+    // Urutkan dari terbaru ke terlama
+    logs.sort((a, b) => new Date(b.service_date) - new Date(a.service_date));
+    
+    container.innerHTML = logs.map(log => `
+      <div style="background:#fff; border:1px solid var(--border-light); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="color:var(--text-dark); font-size:0.9rem;"><i class="fa-solid fa-calendar-day" style="color:var(--text-muted); margin-right:5px;"></i> ${fmtDate(log.service_date)}</strong>
+          <span style="color:#ef4444; font-weight:bold; font-size:0.9rem;">Rp ${fmt(log.cost || 0)}</span>
+        </div>
+        <div style="color:var(--text-dark); font-size:0.9rem; line-height:1.4;">${log.description}</div>
+        <div style="color:var(--text-muted); font-size:0.75rem; text-align:right;">Dicatat oleh: ${log.created_by}</div>
+      </div>
+    `).join('');
+    
+  } catch (err) {
+    container.innerHTML = `<div style="text-align:center; color:#ef4444; font-size:0.9rem; padding:15px;">Gagal memuat: ${err.message}</div>`;
+  }
+};
+
+// ==========================================
+// DEPRECIATION REPORT
+// ==========================================
+window.showDepreciationReport = function() {
+  const tbody = document.getElementById('depreciationTableBody');
+  tbody.innerHTML = '';
+  
+  let totalAwal = 0;
+  let totalBuku = 0;
+  
+  const currentYear = new Date().getFullYear();
+  const currentDate = new Date();
+  
+  inventoryData.forEach(item => {
+    if (item.status === 'Disposed') return; // Abaikan yang sudah dihapus
+    if (!item.value) return; // Abaikan jika tidak ada harga
+    
+    const value = parseFloat(item.value) || 0;
+    const deprYears = parseInt(item.depreciation_years) || 0;
+    
+    let currentBookValue = value;
+    let ageYearsText = '-';
+    
+    if (deprYears > 0 && item.date_acquired) {
+      const dateAcq = new Date(item.date_acquired);
+      // Hitung selisih bulan, lalu bagi 12 untuk dapat umur presisi
+      const diffMonths = (currentDate.getFullYear() - dateAcq.getFullYear()) * 12 + (currentDate.getMonth() - dateAcq.getMonth());
+      let ageYears = diffMonths / 12;
+      
+      if (ageYears < 0) ageYears = 0;
+      
+      ageYearsText = ageYears.toFixed(1) + ' Tahun';
+      
+      // Penyusutan Garis Lurus (Straight Line)
+      let depreciatedValue = value - (value * (ageYears / deprYears));
+      if (depreciatedValue < 0) depreciatedValue = 0;
+      
+      currentBookValue = depreciatedValue;
+    }
+    
+    totalAwal += value;
+    totalBuku += currentBookValue;
+    
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid var(--border-light)';
+    tr.innerHTML = `
+      <td style="padding:12px; color:var(--text-dark);">
+        <strong>${item.name}</strong><br>
+        <span style="font-size:0.8rem; color:var(--text-muted); font-family:monospace;">${item.id}</span>
+      </td>
+      <td style="padding:12px; color:var(--text-muted);">${fmtDate(item.date_acquired)}</td>
+      <td style="padding:12px; text-align:right; color:var(--text-dark);">Rp ${fmt(value)}</td>
+      <td style="padding:12px; text-align:center; color:var(--text-dark);">${deprYears > 0 ? deprYears : '-'}</td>
+      <td style="padding:12px; text-align:center; color:var(--text-muted);">${ageYearsText}</td>
+      <td style="padding:12px; text-align:right; font-weight:bold; color:${currentBookValue === 0 ? '#ef4444' : '#22c55e'};">Rp ${fmt(currentBookValue)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  
+  document.getElementById('depTotalAwal').textContent = 'Rp ' + fmt(totalAwal);
+  document.getElementById('depTotalBuku').textContent = 'Rp ' + fmt(totalBuku);
+  
+  document.getElementById('depreciationModal').style.display = 'flex';
+};
+
+window.printDepreciation = function() {
+  const modalContent = document.querySelector('#depreciationModal .inv-modal-content').cloneNode(true);
+  
+  // Hapus tombol-tombol
+  const buttons = modalContent.querySelectorAll('button');
+  buttons.forEach(b => b.remove());
+  
+  // Buat header khusus print
+  const header = document.createElement('div');
+  header.innerHTML = `
+    <h2 style="text-align:center; margin-bottom:5px;">LAPORAN PENYUSUTAN NILAI ASET (DEPRESIASI)</h2>
+    <p style="text-align:center; margin-top:0; margin-bottom:20px;">Gereja PISGAH-BISDAC | Tanggal Cetak: ${new Date().toLocaleString('id-ID')}</p>
+  `;
+  
+  modalContent.insertBefore(header, modalContent.firstChild);
+  modalContent.style.padding = '20px';
+  modalContent.style.background = '#fff';
+  modalContent.style.color = '#000';
+  
+  const opt = {
+    margin: 10,
+    filename: `Laporan_Depresiasi_Aset_${new Date().toISOString().slice(0,10)}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+  };
+  
+  showCustomAlert('Sedang menyiapkan PDF...', 'success');
+  html2pdf().set(opt).from(modalContent).save().then(() => {
     document.getElementById('customAlertModal').style.display = 'none';
   });
 };
