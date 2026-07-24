@@ -141,31 +141,29 @@ function renderGrid(data) {
           ${checkboxHtml}
           <img src="${photoUrl}" class="inv-list-photo" alt="${item.name}" onerror="this.src='/icons/PisgahLogoColor.png'">
           <div class="inv-list-info">
-            ${badgeHtml}
             <div style="flex:1;">
-              <div class="inv-asset-name" style="display:flex; align-items:center; gap:8px;">
+              ${badgeHtml}
+              <div class="inv-asset-name" style="margin-top:4px;">
                 ${item.name}
-                <span style="font-size:0.7rem; font-weight:bold; color:#000; background-color:var(--accent); padding:3px 8px; border-radius:12px; white-space:nowrap;">
+                <span style="font-size:0.7rem; font-weight:700; color:var(--accent-dark); background-color:var(--border-light); padding:4px 10px; border-radius:12px; white-space:nowrap; margin-left:8px; vertical-align:middle;">
                   ${item.qty || 1} ${item.unit || 'Unit'}
                 </span>
               </div>
               
-              <div style="display: flex; flex-wrap:wrap; gap: 12px; margin-bottom: 5px;">
-                <div class="inv-asset-meta" style="margin-bottom:0 !important; color:var(--accent); font-family:monospace; font-size:0.8rem;"><i class="fa-solid fa-barcode"></i> ${item.id}</div>
-                <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-regular fa-calendar"></i> ${fmtDate(item.date_acquired)}</div>
-                <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-regular fa-user"></i> ${item.pic}</div>
-                <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-solid fa-location-dot"></i> ${item.location || '-'}</div>
+              <div style="display: flex; flex-wrap:wrap; gap: 16px; margin-bottom: 5px; margin-top:12px;">
+                <div class="inv-asset-meta"><i class="fa-solid fa-barcode"></i> ${item.id}</div>
+                <div class="inv-asset-meta"><i class="fa-regular fa-user"></i> ${item.pic}</div>
+                <div class="inv-asset-meta"><i class="fa-solid fa-location-dot"></i> ${item.location || '-'}</div>
               </div>
             </div>
             
             ${currentUser ? `
-              <div class="inv-values-outer" style="min-width: 150px; display:flex; flex-direction:column; justify-content:flex-end;">
-                <div class="inv-values-inner" style="margin-top: 35px; width:100%; text-align:right; border-left:1px solid rgba(255,255,255,0.1); padding-left:15px; padding-top: 15px;">
-                  <div style="font-size:0.75rem; color:rgba(255,255,255,0.6);">Perolehan<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem; color:#4ade80;">Rp ${fmt(item.value)}</span></div>
-                  <div style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-top:8px;">Market Value<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem; color:#d4af37;">Rp ${fmt(item.taksasi || 0)}</span></div>
-                </div>
+              <div style="min-width: 150px; text-align:right; border-left:1px solid var(--border-light); padding-left:24px;">
+                <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Nilai Aset</div>
+                <div class="inv-asset-value" style="margin-top:4px;">Rp ${fmt(item.taksasi || item.value || 0)}</div>
+                <div class="btn btn-outline" style="margin-top:16px; padding:8px 16px; font-size:0.85rem; border-radius:50px; width:100%;">Lihat Detail</div>
               </div>
-            ` : ''}
+            ` : '<div style="padding-left:24px;"><div class="btn btn-outline" style="padding:8px 16px; border-radius:50px;">Lihat Detail</div></div>'}
           </div>
         </div>
       `;
@@ -173,30 +171,32 @@ function renderGrid(data) {
       return `
         <div class="inv-asset-card" style="${cardStyle}" onclick="window.viewDetail('${item.id}')">
           ${checkboxHtml}
-          ${badgeHtml}
           <img src="${photoUrl}" class="inv-asset-photo" alt="${item.name}" onerror="this.src='/icons/PisgahLogoColor.png'">
           <div class="inv-asset-info">
-            <div class="inv-asset-name" style="display:flex; align-items:center; gap:8px;">
+            ${badgeHtml}
+            <div class="inv-asset-name" style="margin-top:4px;">
               ${item.name}
-              <span style="font-size:0.7rem; font-weight:bold; color:#000; background-color:var(--accent); padding:3px 8px; border-radius:12px; white-space:nowrap;">
+              <span style="font-size:0.7rem; font-weight:700; color:var(--accent-dark); background-color:var(--border-light); padding:4px 8px; border-radius:12px; white-space:nowrap; vertical-align:middle; display:inline-block; margin-left:4px;">
                 ${item.qty || 1} ${item.unit || 'Unit'}
               </span>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
-              <div class="inv-asset-meta" style="margin-bottom:0 !important; color:var(--accent); font-family:monospace; font-size:0.8rem;"><i class="fa-solid fa-barcode"></i> ${item.id}</div>
-              <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-regular fa-calendar"></i> ${fmtDate(item.date_acquired)}</div>
-              <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-regular fa-user"></i> ${item.pic}</div>
-              <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-solid fa-location-dot"></i> ${item.location || '-'}</div>
+            <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; margin-top: 8px;">
+              <div class="inv-asset-meta"><i class="fa-solid fa-barcode" style="width:16px;"></i> ${item.id}</div>
+              <div class="inv-asset-meta"><i class="fa-regular fa-user" style="width:16px;"></i> ${item.pic}</div>
+              <div class="inv-asset-meta"><i class="fa-solid fa-location-dot" style="width:16px;"></i> ${item.location || '-'}</div>
             </div>
             
             ${currentUser ? `
-              <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">
-                <div style="font-size:0.75rem; color:rgba(255,255,255,0.6);">Perolehan<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem;">Rp ${fmt(item.value)}</span></div>
-                <div style="font-size:0.75rem; color:rgba(255,255,255,0.6); text-align:right;">Market Value<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem; color:#d4af37;">Rp ${fmt(item.taksasi || 0)}</span></div>
+              <div style="display:flex; justify-content:space-between; align-items:flex-end; border-top:1px solid var(--border-light); padding-top:16px; margin-top:auto;">
+                <div>
+                  <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Nilai Aset</div>
+                  <div class="inv-asset-value">Rp ${fmt(item.taksasi || item.value || 0)}</div>
+                </div>
               </div>
             ` : ''}
           </div>
+          <div class="card-action-btn"><i class="fa-solid fa-arrow-right"></i></div>
         </div>
       `;
     }
@@ -206,7 +206,7 @@ function renderGrid(data) {
 async function loadData() {
   try {
     const grid = document.getElementById('inventoryGrid');
-    grid.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; padding: 40px;"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--accent);"></i></div>`;
+    grid.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; padding: 60px;"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--accent-dark);"></i><p style="margin-top:15px; color:var(--text-muted); font-weight: 500;">Memuat koleksi inventaris...</p></div>`;
 
     const response = await apiGet('getInventory');
     inventoryData = response.data || [];
@@ -293,9 +293,9 @@ window.viewDetail = function (id) {
       img.style.maxWidth = '100%';
       img.style.borderRadius = '12px';
       img.style.objectFit = 'contain';
-      img.style.border = '1px solid rgba(255,255,255,0.1)';
+      img.style.border = '1px solid var(--border-light)';
       img.style.flexShrink = '0';
-      img.style.backgroundColor = 'rgba(0,0,0,0.2)';
+      img.style.backgroundColor = '#f8f9fa';
       img.style.cursor = 'pointer';
       img.onclick = () => {
         document.getElementById('imagePreviewFull').src = p;

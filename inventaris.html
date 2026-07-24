@@ -13,16 +13,25 @@
   
   <style>
     :root {
-      --bg-dark: #0b1a30;
-      --bg-card: rgba(255, 255, 255, 0.03);
-      --glass-border: rgba(255, 255, 255, 0.1);
-      --accent: #d4af37;
+      --bg-main: #fcfcfc;
+      --bg-hero: #f4f0ec;
+      --bg-card: #ffffff;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --accent-dark: #0a2525; /* Dark green/navy */
+      --accent-gold: #c98e21;
+      --border-light: rgba(0,0,0,0.06);
+      --card-shadow: 0 12px 30px rgba(0,0,0,0.03);
+      --hover-shadow: 0 20px 40px rgba(0,0,0,0.08);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 8px;
     }
     
     html, body {
-      background-color: #0b1a30 !important;
-      color: #eae7e2 !important;
-      font-family: 'Space Grotesk', sans-serif !important;
+      background-color: var(--bg-main) !important;
+      color: var(--text-dark) !important;
+      font-family: 'Space Grotesk', 'Inter', sans-serif !important;
       margin: 0 !important;
       padding: 0 !important;
       overflow-x: hidden !important;
@@ -34,649 +43,389 @@
       width: 100% !important;
     }
     
+    /* Top Nav */
+    .top-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      background: rgba(252, 252, 252, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .top-nav h2 {
+      color: var(--text-dark) !important;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border-radius: var(--radius-lg);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+    .btn-primary {
+      background: var(--accent-dark);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #061818;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(10,37,37,0.2);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-light);
+      color: var(--text-dark);
+    }
+    .btn-outline:hover {
+      background: rgba(0,0,0,0.03);
+      border-color: rgba(0,0,0,0.1);
+    }
+    #logoutBtn {
+      color: #ef4444 !important;
+      background: rgba(239, 68, 68, 0.1);
+      border: none;
+    }
+    
+    /* Hero Section */
     .hero-section {
-      background: linear-gradient(135deg, rgba(11,26,48,0.95) 0%, rgba(21,25,36,0.98) 100%), url('https://images.unsplash.com/photo-1548625361-ec8587d60f58?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat;
-      padding: 80px 20px 60px;
+      background: var(--bg-hero);
+      padding: 120px 20px 80px;
       text-align: center;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-light);
+      border-radius: 0 0 40px 40px;
+      margin-bottom: 40px;
     }
-    
     .hero-title {
-      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
       font-weight: 800;
-      color: var(--accent);
+      color: var(--accent-dark);
       margin-bottom: 15px;
-      text-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+    .hero-subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 500px;
+      margin: 0 auto 30px;
     }
     
-    .glass-panel {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    }
-    
+    /* Search Bar */
     .search-bar {
       width: 100%;
       max-width: 600px;
-      margin: 0 auto 40px;
+      margin: 0 auto;
       position: relative;
     }
-    
     .search-bar input {
       width: 100%;
-      padding: 16px 24px 16px 48px;
+      padding: 18px 24px 18px 54px;
       border-radius: 50px;
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: white;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      color: var(--text-dark);
       font-size: 16px;
       font-family: 'Space Grotesk', sans-serif;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.03);
     }
-    
     .search-bar input:focus {
       outline: none;
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(212, 175, 55, 0.8);
-      box-shadow: 0 0 25px rgba(212, 175, 55, 0.3), inset 0 0 10px rgba(212, 175, 55, 0.1);
+      border-color: var(--accent-dark);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.06);
       transform: translateY(-2px);
     }
-    
     .search-bar i {
       position: absolute;
-      left: 20px;
+      left: 24px;
       top: 50%;
       transform: translateY(-50%);
-      color: rgba(255, 255, 255, 0.5);
+      color: var(--text-muted);
+      font-size: 1.1rem;
     }
     
+    /* View Controls */
+    .view-controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+    .view-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      color: var(--text-muted);
+      padding: 10px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .view-btn.active {
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
+      color: #fff;
+    }
+    
+    /* Inventory Grid */
     .inventory-grid {
       display: grid !important;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
-      gap: 24px !important;
-      padding: 0 20px 60px !important;
-      max-width: 95% !important;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+      gap: 30px !important;
+      padding: 0 30px 80px !important;
+      max-width: 1400px !important;
       margin: 0 auto !important;
     }
     
+    /* Asset Card */
     .inv-asset-card {
-      background-color: rgba(255, 255, 255, 0.03) !important;
-      backdrop-filter: blur(16px) !important;
-      -webkit-backdrop-filter: blur(16px) !important;
-      border: 1px solid rgba(255,255,255,0.08) !important;
-      border-radius: 20px !important;
+      background-color: var(--bg-card) !important;
+      border: 1px solid var(--border-light) !important;
+      border-radius: var(--radius-lg) !important;
       overflow: hidden !important;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+      transition: all 0.4s ease !important;
       cursor: pointer !important;
       position: relative !important;
-      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3) !important;
+      box-shadow: var(--card-shadow) !important;
+      display: flex;
+      flex-direction: column;
     }
-    
-    .inv-asset-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 50%; height: 100%;
-      background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
-      transform: skewX(-20deg);
-      transition: all 0.6s ease;
-      z-index: 10;
-      pointer-events: none;
-    }
-
-    .inv-asset-card:hover::before {
-      left: 150%;
-    }
-    
     .inv-asset-card:hover {
-      transform: translateY(-10px) scale(1.02) !important;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(212, 175, 55, 0.2) !important;
-      border-color: rgba(212, 175, 55, 0.5) !important;
-      background-color: rgba(255, 255, 255, 0.05) !important;
+      transform: translateY(-8px) !important;
+      box-shadow: var(--hover-shadow) !important;
+      border-color: rgba(0,0,0,0.1) !important;
     }
-    
     .inv-asset-photo {
       width: 100% !important;
-      height: 200px !important;
-      object-fit: cover !important;
-      background-color: #000 !important;
-      border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+      height: 240px !important;
+      object-fit: contain !important;
+      background-color: #f8f9fa !important;
+      border-bottom: 1px solid var(--border-light) !important;
+      padding: 20px;
+      box-sizing: border-box;
     }
-    
     .inv-asset-info {
-      padding: 20px !important;
+      padding: 24px !important;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
     }
-    
     .inv-asset-name {
-      font-size: 1.2rem !important;
-      font-weight: 600 !important;
-      color: #ffffff !important;
-      margin-bottom: 10px !important;
+      font-size: 1.25rem !important;
+      font-weight: 700 !important;
+      color: var(--text-dark) !important;
+      margin-bottom: 8px !important;
+      line-height: 1.3;
     }
-    
     .inv-asset-meta {
-      font-size: 0.9rem !important;
-      color: rgba(255, 255, 255, 0.7) !important;
+      font-size: 0.85rem !important;
+      color: var(--text-muted) !important;
       margin-bottom: 6px !important;
       display: flex !important;
       align-items: center !important;
       gap: 8px !important;
     }
-    
-    .inv-asset-meta i, .inv-asset-card i {
-      -webkit-text-stroke: 1px currentColor;
-      -webkit-text-fill-color: transparent;
-    }
-    
     .inv-asset-value {
-      font-weight: 700 !important;
-      color: #4ade80 !important;
-      margin-top: 15px !important;
-      font-size: 1.1rem !important;
+      font-weight: 800 !important;
+      color: var(--accent-dark) !important;
+      font-size: 1.2rem !important;
+      margin-top: auto !important;
     }
     
+    /* Status Badge */
     .inv-badge-status {
-      position: absolute !important;
-      top: 15px !important;
-      right: 15px !important;
-      padding: 4px 12px !important;
-      border-radius: 20px !important;
-      font-size: 0.8rem !important;
-      font-weight: 600 !important;
-      background-color: rgba(0,0,0,0.8) !important;
-      color: #ffffff !important;
-      backdrop-filter: blur(4px) !important;
-      border: 1px solid rgba(255,255,255,0.3) !important;
-    }
-    
-    .top-nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 100;
-      background: rgba(11,26,48,0.8);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--glass-border);
-    }
-    
-    .btn {
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-    
-    .btn-primary {
-      background: var(--accent);
-      color: #000;
-    }
-    
-    .btn-primary:hover {
-      background: #f0c950;
-      transform: scale(1.05);
-    }
-    
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-    }
-    
-    .btn-outline:hover {
-      background: rgba(212, 175, 55, 0.1);
-    }
-    
-    @media (max-width: 768px) {
-      .hide-on-mobile { display: none !important; }
-      .top-nav { padding: 10px 15px; }
-      .top-nav h2 { font-size: 1rem !important; margin-left: 8px !important; }
-      #userNameDisplay { display: none !important; }
-      .btn { padding: 8px 12px; }
-    }
-    
-    .back-icon-btn {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      width: 40px !important;
-      height: 40px !important;
-      border-radius: 50% !important;
-      background-color: rgba(212, 175, 55, 0.1) !important;
-      color: var(--accent) !important;
-      text-decoration: none !important;
-      transition: all 0.3s ease !important;
-      border: 1px solid rgba(212, 175, 55, 0.3) !important;
-    }
-    
-    .back-icon-btn:hover {
-      background-color: var(--accent) !important;
-      color: #000 !important;
-      transform: translateX(-3px) !important;
-      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3) !important;
-    }
-    
-    /* Modal styles */
-    .inv-modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(5px);
-      z-index: 1000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    
-    .inv-modal-content {
-      background-color: #0b1a30 !important;
-      border: 1px solid var(--glass-border) !important;
-      border-radius: 16px !important;
-      width: 100% !important;
-      max-width: 500px !important;
-      max-height: 90vh !important;
-      overflow-y: auto !important;
-      padding: 24px !important;
-      position: relative !important;
-      color: #ffffff !important;
-    }
-    
-    .inv-form-group {
-      margin-bottom: 16px !important;
-    }
-    
-    .inv-form-group label {
-      display: block !important;
-      margin-bottom: 8px !important;
-      color: #ffffff !important;
-      font-size: 0.9rem !important;
-      font-weight: 500 !important;
-      background: transparent !important;
-    }
-    
-    .inv-form-control {
-      width: 100% !important;
-      padding: 12px !important;
-      background-color: rgba(255,255,255,0.1) !important;
-      border: 1px solid rgba(255,255,255,0.3) !important;
-      border-radius: 8px !important;
-      color: #ffffff !important;
-      font-size: 1rem !important;
-      box-sizing: border-box !important;
-    }
-    
-    .inv-form-control::placeholder {
-      color: rgba(255,255,255,0.5) !important;
-    }
-    
-    .inv-form-control:focus {
-      outline: none !important;
-      border-color: #d4af37 !important;
-      box-shadow: 0 0 10px rgba(212, 175, 55, 0.4) !important;
-      background-color: rgba(255,255,255,0.15) !important;
-    }
-    
-    .inv-form-control option {
-      background-color: #1a2639 !important;
-      color: #ffffff !important;
-    }
-    
-    .inv-btn {
-      padding: 10px 16px !important;
-      border-radius: 8px !important;
-      font-weight: 600 !important;
-      cursor: pointer !important;
-      transition: all 0.2s !important;
-      border: none !important;
-      font-size: 1rem !important;
       display: inline-block !important;
-      text-align: center !important;
+      padding: 6px 14px !important;
+      border-radius: 50px !important;
+      font-size: 0.75rem !important;
+      font-weight: 700 !important;
+      background-color: #f1f5f9 !important;
+      color: var(--text-dark) !important;
+      border: 1px solid rgba(0,0,0,0.05) !important;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+      margin-bottom: 8px !important;
     }
     
-    .inv-btn-primary {
-      background-color: #d4af37 !important;
-      color: #000000 !important;
+    /* Cart-like Button in Card (Visual only) */
+    .card-action-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--accent-dark);
+      color:var(--text-dark);
+      display: flex; align-items: center; justify-content: center;
+      position: absolute;
+      bottom: 24px; right: 24px;
+      transition: 0.3s;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    .inv-asset-card:hover .card-action-btn {
+      opacity: 1;
+      transform: translateY(0);
     }
     
-    .inv-btn-primary:hover {
-      background-color: #f0c950 !important;
-      transform: scale(1.02) !important;
-    }
-    
-    .inv-btn-outline {
-      background-color: transparent !important;
-      border: 1px solid #d4af37 !important;
-      color: #d4af37 !important;
-    }
-    
-    .inv-btn-outline:hover {
-      background-color: rgba(212, 175, 55, 0.1) !important;
-    }
-    
-    .barcode-container {
-      text-align: center;
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      margin-top: 20px;
-    }
-    
+    /* List View */
     .inventory-list {
       display: grid !important;
       grid-template-columns: 1fr 1fr !important;
-      gap: 16px !important;
-      padding: 0 20px 60px !important;
+      gap: 20px !important;
+      padding: 0 30px 80px !important;
       max-width: 1400px !important;
       margin: 0 auto !important;
     }
-    
     .inv-list-card {
       display: flex !important;
-      background-color: rgba(255, 255, 255, 0.03) !important;
-      backdrop-filter: blur(16px) !important;
-      border: 1px solid rgba(255,255,255,0.08) !important;
-      border-radius: 16px !important;
+      background-color: var(--bg-card) !important;
+      border: 1px solid var(--border-light) !important;
+      border-radius: var(--radius-md) !important;
       overflow: hidden !important;
-      transition: all 0.3s !important;
+      transition: all 0.3s ease !important;
       cursor: pointer !important;
       position: relative !important;
-      align-items: stretch !important;
+      box-shadow: var(--card-shadow) !important;
     }
-    
     .inv-list-card:hover {
-      background-color: rgba(255, 255, 255, 0.06) !important;
-      border-color: rgba(212, 175, 55, 0.5) !important;
-      transform: translateX(5px) !important;
+      transform: translateY(-4px) !important;
+      box-shadow: var(--hover-shadow) !important;
     }
-    
     .inv-list-photo {
-      width: 140px !important;
-      height: auto !important;
-      min-height: 140px !important;
-      object-fit: cover !important;
-      border-right: 1px solid rgba(255,255,255,0.1) !important;
-      background: #000;
+      width: 160px !important;
+      height: 160px !important;
+      flex-shrink: 0 !important;
+      object-fit: contain !important;
+      background: #f8f9fa !important;
+      border: 1px solid var(--border-light) !important;
+      border-radius: 12px !important;
+      padding: 10px;
+      margin: 16px 0 16px 16px !important;
     }
-    
     .inv-list-info {
-      padding: 20px !important;
+      padding: 24px !important;
       flex: 1 !important;
       display: flex !important;
       flex-direction: row !important;
       justify-content: space-between !important;
       align-items: center !important;
-      gap: 20px !important;
+    }
+    
+    /* Modals */
+    .inv-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .inv-modal-content {
+      background-color: var(--bg-card) !important;
+      border: none !important;
+      border-radius: var(--radius-lg) !important;
+      width: 100% !important; max-width: 500px !important;
+      max-height: 90vh !important; overflow-y: auto !important;
+      padding: 32px !important;
+      color: var(--text-dark) !important;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25) !important;
+    }
+    .inv-form-group label {
+      color: var(--text-dark) !important;
+      font-weight: 600 !important;
+      margin-bottom: 8px !important;
+    }
+    .inv-form-control {
+      background-color: #f8f9fa !important;
+      border: 1px solid var(--border-light) !important;
+      color: var(--text-dark) !important;
+      border-radius: var(--radius-sm) !important;
+      padding: 14px !important;
+    }
+    .inv-form-control:focus {
+      border-color: var(--accent-dark) !important;
+      background-color: #fff !important;
+      box-shadow: 0 0 0 3px rgba(10,37,37,0.1) !important;
     }
     
     @media (max-width: 1000px) {
-      .inventory-list {
-        grid-template-columns: 1fr !important;
-      }
+      .inventory-list { grid-template-columns: 1fr !important; }
     }
-    
-    @media (max-width: 600px) {
-      .inv-list-photo {
-        width: 90px !important;
-        min-height: 90px !important;
-      }
-      .inv-list-info {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 15px !important;
-        padding: 15px !important;
-      }
-      .inv-values-outer {
-        margin-top: 0 !important;
-        min-width: 100% !important;
-      }
-      .inv-values-inner {
-        text-align: left !important;
-        border-left: none !important;
-        border-top: 1px solid rgba(255,255,255,0.1) !important;
-        padding-left: 0 !important;
-        padding-top: 15px !important;
-        margin-left: 0 !important;
-        margin-top: 10px !important;
-        width: 100% !important;
-        display: flex;
-        justify-content: space-between;
-      }
-      .inv-list-info .inv-asset-meta {
-        font-size: 0.75rem !important;
-      }
-      .inv-list-card .inv-badge-status {
-        position: relative !important;
-        top: 0 !important;
-        right: 0 !important;
-        margin-bottom: 8px !important;
-        align-self: flex-start !important;
-        display: inline-block !important;
-      }
-      .inv-list-card .bulk-qr-checkbox {
-        top: 10px !important;
-        left: 10px !important;
-      }
+    @media (max-width: 768px) {
+      .hide-on-mobile { display: none !important; }
+      .top-nav { padding: 12px 20px; }
+      .hero-section { padding: 100px 20px 60px; border-radius: 0 0 24px 24px; }
+      .hero-title { font-size: 2.2rem; }
+      .inventory-grid { padding: 0 20px 60px !important; grid-template-columns: 1fr !important; }
+      .inv-list-photo { width: 120px !important; }
+      .inv-list-info { flex-direction: column !important; align-items: flex-start !important; }
     }
-    
-    .view-controls {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 15px;
-    }
-    .view-btn {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: rgba(255,255,255,0.7);
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .view-btn.active {
-      background: rgba(212, 175, 55, 0.2);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    
-    #barcodeSVG {
-      max-width: 100%;
-      height: auto;
-    }
-    
-    /* LIGHT MODE STYLES */
-    body.light-mode {
-      background-color: #f4f7f6 !important;
-      color: #1a1a1a !important;
-    }
-    body.light-mode .hero-section {
-      background: linear-gradient(135deg, rgba(244,247,246,0.95) 0%, rgba(230,235,234,0.98) 100%), url('https://images.unsplash.com/photo-1548625361-ec8587d60f58?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat !important;
-      border-bottom: 1px solid rgba(0,0,0,0.05) !important;
-    }
-    body.light-mode .hero-title {
-      color: #0b1a30;
-      text-shadow: none;
-    }
-    body.light-mode .glass-panel,
-    body.light-mode .inv-asset-card,
-    body.light-mode .inv-list-card {
-      background-color: #ffffff !important;
-      border-color: rgba(0,0,0,0.1) !important;
-      color: #1a1a1a !important;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
-    }
-    body.light-mode .search-bar input {
-      background-color: #ffffff !important;
-      border-color: rgba(0,0,0,0.2) !important;
-      color: #1a1a1a !important;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
-    }
-    body.light-mode .search-bar input:focus {
-      background: #ffffff !important;
-      border-color: var(--accent) !important;
-      box-shadow: 0 0 15px rgba(212, 175, 55, 0.3) !important;
-    }
-    body.light-mode .search-bar i {
-      color: rgba(0,0,0,0.5) !important;
-    }
-    body.light-mode .inv-asset-info, 
-    body.light-mode .inv-list-info {
-      color: #1a1a1a !important;
-    }
-    body.light-mode .inv-asset-name,
-    body.light-mode .inv-list-name {
-      color: #1a1a1a !important;
-    }
-    body.light-mode .inv-asset-meta,
-    body.light-mode .inv-list-meta {
-      color: rgba(0,0,0,0.6) !important;
-    }
-    body.light-mode .inv-asset-info [style*="color:rgba(255,255,255,0.6)"],
-    body.light-mode .inv-list-info [style*="color:rgba(255,255,255,0.6)"] {
-      color: rgba(0,0,0,0.6) !important;
-    }
-    body.light-mode .inv-asset-photo,
-    body.light-mode .inv-list-photo,
-    body.light-mode .inv-detail-photo {
-      border-bottom-color: rgba(0,0,0,0.1) !important;
-      background-color: #f0f0f0 !important;
-    }
-    body.light-mode .inv-form-control {
-      background: #f4f7f6 !important;
-      border: 1px solid rgba(0,0,0,0.2) !important;
-      color: #1a1a1a !important;
-    }
-    body.light-mode .inv-modal-content {
-      background: #ffffff !important;
-      border: 1px solid rgba(0,0,0,0.1) !important;
-      color: #1a1a1a !important;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;
-    }
-    body.light-mode .inv-modal-content h3,
-    body.light-mode .inv-modal-content label {
-      color: #1a1a1a !important;
-    }
-    body.light-mode .top-nav {
-      background: rgba(244,247,246,0.9) !important;
-      border-bottom: 1px solid rgba(0,0,0,0.1) !important;
-    }
-    body.light-mode .top-nav h2 {
-      color: #1a1a1a !important;
-    }
-    body.light-mode .inv-values-outer, body.light-mode .inv-values-inner {
-      border-color: rgba(0,0,0,0.1) !important;
-    }
-    body.light-mode .detail-grid-item span:first-child {
-      color: rgba(0,0,0,0.6) !important;
-    }
-    body.light-mode .detail-grid-item span:last-child {
-      color: #1a1a1a !important;
-    }
-    body.light-mode .view-btn {
-      color: #1a1a1a !important;
-      border-color: rgba(0,0,0,0.2) !important;
-      background: #ffffff !important;
-    }
-    body.light-mode .view-btn.active {
-      background: var(--accent) !important;
-      color: #000 !important;
-      border-color: var(--accent) !important;
-    }
-    body.light-mode .inv-btn-outline {
-      border-color: rgba(0,0,0,0.3) !important;
-      color: #1a1a1a !important;
-    }
-    body.light-mode #bulkPrintContainer > div {
-      background: rgba(255,255,255,0.95) !important;
-      border-color: rgba(0,0,0,0.1) !important;
-    }
-    body.light-mode #bulkPrintCount {
-      color: #1a1a1a !important;
-    }
-    body.light-mode .detail-grid-item {
-      background: #f9f9f9 !important;
-      border-color: rgba(0,0,0,0.05) !important;
-    }
-    body.light-mode .inv-asset-card p,
-    body.light-mode .inv-list-card p,
-    body.light-mode header p {
-      color: rgba(0,0,0,0.7) !important;
-    }
+
   </style>
 </head>
 <body>
 
   <nav class="top-nav">
     <div style="display:flex; align-items:center; gap:12px;">
-      <a href="/" class="back-icon-btn" title="Kembali ke Beranda">
+      <a href="/" class="btn btn-outline" style="padding: 10px; width: 40px; height: 40px; border-radius: 50%;" title="Kembali ke Beranda">
         <i class="fa-solid fa-chevron-left" style="margin-right: 2px;"></i>
       </a>
-      <h2 style="margin:0; font-size:1.15rem; color:white; font-weight:600; letter-spacing:0.5px;">Inventaris PISGAH</h2>
+      <h2>Inventaris PISGAH</h2>
     </div>
     <div style="display:flex; align-items:center; gap:10px;">
-      <button id="themeToggleBtn" class="btn btn-outline" style="border:none; width:40px; height:40px; padding:0; border-radius:50%; background:rgba(255,255,255,0.05);" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
-        <i class="fa-solid fa-moon"></i>
-      </button>
       <button id="loginBtn" class="btn btn-outline"><i class="fa-solid fa-user-lock"></i> <span class="hide-on-mobile">Login Admin</span></button>
       <div id="adminControls" style="display:none; gap:10px; align-items:center;">
-        <span id="userNameDisplay" style="color:var(--accent); margin-right:5px;"></span>
-        <button id="backupBtn" class="btn btn-outline" style="border-color:rgba(74, 222, 128, 0.5); color:#4ade80;"><i class="fa-solid fa-download"></i> <span class="hide-on-mobile">Backup</span></button>
+        <span id="userNameDisplay" style="color:var(--accent-dark); margin-right:5px; font-weight: 600;"></span>
+        <button id="backupBtn" class="btn btn-outline" style="color:#0f766e;"><i class="fa-solid fa-download"></i> <span class="hide-on-mobile">Backup</span></button>
         <button id="addBtn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> <span class="hide-on-mobile">Tambah Aset</span></button>
-        <button id="logoutBtn" class="btn btn-outline" style="border-color:rgba(255,255,255,0.3); color:white;"><i class="fa-solid fa-sign-out-alt"></i></button>
+        <button id="logoutBtn" class="btn"><i class="fa-solid fa-sign-out-alt"></i></button>
       </div>
     </div>
   </nav>
 
   <header class="hero-section">
-    <h1 class="hero-title">Aset & Peralatan Gereja</h1>
-    <p style="color:rgba(255,255,255,0.8); margin-bottom:30px; font-size:1.1rem; max-width:600px; margin-left:auto; margin-right:auto;">Sistem Informasi Manajemen Inventaris Gereja PISGAH-BISDAC</p>
+    <h1 class="hero-title">Koleksi Inventaris.</h1>
+    <p class="hero-subtitle">Sistem Informasi Manajemen Inventaris Gereja PISGAH-BISDAC</p>
     
-    <div class="search-bar" style="margin-bottom:15px;">
+    <div class="search-bar" style="margin-bottom:25px;">
       <i class="fa-solid fa-search"></i>
       <input type="text" id="searchInput" placeholder="Cari nama peralatan, lokasi, atau penanggung jawab..." autocomplete="off">
     </div>
     
     <div class="view-controls">
       <button id="btnSelectAll" class="view-btn admin-only-field" onclick="window.toggleSelectAll()" data-display="flex" style="display:none; margin-right: 15px;"><i class="fa-regular fa-square-check"></i> Pilih Semua</button>
-      <button id="btnViewGrid" class="view-btn active" onclick="window.changeViewMode('grid')"><i class="fa-solid fa-border-all"></i> Grid</button>
-      <button id="btnViewList" class="view-btn" onclick="window.changeViewMode('list')"><i class="fa-solid fa-list-ul"></i> List</button>
+      <button id="btnViewGrid" class="view-btn active" onclick="window.changeViewMode('grid')">Grid</button>
+      <button id="btnViewList" class="view-btn" onclick="window.changeViewMode('list')">List</button>
     </div>
   </header>
 
   <main style="padding-top:40px;">
     <div id="bulkPrintContainer" class="admin-only-field" style="display:none; text-align:center; margin-bottom:20px; position:sticky; top:80px; z-index:90;">
       <div style="display:inline-block; background:rgba(21, 25, 36, 0.95); padding:10px 20px; border-radius:30px; border:1px solid var(--accent); box-shadow:0 10px 30px rgba(0,0,0,0.5); backdrop-filter:blur(10px);">
-        <span id="bulkPrintCount" style="color:white; margin-right:15px; font-weight:600;">0 Dipilih</span>
+        <span id="bulkPrintCount" style="color:var(--text-dark); margin-right:15px; font-weight:600;">0 Dipilih</span>
         <button onclick="window.printSelectedQRs()" class="btn btn-primary" style="padding:6px 16px;"><i class="fa-solid fa-file-pdf"></i> PDF/A4</button>
-        <button onclick="window.printSelectedThermal()" class="btn" style="padding:6px 16px; background:#0f766e; color:white; border:none; margin-left:10px;"><i class="fa-brands fa-bluetooth"></i> Thermal</button>
+        <button onclick="window.printSelectedThermal()" class="btn" style="padding:6px 16px; background:#0f766e; color:var(--text-dark); border:none; margin-left:10px;"><i class="fa-brands fa-bluetooth"></i> Thermal</button>
       </div>
     </div>
     
     <div id="inventoryGrid" class="inventory-grid">
       <!-- Cards will be rendered here by JS -->
-      <div style="text-align:center; grid-column: 1 / -1; padding: 40px;">
-        <i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--accent);"></i>
-        <p style="margin-top:15px; color:rgba(255,255,255,0.6);">Memuat data inventaris...</p>
+      <div style="text-align:center; grid-column: 1 / -1; padding: 60px;">
+        <i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--accent-dark);"></i>
+        <p style="margin-top:15px; color:var(--text-muted); font-weight: 500;">Memuat koleksi inventaris...</p>
       </div>
     </div>
   </main>
@@ -684,7 +433,7 @@
   <!-- Login Modal -->
   <div id="loginModal" class="inv-modal-overlay">
     <div class="inv-modal-content" style="max-width:350px;">
-      <h3 style="margin-top:0; color:var(--accent); font-size:1.5rem; text-align:center;">Login Pengurus</h3>
+      <h3 style="margin-top:0; color:var(--accent-dark); font-size:1.5rem; text-align:center;">Login Pengurus</h3>
       <div class="inv-form-group">
         <label>Username</label>
         <input type="text" id="loginUsername" class="inv-form-control">
@@ -697,7 +446,7 @@
         </div>
       </div>
       <button id="doLoginBtn" class="inv-btn inv-btn-primary" style="width:100%; margin-top:10px;">Masuk</button>
-      <button onclick="document.getElementById('loginModal').style.display='none'" class="inv-btn" style="width:100%; margin-top:10px; background:transparent; color:white;">Batal</button>
+      <button onclick="document.getElementById('loginModal').style.display='none'" class="inv-btn" style="width:100%; margin-top:10px; background:transparent; color:var(--text-dark);">Batal</button>
     </div>
   </div>
 
@@ -705,13 +454,13 @@
   <div id="logoutModal" class="inv-modal-overlay">
     <div class="inv-modal-content" style="max-width:350px; text-align:center;">
       <div style="width:60px; height:60px; background:rgba(212, 175, 55, 0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px;">
-        <i class="fa-solid fa-sign-out-alt" style="color:var(--accent); font-size:1.5rem;"></i>
+        <i class="fa-solid fa-sign-out-alt" style="color:var(--accent-dark); font-size:1.5rem;"></i>
       </div>
-      <h3 style="margin-top:0; color:white; font-size:1.3rem; margin-bottom:10px;">Keluar Mode Admin</h3>
-      <p style="color:rgba(255,255,255,0.7); font-size:0.95rem; margin-bottom:24px;">Apakah Anda yakin ingin keluar dari mode pengurus?</p>
+      <h3 style="margin-top:0; color:var(--text-dark); font-size:1.3rem; margin-bottom:10px;">Keluar Mode Admin</h3>
+      <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:24px;">Apakah Anda yakin ingin keluar dari mode pengurus?</p>
       
       <div style="display:flex; justify-content:center; gap:10px;">
-        <button onclick="document.getElementById('logoutModal').style.display='none'" class="inv-btn inv-btn-outline" style="flex:1; border-color:rgba(255,255,255,0.3); color:white;">Batal</button>
+        <button onclick="document.getElementById('logoutModal').style.display='none'" class="inv-btn inv-btn-outline" style="flex:1; border-color:var(--text-muted); color:var(--text-dark);">Batal</button>
         <button id="doLogoutBtn" class="inv-btn inv-btn-primary" style="flex:1;">Ya, Keluar</button>
       </div>
     </div>
@@ -720,7 +469,7 @@
   <!-- Form Modal (Add/Edit) -->
   <div id="formModal" class="inv-modal-overlay">
     <div class="inv-modal-content">
-      <h3 id="formTitle" style="margin-top:0; color:var(--accent); font-size:1.5rem;">Tambah Aset Baru</h3>
+      <h3 id="formTitle" style="margin-top:0; color:var(--accent-dark); font-size:1.5rem;">Tambah Aset Baru</h3>
       
       <input type="hidden" id="formId">
       
@@ -731,11 +480,11 @@
       
       <div style="display:flex; gap:15px; margin-bottom:15px;">
         <div style="flex:1;">
-          <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">Jumlah *</label>
+          <label style="display:block; margin-bottom:8px; color:var(--text-muted); font-size:0.9rem;">Jumlah *</label>
           <input type="number" id="formQty" class="inv-form-control" min="1" value="1" required style="width:100%; box-sizing:border-box;">
         </div>
         <div style="flex:1;">
-          <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.8); font-size:0.9rem;">Satuan *</label>
+          <label style="display:block; margin-bottom:8px; color:var(--text-muted); font-size:0.9rem;">Satuan *</label>
           <select id="formUnit" class="inv-form-control" required style="width:100%; box-sizing:border-box;">
             <option value="Buah">Buah</option>
             <option value="Set">Set</option>
@@ -795,7 +544,7 @@
         </select>
       </div>
       
-      <div class="inv-form-group admin-only-field" style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
+      <div class="inv-form-group admin-only-field" style="margin-top:20px; border-top:1px solid var(--border-light); padding-top:15px;">
         <label>Status Aset *</label>
         <select id="formStatus" class="inv-form-control" required onchange="if(this.value==='Disposed') document.getElementById('disposeFields').style.display='block'; else document.getElementById('disposeFields').style.display='none';">
           <option value="Active">🟢 Aktif (Digunakan)</option>
@@ -832,7 +581,7 @@
       </div>
       
       <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
-        <button onclick="closeFormModal()" class="inv-btn inv-btn-outline" style="border-color:rgba(255,255,255,0.3); color:white;">Batal</button>
+        <button onclick="closeFormModal()" class="inv-btn inv-btn-outline" style="border-color:var(--text-muted); color:var(--text-dark);">Batal</button>
         <button id="saveBtn" class="inv-btn inv-btn-primary">Simpan Data</button>
       </div>
     </div>
@@ -844,43 +593,45 @@
       
       <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
         <div>
-          <h3 id="detailName" style="margin-top:0; color:white; font-size:1.5rem; margin-bottom:5px;">Nama Aset</h3>
-          <p id="detailId" style="color:var(--accent); font-family:monospace; margin-top:0; margin-bottom:0;">INV-XXX</p>
+          <h3 id="detailName" style="margin-top:0; color:var(--text-dark); font-size:1.5rem; margin-bottom:5px;">Nama Aset</h3>
+          <p id="detailId" style="color:var(--accent-dark); font-family:monospace; margin-top:0; margin-bottom:0;">INV-XXX</p>
         </div>
-        <button onclick="document.getElementById('detailModal').style.display='none'" style="background:transparent; border:none; color:white; font-size:1.2rem; cursor:pointer; padding:5px;"><i class="fa-solid fa-times"></i></button>
+        <button onclick="document.getElementById('detailModal').style.display='none'" style="background:transparent; border:none; color:var(--text-dark); font-size:1.2rem; cursor:pointer; padding:5px;"><i class="fa-solid fa-times"></i></button>
       </div>
       
       <div style="display: flex; flex-wrap: wrap; gap: 24px;">
         <!-- Kolom Kiri: Foto dan QR Code -->
         <div style="flex: 1; min-width: 250px;">
-          <!-- Multiple Photos Container -->
-          <div id="detailPhotosContainer" style="display:flex; gap:10px; overflow-x:auto; margin-bottom:20px; padding-bottom:8px; scroll-snap-type: x mandatory;">
-          </div>
-          
-          <div class="barcode-container" style="margin-top:0;">
-            <p style="color:#333; margin-top:0; font-size:0.9rem; font-weight:600; margin-bottom:10px;">Scan QR Code dengan Kamera HP</p>
-            
-            <div style="position:relative; width:150px; height:150px; margin:0 auto;">
-              <img id="qrCodeImg" src="" style="width:150px; height:150px; display:block; margin:0 auto;">
-              <img src="./icons/PisgahColor.png" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:36px; height:36px; background:white; padding:3px; border-radius:50%; object-fit:contain; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+          <div style="background:#f8f9fa; border:1px solid var(--border-light); border-radius:12px; padding:24px; height:100%; box-sizing:border-box; text-align:center; display:flex; flex-direction:column; align-items:center;">
+            <!-- Multiple Photos Container -->
+            <div id="detailPhotosContainer" style="display:flex; gap:10px; overflow-x:auto; margin-bottom:30px; padding-bottom:8px; scroll-snap-type: x mandatory; justify-content:center; width:100%;">
             </div>
             
-            <p id="qrCodeId" style="color:#666; font-family:monospace; margin-top:10px; margin-bottom:10px; font-size:0.85rem; font-weight:bold;"></p>
-            
-            <div class="admin-only-field" data-display="flex" style="display:none; flex-direction:column; gap:8px;">
-              <button onclick="window.printBarcode()" class="inv-btn" style="background:#f0f0f0; border:1px solid #ddd; color:#333; font-size:0.8rem; padding:6px 12px; border-radius:6px; cursor:pointer;">
-                <i class="fa-solid fa-file-pdf"></i> Cetak Standar / PDF
-              </button>
-              <button onclick="window.printDirectThermal()" class="inv-btn" style="background:var(--accent); border:none; color:white; font-size:0.8rem; padding:6px 12px; border-radius:6px; cursor:pointer;">
-                <i class="fa-brands fa-bluetooth"></i> Cetak Thermal (Direct)
-              </button>
+            <div class="barcode-container" style="margin-top:auto; width:100%;">
+              <p style="color:#333; margin-top:0; font-size:0.95rem; font-weight:600; margin-bottom:16px;">Scan QR Code dengan Kamera HP</p>
+              
+              <div style="position:relative; width:160px; height:160px; margin:0 auto; border:1px solid var(--border-light); border-radius:12px; padding:12px; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.03); display:flex; align-items:center; justify-content:center;">
+                <img id="qrCodeImg" src="" style="width:100%; height:100%; display:block; object-fit:contain;">
+                <img src="./icons/PisgahColor.png" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:40px; height:40px; background:white; padding:4px; border-radius:50%; object-fit:contain; box-shadow:0 4px 8px rgba(0,0,0,0.15);">
+              </div>
+              
+              <p id="qrCodeId" style="color:var(--text-muted); font-family:monospace; margin-top:16px; margin-bottom:16px; font-size:0.9rem; font-weight:700;"></p>
+              
+              <div class="admin-only-field" data-display="flex" style="display:none; flex-direction:column; gap:10px; max-width:200px; margin:0 auto;">
+                <button onclick="window.printBarcode()" class="inv-btn" style="background:#fff; border:1px solid var(--border-light); color:var(--text-dark); font-size:0.85rem; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600;">
+                  <i class="fa-solid fa-file-pdf"></i> Cetak Standar / PDF
+                </button>
+                <button onclick="window.printDirectThermal()" class="inv-btn" style="background:var(--accent-dark); border:none; color:#fff; font-size:0.85rem; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600;">
+                  <i class="fa-brands fa-bluetooth"></i> Cetak Thermal (Direct)
+                </button>
+              </div>
             </div>
           </div>
         </div>
         
         <!-- Kolom Kanan: Rincian Data dan Tombol -->
         <div style="flex: 1; min-width: 300px;">
-          <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:20px; height:100%; box-sizing:border-box;">
+          <div style="background:#f8f9fa; border:1px solid var(--border-light); border-radius:12px; padding:20px; height:100%; box-sizing:border-box;">
             
             <div id="detailStatusContainer" style="display:none; margin-bottom:15px;">
               <span id="detailStatusBadge" style="display:inline-block; padding:4px 10px; border-radius:6px; font-weight:bold; font-size:0.85rem;"></span>
@@ -891,10 +642,10 @@
               <div class="admin-only-field"><strong>Harga Jual:</strong> <span id="detailDisposePrice" style="color:#4ade80;"></span></div>
             </div>
             
-            <div class="inv-asset-meta" style="margin-bottom:12px;"><i class="fa-solid fa-cubes"></i> Jumlah: <span id="detailQty" style="font-weight:bold; color:var(--accent); margin-left:5px;"></span> <span id="detailUnit"></span></div>
+            <div class="inv-asset-meta" style="margin-bottom:12px;"><i class="fa-solid fa-cubes"></i> Jumlah: <span id="detailQty" style="font-weight:bold; color:var(--accent-dark); margin-left:5px;"></span> <span id="detailUnit"></span></div>
             <div id="detailSubItemsContainer" class="inv-asset-meta" style="margin-bottom:12px; display:none; flex-direction:column; align-items:flex-start;">
-              <div style="color:rgba(255,255,255,0.7); font-size:0.85rem; margin-bottom:8px;"><i class="fa-solid fa-list"></i> Rincian Set / Sub Item:</div>
-              <div id="detailSubItems" style="background:rgba(0,0,0,0.2); padding:12px; border-radius:6px; width:100%; box-sizing:border-box; font-size:0.85rem; white-space:pre-wrap; line-height:1.5;"></div>
+              <div style="color:var(--text-muted); font-size:0.85rem; margin-bottom:8px;"><i class="fa-solid fa-list"></i> Rincian Set / Sub Item:</div>
+              <div id="detailSubItems" style="background:#f1f5f9; border:1px solid var(--border-light); color:var(--text-dark); padding:12px; border-radius:6px; width:100%; box-sizing:border-box; font-size:0.85rem; white-space:pre-wrap; line-height:1.5;"></div>
             </div>
             
             <div class="inv-asset-meta" style="margin-bottom:12px;"><i class="fa-solid fa-tags"></i> <span id="detailCategory"></span></div>
@@ -903,17 +654,17 @@
             <div class="inv-asset-meta" style="margin-bottom:12px;"><i class="fa-solid fa-location-dot"></i> <span id="detailLocation"></span></div>
             <div class="inv-asset-meta" style="margin-bottom:12px;"><i class="fa-solid fa-user"></i> <span id="detailPic"></span></div>
             
-            <div id="detailValueContainer" class="inv-asset-meta admin-only-field" style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px; display:none;">
-              <div style="font-size:0.85rem; color:rgba(255,255,255,0.6); margin-bottom:5px;"><i class="fa-solid fa-money-bill-wave"></i> Nilai Perolehan Awal:</div>
+            <div id="detailValueContainer" class="inv-asset-meta admin-only-field" style="margin-top:20px; border-top:1px solid var(--border-light); padding-top:20px; display:none;">
+              <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px;"><i class="fa-solid fa-money-bill-wave"></i> Nilai Perolehan Awal:</div>
               <div id="detailValue" style="color:#4ade80; font-weight:bold; font-size:1.3rem;"></div>
             </div>
             
             <div id="detailTaksasiContainer" class="inv-asset-meta admin-only-field" style="margin-top:15px; display:none;">
-              <div style="font-size:0.85rem; color:rgba(255,255,255,0.6); margin-bottom:5px;"><i class="fa-solid fa-chart-line"></i> Market Value:</div>
+              <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px;"><i class="fa-solid fa-chart-line"></i> Market Value:</div>
               <div id="detailTaksasi" style="color:#d4af37; font-weight:bold; font-size:1.3rem;"></div>
             </div>
             
-            <div id="detailAdminActions" style="display:none; justify-content:space-between; margin-top:30px; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
+            <div id="detailAdminActions" style="display:none; justify-content:space-between; margin-top:30px; border-top:1px solid var(--border-light); padding-top:20px;">
               <button id="deleteBtn" class="inv-btn" style="background:rgba(220,38,38,0.2); color:#ef4444; border:1px solid rgba(220,38,38,0.5);"><i class="fa-solid fa-trash"></i> Hapus</button>
               <button id="editBtn" class="inv-btn inv-btn-primary"><i class="fa-solid fa-edit"></i> Edit Data</button>
             </div>
@@ -925,7 +676,7 @@
 
   <!-- Fullscreen Image Modal -->
   <div id="imagePreviewModal" class="inv-modal-overlay" style="z-index: 10000; background: rgba(0,0,0,0.9);" onclick="this.style.display='none'">
-    <div style="position: absolute; top: 20px; right: 20px; color: white; font-size: 2rem; cursor: pointer;">
+    <div style="position: absolute; top: 20px; right: 20px; color:var(--text-dark); font-size: 2rem; cursor: pointer;">
       <i class="fa-solid fa-times"></i>
     </div>
     <img id="imagePreviewFull" src="" style="width: 90vw; height: 90vh; object-fit: contain; margin: auto; display: block; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
@@ -937,8 +688,8 @@
       <div id="alertIcon" style="font-size: 3.5rem; margin-bottom: 20px; color: var(--accent);">
         <i class="fa-solid fa-circle-check"></i>
       </div>
-      <h3 id="alertTitle" style="margin-top:0; color:white; font-size:1.4rem; margin-bottom:12px;">Berhasil</h3>
-      <p id="alertMessage" style="color: rgba(255,255,255,0.8); font-size: 1rem; margin-bottom: 30px; line-height: 1.5;"></p>
+      <h3 id="alertTitle" style="margin-top:0; color:var(--text-dark); font-size:1.4rem; margin-bottom:12px;">Berhasil</h3>
+      <p id="alertMessage" style="color:var(--text-muted); font-size: 1rem; margin-bottom: 30px; line-height: 1.5;"></p>
       <button onclick="document.getElementById('customAlertModal').style.display='none'" class="inv-btn inv-btn-primary" style="width: 100%; font-size: 1rem; padding: 12px;">OK Mengerti</button>
     </div>
   </div>
@@ -946,16 +697,16 @@
   <!-- Backup Modal -->
   <div id="backupModal" class="inv-modal-overlay">
     <div class="inv-modal-content" style="max-width:400px; text-align:center;">
-      <h3 style="margin-top:0; color:var(--accent); font-size:1.4rem; margin-bottom:15px;">Backup Data Inventaris</h3>
-      <p style="color:rgba(255,255,255,0.7); font-size:0.9rem; margin-bottom:25px;">Pilih format backup yang Anda inginkan. File akan otomatis diunduh ke perangkat Anda.</p>
+      <h3 style="margin-top:0; color:var(--accent-dark); font-size:1.4rem; margin-bottom:15px;">Backup Data Inventaris</h3>
+      <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:25px;">Pilih format backup yang Anda inginkan. File akan otomatis diunduh ke perangkat Anda.</p>
       
       <div style="display:flex; flex-direction:column; gap:15px;">
-        <button onclick="window.exportCSV()" class="inv-btn" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); padding:15px; font-size:1rem; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+        <button onclick="window.exportCSV()" class="inv-btn" style="background:#f8f9fa; border:1px solid var(--border-light); border:1px solid rgba(255,255,255,0.2); padding:15px; font-size:1rem; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
           <i class="fa-solid fa-file-csv" style="font-size:2rem; color:#4ade80;"></i>
           <span>Download CSV (Tabel Excel)</span>
         </button>
         
-        <button onclick="window.exportPDF()" class="inv-btn" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); padding:15px; font-size:1rem; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+        <button onclick="window.exportPDF()" class="inv-btn" style="background:#f8f9fa; border:1px solid var(--border-light); border:1px solid rgba(255,255,255,0.2); padding:15px; font-size:1rem; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
           <i class="fa-solid fa-file-pdf" style="font-size:2rem; color:#ef4444;"></i>
           <span>Download PDF (Laporan Lengkap & Gambar)</span>
         </button>
@@ -981,7 +732,7 @@
           <img id="thermalPreviewImg" src="" style="width: 100%; max-width: 250px; display:block;" alt="Preview Label" />
         </div>
         
-        <button id="doDirectPrintBtn" style="width:100%; background:var(--accent); border:none; color:white; font-size:1rem; font-weight:600; padding:14px; border-radius:10px; cursor:pointer;">
+        <button id="doDirectPrintBtn" style="width:100%; background:var(--accent); border:none; color:var(--text-dark); font-size:1rem; font-weight:600; padding:14px; border-radius:10px; cursor:pointer;">
           <i class="fa-brands fa-bluetooth"></i> Pilih Printer & Cetak
         </button>
       </div>
@@ -990,37 +741,6 @@
 
   <script type="module" src="/src/inventarisEntry.js"></script>
     <script>
-      // Theme toggling logic
-      function toggleTheme() {
-        const body = document.body;
-        const isLight = body.classList.toggle('light-mode');
-        localStorage.setItem('pisgahTheme', isLight ? 'light' : 'dark');
-        updateThemeIcon(isLight);
-      }
-      
-      function updateThemeIcon(isLight) {
-        const icon = document.querySelector('#themeToggleBtn i');
-        if (icon) {
-          if (isLight) {
-            icon.className = 'fa-solid fa-sun';
-            icon.style.color = '#f59e0b';
-          } else {
-            icon.className = 'fa-solid fa-moon';
-            icon.style.color = '#eae7e2';
-          }
-        }
-      }
-      
-      // Check saved theme on load
-      document.addEventListener('DOMContentLoaded', () => {
-        const savedTheme = localStorage.getItem('pisgahTheme');
-        if (savedTheme === 'light') {
-          document.body.classList.add('light-mode');
-          updateThemeIcon(true);
-        } else {
-          updateThemeIcon(false);
-        }
-      });
     </script>
 </body>
 </html>
