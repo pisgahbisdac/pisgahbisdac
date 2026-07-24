@@ -52,12 +52,18 @@ async function apiPost(action, dataObj) {
 // ==========================================
 // AUTH & RBAC
 // ==========================================
+function hasRole(userRoleStr, targetRole) {
+  if (!userRoleStr) return false;
+  const roles = userRoleStr.split(',').map(r => r.trim());
+  return roles.includes(targetRole);
+}
+
 function checkAuth() {
   const token = localStorage.getItem('BISDAC_token');
   const role = localStorage.getItem('BISDAC_role');
   const name = localStorage.getItem('BISDAC_name');
   
-  const isAdmin = ['Admin', 'Bendahara', 'Ketua Jemaat', 'Pendeta'].includes(role);
+  const isAdmin = role && (hasRole(role, 'Admin') || hasRole(role, 'Bendahara') || hasRole(role, 'Diakon') || hasRole(role, 'Ketua Jemaat') || hasRole(role, 'Pendeta'));
   
   if (token && isAdmin) {
     currentUser = { token, role, name };
