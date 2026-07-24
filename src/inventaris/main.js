@@ -753,7 +753,7 @@ window.printSelectedQRs = function () {
       <head>
         <title>Cetak Label Inventaris Massal</title>
         <style>
-          @page { size: A4 portrait; margin: 20mm; }
+          @page { size: auto; margin: 20mm; }
           body { 
             font-family: 'Inter', sans-serif, monospace; 
             margin: 0; 
@@ -761,8 +761,8 @@ window.printSelectedQRs = function () {
             color: #000;
           }
           .grid-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            display: flex;
+            flex-wrap: wrap;
             gap: 5mm;
             justify-content: center;
           }
@@ -782,12 +782,15 @@ window.printSelectedQRs = function () {
           }
           .label-box h3 { 
             margin: 0; 
-            font-size: 14px; 
+            font-size: 13px; 
+            line-height: 1.2;
             text-transform: uppercase; 
             color: #000;
             text-align: center;
             width: 100%;
-            white-space: nowrap;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
           }
@@ -1425,7 +1428,7 @@ window.exportPDF = function () {
       : `<span style="color:green; font-weight:bold;">Active</span>`;
 
     html += `
-        <tr>
+        <tr style="page-break-inside: avoid;">
           <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
             <img src="${photoSrc}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
           </td>
@@ -1703,16 +1706,49 @@ window.printDepreciation = function() {
   modalContent.style.background = '#fff';
   modalContent.style.color = '#000';
   
-  const opt = {
-    margin: 10,
-    filename: `Laporan_Depresiasi_Aset_${new Date().toISOString().slice(0,10)}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-  };
+  // Open new window for print preview
+  const printWindow = window.open('', '_blank', 'width=1000,height=700');
+  if (!printWindow) {
+    showCustomAlert('Browser memblokir popup. Tolong izinkan popup untuk mencetak.', 'error');
+    return;
+  }
   
-  showCustomAlert('Sedang menyiapkan PDF...', 'success');
-  html2pdf().set(opt).from(modalContent).save().then(() => {
-    document.getElementById('customAlertModal').style.display = 'none';
-  });
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Laporan Depresiasi - PISGAH</title>
+      <style>
+        body { font-family: 'Arial', sans-serif; padding: 20px; color: #333; margin: 0; width: 100%; box-sizing: border-box; }
+        .inv-modal-content { max-width: none !important; padding: 0 !important; border: none !important; box-shadow: none !important; background: transparent !important; margin: 0 !important; width: 100% !important; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: auto; }
+        th, td { border: 1px solid #ddd; padding: 10px; font-size: 14px; text-align: left; }
+        th { background-color: #f1f5f9; color: #1e293b; }
+        h2 { text-align: center; color: #1e293b; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #64748b; margin-top: 0; margin-bottom: 30px; }
+        .summary-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .summary-box strong { color: #1e293b; }
+        @media print {
+          @page { size: auto; margin: 15mm; }
+          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 0; }
+          button { display: none !important; }
+        }
+      </style>
+    </head>
+    <body>
+      <div style="margin-bottom: 20px;">
+        <button onclick="window.print()" style="padding: 10px 20px; background: #0f766e; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Simpan ke PDF / Cetak</button>
+      </div>
+      ${modalContent.innerHTML}
+    </body>
+    </html>
+  `);
+  
+  printWindow.document.close();
+  printWindow.focus();
+  
+  // Wait a tiny bit for styles to apply before triggering print dialog
+  setTimeout(() => {
+    printWindow.print();
+  }, 250);
 };
