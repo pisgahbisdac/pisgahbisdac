@@ -382,12 +382,134 @@
       margin-top: 20px;
     }
     
+    .inventory-list {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 16px !important;
+      padding: 0 20px 60px !important;
+      max-width: 1400px !important;
+      margin: 0 auto !important;
+    }
+    
+    .inv-list-card {
+      display: flex !important;
+      background-color: rgba(255, 255, 255, 0.03) !important;
+      backdrop-filter: blur(16px) !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      border-radius: 16px !important;
+      overflow: hidden !important;
+      transition: all 0.3s !important;
+      cursor: pointer !important;
+      position: relative !important;
+      align-items: stretch !important;
+    }
+    
+    .inv-list-card:hover {
+      background-color: rgba(255, 255, 255, 0.06) !important;
+      border-color: rgba(212, 175, 55, 0.5) !important;
+      transform: translateX(5px) !important;
+    }
+    
+    .inv-list-photo {
+      width: 140px !important;
+      height: auto !important;
+      min-height: 140px !important;
+      -o-object-fit: cover !important;
+         object-fit: cover !important;
+      border-right: 1px solid rgba(255,255,255,0.1) !important;
+      background: #000;
+    }
+    
+    .inv-list-info {
+      padding: 20px !important;
+      flex: 1 !important;
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 20px !important;
+    }
+    
+    @media (max-width: 1000px) {
+      .inventory-list {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      .inv-list-photo {
+        width: 90px !important;
+        min-height: 90px !important;
+      }
+      .inv-list-info {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 15px !important;
+        padding: 15px !important;
+      }
+      .inv-values-outer {
+        margin-top: 0 !important;
+        min-width: 100% !important;
+      }
+      .inv-values-inner {
+        text-align: left !important;
+        border-left: none !important;
+        border-top: 1px solid rgba(255,255,255,0.1) !important;
+        padding-left: 0 !important;
+        padding-top: 15px !important;
+        margin-left: 0 !important;
+        margin-top: 10px !important;
+        width: 100% !important;
+        display: flex;
+        justify-content: space-between;
+      }
+      .inv-list-info .inv-asset-meta {
+        font-size: 0.75rem !important;
+      }
+      .inv-list-card .inv-badge-status {
+        position: relative !important;
+        top: 0 !important;
+        right: 0 !important;
+        margin-bottom: 8px !important;
+        align-self: flex-start !important;
+        display: inline-block !important;
+      }
+      .inv-list-card .bulk-qr-checkbox {
+        top: 10px !important;
+        left: 10px !important;
+      }
+    }
+    
+    .view-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .view-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.7);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .view-btn.active {
+      background: rgba(212, 175, 55, 0.2);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    
     #barcodeSVG {
       max-width: 100%;
       height: auto;
     }
   </style>
-  <script type="module" crossorigin src="/assets/inventaris-D_UVpK4H.js"></script>
+  <script type="module" crossorigin src="/assets/inventaris-C5iw-nO_.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/index-BF-Dk81k.css">
 </head>
@@ -415,13 +537,27 @@
     <h1 class="hero-title">Aset & Peralatan Gereja</h1>
     <p style="color:rgba(255,255,255,0.8); margin-bottom:30px; font-size:1.1rem; max-width:600px; margin-left:auto; margin-right:auto;">Sistem Informasi Manajemen Inventaris Gereja PISGAH-BISDAC</p>
     
-    <div class="search-bar">
+    <div class="search-bar" style="margin-bottom:15px;">
       <i class="fa-solid fa-search"></i>
       <input type="text" id="searchInput" placeholder="Cari nama peralatan, lokasi, atau penanggung jawab..." autocomplete="off">
+    </div>
+    
+    <div class="view-controls">
+      <button id="btnSelectAll" class="view-btn admin-only-field" onclick="window.toggleSelectAll()" data-display="flex" style="display:none; margin-right: 15px;"><i class="fa-regular fa-square-check"></i> Pilih Semua</button>
+      <button id="btnViewGrid" class="view-btn active" onclick="window.changeViewMode('grid')"><i class="fa-solid fa-border-all"></i> Grid</button>
+      <button id="btnViewList" class="view-btn" onclick="window.changeViewMode('list')"><i class="fa-solid fa-list-ul"></i> List</button>
     </div>
   </header>
 
   <main style="padding-top:40px;">
+    <div id="bulkPrintContainer" class="admin-only-field" style="display:none; text-align:center; margin-bottom:20px; position:sticky; top:80px; z-index:90;">
+      <div style="display:inline-block; background:rgba(21, 25, 36, 0.95); padding:10px 20px; border-radius:30px; border:1px solid var(--accent); box-shadow:0 10px 30px rgba(0,0,0,0.5); backdrop-filter:blur(10px);">
+        <span id="bulkPrintCount" style="color:white; margin-right:15px; font-weight:600;">0 Dipilih</span>
+        <button onclick="window.printSelectedQRs()" class="btn btn-primary" style="padding:6px 16px;"><i class="fa-solid fa-file-pdf"></i> PDF/A4</button>
+        <button onclick="window.printSelectedThermal()" class="btn" style="padding:6px 16px; background:#0f766e; color:white; border:none; margin-left:10px;"><i class="fa-brands fa-bluetooth"></i> Thermal</button>
+      </div>
+    </div>
+    
     <div id="inventoryGrid" class="inventory-grid">
       <!-- Cards will be rendered here by JS -->
       <div style="text-align:center; grid-column: 1 / -1; padding: 40px;">
