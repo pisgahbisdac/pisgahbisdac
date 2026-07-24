@@ -283,7 +283,7 @@ window.viewDetail = function(id) {
   const photosContainer = document.getElementById('detailPhotosContainer');
   photosContainer.innerHTML = ''; 
   
-  const photos = [item.photo, item.photo2, item.photo3, item.photo4].filter(p => p);
+  const photos = [item.photo, item.pic2, item.pic3, item.pic4].filter(p => p);
   
   if (photos.length > 0) {
     photos.forEach(p => {
@@ -962,9 +962,16 @@ function openFormModal(item = null) {
     document.getElementById('formDisposePrice').value = item.dispose_price ? fmt(item.dispose_price) : '';
     document.getElementById('disposeFields').style.display = (item.status === 'Disposed') ? 'block' : 'none';
     
-    if (item.photo) {
-      document.getElementById('photoPreviewImg').src = item.photo;
-      imgPreview.style.display = 'block';
+    // Load existing photos into preview and currentPhotosBase64
+    const existingPhotos = [];
+    if (item.photo) existingPhotos.push(item.photo);
+    if (item.pic2) existingPhotos.push(item.pic2);
+    if (item.pic3) existingPhotos.push(item.pic3);
+    if (item.pic4) existingPhotos.push(item.pic4);
+    
+    if (existingPhotos.length > 0) {
+      window.currentPhotosBase64 = [...existingPhotos];
+      window.renderPhotoPreview();
     }
   } else {
     document.getElementById('formTitle').textContent = 'Tambah Aset Baru';
@@ -1011,10 +1018,10 @@ document.getElementById('formPhoto').addEventListener('change', function(e) {
     reader.onload = function(event) {
       const img = new Image();
       img.onload = function() {
-        // Compress (Keeping 800x800 as requested by user)
+        // Compress (Keeping 500x500 to avoid Google Sheets 50k char cell limit)
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 800;
-        const MAX_HEIGHT = 800;
+        const MAX_WIDTH = 500;
+        const MAX_HEIGHT = 500;
         let width = img.width;
         let height = img.height;
         if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
@@ -1025,25 +1032,66 @@ document.getElementById('formPhoto').addEventListener('change', function(e) {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
         
-        const base64 = canvas.toDataURL('image/jpeg', 0.6); // 60% quality
+        const base64 = canvas.toDataURL('image/jpeg', 0.4); // 40% quality
         window.currentPhotosBase64.push(base64);
-        
-        // UI Preview
-        const imgEl = document.createElement('img');
-        imgEl.src = base64;
-        imgEl.style.width = '80px';
-        imgEl.style.height = '80px';
-        imgEl.style.objectFit = 'cover';
-        imgEl.style.borderRadius = '8px';
-        imgEl.style.border = '1px solid var(--glass-border)';
-        imgEl.style.flexShrink = '0';
-        previewContainer.appendChild(imgEl);
+        window.renderPhotoPreview();
       };
       img.src = event.target.result;
     };
     reader.readAsDataURL(file);
   });
 });
+
+window.renderPhotoPreview = function() {
+  const previewContainer = document.getElementById('photoPreview');
+  previewContainer.innerHTML = ''; 
+  if (!window.currentPhotosBase64 || window.currentPhotosBase64.length === 0) {
+    previewContainer.style.display = 'none';
+    return;
+  }
+  previewContainer.style.display = 'flex';
+  
+  window.currentPhotosBase64.forEach((base64Str, idx) => {
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    wrapper.style.display = 'inline-block';
+    
+    const imgEl = document.createElement('img');
+    imgEl.src = base64Str;
+    imgEl.style.width = '80px';
+    imgEl.style.height = '80px';
+    imgEl.style.objectFit = 'cover';
+    imgEl.style.borderRadius = '8px';
+    imgEl.style.border = '1px solid var(--glass-border)';
+    imgEl.style.flexShrink = '0';
+    
+    const removeBtn = document.createElement('button');
+    removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+    removeBtn.style.position = 'absolute';
+    removeBtn.style.top = '-5px';
+    removeBtn.style.right = '-5px';
+    removeBtn.style.background = '#ef4444';
+    removeBtn.style.color = 'white';
+    removeBtn.style.border = 'none';
+    removeBtn.style.borderRadius = '50%';
+    removeBtn.style.width = '20px';
+    removeBtn.style.height = '20px';
+    removeBtn.style.cursor = 'pointer';
+    removeBtn.style.display = 'flex';
+    removeBtn.style.alignItems = 'center';
+    removeBtn.style.justifyContent = 'center';
+    removeBtn.style.fontSize = '12px';
+    removeBtn.onclick = (e) => {
+      e.preventDefault();
+      window.currentPhotosBase64.splice(idx, 1);
+      window.renderPhotoPreview();
+    };
+    
+    wrapper.appendChild(imgEl);
+    wrapper.appendChild(removeBtn);
+    previewContainer.appendChild(wrapper);
+  });
+};
 
 
 // ==========================================
@@ -1203,10 +1251,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     if (window.currentPhotosBase64 && window.currentPhotosBase64.length > 0) {
-      payload.photo_base64 = window.currentPhotosBase64[0] || '';
-      payload.photo2_base64 = window.currentPhotosBase64[1] || '';
-      payload.photo3_base64 = window.currentPhotosBase64[2] || '';
-      payload.photo4_base64 = window.currentPhotosBase64[3] || '';
+      payload.photo = window.currentPhotosBase64[0] || '';
+      payload.pic2 = window.currentPhotosBase64[1] || '';
+      payload.pic3 = window.currentPhotosBase64[2] || '';
+      payload.pic4 = window.currentPhotosBase64[3] || '';
+    } else if (payload.isUpdate) {
+      // If we are updating but didn't touch the photos, we don't send them so we don't overwrite existing ones
+      // However, since we populate currentPhotosBase64 on openFormModal, if there were existing photos, it WILL send them
+      // If there were no existing photos, it won't send them, which is fine
     }
     
     const btn = document.getElementById('saveBtn');
