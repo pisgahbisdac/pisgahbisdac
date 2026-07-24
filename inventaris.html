@@ -376,7 +376,7 @@
     }
 
   </style>
-  <script type="module" crossorigin src="/assets/inventaris-vZOZtX74.js"></script>
+  <script type="module" crossorigin src="/assets/inventaris-COAujueV.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/index-BF-Dk81k.css">
 </head>
@@ -394,6 +394,7 @@
       <div id="adminControls" style="display:none; gap:10px; align-items:center;">
         <span id="userNameDisplay" style="color:var(--accent-dark); margin-right:5px; font-weight: 600;"></span>
         <button id="backupBtn" class="btn btn-outline" style="color:#0f766e;"><i class="fa-solid fa-download"></i> <span class="hide-on-mobile">Backup</span></button>
+        <button id="depreciationBtn" class="btn btn-outline" style="color:#0284c7;" onclick="window.showDepreciationReport()"><i class="fa-solid fa-calculator"></i> <span class="hide-on-mobile">Depresiasi</span></button>
         <button id="addBtn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> <span class="hide-on-mobile">Tambah Aset</span></button>
         <button id="logoutBtn" class="btn"><i class="fa-solid fa-sign-out-alt"></i></button>
       </div>
@@ -404,9 +405,32 @@
     <h1 class="hero-title">Koleksi Inventaris.</h1>
     <p class="hero-subtitle">Sistem Informasi Manajemen Inventaris Gereja PISGAH-BISDAC</p>
     
-    <div class="search-bar" style="margin-bottom:25px;">
+    <div class="search-bar" style="margin-bottom:15px;">
       <i class="fa-solid fa-search"></i>
       <input type="text" id="searchInput" placeholder="Cari nama peralatan, lokasi, atau penanggung jawab..." autocomplete="off">
+    </div>
+    
+    <div style="display:flex; justify-content:center; gap:10px; margin-bottom:25px; max-width:800px; margin-left:auto; margin-right:auto; flex-wrap:wrap;">
+      <select id="filterCategory" class="inv-form-control" style="width:auto; min-width:180px; padding:10px 15px; border-radius:30px; font-size:0.9rem;" onchange="window.renderGrid()">
+        <option value="">Semua Kategori</option>
+        <option value="Elektronik & Multimedia">Elektronik & Multimedia</option>
+        <option value="Furnitur & Mebel">Furnitur & Mebel</option>
+        <option value="Alat Musik">Alat Musik</option>
+        <option value="Peralatan Dapur">Peralatan Dapur</option>
+        <option value="Perlengkapan Ibadah">Perlengkapan Ibadah</option>
+        <option value="Kendaraan">Kendaraan</option>
+        <option value="Lainnya">Lainnya</option>
+      </select>
+      <select id="filterStatus" class="inv-form-control" style="width:auto; min-width:180px; padding:10px 15px; border-radius:30px; font-size:0.9rem;" onchange="window.renderGrid()">
+        <option value="">Semua Status Aset</option>
+        <option value="Active">Aktif</option>
+        <option value="Disposed">Disposed (Dihapus)</option>
+      </select>
+      <select id="filterLoan" class="inv-form-control" style="width:auto; min-width:180px; padding:10px 15px; border-radius:30px; font-size:0.9rem;" onchange="window.renderGrid()">
+        <option value="">Semua Status Pinjaman</option>
+        <option value="Tersedia">Tersedia</option>
+        <option value="Dipinjam">Sedang Dipinjam</option>
+      </select>
     </div>
     
     <div class="view-controls">
@@ -517,6 +541,11 @@
         <input type="text" inputmode="numeric" id="formValue" class="inv-form-control" placeholder="Contoh: 1500000">
       </div>
       
+      <div class="inv-form-group admin-only-field">
+        <label>Umur Ekonomis Penyusutan (Tahun) - Opsional</label>
+        <input type="number" id="formDepreciationYears" class="inv-form-control" placeholder="Contoh: 5" min="1" max="50">
+      </div>
+      
       <div class="inv-form-group">
         <label>Lokasi / Status *</label>
         <input type="text" id="formLocation" class="inv-form-control" placeholder="Contoh: Gudang, Ruang Ibadah" required>
@@ -598,7 +627,8 @@
       <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
         <div>
           <h3 id="detailName" style="margin-top:0; color:var(--text-dark); font-size:1.5rem; margin-bottom:5px;">Nama Aset</h3>
-          <p id="detailId" style="color:var(--accent-dark); font-family:monospace; margin-top:0; margin-bottom:0;">INV-XXX</p>
+          <p id="detailId" style="color:var(--accent-dark); font-family:monospace; margin-top:0; margin-bottom:5px;">INV-XXX</p>
+          <span id="detailLoanBadge" class="inv-badge-status" style="background:#22c55e; display:inline-block;">Tersedia</span>
         </div>
         <button onclick="document.getElementById('detailModal').style.display='none'" style="background:transparent; border:none; color:var(--text-dark); font-size:1.2rem; cursor:pointer; padding:5px;"><i class="fa-solid fa-times"></i></button>
       </div>
@@ -668,9 +698,18 @@
               <div id="detailTaksasi" style="color:#d4af37; font-weight:bold; font-size:1.3rem;"></div>
             </div>
             
-            <div id="detailAdminActions" style="display:none; justify-content:space-between; margin-top:30px; border-top:1px solid var(--border-light); padding-top:20px;">
-              <button id="deleteBtn" class="inv-btn" style="background:rgba(220,38,38,0.2); color:#ef4444; border:1px solid rgba(220,38,38,0.5);"><i class="fa-solid fa-trash"></i> Hapus</button>
-              <button id="editBtn" class="inv-btn inv-btn-primary"><i class="fa-solid fa-edit"></i> Edit Data</button>
+            <div id="detailAdminActions" style="display:none; justify-content:space-between; margin-top:30px; border-top:1px solid var(--border-light); padding-top:20px; flex-wrap:wrap; gap:8px;">
+              <button id="loanBtn" class="inv-btn" style="background:#eab308; color:#fff; border:none; padding:8px 12px; font-size:0.9rem; flex:1; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="window.openLoanModal()"><i class="fa-solid fa-hand-holding-hand"></i> Peminjaman</button>
+              <button id="serviceBtn" class="inv-btn" style="background:#8b5cf6; color:#fff; border:none; padding:8px 12px; font-size:0.9rem; flex:1; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="window.openServiceModal()"><i class="fa-solid fa-wrench"></i> Servis</button>
+              <button id="editBtn" class="inv-btn inv-btn-primary" style="padding:8px 12px; font-size:0.9rem; flex:1; display:flex; justify-content:center; align-items:center; gap:5px;"><i class="fa-solid fa-edit"></i> Edit</button>
+              <button id="deleteBtn" class="inv-btn" style="background:rgba(220,38,38,0.2); color:#ef4444; border:1px solid rgba(220,38,38,0.5); padding:8px 12px; font-size:0.9rem; flex:1; display:flex; justify-content:center; align-items:center; gap:5px;"><i class="fa-solid fa-trash"></i> Hapus</button>
+            </div>
+            
+            <div id="serviceHistorySection" style="margin-top:25px; border-top:1px solid var(--border-light); padding-top:20px;">
+              <h4 style="margin-top:0; color:var(--text-dark); font-size:1.05rem; margin-bottom:15px; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-clipboard-list" style="color:var(--accent-dark);"></i> Riwayat Pemeliharaan</h4>
+              <div id="serviceHistoryContainer" style="max-height:220px; overflow-y:auto; padding-right:5px; display:flex; flex-direction:column; gap:10px;">
+                <div style="text-align:center; color:var(--text-muted); font-size:0.9rem; padding:15px; background:rgba(0,0,0,0.02); border-radius:8px;">Memuat riwayat servis...</div>
+              </div>
             </div>
           </div>
         </div>
@@ -717,6 +756,111 @@
       </div>
       
       <button onclick="document.getElementById('backupModal').style.display='none'" class="inv-btn" style="background:transparent; color:#999; margin-top:20px; width:100%; cursor:pointer;">Batal</button>
+    </div>
+  </div>
+  <!-- Loan Modal -->
+  <div id="loanModal" class="inv-modal-overlay" style="z-index: 10000;">
+    <div class="inv-modal-content" style="max-width: 450px !important;">
+      <h3 style="margin-top:0; color:var(--text-dark); font-size:1.4rem; margin-bottom:20px;"><i class="fa-solid fa-hand-holding-hand" style="color:#eab308; margin-right:8px;"></i> Status Peminjaman</h3>
+      
+      <div class="inv-form-group">
+        <label>Status Saat Ini</label>
+        <select id="formLoanStatus" class="inv-form-control" onchange="const d = document.getElementById('loanDetailsFields'); if(this.value==='Dipinjam') d.style.display='block'; else d.style.display='none';">
+          <option value="Tersedia">🟢 Tersedia (Berada di tempat)</option>
+          <option value="Dipinjam">🟠 Sedang Dipinjam</option>
+        </select>
+      </div>
+      
+      <div id="loanDetailsFields" style="display:none; background:rgba(234, 179, 8, 0.05); border-left:3px solid #eab308; padding:15px; border-radius:6px; margin-bottom:15px;">
+        <div class="inv-form-group" style="margin-bottom:10px;">
+          <label>Nama Peminjam / Departemen *</label>
+          <input type="text" id="formLoanBorrower" class="inv-form-control" placeholder="Contoh: Pemuda / John Doe">
+        </div>
+        <div class="inv-form-group" style="margin-bottom:10px;">
+          <label>Tanggal Pinjam *</label>
+          <input type="date" id="formLoanDate" class="inv-form-control">
+        </div>
+        <div class="inv-form-group" style="margin-bottom:0;">
+          <label>Estimasi Kembali *</label>
+          <input type="date" id="formLoanReturnDate" class="inv-form-control">
+        </div>
+      </div>
+      
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+        <button onclick="document.getElementById('loanModal').style.display='none'" class="inv-btn inv-btn-outline" style="border-color:var(--text-muted); color:var(--text-dark);">Batal</button>
+        <button id="saveLoanBtn" class="inv-btn inv-btn-primary" style="background:#eab308; border-color:#eab308; color:#fff;">Simpan Status</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service Modal -->
+  <div id="serviceModal" class="inv-modal-overlay" style="z-index: 10000;">
+    <div class="inv-modal-content" style="max-width: 450px !important;">
+      <h3 style="margin-top:0; color:var(--text-dark); font-size:1.4rem; margin-bottom:20px;"><i class="fa-solid fa-wrench" style="color:#8b5cf6; margin-right:8px;"></i> Catat Pemeliharaan / Servis</h3>
+      
+      <div class="inv-form-group">
+        <label>Tanggal Servis *</label>
+        <input type="date" id="formServiceDate" class="inv-form-control" required>
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Keterangan / Kendala / Nama Teknisi *</label>
+        <textarea id="formServiceDesc" class="inv-form-control" rows="3" placeholder="Contoh: Ganti lampu LCD, Servis rutin AC..."></textarea>
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Biaya Servis (Rp)</label>
+        <input type="text" inputmode="numeric" id="formServiceCost" class="inv-form-control" placeholder="Contoh: 350000">
+      </div>
+      
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+        <button onclick="document.getElementById('serviceModal').style.display='none'" class="inv-btn inv-btn-outline" style="border-color:var(--text-muted); color:var(--text-dark);">Batal</button>
+        <button id="saveServiceBtn" class="inv-btn inv-btn-primary" style="background:#8b5cf6; border-color:#8b5cf6; color:#fff;">Simpan Riwayat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Depreciation Report Modal -->
+  <div id="depreciationModal" class="inv-modal-overlay" style="z-index: 9999;">
+    <div class="inv-modal-content" style="max-width: 900px !important; max-height: 90vh; overflow-y:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+        <div>
+          <h3 style="margin-top:0; color:var(--text-dark); font-size:1.5rem; margin-bottom:5px;"><i class="fa-solid fa-calculator" style="color:#0284c7; margin-right:8px;"></i> Laporan Penyusutan Nilai Aset</h3>
+          <p style="color:var(--text-muted); margin-top:0; font-size:0.9rem;">Menampilkan perkiraan nilai buku aset saat ini berdasarkan harga perolehan dan umur ekonomis.</p>
+        </div>
+        <button onclick="document.getElementById('depreciationModal').style.display='none'" style="background:transparent; border:none; color:var(--text-dark); font-size:1.2rem; cursor:pointer; padding:5px;"><i class="fa-solid fa-times"></i></button>
+      </div>
+      
+      <div style="overflow-x:auto; background:#fff; border:1px solid var(--border-light); border-radius:12px;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+          <thead>
+            <tr style="background:var(--bg-card); border-bottom:2px solid var(--border-light); text-align:left;">
+              <th style="padding:15px; color:var(--text-dark);">Nama Aset</th>
+              <th style="padding:15px; color:var(--text-dark);">Tgl Beli</th>
+              <th style="padding:15px; color:var(--text-dark); text-align:right;">Harga Awal</th>
+              <th style="padding:15px; color:var(--text-dark); text-align:center;">Umur (Thn)</th>
+              <th style="padding:15px; color:var(--text-dark); text-align:center;">Usia Pakai</th>
+              <th style="padding:15px; color:var(--text-dark); text-align:right;">Nilai Buku Saat Ini</th>
+            </tr>
+          </thead>
+          <tbody id="depreciationTableBody">
+            <!-- JS Inject -->
+          </tbody>
+          <tfoot>
+            <tr style="background:#f8f9fa; border-top:2px solid var(--border-light); font-weight:bold;">
+              <td colspan="2" style="padding:15px; text-align:right;">TOTAL:</td>
+              <td id="depTotalAwal" style="padding:15px; text-align:right; color:var(--text-dark);">Rp 0</td>
+              <td colspan="2"></td>
+              <td id="depTotalBuku" style="padding:15px; text-align:right; color:#22c55e;">Rp 0</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+        <button onclick="window.printDepreciation()" class="inv-btn inv-btn-outline" style="border-color:var(--text-muted); color:var(--text-dark);"><i class="fa-solid fa-print"></i> Cetak Laporan</button>
+        <button onclick="document.getElementById('depreciationModal').style.display='none'" class="inv-btn inv-btn-primary">Tutup</button>
+      </div>
     </div>
   </div>
 
