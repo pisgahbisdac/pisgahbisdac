@@ -86,12 +86,44 @@ function checkAuth() {
 // ==========================================
 // RENDER UI
 // ==========================================
+window.currentViewMode = localStorage.getItem('BISDAC_invViewMode') || 'grid';
+
+window.changeViewMode = function(mode) {
+  window.currentViewMode = mode;
+  localStorage.setItem('BISDAC_invViewMode', mode);
+  
+  if (mode === 'grid') {
+    document.getElementById('btnViewGrid').classList.add('active');
+    document.getElementById('btnViewList').classList.remove('active');
+  } else {
+    document.getElementById('btnViewList').classList.add('active');
+    document.getElementById('btnViewGrid').classList.remove('active');
+  }
+  
+  const val = document.getElementById('searchInput').value.toLowerCase();
+  if (val) {
+    const filtered = inventoryData.filter(x => 
+      x.name.toLowerCase().includes(val) || 
+      x.location.toLowerCase().includes(val) || 
+      x.pic.toLowerCase().includes(val)
+    );
+    renderGrid(filtered);
+  } else {
+    renderGrid(inventoryData);
+  }
+}
+
 function renderGrid(data) {
+  resetSelectAllBtn();
+  
   const grid = document.getElementById('inventoryGrid');
   if (!data || data.length === 0) {
     grid.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; padding: 40px; color: rgba(255,255,255,0.6);">Belum ada data inventaris.</div>`;
     return;
   }
+  
+  const isList = window.currentViewMode === 'list';
+  grid.className = isList ? 'inventory-list' : 'inventory-grid';
   
   grid.innerHTML = data.map(item => {
     const photoUrl = item.photo ? item.photo : 'https://images.unsplash.com/photo-1548625361-ec8587d60f58?w=500&q=80';
@@ -101,34 +133,73 @@ function renderGrid(data) {
       ? `<div class="inv-badge-status" style="background:rgba(239, 68, 68, 0.9); color:white; font-weight:bold;"><i class="fa-solid fa-ban"></i> DISPOSED</div>`
       : `<div class="inv-badge-status">${item.category || 'Uncategorized'}</div>`;
     
-    return `
-      <div class="inv-asset-card" style="${cardStyle}" onclick="window.viewDetail('${item.id}')">
-        ${badgeHtml}
-        <img src="${photoUrl}" class="inv-asset-photo" alt="${item.name}" onerror="this.src='https://via.placeholder.com/500x300?text=No+Photo'">
-        <div class="inv-asset-info">
-          <div class="inv-asset-name" style="display:flex; align-items:center; gap:8px;">
-            ${item.name}
-            <span style="font-size:0.7rem; font-weight:bold; color:#000; background-color:var(--accent); padding:3px 8px; border-radius:12px; white-space:nowrap;">
-              ${item.qty || 1} ${item.unit || 'Unit'}
-            </span>
-          </div>
-          
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
-            <div class="inv-asset-meta" style="margin-bottom:0 !important; color:var(--accent); font-family:monospace; font-size:0.8rem;"><i class="fa-solid fa-barcode"></i> ${item.id}</div>
-            <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-regular fa-calendar"></i> ${fmtDate(item.date_acquired)}</div>
-            <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-regular fa-user"></i> ${item.pic}</div>
-            <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-solid fa-location-dot"></i> ${item.location || '-'}</div>
-          </div>
-          
-          ${currentUser ? `
-            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">
-              <div style="font-size:0.75rem; color:rgba(255,255,255,0.6);">Perolehan<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem;">Rp ${fmt(item.value)}</span></div>
-              <div style="font-size:0.75rem; color:rgba(255,255,255,0.6); text-align:right;">Market Value<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem; color:#d4af37;">Rp ${fmt(item.taksasi || 0)}</span></div>
+    const checkboxHtml = currentUser ? `<input type="checkbox" class="bulk-qr-checkbox" value="${item.id}" onclick="event.stopPropagation(); window.toggleBulkPrintButton();" style="position:absolute; top:15px; left:15px; z-index:20; width:20px; height:20px; cursor:pointer;" title="Pilih untuk cetak QR">` : '';
+
+    if (isList) {
+      return `
+        <div class="inv-list-card" style="${cardStyle}" onclick="window.viewDetail('${item.id}')">
+          ${checkboxHtml}
+          <img src="${photoUrl}" class="inv-list-photo" alt="${item.name}" onerror="this.src='https://via.placeholder.com/500x300?text=No+Photo'">
+          <div class="inv-list-info">
+            ${badgeHtml}
+            <div style="flex:1;">
+              <div class="inv-asset-name" style="display:flex; align-items:center; gap:8px;">
+                ${item.name}
+                <span style="font-size:0.7rem; font-weight:bold; color:#000; background-color:var(--accent); padding:3px 8px; border-radius:12px; white-space:nowrap;">
+                  ${item.qty || 1} ${item.unit || 'Unit'}
+                </span>
+              </div>
+              
+              <div style="display: flex; flex-wrap:wrap; gap: 12px; margin-bottom: 5px;">
+                <div class="inv-asset-meta" style="margin-bottom:0 !important; color:var(--accent); font-family:monospace; font-size:0.8rem;"><i class="fa-solid fa-barcode"></i> ${item.id}</div>
+                <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-regular fa-calendar"></i> ${fmtDate(item.date_acquired)}</div>
+                <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-regular fa-user"></i> ${item.pic}</div>
+                <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-solid fa-location-dot"></i> ${item.location || '-'}</div>
+              </div>
             </div>
-          ` : ''}
+            
+            ${currentUser ? `
+              <div class="inv-values-outer" style="min-width: 150px; display:flex; flex-direction:column; justify-content:flex-end;">
+                <div class="inv-values-inner" style="margin-top: 35px; width:100%; text-align:right; border-left:1px solid rgba(255,255,255,0.1); padding-left:15px; padding-top: 15px;">
+                  <div style="font-size:0.75rem; color:rgba(255,255,255,0.6);">Perolehan<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem; color:#4ade80;">Rp ${fmt(item.value)}</span></div>
+                  <div style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-top:8px;">Market Value<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem; color:#d4af37;">Rp ${fmt(item.taksasi || 0)}</span></div>
+                </div>
+              </div>
+            ` : ''}
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    } else {
+      return `
+        <div class="inv-asset-card" style="${cardStyle}" onclick="window.viewDetail('${item.id}')">
+          ${checkboxHtml}
+          ${badgeHtml}
+          <img src="${photoUrl}" class="inv-asset-photo" alt="${item.name}" onerror="this.src='https://via.placeholder.com/500x300?text=No+Photo'">
+          <div class="inv-asset-info">
+            <div class="inv-asset-name" style="display:flex; align-items:center; gap:8px;">
+              ${item.name}
+              <span style="font-size:0.7rem; font-weight:bold; color:#000; background-color:var(--accent); padding:3px 8px; border-radius:12px; white-space:nowrap;">
+                ${item.qty || 1} ${item.unit || 'Unit'}
+              </span>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
+              <div class="inv-asset-meta" style="margin-bottom:0 !important; color:var(--accent); font-family:monospace; font-size:0.8rem;"><i class="fa-solid fa-barcode"></i> ${item.id}</div>
+              <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-regular fa-calendar"></i> ${fmtDate(item.date_acquired)}</div>
+              <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-regular fa-user"></i> ${item.pic}</div>
+              <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-solid fa-location-dot"></i> ${item.location || '-'}</div>
+            </div>
+            
+            ${currentUser ? `
+              <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">
+                <div style="font-size:0.75rem; color:rgba(255,255,255,0.6);">Perolehan<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem;">Rp ${fmt(item.value)}</span></div>
+                <div style="font-size:0.75rem; color:rgba(255,255,255,0.6); text-align:right;">Market Value<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem; color:#d4af37;">Rp ${fmt(item.taksasi || 0)}</span></div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
   }).join('');
 }
 
@@ -570,6 +641,293 @@ window.viewDetail = function(id) {
       btn.disabled = false;
     }
   };
+}
+
+function resetSelectAllBtn() {
+  window.isAllSelected = false;
+  const btnIcon = document.querySelector('#btnSelectAll i');
+  if (btnIcon) btnIcon.className = 'fa-regular fa-square-check';
+  const btn = document.getElementById('btnSelectAll');
+  if (btn) btn.classList.remove('active');
+}
+
+window.isAllSelected = false;
+
+window.toggleSelectAll = function() {
+  const checkboxes = document.querySelectorAll('.bulk-qr-checkbox');
+  if (checkboxes.length === 0) return;
+  
+  window.isAllSelected = !window.isAllSelected;
+  const btnIcon = document.querySelector('#btnSelectAll i');
+  
+  if (window.isAllSelected) {
+    checkboxes.forEach(cb => cb.checked = true);
+    if (btnIcon) btnIcon.className = 'fa-solid fa-square-check';
+    document.getElementById('btnSelectAll').classList.add('active');
+  } else {
+    checkboxes.forEach(cb => cb.checked = false);
+    if (btnIcon) btnIcon.className = 'fa-regular fa-square-check';
+    document.getElementById('btnSelectAll').classList.remove('active');
+  }
+  
+  window.toggleBulkPrintButton();
+}
+
+window.toggleBulkPrintButton = function() {
+  const checkboxes = document.querySelectorAll('.bulk-qr-checkbox:checked');
+  const container = document.getElementById('bulkPrintContainer');
+  const countSpan = document.getElementById('bulkPrintCount');
+  
+  if (checkboxes.length > 0) {
+    countSpan.textContent = checkboxes.length + ' Dipilih';
+    container.style.display = 'block';
+  } else {
+    container.style.display = 'none';
+  }
+}
+
+window.printSelectedQRs = function() {
+  const checkboxes = document.querySelectorAll('.bulk-qr-checkbox:checked');
+  if (checkboxes.length === 0) return;
+  
+  const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+  const itemsToPrint = inventoryData.filter(item => selectedIds.includes(item.id));
+  
+  const printWin = window.open('', '_blank');
+  if (!printWin) {
+    showCustomAlert('Pop-up diblokir oleh browser Anda. Izinkan pop-up untuk pisgahbisdac.app agar dapat mencetak.', 'error');
+    return;
+  }
+  
+  let htmlContent = `
+    <html>
+      <head>
+        <title>Cetak Label Inventaris Massal</title>
+        <style>
+          @page { size: A4 portrait; margin: 20mm; }
+          body { 
+            font-family: 'Inter', sans-serif, monospace; 
+            margin: 0; 
+            background: #fff;
+            color: #000;
+          }
+          .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5mm;
+            justify-content: center;
+          }
+          .label-box { 
+            width: 55mm; 
+            height: 75mm; 
+            background: #fff;
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 5mm; 
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            page-break-inside: avoid;
+          }
+          .label-box h3 { 
+            margin: 0; 
+            font-size: 14px; 
+            text-transform: uppercase; 
+            color: #000;
+            text-align: center;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .qr-wrapper { position: relative; width: 40mm; height: 40mm; margin: auto 0; }
+          .qr-wrapper img.qr { width: 40mm; height: 40mm; display: block; }
+          .qr-wrapper img.logo { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: 9mm; height: 9mm; background: white; padding: 1mm; border-radius: 50%; object-fit: contain; 
+          }
+          .id-text { 
+            margin: 0; 
+            font-size: 13px; 
+            font-weight: bold; 
+            font-family: monospace; 
+            color: #000; 
+            text-align: center;
+          }
+        </style>
+        <script>
+          window.addEventListener('afterprint', function() { window.close(); });
+          window.onload = function() { window.print(); };
+        </script>
+      </head>
+      <body>
+        <div class="grid-container">
+  `;
+  
+  itemsToPrint.forEach(item => {
+    const fullUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullUrl)}`;
+    const assetId = item.id.replace('ID: ', '');
+    
+    htmlContent += `
+          <div class="label-box">
+            <h3>${item.name}</h3>
+            <div class="qr-wrapper">
+              <img class="qr" src="${qrApiUrl}">
+              <img class="logo" src="${window.location.origin}/icons/PisgahColor.png">
+            </div>
+            <div class="id-text">${assetId}</div>
+          </div>
+    `;
+  });
+  
+  htmlContent += `
+        </div>
+      </body>
+    </html>
+  `;
+  
+  printWin.document.write(htmlContent);
+  printWin.document.close();
+  
+  // Uncheck all after printing opens
+  checkboxes.forEach(cb => cb.checked = false);
+  window.toggleBulkPrintButton();
+}
+
+window.printSelectedThermal = async function() {
+  const checkboxes = document.querySelectorAll('.bulk-qr-checkbox:checked');
+  if (checkboxes.length === 0) return;
+  
+  if (!('serial' in navigator)) {
+    return showCustomAlert('Browser Anda tidak mendukung Direct Print (Web Serial). Gunakan Google Chrome/Edge di PC.', 'error');
+  }
+  
+  const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+  const itemsToPrint = inventoryData.filter(item => selectedIds.includes(item.id));
+  
+  try {
+    const port = await navigator.serial.requestPort();
+    await port.open({ baudRate: 9600 });
+    const writer = port.writable.getWriter();
+    
+    showCustomAlert('Menghubungkan ke printer dan memulai cetak...', 'success');
+    
+    const initCmd = new Uint8Array([0x1B, 0x40]);
+    const alignCenter = new Uint8Array([0x1B, 0x61, 0x01]);
+    const marginCmd = new Uint8Array([0x1B, 0x4A, 0x30]); // 48 dots feed
+    
+    await writer.write(initCmd);
+    await writer.write(alignCenter);
+    
+    for (let i = 0; i < itemsToPrint.length; i++) {
+      const item = itemsToPrint[i];
+      const buffer = await createThermalBufferFromItem(item);
+      await writer.write(buffer);
+      await writer.write(marginCmd); // Jarak antar label
+    }
+    
+    const cutCmd = new Uint8Array([0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A]);
+    await writer.write(cutCmd);
+    
+    writer.releaseLock();
+    await port.close();
+    
+    showCustomAlert('Berhasil dicetak langsung ke printer thermal!', 'success');
+    
+    checkboxes.forEach(cb => cb.checked = false);
+    window.toggleBulkPrintButton();
+  } catch (printErr) {
+    console.error(printErr);
+    if (printErr.name !== 'NotFoundError') {
+      showCustomAlert('Gagal print: ' + printErr.message, 'error');
+    }
+  }
+}
+
+async function createThermalBufferFromItem(item) {
+  const assetName = item.name || '';
+  const assetId = item.id.replace('ID: ', '');
+  const fullUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullUrl)}`;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 384; 
+  canvas.height = 520; 
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2;
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  const r = 20, bx = 12, by = 12, bw = canvas.width - 24, bh = canvas.height - 24;
+  ctx.strokeStyle = '#000000'; ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(bx + r, by); ctx.lineTo(bx + bw - r, by); ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + r);
+  ctx.lineTo(bx + bw, by + bh - r); ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - r, by + bh);
+  ctx.lineTo(bx + r, by + bh); ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - r);
+  ctx.lineTo(bx, by + r); ctx.quadraticCurveTo(bx, by, bx + r, by);
+  ctx.closePath(); ctx.stroke();
+  
+  ctx.fillStyle = '#000000'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.font = 'bold 26px monospace';
+  let upperName = assetName.toUpperCase();
+  if (upperName.length <= 24) {
+      ctx.fillText(upperName, cx, 45);
+  } else {
+      let breakIdx = upperName.lastIndexOf(' ', 24);
+      if (breakIdx === -1) breakIdx = 22;
+      let line1 = upperName.substring(0, breakIdx);
+      let line2 = upperName.substring(breakIdx).trim();
+      if (line2.length > 24) line2 = line2.substring(0, 21) + '...';
+      ctx.fillText(line1, cx, 30); ctx.fillText(line2, cx, 60);
+  }
+  
+  const qrImg = new Image(); qrImg.crossOrigin = 'Anonymous';
+  await new Promise((resolve) => { qrImg.onload = resolve; qrImg.onerror = resolve; qrImg.src = qrSrc; });
+  const qrSize = 300;
+  ctx.drawImage(qrImg, cx - qrSize/2, 95, qrSize, qrSize);
+  
+  const logoImg = new Image(); logoImg.crossOrigin = 'Anonymous';
+  await new Promise((resolve) => { logoImg.onload = resolve; logoImg.onerror = resolve; logoImg.src = window.location.origin + '/icons/PisgahColor.png'; });
+  if (logoImg.complete && logoImg.naturalWidth > 0) {
+    const logoSize = 80; const logoCx = cx; const logoCy = 95 + qrSize/2;
+    const tempCanvas = document.createElement('canvas'); tempCanvas.width = logoSize; tempCanvas.height = logoSize;
+    const tempCtx = tempCanvas.getContext('2d'); tempCtx.drawImage(logoImg, 0, 0, logoSize, logoSize);
+    const imgData = tempCtx.getImageData(0, 0, logoSize, logoSize); const data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) { if (data[i+3] > 20) { data[i]=0; data[i+1]=0; data[i+2]=0; data[i+3]=255; } }
+    tempCtx.putImageData(imgData, 0, 0);
+    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(logoCx, logoCy, logoSize / 2 + 8, 0, Math.PI * 2); ctx.fill();
+    ctx.drawImage(tempCanvas, logoCx - logoSize/2, logoCy - logoSize/2, logoSize, logoSize);
+  }
+  
+  ctx.fillStyle = '#000000'; ctx.font = 'bold 28px monospace'; ctx.fillText(assetId, cx, 420);
+  ctx.strokeStyle = '#cccccc'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(60, 460); ctx.lineTo(canvas.width - 60, 460); ctx.stroke();
+  ctx.fillStyle = '#888888'; ctx.font = '20px monospace'; ctx.fillText('PISGAH-BISDAC', cx, 472);
+  
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data; const widthBytes = Math.ceil(canvas.width / 8); const height = canvas.height;
+  const buffer = new Uint8Array(8 + (widthBytes * height));
+  buffer[0] = 0x1D; buffer[1] = 0x76; buffer[2] = 0x30; buffer[3] = 0x00;
+  buffer[4] = widthBytes & 0xFF; buffer[5] = (widthBytes >> 8) & 0xFF;
+  buffer[6] = height & 0xFF; buffer[7] = (height >> 8) & 0xFF;
+  let offset = 8;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < widthBytes; x++) {
+      let byte = 0;
+      for (let b = 0; b < 8; b++) {
+        const px = x * 8 + b;
+        if (px < canvas.width) {
+          const idx = (y * canvas.width + px) * 4;
+          const lum = (data[idx] * 0.299 + data[idx+1] * 0.587 + data[idx+2] * 0.114);
+          if (data[idx+3] > 128 && lum < 128) byte |= (1 << (7 - b));
+        }
+      }
+      buffer[offset++] = byte;
+    }
+  }
+  return buffer;
 }
 
 window.closeFormModal = function() {
