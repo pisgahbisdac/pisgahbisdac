@@ -41,6 +41,8 @@
     main {
       background-color: transparent !important;
       width: 100% !important;
+      position: relative;
+      z-index: 10;
     }
     
     /* Top Nav */
@@ -108,6 +110,29 @@
       border-bottom: 1px solid var(--border-light);
       border-radius: 0 0 40px 40px;
       margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+      z-index: 10;
+    }
+    .bg-asset {
+      position: absolute;
+      opacity: 0.08;
+      z-index: 1;
+      animation: floatAsset 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes floatAsset {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    .bg-asset-1 { top: 15%; left: 8%; font-size: 10rem; animation-delay: 0s; color: #c98e21; }
+    .bg-asset-2 { top: 35%; right: 5%; font-size: 14rem; animation-delay: 1.5s; opacity: 0.05; color: #6b8e75; }
+    .bg-asset-3 { bottom: -5%; left: 25%; font-size: 8rem; animation-delay: 3s; color: #d27d56; }
+    .bg-asset-4 { top: -5%; right: 30%; font-size: 7rem; animation-delay: 2s; opacity: 0.06; color: #0f766e; }
+    
+    .hero-content {
+      position: relative;
+      z-index: 10;
     }
     .hero-title {
       font-size: clamp(2.5rem, 6vw, 4.5rem);
@@ -157,6 +182,33 @@
       color: var(--text-muted);
       font-size: 1.1rem;
     }
+    .inv-filter-select {
+      appearance: none;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-light);
+      color: var(--text-dark);
+      padding: 10px 35px 10px 20px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      min-width: 180px;
+      box-shadow: var(--card-shadow);
+      transition: all 0.3s ease;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 16px;
+    }
+    .inv-filter-select:hover {
+      border-color: var(--accent-dark);
+      transform: translateY(-2px);
+    }
+    .inv-filter-select:focus {
+      outline: none;
+      border-color: var(--accent-dark);
+      box-shadow: 0 0 0 3px rgba(10,37,37,0.1);
+    }
     
     /* View Controls */
     .view-controls {
@@ -193,37 +245,56 @@
     }
     
     /* Asset Card */
+    /* Asset Card */
     .inv-asset-card {
-      background-color: var(--bg-card) !important;
+      background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%) !important;
       border: 1px solid var(--border-light) !important;
       border-radius: var(--radius-lg) !important;
       overflow: hidden !important;
-      transition: all 0.4s ease !important;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
       cursor: pointer !important;
       position: relative !important;
-      box-shadow: var(--card-shadow) !important;
-      display: flex;
-      flex-direction: column;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      z-index: 1;
+    }
+    .inv-asset-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #c98e21, #0a2525, #0f766e, #c98e21);
+      background-size: 300% 100%;
+      transition: all 0.4s ease;
+      z-index: 2;
     }
     .inv-asset-card:hover {
-      transform: translateY(-8px) !important;
-      box-shadow: var(--hover-shadow) !important;
-      border-color: rgba(0,0,0,0.1) !important;
+      transform: translateY(-8px) scale(1.02) !important;
+      box-shadow: 0 20px 40px rgba(10, 37, 37, 0.1) !important;
+      border-color: rgba(201, 142, 33, 0.3) !important;
+    }
+    .inv-asset-card:hover::before {
+      height: 6px;
+      background-position: 100% 0;
+      box-shadow: 0 4px 15px rgba(201, 142, 33, 0.4);
     }
     .inv-asset-photo {
       width: 100% !important;
       height: 240px !important;
       object-fit: contain !important;
-      background-color: #f8f9fa !important;
       border-bottom: 1px solid var(--border-light) !important;
-      padding: 20px;
-      box-sizing: border-box;
+      padding: 20px !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      box-sizing: border-box !important;
+      flex-shrink: 0 !important;
     }
     .inv-asset-info {
       padding: 24px !important;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 !important;
     }
     .inv-asset-name {
       font-size: 1.25rem !important;
@@ -263,20 +334,22 @@
     
     /* Cart-like Button in Card (Visual only) */
     .card-action-btn {
-      width: 40px; height: 40px;
+      width: 36px; height: 36px;
       border-radius: 50%;
-      background: var(--accent-dark);
-      color:var(--text-dark);
+      background: #ffffff;
+      color: var(--text-dark);
       display: flex; align-items: center; justify-content: center;
       position: absolute;
-      bottom: 24px; right: 24px;
-      transition: 0.3s;
+      top: 205px; right: 15px;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(10px) scale(0.9);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 5;
     }
     .inv-asset-card:hover .card-action-btn {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
     
     /* List View */
@@ -290,25 +363,41 @@
     }
     .inv-list-card {
       display: flex !important;
-      background-color: var(--bg-card) !important;
+      background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%) !important;
       border: 1px solid var(--border-light) !important;
       border-radius: var(--radius-md) !important;
       overflow: hidden !important;
-      transition: all 0.3s ease !important;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
       cursor: pointer !important;
       position: relative !important;
-      box-shadow: var(--card-shadow) !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
+      z-index: 1;
+    }
+    .inv-list-card::before {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0; left: 0;
+      width: 4px;
+      background: linear-gradient(180deg, #c98e21, #0a2525, #0f766e, #c98e21);
+      background-size: 100% 300%;
+      transition: all 0.4s ease;
+      z-index: 2;
     }
     .inv-list-card:hover {
-      transform: translateY(-4px) !important;
-      box-shadow: var(--hover-shadow) !important;
+      transform: translateY(-5px) scale(1.01) !important;
+      box-shadow: 0 15px 35px rgba(10, 37, 37, 0.1) !important;
+      border-color: rgba(201, 142, 33, 0.3) !important;
+    }
+    .inv-list-card:hover::before {
+      width: 6px;
+      background-position: 0 100%;
+      box-shadow: 4px 0 15px rgba(201, 142, 33, 0.4);
     }
     .inv-list-photo {
       width: 160px !important;
       height: 160px !important;
       flex-shrink: 0 !important;
       object-fit: contain !important;
-      background: #f8f9fa !important;
       border: 1px solid var(--border-light) !important;
       border-radius: 12px !important;
       padding: 10px;
@@ -343,10 +432,37 @@
       color: var(--text-dark) !important;
       box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25) !important;
     }
+    .inv-form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+      text-align: left;
+    }
     .inv-form-group label {
+      display: block;
       color: var(--text-dark) !important;
       font-weight: 600 !important;
       margin-bottom: 8px !important;
+    }
+    .inv-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 12px 24px !important;
+      border-radius: var(--radius-sm) !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      transition: all 0.3s ease !important;
+      border: none !important;
+      font-family: inherit !important;
+    }
+    .inv-btn-primary {
+      background: var(--accent-dark) !important;
+      color: #fff !important;
+    }
+    .inv-btn-primary:hover {
+      background: #061818 !important;
+      transform: translateY(-2px) !important;
     }
     .inv-form-control {
       background-color: #f8f9fa !important;
@@ -373,22 +489,61 @@
       .inv-list-photo { width: 120px !important; }
       .inv-list-info { flex-direction: column !important; align-items: flex-start !important; }
     }
+    
+    /* Global Page Background Animations */
+    #global-bg-animation {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .page-bg-icon {
+      position: absolute;
+      opacity: 0.05;
+      animation: floatPageBg linear infinite;
+    }
+    @keyframes floatPageBg {
+      0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.06; }
+      90% { opacity: 0.06; }
+      100% { transform: translateY(-20vh) rotate(180deg); opacity: 0; }
+    }
+    .bg-icon-1 { left: 8%; font-size: 8rem; animation-duration: 45s; animation-delay: 0s; color: #c98e21; }
+    .bg-icon-2 { left: 25%; font-size: 5rem; animation-duration: 35s; animation-delay: 15s; color: #6b8e75; }
+    .bg-icon-3 { left: 40%; font-size: 10rem; animation-duration: 50s; animation-delay: 5s; color: #d27d56; }
+    .bg-icon-4 { left: 60%; font-size: 6rem; animation-duration: 40s; animation-delay: 25s; color: #0f766e; }
+    .bg-icon-5 { left: 75%; font-size: 12rem; animation-duration: 55s; animation-delay: 10s; color: #c98e21; }
+    .bg-icon-6 { left: 90%; font-size: 7rem; animation-duration: 38s; animation-delay: 30s; color: #6b8e75; }
+    .bg-icon-7 { left: 15%; font-size: 14rem; animation-duration: 60s; animation-delay: 20s; color: #d27d56; }
+    .bg-icon-8 { left: 50%; font-size: 9rem; animation-duration: 48s; animation-delay: 35s; color: #0f766e; }
+    .bg-icon-9 { left: 85%; font-size: 11rem; animation-duration: 52s; animation-delay: 2s; color: #94a3b8; }
 
   </style>
 </head>
 <body>
+  <div id="global-bg-animation">
+    <i class="fa-solid fa-church page-bg-icon bg-icon-1"></i>
+    <i class="fa-solid fa-microphone page-bg-icon bg-icon-2"></i>
+    <i class="fa-solid fa-chair page-bg-icon bg-icon-3"></i>
+    <i class="fa-solid fa-guitar page-bg-icon bg-icon-4"></i>
+    <i class="fa-solid fa-cross page-bg-icon bg-icon-5"></i>
+    <i class="fa-solid fa-desktop page-bg-icon bg-icon-6"></i>
+    <i class="fa-solid fa-book-bible page-bg-icon bg-icon-7"></i>
+    <i class="fa-solid fa-volume-high page-bg-icon bg-icon-8"></i>
+    <i class="fa-solid fa-boxes-packing page-bg-icon bg-icon-9"></i>
+  </div>
 
   <nav class="top-nav">
     <div style="display:flex; align-items:center; gap:12px;">
       <a href="/" class="btn btn-outline" style="padding: 10px; width: 40px; height: 40px; border-radius: 50%;" title="Kembali ke Beranda">
         <i class="fa-solid fa-chevron-left" style="margin-right: 2px;"></i>
       </a>
-      <h2>Inventaris PISGAH</h2>
+      <img src="/icons/PisgahLogoColor.png" alt="PISGAH Logo" style="height: 38px; margin-left: 8px;">
     </div>
     <div style="display:flex; align-items:center; gap:10px;">
       <button id="loginBtn" class="btn btn-outline"><i class="fa-solid fa-user-lock"></i> <span class="hide-on-mobile">Login Admin</span></button>
       <div id="adminControls" style="display:none; gap:10px; align-items:center;">
-        <span id="userNameDisplay" style="color:var(--accent-dark); margin-right:5px; font-weight: 600;"></span>
         <button id="backupBtn" class="btn btn-outline" style="color:#0f766e;"><i class="fa-solid fa-download"></i> <span class="hide-on-mobile">Backup</span></button>
         <button id="depreciationBtn" class="btn btn-outline" style="color:#0284c7;" onclick="window.showDepreciationReport()"><i class="fa-solid fa-calculator"></i> <span class="hide-on-mobile">Depresiasi</span></button>
         <button id="addBtn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> <span class="hide-on-mobile">Tambah Aset</span></button>
@@ -398,50 +553,64 @@
   </nav>
 
   <header class="hero-section">
-    <h1 class="hero-title">Koleksi Inventaris.</h1>
-    <p class="hero-subtitle">Sistem Informasi Manajemen Inventaris Gereja PISGAH-BISDAC</p>
+    <!-- Background Animations -->
+    <i class="fa-solid fa-boxes-stacked bg-asset bg-asset-1"></i>
+    <i class="fa-solid fa-box-open bg-asset bg-asset-2"></i>
+    <i class="fa-solid fa-clipboard-check bg-asset bg-asset-3"></i>
+    <i class="fa-solid fa-dolly bg-asset bg-asset-4"></i>
     
-    <div class="search-bar" style="margin-bottom:15px;">
-      <i class="fa-solid fa-search"></i>
-      <input type="text" id="searchInput" placeholder="Cari nama peralatan, lokasi, atau penanggung jawab..." autocomplete="off">
-    </div>
-    
-    <div style="display:flex; justify-content:center; gap:10px; margin-bottom:25px; max-width:800px; margin-left:auto; margin-right:auto; flex-wrap:wrap;">
-      <select id="filterCategory" class="inv-form-control" style="width:auto; min-width:180px; padding:10px 15px; border-radius:30px; font-size:0.9rem;" onchange="window.renderGrid()">
-        <option value="">Semua Kategori</option>
-        <option value="Elektronik & Multimedia">Elektronik & Multimedia</option>
-        <option value="Furnitur & Mebel">Furnitur & Mebel</option>
-        <option value="Alat Musik">Alat Musik</option>
-        <option value="Peralatan Dapur">Peralatan Dapur</option>
-        <option value="Perlengkapan Ibadah">Perlengkapan Ibadah</option>
-        <option value="Kendaraan">Kendaraan</option>
-        <option value="Lainnya">Lainnya</option>
-      </select>
-      <select id="filterStatus" class="inv-form-control" style="width:auto; min-width:180px; padding:10px 15px; border-radius:30px; font-size:0.9rem;" onchange="window.renderGrid()">
-        <option value="">Semua Status Aset</option>
-        <option value="Active">Aktif</option>
-        <option value="Disposed">Disposed (Dihapus)</option>
-      </select>
-      <select id="filterLoan" class="inv-form-control" style="width:auto; min-width:180px; padding:10px 15px; border-radius:30px; font-size:0.9rem;" onchange="window.renderGrid()">
-        <option value="">Semua Status Pinjaman</option>
-        <option value="Tersedia">Tersedia</option>
-        <option value="Dipinjam">Sedang Dipinjam</option>
-      </select>
-    </div>
-    
-    <div class="view-controls">
-      <button id="btnSelectAll" class="view-btn admin-only-field" onclick="window.toggleSelectAll()" data-display="flex" style="display:none; margin-right: 15px;"><i class="fa-regular fa-square-check"></i> Pilih Semua</button>
-      <button id="btnViewGrid" class="view-btn active" onclick="window.changeViewMode('grid')">Grid</button>
-      <button id="btnViewList" class="view-btn" onclick="window.changeViewMode('list')">List</button>
+    <div class="hero-content">
+      <div class="admin-only-field" data-display="flex" style="display:none; justify-content:center; align-items:center; gap:10px; margin-bottom:12px; font-weight:600; color:var(--accent-dark); font-size:1.1rem; background: rgba(255,255,255,0.7); padding: 8px 24px; border-radius: 50px; display:inline-flex; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+        <i class="fa-solid fa-hand-sparkles" style="color:#d4af37;"></i>
+        <span id="userNameDisplay"></span>
+        <span style="width:4px; height:4px; background:var(--text-muted); border-radius:50%; display:inline-block; margin: 0 4px;"></span>
+        <span id="liveDateTime" style="color:var(--text-muted); font-weight:500; font-size: 0.95rem;"></span>
+      </div>
+      
+      <h1 class="hero-title" style="margin-top:5px;">Koleksi Inventaris.</h1>
+      <p class="hero-subtitle">Sistem Informasi Manajemen Inventaris Gereja PISGAH-BISDAC</p>
+      
+      <div class="search-bar" style="margin-bottom:15px;">
+        <i class="fa-solid fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Cari nama peralatan, lokasi, atau penanggung jawab..." autocomplete="off">
+      </div>
+      
+      <div style="display:flex; justify-content:center; gap:10px; margin-bottom:25px; max-width:800px; margin-left:auto; margin-right:auto; flex-wrap:wrap;">
+        <select id="filterCategory" class="inv-filter-select" onchange="window.renderGrid()">
+          <option value="">Semua Kategori</option>
+          <option value="Elektronik & Multimedia">Elektronik & Multimedia</option>
+          <option value="Furnitur & Mebel">Furnitur & Mebel</option>
+          <option value="Alat Musik">Alat Musik</option>
+          <option value="Peralatan Dapur">Peralatan Dapur</option>
+          <option value="Perlengkapan Ibadah">Perlengkapan Ibadah</option>
+          <option value="Kendaraan">Kendaraan</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+        <select id="filterStatus" class="inv-filter-select" onchange="window.renderGrid()">
+          <option value="">Semua Status Aset</option>
+          <option value="Active">Aktif</option>
+          <option value="Disposed">Disposed (Dihapus)</option>
+        </select>
+        <select id="filterLoan" class="inv-filter-select" onchange="window.renderGrid()">
+          <option value="">Semua Status Pinjaman</option>
+          <option value="Tersedia">Tersedia</option>
+          <option value="Dipinjam">Sedang Dipinjam</option>
+        </select>
+      </div>
+      
+      <div class="view-controls">
+        <button id="btnSelectAll" class="inv-btn admin-only-field" onclick="window.toggleSelectAll()" data-display="inline-flex" style="display:none; margin-right: 15px; background:var(--bg-card); border:1px solid var(--accent-dark); color:var(--accent-dark); border-radius:50px; padding:10px 20px; transition:all 0.3s;"><i class="fa-regular fa-square-check" style="margin-right:8px; font-size:1.1rem;"></i> Pilih Semua</button>
+        <button id="btnViewGrid" class="view-btn active" onclick="window.changeViewMode('grid')">Grid</button>
+        <button id="btnViewList" class="view-btn" onclick="window.changeViewMode('list')">List</button>
+      </div>
     </div>
   </header>
 
   <main style="padding-top:40px;">
     <div id="bulkPrintContainer" class="admin-only-field" style="display:none; text-align:center; margin-bottom:20px; position:sticky; top:80px; z-index:90;">
-      <div style="display:inline-block; background:rgba(21, 25, 36, 0.95); padding:10px 20px; border-radius:30px; border:1px solid var(--accent); box-shadow:0 10px 30px rgba(0,0,0,0.5); backdrop-filter:blur(10px);">
-        <span id="bulkPrintCount" style="color:var(--text-dark); margin-right:15px; font-weight:600;">0 Dipilih</span>
-        <button onclick="window.printSelectedQRs()" class="btn btn-primary" style="padding:6px 16px;"><i class="fa-solid fa-file-pdf"></i> PDF/A4</button>
-        <button onclick="window.printSelectedThermal()" class="btn" style="padding:6px 16px; background:#0f766e; color:var(--text-dark); border:none; margin-left:10px;"><i class="fa-brands fa-bluetooth"></i> Thermal</button>
+      <div style="display:inline-flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; background:var(--bg-card); padding:12px 24px; border-radius:50px; border:1px solid var(--border-light); box-shadow:var(--hover-shadow); backdrop-filter:blur(10px);">
+        <span id="bulkPrintCount" style="color:var(--text-dark); font-weight:700; font-size:1.05rem; white-space:nowrap;">0 Dipilih</span>
+        <button onclick="document.getElementById('bulkPrintChoiceModal').style.display='flex';" class="inv-btn inv-btn-primary" style="padding:8px 24px; border-radius:50px; font-size:0.95rem; white-space:nowrap;"><i class="fa-solid fa-print" style="margin-right:8px;"></i> Cetak QR</button>
       </div>
     </div>
     
@@ -752,6 +921,28 @@
       </div>
       
       <button onclick="document.getElementById('backupModal').style.display='none'" class="inv-btn" style="background:transparent; color:#999; margin-top:20px; width:100%; cursor:pointer;">Batal</button>
+    </div>
+  </div>
+  
+  <!-- Bulk Print Choice Modal -->
+  <div id="bulkPrintChoiceModal" class="inv-modal-overlay">
+    <div class="inv-modal-content" style="max-width:400px; text-align:center;">
+      <h3 style="margin-top:0; color:var(--accent-dark); font-size:1.4rem; margin-bottom:15px;"><i class="fa-solid fa-print"></i> Cetak QR Code</h3>
+      <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:25px;">Pilih format cetak barcode/QR Code untuk aset yang dipilih.</p>
+      
+      <div style="display:flex; flex-direction:column; gap:15px;">
+        <button onclick="window.printSelectedQRs(); document.getElementById('bulkPrintChoiceModal').style.display='none';" class="inv-btn" style="background:#f8f9fa; border:1px solid var(--border-light); padding:15px; font-size:1rem; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+          <i class="fa-solid fa-file-pdf" style="font-size:2rem; color:var(--accent-dark);"></i>
+          <span>Cetak Standar (Kertas A4/Letter)</span>
+        </button>
+        
+        <button onclick="window.printSelectedThermal(); document.getElementById('bulkPrintChoiceModal').style.display='none';" class="inv-btn" style="background:#f8f9fa; border:1px solid var(--border-light); padding:15px; font-size:1rem; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+          <i class="fa-solid fa-receipt" style="font-size:2rem; color:#0f766e;"></i>
+          <span>Cetak Thermal (Printer Kasir/Label)</span>
+        </button>
+      </div>
+      
+      <button onclick="document.getElementById('bulkPrintChoiceModal').style.display='none'" class="inv-btn" style="background:transparent; color:#999; margin-top:20px; width:100%; cursor:pointer;">Batal</button>
     </div>
   </div>
   <!-- Loan Modal -->

@@ -143,7 +143,16 @@ window.renderGrid = function() {
   const isList = window.currentViewMode === 'list';
   grid.className = isList ? 'inventory-list' : 'inventory-grid';
 
-  grid.innerHTML = data.map(item => {
+  const photoColors = [
+    'linear-gradient(135deg, #f5eaea 0%, #ecd3d3 100%)', // Rose
+    'linear-gradient(135deg, #eaf2ee 0%, #d5e5db 100%)', // Sage
+    'linear-gradient(135deg, #eef3f8 0%, #d8e5f1 100%)', // Blue
+    'linear-gradient(135deg, #fbf2e5 0%, #f6e1c6 100%)', // Peach
+    'linear-gradient(135deg, #f0ebf5 0%, #e1d6eb 100%)', // Purple
+    'linear-gradient(135deg, #f5f2e6 0%, #ebe3cd 100%)'  // Warm Vanilla
+  ];
+
+  grid.innerHTML = data.map((item, index) => {
     const photoUrl = item.photo ? item.photo : 'https://images.unsplash.com/photo-1548625361-ec8587d60f58?w=500&q=80';
     const isDisposed = item.status === 'Disposed';
     const cardStyle = isDisposed ? 'opacity: 0.7; filter: grayscale(80%); border: 1px solid rgba(239, 68, 68, 0.3);' : '';
@@ -159,13 +168,15 @@ window.renderGrid = function() {
         }
       }
 
-    const checkboxHtml = currentUser ? `<input type="checkbox" class="bulk-qr-checkbox" value="${item.id}" onclick="event.stopPropagation(); window.toggleBulkPrintButton();" style="position:absolute; top:15px; left:15px; z-index:20; width:20px; height:20px; cursor:pointer;" title="Pilih untuk cetak QR">` : '';
+    const checkboxHtml = currentUser ? `<input type="checkbox" class="bulk-qr-checkbox" value="${item.id}" onclick="event.stopPropagation(); window.toggleBulkPrintButton();" style="position:absolute; top:15px; right:15px; z-index:20; width:20px; height:20px; cursor:pointer; accent-color: var(--accent-dark);" title="Pilih untuk cetak QR">` : '';
+    
+    const photoBg = photoColors[index % photoColors.length];
 
     if (isList) {
       return `
         <div class="inv-list-card" style="${cardStyle}" onclick="window.viewDetail('${item.id}')">
           ${checkboxHtml}
-          <img src="${photoUrl}" class="inv-list-photo" alt="${item.name}" onerror="this.src='/icons/PisgahLogoColor.png'">
+          <img src="${photoUrl}" class="inv-list-photo" alt="${item.name}" onerror="this.src='/icons/PisgahLogoColor.png'" style="background: ${photoBg};">
           <div class="inv-list-info">
             <div style="flex:1;">
               ${badgeHtml}
@@ -197,7 +208,7 @@ window.renderGrid = function() {
       return `
         <div class="inv-asset-card" style="${cardStyle}" onclick="window.viewDetail('${item.id}')">
           ${checkboxHtml}
-          <img src="${photoUrl}" class="inv-asset-photo" alt="${item.name}" onerror="this.src='/icons/PisgahLogoColor.png'">
+          <img src="${photoUrl}" class="inv-asset-photo" alt="${item.name}" onerror="this.src='/icons/PisgahLogoColor.png'" style="background: ${photoBg};">
           <div class="inv-asset-info">
             ${badgeHtml}
             <div class="inv-asset-name" style="margin-top:4px;">
@@ -259,6 +270,8 @@ async function loadData() {
 window.viewDetail = function (id) {
   const item = inventoryData.find(x => x.id === id);
   if (!item) return;
+  
+  window.currentDetailId = id;
 
   document.getElementById('detailName').textContent = item.name;
   document.getElementById('detailId').textContent = item.id;
@@ -1173,8 +1186,26 @@ function formatRibuanInput(e) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (window.currentViewMode === 'list') {
+    document.getElementById('btnViewList').classList.add('active');
+    document.getElementById('btnViewGrid').classList.remove('active');
+  } else {
+    document.getElementById('btnViewGrid').classList.add('active');
+    document.getElementById('btnViewList').classList.remove('active');
+  }
+
   checkAuth();
   loadData();
+
+  // Clock
+  setInterval(() => {
+    const el = document.getElementById('liveDateTime');
+    if (el) {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      el.textContent = now.toLocaleDateString('id-ID', options).replace('pukul', '').trim();
+    }
+  }, 1000);
 
   // Format Ribuan
   document.getElementById('formValue').addEventListener('input', formatRibuanInput);
