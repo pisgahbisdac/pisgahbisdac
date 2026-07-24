@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.css" rel="stylesheet">
 
-  <script type="module" crossorigin src="/assets/laporan-BEPEJggF.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-DEaVvQk-.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/laporan-DLl9-j_y.css">
   <link rel="stylesheet" crossorigin href="/assets/index-BF-Dk81k.css">
@@ -950,15 +950,16 @@
             <div class="form-group"><label class="form-label">Nama Lengkap</label><input class="form-input"
                 id="userFullName" type="text"></div>
             <div class="form-group">
-              <label class="form-label">Role Akses</label>
-              <select class="form-select" id="userRole">
-                <option value="Viewer">Viewer</option>
-                <option value="Bendahara">Bendahara</option>
-                <option value="Ketua Jemaat">Ketua Jemaat</option>
-                <option value="Pendeta">Pendeta</option>
-                <option value="Admin">Admin</option>
-                <option value="Publik">Publik</option>
-              </select>
+              <label class="form-label">Role Akses (Bisa pilih lebih dari satu)</label>
+              <div id="userRoleContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--glass-border); padding: 12px; border-radius: var(--radius); background: var(--input-bg); display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Admin"> Admin</label>
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Ketua Jemaat"> Ketua Jemaat</label>
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Pendeta"> Pendeta</label>
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Bendahara"> Bendahara</label>
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Diakon"> Diakon</label>
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Viewer"> Viewer</label>
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Publik"> Publik</label>
+              </div>
             </div>
             <div class="form-group">
               <label>Binding Unit Khusus</label>
