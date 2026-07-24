@@ -93,7 +93,7 @@ function renderGrid(data) {
     const cardStyle = isDisposed ? 'opacity: 0.7; filter: grayscale(80%); border: 1px solid rgba(239, 68, 68, 0.3);' : '';
     const badgeHtml = isDisposed 
       ? `<div class="inv-badge-status" style="background:rgba(239, 68, 68, 0.9); color:white; font-weight:bold;"><i class="fa-solid fa-ban"></i> DISPOSED</div>`
-      : `<div class="inv-badge-status">${item.category ? item.category + ' • ' : ''}${item.location}</div>`;
+      : `<div class="inv-badge-status">${item.category || 'Uncategorized'}</div>`;
     
     return `
       <div class="inv-asset-card" style="${cardStyle}" onclick="window.viewDetail('${item.id}')">
@@ -109,15 +109,15 @@ function renderGrid(data) {
           
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
             <div class="inv-asset-meta" style="margin-bottom:0 !important; color:var(--accent); font-family:monospace; font-size:0.8rem;"><i class="fa-solid fa-barcode"></i> ${item.id}</div>
-            <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-solid fa-calendar"></i> ${fmtDate(item.date_acquired)}</div>
-            <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-solid fa-user"></i> ${item.pic}</div>
-            <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-solid fa-truck-ramp-box"></i> ${item.source || '-'}</div>
+            <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-regular fa-calendar"></i> ${fmtDate(item.date_acquired)}</div>
+            <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-regular fa-user"></i> ${item.pic}</div>
+            <div class="inv-asset-meta" style="margin-bottom:0 !important; font-size:0.8rem;"><i class="fa-solid fa-location-dot"></i> ${item.location || '-'}</div>
           </div>
           
           ${currentUser ? `
             <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">
               <div style="font-size:0.75rem; color:rgba(255,255,255,0.6);">Perolehan<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem;">Rp ${fmt(item.value)}</span></div>
-              <div style="font-size:0.75rem; color:rgba(255,255,255,0.6); text-align:right;">Taksasi Saat Ini<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem; color:#d4af37;">Rp ${fmt(item.taksasi || 0)}</span></div>
+              <div style="font-size:0.75rem; color:rgba(255,255,255,0.6); text-align:right;">Market Value<br><span class="inv-asset-value" style="display:block; margin-top:2px; font-size:1rem; color:#d4af37;">Rp ${fmt(item.taksasi || 0)}</span></div>
             </div>
           ` : ''}
         </div>
@@ -880,7 +880,7 @@ document.addEventListener('DOMContentLoaded', () => {
 window.exportCSV = function() {
   if (!inventoryData || inventoryData.length === 0) return showCustomAlert('Tidak ada data untuk di-backup.', 'error');
   
-  const headers = ['ID', 'TANGGAL_PEROLEHAN', 'NAMA_ASET', 'KATEGORI', 'ASAL_BARANG', 'NILAI_PEROLEHAN', 'TAKSASI_SAAT_INI', 'QTY', 'SATUAN', 'LOKASI', 'PENANGGUNG_JAWAB', 'STATUS', 'JUSTIFIKASI_DISPOSAL', 'HARGA_DISPOSAL', 'RINCIAN'];
+  const headers = ['ID', 'TANGGAL_PEROLEHAN', 'NAMA_ASET', 'KATEGORI', 'ASAL_BARANG', 'NILAI_PEROLEHAN', 'MARKET_VALUE', 'QTY', 'SATUAN', 'LOKASI', 'PENANGGUNG_JAWAB', 'STATUS', 'JUSTIFIKASI_DISPOSAL', 'HARGA_DISPOSAL', 'RINCIAN'];
   
   const rows = inventoryData.map(item => {
     return [
@@ -969,7 +969,7 @@ window.exportPDF = function() {
           </td>
           <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">
             Awal: ${fmt(item.value || 0)}<br>
-            <span style="color:#666;">Taksasi: ${fmt(item.taksasi || 0)}</span>
+            <span style="color:#666;">Market Value: ${fmt(item.taksasi || 0)}</span>
           </td>
         </tr>
     `;

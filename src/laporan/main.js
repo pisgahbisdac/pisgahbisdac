@@ -524,8 +524,14 @@
     }
 
     // === ROLE MANAGEMENT ===
+    function hasRole(user, targetRole) {
+      if (!user || !user.role) return false;
+      const roles = user.role.split(',').map(r => r.trim());
+      return roles.includes(targetRole);
+    }
+    
     let selectedRoleTab = 'Admin';
-    const allRoles = ['Admin', 'Ketua Jemaat', 'Pendeta', 'Bendahara', 'Viewer', 'Publik'];
+    const allRoles = ['Admin', 'Ketua Jemaat', 'Pendeta', 'Bendahara', 'Diakon', 'Viewer', 'Publik'];
     const allMenus = [
       { id: 'dashboard', label: 'Dashboard Utama' },
       { id: 'pemasukan', label: 'Pemasukan' },
@@ -538,17 +544,18 @@
       { id: 'akun', label: 'Pengaturan Akun (Sandi)' },
       { id: 'settings', label: 'Pengaturan Web' },
       { id: 'series', label: 'Pengaturan No. Series' },
-      { id: 'logs', label: 'Audit Log' }
+      { id: 'logs', label: 'Audit Log' },
+      { id: 'inventaris', label: 'Manajemen Inventaris / Aset' }
     ];
 
     function getDefaultRolePerms(role) {
       const defs = {
-        Admin: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true, approve: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, series: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true } }, isAnonymous: false },
-        Bendahara: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, series: { view: true, edit: true, del: true }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
-        Viewer: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
-        Publik: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: false, edit: false, del: false }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: true },
-        "Ketua Jemaat": { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false },
-        Pendeta: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false }
+        Admin: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true, approve: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, series: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true }, inventaris: { view: true, edit: true, del: true } }, isAnonymous: false },
+        Bendahara: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, series: { view: true, edit: true, del: true }, logs: { view: false, edit: false, del: false }, inventaris: { view: true, edit: true, del: true } }, isAnonymous: false },
+        Viewer: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: true, edit: false, del: false } }, isAnonymous: false },
+        Publik: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: false, edit: false, del: false }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: false, edit: false, del: false } }, isAnonymous: true },
+        "Ketua Jemaat": { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: true, edit: false, del: false } }, isAnonymous: false },
+        Pendeta: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: true, edit: false, del: false } }, isAnonymous: false }
       };
       return defs[role] || { menus: {}, isAnonymous: false };
     }
@@ -1057,43 +1064,60 @@
       showPage('dashboard');
     }
 
-    function getRolePerms(role) {
-      let perms = { menus: {}, isAnonymous: false };
-      if (systemConfig.rolePermissions && systemConfig.rolePermissions[role]) {
-        perms = systemConfig.rolePermissions[role];
-        if (!perms.menus.pindahbuku) {
-          if (role === 'Admin' || role === 'Bendahara') {
-            perms.menus.pindahbuku = { view: true, edit: true, del: true };
-          } else {
-            perms.menus.pindahbuku = { view: false, edit: false, del: false };
-          }
-        }
-        if (!perms.menus.series) {
-          if (role === 'Admin' || role === 'Bendahara') {
-            perms.menus.series = { view: true, edit: true, del: true };
-          } else {
-            perms.menus.series = { view: false, edit: false, del: false };
-          }
-        }
-      } else if (role === 'Admin') {
-        perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, series: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true } }, isAnonymous: false };
-      } else if (role === 'Bendahara') {
-        perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, series: { view: true, edit: true, del: true }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
-      } else if (role === 'Viewer') {
-        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
-      } else if (role === 'Ketua Jemaat' || role === 'Pendeta') {
-        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
-      } else if (role === 'Publik') {
-        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: false, edit: false, del: false }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: true };
-      } else if (role === 'Operator') {
-        perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false } }, isAnonymous: false };
-      }
+    function getRolePerms(roleStr) {
+      if (!roleStr) return { menus: {}, isAnonymous: false };
+      const roles = roleStr.split(',').map(r => r.trim());
+      let mergedPerms = { menus: {}, isAnonymous: false };
+      let allAnonymous = true;
 
-      // Strict enforcement
-      if (role === 'Publik') {
-        perms.isAnonymous = true;
-      }
-      return perms;
+      roles.forEach(role => {
+        let perms = null;
+        if (systemConfig.rolePermissions && systemConfig.rolePermissions[role]) {
+          perms = systemConfig.rolePermissions[role];
+        } else if (role === 'Admin') {
+          perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, series: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true }, inventaris: { view: true, edit: true, del: true } }, isAnonymous: false };
+        } else if (role === 'Bendahara') {
+          perms = { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, series: { view: true, edit: true, del: true }, logs: { view: false, edit: false, del: false }, inventaris: { view: true, edit: true, del: true } }, isAnonymous: false };
+        } else if (role === 'Viewer') {
+          perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: true, edit: false, del: false } }, isAnonymous: false };
+        } else if (role === 'Diakon') {
+          perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: true, edit: false, del: false } }, isAnonymous: false };
+        } else if (role === 'Operator') {
+          perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: true, del: true }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: false, edit: false, del: false } }, isAnonymous: false };
+        } else if (role === 'Ketua Jemaat' || role === 'Pendeta') {
+          perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: true, edit: false, del: false } }, isAnonymous: false };
+        } else if (role === 'Publik') {
+          perms = { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: false, del: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: false, edit: false, del: false }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: false, edit: false, del: false } }, isAnonymous: true };
+        } else {
+          perms = { menus: {}, isAnonymous: false };
+        }
+
+        if (role === 'Admin' || role === 'Bendahara') {
+          if (!perms.menus.pindahbuku) perms.menus.pindahbuku = { view: true, edit: true, del: true };
+          if (!perms.menus.series) perms.menus.series = { view: true, edit: true, del: true };
+        }
+
+        allMenus.forEach(menu => {
+          if (!mergedPerms.menus[menu.id]) mergedPerms.menus[menu.id] = { view: false, edit: false, del: false, approve: false };
+          const rp = perms.menus[menu.id] || { view: false, edit: false, del: false, approve: false };
+          if (role === 'Admin') {
+            mergedPerms.menus[menu.id] = { view: true, edit: true, del: true, approve: true };
+          } else {
+            if (rp.view) mergedPerms.menus[menu.id].view = true;
+            if (rp.edit) mergedPerms.menus[menu.id].edit = true;
+            if (rp.del) mergedPerms.menus[menu.id].del = true;
+            if (rp.approve) mergedPerms.menus[menu.id].approve = true;
+          }
+        });
+
+        if (role === 'Publik') perms.isAnonymous = true;
+        if (!perms.isAnonymous) {
+          allAnonymous = false;
+        }
+      });
+      
+      mergedPerms.isAnonymous = allAnonymous;
+      return mergedPerms;
     }
 
     function applyRoleAccess() {
@@ -1150,7 +1174,7 @@
 
       // Auto-enable Unit Filter for Operators
       const userUnits = getUserUnits();
-      if (currentUser && currentUser.role === 'Operator' && userUnits.length > 0) {
+      if (currentUser && hasRole(currentUser, 'Operator') && userUnits.length > 0) {
         myUnitFilterActive = true;
         const btnToggle = document.getElementById('btnToggleMyUnit');
         if (btnToggle) {
@@ -1171,7 +1195,7 @@
       const mainArea = document.querySelector('.main');
       const botSidebarMenu = document.getElementById('botSidebarMenu');
 
-      if (currentUser.role === 'Publik') {
+      if (hasRole(currentUser, 'Publik')) {
         if (btnLogoutText) btnLogoutText.textContent = 'Home / Login';
         if (btnLogoutIcon) btnLogoutIcon.innerHTML = '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>';
         if (topbarHamburger) topbarHamburger.style.display = 'none';
@@ -1311,10 +1335,10 @@
         window.cachedExpense = cachedExpense;
         if (bal && bal.data) cachedSaldo = bal.data;
 
-        if (currentUser && currentUser.role !== 'Admin') {
+        if (currentUser && !hasRole(currentUser, 'Admin')) {
           const cUsername = (currentUser.username || '').toLowerCase().trim();
           const cNama = (currentUser.nama || '').toLowerCase().trim();
-          const isPublik = currentUser.role === 'Publik';
+          const isPublik = hasRole(currentUser, 'Publik');
 
           const uUnits = getUserUnits(cUsername).map(u => String(u).toLowerCase().trim());
 
@@ -1334,14 +1358,14 @@
 
             const rPerms = getRolePerms(currentUser.role);
             const isApprover = rPerms && rPerms.menus && rPerms.menus.riwayat && rPerms.menus.riwayat.approve;
-            if (isApprover || currentUser.role === 'Pendeta' || currentUser.role === 'Ketua Jemaat') return false;
+            if (isApprover || hasRole(currentUser, 'Pendeta') || hasRole(currentUser, 'Ketua Jemaat')) return false;
 
             if (uUnits.length > 0) {
               const matchUnit = uUnits.some(u => pUnit === u || pUnit.includes(u));
               if (matchUnit) return false;
             } else {
               // No units assigned. Operator or Bendahara (Pusat) see everything
-              if (currentUser.role === 'Operator' || currentUser.role === 'Bendahara') return false;
+              if (hasRole(currentUser, 'Operator') || hasRole(currentUser, 'Bendahara')) return false;
             }
 
             let hasMembers = false;
@@ -1431,13 +1455,13 @@
       const topBadge = document.getElementById('globalApprovalBadge');
       if (!navItem && !topBadge) return;
 
-      const isAdmin = currentUser && currentUser.role === 'Admin';
+      const isAdmin = currentUser && hasRole(currentUser, 'Admin');
       const rolePerms = currentUser ? getRolePerms(currentUser.role) : null;
       const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
       const isApprover = currentUser && (canApprove || isAdmin);
       const roleNeeded = currentUser ? currentUser.role : '';
 
-      if (!isApprover && currentUser.role !== 'Bendahara') {
+      if (!isApprover && !hasRole(currentUser, 'Bendahara')) {
         if (navItem) navItem.classList.remove('has-notification');
         if (topBadge) topBadge.style.display = 'none';
         return;
@@ -1683,7 +1707,7 @@
       const persentaseKomitmen = (komitmenSaatIni / targetKomitmen) * 100;
       const visualPercentKomitmen = persentaseKomitmen > 100 ? 100 : persentaseKomitmen;
 
-      const isPublik = currentUser && currentUser.role === 'Publik';
+      const isPublik = currentUser && hasRole(currentUser, 'Publik');
       const clkCls = isPublik ? 'stat-card' : 'stat-card clickable';
       const oClick = (type) => isPublik ? '' : `onclick="openDashboardDetail('${type}')"`;
 
@@ -1800,7 +1824,7 @@
 
       let combined = [...filteredInc.map(x => ({ ...x, kind: 'income', style: 'amount-pos', sign: '+', badge: 'badge-green', label: 'In' })), ...filteredExp.map(x => ({ ...x, kind: 'expense', style: 'amount-neg', sign: '-', badge: 'badge-red', label: 'Out' }))];
       const uUnitsDash = getUserUnits();
-      if (currentUser && currentUser.role === 'Operator' && uUnitsDash.length > 0) {
+      if (currentUser && hasRole(currentUser, 'Operator') && uUnitsDash.length > 0) {
         combined = combined.filter(x => {
           const txUnitLower = String(x.unit_name || '').toLowerCase().trim();
           return uUnitsDash.some(u => String(u).toLowerCase().trim() === txUnitLower);
@@ -2382,7 +2406,7 @@
       const year = currentReportData.year;
       const mode = currentReportData.mode;
 
-      const isViewer = currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik');
+      const isViewer = currentUser && (hasRole(currentUser, 'Viewer') || hasRole(currentUser, 'Publik'));
       const isSensorName = isViewer || (document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false);
       const isSensorUnit = isViewer || (document.getElementById('sensorUnit') ? document.getElementById('sensorUnit').checked : false);
 
@@ -3053,7 +3077,7 @@
 
         const userUnits = getUserUnits();
         const perms = getRolePerms(currentUser?.role || '');
-        const isViewer = perms.isAnonymous || (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik'));
+        const isViewer = perms.isAnonymous || (currentUser && (hasRole(currentUser, 'Viewer') || hasRole(currentUser, 'Publik')));
         const isAnon = perms.isAnonymous;
 
         window.currentHistoryData.forEach(x => {
@@ -3210,11 +3234,11 @@
     function renderReportView() {
       const data = currentReportData; if (!data) return notify('Tidak ada data laporan aktif.', 'error');
       const s = data.summary; const bal = s.balances || cachedSaldo || { total: 0 };
-      const isViewer = getRolePerms(currentUser?.role || '').isAnonymous || (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik'));
+      const isViewer = getRolePerms(currentUser?.role || '').isAnonymous || (currentUser && (hasRole(currentUser, 'Viewer') || hasRole(currentUser, 'Publik')));
 
       const rolePerms = currentUser ? getRolePerms(currentUser.role) : null;
       const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
-      const isApprover = currentUser && (canApprove || currentUser.role === 'Admin');
+      const isApprover = currentUser && (canApprove || hasRole(currentUser, 'Admin'));
 
       const mNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -3222,7 +3246,7 @@
 
       const btnManage = document.getElementById('btnManageClosing');
       if (btnManage) {
-        if (currentUser && currentUser.role === 'Admin') {
+        if (currentUser && hasRole(currentUser, 'Admin')) {
           btnManage.style.display = 'inline-block';
         } else {
           btnManage.style.display = 'none';
@@ -3409,7 +3433,7 @@
           if (filterApproval === 'approved' && !isApproved) return false;
         }
 
-        const canSearchNames = currentUser && (currentUser.role === 'Admin' || currentUser.role === 'Bendahara');
+        const canSearchNames = currentUser && (hasRole(currentUser, 'Admin') || hasRole(currentUser, 'Bendahara'));
 
         if (q) {
           let m = false;
@@ -3472,7 +3496,7 @@
 
       const rolePerms = currentUser ? getRolePerms(currentUser.role) : null;
       const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
-      const isApprover = currentUser && (canApprove || currentUser.role === 'Admin');
+      const isApprover = currentUser && (canApprove || hasRole(currentUser, 'Admin'));
       const roleNeeded = currentUser ? currentUser.role : '';
 
       let pendingToApprove = [];
@@ -3507,10 +3531,10 @@
       const perms = getRolePerms(currentUser.role);
       const mRiwayat = perms.menus.riwayat || { view: true, edit: false, del: false };
       const mPindahBuku = perms.menus.pindahbuku || { view: false, edit: false, del: false };
-      const isAdmin = currentUser.role === 'Admin';
+      const isAdmin = hasRole(currentUser, 'Admin');
       const canEdit = mRiwayat.edit || isAdmin;
       const canDel = mRiwayat.del || isAdmin;
-      const isViewer = getRolePerms(currentUser?.role || '').isAnonymous || (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik'));
+      const isViewer = getRolePerms(currentUser?.role || '').isAnonymous || (currentUser && (hasRole(currentUser, 'Viewer') || hasRole(currentUser, 'Publik')));
       const isAnon = perms.isAnonymous;
 
       let sumIn = 0; let sumOut = 0;
@@ -4211,7 +4235,7 @@
 
       const userUnits = getUserUnits();
       const perms = getRolePerms(currentUser?.role || '');
-      const isViewer = perms.isAnonymous || (currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik'));
+      const isViewer = perms.isAnonymous || (currentUser && (hasRole(currentUser, 'Viewer') || hasRole(currentUser, 'Publik')));
       const isAnon = perms.isAnonymous;
       let receiptHasHiddenItems = false;
 
@@ -4284,7 +4308,7 @@
       const pihakLabel = isIncome ? 'Telah Terima Dari' : 'Dibayarkan Kepada';
       const signLabel1 = isIncome ? 'Penyetor,' : 'Penerima,';
 
-      const isCopy = (!currentUser || currentUser.role !== 'Bendahara');
+      const isCopy = (!currentUser || !hasRole(currentUser, 'Bendahara'));
       const watermarkHtml = isCopy ? `<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 45px; font-weight: 900; color: rgba(220, 38, 38, 0.15); z-index: 10; pointer-events: none; border: 6px solid rgba(220, 38, 38, 0.15); padding: 10px 20px; letter-spacing: 8px; border-radius: 10px; white-space: nowrap;">CERTIFIED TRUE COPY</div>` : '';
 
       return `
@@ -4577,7 +4601,9 @@
     function editUser(username, nama, role) {
       editingUser = username; document.getElementById('userFormTitle').textContent = 'Ubah Akun';
       document.getElementById('userName').value = username; document.getElementById('userName').disabled = true;
-      document.getElementById('userFullName').value = nama; document.getElementById('userRole').value = role; document.getElementById('userPassword').value = '';
+      document.getElementById('userFullName').value = nama; document.getElementById('userPassword').value = '';
+      const rolesArray = (role || '').split(',').map(r => r.trim());
+      document.querySelectorAll('input[name="userRoleChk"]').forEach(chk => { chk.checked = rolesArray.includes(chk.value); });
       const boundUnits = getUserUnits(username);
       document.querySelectorAll('.userUnitCheck').forEach(chk => { chk.checked = boundUnits.includes(chk.value); });
       document.getElementById('saveUserBtn').innerHTML = 'Update'; document.getElementById('cancelEditUserBtn').style.display = 'inline-flex';
@@ -4585,12 +4611,17 @@
     function cancelEditUser() {
       editingUser = null; document.getElementById('userFormTitle').textContent = 'Tambah User';
       document.getElementById('userName').value = ''; document.getElementById('userName').disabled = false;
-      document.getElementById('userFullName').value = ''; document.getElementById('userRole').value = 'Viewer'; document.getElementById('userPassword').value = '';
+      document.getElementById('userFullName').value = ''; document.getElementById('userPassword').value = '';
+      document.querySelectorAll('input[name="userRoleChk"]').forEach(chk => chk.checked = false);
+      const viewChk = document.querySelector('input[name="userRoleChk"][value="Viewer"]');
+      if (viewChk) viewChk.checked = true;
       document.querySelectorAll('.userUnitCheck').forEach(chk => chk.checked = false);
       document.getElementById('saveUserBtn').innerHTML = 'Simpan'; document.getElementById('cancelEditUserBtn').style.display = 'none';
     }
     async function saveUserForm() {
-      const username = document.getElementById('userName').value.trim(); const nama = document.getElementById('userFullName').value.trim(); const role = document.getElementById('userRole').value; const password = document.getElementById('userPassword').value;
+      const username = document.getElementById('userName').value.trim(); const nama = document.getElementById('userFullName').value.trim(); const password = document.getElementById('userPassword').value;
+      const roleChecks = document.querySelectorAll('input[name="userRoleChk"]:checked');
+      const role = Array.from(roleChecks).map(chk => chk.value).join(', ');
       const unitChecks = document.querySelectorAll('.userUnitCheck:checked');
       const unitsArray = Array.from(unitChecks).map(chk => chk.value);
       if (!username || !role) { notify('Lengkapi data wajib!', 'error'); return; }
@@ -4629,7 +4660,7 @@
             <div style="font-size:12px; color:var(--text3); display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:2px;">
               <span style="font-family:monospace; color:var(--text2); background:var(--badge-gray-bg); padding:2px 6px; border-radius:4px; word-break:break-all;">@${x.username}</span>
               <span style="font-family:monospace; color:var(--text); background:var(--glass-bg); border:1px solid var(--glass-border); padding:2px 6px; border-radius:4px; word-break:break-all;" title="Password Saat Ini">🔑 ${x.password || '***'}</span>
-              <span class="badge ${x.role === 'Admin' ? 'badge-blue' : (x.role === 'Bendahara' ? 'badge-green' : 'badge-gray')}" style="font-size:10px;">${x.role}</span>
+              ${(x.role || '').split(',').map(r => `<span class="badge ${r.trim() === 'Admin' ? 'badge-blue' : (r.trim() === 'Bendahara' ? 'badge-green' : 'badge-gray')}" style="font-size:10px;">${r.trim()}</span>`).join(' ')}
               ${uUnit.map(u => `<span class="badge badge-gold" style="font-size:10px;" title="Terikat dengan Unit">${u}</span>`).join(' ')}
             </div>
           </div>
@@ -4749,7 +4780,7 @@
       const targetDateStart = new Date(targetYear, targetMonth - 1, 1);
       const targetDateEnd = new Date(targetYear, targetMonth, 0, 23, 59, 59);
 
-      const isViewer = currentUser && (currentUser.role === 'Viewer' || currentUser.role === 'Publik');
+      const isViewer = currentUser && (hasRole(currentUser, 'Viewer') || hasRole(currentUser, 'Publik'));
       const isSensorName = isViewer || (document.getElementById('sensorPemasukan') ? document.getElementById('sensorPemasukan').checked : false);
       const isSensorUnit = isViewer || (document.getElementById('sensorUnit') ? document.getElementById('sensorUnit').checked : false);
       const isManualSignature = document.getElementById('manualSignature') ? document.getElementById('manualSignature').checked : false;
@@ -5138,7 +5169,7 @@ window.showPage = showPage;
 
     function doPrintPartisipasi() {
       const allowedRoles = ['Admin', 'Bendahara', 'Ketua Jemaat', 'Pendeta', 'Gembala'];
-      if (!currentUser || !allowedRoles.includes(currentUser.role)) {
+      if (!currentUser || !allowedRoles.some(r => hasRole(currentUser, r))) {
         return notify('Anda tidak memiliki akses untuk mencetak laporan ini.', 'error');
       }
       if (!currentReportData) return notify('Generate laporan terlebih dahulu', 'error');

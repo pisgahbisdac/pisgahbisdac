@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#151924">
   <title>Inventaris - PISGAH-BISDAC</title>
   
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <link rel="stylesheet" href="/src/index.css">
@@ -22,7 +22,7 @@
     html, body {
       background-color: #0b1a30 !important;
       color: #eae7e2 !important;
-      font-family: 'Inter', sans-serif !important;
+      font-family: 'Space Grotesk', sans-serif !important;
       margin: 0 !important;
       padding: 0 !important;
       overflow-x: hidden !important;
@@ -38,7 +38,8 @@
       background: linear-gradient(135deg, rgba(11,26,48,0.95) 0%, rgba(21,25,36,0.98) 100%), url('https://images.unsplash.com/photo-1548625361-ec8587d60f58?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat;
       padding: 80px 20px 60px;
       text-align: center;
-      border-bottom: 1px solid var(--glass-border);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
     }
     
     .hero-title {
@@ -50,12 +51,13 @@
     }
     
     .glass-panel {
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 16px;
       padding: 24px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     }
     
     .search-bar {
@@ -69,18 +71,21 @@
       width: 100%;
       padding: 16px 24px 16px 48px;
       border-radius: 50px;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       color: white;
       font-size: 16px;
-      transition: all 0.3s ease;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .search-bar input:focus {
       outline: none;
-      background: rgba(255, 255, 255, 0.1);
-      border-color: var(--accent);
-      box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(212, 175, 55, 0.8);
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.3), inset 0 0 10px rgba(212, 175, 55, 0.1);
+      transform: translateY(-2px);
     }
     
     .search-bar i {
@@ -101,19 +106,39 @@
     }
     
     .inv-asset-card {
-      background-color: #1a2639 !important;
-      border: 1px solid rgba(255,255,255,0.1) !important;
-      border-radius: 16px !important;
+      background-color: rgba(255, 255, 255, 0.03) !important;
+      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(16px) !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      border-radius: 20px !important;
       overflow: hidden !important;
-      transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
       cursor: pointer !important;
       position: relative !important;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    .inv-asset-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 50%; height: 100%;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+      transform: skewX(-20deg);
+      transition: all 0.6s ease;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .inv-asset-card:hover::before {
+      left: 150%;
     }
     
     .inv-asset-card:hover {
-      transform: translateY(-5px) !important;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+      transform: translateY(-10px) scale(1.02) !important;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(212, 175, 55, 0.2) !important;
       border-color: rgba(212, 175, 55, 0.5) !important;
+      background-color: rgba(255, 255, 255, 0.05) !important;
     }
     
     .inv-asset-photo {
@@ -142,6 +167,11 @@
       display: flex !important;
       align-items: center !important;
       gap: 8px !important;
+    }
+    
+    .inv-asset-meta i, .inv-asset-card i {
+      -webkit-text-stroke: 1px currentColor;
+      -webkit-text-fill-color: transparent;
     }
     
     .inv-asset-value {
@@ -528,7 +558,7 @@
       </div>
       
       <div class="inv-form-group">
-        <label>Taksasi Harga / Perkiraan Nilai Saat Ini (Rp)</label>
+        <label>Market Value (Rp)</label>
         <input type="text" inputmode="numeric" id="formTaksasi" class="inv-form-control" placeholder="Contoh: 4500000">
       </div>
       
@@ -622,7 +652,7 @@
             </div>
             
             <div id="detailTaksasiContainer" class="inv-asset-meta admin-only-field" style="margin-top:15px; display:none;">
-              <div style="font-size:0.85rem; color:rgba(255,255,255,0.6); margin-bottom:5px;"><i class="fa-solid fa-chart-line"></i> Taksasi Harga Saat Ini:</div>
+              <div style="font-size:0.85rem; color:rgba(255,255,255,0.6); margin-bottom:5px;"><i class="fa-solid fa-chart-line"></i> Market Value:</div>
               <div id="detailTaksasi" style="color:#d4af37; font-weight:bold; font-size:1.3rem;"></div>
             </div>
             
