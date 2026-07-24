@@ -25,7 +25,7 @@ async function apiGet(action, params = {}) {
   url.searchParams.set('token', localStorage.getItem('BISDAC_token') || '');
   url.searchParams.set('_t', Date.now());
   for (let k in params) url.searchParams.set(k, params[k]);
-  
+
   const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
   const data = await res.json();
   if (!data.success) throw new Error(data.message || 'API Error');
@@ -62,22 +62,22 @@ function checkAuth() {
   const token = localStorage.getItem('BISDAC_token');
   const role = localStorage.getItem('BISDAC_role');
   const name = localStorage.getItem('BISDAC_name');
-  
+
   const isAdmin = role && (hasRole(role, 'Admin') || hasRole(role, 'Bendahara') || hasRole(role, 'Diakon') || hasRole(role, 'Ketua Jemaat') || hasRole(role, 'Pendeta'));
-  
+
   if (token && isAdmin) {
     currentUser = { token, role, name };
     document.getElementById('loginBtn').style.display = 'none';
     document.getElementById('adminControls').style.display = 'flex';
     document.getElementById('userNameDisplay').textContent = `Hi, ${name}`;
-    
+
     // Tampilkan field rahasia (Nilai)
     document.querySelectorAll('.admin-only-field').forEach(el => el.style.display = el.dataset.display || 'block');
   } else {
     currentUser = null;
     document.getElementById('loginBtn').style.display = 'block';
     document.getElementById('adminControls').style.display = 'none';
-    
+
     // Sembunyikan field rahasia
     document.querySelectorAll('.admin-only-field').forEach(el => el.style.display = 'none');
   }
@@ -88,10 +88,10 @@ function checkAuth() {
 // ==========================================
 window.currentViewMode = localStorage.getItem('BISDAC_invViewMode') || 'grid';
 
-window.changeViewMode = function(mode) {
+window.changeViewMode = function (mode) {
   window.currentViewMode = mode;
   localStorage.setItem('BISDAC_invViewMode', mode);
-  
+
   if (mode === 'grid') {
     document.getElementById('btnViewGrid').classList.add('active');
     document.getElementById('btnViewList').classList.remove('active');
@@ -99,12 +99,12 @@ window.changeViewMode = function(mode) {
     document.getElementById('btnViewList').classList.add('active');
     document.getElementById('btnViewGrid').classList.remove('active');
   }
-  
+
   const val = document.getElementById('searchInput').value.toLowerCase();
   if (val) {
-    const filtered = inventoryData.filter(x => 
-      x.name.toLowerCase().includes(val) || 
-      x.location.toLowerCase().includes(val) || 
+    const filtered = inventoryData.filter(x =>
+      x.name.toLowerCase().includes(val) ||
+      x.location.toLowerCase().includes(val) ||
       x.pic.toLowerCase().includes(val)
     );
     renderGrid(filtered);
@@ -115,31 +115,31 @@ window.changeViewMode = function(mode) {
 
 function renderGrid(data) {
   resetSelectAllBtn();
-  
+
   const grid = document.getElementById('inventoryGrid');
   if (!data || data.length === 0) {
     grid.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; padding: 40px; color: rgba(255,255,255,0.6);">Belum ada data inventaris.</div>`;
     return;
   }
-  
+
   const isList = window.currentViewMode === 'list';
   grid.className = isList ? 'inventory-list' : 'inventory-grid';
-  
+
   grid.innerHTML = data.map(item => {
     const photoUrl = item.photo ? item.photo : 'https://images.unsplash.com/photo-1548625361-ec8587d60f58?w=500&q=80';
     const isDisposed = item.status === 'Disposed';
     const cardStyle = isDisposed ? 'opacity: 0.7; filter: grayscale(80%); border: 1px solid rgba(239, 68, 68, 0.3);' : '';
-    const badgeHtml = isDisposed 
+    const badgeHtml = isDisposed
       ? `<div class="inv-badge-status" style="background:rgba(239, 68, 68, 0.9); color:white; font-weight:bold;"><i class="fa-solid fa-ban"></i> DISPOSED</div>`
       : `<div class="inv-badge-status">${item.category || 'Uncategorized'}</div>`;
-    
+
     const checkboxHtml = currentUser ? `<input type="checkbox" class="bulk-qr-checkbox" value="${item.id}" onclick="event.stopPropagation(); window.toggleBulkPrintButton();" style="position:absolute; top:15px; left:15px; z-index:20; width:20px; height:20px; cursor:pointer;" title="Pilih untuk cetak QR">` : '';
 
     if (isList) {
       return `
         <div class="inv-list-card" style="${cardStyle}" onclick="window.viewDetail('${item.id}')">
           ${checkboxHtml}
-          <img src="${photoUrl}" class="inv-list-photo" alt="${item.name}" onerror="this.src='https://via.placeholder.com/500x300?text=No+Photo'">
+          <img src="${photoUrl}" class="inv-list-photo" alt="${item.name}" onerror="this.src='/icons/PisgahLogoColor.png'">
           <div class="inv-list-info">
             ${badgeHtml}
             <div style="flex:1;">
@@ -174,7 +174,7 @@ function renderGrid(data) {
         <div class="inv-asset-card" style="${cardStyle}" onclick="window.viewDetail('${item.id}')">
           ${checkboxHtml}
           ${badgeHtml}
-          <img src="${photoUrl}" class="inv-asset-photo" alt="${item.name}" onerror="this.src='https://via.placeholder.com/500x300?text=No+Photo'">
+          <img src="${photoUrl}" class="inv-asset-photo" alt="${item.name}" onerror="this.src='/icons/PisgahLogoColor.png'">
           <div class="inv-asset-info">
             <div class="inv-asset-name" style="display:flex; align-items:center; gap:8px;">
               ${item.name}
@@ -207,13 +207,13 @@ async function loadData() {
   try {
     const grid = document.getElementById('inventoryGrid');
     grid.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; padding: 40px;"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--accent);"></i></div>`;
-    
+
     const response = await apiGet('getInventory');
     inventoryData = response.data || [];
     // Sort terbaru ke terlama
     inventoryData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     renderGrid(inventoryData);
-    
+
     // Auto-open detail modal if scanned from barcode/QR
     const urlParams = new URLSearchParams(window.location.search);
     const scanId = urlParams.get('id');
@@ -230,10 +230,10 @@ async function loadData() {
 // ==========================================
 // ACTIONS
 // ==========================================
-window.viewDetail = function(id) {
+window.viewDetail = function (id) {
   const item = inventoryData.find(x => x.id === id);
   if (!item) return;
-  
+
   document.getElementById('detailName').textContent = item.name;
   document.getElementById('detailId').textContent = item.id;
   document.getElementById('detailCategory').textContent = item.category || 'Belum Dikategorikan';
@@ -243,20 +243,20 @@ window.viewDetail = function(id) {
   document.getElementById('detailPic').textContent = item.pic;
   document.getElementById('detailQty').textContent = item.qty || 1;
   document.getElementById('detailUnit').textContent = item.unit || 'Unit';
-  
+
   const statusContainer = document.getElementById('detailStatusContainer');
   const statusBadge = document.getElementById('detailStatusBadge');
   const disposeInfo = document.getElementById('detailDisposeInfo');
-  
+
   if (item.status === 'Disposed') {
     statusContainer.style.display = 'block';
     statusBadge.innerHTML = '<i class="fa-solid fa-ban"></i> Disposed';
     statusBadge.style.background = 'rgba(239, 68, 68, 0.2)';
     statusBadge.style.color = '#ef4444';
-    
+
     disposeInfo.style.display = 'block';
     document.getElementById('detailDisposeReason').textContent = item.dispose_reason || '-';
-    
+
     if (currentUser && item.dispose_price) {
       document.getElementById('detailDisposePrice').textContent = `Rp ${fmt(item.dispose_price)}`;
       document.getElementById('detailDisposePrice').parentElement.style.display = 'block';
@@ -270,7 +270,7 @@ window.viewDetail = function(id) {
     statusBadge.style.color = '#4ade80';
     disposeInfo.style.display = 'none';
   }
-  
+
   const subItemsEl = document.getElementById('detailSubItems');
   const subItemsContainer = document.getElementById('detailSubItemsContainer');
   if (item.sub_items) {
@@ -279,12 +279,12 @@ window.viewDetail = function(id) {
   } else {
     subItemsContainer.style.display = 'none';
   }
-  
+
   const photosContainer = document.getElementById('detailPhotosContainer');
-  photosContainer.innerHTML = ''; 
-  
+  photosContainer.innerHTML = '';
+
   const photos = [item.photo, item.pic2, item.pic3, item.pic4].filter(p => p);
-  
+
   if (photos.length > 0) {
     photos.forEach(p => {
       const img = document.createElement('img');
@@ -307,7 +307,7 @@ window.viewDetail = function(id) {
   } else {
     photosContainer.style.display = 'none';
   }
-  
+
   if (currentUser) {
     document.getElementById('detailValueContainer').style.display = 'block';
     document.getElementById('detailValue').textContent = `Rp ${fmt(item.value)}`;
@@ -319,38 +319,38 @@ window.viewDetail = function(id) {
     document.getElementById('detailTaksasiContainer').style.display = 'none';
     document.getElementById('detailAdminActions').style.display = 'none';
   }
-  
+
   // Generate QR Code containing the full URL
   const fullUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
   const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullUrl)}`;
-  
+
   document.getElementById('qrCodeImg').src = qrApiUrl;
   document.getElementById('qrCodeId').textContent = item.id;
-  
+
   document.getElementById('detailModal').style.display = 'flex';
-  
+
   window.printDirectThermal = async () => {
     try {
       if (!('serial' in navigator)) {
         return showCustomAlert('Browser Anda tidak mendukung Direct Print. Gunakan Google Chrome/Edge di PC atau Chrome di Android.', 'error');
       }
-      
+
       const assetName = document.getElementById('detailName').textContent;
       const assetId = document.getElementById('detailId').textContent.replace('ID: ', '');
       const qrSrc = document.getElementById('qrCodeImg').src;
-      
+
       // Buat Canvas Virtual Portrait (384 dots lebar = standar printer 58mm)
       const canvas = document.createElement('canvas');
-      canvas.width = 384; 
-      canvas.height = 520; 
+      canvas.width = 384;
+      canvas.height = 520;
       const ctx = canvas.getContext('2d');
-      
+
       const cx = canvas.width / 2; // titik tengah horizontal
-      
+
       // Background Putih
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
+
       // Gambar Kotak Hitam dengan Sudut Bulat (Border)
       const r = 20, bx = 12, by = 12, bw = canvas.width - 24, bh = canvas.height - 24;
       ctx.strokeStyle = '#000000';
@@ -367,31 +367,31 @@ window.viewDetail = function(id) {
       ctx.quadraticCurveTo(bx, by, bx + r, by);
       ctx.closePath();
       ctx.stroke();
-      
+
       // Teks Nama Aset (di atas)
       ctx.fillStyle = '#000000';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
       ctx.font = 'bold 26px monospace';
-      
+
       let upperName = assetName.toUpperCase();
       if (upperName.length <= 24) {
-          ctx.fillText(upperName, cx, 45);
+        ctx.fillText(upperName, cx, 45);
       } else {
-          // Cari spasi terdekat sebelum batas 24 karakter
-          let breakIdx = upperName.lastIndexOf(' ', 24);
-          if (breakIdx === -1) breakIdx = 22; // Jika tidak ada spasi, potong paksa
-          
-          let line1 = upperName.substring(0, breakIdx);
-          let line2 = upperName.substring(breakIdx).trim();
-          if (line2.length > 24) {
-              line2 = line2.substring(0, 21) + '...';
-          }
-          
-          ctx.fillText(line1, cx, 30);
-          ctx.fillText(line2, cx, 60);
+        // Cari spasi terdekat sebelum batas 24 karakter
+        let breakIdx = upperName.lastIndexOf(' ', 24);
+        if (breakIdx === -1) breakIdx = 22; // Jika tidak ada spasi, potong paksa
+
+        let line1 = upperName.substring(0, breakIdx);
+        let line2 = upperName.substring(breakIdx).trim();
+        if (line2.length > 24) {
+          line2 = line2.substring(0, 21) + '...';
+        }
+
+        ctx.fillText(line1, cx, 30);
+        ctx.fillText(line2, cx, 60);
       }
-      
+
       // Load QR Code
       const qrImg = new Image();
       qrImg.crossOrigin = 'Anonymous';
@@ -400,11 +400,11 @@ window.viewDetail = function(id) {
         qrImg.onerror = reject;
         qrImg.src = qrSrc;
       });
-      
+
       // Gambar QR besar di tengah
       const qrSize = 300;
-      ctx.drawImage(qrImg, cx - qrSize/2, 95, qrSize, qrSize);
-      
+      ctx.drawImage(qrImg, cx - qrSize / 2, 95, qrSize, qrSize);
+
       // Gambar Logo Gereja di tengah QR
       const logoImg = new Image();
       logoImg.crossOrigin = 'Anonymous';
@@ -416,24 +416,24 @@ window.viewDetail = function(id) {
       if (logoImg.complete && logoImg.naturalWidth > 0) {
         const logoSize = 80;
         const logoCx = cx;
-        const logoCy = 95 + qrSize/2;
-        
+        const logoCy = 95 + qrSize / 2;
+
         // Jadikan semua piksel logo menjadi solid black agar tercetak sempurna di thermal
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = logoSize;
         tempCanvas.height = logoSize;
         const tempCtx = tempCanvas.getContext('2d');
         tempCtx.drawImage(logoImg, 0, 0, logoSize, logoSize);
-        
+
         const imgData = tempCtx.getImageData(0, 0, logoSize, logoSize);
         const data = imgData.data;
         for (let i = 0; i < data.length; i += 4) {
           // Jika piksel terlihat (bukan transparan)
-          if (data[i+3] > 20) {
+          if (data[i + 3] > 20) {
             data[i] = 0;     // Red = 0 (Hitam)
-            data[i+1] = 0;   // Green = 0
-            data[i+2] = 0;   // Blue = 0
-            data[i+3] = 255; // Opacity 100%
+            data[i + 1] = 0;   // Green = 0
+            data[i + 2] = 0;   // Blue = 0
+            data[i + 3] = 255; // Opacity 100%
           }
         }
         tempCtx.putImageData(imgData, 0, 0);
@@ -442,14 +442,14 @@ window.viewDetail = function(id) {
         ctx.beginPath();
         ctx.arc(logoCx, logoCy, logoSize / 2 + 8, 0, Math.PI * 2);
         ctx.fill();
-        ctx.drawImage(tempCanvas, logoCx - logoSize/2, logoCy - logoSize/2, logoSize, logoSize);
+        ctx.drawImage(tempCanvas, logoCx - logoSize / 2, logoCy - logoSize / 2, logoSize, logoSize);
       }
-      
+
       // Teks ID (di bawah)
       ctx.fillStyle = '#000000';
       ctx.font = 'bold 28px monospace';
       ctx.fillText(assetId, cx, 420);
-      
+
       // Garis pemisah kecil
       ctx.strokeStyle = '#cccccc';
       ctx.lineWidth = 1;
@@ -457,40 +457,40 @@ window.viewDetail = function(id) {
       ctx.moveTo(60, 460);
       ctx.lineTo(canvas.width - 60, 460);
       ctx.stroke();
-      
+
       // Teks PISGAH kecil di paling bawah
       ctx.fillStyle = '#888888';
       ctx.font = '20px monospace';
       ctx.fillText('PISGAH-BISDAC', cx, 472);
-      
+
       // Tampilkan Preview Modal di tengah
       const modal = document.getElementById('thermalPreviewModal');
       modal.style.cssText = 'display:flex; position:fixed; top:0; left:0; width:100%; height:100%; z-index:99999; background:#111827; align-items:center; justify-content:center;';
       document.getElementById('thermalPreviewImg').src = canvas.toDataURL();
-      
+
       const printBtn = document.getElementById('doDirectPrintBtn');
       const newPrintBtn = printBtn.cloneNode(true);
       printBtn.parentNode.replaceChild(newPrintBtn, printBtn);
-      
+
       newPrintBtn.onclick = async () => {
         try {
           const port = await navigator.serial.requestPort();
           await port.open({ baudRate: 9600 });
           const writer = port.writable.getWriter();
-          
+
           showCustomAlert('Mencetak...', 'success');
-          
+
           // Konversi ke bit gambar ESC/POS
           const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           const data = imgData.data;
           const widthBytes = Math.ceil(canvas.width / 8);
           const height = canvas.height;
-          
+
           const buffer = new Uint8Array(8 + (widthBytes * height));
           buffer[0] = 0x1D; buffer[1] = 0x76; buffer[2] = 0x30; buffer[3] = 0x00;
           buffer[4] = widthBytes & 0xFF; buffer[5] = (widthBytes >> 8) & 0xFF;
           buffer[6] = height & 0xFF; buffer[7] = (height >> 8) & 0xFF;
-          
+
           let offset = 8;
           for (let y = 0; y < height; y++) {
             for (let x = 0; x < widthBytes; x++) {
@@ -499,26 +499,26 @@ window.viewDetail = function(id) {
                 const px = x * 8 + b;
                 if (px < canvas.width) {
                   const idx = (y * canvas.width + px) * 4;
-                  const lum = (data[idx] * 0.299 + data[idx+1] * 0.587 + data[idx+2] * 0.114);
-                  if (data[idx+3] > 128 && lum < 128) byte |= (1 << (7 - b));
+                  const lum = (data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114);
+                  if (data[idx + 3] > 128 && lum < 128) byte |= (1 << (7 - b));
                 }
               }
               buffer[offset++] = byte;
             }
           }
-          
+
           const initCmd = new Uint8Array([0x1B, 0x40]);
           const alignCenter = new Uint8Array([0x1B, 0x61, 0x01]);
           const cutCmd = new Uint8Array([0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A]);
-          
+
           await writer.write(initCmd);
           await writer.write(alignCenter);
           await writer.write(buffer);
           await writer.write(cutCmd);
-          
+
           writer.releaseLock();
           await port.close();
-          
+
           document.getElementById('thermalPreviewModal').style.display = 'none';
           showCustomAlert('Berhasil dicetak langsung ke printer thermal!', 'success');
         } catch (printErr) {
@@ -528,18 +528,18 @@ window.viewDetail = function(id) {
           }
         }
       };
-      
+
     } catch (err) {
       console.error(err);
       showCustomAlert('Gagal memuat preview: ' + err.message, 'error');
     }
   };
-  
+
   window.printBarcode = () => {
     const qrSrc = document.getElementById('qrCodeImg').src;
     const assetName = document.getElementById('detailName').textContent;
     const assetId = document.getElementById('detailId').textContent.replace('ID: ', '');
-    
+
     const printWin = window.open('', '_blank');
     if (!printWin) {
       showCustomAlert('Pop-up diblokir oleh browser Anda. Izinkan pop-up untuk pisgahbisdac.app agar dapat mencetak.', 'error');
@@ -616,13 +616,13 @@ window.viewDetail = function(id) {
     `);
     printWin.document.close();
   };
-  
+
   // Setup Action Buttons
   document.getElementById('editBtn').onclick = () => {
     document.getElementById('detailModal').style.display = 'none';
     openFormModal(item);
   };
-  
+
   document.getElementById('deleteBtn').onclick = async () => {
     if (!confirm('Hapus aset ini?')) return;
     const btn = document.getElementById('deleteBtn');
@@ -634,7 +634,7 @@ window.viewDetail = function(id) {
       showCustomAlert('Berhasil dihapus!', 'success');
       document.getElementById('detailModal').style.display = 'none';
       loadData();
-    } catch(e) {
+    } catch (e) {
       showCustomAlert(e.message, 'error');
     } finally {
       btn.innerHTML = oriText;
@@ -653,13 +653,13 @@ function resetSelectAllBtn() {
 
 window.isAllSelected = false;
 
-window.toggleSelectAll = function() {
+window.toggleSelectAll = function () {
   const checkboxes = document.querySelectorAll('.bulk-qr-checkbox');
   if (checkboxes.length === 0) return;
-  
+
   window.isAllSelected = !window.isAllSelected;
   const btnIcon = document.querySelector('#btnSelectAll i');
-  
+
   if (window.isAllSelected) {
     checkboxes.forEach(cb => cb.checked = true);
     if (btnIcon) btnIcon.className = 'fa-solid fa-square-check';
@@ -669,15 +669,15 @@ window.toggleSelectAll = function() {
     if (btnIcon) btnIcon.className = 'fa-regular fa-square-check';
     document.getElementById('btnSelectAll').classList.remove('active');
   }
-  
+
   window.toggleBulkPrintButton();
 }
 
-window.toggleBulkPrintButton = function() {
+window.toggleBulkPrintButton = function () {
   const checkboxes = document.querySelectorAll('.bulk-qr-checkbox:checked');
   const container = document.getElementById('bulkPrintContainer');
   const countSpan = document.getElementById('bulkPrintCount');
-  
+
   if (checkboxes.length > 0) {
     countSpan.textContent = checkboxes.length + ' Dipilih';
     container.style.display = 'block';
@@ -686,19 +686,19 @@ window.toggleBulkPrintButton = function() {
   }
 }
 
-window.printSelectedQRs = function() {
+window.printSelectedQRs = function () {
   const checkboxes = document.querySelectorAll('.bulk-qr-checkbox:checked');
   if (checkboxes.length === 0) return;
-  
+
   const selectedIds = Array.from(checkboxes).map(cb => cb.value);
   const itemsToPrint = inventoryData.filter(item => selectedIds.includes(item.id));
-  
+
   const printWin = window.open('', '_blank');
   if (!printWin) {
     showCustomAlert('Pop-up diblokir oleh browser Anda. Izinkan pop-up untuk pisgahbisdac.app agar dapat mencetak.', 'error');
     return;
   }
-  
+
   let htmlContent = `
     <html>
       <head>
@@ -765,12 +765,12 @@ window.printSelectedQRs = function() {
       <body>
         <div class="grid-container">
   `;
-  
+
   itemsToPrint.forEach(item => {
     const fullUrl = window.location.origin + window.location.pathname + '?id=' + item.id;
     const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullUrl)}`;
     const assetId = item.id.replace('ID: ', '');
-    
+
     htmlContent += `
           <div class="label-box">
             <h3>${item.name}</h3>
@@ -782,61 +782,61 @@ window.printSelectedQRs = function() {
           </div>
     `;
   });
-  
+
   htmlContent += `
         </div>
       </body>
     </html>
   `;
-  
+
   printWin.document.write(htmlContent);
   printWin.document.close();
-  
+
   // Uncheck all after printing opens
   checkboxes.forEach(cb => cb.checked = false);
   window.toggleBulkPrintButton();
 }
 
-window.printSelectedThermal = async function() {
+window.printSelectedThermal = async function () {
   const checkboxes = document.querySelectorAll('.bulk-qr-checkbox:checked');
   if (checkboxes.length === 0) return;
-  
+
   if (!('serial' in navigator)) {
     return showCustomAlert('Browser Anda tidak mendukung Direct Print (Web Serial). Gunakan Google Chrome/Edge di PC.', 'error');
   }
-  
+
   const selectedIds = Array.from(checkboxes).map(cb => cb.value);
   const itemsToPrint = inventoryData.filter(item => selectedIds.includes(item.id));
-  
+
   try {
     const port = await navigator.serial.requestPort();
     await port.open({ baudRate: 9600 });
     const writer = port.writable.getWriter();
-    
+
     showCustomAlert('Menghubungkan ke printer dan memulai cetak...', 'success');
-    
+
     const initCmd = new Uint8Array([0x1B, 0x40]);
     const alignCenter = new Uint8Array([0x1B, 0x61, 0x01]);
     const marginCmd = new Uint8Array([0x1B, 0x4A, 0x30]); // 48 dots feed
-    
+
     await writer.write(initCmd);
     await writer.write(alignCenter);
-    
+
     for (let i = 0; i < itemsToPrint.length; i++) {
       const item = itemsToPrint[i];
       const buffer = await createThermalBufferFromItem(item);
       await writer.write(buffer);
       await writer.write(marginCmd); // Jarak antar label
     }
-    
+
     const cutCmd = new Uint8Array([0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A]);
     await writer.write(cutCmd);
-    
+
     writer.releaseLock();
     await port.close();
-    
+
     showCustomAlert('Berhasil dicetak langsung ke printer thermal!', 'success');
-    
+
     checkboxes.forEach(cb => cb.checked = false);
     window.toggleBulkPrintButton();
   } catch (printErr) {
@@ -854,14 +854,14 @@ async function createThermalBufferFromItem(item) {
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullUrl)}`;
 
   const canvas = document.createElement('canvas');
-  canvas.width = 384; 
-  canvas.height = 520; 
+  canvas.width = 384;
+  canvas.height = 520;
   const ctx = canvas.getContext('2d');
   const cx = canvas.width / 2;
-  
+
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
+
   const r = 20, bx = 12, by = 12, bw = canvas.width - 24, bh = canvas.height - 24;
   ctx.strokeStyle = '#000000'; ctx.lineWidth = 5;
   ctx.beginPath();
@@ -870,42 +870,42 @@ async function createThermalBufferFromItem(item) {
   ctx.lineTo(bx + r, by + bh); ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - r);
   ctx.lineTo(bx, by + r); ctx.quadraticCurveTo(bx, by, bx + r, by);
   ctx.closePath(); ctx.stroke();
-  
+
   ctx.fillStyle = '#000000'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.font = 'bold 26px monospace';
   let upperName = assetName.toUpperCase();
   if (upperName.length <= 24) {
-      ctx.fillText(upperName, cx, 45);
+    ctx.fillText(upperName, cx, 45);
   } else {
-      let breakIdx = upperName.lastIndexOf(' ', 24);
-      if (breakIdx === -1) breakIdx = 22;
-      let line1 = upperName.substring(0, breakIdx);
-      let line2 = upperName.substring(breakIdx).trim();
-      if (line2.length > 24) line2 = line2.substring(0, 21) + '...';
-      ctx.fillText(line1, cx, 30); ctx.fillText(line2, cx, 60);
+    let breakIdx = upperName.lastIndexOf(' ', 24);
+    if (breakIdx === -1) breakIdx = 22;
+    let line1 = upperName.substring(0, breakIdx);
+    let line2 = upperName.substring(breakIdx).trim();
+    if (line2.length > 24) line2 = line2.substring(0, 21) + '...';
+    ctx.fillText(line1, cx, 30); ctx.fillText(line2, cx, 60);
   }
-  
+
   const qrImg = new Image(); qrImg.crossOrigin = 'Anonymous';
   await new Promise((resolve) => { qrImg.onload = resolve; qrImg.onerror = resolve; qrImg.src = qrSrc; });
   const qrSize = 300;
-  ctx.drawImage(qrImg, cx - qrSize/2, 95, qrSize, qrSize);
-  
+  ctx.drawImage(qrImg, cx - qrSize / 2, 95, qrSize, qrSize);
+
   const logoImg = new Image(); logoImg.crossOrigin = 'Anonymous';
   await new Promise((resolve) => { logoImg.onload = resolve; logoImg.onerror = resolve; logoImg.src = window.location.origin + '/icons/PisgahColor.png'; });
   if (logoImg.complete && logoImg.naturalWidth > 0) {
-    const logoSize = 80; const logoCx = cx; const logoCy = 95 + qrSize/2;
+    const logoSize = 80; const logoCx = cx; const logoCy = 95 + qrSize / 2;
     const tempCanvas = document.createElement('canvas'); tempCanvas.width = logoSize; tempCanvas.height = logoSize;
     const tempCtx = tempCanvas.getContext('2d'); tempCtx.drawImage(logoImg, 0, 0, logoSize, logoSize);
     const imgData = tempCtx.getImageData(0, 0, logoSize, logoSize); const data = imgData.data;
-    for (let i = 0; i < data.length; i += 4) { if (data[i+3] > 20) { data[i]=0; data[i+1]=0; data[i+2]=0; data[i+3]=255; } }
+    for (let i = 0; i < data.length; i += 4) { if (data[i + 3] > 20) { data[i] = 0; data[i + 1] = 0; data[i + 2] = 0; data[i + 3] = 255; } }
     tempCtx.putImageData(imgData, 0, 0);
     ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(logoCx, logoCy, logoSize / 2 + 8, 0, Math.PI * 2); ctx.fill();
-    ctx.drawImage(tempCanvas, logoCx - logoSize/2, logoCy - logoSize/2, logoSize, logoSize);
+    ctx.drawImage(tempCanvas, logoCx - logoSize / 2, logoCy - logoSize / 2, logoSize, logoSize);
   }
-  
+
   ctx.fillStyle = '#000000'; ctx.font = 'bold 28px monospace'; ctx.fillText(assetId, cx, 420);
   ctx.strokeStyle = '#cccccc'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(60, 460); ctx.lineTo(canvas.width - 60, 460); ctx.stroke();
   ctx.fillStyle = '#888888'; ctx.font = '20px monospace'; ctx.fillText('PISGAH-BISDAC', cx, 472);
-  
+
   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imgData.data; const widthBytes = Math.ceil(canvas.width / 8); const height = canvas.height;
   const buffer = new Uint8Array(8 + (widthBytes * height));
@@ -920,8 +920,8 @@ async function createThermalBufferFromItem(item) {
         const px = x * 8 + b;
         if (px < canvas.width) {
           const idx = (y * canvas.width + px) * 4;
-          const lum = (data[idx] * 0.299 + data[idx+1] * 0.587 + data[idx+2] * 0.114);
-          if (data[idx+3] > 128 && lum < 128) byte |= (1 << (7 - b));
+          const lum = (data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114);
+          if (data[idx + 3] > 128 && lum < 128) byte |= (1 << (7 - b));
         }
       }
       buffer[offset++] = byte;
@@ -930,23 +930,23 @@ async function createThermalBufferFromItem(item) {
   return buffer;
 }
 
-window.closeFormModal = function() {
+window.closeFormModal = function () {
   document.getElementById('formModal').style.display = 'none';
 }
 
 function openFormModal(item = null) {
   document.getElementById('formModal').style.display = 'flex';
-  
+
   const imgPreview = document.getElementById('photoPreview');
   imgPreview.style.display = 'none';
   document.getElementById('formPhoto').value = '';
   window.currentPhotoBase64 = '';
-  
+
   if (item) {
     document.getElementById('formTitle').textContent = 'Edit Aset';
     document.getElementById('formId').value = item.id;
     document.getElementById('formName').value = item.name;
-    document.getElementById('formDate').value = item.date_acquired ? item.date_acquired.substring(0,10) : '';
+    document.getElementById('formDate').value = item.date_acquired ? item.date_acquired.substring(0, 10) : '';
     document.getElementById('formValue').value = item.value ? fmt(item.value) : '';
     document.getElementById('formLocation').value = item.location;
     document.getElementById('formCategory').value = item.category || '';
@@ -956,19 +956,19 @@ function openFormModal(item = null) {
     document.getElementById('formQty').value = item.qty || 1;
     document.getElementById('formUnit').value = item.unit || 'Unit';
     document.getElementById('formSubItems').value = item.sub_items || '';
-    
+
     document.getElementById('formStatus').value = item.status || 'Active';
     document.getElementById('formDisposeReason').value = item.dispose_reason || '';
     document.getElementById('formDisposePrice').value = item.dispose_price ? fmt(item.dispose_price) : '';
     document.getElementById('disposeFields').style.display = (item.status === 'Disposed') ? 'block' : 'none';
-    
+
     // Load existing photos into preview and currentPhotosBase64
     const existingPhotos = [];
     if (item.photo) existingPhotos.push(item.photo);
     if (item.pic2) existingPhotos.push(item.pic2);
     if (item.pic3) existingPhotos.push(item.pic3);
     if (item.pic4) existingPhotos.push(item.pic4);
-    
+
     if (existingPhotos.length > 0) {
       window.currentPhotosBase64 = [...existingPhotos];
       window.renderPhotoPreview();
@@ -987,7 +987,7 @@ function openFormModal(item = null) {
     document.getElementById('formQty').value = '1';
     document.getElementById('formUnit').value = 'Buah';
     document.getElementById('formSubItems').value = '';
-    
+
     document.getElementById('formStatus').value = 'Active';
     document.getElementById('formDisposeReason').value = '';
     document.getElementById('formDisposePrice').value = '';
@@ -998,26 +998,26 @@ function openFormModal(item = null) {
 // ==========================================
 // PHOTO UPLOAD logic
 // ==========================================
-document.getElementById('formPhoto').addEventListener('change', function(e) {
+document.getElementById('formPhoto').addEventListener('change', function (e) {
   const files = e.target.files;
   if (!files || files.length === 0) return;
-  
+
   if (files.length > 4) {
     showCustomAlert('Maksimal 4 gambar diperbolehkan. Hanya 4 gambar pertama yang akan diproses.', 'warning');
   }
-  
+
   window.currentPhotosBase64 = []; // Reset
   const previewContainer = document.getElementById('photoPreview');
-  previewContainer.innerHTML = ''; 
+  previewContainer.innerHTML = '';
   previewContainer.style.display = 'flex';
-  
+
   const filesToProcess = Array.from(files).slice(0, 4);
-  
+
   filesToProcess.forEach((file) => {
     const reader = new FileReader();
-    reader.onload = function(event) {
+    reader.onload = function (event) {
       const img = new Image();
-      img.onload = function() {
+      img.onload = function () {
         // Compress (Keeping 500x500 to avoid Google Sheets 50k char cell limit)
         const canvas = document.createElement('canvas');
         const MAX_WIDTH = 500;
@@ -1026,12 +1026,12 @@ document.getElementById('formPhoto').addEventListener('change', function(e) {
         let height = img.height;
         if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
         else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
-        
+
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
-        
+
         const base64 = canvas.toDataURL('image/jpeg', 0.4); // 40% quality
         window.currentPhotosBase64.push(base64);
         window.renderPhotoPreview();
@@ -1042,20 +1042,20 @@ document.getElementById('formPhoto').addEventListener('change', function(e) {
   });
 });
 
-window.renderPhotoPreview = function() {
+window.renderPhotoPreview = function () {
   const previewContainer = document.getElementById('photoPreview');
-  previewContainer.innerHTML = ''; 
+  previewContainer.innerHTML = '';
   if (!window.currentPhotosBase64 || window.currentPhotosBase64.length === 0) {
     previewContainer.style.display = 'none';
     return;
   }
   previewContainer.style.display = 'flex';
-  
+
   window.currentPhotosBase64.forEach((base64Str, idx) => {
     const wrapper = document.createElement('div');
     wrapper.style.position = 'relative';
     wrapper.style.display = 'inline-block';
-    
+
     const imgEl = document.createElement('img');
     imgEl.src = base64Str;
     imgEl.style.width = '80px';
@@ -1064,7 +1064,7 @@ window.renderPhotoPreview = function() {
     imgEl.style.borderRadius = '8px';
     imgEl.style.border = '1px solid var(--glass-border)';
     imgEl.style.flexShrink = '0';
-    
+
     const removeBtn = document.createElement('button');
     removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
     removeBtn.style.position = 'absolute';
@@ -1086,7 +1086,7 @@ window.renderPhotoPreview = function() {
       window.currentPhotosBase64.splice(idx, 1);
       window.renderPhotoPreview();
     };
-    
+
     wrapper.appendChild(imgEl);
     wrapper.appendChild(removeBtn);
     previewContainer.appendChild(wrapper);
@@ -1097,14 +1097,14 @@ window.renderPhotoPreview = function() {
 // ==========================================
 // EVENT LISTENERS & FORMATTING
 // ==========================================
-window.showCustomAlert = function(msg, type = 'success') {
+window.showCustomAlert = function (msg, type = 'success') {
   const modal = document.getElementById('customAlertModal');
   const title = document.getElementById('alertTitle');
   const message = document.getElementById('alertMessage');
   const icon = document.getElementById('alertIcon');
-  
+
   message.textContent = msg;
-  
+
   if (type === 'error') {
     title.textContent = 'Gagal';
     title.style.color = '#ef4444';
@@ -1121,7 +1121,7 @@ window.showCustomAlert = function(msg, type = 'success') {
     icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
     icon.style.color = 'var(--accent)';
   }
-  
+
   modal.style.display = 'flex';
 };
 
@@ -1137,39 +1137,39 @@ function formatRibuanInput(e) {
 document.addEventListener('DOMContentLoaded', () => {
   checkAuth();
   loadData();
-  
+
   // Format Ribuan
   document.getElementById('formValue').addEventListener('input', formatRibuanInput);
   document.getElementById('formTaksasi').addEventListener('input', formatRibuanInput);
   document.getElementById('formDisposePrice').addEventListener('input', formatRibuanInput);
-  
+
   // Login
   document.getElementById('loginBtn').addEventListener('click', () => {
     document.getElementById('loginModal').style.display = 'flex';
   });
-  
+
   document.getElementById('doLoginBtn').addEventListener('click', async () => {
     const u = document.getElementById('loginUsername').value;
     const p = document.getElementById('loginPassword').value;
     if (!u || !p) return showCustomAlert('Isi username dan password', 'error');
-    
+
     const btn = document.getElementById('doLoginBtn');
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
     btn.disabled = true;
-    
+
     try {
       const data = await apiGet('login', { username: u, password: p });
       if (data.token) {
         localStorage.setItem('BISDAC_token', data.token);
-        
+
         // Handle varying API response structures
         const role = data.role || (data.user && data.user.role) || '';
         const name = data.nama || (data.user && data.user.nama) || (data.user && data.user.name) || '';
-        
+
         localStorage.setItem('BISDAC_role', role);
         localStorage.setItem('BISDAC_name', name);
       }
-    } catch(err) {
+    } catch (err) {
       showCustomAlert(err.message, 'error');
     } finally {
       btn.innerHTML = 'Masuk';
@@ -1181,15 +1181,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
-  
+
   document.getElementById('backupBtn').addEventListener('click', () => {
     document.getElementById('backupModal').style.display = 'flex';
   });
-  
+
   document.getElementById('logoutBtn').addEventListener('click', () => {
     document.getElementById('logoutModal').style.display = 'flex';
   });
-  
+
   document.getElementById('doLogoutBtn').addEventListener('click', () => {
     localStorage.removeItem('BISDAC_token');
     localStorage.removeItem('BISDAC_role');
@@ -1198,12 +1198,12 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrid(inventoryData); // Rerender to hide values
     document.getElementById('logoutModal').style.display = 'none';
   });
-  
+
   // Add Asset
   document.getElementById('addBtn').addEventListener('click', () => {
     openFormModal();
   });
-  
+
   // Save Asset
   document.getElementById('saveBtn').addEventListener('click', async () => {
     const name = document.getElementById('formName').value;
@@ -1221,16 +1221,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const status = document.getElementById('formStatus').value;
     let disposeReason = document.getElementById('formDisposeReason').value;
     let disposePrice = document.getElementById('formDisposePrice').value.replace(/\./g, '');
-    
+
     if (!name || !loc || !pic || !cat || !src || !qty || !unit) return showCustomAlert('Mohon lengkapi field wajib (*)', 'error');
     if (status === 'Disposed' && !disposeReason) return showCustomAlert('Mohon isi Justifikasi / Alasan Disposal', 'error');
-    
+
     // Pastikan alasan dan harga disposal dihapus jika status bukan Disposed
     if (status !== 'Disposed') {
       disposeReason = '';
       disposePrice = '';
     }
-    
+
     const payload = {
       isUpdate: !!id,
       id: id,
@@ -1249,7 +1249,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dispose_reason: disposeReason,
       dispose_price: disposePrice
     };
-    
+
     if (window.currentPhotosBase64 && window.currentPhotosBase64.length > 0) {
       payload.photo = window.currentPhotosBase64[0] || '';
       payload.pic2 = window.currentPhotosBase64[1] || '';
@@ -1260,30 +1260,30 @@ document.addEventListener('DOMContentLoaded', () => {
       // However, since we populate currentPhotosBase64 on openFormModal, if there were existing photos, it WILL send them
       // If there were no existing photos, it won't send them, which is fine
     }
-    
+
     const btn = document.getElementById('saveBtn');
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
     btn.disabled = true;
-    
+
     try {
       await apiPost('saveInventory', payload);
       showCustomAlert('Berhasil disimpan!', 'success');
       closeFormModal();
       loadData();
-    } catch(e) {
+    } catch (e) {
       showCustomAlert(e.message, 'error');
     } finally {
       btn.innerHTML = 'Simpan Data';
       btn.disabled = false;
     }
   });
-  
+
   // Search
   document.getElementById('searchInput').addEventListener('input', (e) => {
     const val = e.target.value.toLowerCase();
-    const filtered = inventoryData.filter(x => 
-      x.name.toLowerCase().includes(val) || 
-      x.location.toLowerCase().includes(val) || 
+    const filtered = inventoryData.filter(x =>
+      x.name.toLowerCase().includes(val) ||
+      x.location.toLowerCase().includes(val) ||
       x.pic.toLowerCase().includes(val)
     );
     renderGrid(filtered);
@@ -1293,11 +1293,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==========================================
 // EXPORT DATA (BACKUP)
 // ==========================================
-window.exportCSV = function() {
+window.exportCSV = function () {
   if (!inventoryData || inventoryData.length === 0) return showCustomAlert('Tidak ada data untuk di-backup.', 'error');
-  
+
   const headers = ['ID', 'TANGGAL_PEROLEHAN', 'NAMA_ASET', 'KATEGORI', 'ASAL_BARANG', 'NILAI_PEROLEHAN', 'MARKET_VALUE', 'QTY', 'SATUAN', 'LOKASI', 'PENANGGUNG_JAWAB', 'STATUS', 'JUSTIFIKASI_DISPOSAL', 'HARGA_DISPOSAL', 'RINCIAN'];
-  
+
   const rows = inventoryData.map(item => {
     return [
       item.id,
@@ -1317,31 +1317,31 @@ window.exportCSV = function() {
       `"${(item.sub_items || '').replace(/"/g, '""').replace(/\n/g, ' ; ')}"`
     ].join(',');
   });
-  
+
   const csvContent = headers.join(',') + '\n' + rows.join('\n');
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.setAttribute("href", url);
-  link.setAttribute("download", `Backup_Inventaris_PISGAH_${new Date().toISOString().slice(0,10)}.csv`);
+  link.setAttribute("download", `Backup_Inventaris_PISGAH_${new Date().toISOString().slice(0, 10)}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   document.getElementById('backupModal').style.display = 'none';
 };
 
-window.exportPDF = function() {
+window.exportPDF = function () {
   if (!inventoryData || inventoryData.length === 0) return showCustomAlert('Tidak ada data untuk di-backup.', 'error');
-  
+
   document.getElementById('backupModal').style.display = 'none';
   showCustomAlert('Sedang menyiapkan PDF. Mohon tunggu beberapa detik...', 'success');
-  
+
   const pdfContainer = document.createElement('div');
   pdfContainer.style.padding = '20px';
   pdfContainer.style.fontFamily = 'Arial, sans-serif';
   pdfContainer.style.color = '#333';
   pdfContainer.style.background = '#fff';
-  
+
   let html = `
     <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">
       <h2 style="margin: 0; font-size: 24px; color: #1a2e22;">Laporan Backup Inventaris PISGAH</h2>
@@ -1359,13 +1359,13 @@ window.exportPDF = function() {
       </thead>
       <tbody>
   `;
-  
+
   inventoryData.forEach(item => {
-    const photoSrc = item.photo ? item.photo : 'https://via.placeholder.com/60?text=No+Photo';
-    const statusText = item.status === 'Disposed' 
-      ? `<span style="color:red; font-weight:bold;">Disposed</span><br><span style="font-size:8px;">${item.dispose_reason || ''}</span>` 
+    const photoSrc = item.photo ? item.photo : '/icons/PisgahLogoColor.png';
+    const statusText = item.status === 'Disposed'
+      ? `<span style="color:red; font-weight:bold;">Disposed</span><br><span style="font-size:8px;">${item.dispose_reason || ''}</span>`
       : `<span style="color:green; font-weight:bold;">Active</span>`;
-    
+
     html += `
         <tr>
           <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
@@ -1390,22 +1390,22 @@ window.exportPDF = function() {
         </tr>
     `;
   });
-  
+
   html += `
       </tbody>
     </table>
   `;
-  
+
   pdfContainer.innerHTML = html;
-  
+
   const opt = {
-    margin:       10,
-    filename:     `Backup_Inventaris_PISGAH_${new Date().toISOString().slice(0,10)}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    margin: 10,
+    filename: `Backup_Inventaris_PISGAH_${new Date().toISOString().slice(0, 10)}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
-  
+
   html2pdf().set(opt).from(pdfContainer).save().then(() => {
     document.getElementById('customAlertModal').style.display = 'none';
   });
