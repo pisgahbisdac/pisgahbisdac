@@ -4579,17 +4579,19 @@
 
     // Admin tool to batch upload old receipts (run via console: window.batchUploadOldReceipts())
     window.batchUploadOldReceipts = async function() {
-      if(!confirm("Proses ini akan mengunggah kuitansi ke semua transaksi yang belum punya foto. Lanjutkan?")) return;
-      
       const allTrans = [...cachedIncome, ...cachedExpense];
-      const toUpdate = allTrans.filter(x => !x.receipt_photo);
+      const remaining = allTrans.filter(x => !x.receipt_photo);
       
-      if(toUpdate.length === 0) {
+      if(remaining.length === 0) {
         alert("Semua transaksi sudah memiliki foto kuitansi!");
         return;
       }
       
-      console.log(`Ditemukan ${toUpdate.length} transaksi untuk di-generate.`);
+      const toUpdate = remaining.slice(0, 10);
+      
+      if(!confirm(`Tersisa ${remaining.length} transaksi yang belum punya kuitansi otomatis.\n\nSistem akan memproses batch sebanyak ${toUpdate.length} transaksi agar tidak memberatkan server. Lanjutkan?`)) return;
+      
+      console.log(`Ditemukan ${remaining.length} transaksi, memproses ${toUpdate.length} transaksi...`);
       
       let batchOverlay = document.createElement('div');
       batchOverlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #111; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: sans-serif; text-align: center;';
