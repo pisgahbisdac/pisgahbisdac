@@ -84,8 +84,8 @@
       document.getElementById('dashboardDetailModal').style.display = 'none';
     }
 
-    function openDashboardDetail(type) {
-      console.log("openDashboardDetail called with type:", type);
+    function openDashboardDetail(type, filterCat = null, filterKas = null) {
+      console.log("openDashboardDetail called with type:", type, filterCat, filterKas);
       console.log("cachedSaldo:", cachedSaldo);
       if (!cachedSaldo) { console.log("returning early due to no cachedSaldo"); return; }
       const monthEl = document.getElementById('dashMonth');
@@ -133,6 +133,37 @@
         title = "Rincian Dana Pembangunan";
         historicalInc.forEach(x => { if (x.alloc_bangun > 0) txList.push({ ...x, isInc: true, overrideAmt: x.alloc_bangun }); });
         historicalExp.forEach(x => { if (x.department !== 'Mutasi Kas / Setor Bank' && x.source_balance === 'Pembangunan') txList.push({ ...x, isInc: false }); });
+      } else if (type === 'income_jemaat') {
+        title = "Pemasukan Bulan Ini: Kas Jemaat";
+        filteredInc.forEach(x => { if (x.alloc_jemaat > 0) txList.push({ ...x, isInc: true, overrideAmt: x.alloc_jemaat }); });
+      } else if (type === 'income_daerah') {
+        title = "Pemasukan Bulan Ini: Kas Daerah";
+        filteredInc.forEach(x => { if (x.alloc_daerah > 0) txList.push({ ...x, isInc: true, overrideAmt: x.alloc_daerah }); });
+      } else if (type === 'income_bangun') {
+        title = "Pemasukan Bulan Ini: Pembangunan";
+        filteredInc.forEach(x => { if (x.alloc_bangun > 0) txList.push({ ...x, isInc: true, overrideAmt: x.alloc_bangun }); });
+      } else if (type === 'income_cat') {
+        title = "Pemasukan: " + filterCat;
+        if (filterKas) {
+          title += " (" + filterKas.charAt(0).toUpperCase() + filterKas.slice(1) + ")";
+        }
+        filteredInc.forEach(x => {
+          if (x.income_type === filterCat) {
+            let amt = x.amount;
+            if (filterKas === 'jemaat' && x.alloc_jemaat > 0) amt = x.alloc_jemaat;
+            else if (filterKas === 'daerah' && x.alloc_daerah > 0) amt = x.alloc_daerah;
+            else if (filterKas === 'bangun' && x.alloc_bangun > 0) amt = x.alloc_bangun;
+            else if (filterKas) return; // skip if allocation is 0
+            txList.push({ ...x, isInc: true, overrideAmt: amt });
+          }
+        });
+      } else if (type === 'expense_cat') {
+        title = "Pengeluaran: " + filterCat;
+        filteredExp.forEach(x => {
+          if (x.department === filterCat) {
+            txList.push({ ...x, isInc: false });
+          }
+        });
       }
 
       if (type === 'jemaat' && cachedSaldo.initJemaat) {
@@ -892,7 +923,7 @@
       document.getElementById('receiptPhotoModal').style.display = 'none';
       document.getElementById('photoModalImg').src = '';
     }
-    function openPhotoModalById(id, type) {
+    async function openPhotoModalById(id, type) {
       let r = null;
       if (type === 'income') {
         r = cachedIncome.find(x => (x.transaction_id || x.receipt_no) === id);
@@ -911,29 +942,38 @@
       if (!r) {
         const allTrans = [...cachedIncome, ...cachedExpense];
         r = allTrans.find(x => (x.transaction_id || x.receipt_no) === id);
+        if (r && r.income_type) type = 'income';
+        else if (r) type = 'expense';
       }
 
       if (r) {
-        openPhotoModal(r.receipt_photo, r.receipt_photo_2, r.receipt_photo_3);
+        try {
+          const htmlStr = generateReceiptHTML(type, r);
+          const genBase64 = await generateReceiptImageBase64(htmlStr);
+          openPhotoModal(genBase64, r.receipt_photo, r.receipt_photo_2);
+        } catch (err) {
+          console.error('Failed generating receipt on the fly', err);
+          openPhotoModal(r.receipt_photo, r.receipt_photo_2, r.receipt_photo_3);
+        }
       } else {
         notify('Data foto tidak ditemukan.', 'error');
       }
     }
 
     function getPhotoBtnIcon(r, isMasked = false) {
-      if (isMasked || !r.receipt_photo) return '';
+      if (isMasked) return '';
       let k = r.income_type ? 'income' : 'expense';
       let id = r.transaction_id || r.receipt_no;
-      let count = 1 + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
+      let count = 1 + (r.receipt_photo ? 1 : 0) + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
       let content = count > 1 ? `<span style="font-size:10px; margin-left:2px; font-weight:bold">${count}</span>` : '';
       return `<button class="btn-icon-only" onclick="openPhotoModalById('${id}', '${k}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}${content}</button>`;
     }
 
     function getPhotoBtnText(r, isMasked = false) {
-      if (isMasked || !r.receipt_photo) return '';
+      if (isMasked) return '';
       let k = r.income_type ? 'income' : 'expense';
       let id = r.transaction_id || r.receipt_no;
-      let count = 1 + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
+      let count = 1 + (r.receipt_photo ? 1 : 0) + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
       let text = count > 1 ? `${safeIcon('image', 'lucide-sm')} <span style="margin-left:4px;">${count} Foto</span>` : `${safeIcon('image', 'lucide-sm')} <span style="margin-left:4px;">Foto</span>`;
       return `<button class="btn" style="flex:1; width:100%; justify-content:center; padding:6px 0; font-size:11px; background:rgba(20,184,166,0.1); color:var(--teal-pop); border:1px solid rgba(20,184,166,0.2);" onclick="openPhotoModalById('${id}', '${k}')">${text}</button>`;
     }
@@ -1699,7 +1739,7 @@
       });
 
       const calcTotal = calcDaerah + calcJemaat + calcBangun; const saldoAccrued = calcTotal - calcDaerah;
-      const totalIn = filteredInc.reduce((s, x) => s + x.amount, 0); const totalOut = filteredExp.reduce((s, x) => s + x.amount, 0);
+      const totalIn = filteredInc.reduce((s, x) => s + x.amount, 0); const totalOut = filteredExp.reduce((s, x) => s + (x.department !== 'Mutasi Kas / Setor Bank' ? x.amount : 0), 0);
 
       let totalPemberiPersepuluhan = 0; let totalAnggotaSistem = 0;
       if (masterData && masterData.units) totalAnggotaSistem = masterData.units.reduce((s, u) => s + (parseInt(u.jumlah_anggota) || 0), 0);
@@ -1795,9 +1835,9 @@
 
       const maxVal = Math.max(calcDaerah, calcJemaat, calcBangun, 1);
       document.getElementById('saldoBars').innerHTML = `
-    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Jemaat</span><span>${fmt(calcJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcJemaat / maxVal * 100).toFixed(0)}%; background:var(--accent-gold, var(--gold))"></div></div></div>
-    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah</span><span>${fmt(calcDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcDaerah / maxVal * 100).toFixed(0)}%; background:var(--accent-purple, var(--text3))"></div></div></div>
-    <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Dana Pembangunan</span><span>${fmt(calcBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcBangun / maxVal * 100).toFixed(0)}%; background:var(--accent-blue, var(--teal-pop))"></div></div></div>
+    <div class="saldo-bar-wrap" style="cursor:pointer;" onclick="openDashboardDetail('jemaat')"><div class="saldo-bar-label"><span>Kas Jemaat</span><span>${fmt(calcJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcJemaat / maxVal * 100).toFixed(0)}%; background:var(--accent-gold, var(--gold))"></div></div></div>
+    <div class="saldo-bar-wrap" style="cursor:pointer;" onclick="openDashboardDetail('daerah')"><div class="saldo-bar-label"><span>Kas Daerah</span><span>${fmt(calcDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcDaerah / maxVal * 100).toFixed(0)}%; background:var(--accent-purple, var(--text3))"></div></div></div>
+    <div class="saldo-bar-wrap" style="cursor:pointer;" onclick="openDashboardDetail('bangun')"><div class="saldo-bar-label"><span>Dana Pembangunan</span><span>${fmt(calcBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${(calcBangun / maxVal * 100).toFixed(0)}%; background:var(--accent-blue, var(--teal-pop))"></div></div></div>
   `;
 
       let periodDaerah = 0; let periodJemaat = 0; let periodBangun = 0;
@@ -1809,9 +1849,9 @@
       } else {
         const pctD = ((periodDaerah / periodTotal) * 100).toFixed(1); const pctJ = ((periodJemaat / periodTotal) * 100).toFixed(1); const pctB = ((periodBangun / periodTotal) * 100).toFixed(1);
         document.getElementById('allocBars').innerHTML = `
-      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Jemaat (${pctJ}%)</span><span>${fmt(periodJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctJ}%; background:var(--accent-gold, var(--gold))"></div></div></div>
-      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Kas Daerah (${pctD}%)</span><span>${fmt(periodDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctD}%; background:var(--accent-purple, var(--text3))"></div></div></div>
-      <div class="saldo-bar-wrap"><div class="saldo-bar-label"><span>Pembangunan (${pctB}%)</span><span>${fmt(periodBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctB}%; background:var(--accent-blue, var(--teal-pop))"></div></div></div>
+      <div class="saldo-bar-wrap" style="cursor:pointer;" onclick="openDashboardDetail('income_jemaat')"><div class="saldo-bar-label"><span>Kas Jemaat (${pctJ}%)</span><span>${fmt(periodJemaat)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctJ}%; background:var(--accent-gold, var(--gold))"></div></div></div>
+      <div class="saldo-bar-wrap" style="cursor:pointer;" onclick="openDashboardDetail('income_daerah')"><div class="saldo-bar-label"><span>Kas Daerah (${pctD}%)</span><span>${fmt(periodDaerah)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctD}%; background:var(--accent-purple, var(--text3))"></div></div></div>
+      <div class="saldo-bar-wrap" style="cursor:pointer;" onclick="openDashboardDetail('income_bangun')"><div class="saldo-bar-label"><span>Pembangunan (${pctB}%)</span><span>${fmt(periodBangun)}</span></div><div class="saldo-bar-track"><div class="saldo-bar-fill" style="width:${pctB}%; background:var(--accent-blue, var(--teal-pop))"></div></div></div>
     `;
       }
 
@@ -1819,15 +1859,15 @@
       filteredInc.forEach(x => { if (x.alloc_jemaat > 0) jBreak[x.income_type] = (jBreak[x.income_type] || 0) + x.alloc_jemaat; if (x.alloc_daerah > 0) dBreak[x.income_type] = (dBreak[x.income_type] || 0) + x.alloc_daerah; if (x.alloc_bangun > 0) bBreak[x.income_type] = (bBreak[x.income_type] || 0) + x.alloc_bangun; });
       let catInTable = '<div class="table-wrap" style="margin-top:0; border:none;"><table class="summary-table" style="font-size:13px; width:100%;"><tbody>';
       if (filteredInc.length === 0) { catInTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state">Tidak ada pemasukan.</div></td></tr>'; } else {
-        if (Object.keys(jBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--accent-gold, var(--gold));">Masuk ke Kas Jemaat</strong></td></tr>`; Object.entries(jBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge ${getCatBadge(k, false)}">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
-        if (Object.keys(dBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--accent-purple, var(--text3));">Masuk ke Kas Daerah</strong></td></tr>`; Object.entries(dBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge ${getCatBadge(k, false)}">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
-        if (Object.keys(bBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--accent-blue, var(--teal-pop));">Masuk ke Pembangunan</strong></td></tr>`; Object.entries(bBreak).forEach(([k, v]) => { catInTable += `<tr><td style="padding-left: 24px;"><span class="badge ${getCatBadge(k, false)}">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
+        if (Object.keys(jBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--accent-gold, var(--gold));">Masuk ke Kas Jemaat</strong></td></tr>`; Object.entries(jBreak).forEach(([k, v]) => { catInTable += `<tr style="cursor:pointer;" onclick="openDashboardDetail('income_cat', '${k}', 'jemaat')"><td style="padding-left: 24px;"><span class="badge ${getCatBadge(k, false)}">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
+        if (Object.keys(dBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--accent-purple, var(--text3));">Masuk ke Kas Daerah</strong></td></tr>`; Object.entries(dBreak).forEach(([k, v]) => { catInTable += `<tr style="cursor:pointer;" onclick="openDashboardDetail('income_cat', '${k}', 'daerah')"><td style="padding-left: 24px;"><span class="badge ${getCatBadge(k, false)}">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
+        if (Object.keys(bBreak).length > 0) { catInTable += `<tr><td colspan="2" style="background: var(--empty-bg);"><strong style="color:var(--accent-blue, var(--teal-pop));">Masuk ke Pembangunan</strong></td></tr>`; Object.entries(bBreak).forEach(([k, v]) => { catInTable += `<tr style="cursor:pointer;" onclick="openDashboardDetail('income_cat', '${k}', 'bangun')"><td style="padding-left: 24px;"><span class="badge ${getCatBadge(k, false)}">${k}</span></td><td class="fit-col amount-pos" style="text-align:right">${fmt(v)}</td></tr>`; }); }
       }
       document.getElementById('kategoriInTable').innerHTML = catInTable + '</tbody></table></div>';
 
-      const catOutBreak = {}; filteredExp.forEach(x => { catOutBreak[x.department] = (catOutBreak[x.department] || 0) + x.amount; });
+      const catOutBreak = {}; filteredExp.forEach(x => { if (x.department !== 'Mutasi Kas / Setor Bank') catOutBreak[x.department] = (catOutBreak[x.department] || 0) + x.amount; });
       let catOutTable = '<div class="table-wrap" style="margin-top:0; border:none;"><table class="summary-table" style="font-size:13px; width:100%;"><tbody>';
-      if (Object.keys(catOutBreak).length === 0) { catOutTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state">Tidak ada pengeluaran.</div></td></tr>'; } else { Object.entries(catOutBreak).forEach(([k, v]) => { catOutTable += `<tr><td><span class="badge ${getCatBadge(k, true)}">${k}</span></td><td class="fit-col amount-neg" style="text-align:right">-${fmt(v)}</td></tr>`; }); }
+      if (Object.keys(catOutBreak).length === 0) { catOutTable += '<tr><td colspan="2" style="text-align:center"><div class="empty-state">Tidak ada pengeluaran.</div></td></tr>'; } else { Object.entries(catOutBreak).forEach(([k, v]) => { catOutTable += `<tr style="cursor:pointer;" onclick="openDashboardDetail('expense_cat', '${k}')"><td><span class="badge ${getCatBadge(k, true)}">${k}</span></td><td class="fit-col amount-neg" style="text-align:right">-${fmt(v)}</td></tr>`; }); }
       document.getElementById('kategoriOutTable').innerHTML = catOutTable + '</tbody></table></div>';
 
       let combined = [...filteredInc.map(x => ({ ...x, kind: 'income', style: 'amount-pos', sign: '+', badge: 'badge-green', label: 'In' })), ...filteredExp.map(x => ({ ...x, kind: 'expense', style: 'amount-neg', sign: '-', badge: 'badge-red', label: 'Out' }))];
@@ -4265,15 +4305,22 @@
       return "";
     }
 
-    function generateReceiptHTML(type, mainTx) {
+    function generateReceiptHTML(type, mainTx, customItems = null) {
       const isIncome = type === 'income';
       const arr = isIncome ? cachedIncome : cachedExpense;
       const targetReceipt = mainTx.receipt_no;
       const targetDate = mainTx.date;
 
-      let items = [];
-      if (isIncome && targetReceipt && targetReceipt !== '-') {
-        items = arr.filter(x => x.receipt_no === targetReceipt && x.date === targetDate);
+      let items = customItems || [];
+      if (!customItems) {
+        if (isIncome && targetReceipt && targetReceipt !== '-') {
+          items = arr.filter(x => x.receipt_no === targetReceipt && x.date === targetDate);
+        } else {
+          items = [mainTx];
+        }
+      }
+      
+      if (isIncome && items.length > 0) {
         const getWeight = (t) => {
           let str = (t || '').toLowerCase();
           if (str.includes('perpuluhan')) return 1;
@@ -4282,8 +4329,6 @@
           return 4;
         };
         items.sort((a, b) => getWeight(a.income_type) - getWeight(b.income_type));
-      } else {
-        items = [mainTx];
       }
 
       let totalAmt = 0;
@@ -4440,6 +4485,36 @@
           </div>
         </div>
       `;
+    }
+
+    function generateReceiptImageBase64(htmlString) {
+      return new Promise((resolve, reject) => {
+        const overlay = document.getElementById('loadingOverlay');
+        const container = document.getElementById('hiddenReceiptContainer');
+        if (!container) return reject(new Error("Container not found"));
+        
+        if (overlay) overlay.style.display = 'flex';
+        container.innerHTML = htmlString;
+        
+        // Wait briefly for DOM to render completely
+        setTimeout(() => {
+          html2canvas(container, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff'
+          }).then(canvas => {
+            const base64Str = canvas.toDataURL('image/jpeg', 0.85);
+            container.innerHTML = '';
+            if (overlay) overlay.style.display = 'none';
+            resolve(base64Str);
+          }).catch(err => {
+            console.error("Error generating receipt image", err);
+            container.innerHTML = '';
+            if (overlay) overlay.style.display = 'none';
+            reject(err);
+          });
+        }, 150);
+      });
     }
 
     function printTransaction(type, receiptOrId) {
