@@ -969,7 +969,8 @@
       if (isMasked) return '';
       let k = r.income_type ? 'income' : 'expense';
       let id = r.transaction_id || r.receipt_no;
-      let count = 1 + (r.receipt_photo ? 1 : 0) + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
+      let count = (r.receipt_photo ? 1 : 0) + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
+      if (count === 0) return '';
       let content = count > 1 ? `<span style="font-size:10px; margin-left:2px; font-weight:bold">${count}</span>` : '';
       return `<button class="btn-icon-only" onclick="openPhotoModalById('${id}', '${k}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}${content}</button>`;
     }
@@ -978,8 +979,9 @@
       if (isMasked) return '';
       let k = r.income_type ? 'income' : 'expense';
       let id = r.transaction_id || r.receipt_no;
-      let count = 1 + (r.receipt_photo ? 1 : 0) + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
-      let text = count > 1 ? `${safeIcon('image', 'lucide-sm')} <span style="margin-left:4px;">${count} Foto</span>` : `${safeIcon('image', 'lucide-sm')} <span style="margin-left:4px;">Foto</span>`;
+      let count = (r.receipt_photo ? 1 : 0) + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
+      if (count === 0) return '';
+      let text = count > 1 ? `${safeIcon('image', 'lucide-sm')} <span style="margin-left:4px;">${count} Foto</span>` : `${safeIcon('image', 'lucide-sm')} <span style="margin-left:4px;">1 Foto</span>`;
       return `<button class="btn" style="flex:1; width:100%; justify-content:center; padding:6px 0; font-size:11px; background:rgba(20,184,166,0.1); color:var(--teal-pop); border:1px solid rgba(20,184,166,0.2);" onclick="openPhotoModalById('${id}', '${k}')">${text}</button>`;
     }
 
@@ -1574,7 +1576,7 @@
       resultDiv.style.display = 'block';
 
       if (allFound.length > 0) {
-        let html = '<div style="max-height: 380px; overflow-y: auto; padding-right: 6px;">';
+        let html = '<div style="max-height: 70vh; overflow-y: auto; padding-right: 6px;">';
 
         const isUnitSearch = validUnitNames.length > 0;
         if (isUnitSearch && foundIncomes.length > 0) {
@@ -2808,7 +2810,7 @@
       rightPanel.push({ label: '<span style="font-size:6pt;">Total Uang Untuk Daerah</span>', val: saldoAkhirDaerah, bold: true, large: true, isBorderTop: true, isColoredDaerah: true });
 
       const imgBen = useBenImg ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
-      const imgKet = useKetuaImg ? `<img src="${systemConfig.sig_ketua}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
+      const imgKet = useKetuaImg ? `<div style="position:relative; margin:25px auto 5px auto; height:60px; width:140px;"><img src="/stamp.png" style="position: absolute; top: 50%; left: 5px; transform: translate(-50%, -50%) rotate(-5deg); height: 110px; width: 110px; opacity: 0.9; z-index: 5; pointer-events: none;"><img src="${systemConfig.sig_ketua}" style="height:60px; max-width:140px; object-fit:contain; position:relative; z-index:10; display:block; margin:0 auto;"></div>` : `<br><br><br><br><br>`;
       const imgPen = useGembalaImg ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
 
       const nameBen = systemConfig.sig_name_bendahara || 'Herbert JS Sagala';
@@ -2819,7 +2821,7 @@
       const titlePen = systemConfig.sig_title_pendeta || 'Gembala Jemaat';
 
       const signHtml = `
-        <table style="width: 100%; margin-top: 40px; text-align: center; font-family: sans-serif; font-size: 10pt; color: #000; border: none; background: transparent;">
+        <table style="width: 100%; margin-top: 40px; text-align: center; font-family: sans-serif; font-size: 10pt; color: #000; border: none; background: transparent; page-break-inside: avoid;">
           <tr>
             <td style="width: 33%; border: none; vertical-align: bottom;">Dibuat Oleh,<br>${imgBen}<br><strong>${nameBen}</strong><br>${titleBen}</td>
             <td style="width: 33%; border: none; vertical-align: bottom;">Disahkan Oleh,<br>${imgKet}<br><strong>${nameKet}</strong><br>${titleKet}</td>
@@ -4436,8 +4438,8 @@
           }
         }
 
-        ths += `<th style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 11px; font-weight:700; text-transform: uppercase; color: #000;">${headerTitle}</th>`;
-        tds += `<td style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 12px; vertical-align: top; color: #000;">#Rp. ${fmt(amt)}#${detailStr}${cleanNote}</td>`;
+        ths += `<th style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 11px; font-weight:700; text-transform: uppercase; color: #000; background: #f5f5f5;">${headerTitle}</th>`;
+        tds += `<td style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 12px; vertical-align: top; color: #000; background: #ffffff;">#Rp. ${fmt(amt)}#${detailStr}${cleanNote}</td>`;
       });
       ths += `<th style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 11px; font-weight:800; background: #e8e8e8; color: #000;">TOTAL</th>`;
       tds += `<td style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 12px; font-weight:800; background: #fafafa; vertical-align: top; color: #000;">#Rp. ${fmt(totalAmt)}#</td>`;
@@ -4450,7 +4452,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr style="background: #ffffff;">
               ${tds}
             </tr>
           </tbody>
@@ -4490,28 +4492,28 @@
             </div>
           </div>
 
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 12px; line-height: 1.4;">
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px; line-height: 1.4; border: 1px solid #ddd;">
             <tr>
-              <td style="width: 150px; padding: 4px 0; vertical-align: top; white-space: nowrap;"><strong>${pihakLabel}</strong></td>
-              <td style="width: 10px; padding: 4px 0; vertical-align: top;">:</td>
-              <td style="padding: 4px 0; vertical-align: top; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${pihakName}</td>
+              <td style="width: 150px; padding: 6px 8px; vertical-align: top; white-space: nowrap; border: 1px solid #ddd; background: #ffffff;"><strong>${pihakLabel}</strong></td>
+              <td style="width: 10px; padding: 6px 4px; vertical-align: top; border: 1px solid #ddd; text-align: center; background: #ffffff;">:</td>
+              <td style="padding: 6px 8px; vertical-align: top; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid #ddd; background: #ffffff;">${pihakName}</td>
             </tr>
             <tr>
-              <td style="width: 150px; padding: 4px 0; vertical-align: top; white-space: nowrap;"><strong>Tanggal</strong></td>
-              <td style="width: 10px; padding: 4px 0; vertical-align: top;">:</td>
-              <td style="padding: 4px 0; vertical-align: top; font-weight: 600; font-size: 13px;">${fmtDate(mainTx.date) || '-'}</td>
+              <td style="width: 150px; padding: 6px 8px; vertical-align: top; white-space: nowrap; border: 1px solid #ddd; background: #ffffff;"><strong>Tanggal</strong></td>
+              <td style="width: 10px; padding: 6px 4px; vertical-align: top; border: 1px solid #ddd; text-align: center; background: #ffffff;">:</td>
+              <td style="padding: 6px 8px; vertical-align: top; font-weight: 600; font-size: 13px; border: 1px solid #ddd; background: #ffffff;">${fmtDate(mainTx.date) || '-'}</td>
             </tr>
             <tr>
-              <td style="width: 150px; padding: 4px 0; vertical-align: top; white-space: nowrap;"><strong>Uang Sebesar</strong></td>
-              <td style="width: 10px; padding: 4px 0; vertical-align: top;">:</td>
-              <td style="padding: 6px 8px; vertical-align: top; font-style: italic; background:#f5f5f5; border:1px solid #ddd; font-weight: 500;">
+              <td style="width: 150px; padding: 6px 8px; vertical-align: top; white-space: nowrap; border: 1px solid #ddd; background: #ffffff;"><strong>Uang Sebesar</strong></td>
+              <td style="width: 10px; padding: 6px 4px; vertical-align: top; border: 1px solid #ddd; text-align: center; background: #ffffff;">:</td>
+              <td style="padding: 6px 8px; vertical-align: top; font-style: italic; background:#f5f5f5; border: 1px solid #ddd; font-weight: 500;">
                 ${terbilang(totalAmt).replace(/\s+/g, ' ').trim()} Rupiah
               </td>
             </tr>
             <tr>
-              <td style="width: 150px; padding: 4px 0; vertical-align: top; white-space: nowrap;"><strong>Total</strong></td>
-              <td style="width: 10px; padding: 4px 0; vertical-align: top;">:</td>
-              <td style="padding: 4px 0; vertical-align: top; font-weight: 700; font-size: 14px;">#Rp. ${fmt(totalAmt)}#</td>
+              <td style="width: 150px; padding: 6px 8px; vertical-align: top; white-space: nowrap; border: 1px solid #ddd; background: #ffffff;"><strong>Total</strong></td>
+              <td style="width: 10px; padding: 6px 4px; vertical-align: top; border: 1px solid #ddd; text-align: center; background: #ffffff;">:</td>
+              <td style="padding: 6px 8px; vertical-align: top; font-weight: 700; font-size: 14px; border: 1px solid #ddd; background: #ffffff;">#Rp. ${fmt(totalAmt)}#</td>
             </tr>
           </table>
 
@@ -4524,13 +4526,14 @@
               <p style="margin: 0; text-decoration: underline; font-weight: 600; color:#111;">${pihakName}</p>
             </div>
             ` : ''}
-            <div style="width: 180px;">
+            <div style="width: 180px; position: relative;">
               <p style="margin: 0 0 5px 0; color:#333;">${systemConfig.kota_kuitansi || 'Manado'}, ${fmtDate(mainTx.date)}</p>
               <p style="margin: 0; color:#333; position: relative; z-index: 2;">Bendahara,</p>
               <div style="height: 50px; position: relative; z-index: 1;">
-                ${(systemConfig.sig_bendahara) ? `<img src="${systemConfig.sig_bendahara}" style="max-height: 80px; max-width: 150px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); object-fit: contain;">` : ''}
+                <img src="/stamp.png" style="position: absolute; top: 50%; left: -10px; transform: translate(-50%, -50%) rotate(-5deg); height: 110px; width: 110px; opacity: 0.9; z-index: 5; pointer-events: none;">
+                ${(systemConfig.sig_bendahara) ? `<img src="${systemConfig.sig_bendahara}" style="max-height: 80px; max-width: 150px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); object-fit: contain; z-index: 10;">` : ''}
               </div>
-              <p style="margin: 0; text-decoration: underline; font-weight: 600; color:#111; position: relative; z-index: 2;">${systemConfig.sig_name_bendahara || '....................'}</p>
+              <p style="margin: 0; text-decoration: underline; font-weight: 600; color:#111; position: relative; z-index: 12;">${systemConfig.sig_name_bendahara || '....................'}</p>
             </div>
           </div>
           </div>
@@ -4547,11 +4550,23 @@
         if (overlay) overlay.style.display = 'flex';
         container.innerHTML = htmlString;
         
-        // Force black color on all common text elements inside the receipt just in case global CSS bleeds
-        const els = container.querySelectorAll('div, p, span, th, td');
+        // Force white background and black text on ALL elements to prevent dark-mode CSS bleed
+        container.style.background = '#ffffff';
+        container.style.color = '#000000';
+        const els = container.querySelectorAll('div, p, span, th, td, tr, thead, tbody, table, strong, img');
         els.forEach(el => {
-          if(!el.style.color && !el.innerHTML.includes('CERTIFIED')) {
+          // Force text color to black (except CERTIFIED watermark which has its own color)
+          if (!el.style.color && !el.innerHTML.includes('CERTIFIED')) {
             el.style.color = '#000000';
+          }
+          // Force backgrounds: keep explicit light backgrounds, override any dark/inherited ones
+          const bg = el.style.background || el.style.backgroundColor || '';
+          const isBgExplicitlyLight = bg && (bg.includes('#f') || bg.includes('#e') || bg.includes('#d') || bg.includes('white') || bg.includes('rgb(2'));
+          if (!isBgExplicitlyLight && !bg.includes('rgba')) {
+            // Only set transparent for elements that shouldn't have a bg, white for containers
+            if (el.tagName === 'TR' || el.tagName === 'THEAD' || el.tagName === 'TBODY' || el.tagName === 'TABLE') {
+              if (!el.style.background) el.style.background = 'transparent';
+            }
           }
         });
         
@@ -4561,9 +4576,46 @@
             scale: 2,
             useCORS: true,
             backgroundColor: '#ffffff'
-          }).then(canvas => {
-            let base64Str = canvas.toDataURL('image/jpeg', 0.85);
-            base64Str = base64Str.replace('image/jpeg', 'image/jpeg;name=auto-receipt');
+          }).then(origCanvas => {
+            const MAX_CHARS = 48000; // Google Sheets cell limit is ~50000 chars
+            
+            // Convert to grayscale (like manual upload) for better compression + quality
+            const bwCanvas = document.createElement('canvas');
+            bwCanvas.width = origCanvas.width;
+            bwCanvas.height = origCanvas.height;
+            const bwCtx = bwCanvas.getContext('2d');
+            // grayscale + slight brightness boost so dark-colored headers stay readable (not pure black)
+            bwCtx.filter = 'grayscale(100%) brightness(1.1)';
+            bwCtx.drawImage(origCanvas, 0, 0);
+            
+            // Use WebP for much better quality at smaller sizes
+            let quality = 0.92;
+            let base64Str = bwCanvas.toDataURL('image/webp', quality);
+            
+            while (base64Str.length > MAX_CHARS && quality > 0.2) {
+              quality -= 0.1;
+              base64Str = bwCanvas.toDataURL('image/webp', quality);
+            }
+            
+            // If still too large, scale down
+            if (base64Str.length > MAX_CHARS) {
+              let scale = 0.7;
+              while (base64Str.length > MAX_CHARS && scale > 0.15) {
+                const scaledCanvas = document.createElement('canvas');
+                scaledCanvas.width = Math.floor(bwCanvas.width * scale);
+                scaledCanvas.height = Math.floor(bwCanvas.height * scale);
+                const ctx = scaledCanvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, scaledCanvas.width, scaledCanvas.height);
+                ctx.drawImage(bwCanvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
+                base64Str = scaledCanvas.toDataURL('image/webp', 0.6);
+                scale *= 0.7;
+              }
+            }
+            
+            console.log(`Receipt image: ${base64Str.length} chars (limit: ${MAX_CHARS}), quality: ${quality.toFixed(2)}`);
+            
+            base64Str = base64Str.replace('image/webp', 'image/webp;name=auto-receipt');
             container.innerHTML = '';
             if (overlay) overlay.style.display = 'none';
             resolve(base64Str);
@@ -4587,9 +4639,39 @@
         return;
       }
       
-      const toUpdate = remaining.slice(0, 10);
+      const toUpdate = remaining;
       
-      if(!confirm(`Tersisa ${remaining.length} transaksi yang belum punya kuitansi otomatis.\n\nSistem akan memproses batch sebanyak ${toUpdate.length} transaksi agar tidak memberatkan server. Lanjutkan?`)) return;
+      const userConfirmed = await new Promise((resolve) => {
+        let confOverlay = document.createElement('div');
+        confOverlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 999999; display: flex; align-items: center; justify-content: center;';
+        
+        let dialog = document.createElement('div');
+        dialog.style.cssText = 'background: #222; padding: 25px; border-radius: 12px; max-width: 400px; text-align: center; color: white; font-family: sans-serif; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid #444;';
+        
+        dialog.innerHTML = `
+          <h3 style="margin-top: 0; margin-bottom: 15px; color: #10b981;">Konfirmasi Proses</h3>
+          <p style="font-size: 15px; line-height: 1.5; color: #ddd;">Tersisa <b style="color:white;">${remaining.length}</b> transaksi yang belum punya kuitansi otomatis.</p>
+          <p style="font-size: 15px; line-height: 1.5; margin-bottom: 25px; color: #ddd;">Sistem akan memproses batch sebanyak <b style="color:white;">${toUpdate.length}</b> transaksi agar tidak memberatkan server. Lanjutkan?</p>
+          <div style="display: flex; gap: 15px; justify-content: center;">
+            <button id="btnBatalBatch" style="padding: 10px 25px; border: none; border-radius: 6px; background: #444; color: white; cursor: pointer; font-size: 14px;">Batal</button>
+            <button id="btnLanjutBatch" style="padding: 10px 25px; border: none; border-radius: 6px; background: #10b981; color: white; cursor: pointer; font-size: 14px; font-weight: bold;">Lanjutkan</button>
+          </div>
+        `;
+        
+        confOverlay.appendChild(dialog);
+        document.body.appendChild(confOverlay);
+        
+        document.getElementById('btnBatalBatch').onclick = () => {
+          confOverlay.remove();
+          resolve(false);
+        };
+        document.getElementById('btnLanjutBatch').onclick = () => {
+          confOverlay.remove();
+          resolve(true);
+        };
+      });
+      
+      if (!userConfirmed) return;
       
       console.log(`Ditemukan ${remaining.length} transaksi, memproses ${toUpdate.length} transaksi...`);
       
@@ -4613,10 +4695,6 @@
           
           let payload;
           if (type === 'income') {
-            if (r.income_type === 'Perpuluhan') {
-               // Bulk edit is tricky, skip or handle carefully. We use single edit fallback if possible
-               continue;
-            }
             payload = {
               type: 'income', transaction_id: r.transaction_id || r.id, date: r.date, receipt_no: r.receipt_no, amount: r.amount, note: r.note,
               receipt_photo_base64: genBase64, receipt_photo_base64_2: '', receipt_photo_base64_3: '',
@@ -4647,8 +4725,25 @@
         batchOverlay.remove();
       }
       
-      alert(`Selesai! Berhasil: ${success}, Gagal/Dilewati: ${failed}`);
-      loadData(); // reload
+      await new Promise(res => {
+        let finishOverlay = document.createElement('div');
+        finishOverlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 999999; display: flex; align-items: center; justify-content: center;';
+        finishOverlay.innerHTML = `
+          <div style="background: #222; padding: 30px; border-radius: 12px; max-width: 400px; text-align: center; color: white; font-family: sans-serif; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid #444;">
+            <h3 style="margin-top: 0; margin-bottom: 15px; color: #10b981;">Proses Selesai!</h3>
+            <p style="font-size: 15px; line-height: 1.5; color: #ddd; margin-bottom: 25px;">Berhasil: <b style="color:#10b981;">${success}</b><br>Gagal/Dilewati: <b style="color:#ef4444;">${failed}</b></p>
+            <button id="btnFinishBatch" style="padding: 10px 30px; border: none; border-radius: 6px; background: #10b981; color: white; cursor: pointer; font-size: 14px; font-weight: bold;">OK</button>
+          </div>
+        `;
+        document.body.appendChild(finishOverlay);
+        document.getElementById('btnFinishBatch').onclick = async () => {
+          finishOverlay.remove();
+          res();
+        };
+      });
+
+      await syncAllData();
+      renderHistory();
     };
 
     function printTransaction(type, receiptOrId) {
@@ -5234,7 +5329,7 @@
       `;
 
       const imgBen = useBenImg ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
-      const imgBgn = useBgnImg ? `<img src="${systemConfig.sig_bangun}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
+      const imgBgn = useBgnImg ? `<div style="position:relative; margin:10px auto 5px auto; height:90px; width:180px;"><img src="/stamp.png" style="position: absolute; top: 50%; left: 5px; transform: translate(-50%, -50%) rotate(-5deg); height: 110px; width: 110px; opacity: 0.9; z-index: 5; pointer-events: none;"><img src="${systemConfig.sig_bangun}" style="height:90px; max-width:180px; object-fit:contain; position:relative; z-index:10; display:block; margin:0 auto; filter: contrast(1.5) drop-shadow(0.5px 0.5px 0px #000) drop-shadow(-0.5px -0.5px 0px #000);"></div>` : `<br><br><br><br><br>`;
       const imgKet = useKetuaImg ? `<img src="${systemConfig.sig_ketua}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
       const imgPen = useGembalaImg ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
 
@@ -5248,7 +5343,7 @@
       const titlePen = systemConfig.sig_title_pendeta || 'Gembala Jemaat';
 
       const signHtml = `
-        <table style="width: 100%; margin-top: 40px; text-align: center; font-family: sans-serif; font-size: 10pt; color: #000; border: none; background: transparent;">
+        <table style="width: 100%; margin-top: 40px; text-align: center; font-family: sans-serif; font-size: 10pt; color: #000; border: none; background: transparent; page-break-inside: avoid;">
           <tr>
             <td style="width: 25%; border: none; vertical-align: bottom;">Dibuat Oleh,<br>${imgBen}<br><strong>${nameBen}</strong><br>${titleBen}</td>
             <td style="width: 25%; border: none; vertical-align: bottom;">Disetujui Oleh,<br>${imgBgn}<br><strong>${nameBgn}</strong><br>${titleBgn}</td>

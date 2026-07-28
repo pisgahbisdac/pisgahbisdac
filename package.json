@@ -24,6 +24,7 @@
   "homepage": "https://github.com/pisgahbisdac/pisgahbisdac#readme",
   "dependencies": {
     "html2pdf.js": "^0.14.0",
+    "jimp": "^1.6.1",
     "lucide-react": "^1.23.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
