@@ -778,8 +778,8 @@
                 do {
                   canvas.width = Math.floor(baseWidth * scale);
                   canvas.height = Math.floor(baseHeight * scale);
-                  // Apply Grayscale and High Contrast filter for much better WebP compression
-                  ctx.filter = 'grayscale(100%) contrast(1.4) brightness(1.1)';
+                  // Apply Grayscale and mild Contrast filter for better compression without losing text
+                  ctx.filter = 'grayscale(100%) contrast(1.1)';
                   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                   result = canvas.toDataURL('image/webp', quality);
                   if (result.length > MAX_CHARS) {
@@ -794,7 +794,7 @@
                   scale *= 0.5;
                   canvas.width = Math.floor(baseWidth * scale);
                   canvas.height = Math.floor(baseHeight * scale);
-                  ctx.filter = 'grayscale(100%) contrast(1.4) brightness(1.1)';
+                  ctx.filter = 'grayscale(100%) contrast(1.1)';
                   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                   result = canvas.toDataURL('image/webp', 0.6);
                 }
@@ -1313,7 +1313,15 @@
         `).join('');
       }
       document.getElementById('expDept').innerHTML = '<option value="">-- Departemen --</option>' + (masterData.departments || []).map(x => `<option value="${x.name}">${x.name}</option>`).join('');
-      const givers = new Set(); (cachedIncome || []).forEach(x => { if (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') givers.add(x.nama_pemberi); });
+      const givers = new Set(); (cachedIncome || []).forEach(x => { 
+        if (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') {
+          let g = x.nama_pemberi;
+          if (g.toLowerCase().startsWith('kolektif ')) {
+            g = g.substring(9).trim() + ' - Kolektif';
+          }
+          givers.add(g);
+        }
+      });
       const giverList = document.getElementById('giverList'); if (giverList) giverList.innerHTML = Array.from(givers).map(g => `<option value="${g}">`).join('');
 
       const receivers = new Set(); (cachedExpense || []).forEach(x => { if (x.nama_penerima && x.nama_penerima !== '-' && x.nama_penerima !== 'Umum') receivers.add(x.nama_penerima); });
@@ -2197,7 +2205,7 @@
     function renderExpenseList() {
       const perms = getRolePerms(currentUser.role);
       const isAnon = perms.isAnonymous;
-      const list = [...cachedExpense].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+      const list = [...cachedExpense].filter(x => x.department !== 'Mutasi Kas / Setor Bank').sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
       if (list.length === 0) {
         document.getElementById('expenseLogContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Kosong.</div>';
       } else {
@@ -2249,10 +2257,17 @@
       if (list.length === 0) {
         resultDiv.innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Belum ada mutasi setoran bank.</div>';
       } else {
-        let desktopHtml = list.map(x => `<tr><td class="fit-col">${fmtDate(x.date)}</td><td><span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${getPhotoBtnIcon(x)}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`).join('');
+        let desktopHtml = list.map(x => {
+          let srcName = x.source_balance || '-';
+          if (srcName !== '-' && !srcName.toLowerCase().startsWith('kas ')) srcName = 'Kas ' + srcName;
+          let dariKe = `<span style="font-size:11px; font-weight:600; color:var(--text);"><span style="color:var(--text3)">Dari:</span> ${srcName} &rarr; <span style="color:var(--text3)">Ke:</span> ${x.nama_penerima || 'Kas Utama (Bank)'}</span><br>`;
+          return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td>${dariKe}<span style="font-size:12px; color:var(--text4)">${isAnon ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span style="font-family:monospace">${x.receipt_no}</span>${getPhotoBtnIcon(x)}</td><td class="fit-col amount-pos" style="text-align:right">+${fmt(x.amount)}</td></tr>`;
+        }).join('');
 
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column;">' + list.map(x => {
           let photoBtn = getPhotoBtnText(x);
+          let srcName = x.source_balance || '-';
+          if (srcName !== '-' && !srcName.toLowerCase().startsWith('kas ')) srcName = 'Kas ' + srcName;
           return `
           <div class="dash-tx-card" style="margin: 0 0 16px 0; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
@@ -2264,6 +2279,7 @@
             </div>
             <div style="display:grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 11px; color: var(--text2);">
               <span style="color:var(--text4)">Tgl</span><strong style="color:var(--text); font-weight:600;">${fmtDate(x.date)}</strong>
+              <span style="color:var(--text4)">Rute</span><strong style="color:var(--text); font-weight:600;">Dari: ${srcName} &rarr; Ke: ${x.nama_penerima || 'Kas Utama (Bank)'}</strong>
               <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${isAnon ? '***' : (x.note || '-')}</span>
             </div>
             <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
@@ -3416,8 +3432,18 @@
       const filterApproval = document.getElementById('filterApproval')?.value || '';
 
       let list = [];
-      if (type !== 'expense') (cachedIncome || []).forEach(x => list.push({ ...x, type: 'income', badge: 'badge-green', label: 'In', style: 'amount-pos', sign: '+' }));
-      if (type !== 'income') (cachedExpense || []).forEach(x => list.push({ ...x, type: 'expense', badge: 'badge-red', label: 'Out', style: 'amount-neg', sign: '-' }));
+      if (type === '' || type === 'income') (cachedIncome || []).forEach(x => list.push({ ...x, type: 'income', badge: 'badge-green', label: 'In', style: 'amount-pos', sign: '+' }));
+      if (type === '' || type === 'expense' || type === 'mutasi') (cachedExpense || []).forEach(x => {
+        if (x.department === 'Mutasi Kas / Setor Bank') {
+          if (type === '' || type === 'mutasi') {
+            list.push({ ...x, type: 'expense', badge: 'badge-blue', label: 'Mut', style: 'amount-pos', sign: '+' });
+          }
+        } else {
+          if (type === '' || type === 'expense') {
+            list.push({ ...x, type: 'expense', badge: 'badge-red', label: 'Out', style: 'amount-neg', sign: '-' });
+          }
+        }
+      });
 
       list = list.filter(x => {
         const d = new Date(x.date);
@@ -3708,7 +3734,19 @@
 
           const deleteId = x.transaction_id || x.receipt_no || '';
           let photoBtn = getPhotoBtnIcon(x, shouldHide && !isApprover);
-          const pihak = x.type === 'income' ? (shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
+          let pihak = '';
+          if (x.type === 'income') {
+            pihak = shouldHide ? '***' : (x.nama_pemberi || '-');
+            if (typeof pihak === 'string' && pihak.toLowerCase().startsWith('kolektif ')) {
+              pihak = pihak.substring(9).trim() + ' - Kolektif';
+            }
+          } else if (isMutasi) {
+            let srcName = x.source_balance || '-';
+            if (srcName !== '-' && !srcName.toLowerCase().startsWith('kas ')) srcName = 'Kas ' + srcName;
+            pihak = `Dari: ${srcName} &rarr; Ke: ${x.nama_penerima || 'Kas Utama (Bank)'}`;
+          } else {
+            pihak = shouldHide ? '***' : (x.nama_penerima || '-');
+          }
 
           let approveBadge = '';
           if (isMutasi) {
@@ -3750,7 +3788,13 @@
         <td><span class="badge ${getCatBadge(x.income_type || x.department, x.type !== 'income')}">${x.income_type || x.department || '-'}</span><br><span style="font-size:12px; color:var(--text4)">${shouldHide ? '***' : (bBadge + nText)}</span></td>
         <td class="fit-col"><span class="badge badge-gray">${x.receipt_no || '-'}</span> ${photoBtn}</td>
         <td>${pihak}</td>
-        <td class="fit-col ${x.style}" style="text-align:right; font-weight:800;">${x.sign}${fmt(x.amount)}<div style="margin-top:4px;">${approveBadge}</div></td>
+        <td class="fit-col" style="text-align:right; font-weight:800;">
+          ${isMutasi ? 
+            `<div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px; line-height:1.2;"><span class="amount-neg" style="font-size:12px;">-${fmt(x.amount)}</span><span class="amount-pos" style="font-size:12px;">+${fmt(x.amount)}</span></div>` : 
+            `<span class="${x.style}">${x.sign}${fmt(x.amount)}</span>`
+          }
+          <div style="margin-top:4px;">${approveBadge}</div>
+        </td>
         <td class="fit-col" style="text-align:right; white-space:nowrap;">
           ${approveBtn}
           ${deleteId ? `<button class="btn-icon-only" style="color:var(--text3);" onclick="printTransaction('${x.type}', '${deleteId}')" title="Cetak Kuitansi">${safeIcon('printer', 'lucide-sm')}</button>` : ''}
@@ -3787,7 +3831,19 @@
           if (isTransparent) shouldHide = false;
 
           const deleteId = x.transaction_id || x.receipt_no || '';
-          const pihak = x.type === 'income' ? (shouldHide ? '***' : (x.nama_pemberi || '-')) : (shouldHide ? '***' : (x.nama_penerima || '-'));
+          let pihak = '';
+          if (x.type === 'income') {
+            pihak = shouldHide ? '***' : (x.nama_pemberi || '-');
+            if (typeof pihak === 'string' && pihak.toLowerCase().startsWith('kolektif ')) {
+              pihak = pihak.substring(9).trim() + ' - Kolektif';
+            }
+          } else if (isMutasi) {
+            let srcName = x.source_balance || '-';
+            if (srcName !== '-' && !srcName.toLowerCase().startsWith('kas ')) srcName = 'Kas ' + srcName;
+            pihak = `Dari: ${srcName} &rarr; Ke: ${x.nama_penerima || 'Kas Utama (Bank)'}`;
+          } else {
+            pihak = shouldHide ? '***' : (x.nama_penerima || '-');
+          }
 
           let photoBtn = getPhotoBtnText(x, shouldHide && !isApprover);
           let approveBadgeDesktop = '';
@@ -3834,10 +3890,13 @@
             ${approveBadgeMobile}
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px;">
               <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:0;">
-                <span class="badge ${x.badge}" style="font-size:10px; padding:2px 7px;">${isInc ? 'IN' : 'OUT'}</span>
+                <span class="badge ${x.badge}" style="font-size:10px; padding:2px 7px;">${isMutasi ? 'MUT' : (isInc ? 'IN' : 'OUT')}</span>
                 <span style="font-size:11px; color:var(--text3); font-family:monospace;">${x.receipt_no || '-'}</span>
               </div>
-              <div class="${x.style}" style="font-weight: 700; font-size: 15px; white-space:nowrap; margin-bottom:2px;">${x.sign}${fmt(x.amount)}</div>
+              ${isMutasi ? 
+                `<div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px; font-weight: 700; font-size: 13px; white-space:nowrap; margin-bottom:2px; line-height:1.2;"><span class="amount-neg">-${fmt(x.amount)}</span><span class="amount-pos">+${fmt(x.amount)}</span></div>` : 
+                `<div class="${x.style}" style="font-weight: 700; font-size: 15px; white-space:nowrap; margin-bottom:2px;">${x.sign}${fmt(x.amount)}</div>`
+              }
             </div>
             <div style="display:grid; grid-template-columns: auto 1fr; gap: 6px 8px; font-size: 11px; color: var(--text2); margin-top:8px; align-items:center;">
               <span style="color:var(--text4); display:flex; align-items:center; height:100%;">Tgl</span>
@@ -3967,7 +4026,7 @@
           catSelect.add(new Option(trx.income_type + ' (Histori)', trx.income_type));
         }
 
-        const isBulk = perpuluhanGroup.includes(trx.income_type) || (trx.nama_pemberi && String(trx.nama_pemberi).startsWith('Kolektif'));
+        const isBulk = perpuluhanGroup.includes(trx.income_type) || (trx.nama_pemberi && (String(trx.nama_pemberi).toLowerCase().startsWith('kolektif') || String(trx.nama_pemberi).toLowerCase().endsWith('- kolektif')));
 
         if (catSelect) {
           catSelect.value = isBulk ? 'Perpuluhan' : trx.income_type;
@@ -3987,7 +4046,7 @@
 
         if (document.getElementById('editTransPihakGroup')) document.getElementById('editTransPihakGroup').style.display = 'block';
         if (document.getElementById('editTransPihakLabel')) document.getElementById('editTransPihakLabel').textContent = 'Nama Pemberi';
-        if (document.getElementById('editTransPihak')) document.getElementById('editTransPihak').value = (isBulk && trx.nama_pemberi && trx.nama_pemberi.startsWith('Kolektif')) ? 'Umum' : (trx.nama_pemberi || '');
+        if (document.getElementById('editTransPihak')) document.getElementById('editTransPihak').value = (isBulk && trx.nama_pemberi && (String(trx.nama_pemberi).toLowerCase().startsWith('kolektif') || String(trx.nama_pemberi).toLowerCase().endsWith('- kolektif'))) ? 'Umum' : (trx.nama_pemberi || '');
 
         if (document.getElementById('editTransAmtPerpuluhan')) document.getElementById('editTransAmtPerpuluhan').value = '';
         if (document.getElementById('editTransAmtTerpadu')) document.getElementById('editTransAmtTerpadu').value = '';
@@ -4270,9 +4329,9 @@
           cleanNote = '<br><span style="font-size: 10px; color: #444; font-weight: normal;"><i>Ket: ***</i></span>';
         } else {
           let details = [];
-          if (parseFloat(x.alloc_daerah) > 0) details.push(`Daerah: Rp ###${fmt(x.alloc_daerah)}###`);
-          if (parseFloat(x.alloc_jemaat) > 0) details.push(`Jemaat: Rp ###${fmt(x.alloc_jemaat)}###`);
-          if (parseFloat(x.alloc_bangun) > 0) details.push(`Bangun: Rp ###${fmt(x.alloc_bangun)}###`);
+          if (parseFloat(x.alloc_daerah) > 0) details.push(`Daerah: #Rp. ${fmt(x.alloc_daerah)}#`);
+          if (parseFloat(x.alloc_jemaat) > 0) details.push(`Jemaat: #Rp. ${fmt(x.alloc_jemaat)}#`);
+          if (parseFloat(x.alloc_bangun) > 0) details.push(`Bangun: #Rp. ${fmt(x.alloc_bangun)}#`);
           detailStr = details.length > 0 ? `<br><span style="font-weight: 500; font-size: 10px; color:#444;">(${details.join(' | ')})</span>` : '';
 
           if (x.note && x.note.trim() !== '') {
@@ -4282,10 +4341,10 @@
         }
 
         ths += `<th style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 11px; font-weight:700; text-transform: uppercase;">${headerTitle}</th>`;
-        tds += `<td style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 12px; vertical-align: top;">###${fmt(amt)}###${detailStr}${cleanNote}</td>`;
+        tds += `<td style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 12px; vertical-align: top;">#Rp. ${fmt(amt)}#${detailStr}${cleanNote}</td>`;
       });
       ths += `<th style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 11px; font-weight:800; background: #e8e8e8;">TOTAL</th>`;
-      tds += `<td style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 12px; font-weight:800; background: #fafafa; vertical-align: top;">###${fmt(totalAmt)}###</td>`;
+      tds += `<td style="border: 1px solid #333; padding: 6px; text-align: center; font-size: 12px; font-weight:800; background: #fafafa; vertical-align: top;">#Rp. ${fmt(totalAmt)}#</td>`;
 
       finalTableHtml = `
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #333;">
@@ -4303,6 +4362,9 @@
       `;
 
       let pihakName = isIncome ? (mainTx.nama_pemberi || mainTx.pihak || 'Umum') : (mainTx.nama_penerima || mainTx.pihak || 'Umum');
+      if (isIncome && typeof pihakName === 'string' && pihakName.toLowerCase().startsWith('kolektif ')) {
+        pihakName = pihakName.substring(9).trim() + ' - Kolektif';
+      }
       if (receiptHasHiddenItems) pihakName = '*** (Privasi)';
       const docTitle = isIncome ? 'BUKTI PEMASUKAN' : 'BUKTI PENGELUARAN';
       const pihakLabel = isIncome ? 'Telah Terima Dari' : 'Dibayarkan Kepada';
@@ -4353,7 +4415,7 @@
             <tr>
               <td style="width: 150px; padding: 4px 0; vertical-align: top; white-space: nowrap;"><strong>Total</strong></td>
               <td style="width: 10px; padding: 4px 0; vertical-align: top;">:</td>
-              <td style="padding: 4px 0; vertical-align: top; font-weight: 700; font-size: 14px;">Rp ###${fmt(totalAmt)}###</td>
+              <td style="padding: 4px 0; vertical-align: top; font-weight: 700; font-size: 14px;">#Rp. ${fmt(totalAmt)}#</td>
             </tr>
           </table>
 
@@ -5238,6 +5300,8 @@ window.showPage = showPage;
         const pStr = String(pemberi).toLowerCase();
         if (pStr.startsWith('kolektif ')) {
           pemberi = String(pemberi).substring(9).trim();
+        } else if (pStr.endsWith(' - kolektif')) {
+          pemberi = String(pemberi).substring(0, pemberi.length - 11).trim();
         } else if (pStr === 'kolektif') {
           pemberi = 'Umum';
         }
