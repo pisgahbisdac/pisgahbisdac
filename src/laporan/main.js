@@ -784,8 +784,9 @@
       let targetGridId = type === 'income' ? 'incPhotoGrid' : (type === 'expense' ? 'expPhotoGrid' : (type === 'mutasi' ? 'mutPhotoGrid' : 'editPhotoGrid'));
       let targetUploadBoxId = type === 'income' ? 'incPhotoUploadBox' : (type === 'expense' ? 'expPhotoUploadBox' : (type === 'mutasi' ? 'mutPhotoUploadBox' : 'editPhotoUploadBox'));
 
-      if (targetArray.length + files.length > 3) {
-        notify('Maksimal 3 foto per transaksi!', 'error');
+      const maxAllowed = type === 'edit' ? 3 : 2;
+      if (targetArray.length + files.length > maxAllowed) {
+        notify('Maksimal ' + maxAllowed + ' lampiran tambahan!', 'error');
         event.target.value = '';
         return;
       }
@@ -862,6 +863,21 @@
       if (!grid) return;
       Array.from(grid.querySelectorAll('.photo-preview-container')).forEach(el => el.remove());
 
+      if (type !== 'edit') {
+        const div = document.createElement('div');
+        div.className = 'photo-upload-box photo-preview-container';
+        div.style.position = 'relative';
+        div.style.background = '#f0fdf4';
+        div.style.borderColor = '#86efac';
+        div.style.cursor = 'not-allowed';
+        div.style.display = 'flex';
+        div.style.flexDirection = 'column';
+        div.style.justifyContent = 'center';
+        div.style.alignItems = 'center';
+        div.innerHTML = '<span class="icon-placeholder" data-icon="fileText" data-size="lucide-lg" style="color: #16a34a;"></span><span style="margin-top:8px; font-size:10px; font-weight:600; color:#15803d; text-align:center;">Foto 1:<br>Kuitansi (Auto)</span>';
+        grid.insertBefore(div, document.getElementById(boxId));
+      }
+
       arr.forEach((url, i) => {
         const div = document.createElement('div');
         div.className = 'photo-upload-box photo-preview-container';
@@ -869,18 +885,31 @@
         const img = document.createElement('img');
         img.src = url;
         img.className = 'photo-preview';
-        img.alt = 'Foto ' + (i + 1);
-        const btn = document.createElement('button');
-        btn.className = 'remove-photo-btn';
-        btn.innerHTML = '×';
-        btn.setAttribute('onclick', `removePhoto(${i}, '${type}')`);
+        img.alt = 'Foto ' + (type === 'edit' ? i + 1 : i + 2);
+        
         div.appendChild(img);
-        div.appendChild(btn);
+        
+        if (!(type === 'edit' && i === 0)) {
+          const btn = document.createElement('button');
+          btn.className = 'remove-photo-btn';
+          btn.innerHTML = '×';
+          btn.setAttribute('onclick', `removePhoto(${i}, '${type}')`);
+          div.appendChild(btn);
+        } else {
+          const lockBadge = document.createElement('div');
+          lockBadge.innerHTML = '<span class="icon-placeholder" data-icon="lock" data-size="lucide-sm"></span> Auto';
+          lockBadge.style = 'position:absolute; top:4px; left:4px; background:rgba(0,0,0,0.6); color:white; font-size:9px; padding:2px 4px; border-radius:4px; z-index:10; display:flex; align-items:center; gap:2px;';
+          div.appendChild(lockBadge);
+        }
+        
         grid.insertBefore(div, document.getElementById(boxId));
       });
 
+      const maxAllowed = type === 'edit' ? 3 : 2;
       const uploadBox = document.getElementById(boxId);
-      if (uploadBox) uploadBox.style.display = arr.length >= 3 ? 'none' : 'flex';
+      if (uploadBox) uploadBox.style.display = arr.length >= maxAllowed ? 'none' : 'flex';
+      
+      lucide.createIcons();
     }
 
     function resetPhotoUpload(type) {
