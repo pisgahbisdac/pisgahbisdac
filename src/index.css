@@ -1752,9 +1752,15 @@ button:disabled, .btn:disabled {
   .sidebar:not(:hover) .nav-item .nav-icon {
     margin: 0;
   }
+  .sidebar:not(:hover) .btn-logout {
+    padding: 10px 0 !important;
+  }
+  .sidebar:not(:hover) .btn-logout svg {
+    margin: 0 !important;
+    flex-shrink: 0;
+  }
   .sidebar:not(:hover) .sidebar-text,
   .sidebar:not(:hover) #btnLogoutText,
-  .sidebar:not(:hover) .nav-section-title,
   .sidebar:not(:hover) .logo-text,
   .sidebar:not(:hover) .user-name,
   .sidebar:not(:hover) .user-role {
