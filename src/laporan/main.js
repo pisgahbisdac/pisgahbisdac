@@ -1924,7 +1924,8 @@
           const isPrivCategory = isViewer && x.kind === 'income' && isPrivateCategory(x.income_type);
           const shouldHide = isViewer && isPrivCategory;
           let photoBtn = getPhotoBtnIcon(x);
-          return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td><td><span class="badge ${getCatBadge(x.income_type || x.department, x.kind !== 'income')}">${x.income_type || x.department}</span><br><span style="font-size:12px; color:var(--text-muted, var(--text4))">${shouldHide ? '***' : (x.note || '-')}</span></td><td class="fit-col"><span class="badge badge-gray">${x.receipt_no}</span> ${photoBtn}</td><td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td></tr>`;
+          const shortReceipt = x.receipt_no && x.receipt_no.length > 12 ? x.receipt_no.substring(0, 12) + '…' : x.receipt_no;
+          return `<tr><td class="fit-col">${fmtDate(x.date)}</td><td class="fit-col"><span class="badge ${x.badge}">${x.label}</span></td><td><span class="badge ${getCatBadge(x.income_type || x.department, x.kind !== 'income')}">${x.income_type || x.department}</span><br><span style="font-size:12px; color:var(--text-muted, var(--text4))">${shouldHide ? '***' : (x.note || '-')}</span></td><td class="fit-col" style="max-width:120px;"><span class="badge badge-gray" title="${x.receipt_no}" style="max-width:100px;overflow:hidden;text-overflow:ellipsis;display:inline-block;">${shortReceipt}</span> ${photoBtn}</td><td class="fit-col ${x.style}" style="text-align:right">${x.sign}${fmt(x.amount)}</td></tr>`;
         }).join('');
 
         let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column;">' + recent.map(x => {
@@ -1951,9 +1952,9 @@
         }).join('') + '</div>';
 
         document.getElementById('recentTransContainer').innerHTML = `
-          <div class="desktop-only table-wrap" style="border:none;">
-            <table class="table-log">
-              <thead><tr><th class="fit-col">Tanggal</th><th class="fit-col">Alur</th><th>Keterangan</th><th class="fit-col">Bukti</th><th class="fit-col" style="text-align:right">Nominal</th></tr></thead>
+          <div class="desktop-only" style="width:100%; overflow:hidden;">
+            <table class="table-log" style="width:100%; table-layout:auto;">
+              <thead><tr><th style="white-space:normal;">Tanggal</th><th>Alur</th><th>Keterangan</th><th style="white-space:normal;">Bukti</th><th style="text-align:right; white-space:normal;">Nominal</th></tr></thead>
               <tbody>${desktopHtml}</tbody>
             </table>
           </div>
@@ -2133,9 +2134,9 @@
         }).join('') + '</div>';
 
         document.getElementById('incomeLogContainer').innerHTML = `
-          <div class="desktop-only table-wrap" style="border:none;">
-            <table class="table-log">
-              <thead><tr><th class="fit-col">Tanggal</th><th>Kategori</th><th class="fit-col">Bukti</th><th class="fit-col" style="text-align:right">Nominal</th></tr></thead>
+          <div class="desktop-only" style="width:100%; overflow:hidden;">
+            <table class="table-log" style="width:100%; table-layout:auto;">
+              <thead><tr><th style="white-space:normal;">Tanggal</th><th>Kategori</th><th style="white-space:normal;">Bukti</th><th style="text-align:right; white-space:normal;">Nominal</th></tr></thead>
               <tbody>${desktopHtml}</tbody>
             </table>
           </div>
@@ -2357,8 +2358,8 @@
         }).join('') + '</div>';
 
         document.getElementById('expenseLogContainer').innerHTML = `
-          <div class="desktop-only table-wrap" style="border:none;">
-            <table class="table-log">
+          <div class="desktop-only" style="width:100%; overflow:hidden;">
+            <table class="table-log" style="width:100%; table-layout:auto;">
               <thead><tr><th class="fit-col">Tanggal</th><th>Bidang</th><th class="fit-col">Bukti</th><th class="fit-col" style="text-align:right">Nominal</th></tr></thead>
               <tbody>${desktopHtml}</tbody>
             </table>
@@ -2411,9 +2412,9 @@
         }).join('') + '</div>';
 
         resultDiv.innerHTML = `
-          <div class="desktop-only table-wrap" style="border:none;">
-            <table class="table-log">
-              <thead><tr><th class="fit-col">Tanggal</th><th>Keterangan</th><th class="fit-col">Bukti</th><th class="fit-col" style="text-align:right">Nominal</th></tr></thead>
+          <div class="desktop-only" style="width:100%; overflow:hidden;">
+            <table class="table-log" style="width:100%; table-layout:auto;">
+              <thead><tr><th style="white-space:normal;">Tanggal</th><th>Keterangan</th><th style="white-space:normal;">Bukti</th><th style="text-align:right; white-space:normal;">Nominal</th></tr></thead>
               <tbody>${desktopHtml}</tbody>
             </table>
           </div>
@@ -4047,17 +4048,17 @@
         };
 
         document.getElementById('historyListContainer').innerHTML = summaryHtml + `
-          <div class="desktop-only table-wrap scrollable" style="border:none;">
-            <table class="table-history">
+          <div class="desktop-only scrollable" style="width:100%; overflow:hidden; border:none;">
+            <table class="table-history" style="width:100%; table-layout:auto;">
               <thead>
                 <tr>
-                  <th class="fit-col" style="cursor:pointer; user-select:none;" onclick="toggleSortHistory('date')">Tanggal ${getSortIcon('date')}</th>
-                  <th class="fit-col" style="cursor:pointer; user-select:none;" onclick="toggleSortHistory('type')">Alur ${getSortIcon('type')}</th>
+                  <th style="cursor:pointer; user-select:none; white-space:normal;" onclick="toggleSortHistory('date')">Tanggal ${getSortIcon('date')}</th>
+                  <th style="cursor:pointer; user-select:none; white-space:normal;" onclick="toggleSortHistory('type')">Alur ${getSortIcon('type')}</th>
                   <th style="cursor:pointer; user-select:none;" onclick="toggleSortHistory('category')">Kategori & Keterangan ${getSortIcon('category')}</th>
-                  <th class="fit-col" style="cursor:pointer; user-select:none;" onclick="toggleSortHistory('receipt')">Bukti ${getSortIcon('receipt')}</th>
+                  <th style="cursor:pointer; user-select:none; white-space:normal;" onclick="toggleSortHistory('receipt')">Bukti ${getSortIcon('receipt')}</th>
                   <th style="cursor:pointer; user-select:none;" onclick="toggleSortHistory('pihak')">Pihak ${getSortIcon('pihak')}</th>
-                  <th class="fit-col" style="text-align:right; cursor:pointer; user-select:none;" onclick="toggleSortHistory('amount')">Nominal ${getSortIcon('amount')}</th>
-                  <th class="fit-col" style="text-align:right">Aksi</th>
+                  <th style="text-align:right; cursor:pointer; user-select:none; white-space:normal;" onclick="toggleSortHistory('amount')">Nominal ${getSortIcon('amount')}</th>
+                  <th style="text-align:right; white-space:normal;">Aksi</th>
                 </tr>
               </thead>
               <tbody>${desktopHtml}</tbody>
@@ -4794,23 +4795,58 @@
       document.getElementById('bulkPrintEnd').value = '';
     }
 
+    window.toggleBulkPrintCat = function(caller) {
+      const allCb = document.getElementById('bpCatAll');
+      const catCbs = document.querySelectorAll('.bpCatCheck');
+      if (caller === 'all') {
+        if (allCb.checked) {
+          catCbs.forEach(cb => cb.checked = false);
+        }
+      } else {
+        let anyChecked = false;
+        catCbs.forEach(cb => { if (cb.checked) anyChecked = true; });
+        if (anyChecked) allCb.checked = false;
+        else if (!allCb.checked) allCb.checked = true; // prevent zero selection by defaulting to all
+      }
+    };
+
     function doBulkPrint() {
       const startReceipt = document.getElementById('bulkPrintStart').value.trim();
       const endReceipt = document.getElementById('bulkPrintEnd').value.trim();
-      const type = document.getElementById('bulkPrintType').value;
+      
+      const chkAll = document.getElementById('bpCatAll').checked;
+      const chkInc = document.querySelector('.bpCatCheck[value="income"]').checked;
+      const chkExp = document.querySelector('.bpCatCheck[value="expense"]').checked;
+      const chkMut = document.querySelector('.bpCatCheck[value="mutasi"]').checked;
+      
+      const doInc = chkAll || chkInc;
+      const doExp = chkAll || chkExp;
+      const doMut = chkAll || chkMut;
+
       const myUnitOnly = document.getElementById('bulkPrintMyUnitOnly') && document.getElementById('bulkPrintMyUnitOnly').checked;
 
       if (!startReceipt || !endReceipt) {
         notify('Harap isi rentang tanggal dengan lengkap', 'error');
         return;
       }
+      
+      let pool = [];
+      if (doInc) {
+        (cachedIncome || []).forEach(x => pool.push({...x, _bpType: 'income'}));
+      }
+      if (doExp || doMut) {
+        (cachedExpense || []).forEach(x => {
+           const isMut = x.department === 'Mutasi Kas / Setor Bank';
+           if (isMut && doMut) pool.push({...x, _bpType: 'expense'});
+           else if (!isMut && doExp) pool.push({...x, _bpType: 'expense'});
+        });
+      }
 
-      const arr = type === 'income' ? cachedIncome : cachedExpense;
       let uniqueReceipts = new Set();
       let txToPrint = [];
       const userUnits = getUserUnits();
 
-      arr.forEach(tx => {
+      pool.forEach(tx => {
         const d = tx.date || '';
         if (d >= startReceipt && d <= endReceipt) {
           if (myUnitOnly) {
@@ -4820,8 +4856,9 @@
           }
           const r = tx.receipt_no || '';
           if (r !== '-' && r !== '') {
-            if (!uniqueReceipts.has(r)) {
-              uniqueReceipts.add(r);
+            const uKey = tx._bpType + '_' + r;
+            if (!uniqueReceipts.has(uKey)) {
+              uniqueReceipts.add(uKey);
               txToPrint.push(tx);
             }
           } else {
@@ -4831,15 +4868,19 @@
       });
 
       if (txToPrint.length === 0) {
-        notify('Tidak ada transaksi pada rentang tanggal tersebut', 'error');
+        notify('Tidak ada transaksi pada kriteria tersebut', 'error');
         return;
       }
 
-      txToPrint.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+      txToPrint.sort((a, b) => {
+         const cmpDate = (a.date || '').localeCompare(b.date || '');
+         if (cmpDate !== 0) return cmpDate;
+         return (a.receipt_no || '').localeCompare(b.receipt_no || '');
+      });
 
       let allHtml = '';
       txToPrint.forEach(tx => {
-        allHtml += generateReceiptHTML(type, tx);
+        allHtml += generateReceiptHTML(tx._bpType, tx);
       });
 
       document.getElementById('printContainer').innerHTML = allHtml;

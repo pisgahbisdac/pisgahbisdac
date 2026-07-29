@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#151924">
+  <title>Inventaris - PISGAH-BISDAC</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  
+  <style>
+    :root {
+      --bg-main: #fcfcfc;
+      --bg-hero: #f4f0ec;
+      --bg-card: #ffffff;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --accent-dark: #0a2525; /* Dark green/navy */
+      --accent-gold: #c98e21;
+      --border-light: rgba(0,0,0,0.06);
+      --card-shadow: 0 12px 30px rgba(0,0,0,0.03);
+      --hover-shadow: 0 20px 40px rgba(0,0,0,0.08);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 8px;
+    }
+    
+    html, body {
+      background-color: var(--bg-main) !important;
+      color: var(--text-dark) !important;
+      font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow-x: hidden !important;
+      min-height: 100vh !important;
+    }
+    
+    main {
+      background-color: transparent !important;
+      width: 100% !important;
+      position: relative;
+      z-index: 10;
+    }
+    
+    /* Top Nav */
+    .top-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      background: rgba(252, 252, 252, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .top-nav h2 {
+      color: var(--text-dark) !important;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border-radius: var(--radius-lg);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+    .btn-primary {
+      background: var(--accent-dark);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #061818;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(10,37,37,0.2);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-light);
+      color: var(--text-dark);
+    }
+    .btn-outline:hover {
+      background: rgba(0,0,0,0.03);
+      border-color: rgba(0,0,0,0.1);
+    }
+    #logoutBtn {
+      color: #ef4444 !important;
+      background: rgba(239, 68, 68, 0.1);
+      border: none;
+    }
+    
+    /* Hero Section */
+    .hero-section {
+      background: var(--bg-hero);
+      padding: 120px 20px 80px;
+      text-align: center;
+      border-bottom: 1px solid var(--border-light);
+      border-radius: 0 0 40px 40px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+      z-index: 10;
+    }
+    .bg-asset {
+      position: absolute;
+      opacity: 0.08;
+      z-index: 1;
+      animation: floatAsset 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes floatAsset {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    .bg-asset-1 { top: 15%; left: 8%; font-size: 10rem; animation-delay: 0s; color: #c98e21; }
+    .bg-asset-2 { top: 35%; right: 5%; font-size: 14rem; animation-delay: 1.5s; opacity: 0.05; color: #6b8e75; }
+    .bg-asset-3 { bottom: -5%; left: 25%; font-size: 8rem; animation-delay: 3s; color: #d27d56; }
+    .bg-asset-4 { top: -5%; right: 30%; font-size: 7rem; animation-delay: 2s; opacity: 0.06; color: #0f766e; }
+    
+    .hero-content {
+      position: relative;
+      z-index: 10;
+    }
+    .hero-title {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 800;
+      color: var(--accent-dark);
+      margin-bottom: 15px;
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+    .hero-subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 500px;
+      margin: 0 auto 30px;
+    }
+    
+    /* Search Bar */
+    .search-bar {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 18px 24px 18px 54px;
+      border-radius: 50px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      color: var(--text-dark);
+      font-size: 16px;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+    }
+    .search-bar input:focus {
+      outline: none;
+      border-color: var(--accent-dark);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.06);
+      transform: translateY(-2px);
+    }
+    .search-bar i {
+      position: absolute;
+      left: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+    .inv-filter-select {
+      -webkit-appearance: none;
+         -moz-appearance: none;
+              appearance: none;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-light);
+      color: var(--text-dark);
+      padding: 10px 35px 10px 20px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      min-width: 180px;
+      box-shadow: var(--card-shadow);
+      transition: all 0.3s ease;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 16px;
+    }
+    .inv-filter-select:hover {
+      border-color: var(--accent-dark);
+      transform: translateY(-2px);
+    }
+    .inv-filter-select:focus {
+      outline: none;
+      border-color: var(--accent-dark);
+      box-shadow: 0 0 0 3px rgba(10,37,37,0.1);
+    }
+    
+    /* View Controls */
+    .view-controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+    .view-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      color: var(--text-muted);
+      padding: 10px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .view-btn.active {
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
+      color: #fff;
+    }
+    
+    /* Inventory Grid */
+    .inventory-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+      gap: 30px !important;
+      padding: 0 30px 80px !important;
+      max-width: 1400px !important;
+      margin: 0 auto !important;
+    }
+    
+    /* Asset Card */
+    /* Asset Card */
+    .inv-asset-card {
+      background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%) !important;
+      border: 1px solid var(--border-light) !important;
+      border-radius: var(--radius-lg) !important;
+      overflow: hidden !important;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+      cursor: pointer !important;
+      position: relative !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      z-index: 1;
+    }
+    .inv-asset-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #c98e21, #0a2525, #0f766e, #c98e21);
+      background-size: 300% 100%;
+      transition: all 0.4s ease;
+      z-index: 2;
+    }
+    .inv-asset-card:hover {
+      transform: translateY(-8px) scale(1.02) !important;
+      box-shadow: 0 20px 40px rgba(10, 37, 37, 0.1) !important;
+      border-color: rgba(201, 142, 33, 0.3) !important;
+    }
+    .inv-asset-card:hover::before {
+      height: 6px;
+      background-position: 100% 0;
+      box-shadow: 0 4px 15px rgba(201, 142, 33, 0.4);
+    }
+    .inv-asset-photo {
+      width: 100% !important;
+      height: 240px !important;
+      -o-object-fit: contain !important;
+         object-fit: contain !important;
+      border-bottom: 1px solid var(--border-light) !important;
+      padding: 20px !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      box-sizing: border-box !important;
+      flex-shrink: 0 !important;
+    }
+    .inv-asset-info {
+      padding: 24px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 !important;
+    }
+    .inv-asset-name {
+      font-size: 1.25rem !important;
+      font-weight: 700 !important;
+      color: var(--text-dark) !important;
+      margin-bottom: 8px !important;
+      line-height: 1.3;
+    }
+    .inv-asset-meta {
+      font-size: 0.85rem !important;
+      color: var(--text-muted) !important;
+      margin-bottom: 6px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+    .inv-asset-value {
+      font-weight: 800 !important;
+      color: var(--accent-dark) !important;
+      font-size: 1.2rem !important;
+      margin-top: auto !important;
+    }
+    
+    /* Status Badge */
+    .inv-badge-status {
+      display: inline-block !important;
+      padding: 6px 14px !important;
+      border-radius: 50px !important;
+      font-size: 0.75rem !important;
+      font-weight: 700 !important;
+      background-color: #f1f5f9 !important;
+      color: var(--text-dark) !important;
+      border: 1px solid rgba(0,0,0,0.05) !important;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+      margin-bottom: 8px !important;
+    }
+    
+    /* Cart-like Button in Card (Visual only) */
+    .card-action-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: #ffffff;
+      color: var(--text-dark);
+      display: flex; align-items: center; justify-content: center;
+      position: absolute;
+      top: 205px; right: 15px;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      opacity: 0;
+      transform: translateY(10px) scale(0.9);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 5;
+    }
+    .inv-asset-card:hover .card-action-btn {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    
+    /* List View */
+    .inventory-list {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 20px !important;
+      padding: 0 30px 80px !important;
+      max-width: 1400px !important;
+      margin: 0 auto !important;
+    }
+    .inv-list-card {
+      display: flex !important;
+      background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%) !important;
+      border: 1px solid var(--border-light) !important;
+      border-radius: var(--radius-md) !important;
+      overflow: hidden !important;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+      cursor: pointer !important;
+      position: relative !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
+      z-index: 1;
+    }
+    .inv-list-card::before {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0; left: 0;
+      width: 4px;
+      background: linear-gradient(180deg, #c98e21, #0a2525, #0f766e, #c98e21);
+      background-size: 100% 300%;
+      transition: all 0.4s ease;
+      z-index: 2;
+    }
+    .inv-list-card:hover {
+      transform: translateY(-5px) scale(1.01) !important;
+      box-shadow: 0 15px 35px rgba(10, 37, 37, 0.1) !important;
+      border-color: rgba(201, 142, 33, 0.3) !important;
+    }
+    .inv-list-card:hover::before {
+      width: 6px;
+      background-position: 0 100%;
+      box-shadow: 4px 0 15px rgba(201, 142, 33, 0.4);
+    }
+    .inv-list-photo {
+      width: 160px !important;
+      height: 160px !important;
+      flex-shrink: 0 !important;
+      -o-object-fit: contain !important;
+         object-fit: contain !important;
+      border: 1px solid var(--border-light) !important;
+      border-radius: 12px !important;
+      padding: 10px;
+      margin: 16px 0 16px 16px !important;
+    }
+    .inv-list-info {
+      padding: 24px !important;
+      flex: 1 !important;
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+    }
+    
+    /* Modals */
+    .inv-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .inv-modal-content {
+      background-color: var(--bg-card) !important;
+      border: none !important;
+      border-radius: var(--radius-lg) !important;
+      width: 100% !important; max-width: 500px !important;
+      max-height: 90vh !important; overflow-y: auto !important;
+      padding: 32px !important;
+      color: var(--text-dark) !important;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25) !important;
+    }
+    .inv-form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .inv-form-group label {
+      display: block;
+      color: var(--text-dark) !important;
+      font-weight: 600 !important;
+      margin-bottom: 8px !important;
+    }
+    .inv-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 12px 24px !important;
+      border-radius: var(--radius-sm) !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      transition: all 0.3s ease !important;
+      border: none !important;
+      font-family: inherit !important;
+    }
+    .inv-btn-primary {
+      background: var(--accent-dark) !important;
+      color: #fff !important;
+    }
+    .inv-btn-primary:hover {
+      background: #061818 !important;
+      transform: translateY(-2px) !important;
+    }
+    .inv-form-control {
+      background-color: #f8f9fa !important;
+      border: 1px solid var(--border-light) !important;
+      color: var(--text-dark) !important;
+      border-radius: var(--radius-sm) !important;
+      padding: 14px !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      max-width: 100% !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    .inv-form-control:focus {
+      border-color: var(--accent-dark) !important;
+      background-color: #fff !important;
+      box-shadow: 0 0 0 3px rgba(10,37,37,0.1) !important;
+    }
+    
+    @media (max-width: 1000px) {
+      .inventory-list { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 768px) {
+      .hide-on-mobile { display: none !important; }
+      .top-nav { padding: 12px 20px; }
+      .hero-section { padding: 100px 20px 60px; border-radius: 0 0 24px 24px; }
+      .hero-title { font-size: 2.2rem; }
+      .inventory-grid { padding: 0 20px 60px !important; grid-template-columns: 1fr !important; }
+      .inv-list-photo { width: 120px !important; }
+      .inv-list-info { flex-direction: column !important; align-items: flex-start !important; }
+      .inv-modal-content { padding: 20px !important; }
+      .inv-form-control { font-size: 15px !important; }
+      .inv-form-group label { font-size: 0.9rem !important; }
+    }
+    
+    /* Global Page Background Animations */
+    #global-bg-animation {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .page-bg-icon {
+      position: absolute;
+      opacity: 0.05;
+      animation: floatPageBg linear infinite;
+    }
+    @keyframes floatPageBg {
+      0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.06; }
+      90% { opacity: 0.06; }
+      100% { transform: translateY(-20vh) rotate(180deg); opacity: 0; }
+    }
+    .bg-icon-1 { left: 8%; font-size: 8rem; animation-duration: 45s; animation-delay: 0s; color: #c98e21; }
+    .bg-icon-2 { left: 25%; font-size: 5rem; animation-duration: 35s; animation-delay: 15s; color: #6b8e75; }
+    .bg-icon-3 { left: 40%; font-size: 10rem; animation-duration: 50s; animation-delay: 5s; color: #d27d56; }
+    .bg-icon-4 { left: 60%; font-size: 6rem; animation-duration: 40s; animation-delay: 25s; color: #0f766e; }
+    .bg-icon-5 { left: 75%; font-size: 12rem; animation-duration: 55s; animation-delay: 10s; color: #c98e21; }
+    .bg-icon-6 { left: 90%; font-size: 7rem; animation-duration: 38s; animation-delay: 30s; color: #6b8e75; }
+    .bg-icon-7 { left: 15%; font-size: 14rem; animation-duration: 60s; animation-delay: 20s; color: #d27d56; }
+    .bg-icon-8 { left: 50%; font-size: 9rem; animation-duration: 48s; animation-delay: 35s; color: #0f766e; }
+    .bg-icon-9 { left: 85%; font-size: 11rem; animation-duration: 52s; animation-delay: 2s; color: #94a3b8; }
+
+  </style>
+  <script type="module" crossorigin src="/assets/inventaris-D3t2U8As.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-_jRxjwtd.css">
+</head>
+<body>
+  <div id="global-bg-animation">
+    <i class="fa-solid fa-church page-bg-icon bg-icon-1"></i>
+    <i class="fa-solid fa-microphone page-bg-icon bg-icon-2"></i>
+    <i class="fa-solid fa-chair page-bg-icon bg-icon-3"></i>
+    <i class="fa-solid fa-guitar page-bg-icon bg-icon-4"></i>
+    <i class="fa-solid fa-cross page-bg-icon bg-icon-5"></i>
+    <i class="fa-solid fa-desktop page-bg-icon bg-icon-6"></i>
+    <i class="fa-solid fa-book-bible page-bg-icon bg-icon-7"></i>
+    <i class="fa-solid fa-volume-high page-bg-icon bg-icon-8"></i>
+    <i class="fa-solid fa-boxes-packing page-bg-icon bg-icon-9"></i>
+  </div>
+
+  <nav class="top-nav">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <a href="/" class="btn btn-outline" style="padding: 10px; width: 40px; height: 40px; border-radius: 50%;" title="Kembali ke Beranda">
+        <i class="fa-solid fa-chevron-left" style="margin-right: 2px;"></i>
+      </a>
+      <img src="/icons/PisgahColor.png" alt="PISGAH Logo" style="height: 38px; margin-left: 8px;">
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <button id="loginBtn" class="btn btn-outline"><i class="fa-solid fa-user-lock"></i> <span class="hide-on-mobile">Login Admin</span></button>
+      <div id="adminControls" style="display:none; gap:10px; align-items:center;">
+        <button id="backupBtn" class="btn btn-outline" style="color:#0f766e;"><i class="fa-solid fa-download"></i> <span class="hide-on-mobile">Backup</span></button>
+        <button id="depreciationBtn" class="btn btn-outline" style="color:#0284c7;" onclick="window.showDepreciationReport()"><i class="fa-solid fa-calculator"></i> <span class="hide-on-mobile">Depresiasi</span></button>
+        <button id="addBtn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> <span class="hide-on-mobile">Tambah Aset</span></button>
+        <button id="logoutBtn" class="btn"><i class="fa-solid fa-sign-out-alt"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero-section">
+    <!-- Background Animations -->
+    <i class="fa-solid fa-boxes-stacked bg-asset bg-asset-1"></i>
+    <i class="fa-solid fa-box-open bg-asset bg-asset-2"></i>
+    <i class="fa-solid fa-clipboard-check bg-asset bg-asset-3"></i>
+    <i class="fa-solid fa-dolly bg-asset bg-asset-4"></i>
+    
+    <div class="hero-content">
+      <div class="admin-only-field" data-display="flex" style="display:none; justify-content:center; align-items:center; gap:10px; margin: 0 auto 15px; font-weight:600; color:var(--accent-dark); font-size:1.1rem; background: rgba(255,255,255,0.7); padding: 12px 24px; border-radius: 50px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 10px rgba(0,0,0,0.03); width:100%; max-width:600px; box-sizing:border-box;">
+        <i class="fa-solid fa-hand-sparkles" style="color:#d4af37;"></i>
+        <span id="userNameDisplay"></span>
+        <span style="width:4px; height:4px; background:var(--text-muted); border-radius:50%; display:inline-block; margin: 0 4px;"></span>
+        <span id="liveDateTime" style="color:var(--text-muted); font-weight:500; font-size: 0.95rem;"></span>
+      </div>
+      
+      <h1 class="hero-title" style="margin-top:5px;">Koleksi Inventaris.</h1>
+      <p class="hero-subtitle">Sistem Informasi Manajemen Inventaris Gereja PISGAH-BISDAC</p>
+      
+      <div class="search-bar" style="margin-bottom:15px;">
+        <i class="fa-solid fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Cari nama peralatan, lokasi, atau penanggung jawab..." autocomplete="off">
+      </div>
+      
+      <div style="display:flex; justify-content:center; gap:10px; margin-bottom:25px; max-width:800px; margin-left:auto; margin-right:auto; flex-wrap:wrap;">
+        <select id="filterCategory" class="inv-filter-select" onchange="window.renderGrid()">
+          <option value="">Semua Kategori</option>
+          <option value="Elektronik & Multimedia">Elektronik & Multimedia</option>
+          <option value="Furnitur & Mebel">Furnitur & Mebel</option>
+          <option value="Alat Musik">Alat Musik</option>
+          <option value="Peralatan Dapur">Peralatan Dapur</option>
+          <option value="Perlengkapan Ibadah">Perlengkapan Ibadah</option>
+          <option value="Kendaraan">Kendaraan</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+        <select id="filterStatus" class="inv-filter-select" onchange="window.renderGrid()">
+          <option value="">Semua Status Aset</option>
+          <option value="Active">Aktif</option>
+          <option value="Disposed">Disposed (Dihapus)</option>
+        </select>
+        <select id="filterLoan" class="inv-filter-select" onchange="window.renderGrid()">
+          <option value="">Semua Status Pinjaman</option>
+          <option value="Tersedia">Tersedia</option>
+          <option value="Dipinjam">Sedang Dipinjam</option>
+        </select>
+      </div>
+      
+      <div class="view-controls">
+        <button id="btnSelectAll" class="inv-btn admin-only-field" onclick="window.toggleSelectAll()" data-display="inline-flex" style="display:none; margin-right: 15px; background:var(--bg-card); border:1px solid var(--accent-dark); color:var(--accent-dark); border-radius:50px; padding:10px 20px; transition:all 0.3s;"><i class="fa-regular fa-square-check" style="margin-right:8px; font-size:1.1rem;"></i> Pilih Semua</button>
+        <button id="btnViewGrid" class="view-btn active" onclick="window.changeViewMode('grid')">Grid</button>
+        <button id="btnViewList" class="view-btn" onclick="window.changeViewMode('list')">List</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding-top:40px;">
+    <div id="bulkPrintContainer" class="admin-only-field" style="display:none; text-align:center; margin-bottom:20px; position:sticky; top:80px; z-index:90;">
+      <div style="display:inline-flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; background:var(--bg-card); padding:12px 24px; border-radius:50px; border:1px solid var(--border-light); box-shadow:var(--hover-shadow); backdrop-filter:blur(10px);">
+        <span id="bulkPrintCount" style="color:var(--text-dark); font-weight:700; font-size:1.05rem; white-space:nowrap;">0 Dipilih</span>
+        <button onclick="document.getElementById('bulkPrintChoiceModal').style.display='flex';" class="inv-btn inv-btn-primary" style="padding:8px 24px; border-radius:50px; font-size:0.95rem; white-space:nowrap;"><i class="fa-solid fa-print" style="margin-right:8px;"></i> Cetak QR</button>
+      </div>
+    </div>
+    
+    <div id="inventoryGrid" class="inventory-grid">
+      <!-- Cards will be rendered here by JS -->
+      <div style="text-align:center; grid-column: 1 / -1; padding: 60px;">
+        <i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--accent-dark);"></i>
+        <p style="margin-top:15px; color:var(--text-muted); font-weight: 500;">Memuat koleksi inventaris...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Login Modal -->
+  <div id="loginModal" class="inv-modal-overlay">
+    <div class="inv-modal-content" style="max-width:350px;">
+      <h3 style="margin-top:0; color:var(--accent-dark); font-size:1.5rem; text-align:center;">Login Pengurus</h3>
+      <div class="inv-form-group">
+        <label>Username</label>
+        <input type="text" id="loginUsername" class="inv-form-control">
+      </div>
+      <div class="inv-form-group">
+        <label>Password</label>
+        <div style="position: relative;">
+          <input type="password" id="loginPassword" class="inv-form-control" style="padding-right: 40px;">
+          <i class="fa-solid fa-eye" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa;" onclick="const pw = document.getElementById('loginPassword'); if(pw.type === 'password') { pw.type = 'text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash'); } else { pw.type = 'password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye'); }"></i>
+        </div>
+      </div>
+      <button id="doLoginBtn" class="inv-btn inv-btn-primary" style="width:100%; margin-top:10px;">Masuk</button>
+      <button onclick="document.getElementById('loginModal').style.display='none'" class="inv-btn" style="width:100%; margin-top:10px; background:transparent; color:var(--text-dark);">Batal</button>
+    </div>
+  </div>
+
+  <!-- Logout Modal -->
+  <div id="logoutModal" class="inv-modal-overlay">
+    <div class="inv-modal-content" style="max-width:350px; text-align:center;">
+      <div style="width:60px; height:60px; background:rgba(212, 175, 55, 0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px;">
+        <i class="fa-solid fa-sign-out-alt" style="color:var(--accent-dark); font-size:1.5rem;"></i>
+      </div>
+      <h3 style="margin-top:0; color:var(--text-dark); font-size:1.3rem; margin-bottom:10px;">Keluar Mode Admin</h3>
+      <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:24px;">Apakah Anda yakin ingin keluar dari mode pengurus?</p>
+      
+      <div style="display:flex; justify-content:center; gap:10px;">
+        <button onclick="document.getElementById('logoutModal').style.display='none'" class="inv-btn inv-btn-outline" style="flex:1; border-color:var(--text-muted); color:var(--text-dark);">Batal</button>
+        <button id="doLogoutBtn" class="inv-btn inv-btn-primary" style="flex:1;">Ya, Keluar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Modal (Add/Edit) -->
+  <div id="formModal" class="inv-modal-overlay">
+    <div class="inv-modal-content">
+      <h3 id="formTitle" style="margin-top:0; color:var(--accent-dark); font-size:1.5rem;">Tambah Aset Baru</h3>
+      
+      <input type="hidden" id="formId">
+      
+      <div class="inv-form-group">
+        <label>Nama Peralatan *</label>
+        <input type="text" id="formName" class="inv-form-control" required>
+      </div>
+      
+      <div style="display:flex; gap:15px; margin-bottom:15px;">
+        <div style="flex:1;">
+          <label style="display:block; margin-bottom:8px; color:var(--text-muted); font-size:0.9rem;">Jumlah *</label>
+          <input type="number" id="formQty" class="inv-form-control" min="1" value="1" required style="width:100%; box-sizing:border-box;">
+        </div>
+        <div style="flex:1;">
+          <label style="display:block; margin-bottom:8px; color:var(--text-muted); font-size:0.9rem;">Satuan *</label>
+          <select id="formUnit" class="inv-form-control" required style="width:100%; box-sizing:border-box;">
+            <option value="Buah">Buah</option>
+            <option value="Set">Set</option>
+            <option value="Unit">Unit</option>
+            <option value="Pasang">Pasang</option>
+            <option value="Lembar">Lembar</option>
+            <option value="Keping">Keping</option>
+            <option value="Rol">Rol</option>
+            <option value="Paket">Paket</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Rincian Set / Sub Item (Opsional)</label>
+        <textarea id="formSubItems" class="inv-form-control" placeholder="Contoh:&#10;- 2 Mic Wireless&#10;- 1 Kabel Listrik" rows="3" style="resize:vertical; font-family:inherit;"></textarea>
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Tanggal Perolehan</label>
+        <input type="date" id="formDate" class="inv-form-control">
+      </div>
+      
+      <div class="inv-form-group admin-only-field">
+        <label>Harga Perolehan (Rp)</label>
+        <input type="text" inputmode="numeric" id="formValue" class="inv-form-control" placeholder="Contoh: 1500000">
+      </div>
+      
+      <div class="inv-form-group admin-only-field">
+        <label>Umur Ekonomis Penyusutan (Tahun) - Opsional</label>
+        <input type="number" id="formDepreciationYears" class="inv-form-control" placeholder="Contoh: 5" min="1" max="50">
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Lokasi / Status *</label>
+        <input type="text" id="formLocation" class="inv-form-control" placeholder="Contoh: Gudang, Ruang Ibadah" required>
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Kategori *</label>
+        <select id="formCategory" class="inv-form-control" required>
+          <option value="">Pilih Kategori...</option>
+          <option value="Elektronik & Multimedia">Elektronik & Multimedia</option>
+          <option value="Furnitur & Mebel">Furnitur & Mebel</option>
+          <option value="Alat Musik">Alat Musik</option>
+          <option value="Peralatan Dapur">Peralatan Dapur</option>
+          <option value="Perlengkapan Ibadah">Perlengkapan Ibadah</option>
+          <option value="Kendaraan">Kendaraan</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Asal Barang *</label>
+        <select id="formSource" class="inv-form-control" required>
+          <option value="">Pilih Asal Barang...</option>
+          <option value="Beli Baru">Beli Baru</option>
+          <option value="Beli Bekas">Beli Bekas</option>
+          <option value="Sumbangan Jemaat">Sumbangan Jemaat</option>
+          <option value="Hibah / Bantuan">Hibah / Bantuan Instansi</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+      </div>
+      
+      <div class="inv-form-group admin-only-field" style="margin-top:20px; border-top:1px solid var(--border-light); padding-top:15px;">
+        <label>Status Aset *</label>
+        <select id="formStatus" class="inv-form-control" required onchange="if(this.value==='Disposed') document.getElementById('disposeFields').style.display='block'; else document.getElementById('disposeFields').style.display='none';">
+          <option value="Active">🟢 Aktif</option>
+          <option value="Disposed">🔴 Disposed / Dihapus</option>
+        </select>
+      </div>
+      
+      <div id="disposeFields" style="display:none; background:rgba(220,38,38,0.1); border-left:3px solid #ef4444; padding:15px; border-radius:6px; margin-bottom:15px;">
+        <div class="inv-form-group" style="margin-bottom:10px;">
+          <label>Justifikasi / Alasan Disposal *</label>
+          <input type="text" id="formDisposeReason" class="inv-form-control" placeholder="Contoh: Rusak total, Dijual, Dihibahkan">
+        </div>
+        <div class="inv-form-group" style="margin-bottom:0;">
+          <label>Harga Jual Disposal (Isi 0 jika tidak dijual)</label>
+          <input type="text" inputmode="numeric" id="formDisposePrice" class="inv-form-control" placeholder="Contoh: 1500000">
+        </div>
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Market Value (Rp)</label>
+        <input type="text" inputmode="numeric" id="formTaksasi" class="inv-form-control" placeholder="Contoh: 4500000">
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Penanggung Jawab *</label>
+        <input type="text" id="formPic" class="inv-form-control" required>
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Foto Aset (Maks 4 Gambar)</label>
+        <input type="file" id="formPhoto" class="inv-form-control" accept="image/*" multiple>
+        <div id="photoPreview" style="margin-top:10px; display:none; gap:10px; overflow-x:auto; padding-bottom:5px;">
+        </div>
+      </div>
+      
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
+        <button onclick="closeFormModal()" class="inv-btn inv-btn-outline" style="border-color:var(--text-muted); color:var(--text-dark);">Batal</button>
+        <button id="saveBtn" class="inv-btn inv-btn-primary">Simpan Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail & Barcode Modal -->
+  <div id="detailModal" class="inv-modal-overlay">
+    <div class="inv-modal-content" style="max-width: 850px !important;">
+      
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+        <div>
+          <h3 id="detailName" style="margin-top:0; color:var(--text-dark); font-size:1.5rem; margin-bottom:5px;">Nama Aset</h3>
+          <p id="detailId" style="color:var(--accent-dark); font-family:monospace; margin-top:0; margin-bottom:5px;">INV-XXX</p>
+          <span id="detailLoanBadge" class="inv-badge-status" style="background:#22c55e; display:inline-block;">Tersedia</span>
+        </div>
+        <button onclick="document.getElementById('detailModal').style.display='none'" style="background:transparent; border:none; color:var(--text-dark); font-size:1.2rem; cursor:pointer; padding:5px;"><i class="fa-solid fa-times"></i></button>
+      </div>
+      
+      <div style="display: flex; flex-wrap: wrap; gap: 24px;">
+        <!-- Kolom Kiri: Foto dan QR Code -->
+        <div style="flex: 1; min-width: 250px;">
+          <div style="background:#f8f9fa; border:1px solid var(--border-light); border-radius:12px; padding:24px; height:100%; box-sizing:border-box; text-align:center; display:flex; flex-direction:column; align-items:center;">
+            <!-- Multiple Photos Container -->
+            <div id="detailPhotosContainer" style="display:flex; gap:10px; overflow-x:auto; margin-bottom:30px; padding-bottom:8px; scroll-snap-type: x mandatory; justify-content:center; width:100%;">
+            </div>
+            
+            <div class="barcode-container" style="margin-top:auto; width:100%;">
+              <p style="color:#333; margin-top:0; font-size:0.95rem; font-weight:600; margin-bottom:16px;">Scan QR Code dengan Kamera HP</p>
+              
+              <div style="position:relative; width:160px; height:160px; margin:0 auto; border:1px solid var(--border-light); border-radius:12px; padding:12px; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.03); display:flex; align-items:center; justify-content:center;">
+                <img id="qrCodeImg" src="" style="width:100%; height:100%; display:block; object-fit:contain;">
+                <img src="./icons/PisgahColor.png" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:40px; height:40px; background:white; padding:4px; border-radius:50%; object-fit:contain; box-shadow:0 4px 8px rgba(0,0,0,0.15);">
+              </div>
+              
+              <p id="qrCodeId" style="color:var(--text-muted); font-family:monospace; margin-top:16px; margin-bottom:16px; font-size:0.9rem; font-weight:700;"></p>
+              
+              <div class="admin-only-field" data-display="flex" style="display:none; flex-direction:column; gap:10px; max-width:200px; margin:0 auto;">
+                <button onclick="window.printBarcode()" class="inv-btn" style="background:#fff; border:1px solid var(--border-light); color:var(--text-dark); font-size:0.85rem; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600;">
+                  <i class="fa-solid fa-file-pdf"></i> Cetak Standar / PDF
+                </button>
+                <button onclick="window.printDirectThermal()" class="inv-btn" style="background:var(--accent-dark); border:none; color:#fff; font-size:0.85rem; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600;">
+                  <i class="fa-brands fa-bluetooth"></i> Cetak Thermal (Direct)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Kolom Kanan: Rincian Data dan Tombol -->
+        <div style="flex: 1; min-width: 300px;">
+          <div style="background:#f8f9fa; border:1px solid var(--border-light); border-radius:12px; padding:20px; height:100%; box-sizing:border-box;">
+            
+            <div id="detailStatusContainer" style="display:none; margin-bottom:15px;">
+              <span id="detailStatusBadge" style="display:inline-block; padding:4px 10px; border-radius:6px; font-weight:bold; font-size:0.85rem;"></span>
+            </div>
+            
+            <div id="detailDisposeInfo" style="display:none; background:rgba(220,38,38,0.1); border-left:3px solid #ef4444; padding:12px; border-radius:6px; margin-bottom:15px; font-size:0.85rem;">
+              <div style="margin-bottom:5px;"><strong>Alasan Disposal:</strong> <span id="detailDisposeReason"></span></div>
+              <div class="admin-only-field"><strong>Harga Jual:</strong> <span id="detailDisposePrice" style="color:#4ade80;"></span></div>
+            </div>
+            
+            <div class="inv-asset-meta" style="margin-bottom:12px;"><i class="fa-solid fa-cubes"></i> Jumlah: <span id="detailQty" style="font-weight:bold; color:var(--accent-dark); margin-left:5px;"></span> <span id="detailUnit"></span></div>
+            <div id="detailSubItemsContainer" class="inv-asset-meta" style="margin-bottom:12px; display:none; flex-direction:column; align-items:flex-start;">
+              <div style="color:var(--text-muted); font-size:0.85rem; margin-bottom:8px;"><i class="fa-solid fa-list"></i> Rincian Set / Sub Item:</div>
+              <div id="detailSubItems" style="background:#f1f5f9; border:1px solid var(--border-light); color:var(--text-dark); padding:12px; border-radius:6px; width:100%; box-sizing:border-box; font-size:0.85rem; white-space:pre-wrap; line-height:1.5;"></div>
+            </div>
+            
+            <div class="inv-asset-meta" style="margin-bottom:12px;"><i class="fa-solid fa-tags"></i> <span id="detailCategory"></span></div>
+            <div class="inv-asset-meta" style="margin-bottom:12px;"><i class="fa-solid fa-truck-ramp-box"></i> <span id="detailSource"></span></div>
+            <div class="inv-asset-meta" style="margin-bottom:12px;"><i class="fa-solid fa-calendar"></i> <span id="detailDate"></span></div>
+            <div class="inv-asset-meta" style="margin-bottom:12px;"><i class="fa-solid fa-location-dot"></i> <span id="detailLocation"></span></div>
+            <div class="inv-asset-meta" style="margin-bottom:12px;"><i class="fa-solid fa-user"></i> <span id="detailPic"></span></div>
+            
+            <div id="detailValueContainer" class="inv-asset-meta admin-only-field" style="margin-top:20px; border-top:1px solid var(--border-light); padding-top:20px; display:none;">
+              <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px;"><i class="fa-solid fa-money-bill-wave"></i> Nilai Perolehan Awal:</div>
+              <div id="detailValue" style="color:#4ade80; font-weight:bold; font-size:1.3rem;"></div>
+            </div>
+            
+            <div id="detailTaksasiContainer" class="inv-asset-meta admin-only-field" style="margin-top:15px; display:none;">
+              <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px;"><i class="fa-solid fa-chart-line"></i> Market Value:</div>
+              <div id="detailTaksasi" style="color:#d4af37; font-weight:bold; font-size:1.3rem;"></div>
+            </div>
+            
+            <div id="detailAdminActions" style="display:none; justify-content:space-between; margin-top:30px; border-top:1px solid var(--border-light); padding-top:20px; flex-wrap:wrap; gap:8px;">
+              <button id="loanBtn" class="inv-btn" style="background:#eab308; color:#fff; border:none; padding:8px 12px; font-size:0.9rem; flex:1; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="window.openLoanModal()"><i class="fa-solid fa-hand-holding-hand"></i> Peminjaman</button>
+              <button id="serviceBtn" class="inv-btn" style="background:#8b5cf6; color:#fff; border:none; padding:8px 12px; font-size:0.9rem; flex:1; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="window.openServiceModal()"><i class="fa-solid fa-wrench"></i> Servis</button>
+              <button id="editBtn" class="inv-btn inv-btn-primary" style="padding:8px 12px; font-size:0.9rem; flex:1; display:flex; justify-content:center; align-items:center; gap:5px;"><i class="fa-solid fa-edit"></i> Edit</button>
+              <button id="deleteBtn" class="inv-btn" style="background:rgba(220,38,38,0.2); color:#ef4444; border:1px solid rgba(220,38,38,0.5); padding:8px 12px; font-size:0.9rem; flex:1; display:flex; justify-content:center; align-items:center; gap:5px;"><i class="fa-solid fa-trash"></i> Hapus</button>
+            </div>
+            
+            <div id="serviceHistorySection" style="margin-top:25px; border-top:1px solid var(--border-light); padding-top:20px;">
+              <h4 style="margin-top:0; color:var(--text-dark); font-size:1.05rem; margin-bottom:15px; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-clipboard-list" style="color:var(--accent-dark);"></i> Riwayat Pemeliharaan</h4>
+              <div id="serviceHistoryContainer" style="max-height:220px; overflow-y:auto; padding-right:5px; display:flex; flex-direction:column; gap:10px;">
+                <div style="text-align:center; color:var(--text-muted); font-size:0.9rem; padding:15px; background:rgba(0,0,0,0.02); border-radius:8px;">Memuat riwayat servis...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Image Modal -->
+  <div id="imagePreviewModal" class="inv-modal-overlay" style="z-index: 10000; background: rgba(0,0,0,0.9);" onclick="this.style.display='none'">
+    <div style="position: absolute; top: 20px; right: 20px; color:var(--text-dark); font-size: 2rem; cursor: pointer;">
+      <i class="fa-solid fa-times"></i>
+    </div>
+    <img id="imagePreviewFull" src="" style="width: 90vw; height: 90vh; object-fit: contain; margin: auto; display: block; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+  </div>
+
+  <!-- Custom Alert Modal -->
+  <div id="customAlertModal" class="inv-modal-overlay" style="z-index: 9999;">
+    <div class="inv-modal-content" style="max-width: 400px !important; text-align: center; padding: 40px 30px;">
+      <div id="alertIcon" style="font-size: 3.5rem; margin-bottom: 20px; color: var(--accent);">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h3 id="alertTitle" style="margin-top:0; color:var(--text-dark); font-size:1.4rem; margin-bottom:12px;">Berhasil</h3>
+      <p id="alertMessage" style="color:var(--text-muted); font-size: 1rem; margin-bottom: 30px; line-height: 1.5;"></p>
+      <button onclick="document.getElementById('customAlertModal').style.display='none'" class="inv-btn inv-btn-primary" style="width: 100%; font-size: 1rem; padding: 12px;">OK Mengerti</button>
+    </div>
+  </div>
+
+  <!-- Backup Modal -->
+  <div id="backupModal" class="inv-modal-overlay">
+    <div class="inv-modal-content" style="max-width:400px; text-align:center;">
+      <h3 style="margin-top:0; color:var(--accent-dark); font-size:1.4rem; margin-bottom:15px;">Backup Data Inventaris</h3>
+      <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:25px;">Pilih format backup yang Anda inginkan. File akan otomatis diunduh ke perangkat Anda.</p>
+      
+      <div style="display:flex; flex-direction:column; gap:15px;">
+        <button onclick="window.exportCSV()" class="inv-btn" style="background:#f8f9fa; border:1px solid var(--border-light); border:1px solid rgba(255,255,255,0.2); padding:15px; font-size:1rem; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+          <i class="fa-solid fa-file-csv" style="font-size:2rem; color:#4ade80;"></i>
+          <span>Download CSV (Tabel Excel)</span>
+        </button>
+        
+        <button onclick="window.exportPDF()" class="inv-btn" style="background:#f8f9fa; border:1px solid var(--border-light); border:1px solid rgba(255,255,255,0.2); padding:15px; font-size:1rem; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+          <i class="fa-solid fa-file-pdf" style="font-size:2rem; color:#ef4444;"></i>
+          <span>Download PDF (Laporan Lengkap & Gambar)</span>
+        </button>
+      </div>
+      
+      <button onclick="document.getElementById('backupModal').style.display='none'" class="inv-btn" style="background:transparent; color:#999; margin-top:20px; width:100%; cursor:pointer;">Batal</button>
+    </div>
+  </div>
+  
+  <!-- Bulk Print Choice Modal -->
+  <div id="bulkPrintChoiceModal" class="inv-modal-overlay">
+    <div class="inv-modal-content" style="max-width:400px; text-align:center;">
+      <h3 style="margin-top:0; color:var(--accent-dark); font-size:1.4rem; margin-bottom:15px;"><i class="fa-solid fa-print"></i> Cetak QR Code</h3>
+      <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:25px;">Pilih format cetak barcode/QR Code untuk aset yang dipilih.</p>
+      
+      <div style="display:flex; flex-direction:column; gap:15px;">
+        <button onclick="window.printSelectedQRs(); document.getElementById('bulkPrintChoiceModal').style.display='none';" class="inv-btn" style="background:#f8f9fa; border:1px solid var(--border-light); padding:15px; font-size:1rem; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+          <i class="fa-solid fa-file-pdf" style="font-size:2rem; color:var(--accent-dark);"></i>
+          <span>Cetak Standar (Kertas A4/Letter)</span>
+        </button>
+        
+        <button onclick="window.printSelectedThermal(); document.getElementById('bulkPrintChoiceModal').style.display='none';" class="inv-btn" style="background:#f8f9fa; border:1px solid var(--border-light); padding:15px; font-size:1rem; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+          <i class="fa-solid fa-receipt" style="font-size:2rem; color:#0f766e;"></i>
+          <span>Cetak Thermal (Printer Kasir/Label)</span>
+        </button>
+      </div>
+      
+      <button onclick="document.getElementById('bulkPrintChoiceModal').style.display='none'" class="inv-btn" style="background:transparent; color:#999; margin-top:20px; width:100%; cursor:pointer;">Batal</button>
+    </div>
+  </div>
+  <!-- Loan Modal -->
+  <div id="loanModal" class="inv-modal-overlay" style="z-index: 10000;">
+    <div class="inv-modal-content" style="max-width: 450px !important;">
+      <h3 style="margin-top:0; color:var(--text-dark); font-size:1.4rem; margin-bottom:20px;"><i class="fa-solid fa-hand-holding-hand" style="color:#eab308; margin-right:8px;"></i> Status Peminjaman</h3>
+      
+      <div class="inv-form-group">
+        <label>Status Saat Ini</label>
+        <select id="formLoanStatus" class="inv-form-control" onchange="const d = document.getElementById('loanDetailsFields'); if(this.value==='Dipinjam') d.style.display='block'; else d.style.display='none';">
+          <option value="Tersedia">🟢 Tersedia</option>
+          <option value="Dipinjam">🟠 Dipinjam</option>
+        </select>
+      </div>
+      
+      <div id="loanDetailsFields" style="display:none; background:rgba(234, 179, 8, 0.05); border-left:3px solid #eab308; padding:15px; border-radius:6px; margin-bottom:15px;">
+        <div class="inv-form-group" style="margin-bottom:10px;">
+          <label>Nama Peminjam / Departemen *</label>
+          <input type="text" id="formLoanBorrower" class="inv-form-control" placeholder="Contoh: Pemuda / John Doe">
+        </div>
+        <div class="inv-form-group" style="margin-bottom:10px;">
+          <label>Tanggal Pinjam *</label>
+          <input type="date" id="formLoanDate" class="inv-form-control">
+        </div>
+        <div class="inv-form-group" style="margin-bottom:0;">
+          <label>Estimasi Kembali *</label>
+          <input type="date" id="formLoanReturnDate" class="inv-form-control">
+        </div>
+      </div>
+      
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+        <button onclick="document.getElementById('loanModal').style.display='none'" class="inv-btn inv-btn-outline" style="border-color:var(--text-muted); color:var(--text-dark);">Batal</button>
+        <button id="saveLoanBtn" class="inv-btn inv-btn-primary" style="background:#eab308; border-color:#eab308; color:#fff;">Simpan Status</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service Modal -->
+  <div id="serviceModal" class="inv-modal-overlay" style="z-index: 10000;">
+    <div class="inv-modal-content" style="max-width: 450px !important;">
+      <h3 style="margin-top:0; color:var(--text-dark); font-size:1.4rem; margin-bottom:20px;"><i class="fa-solid fa-wrench" style="color:#8b5cf6; margin-right:8px;"></i> Catat Pemeliharaan / Servis</h3>
+      
+      <div class="inv-form-group">
+        <label>Tanggal Servis *</label>
+        <input type="date" id="formServiceDate" class="inv-form-control" required>
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Keterangan / Kendala / Nama Teknisi *</label>
+        <textarea id="formServiceDesc" class="inv-form-control" rows="3" placeholder="Contoh: Ganti lampu LCD, Servis rutin AC..."></textarea>
+      </div>
+      
+      <div class="inv-form-group">
+        <label>Biaya Servis (Rp)</label>
+        <input type="text" inputmode="numeric" id="formServiceCost" class="inv-form-control" placeholder="Contoh: 350000">
+      </div>
+      
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+        <button onclick="document.getElementById('serviceModal').style.display='none'" class="inv-btn inv-btn-outline" style="border-color:var(--text-muted); color:var(--text-dark);">Batal</button>
+        <button id="saveServiceBtn" class="inv-btn inv-btn-primary" style="background:#8b5cf6; border-color:#8b5cf6; color:#fff;">Simpan Riwayat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Depreciation Report Modal -->
+  <div id="depreciationModal" class="inv-modal-overlay" style="z-index: 9999;">
+    <div class="inv-modal-content" style="max-width: 900px !important; max-height: 90vh; overflow-y:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+        <div>
+          <h3 style="margin-top:0; color:var(--text-dark); font-size:1.5rem; margin-bottom:5px;"><i class="fa-solid fa-calculator" style="color:#0284c7; margin-right:8px;"></i> Laporan Penyusutan Nilai Aset</h3>
+          <p style="color:var(--text-muted); margin-top:0; font-size:0.9rem;">Menampilkan perkiraan nilai buku aset saat ini berdasarkan harga perolehan dan umur ekonomis.</p>
+        </div>
+        <button onclick="document.getElementById('depreciationModal').style.display='none'" style="background:transparent; border:none; color:var(--text-dark); font-size:1.2rem; cursor:pointer; padding:5px;"><i class="fa-solid fa-times"></i></button>
+      </div>
+      
+      <div style="overflow-x:auto; background:#fff; border:1px solid var(--border-light); border-radius:12px;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+          <thead>
+            <tr style="background:var(--bg-card); border-bottom:2px solid var(--border-light); text-align:left;">
+              <th style="padding:15px; color:var(--text-dark);">Nama Aset</th>
+              <th style="padding:15px; color:var(--text-dark);">Tgl Beli</th>
+              <th style="padding:15px; color:var(--text-dark); text-align:right;">Harga Awal</th>
+              <th style="padding:15px; color:var(--text-dark); text-align:center;">Umur (Thn)</th>
+              <th style="padding:15px; color:var(--text-dark); text-align:center;">Usia Pakai</th>
+              <th style="padding:15px; color:var(--text-dark); text-align:right;">Nilai Buku Saat Ini</th>
+            </tr>
+          </thead>
+          <tbody id="depreciationTableBody">
+            <!-- JS Inject -->
+          </tbody>
+          <tfoot>
+            <tr style="background:#f8f9fa; border-top:2px solid var(--border-light); font-weight:bold;">
+              <td colspan="2" style="padding:15px; text-align:right;">TOTAL:</td>
+              <td id="depTotalAwal" style="padding:15px; text-align:right; color:var(--text-dark);">Rp 0</td>
+              <td colspan="2"></td>
+              <td id="depTotalBuku" style="padding:15px; text-align:right; color:#22c55e;">Rp 0</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+        <button onclick="window.printDepreciation()" class="inv-btn inv-btn-outline" style="border-color:var(--text-muted); color:var(--text-dark);"><i class="fa-solid fa-print"></i> Cetak Laporan</button>
+        <button onclick="document.getElementById('depreciationModal').style.display='none'" class="inv-btn inv-btn-primary">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <div id="thermalPreviewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:99999; background:#111827; align-items:center; justify-content:center;">
+    <div style="background:#1f2937; border-radius:16px; max-width:400px; width:90%; text-align:center; padding:0; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.1);">
+        <h2 style="font-size: 1.25rem; font-weight: 700; color: #f3f4f6; margin:0;"><i class="fa-solid fa-receipt"></i> Preview Thermal</h2>
+        <button onclick="document.getElementById('thermalPreviewModal').style.display='none'" style="background:none; border:none; color:#9ca3af; font-size:1.2rem; cursor:pointer; padding:4px 8px;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="padding: 24px;">
+        <p style="color:#9ca3af; font-size:0.9rem; margin:0 0 20px 0;">Pastikan printer thermal Bluetooth/USB siap.</p>
+        
+        <div style="background: white; padding: 12px; border-radius: 10px; display: inline-block; margin-bottom: 24px;">
+          <img id="thermalPreviewImg" src="" style="width: 100%; max-width: 250px; display:block;" alt="Preview Label" />
+        </div>
+        
+        <button id="doDirectPrintBtn" style="width:100%; background:var(--accent); border:none; color:var(--text-dark); font-size:1rem; font-weight:600; padding:14px; border-radius:10px; cursor:pointer;">
+          <i class="fa-brands fa-bluetooth"></i> Pilih Printer & Cetak
+        </button>
+      </div>
+    </div>
+  </div>
+
+    <script>
+    </script>
+</body>
+</html>
