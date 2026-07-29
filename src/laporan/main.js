@@ -3651,6 +3651,9 @@
       let pendingToApprove = [];
       if (isApprover) {
         pendingToApprove = list.filter(x => {
+          const isMutasi = x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank';
+          if (isMutasi) return false;
+          
           const deleteId = x.transaction_id || x.receipt_no || '';
           if (!deleteId) return false;
           const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
