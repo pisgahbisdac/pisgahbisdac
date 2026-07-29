@@ -16,10 +16,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.css" rel="stylesheet">
 
-  <script type="module" crossorigin src="/assets/laporan-Cdz3ByMb.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-CR5JAZs6.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/laporan-DLl9-j_y.css">
-  <link rel="stylesheet" crossorigin href="/assets/index-DIkUaqW0.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-_jRxjwtd.css">
 </head>
 
 <body class="page-laporan">
@@ -434,13 +434,13 @@
           </div>
         </div>
 
-        <div class="card" id="recentTransCard" style="margin-bottom:0; width: 100%;">
+        <div class="card" id="recentTransCard" style="margin-bottom:0; width: 100%; overflow: hidden;">
           <div class="card-header">
             <div class="card-title">Transaksi Terakhir</div>
             <button class="btn btn-ghost" id="btnJurnalDashboard" onclick="showPage('riwayat')">Selengkapnya
               &rarr;</button>
           </div>
-          <div id="recentTransContainer"></div>
+          <div id="recentTransContainer" style="max-width:100%; overflow-x:hidden;"></div>
         </div>
       </div>
 
@@ -533,8 +533,8 @@
                 <input type="file" id="incPhotoUpload" accept="image/*" multiple style="display:none"
                   onchange="handleReceiptPhoto(event, 'income')">
               </div>
-              <div class="form-group"><label class="form-label">Catatan Tambahan</label><input class="form-input"
-                  id="incNote" type="text" placeholder="Opsional..."></div>
+              <div class="form-group"><label class="form-label">Keterangan (Selain Perpuluhan)</label>
+                <textarea class="form-input" id="incNote" placeholder="Misal: NN atau Rincian ..." rows="3" style="resize:vertical;"></textarea></div>
               <button class="btn btn-success" style="width:100%; padding:14px;" id="savIncBtn"
                 onclick="saveIncomeForm()">Posting Pemasukan</button>
             </div>
@@ -610,8 +610,8 @@
               <input type="file" id="expPhotoUpload" accept="image/*" multiple style="display:none"
                 onchange="handleReceiptPhoto(event, 'expense')">
             </div>
-            <div class="form-group"><label class="form-label">Keterangan</label><input class="form-input" id="expNote"
-                type="text" placeholder="Deskripsi penggunaan..."></div>
+            <div class="form-group"><label class="form-label">Keterangan</label>
+              <textarea class="form-input" id="expNote" placeholder="Deskripsi penggunaan..." rows="3" style="resize:vertical;"></textarea></div>
             <button class="btn btn-primary" style="width:100%; padding:14px;" id="savExpBtn"
               onclick="saveExpenseForm()">Posting Pengeluaran</button>
           </div>
@@ -677,8 +677,8 @@
               <input type="file" id="mutPhotoUpload" accept="image/*" multiple style="display:none"
                 onchange="handleReceiptPhoto(event, 'mutasi')">
             </div>
-            <div class="form-group"><label class="form-label">Keterangan</label><input class="form-input" id="mutNote"
-                type="text" placeholder="Contoh: Setoran tunai mingguan..."></div>
+            <div class="form-group"><label class="form-label">Keterangan</label>
+              <textarea class="form-input" id="mutNote" placeholder="Tujuan Pindah Buku..." rows="3" style="resize:vertical;"></textarea></div>
             <button class="btn btn-primary" style="width:100%; padding:14px;" id="savMutBtn"
               onclick="saveMutasiForm()">Proses Setoran Bank</button>
           </div>
@@ -1609,8 +1609,8 @@
           <option value="CASH">Uang Tunai / Cash (Di Tangan)</option>
         </select>
       </div>
-      <div class="form-group"><label class="form-label">Keterangan</label><input class="form-input" id="editTransNote"
-          type="text"></div>
+      <div class="form-group"><label class="form-label">Keterangan</label>
+        <textarea class="form-input" id="editTransNote" rows="3" style="resize:vertical;"></textarea></div>
       </div> <!-- END MODAL BODY -->
 
       <!-- MODAL FOOTER -->
@@ -1668,23 +1668,37 @@
       <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
         <div class="input-group">
           <label class="label">Kategori</label>
-          <select id="bulkPrintType" class="input">
-            <option value="income">Pemasukan (Income)</option>
-            <option value="expense">Pengeluaran (Expense)</option>
-          </select>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;">
+            <label class="chip-toggle">
+              <input type="checkbox" id="bpCatAll" value="all" onchange="toggleBulkPrintCat('all')" checked>
+              <span class="chip-label">Semua Transaksi</span>
+            </label>
+            <label class="chip-toggle">
+              <input type="checkbox" class="bpCatCheck" value="income" onchange="toggleBulkPrintCat('cat')">
+              <span class="chip-label">Pemasukan</span>
+            </label>
+            <label class="chip-toggle">
+              <input type="checkbox" class="bpCatCheck" value="expense" onchange="toggleBulkPrintCat('cat')">
+              <span class="chip-label">Pengeluaran</span>
+            </label>
+            <label class="chip-toggle">
+              <input type="checkbox" class="bpCatCheck" value="mutasi" onchange="toggleBulkPrintCat('cat')">
+              <span class="chip-label">Mutasi</span>
+            </label>
+          </div>
         </div>
         <div style="display:flex; gap:12px;">
-          <div class="input-group" style="flex:1;">
+          <div class="input-group" style="flex:1; min-width:0;">
             <label class="label">Mulai Tanggal</label>
-          <div class="premium-date-wrapper" style="width:140px;">
-            <input type="text" id="bulkPrintStart" class="input premium-date" placeholder="Awal" readonly>
+            <div class="premium-date-wrapper" style="width:100%;">
+              <input type="text" id="bulkPrintStart" class="input premium-date" placeholder="Awal" readonly>
+            </div>
           </div>
-          </div>
-          <div class="input-group" style="flex:1;">
+          <div class="input-group" style="flex:1; min-width:0;">
             <label class="label">Hingga Tanggal</label>
-          <div class="premium-date-wrapper" style="width:140px;">
-            <input type="text" id="bulkPrintEnd" class="input premium-date" placeholder="Akhir" readonly>
-          </div>
+            <div class="premium-date-wrapper" style="width:100%;">
+              <input type="text" id="bulkPrintEnd" class="input premium-date" placeholder="Akhir" readonly>
+            </div>
           </div>
         </div>
         <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text); cursor:pointer;">
