@@ -4876,9 +4876,19 @@
       }
 
       txToPrint.sort((a, b) => {
-         const cmpDate = (a.date || '').localeCompare(b.date || '');
+         const rA = String(a.receipt_no || '').trim();
+         const rB = String(b.receipt_no || '').trim();
+         // Sort by receipt_no first with numeric sorting if both exist and are not '-'
+         if (rA && rB && rA !== '-' && rB !== '-') {
+            const cmpReceipt = rA.localeCompare(rB, undefined, { numeric: true, sensitivity: 'base' });
+            if (cmpReceipt !== 0) return cmpReceipt;
+         }
+         // Fallback to date sorting
+         const cmpDate = String(a.date || '').localeCompare(String(b.date || ''));
          if (cmpDate !== 0) return cmpDate;
-         return (a.receipt_no || '').localeCompare(b.receipt_no || '');
+         
+         // Final fallback
+         return rA.localeCompare(rB, undefined, { numeric: true, sensitivity: 'base' });
       });
 
       let allHtml = '';
