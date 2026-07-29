@@ -470,6 +470,11 @@
       color: var(--text-dark) !important;
       border-radius: var(--radius-sm) !important;
       padding: 14px !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      max-width: 100% !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
     }
     .inv-form-control:focus {
       border-color: var(--accent-dark) !important;
@@ -488,6 +493,9 @@
       .inventory-grid { padding: 0 20px 60px !important; grid-template-columns: 1fr !important; }
       .inv-list-photo { width: 120px !important; }
       .inv-list-info { flex-direction: column !important; align-items: flex-start !important; }
+      .inv-modal-content { padding: 20px !important; }
+      .inv-form-control { font-size: 15px !important; }
+      .inv-form-group label { font-size: 0.9rem !important; }
     }
     
     /* Global Page Background Animations */
@@ -745,8 +753,8 @@
       <div class="inv-form-group admin-only-field" style="margin-top:20px; border-top:1px solid var(--border-light); padding-top:15px;">
         <label>Status Aset *</label>
         <select id="formStatus" class="inv-form-control" required onchange="if(this.value==='Disposed') document.getElementById('disposeFields').style.display='block'; else document.getElementById('disposeFields').style.display='none';">
-          <option value="Active">🟢 Aktif (Digunakan)</option>
-          <option value="Disposed">🔴 Disposed (Dikeluarkan / Dijual / Dihapus)</option>
+          <option value="Active">🟢 Aktif</option>
+          <option value="Disposed">🔴 Disposed / Dihapus</option>
         </select>
       </div>
       
@@ -953,8 +961,8 @@
       <div class="inv-form-group">
         <label>Status Saat Ini</label>
         <select id="formLoanStatus" class="inv-form-control" onchange="const d = document.getElementById('loanDetailsFields'); if(this.value==='Dipinjam') d.style.display='block'; else d.style.display='none';">
-          <option value="Tersedia">🟢 Tersedia (Berada di tempat)</option>
-          <option value="Dipinjam">🟠 Sedang Dipinjam</option>
+          <option value="Tersedia">🟢 Tersedia</option>
+          <option value="Dipinjam">🟠 Dipinjam</option>
         </select>
       </div>
       
