@@ -909,7 +909,11 @@
       const uploadBox = document.getElementById(boxId);
       if (uploadBox) uploadBox.style.display = arr.length >= maxAllowed ? 'none' : 'flex';
       
-      lucide.createIcons();
+      grid.querySelectorAll('.icon-placeholder').forEach(el => {
+        if (typeof getIcon === 'function') {
+            el.outerHTML = getIcon(el.getAttribute('data-icon'), el.getAttribute('data-size'));
+        }
+      });
     }
 
     function resetPhotoUpload(type) {
