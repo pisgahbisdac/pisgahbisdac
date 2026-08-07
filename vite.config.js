@@ -11,7 +11,8 @@ export default defineConfig({
         hadir: resolve(__dirname, 'hadir.html'),
         laporan: resolve(__dirname, 'laporan.html'),
         pembangunan: resolve(__dirname, 'pembangunan.html'),
-        inventaris: resolve(__dirname, 'inventaris.html')
+        inventaris: resolve(__dirname, 'inventaris.html'),
+        worshipPresenter: resolve(__dirname, 'worship-presenter.html')
       }
     }
   }

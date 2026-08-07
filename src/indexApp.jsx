@@ -431,6 +431,7 @@ const Home = ({ setActiveTab, youtubeUrl, heroImages = [], jadwalDB, dataPejabat
         { id: 'kehadiran', label: 'Kehadiran', icon: 'ClipboardCheck', isSameTab: true, link: './hadir.html' },
         { id: 'laporan', label: 'Laporan Keuangan', icon: 'BarChart', isSameTab: true, link: './laporan.html' },
         { id: 'inventaris', label: 'Inventaris', icon: 'Package', isSameTab: true, link: './inventaris.html' },
+        { id: 'worship_presenter', label: 'Presenter', icon: 'MonitorDown', isSameTab: true, link: './worship-presenter.html' },
         { id: 'hubungi', label: 'Kontak', icon: 'Phone' },
     ];
 
