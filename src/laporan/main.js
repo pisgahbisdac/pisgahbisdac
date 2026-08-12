@@ -261,8 +261,16 @@
       document.getElementById('dashDetailContent').innerHTML = html;
       document.getElementById('dashboardDetailModal').style.display = 'flex';
     }
-        const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwSVmwYFGGwtLRl_azdLgHn5Ac1mnWSU0uz7iRsI6mXxQ7hTV4Ccj_k-fPbtg0iqlQn/exec';
-const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwSVmwYFGGwtLRl_azdLgHn5Ac1mnWSU0uz7iRsI6mXxQ7hTV4Ccj_k-fPbtg0iqlQn/exec';
+
+    const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwfBsZNTUD-3Ss-eV6Vk7g3x1FbSBpMIjzGuZcxYkV2dQhj9Nw82YJNNsfoZ5nlSz7mnw/exec';
+    const INVENTARIS_URL = 'https://script.google.com/macros/s/AKfycbwfBsZNTUD-3Ss-eV6Vk7g3x1FbSBpMIjzGuZcxYkV2dQhj9Nw82YJNNsfoZ5nlSz7mnw/exec';
+
+    function getActiveApiUrl() {
+      if (window.location.pathname.includes('pembangunan')) {
+        return PEMBANGUNAN_URL;
+      }
+      return INVENTARIS_URL;
+    }
 
     let currentIncPhotos = [];
     let currentExpPhotos = [];
@@ -285,7 +293,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwSVmwYFGGwtLRl
       }
     }
 
-    function getActiveApiUrl() { return DEFAULT_API_URL; }
+
     function printUnitReport(searchTermOverride = null) {
       if (!window.currentHistoryData || window.currentHistoryData.length === 0) return notify('Tidak ada data untuk dicetak.', 'error');
 
@@ -349,23 +357,28 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwSVmwYFGGwtLRl
     function clearToken() { sessionStorage.removeItem('BISDAC_token'); }
 
     async function apiGet(action, params = {}) {
-      const body = JSON.stringify({ action, token: getToken() || '', data: params });
-      const res = await fetch(getActiveApiUrl(), {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        redirect: 'follow',
-        body
-      }).catch(() => { throw new Error('Jaringan Error. Periksa koneksi.'); });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (!data.success) {
-        if (data.message && data.message.includes('Token tidak valid')) {
-          if (typeof notify === 'function') notify('Sesi Anda telah berakhir. Halaman akan dimuat ulang...', 'error');
-          setTimeout(() => { clearToken(); sessionStorage.removeItem('BISDAC_user'); window.location.reload(); }, 3000);
+      if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
+      try {
+        const body = JSON.stringify({ action, token: getToken() || '', data: params });
+        const res = await fetch(getActiveApiUrl(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          redirect: 'follow',
+          body
+        }).catch(() => { throw new Error('Jaringan Error. Periksa koneksi.'); });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!data.success) {
+          if (data.message && data.message.includes('Token tidak valid')) {
+            if (typeof notify === 'function') notify('Sesi Anda telah berakhir. Halaman akan dimuat ulang...', 'error');
+            setTimeout(() => { clearToken(); sessionStorage.removeItem('BISDAC_user'); window.location.reload(); }, 3000);
+          }
+          throw new Error(data.message || 'API Gagal');
         }
-        throw new Error(data.message || 'API Gagal');
+        return data;
+      } finally {
+        if (action !== 'syncData' && !window.isBulkProcessing) hideGlobalLoading();
       }
-      return data;
     }
 
     function showGlobalLoading(text = 'Proses sedang berlangsung...') {
