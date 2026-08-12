@@ -1555,7 +1555,8 @@
         return;
       }
 
-      let list = [...(cachedIncome || []), ...(cachedExpense || [])];
+      let list = [...(cachedIncome || []).map(x => ({...x})), ...(cachedExpense || []).map(x => ({...x}))];
+      list = groupTransactions(list);
       let pendingCount = 0;
       list.forEach(x => {
         const deleteId = x.transaction_id || x.receipt_no || '';
