@@ -530,7 +530,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
         }
       });
 
-      applyRoleAccess();
+      if (currentUser) applyRoleAccess();
 
       // Load signature text inputs
       if (document.getElementById('sigNameBendahara')) document.getElementById('sigNameBendahara').value = systemConfig.sig_name_bendahara || 'Herbert JS Sagala';
@@ -720,7 +720,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
 
     async function saveRolePermissions() {
       localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
-      applyRoleAccess();
+      if (currentUser) applyRoleAccess();
       const btn = document.getElementById('btnSaveRolePerms');
       if (btn) { btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Menyimpan...'; }
       try {
@@ -1212,7 +1212,8 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
     }
 
     function applyRoleAccess() {
-      const perms = getRolePerms(currentUser.role);
+      if (!currentUser) return;
+      const perms = getRolePerms(currentUser?.role || '');
 
       const mPemasukan = perms.menus.pemasukan || { view: false, edit: false, del: false };
       document.getElementById('navPemasukan').style.display = mPemasukan.view ? '' : 'none';
@@ -1464,7 +1465,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
             if (cUsername && (pInputBy === cUsername || pInputter === cUsername || pUser === cUsername)) return false;
             if (cNama && (pPemberi.includes(cNama) || pPenerima.includes(cNama))) return false;
 
-            const rPerms = getRolePerms(currentUser.role);
+            const rPerms = getRolePerms(currentUser?.role || '');
             const isApprover = rPerms && rPerms.menus && rPerms.menus.riwayat && rPerms.menus.riwayat.approve;
             if (isApprover || hasRole(currentUser, 'Pendeta') || hasRole(currentUser, 'Ketua Jemaat')) return false;
 
@@ -1564,7 +1565,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
       if (!navItem && !topBadge) return;
 
       const isAdmin = currentUser && hasRole(currentUser, 'Admin');
-      const rolePerms = currentUser ? getRolePerms(currentUser.role) : null;
+      const rolePerms = currentUser ? getRolePerms(currentUser?.role || '') : null;
       const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
       const isApprover = currentUser && (canApprove || isAdmin);
       const roleNeeded = currentUser ? currentUser.role : '';
@@ -1605,7 +1606,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
 
     function searchByReceipt() {
       const q = document.getElementById('searchReceiptInput').value.trim().toLowerCase(); const resultDiv = document.getElementById('receiptSearchResult');
-      const perms = getRolePerms(currentUser.role);
+      const perms = getRolePerms(currentUser?.role || '');
       const isViewer = perms.isAnonymous;
       if (!q) { resultDiv.style.display = 'none'; return; }
 
@@ -2118,7 +2119,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
     }
 
     function renderIncomeList() {
-      const perms = getRolePerms(currentUser.role);
+      const perms = getRolePerms(currentUser?.role || '');
       const isAnon = perms.isAnonymous;
       const list = groupTransactions([...(cachedIncome || []).map(x => ({...x}))]).sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
       if (list.length === 0) {
@@ -2351,7 +2352,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
     }
 
     function renderExpenseList() {
-      const perms = getRolePerms(currentUser.role);
+      const perms = getRolePerms(currentUser?.role || '');
       const isAnon = perms.isAnonymous;
       const list = [...cachedExpense].filter(x => x.department !== 'Mutasi Kas / Setor Bank').sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
       if (list.length === 0) {
@@ -2395,7 +2396,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
     }
 
     function renderMutasiList() {
-      const perms = getRolePerms(currentUser.role);
+      const perms = getRolePerms(currentUser?.role || '');
       const isAnon = perms.isAnonymous;
       const resultDiv = document.getElementById('mutasiLogContainer');
       if (!resultDiv) return;
@@ -3400,7 +3401,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
       const s = data.summary; const bal = s.balances || cachedSaldo || { total: 0 };
       const isViewer = getRolePerms(currentUser?.role || '').isAnonymous || (currentUser && (hasRole(currentUser, 'Viewer') || hasRole(currentUser, 'Publik')));
 
-      const rolePerms = currentUser ? getRolePerms(currentUser.role) : null;
+      const rolePerms = currentUser ? getRolePerms(currentUser?.role || '') : null;
       const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
       const isApprover = currentUser && (canApprove || hasRole(currentUser, 'Admin'));
 
@@ -3668,7 +3669,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
 
       window.currentHistoryData = list;
 
-      const rolePerms = currentUser ? getRolePerms(currentUser.role) : null;
+      const rolePerms = currentUser ? getRolePerms(currentUser?.role || '') : null;
       const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
       const isApprover = currentUser && (canApprove || hasRole(currentUser, 'Admin'));
       const roleNeeded = currentUser ? currentUser.role : '';
@@ -3705,7 +3706,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
         printBtn.style.display = (q || month > 0 || year > 0 || filterApproval) ? 'inline-flex' : 'none';
       }
 
-      const perms = getRolePerms(currentUser.role);
+      const perms = getRolePerms(currentUser?.role || '');
       const mRiwayat = perms.menus.riwayat || { view: true, edit: false, del: false };
       const mPindahBuku = perms.menus.pindahbuku || { view: false, edit: false, del: false };
       const isAdmin = hasRole(currentUser, 'Admin');
