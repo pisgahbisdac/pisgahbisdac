@@ -105,6 +105,12 @@
       
       const filteredInc = (cachedIncome || []).filter(filterFn);
       const filteredExp = (cachedExpense || []).filter(filterFn);
+      
+      // ADD DEBUG INFO TO DASHBOARD TITLE
+      const dbTitle = document.querySelector('h2.content-title');
+      if (dbTitle) {
+          dbTitle.innerHTML = `Dashboard <span style="font-size:12px;color:red;display:block;">DEBUG: Total Inc=${(cachedIncome||[]).length}, Filtered=${filteredInc.length}, Year=${year}</span>`;
+      }
       const historicalInc = (cachedIncome || []).filter(x => new Date(x.date) <= targetDateEnd);
       const historicalExp = (cachedExpense || []).filter(x => new Date(x.date) <= targetDateEnd);
 
@@ -255,8 +261,8 @@
       document.getElementById('dashDetailContent').innerHTML = html;
       document.getElementById('dashboardDetailModal').style.display = 'flex';
     }
-    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzz_RmKR_q_BQvS42Z4EkF7VVXLk-N8M_iZ3L0EJbH3kzMRnLKT0lQd8pULdOVbG2hAag/exec';
-const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbzz_RmKR_q_BQvS42Z4EkF7VVXLk-N8M_iZ3L0EJbH3kzMRnLKT0lQd8pULdOVbG2hAag/exec';
+        const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwSVmwYFGGwtLRl_azdLgHn5Ac1mnWSU0uz7iRsI6mXxQ7hTV4Ccj_k-fPbtg0iqlQn/exec';
+const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwSVmwYFGGwtLRl_azdLgHn5Ac1mnWSU0uz7iRsI6mXxQ7hTV4Ccj_k-fPbtg0iqlQn/exec';
 
     let currentIncPhotos = [];
     let currentExpPhotos = [];
@@ -347,7 +353,6 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbzz_RmKR_q_BQvS
       const res = await fetch(getActiveApiUrl(), {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        credentials: 'omit',
         redirect: 'follow',
         body
       }).catch(() => { throw new Error('Jaringan Error. Periksa koneksi.'); });
@@ -384,7 +389,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbzz_RmKR_q_BQvS
       if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
       try {
         const body = JSON.stringify({ action, token: getToken(), data: payload });
-        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, credentials: 'omit', redirect: 'follow', body: body }).catch(() => { throw new Error('Jaringan Error. URL di-reset.'); });
+        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body }).catch(() => { throw new Error('Jaringan Error. URL di-reset.'); });
         if (!res.ok) {
           if (res.status === 404 || res.status === 400) { }
           throw new Error(`HTTP ${res.status}`);
