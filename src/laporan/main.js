@@ -409,13 +409,14 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
     }
 
     async function login(username, password) {
-      const url = new URL(getActiveApiUrl());
-      url.searchParams.set('action', 'login'); url.searchParams.set('username', username.trim().toLowerCase()); url.searchParams.set('password', password); url.searchParams.set('_t', Date.now());
-      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' }).catch(() => { throw new Error('Jaringan Error. URL di-reset.'); });
-      if (!res.ok) {
-        if (res.status === 404 || res.status === 400) { }
-        throw new Error(`HTTP ${res.status}`);
-      }
+      const body = JSON.stringify({ action: 'login', username: username.trim().toLowerCase(), password });
+      const res = await fetch(getActiveApiUrl(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        redirect: 'follow',
+        body
+      }).catch(() => { throw new Error('Jaringan Error. Periksa koneksi internet.'); });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.success) { setToken(data.token); sessionStorage.setItem('BISDAC_user', JSON.stringify(data.user)); }
       return data;
@@ -1087,7 +1088,12 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
       setStatus('loading', 'Menghubungkan...');
       try {
         const url = getActiveApiUrl(); if (!url || url.trim() === '') { setStatus('offline', 'URL Belum Diset!'); isServerOnline = false; return false; }
-        const res = await fetch(`${url}?action=ping&_t=${Date.now()}`, { method: 'GET', redirect: 'follow' }).catch(() => { throw new Error('Jaringan Error'); });
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          redirect: 'follow',
+          body: JSON.stringify({ action: 'ping' })
+        }).catch(() => { throw new Error('Jaringan Error'); });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         if (json.success) { setStatus('online', 'Server Online'); isServerOnline = true; return true; }
