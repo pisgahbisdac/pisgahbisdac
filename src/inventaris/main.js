@@ -1,4 +1,4 @@
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwZi3ivA3TK6-7c6PNJxnbIzJxZV14VVVLxa5JtClMiVNa8mVNwfF1t5kAI5hJxnH_UTw/exec';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO-7ebhUMTlg67h2Gb8oap-nb8IPJfHdPN8e6n5udnS-qeSVTQIM7xaQ/exec';
 function getActiveApiUrl() { const savedUrl = localStorage.getItem('BISDAC_api_url'); return (savedUrl && savedUrl.trim() !== '') ? savedUrl.trim() : DEFAULT_API_URL; }
 
 let currentUser = null;

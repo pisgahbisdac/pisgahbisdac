@@ -250,8 +250,8 @@
       document.getElementById('dashDetailContent').innerHTML = html;
       document.getElementById('dashboardDetailModal').style.display = 'flex';
     }
-    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwZi3ivA3TK6-7c6PNJxnbIzJxZV14VVVLxa5JtClMiVNa8mVNwfF1t5kAI5hJxnH_UTw/exec';
-const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwZi3ivA3TK6-7c6PNJxnbIzJxZV14VVVLxa5JtClMiVNa8mVNwfF1t5kAI5hJxnH_UTw/exec';
+    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO-7ebhUMTlg67h2Gb8oap-nb8IPJfHdPN8e6n5udnS-qeSVTQIM7xaQ/exec';
+const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO-7ebhUMTlg67h2Gb8oap-nb8IPJfHdPN8e6n5udnS-qeSVTQIM7xaQ/exec';
 
     let currentIncPhotos = [];
     let currentExpPhotos = [];
@@ -349,7 +349,8 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwZi3ivA3TK6-7c
       const data = await res.json();
       if (!data.success) {
         if (data.message && data.message.includes('Token tidak valid')) {
-          setTimeout(() => { clearToken(); sessionStorage.removeItem('BISDAC_user'); window.location.reload(); }, 2500);
+          if (typeof notify === 'function') notify('Sesi Anda telah berakhir. Halaman akan dimuat ulang...', 'error');
+          setTimeout(() => { clearToken(); sessionStorage.removeItem('BISDAC_user'); window.location.reload(); }, 3000);
         }
         throw new Error(data.message || 'API Gagal');
       }
@@ -385,7 +386,8 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwZi3ivA3TK6-7c
         const data = await res.json();
         if (!data.success) {
           if (data.message && data.message.includes('Token tidak valid')) {
-            setTimeout(() => { clearToken(); sessionStorage.removeItem('BISDAC_user'); window.location.reload(); }, 2500);
+            if (typeof notify === 'function') notify('Sesi Anda telah berakhir. Halaman akan dimuat ulang...', 'error');
+            setTimeout(() => { clearToken(); sessionStorage.removeItem('BISDAC_user'); window.location.reload(); }, 3000);
           }
           throw new Error(data.message || 'Gagal mengirim data.');
         }
