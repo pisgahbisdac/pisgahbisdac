@@ -250,7 +250,7 @@
       document.getElementById('dashDetailContent').innerHTML = html;
       document.getElementById('dashboardDetailModal').style.display = 'flex';
     }
-    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxh6l6elvmca6j6snhZAH-YtCDtExU_UPcFm5e3_T-JDsIriixxRY2JYvcZvfRVASeX/exec';
+    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby4LvqRT8ugaoyKkxcU9cpEv4wPRXwYrL45TiTDSf1JcHwkiCoZUdnZznksXiVDmmUN/exec';
 
     let currentIncPhotos = [];
     let currentExpPhotos = [];
