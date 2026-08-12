@@ -5914,6 +5914,7 @@ function loadSeriesConfig() {
     
     // Calculate last used number
     let maxNum = -1;
+    let usedNums = [];
     let allTx = [];
     if (cat.startsWith('Pemasukan')) allTx = window.cachedIncome || [];
     else if (cat.startsWith('Pengeluaran') || cat === 'Mutasi') allTx = window.cachedExpense || [];
@@ -5927,7 +5928,7 @@ function loadSeriesConfig() {
       let matchCat = false;
       if (cat === 'PemasukanPembangunan' && tx.income_type === 'Pembangunan') matchCat = true;
       else if (cat === 'Pemasukan' && tx.income_type !== 'Pembangunan' && tx.income_type !== 'Saldo Awal Sistem') matchCat = true;
-      else if (cat === 'PengeluaranJemaat' && tx.source_balance === 'Jemaat' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
+      else if (cat === 'PengeluaranJemaat' && tx.source_balance === 'Kas Jemaat' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
       else if (cat === 'PengeluaranDaerah' && tx.source_balance === 'Daerah' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
       else if (cat === 'PengeluaranPembangunan' && tx.source_balance === 'Pembangunan' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
       else if (cat === 'Mutasi' && tx.department === 'Mutasi Kas / Setor Bank') matchCat = true;
@@ -5937,14 +5938,20 @@ function loadSeriesConfig() {
         if (prefix === '') {
           if (/^\d+$/.test(rNumStr)) {
             let num = parseInt(rNumStr);
-            if (num > maxNum && num >= startNum && (endNum ? num <= endNum : true)) maxNum = num;
+            if (num >= startNum && (endNum ? num <= endNum : true)) {
+              if (num > maxNum) maxNum = num;
+              if (!usedNums.includes(num)) usedNums.push(num);
+            }
           }
         } else {
           if (rNumStr.startsWith(prefix)) {
             let numPart = rNumStr.substring(prefix.length);
             if (/^\d+$/.test(numPart)) {
               let num = parseInt(numPart);
-              if (num > maxNum && num >= startNum && (endNum ? num <= endNum : true)) maxNum = num;
+              if (num >= startNum && (endNum ? num <= endNum : true)) {
+                if (num > maxNum) maxNum = num;
+                if (!usedNums.includes(num)) usedNums.push(num);
+              }
             }
           }
         }
@@ -5953,10 +5960,12 @@ function loadSeriesConfig() {
     
     let lastEl = document.getElementById(`series_${cat}_last`);
     if (lastEl) {
-      if (maxNum === -1) {
-        lastEl.innerHTML = `No. Terakhir Terpakai:<br><strong style="color:var(--text2)">Belum ada</strong>`;
+      if (usedNums.length === 0) {
+        lastEl.innerHTML = `No. Terpakai:<br><strong style="color:var(--text2)">Belum ada</strong>`;
       } else {
-        lastEl.innerHTML = `No. Terakhir Terpakai:<br><strong style="color:var(--text2)">${prefix}${maxNum}</strong>`;
+        usedNums.sort((a, b) => a - b);
+        let usedStr = usedNums.map(n => prefix + n).join(', ');
+        lastEl.innerHTML = `No. Terpakai:<br><div style="color:var(--text2); word-break: break-word; max-height: 80px; overflow-y: auto;"><strong>${usedStr}</strong></div>`;
       }
     }
   });
@@ -6029,7 +6038,7 @@ function getNextReceiptNumber(dateStr, typeCat, prefix) {
     let matchCat = false;
     if (typeCat === 'PemasukanPembangunan' && tx.income_type === 'Pembangunan') matchCat = true;
     else if (typeCat === 'Pemasukan' && tx.income_type !== 'Pembangunan' && tx.income_type !== 'Saldo Awal Sistem') matchCat = true;
-    else if (typeCat === 'PengeluaranJemaat' && tx.source_balance === 'Jemaat' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
+    else if (typeCat === 'PengeluaranJemaat' && tx.source_balance === 'Kas Jemaat' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
     else if (typeCat === 'PengeluaranDaerah' && tx.source_balance === 'Daerah' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
     else if (typeCat === 'PengeluaranPembangunan' && tx.source_balance === 'Pembangunan' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
     else if (typeCat === 'Mutasi' && tx.department === 'Mutasi Kas / Setor Bank') matchCat = true;
