@@ -1029,7 +1029,13 @@
 
     async function resetLogo(keyType) { systemConfig[keyType] = ''; localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig)); applyConfig(); try { await apiPostWithFallback('saveConfig', { key: keyType, value: '' }); notify(`Logo direset.`, 'success'); } catch (err) { } }
 
-    let currentUser = null; let masterData = null; let cachedIncome = []; let cachedExpense = []; let cachedSaldo = { daerah: 0, jemaat: 0, bangun: 0, total: 0 }; let isServerOnline = false;
+    let currentUser = null; let masterData = null; let isServerOnline = false;
+    let cachedIncome = []; let cachedExpense = []; let cachedSaldo = { daerah: 0, jemaat: 0, bangun: 0, total: 0 };
+    try {
+      if (localStorage.getItem('BISDAC_inc')) cachedIncome = JSON.parse(localStorage.getItem('BISDAC_inc'));
+      if (localStorage.getItem('BISDAC_exp')) cachedExpense = JSON.parse(localStorage.getItem('BISDAC_exp'));
+      if (localStorage.getItem('BISDAC_bal')) cachedSaldo = JSON.parse(localStorage.getItem('BISDAC_bal'));
+    } catch(e) {}
     let pembangunanDataCache = null;
     const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbxvNICOilB-oQG3WfI6nrj_kYjG3tGMBZYndE4K3jw_TuvjR7lOMsyyyCyNHTNCKUOOMg/exec';
 
@@ -1428,6 +1434,11 @@
         window.cachedIncome = cachedIncome;
         window.cachedExpense = cachedExpense;
         if (bal && bal.data) cachedSaldo = bal.data;
+        try {
+          localStorage.setItem('BISDAC_inc', JSON.stringify(cachedIncome));
+          localStorage.setItem('BISDAC_exp', JSON.stringify(cachedExpense));
+          localStorage.setItem('BISDAC_bal', JSON.stringify(cachedSaldo));
+        } catch(e) {}
 
         if (currentUser && !hasRole(currentUser, 'Admin')) {
           const cUsername = (currentUser.username || '').toLowerCase().trim();
