@@ -2100,7 +2100,7 @@
     function renderIncomeList() {
       const perms = getRolePerms(currentUser.role);
       const isAnon = perms.isAnonymous;
-      const list = groupTransactions([...cachedIncome]).sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+      const list = groupTransactions([...(cachedIncome || []).map(x => ({...x}))]).sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
       if (list.length === 0) {
         document.getElementById('incomeLogContainer').innerHTML = '<div class="empty-state" style="padding:20px; text-align:center;">Kosong.</div>';
       } else {
