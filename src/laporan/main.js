@@ -338,14 +338,14 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbzz_RmKR_q_BQvS
     function clearToken() { sessionStorage.removeItem('BISDAC_token'); }
 
     async function apiGet(action, params = {}) {
-      const url = new URL(getActiveApiUrl());
-      url.searchParams.set('action', action); url.searchParams.set('token', getToken() || ''); url.searchParams.set('_t', Date.now());
-      Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' }).catch(() => { throw new Error('Jaringan Error. URL di-reset.'); });
-      if (!res.ok) {
-        if (res.status === 404 || res.status === 400) { }
-        throw new Error(`HTTP ${res.status}`);
-      }
+      const body = JSON.stringify({ action, token: getToken() || '', data: params });
+      const res = await fetch(getActiveApiUrl(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        redirect: 'follow',
+        body
+      }).catch(() => { throw new Error('Jaringan Error. Periksa koneksi.'); });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (!data.success) {
         if (data.message && data.message.includes('Token tidak valid')) {
