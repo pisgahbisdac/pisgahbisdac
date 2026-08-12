@@ -274,7 +274,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO
       }
     }
 
-    function getActiveApiUrl() { const savedUrl = localStorage.getItem('BISDAC_api_url'); return (savedUrl && savedUrl.trim() !== '') ? savedUrl.trim() : DEFAULT_API_URL; }
+    function getActiveApiUrl() { return DEFAULT_API_URL; }
     function printUnitReport(searchTermOverride = null) {
       if (!window.currentHistoryData || window.currentHistoryData.length === 0) return notify('Tidak ada data untuk dicetak.', 'error');
 

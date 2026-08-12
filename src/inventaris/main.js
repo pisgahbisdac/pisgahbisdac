@@ -1,5 +1,5 @@
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwGok9ciwJ6-rYO-7ebhUMTlg67h2Gb8oap-nb8IPJfHdPN8e6n5udnS-qeSVTQIM7xaQ/exec';
-function getActiveApiUrl() { const savedUrl = localStorage.getItem('BISDAC_api_url'); return (savedUrl && savedUrl.trim() !== '') ? savedUrl.trim() : DEFAULT_API_URL; }
+function getActiveApiUrl() { return DEFAULT_API_URL; }
 
 let currentUser = null;
 let inventoryData = [];
