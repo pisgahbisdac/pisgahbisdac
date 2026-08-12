@@ -250,8 +250,8 @@
       document.getElementById('dashDetailContent').innerHTML = html;
       document.getElementById('dashboardDetailModal').style.display = 'flex';
     }
-    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxbEXgIhLX0OWy13ul9sFf2Xct2q2Gm94_RlK7v7rc4Y1l6IgLEd9qCyoYcLRL1PIJQcA/exec';
-    const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbxbEXgIhLX0OWy13ul9sFf2Xct2q2Gm94_RlK7v7rc4Y1l6IgLEd9qCyoYcLRL1PIJQcA/exec';
+    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwZi3ivA3TK6-7c6PNJxnbIzJxZV14VVVLxa5JtClMiVNa8mVNwfF1t5kAI5hJxnH_UTw/exec';
+const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwZi3ivA3TK6-7c6PNJxnbIzJxZV14VVVLxa5JtClMiVNa8mVNwfF1t5kAI5hJxnH_UTw/exec';
 
     let currentIncPhotos = [];
     let currentExpPhotos = [];
