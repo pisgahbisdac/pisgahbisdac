@@ -250,7 +250,7 @@
       document.getElementById('dashDetailContent').innerHTML = html;
       document.getElementById('dashboardDetailModal').style.display = 'flex';
     }
-    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby4LvqRT8ugaoyKkxcU9cpEv4wPRXwYrL45TiTDSf1JcHwkiCoZUdnZznksXiVDmmUN/exec';
+    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzL8diZe9AWe9wRoTA-sNPk03e6u2_Z814lVreX6KazG4N533A0d1VAkqsd2tmYsVbk/exec';
 
     let currentIncPhotos = [];
     let currentExpPhotos = [];
@@ -1037,7 +1037,7 @@
       if (localStorage.getItem('BISDAC_bal')) cachedSaldo = JSON.parse(localStorage.getItem('BISDAC_bal'));
     } catch(e) {}
     let pembangunanDataCache = null;
-    const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbx35l57FiEOFXFbv93JuoVyiEWlYAblB60moTbfl8DtdfANRddzSDyzi3TxmAVDAB7fKQ/exec';
+    const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbzL8diZe9AWe9wRoTA-sNPk03e6u2_Z814lVreX6KazG4N533A0d1VAkqsd2tmYsVbk/exec';
 
     async function loadPembangunanData() {
       try {
