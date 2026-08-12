@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,57 +15,100 @@
             padding: 40px 20px;
             background-color: #f9f9fb;
         }
+
         body.dark {
             background-color: #282828;
             color: #D4B872;
         }
-        body.dark .container { background-color: #282828 !important; }
-        body.dark h1, body.dark h2, body.dark h3 { color: #C5A059 !important; border-color: rgba(255,255,255,0.1) !important; }
-        body.dark .card { background: #333333 !important; border-color: rgba(255,255,255,0.1) !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important; }
-        body.dark code { background-color: #222 !important; color: #EAEAEA !important; border-color: #444 !important; }
-        body.dark .alert { background-color: transparent !important; border: 1px solid rgba(255,255,255,0.1) !important; border-left: 4px solid #C5A059 !important; }
+
+        body.dark .container {
+            background-color: #282828 !important;
+        }
+
+        body.dark h1,
+        body.dark h2,
+        body.dark h3 {
+            color: #C5A059 !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        body.dark .card {
+            background: #333333 !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        body.dark code {
+            background-color: #222 !important;
+            color: #EAEAEA !important;
+            border-color: #444 !important;
+        }
+
+        body.dark .alert {
+            background-color: transparent !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-left: 4px solid #C5A059 !important;
+        }
+
         h1 {
-            color: #1e3a8a; /* Indigo 900 */
+            color: #1e3a8a;
+            /* Indigo 900 */
             text-align: center;
-            border-bottom: 2px solid #e0e7ff; /* Indigo 100 */
+            border-bottom: 2px solid #e0e7ff;
+            /* Indigo 100 */
             padding-bottom: 20px;
             margin-bottom: 40px;
         }
+
         h2 {
-            color: #4338ca; /* Indigo 700 */
+            color: #4338ca;
+            /* Indigo 700 */
             margin-top: 40px;
             padding-bottom: 10px;
             border-bottom: 1px solid #e0e7ff;
         }
+
         h3 {
             color: #4f46e5;
         }
+
         p {
             margin-bottom: 16px;
         }
-        ol, ul {
+
+        ol,
+        ul {
             margin-bottom: 20px;
             padding-left: 20px;
         }
+
         li {
             margin-bottom: 8px;
         }
+
         .alert {
-            background-color: #fffbeb; /* Amber 50 */
-            border-left: 4px solid #f59e0b; /* Amber 500 */
+            background-color: #fffbeb;
+            /* Amber 50 */
+            border-left: 4px solid #f59e0b;
+            /* Amber 500 */
             padding: 16px;
             margin: 24px 0;
             border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
+
         .alert-info {
-            background-color: #eff6ff; /* Blue 50 */
-            border-left-color: #3b82f6; /* Blue 500 */
+            background-color: #eff6ff;
+            /* Blue 50 */
+            border-left-color: #3b82f6;
+            /* Blue 500 */
         }
+
         .alert strong {
             display: block;
             margin-bottom: 8px;
         }
+
         code {
             background-color: #f1f5f9;
             padding: 2px 6px;
@@ -73,18 +117,21 @@
             font-size: 0.9em;
             color: #ef4444;
         }
+
         .footer {
             margin-top: 60px;
             text-align: center;
             font-style: italic;
             color: #64748b;
         }
+
         .container {
             background-color: white;
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
+
         .btn-download {
             display: inline-block;
             background-color: #4f46e5;
@@ -95,22 +142,27 @@
             font-weight: bold;
             font-size: 1.1em;
             transition: background-color 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .btn-download:hover {
             background-color: #4338ca;
         }
+
         body.dark .btn-download {
             background-color: #C5A059;
             color: #222;
         }
+
         body.dark .btn-download:hover {
             background-color: #a38245;
         }
+
         /* Top Navigation Back Button */
         .top-nav {
             margin-bottom: 20px;
         }
+
         .btn-back {
             display: inline-flex;
             align-items: center;
@@ -118,27 +170,33 @@
             text-decoration: none;
             font-weight: 600;
         }
+
         .btn-back:hover {
             text-decoration: underline;
         }
+
         body.dark .btn-back {
             color: #C5A059;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="top-nav">
             <a href="./index.html" class="btn-back">← Kembali ke Beranda</a>
         </div>
-        
+
         <h1>📖 Panduan Pengguna: Worship Presenter</h1>
 
-        <p>Selamat datang di aplikasi <strong>Worship Presenter</strong>, sebuah perangkat lunak manajemen tata ibadah modern yang dirancang untuk kecepatan, kemudahan, dan keindahan tampilan visual layar (proyektor).</p>
-        <p>Dokumen ini berisi panduan dasar yang bisa Anda bagikan kepada anggota tim multimedia/operator baru di gereja Anda.</p>
+        <p>Selamat datang di aplikasi <strong>Worship Presenter</strong>, sebuah perangkat lunak manajemen tata ibadah
+            modern yang dirancang untuk kecepatan, kemudahan, dan keindahan tampilan visual layar (proyektor).</p>
+        <p>Dokumen ini berisi panduan dasar yang bisa Anda bagikan kepada anggota tim multimedia/operator baru di gereja
+            Anda.</p>
 
         <div style="text-align: center; margin: 30px 0;">
-            <a href="https://github.com/pisgahbisdac/pisgahbisdac/releases/tag/Stable" class="btn-download" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/pisgahbisdac/pisgahbisdac/releases/tag/Stable" class="btn-download"
+                target="_blank" rel="noopener noreferrer">
                 ⬇️ Download Worship Presenter (Stable)
             </a>
         </div>
@@ -146,60 +204,81 @@
         <h2>📥 1. Cara Instalasi Aplikasi</h2>
         <p>Jika Anda adalah pengguna baru yang menerima file <em>Installer</em> dari tim, ikuti langkah berikut:</p>
         <ol>
-            <li>Pastikan Anda menerima file berekstensi <code>.exe</code> (misalnya: <code>Worship Presenter Setup 1.0.0.exe</code>).</li>
+            <li>Pastikan Anda menerima file berekstensi <code>.exe</code> (misalnya:
+                <code>Worship Presenter Setup 1.0.0.exe</code>).</li>
             <li>Klik ganda (Double-click) pada file tersebut.</li>
-            <li>Jendela instalasi akan muncul. Tunggu beberapa detik hingga proses instalasi selesai secara otomatis.</li>
-            <li>Aplikasi <strong>Worship Presenter</strong> akan otomatis terbuka, dan ikon (<em>shortcut</em>) baru akan muncul di Desktop Anda.</li>
+            <li>Jendela instalasi akan muncul. Tunggu beberapa detik hingga proses instalasi selesai secara otomatis.
+            </li>
+            <li>Aplikasi <strong>Worship Presenter</strong> akan otomatis terbuka, dan ikon (<em>shortcut</em>) baru
+                akan muncul di Desktop Anda.</li>
             <li>Anda sudah siap melayani!</li>
         </ol>
 
         <h2>🖥️ 2. Pengenalan Antarmuka Utama</h2>
         <p>Aplikasi ini dibagi menjadi 2 jendela utama saat tombol <strong>"Buka Layar Presentasi"</strong> di klik:</p>
         <ul>
-            <li><strong>Jendela Kontrol (Control Panel):</strong> Tempat operator/Anda mengendalikan seluruh jalannya acara ibadah (hanya terlihat di layar laptop).</li>
-            <li><strong>Jendela Presentasi (Display Window):</strong> Layar gelap tanpa tombol yang menampilkan lirik lagu, ayat Alkitab, atau pengumuman (layar ini yang harus Anda seret/geser ke monitor proyektor).</li>
+            <li><strong>Jendela Kontrol (Control Panel):</strong> Tempat operator/Anda mengendalikan seluruh jalannya
+                acara ibadah (hanya terlihat di layar laptop).</li>
+            <li><strong>Jendela Presentasi (Display Window):</strong> Layar gelap tanpa tombol yang menampilkan lirik
+                lagu, ayat Alkitab, atau pengumuman (layar ini yang harus Anda seret/geser ke monitor proyektor).</li>
         </ul>
 
         <div class="alert alert-info">
-            <strong>💡 Tips Proyektor:</strong> 
-            Pastikan laptop Anda terhubung ke proyektor dengan mode <strong>"Extend"</strong> (Perluas Layar), bukan "Duplicate". Lalu geser Jendela Presentasi ke arah kanan layar laptop Anda hingga masuk ke layar proyektor. Tekan <code>F11</code> pada Jendela Presentasi untuk membuatnya memenuhi layar (<em>Fullscreen</em>).
+            <strong>💡 Tips Proyektor:</strong>
+            Pastikan laptop Anda terhubung ke proyektor dengan mode <strong>"Extend"</strong> (Perluas Layar), bukan
+            "Duplicate". Lalu geser Jendela Presentasi ke arah kanan layar laptop Anda hingga masuk ke layar proyektor.
+            Tekan <code>F11</code> pada Jendela Presentasi untuk membuatnya memenuhi layar (<em>Fullscreen</em>).
         </div>
 
         <h2>📋 3. Membuat Rundown (Susunan Acara)</h2>
-        <p>Rundown adalah daftar lagu dan ayat yang sudah Anda persiapkan sebelum ibadah dimulai, agar saat ibadah berlangsung, Anda hanya perlu mengklik satu per satu ke bawah.</p>
+        <p>Rundown adalah daftar lagu dan ayat yang sudah Anda persiapkan sebelum ibadah dimulai, agar saat ibadah
+            berlangsung, Anda hanya perlu mengklik satu per satu ke bawah.</p>
         <ol>
             <li>Buka aplikasi, lalu klik tombol <strong>+ Tambah Item ke Rundown</strong> di sebelah kiri.</li>
             <li>Akan muncul kotak dialog dengan beberapa tab (Lagu, Ayat, Pengumuman).</li>
-            <li><strong>Mencari Lagu:</strong> Ketikkan judul lagu (misalnya "Betapa Teguhnya") di kolom pencarian. Klik judul lagu yang muncul, lalu tekan <strong>"Tambahkan Lagu"</strong>.</li>
-            <li><strong>Mencari Ayat Alkitab:</strong> Pilih versi Alkitab (misal: TB / KJV). Pilih nama Kitab, lalu klik nomor Pasal, dan klik nomor Ayat. Ayat tersebut akan otomatis masuk ke daftar rundown.</li>
-            <li><strong>Menyimpan Rundown:</strong> Setelah semua lagu dan ayat siap, klik tombol disket (💾) <strong>Simpan Rundown</strong> di pojok kiri atas. Beri nama (misal: "Ibadah Sabat 24 Agustus") dan simpan.</li>
+            <li><strong>Mencari Lagu:</strong> Ketikkan judul lagu (misalnya "Betapa Teguhnya") di kolom pencarian. Klik
+                judul lagu yang muncul, lalu tekan <strong>"Tambahkan Lagu"</strong>.</li>
+            <li><strong>Mencari Ayat Alkitab:</strong> Pilih versi Alkitab (misal: TB / KJV). Pilih nama Kitab, lalu
+                klik nomor Pasal, dan klik nomor Ayat. Ayat tersebut akan otomatis masuk ke daftar rundown.</li>
+            <li><strong>Menyimpan Rundown:</strong> Setelah semua lagu dan ayat siap, klik tombol disket (💾)
+                <strong>Simpan Rundown</strong> di pojok kiri atas. Beri nama (misal: "Ibadah Sabat 24 Agustus") dan
+                simpan.</li>
         </ol>
 
         <h2>🚀 4. Mengoperasikan Tampilan (Live)</h2>
         <p>Saat ibadah berlangsung, Anda tidak perlu lagi mencari lagu.</p>
         <ol>
             <li>Klik salah satu lagu/ayat di kolom Rundown Anda (sebelah kiri).</li>
-            <li>Di bagian tengah layar, lirik lagu/ayat tersebut akan pecah menjadi beberapa tombol (Bait 1, Bait 2, Reff).</li>
-            <li>Klik tombol-tombol Bait tersebut satu per satu sesuai dengan nyanyian jemaat. Teks yang Anda klik akan otomatis muncul di Layar Presentasi (proyektor).</li>
-            <li>Gunakan fitur <strong>"Blank Layar"</strong> di sudut kanan atas jika Anda ingin menggelapkan proyektor sejenak saat khotbah/doa.</li>
+            <li>Di bagian tengah layar, lirik lagu/ayat tersebut akan pecah menjadi beberapa tombol (Bait 1, Bait 2,
+                Reff).</li>
+            <li>Klik tombol-tombol Bait tersebut satu per satu sesuai dengan nyanyian jemaat. Teks yang Anda klik akan
+                otomatis muncul di Layar Presentasi (proyektor).</li>
+            <li>Gunakan fitur <strong>"Blank Layar"</strong> di sudut kanan atas jika Anda ingin menggelapkan proyektor
+                sejenak saat khotbah/doa.</li>
         </ol>
 
         <div class="alert">
-            <strong>ℹ️ Penting - Auto-Split:</strong> 
-            Jika sebuah bait lagu atau ayat Alkitab sangat panjang, sistem secara pintar akan membelahnya menjadi beberapa bagian kecil di layar proyektor agar teks tidak menumpuk. Anda cukup mengklik slide lanjutannya saja.
+            <strong>ℹ️ Penting - Auto-Split:</strong>
+            Jika sebuah bait lagu atau ayat Alkitab sangat panjang, sistem secara pintar akan membelahnya menjadi
+            beberapa bagian kecil di layar proyektor agar teks tidak menumpuk. Anda cukup mengklik slide lanjutannya
+            saja.
         </div>
 
         <h2>🎨 5. Mengatur Latar Belakang (Background) & Logo</h2>
         <p>Anda dapat mempercantik tampilan presentasi dengan gambar atau video latar belakang.</p>
         <ol>
             <li>Masuk ke ikon <strong>Pengaturan (⚙️)</strong> di pojok kanan atas.</li>
-            <li>Di tab <strong>Latar Belakang</strong>, Anda bisa mengganti warna statis atau memasukkan tautan (link) gambar/video khusus untuk ibadah Anda.</li>
-            <li>Di tab <strong>Watermark & Logo</strong>, Anda bisa memasukkan link gambar logo gereja Anda, mengatur ukuran, dan posisinya (kiri atas, kanan bawah, dll). Logo ini akan terus menempel transparan di layar proyektor.</li>
+            <li>Di tab <strong>Latar Belakang</strong>, Anda bisa mengganti warna statis atau memasukkan tautan (link)
+                gambar/video khusus untuk ibadah Anda.</li>
+            <li>Di tab <strong>Watermark & Logo</strong>, Anda bisa memasukkan link gambar logo gereja Anda, mengatur
+                ukuran, dan posisinya (kiri atas, kanan bawah, dll). Logo ini akan terus menempel transparan di layar
+                proyektor.</li>
         </ol>
 
         <h2>🔄 6. Cara Backup dan Pindah ke Laptop Lain (Restore)</h2>
-        <p>Jika Anda harus bertugas menggunakan laptop yang berbeda, Anda wajib melakukan <em>Backup</em> agar semua Rundown dan pengaturan latar belakang Anda ikut terbawa.</p>
-        
+        <p>Jika Anda harus bertugas menggunakan laptop yang berbeda, Anda wajib melakukan <em>Backup</em> agar semua
+            Rundown dan pengaturan latar belakang Anda ikut terbawa.</p>
+
         <h3>Langkah Backup (Di Laptop Lama):</h3>
         <ol>
             <li>Buka aplikasi Worship Presenter.</li>
@@ -219,13 +298,21 @@
 
         <h2>🌟 Tips Tambahan untuk Operator</h2>
         <ul>
-            <li><strong>Running Text (Teks Berjalan):</strong> Jika ada pengumuman mendadak di tengah ibadah (misal: "Mohon pindahkan mobil plat B 123"), Anda bisa mengetiknya di kotak <em>Running Text</em> di kanan atas, pilih letaknya (atas/bawah), lalu nyalakan. Pesan akan berjalan di layar tanpa mengganggu lirik lagu.</li>
-            <li><strong>Lagu Kustom (Lagu Baru):</strong> Jika Anda ingin menambahkan lagu sendiri yang tidak ada di <em>database</em> bawaan, Anda tidak perlu repot. Cukup masuk ke menu <strong>Library</strong>, pastikan tab <strong>Lagu</strong> terpilih, lalu klik <strong>tombol Plus (+)</strong> berwarna hijau di sebelah tulisan "Pencarian Data". Ketikkan lirik lagu Anda, klik Simpan, dan lagu tersebut akan tersimpan permanen serta langsung bisa dicari saat Anda membuat Rundown. (Cara lainnya adalah melalui sinkronisasi Google Sheets yang bisa diatur oleh Admin).</li>
+            <li><strong>Running Text (Teks Berjalan):</strong> Jika ada pengumuman mendadak di tengah ibadah (misal:
+                "Mohon pindahkan mobil plat B 123"), Anda bisa mengetiknya di kotak <em>Running Text</em> di kanan atas,
+                pilih letaknya (atas/bawah), lalu nyalakan. Pesan akan berjalan di layar tanpa mengganggu lirik lagu.
+            </li>
+            <li><strong>Lagu Kustom (Lagu Baru):</strong> Jika Anda ingin menambahkan lagu sendiri yang tidak ada di
+                <em>database</em> bawaan, Anda tidak perlu repot. Cukup masuk ke menu <strong>Library</strong>, pastikan
+                tab <strong>Lagu</strong> terpilih, lalu klik <strong>tombol Plus (+)</strong> berwarna hijau di sebelah
+                tulisan "Pencarian Data". Ketikkan lirik lagu Anda, klik Simpan, dan lagu tersebut akan tersimpan
+                permanen serta langsung bisa dicari saat Anda membuat Rundown. (Cara lainnya adalah melalui sinkronisasi
+                Google Sheets yang bisa diatur oleh Admin).</li>
         </ul>
 
         <div class="footer">
             <p>Selamat Melayani! Biarlah segala persiapan multimedia Anda memuliakan nama Tuhan.</p>
-            <p><small>Dokumen disusun secara otomatis oleh Asisten AI Antigravity.</small></p>
+            <p><small>Dokumen disusun secara otomatis.</small></p>
         </div>
     </div>
     <script>
@@ -237,13 +324,13 @@
             }
         }
         updateTheme();
-        window.addEventListener('storage', function(e) {
+        window.addEventListener('storage', function (e) {
             if (e.key === 'theme') {
                 updateTheme();
             }
         });
         // Listen to custom message from parent just in case
-        window.addEventListener('message', function(e) {
+        window.addEventListener('message', function (e) {
             if (e.data && e.data.type === 'THEME_UPDATE') {
                 if (e.data.isDark) document.body.classList.add('dark');
                 else document.body.classList.remove('dark');
@@ -251,4 +338,5 @@
         });
     </script>
 </body>
+
 </html>

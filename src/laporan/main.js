@@ -342,6 +342,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbzz_RmKR_q_BQvS
       const res = await fetch(getActiveApiUrl(), {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        credentials: 'omit',
         redirect: 'follow',
         body
       }).catch(() => { throw new Error('Jaringan Error. Periksa koneksi.'); });
@@ -378,7 +379,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbzz_RmKR_q_BQvS
       if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
       try {
         const body = JSON.stringify({ action, token: getToken(), data: payload });
-        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body }).catch(() => { throw new Error('Jaringan Error. URL di-reset.'); });
+        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, credentials: 'omit', redirect: 'follow', body: body }).catch(() => { throw new Error('Jaringan Error. URL di-reset.'); });
         if (!res.ok) {
           if (res.status === 404 || res.status === 400) { }
           throw new Error(`HTTP ${res.status}`);
@@ -413,6 +414,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbzz_RmKR_q_BQvS
       const res = await fetch(getActiveApiUrl(), {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        credentials: 'omit',
         redirect: 'follow',
         body
       }).catch(() => { throw new Error('Jaringan Error. Periksa koneksi internet.'); });
@@ -1091,6 +1093,7 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbzz_RmKR_q_BQvS
         const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          credentials: 'omit',
           redirect: 'follow',
           body: JSON.stringify({ action: 'ping' })
         }).catch(() => { throw new Error('Jaringan Error'); });
