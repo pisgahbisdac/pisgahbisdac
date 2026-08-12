@@ -1036,8 +1036,10 @@
     async function loadPembangunanData() {
       try {
         const res = await fetch(PEMBANGUNAN_URL + "?t=" + Date.now());
-        pembangunanDataCache = await res.json();
-      } catch (e) { console.error('Failed to load Pembangunan Data', e); }
+        const text = await res.text();
+        if (text.startsWith('<')) return; // Silently ignore HTML responses
+        pembangunanDataCache = JSON.parse(text);
+      } catch (e) { }
     }
     let editingUser = null; let editingUnit = null; let editingIncType = null;
 
