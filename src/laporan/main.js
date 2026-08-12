@@ -340,9 +340,9 @@
       const url = new URL(getActiveApiUrl());
       url.searchParams.set('action', action); url.searchParams.set('token', getToken() || ''); url.searchParams.set('_t', Date.now());
       Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' }).catch(() => { localStorage.removeItem('BISDAC_api_url'); throw new Error('Jaringan Error. URL di-reset.'); });
+      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' }).catch(() => { throw new Error('Jaringan Error. URL di-reset.'); });
       if (!res.ok) {
-        if (res.status === 404 || res.status === 400) { localStorage.removeItem('BISDAC_api_url'); }
+        if (res.status === 404 || res.status === 400) { }
         throw new Error(`HTTP ${res.status}`);
       }
       const data = await res.json();
@@ -376,9 +376,9 @@
       if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
       try {
         const body = JSON.stringify({ action, token: getToken(), data: payload });
-        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body }).catch(() => { localStorage.removeItem('BISDAC_api_url'); throw new Error('Jaringan Error. URL di-reset.'); });
+        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body }).catch(() => { throw new Error('Jaringan Error. URL di-reset.'); });
         if (!res.ok) {
-          if (res.status === 404 || res.status === 400) { localStorage.removeItem('BISDAC_api_url'); }
+          if (res.status === 404 || res.status === 400) { }
           throw new Error(`HTTP ${res.status}`);
         }
         const data = await res.json();
@@ -408,9 +408,9 @@
     async function login(username, password) {
       const url = new URL(getActiveApiUrl());
       url.searchParams.set('action', 'login'); url.searchParams.set('username', username.trim().toLowerCase()); url.searchParams.set('password', password); url.searchParams.set('_t', Date.now());
-      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' }).catch(() => { localStorage.removeItem('BISDAC_api_url'); throw new Error('Jaringan Error. URL di-reset.'); });
+      const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' }).catch(() => { throw new Error('Jaringan Error. URL di-reset.'); });
       if (!res.ok) {
-        if (res.status === 404 || res.status === 400) { localStorage.removeItem('BISDAC_api_url'); }
+        if (res.status === 404 || res.status === 400) { }
         throw new Error(`HTTP ${res.status}`);
       }
       const data = await res.json();
@@ -471,7 +471,7 @@
           localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
           applyConfig();
         }
-      } catch (e) { }
+      } catch (e) { throw e; }
     }
 
     function applyConfig() {
@@ -1045,7 +1045,7 @@
         const text = await res.text();
         if (text.startsWith('<')) return; // Silently ignore HTML responses
         pembangunanDataCache = JSON.parse(text);
-      } catch (e) { }
+      } catch (e) { throw e; }
     }
     let editingUser = null; let editingUnit = null; let editingIncType = null;
 
@@ -1492,7 +1492,7 @@
         }
         calculateExtendedBalances();
         updateGlobalApprovalBadge();
-      } catch (e) { }
+      } catch (e) { throw e; }
     }
 
     function calculateExtendedBalances() {
