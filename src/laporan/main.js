@@ -97,9 +97,14 @@
       console.log("parsed month:", month, "year:", year);
       let targetDateEnd = month === 0 ? new Date(year, 11, 31, 23, 59, 59) : new Date(year, month, 0, 23, 59, 59);
 
-      console.log("filtering inc/exp");
-      const filteredInc = (cachedIncome || []).filter(x => { const d = new Date(x.date); return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month); });
-      const filteredExp = (cachedExpense || []).filter(x => { const d = new Date(x.date); return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month); });
+      const filterFn = row => {
+        const rYear = parseInt(row.year) || (new Date(row.date).getFullYear());
+        const rMonth = parseInt(row.month) || (new Date(row.date).getMonth() + 1);
+        return rYear === year && (month === 0 || rMonth === month);
+      };
+      
+      const filteredInc = (cachedIncome || []).filter(filterFn);
+      const filteredExp = (cachedExpense || []).filter(filterFn);
       const historicalInc = (cachedIncome || []).filter(x => new Date(x.date) <= targetDateEnd);
       const historicalExp = (cachedExpense || []).filter(x => new Date(x.date) <= targetDateEnd);
 
@@ -1757,8 +1762,16 @@ const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbzz_RmKR_q_BQvS
       const isViewer = perms.isAnonymous;
       let targetDateEnd = month === 0 ? new Date(year, 11, 31, 23, 59, 59) : new Date(year, month, 0, 23, 59, 59);
 
-      const filteredInc = (cachedIncome || []).filter(x => { const d = new Date(x.date); return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month); });
-      const filteredExp = (cachedExpense || []).filter(x => { const d = new Date(x.date); return d.getFullYear() === year && (month === 0 || d.getMonth() + 1 === month); });
+      const filteredInc = (cachedIncome || []).filter(x => { 
+        const rYear = parseInt(x.year) || (new Date(x.date).getFullYear());
+        const rMonth = parseInt(x.month) || (new Date(x.date).getMonth() + 1);
+        return rYear === year && (month === 0 || rMonth === month); 
+      });
+      const filteredExp = (cachedExpense || []).filter(x => { 
+        const rYear = parseInt(x.year) || (new Date(x.date).getFullYear());
+        const rMonth = parseInt(x.month) || (new Date(x.date).getMonth() + 1);
+        return rYear === year && (month === 0 || rMonth === month); 
+      });
       const historicalInc = (cachedIncome || []).filter(x => new Date(x.date) <= targetDateEnd);
       const historicalExp = (cachedExpense || []).filter(x => new Date(x.date) <= targetDateEnd);
 
