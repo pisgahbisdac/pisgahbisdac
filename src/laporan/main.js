@@ -1037,7 +1037,7 @@
       if (localStorage.getItem('BISDAC_bal')) cachedSaldo = JSON.parse(localStorage.getItem('BISDAC_bal'));
     } catch(e) {}
     let pembangunanDataCache = null;
-    const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbxvNICOilB-oQG3WfI6nrj_kYjG3tGMBZYndE4K3jw_TuvjR7lOMsyyyCyNHTNCKUOOMg/exec';
+    const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbx35l57FiEOFXFbv93JuoVyiEWlYAblB60moTbfl8DtdfANRddzSDyzi3TxmAVDAB7fKQ/exec';
 
     async function loadPembangunanData() {
       try {
