@@ -1350,7 +1350,9 @@
 
     async function syncAllData() {
       try {
-        await Promise.all([loadMasterData(), loadAllTransactions(), loadPembangunanData()]);
+        await loadMasterData();
+        await loadAllTransactions();
+        await loadPembangunanData();
         updateAppStatus();
         if (masterData) renderDashboard();
         updateLastReceipts();
@@ -1418,7 +1420,9 @@
 
     async function loadAllTransactions() {
       try {
-        const [inc, exp, bal] = await Promise.all([apiGet('getIncomeList'), apiGet('getExpenseList'), apiGet('getBalances')]);
+        const inc = await apiGet('getIncomeList');
+        const exp = await apiGet('getExpenseList');
+        const bal = await apiGet('getBalances');
         cachedIncome = Array.isArray(inc.data) ? inc.data : [];
         cachedExpense = Array.isArray(exp.data) ? exp.data : [];
         window.cachedIncome = cachedIncome;
