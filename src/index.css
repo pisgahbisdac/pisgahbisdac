@@ -1888,7 +1888,7 @@ button:disabled, .btn:disabled {
 .password-strength .progress-fill {
   height: 100%;
   width: 0%;
-  background: var(--red);
+  background: var(--red-pop);
   transition: width 0.4s ease, background 0.4s ease;
 }
 .password-strength .rules {
@@ -1906,7 +1906,7 @@ button:disabled, .btn:disabled {
   transition: color 0.3s ease;
 }
 .password-strength .rule-item.valid {
-  color: var(--green);
+  color: var(--green-pop);
 }
 .password-strength .rule-item i {
   font-size: 10px;

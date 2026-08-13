@@ -6357,17 +6357,17 @@ function initPasswordStrength(inputId, containerId) {
     fill.style.width = strength + '%';
     
     if (strength <= 40) {
-      fill.style.background = 'var(--red)';
+      fill.style.background = 'var(--red-pop)';
       text.textContent = 'Lemah';
-      text.style.color = 'var(--red)';
+      text.style.color = 'var(--red-pop)';
     } else if (strength <= 80) {
       fill.style.background = 'var(--gold)';
       text.textContent = 'Sedang';
       text.style.color = 'var(--gold)';
     } else {
-      fill.style.background = 'var(--green)';
+      fill.style.background = 'var(--green-pop)';
       text.textContent = 'Kuat';
-      text.style.color = 'var(--green)';
+      text.style.color = 'var(--green-pop)';
     }
   });
 }
