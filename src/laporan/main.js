@@ -1543,6 +1543,7 @@
       let tanganDaerah = 0; let tanganJemaat = 0; let tanganBangun = 0;
 
       (cachedIncome || []).forEach(i => {
+        if (i.income_type === 'Mutasi Kas / Setor Bank') return;
         calcDaerah += (i.alloc_daerah || 0); calcJemaat += (i.alloc_jemaat || 0); calcBangun += (i.alloc_bangun || 0);
         const isCashInc = (i.note || '').includes('[CASH]');
         if (isCashInc) {
@@ -1804,6 +1805,7 @@
       let tanganDaerah = 0; let tanganJemaat = 0; let tanganBangun = 0;
 
       historicalInc.forEach(i => {
+        if (i.income_type === 'Mutasi Kas / Setor Bank') return;
         calcDaerah += (i.alloc_daerah || 0); calcJemaat += (i.alloc_jemaat || 0); calcBangun += (i.alloc_bangun || 0);
         const isCashInc = (i.note || '').includes('[CASH]');
         if (isCashInc) {
