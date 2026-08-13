@@ -1735,7 +1735,8 @@ button:disabled, .btn:disabled {
   .sidebar .app-subtitle-display,
   .sidebar .user-name, 
   .sidebar .user-role,
-  .sidebar .sidebar-text { 
+  .sidebar .sidebar-text,
+  .sidebar .logo-badge > div:nth-child(2) { 
     opacity: 0; 
     visibility: hidden;
     transition: opacity 0.2s; 
@@ -1748,7 +1749,8 @@ button:disabled, .btn:disabled {
   .sidebar:hover .app-subtitle-display,
   .sidebar:hover .user-name, 
   .sidebar:hover .user-role,
-  .sidebar:hover .sidebar-text { 
+  .sidebar:hover .sidebar-text,
+  .sidebar:hover .logo-badge > div:nth-child(2) { 
     opacity: 1; 
     visibility: visible;
     transition-delay: 0.1s; 
@@ -1802,7 +1804,8 @@ button:disabled, .btn:disabled {
   .sidebar:not(:hover) .app-name-display,
   .sidebar:not(:hover) .app-subtitle-display,
   .sidebar:not(:hover) .user-name,
-  .sidebar:not(:hover) .user-role {
+  .sidebar:not(:hover) .user-role,
+  .sidebar:not(:hover) .logo-badge > div:nth-child(2) {
     display: none;
   }
   
