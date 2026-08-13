@@ -2982,7 +2982,7 @@
         </table>
       `;
 
-      const tableStyle = isExcel ? 'border-collapse: collapse; font-family: Calibri, sans-serif; font-size: 10pt;' : 'border-collapse: collapse; width: 100%; font-family: sans-serif; font-size: 6.5pt; table-layout: fixed; word-wrap: break-word;';
+      const tableStyle = isExcel ? 'border-collapse: collapse; font-family: Calibri, sans-serif; font-size: 10pt;' : 'border-collapse: collapse; width: 100%; font-family: sans-serif; font-size: 6.5pt; table-layout: auto; word-wrap: break-word;';
       const thStyle = isExcel ? 'border: 1px solid #000; padding: 4px; font-weight: bold; text-align: center; background-color: #e2e8f0;' : 'border: 1px solid #000; padding: 3px 1px; font-weight: bold; text-align: center; background-color: #e2e8f0; color: #000; font-size: 5.5pt; line-height: 1.1;';
       const tdStyle = isExcel ? 'border: 1px solid #000; padding: 4px;' : 'border: 1px solid #000; padding: 3px 2px; color: #000; vertical-align: middle;';
       const numStyle = isExcel ? "mso-number-format:'\\#\\,\\#\\#0'; text-align: right;" : 'text-align: right; white-space: nowrap;';
@@ -3017,23 +3017,23 @@
               <th colspan="2" style="${thStyle}">LAPORAN KEUANGAN</th>
             </tr>
             <tr>
-              <th style="${thStyle} width: 1.5%;">No</th>
-              <th style="${thStyle} width: 4%;">Tanggal</th>
-              <th style="${thStyle} width: 11%;">Nama Unit Pemberi /<br>Perpuluhan & Terpadu</th>
-              <th style="${thStyle} width: 4%;">Nomor<br>Kwitansi</th>
-              <th style="${thStyle} width: 5.5%;">Perpuluhan</th>
-              <th style="${thStyle} width: 5.5%;">Persembahan<br>Terpadu</th>
-              <th style="${thStyle} width: 5.5%;">Persembahan Khusus<br>Kas Jemaat</th>
-              <th style="${thStyle} width: 6%;">TOTAL<br>Receipt</th>
-              <th style="${thStyle} width: 5.5%;">Perpuluhan</th>
-              <th style="${thStyle} width: 5.5%;">50% Terpadu<br>Daerah</th>
-              <th style="${thStyle} width: 5.5%;">Persembahan<br>Khusus</th>
-              <th style="${thStyle} width: 6%;">Jumlah Uang<br>Daerah</th>
-              <th style="${thStyle} width: 5.5%;">50% Terpadu<br>Jemaat</th>
-              <th style="${thStyle} width: 5.5%;">Persembahan Khusus<br>Kas Jemaat</th>
-              <th style="${thStyle} width: 6%;">Jumlah Uang<br>Jemaat</th>
-              <th style="${thStyle} width: 12%;">Pemasukan &<br>Pengeluaran Jemaat</th>
-              <th style="${thStyle} width: 5.5%;">TOTAL</th>
+              <th style="${thStyle}">No</th>
+              <th style="${thStyle}">Tanggal</th>
+              <th style="${thStyle}">Nama Unit Pemberi /<br>Perpuluhan & Terpadu</th>
+              <th style="${thStyle}">Nomor<br>Kwitansi</th>
+              <th style="${thStyle}">Perpuluhan</th>
+              <th style="${thStyle}">Persembahan<br>Terpadu</th>
+              <th style="${thStyle}">Persembahan Khusus<br>Kas Jemaat</th>
+              <th style="${thStyle}">TOTAL<br>Receipt</th>
+              <th style="${thStyle}">Perpuluhan</th>
+              <th style="${thStyle}">50% Terpadu<br>Daerah</th>
+              <th style="${thStyle}">Persembahan<br>Khusus</th>
+              <th style="${thStyle}">Jumlah Uang<br>Daerah</th>
+              <th style="${thStyle}">50% Terpadu<br>Jemaat</th>
+              <th style="${thStyle}">Persembahan Khusus<br>Kas Jemaat</th>
+              <th style="${thStyle}">Jumlah Uang<br>Jemaat</th>
+              <th style="${thStyle}">Pemasukan &<br>Pengeluaran Jemaat</th>
+              <th style="${thStyle}">TOTAL</th>
             </tr>
           </thead>
           <tbody>
@@ -3222,13 +3222,13 @@
               </th>
             </tr>
             <tr>
-              <th style="${thStyle} width: 2%;">No</th>
-              <th style="${thStyle} width: 8%;">Tanggal</th>
-              <th style="${thStyle} width: 10%;">No Bukti</th>
-              <th style="${thStyle} width: 14%;">Sumber Kas</th>
-              <th style="${thStyle} width: 16%;">Bagian / Dept</th>
-              <th style="${thStyle} width: 36%;">Keterangan</th>
-              <th style="${thStyle} width: 14%;">Nominal</th>
+              <th style="${thStyle}">No</th>
+              <th style="${thStyle}">Tanggal</th>
+              <th style="${thStyle}">No Bukti</th>
+              <th style="${thStyle}">Sumber Kas</th>
+              <th style="${thStyle}">Bagian / Dept</th>
+              <th style="${thStyle}">Keterangan</th>
+              <th style="${thStyle}">Nominal</th>
             </tr>
           </thead>
           <tbody>
