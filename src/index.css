@@ -1760,6 +1760,12 @@ button:disabled, .btn:disabled {
   }
   
   /* Fix squished sidebar elements when collapsed */
+  .sidebar:not(:hover) .sidebar-logo {
+    padding: 24px 16px 20px;
+  }
+  .sidebar:not(:hover) .logo-badge {
+    justify-content: center;
+  }
   .sidebar:not(:hover) .user-avatar {
     flex-shrink: 0;
   }
