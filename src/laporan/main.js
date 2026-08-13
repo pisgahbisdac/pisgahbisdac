@@ -2388,7 +2388,7 @@
           const mappedItems = [{
             department: dept, amount, note, date, receipt_no: receipt
           }];
-          const htmlStr = generateReceiptHTML('expense', { receipt_no: receipt, date, nama_penerima: receiver }, mappedItems);
+          const htmlStr = generateReceiptHTML('mutasi', { receipt_no: receipt, date, nama_penerima: receiver }, mappedItems);
           let genBase64 = await generateReceiptImageBase64(htmlStr);
           if (genBase64) { currentMutPhotos.unshift(genBase64); if (currentMutPhotos.length > 3) currentMutPhotos.pop(); }
         } catch(e) { console.error('Failed generating receipt', e); }
@@ -4593,9 +4593,12 @@
         pihakName = pihakName.substring(9).trim() + ' - Kolektif';
       }
       if (receiptHasHiddenItems) pihakName = '*** (Privasi)';
-      const docTitle = isIncome ? 'BUKTI PEMASUKAN' : 'BUKTI PENGELUARAN';
-      const pihakLabel = isIncome ? 'Telah Terima Dari' : 'Dibayarkan Kepada';
-      const signLabel1 = isIncome ? 'Penyetor,' : 'Penerima,';
+      let docTitle = isIncome ? 'BUKTI PEMASUKAN' : 'BUKTI PENGELUARAN';
+      if (type === 'mutasi') docTitle = 'BUKTI MUTASI KAS';
+      let pihakLabel = isIncome ? 'Telah Terima Dari' : 'Dibayarkan Kepada';
+      if (type === 'mutasi') pihakLabel = 'Disetor Ke';
+      let signLabel1 = isIncome ? 'Penyetor,' : 'Penerima,';
+      if (type === 'mutasi') signLabel1 = 'Penyetor,';
 
       const isCopy = (!currentUser || !hasRole(currentUser, 'Bendahara'));
       const watermarkHtml = isCopy ? `<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 45px; font-weight: 900; color: rgba(220, 38, 38, 0.15); z-index: 10; pointer-events: none; border: 6px solid rgba(220, 38, 38, 0.15); padding: 10px 20px; letter-spacing: 8px; border-radius: 10px; white-space: nowrap;">CERTIFIED TRUE COPY</div>` : '';
@@ -4881,8 +4884,11 @@
       const arr = type === 'income' ? cachedIncome : cachedExpense;
       const mainTx = arr.find(x => x.receipt_no === receiptOrId || x.transaction_id === receiptOrId || x.id === receiptOrId);
       if (!mainTx) { notify('Transaksi tidak ditemukan.', 'error'); return; }
+      
+      let actualType = type;
+      if (mainTx.department === 'Mutasi Kas / Setor Bank') actualType = 'mutasi';
 
-      document.getElementById('printContainer').innerHTML = generateReceiptHTML(type, mainTx);
+      document.getElementById('printContainer').innerHTML = generateReceiptHTML(actualType, mainTx);
       setTimeout(() => { window.print(); }, 1000);
     }
 
