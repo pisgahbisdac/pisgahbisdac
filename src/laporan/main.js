@@ -1018,7 +1018,9 @@
           
           setTimeout(async () => {
             try {
-              const htmlStr = generateReceiptHTML(type, r);
+              let actualTypeForHtml = type;
+              if (isMutasi) actualTypeForHtml = 'mutasi';
+              const htmlStr = generateReceiptHTML(actualTypeForHtml, r);
               const isMissingPhoto = !r.receipt_photo || r.receipt_photo.trim() === '';
               if ((hasAutoReceipt && isMutasi) || isMissingPhoto) {
                 const genBase64 = await generateReceiptImageBase64(htmlStr, false);
