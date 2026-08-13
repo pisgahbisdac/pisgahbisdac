@@ -3157,11 +3157,11 @@
               </div>
             </td>
             <td style="vertical-align: bottom; width: 50%;">
-              <table style="width: 100%; max-width: 350px; font-size: ${bottomFontSize}; float:right;" cellpadding="2">
+              <table style="width: 100%; max-width: 350px; font-size: ${bottomFontSize}; float:right;" cellpadding="0" cellspacing="0">
                 <tr><td>Perpuluhan</td><td style="text-align: right;">${isExcel ? sumPerpuluhan : fmt(sumPerpuluhan)}</td></tr>
                 <tr><td>Terpadu (50%)</td><td style="text-align: right;">${isExcel ? sumTerpaduDaerah : fmt(sumTerpaduDaerah)}</td></tr>
                 <tr><td>Khusus Daerah</td><td style="text-align: right;">${isExcel ? sumKhususDaerah : fmt(sumKhususDaerah)}</td></tr>
-                <tr><td style="font-weight:bold; border-top: 1px solid #000;">Total Transfer Daerah</td><td style="font-weight:bold; text-align: right; border-top: 1px solid #000;">${isExcel ? sumPemasukanDaerah : fmt(sumPemasukanDaerah)}</td></tr>
+                <tr><td style="font-weight:bold; border-top: 1px solid #000; padding-top: 2px;">Total Transfer Daerah</td><td style="font-weight:bold; text-align: right; border-top: 1px solid #000; padding-top: 2px;">${isExcel ? sumPemasukanDaerah : fmt(sumPemasukanDaerah)}</td></tr>
               </table>
             </td>
           </tr>
