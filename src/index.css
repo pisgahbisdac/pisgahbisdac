@@ -1730,6 +1730,7 @@ button:disabled, .btn:disabled {
   
   .sidebar .nav-section-title, 
   .sidebar .logo-text,
+  .sidebar .sidebar-brand-text,
   .sidebar .app-name-display,
   .sidebar .app-subtitle-display,
   .sidebar .user-name, 
@@ -1742,6 +1743,7 @@ button:disabled, .btn:disabled {
   
   .sidebar:hover .nav-section-title, 
   .sidebar:hover .logo-text, 
+  .sidebar:hover .sidebar-brand-text,
   .sidebar:hover .app-name-display,
   .sidebar:hover .app-subtitle-display,
   .sidebar:hover .user-name, 
@@ -1796,6 +1798,7 @@ button:disabled, .btn:disabled {
   .sidebar:not(:hover) .sidebar-text,
   .sidebar:not(:hover) #btnLogoutText,
   .sidebar:not(:hover) .logo-text,
+  .sidebar:not(:hover) .sidebar-brand-text,
   .sidebar:not(:hover) .app-name-display,
   .sidebar:not(:hover) .app-subtitle-display,
   .sidebar:not(:hover) .user-name,
