@@ -2653,19 +2653,12 @@
       const saldoAwalJemaat = (currentReportData.summary && currentReportData.summary.saldoAwalJemaat) || 0;
 
       const txIn = [];
-      const unitsGavePersepuluhan = new Set();
       if (currentReportData.incByCategory) {
         Object.values(currentReportData.incByCategory).forEach(arr => arr.forEach(x => {
           if (x.income_type !== 'Mutasi Kas / Setor Bank') txIn.push(x);
-          const tLower = (x.income_type || '').toLowerCase();
-          if (tLower.includes('perpuluhan') || tLower.includes('persepuluhan')) {
-            if (x.unit_name && x.unit_name.trim() !== '' && x.unit_name.trim() !== '-') {
-              unitsGavePersepuluhan.add(x.unit_name);
-            }
-          }
         }));
       }
-      const totalUnitsPerpuluhan = unitsGavePersepuluhan.size;
+      const totalUnitsPerpuluhan = (masterData && masterData.units) ? masterData.units.length : 0;
       const txOut = [];
       if (currentReportData.expByDept) {
         Object.values(currentReportData.expByDept).forEach(arr => arr.forEach(x => {
