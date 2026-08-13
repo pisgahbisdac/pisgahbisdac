@@ -1050,7 +1050,7 @@
       let k = r.income_type ? 'income' : 'expense';
       let id = r.transaction_id || r.receipt_no;
       let count = (r.receipt_photo ? 1 : 0) + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
-      if (count === 0) return '';
+      if (count === 0) count = 1; // Auto-generated receipt is always available
       let content = count > 1 ? `<span style="font-size:10px; margin-left:2px; font-weight:bold">${count}</span>` : '';
       return `<button class="btn-icon-only" onclick="openPhotoModalById('${id}', '${k}')" style="margin-left:6px; color:var(--teal-pop);">${safeIcon('image', 'lucide-sm')}${content}</button>`;
     }
@@ -1060,7 +1060,7 @@
       let k = r.income_type ? 'income' : 'expense';
       let id = r.transaction_id || r.receipt_no;
       let count = (r.receipt_photo ? 1 : 0) + (r.receipt_photo_2 ? 1 : 0) + (r.receipt_photo_3 ? 1 : 0);
-      if (count === 0) return '';
+      if (count === 0) count = 1; // Auto-generated receipt is always available
       let text = count > 1 ? `${safeIcon('image', 'lucide-sm')} <span style="margin-left:4px;">${count} Foto</span>` : `${safeIcon('image', 'lucide-sm')} <span style="margin-left:4px;">1 Foto</span>`;
       return `<button class="btn" style="flex:1; width:100%; justify-content:center; padding:6px 0; font-size:11px; background:rgba(20,184,166,0.1); color:var(--teal-pop); border:1px solid rgba(20,184,166,0.2);" onclick="openPhotoModalById('${id}', '${k}')">${text}</button>`;
     }
