@@ -3145,21 +3145,27 @@
 
       const bottomFontSize = isExcel ? '10pt' : '6.5pt';
       html += `
-        <div style="margin-top: 15px; font-family: sans-serif; font-size: ${bottomFontSize}; line-height: 1.5; float: left; width: 100%;">
-          <div><strong>Unit Pemberi Perpuluhan:</strong> ${totalUnitsPerpuluhan} Unit</div>
-          <div style="margin-top: 10px;">
-            <strong>Ditransfer ke Rekening Daerah:</strong><br>
-            Bank : ${systemConfig.transfer_bank || 'Mandiri'}<br>
-            No Rek : ${systemConfig.transfer_rekening || '1070 0850 0012 5'}<br>
-            Nama Rek : ${systemConfig.transfer_nama || 'MASEHI ADVENT HARI KETUJUH'}<br>
-            <table style="width: 100%; max-width: 350px; margin-top: 5px; font-size: ${bottomFontSize};" cellpadding="2">
-              <tr><td>Perpuluhan</td><td style="text-align: right;">${isExcel ? sumPerpuluhan : fmt(sumPerpuluhan)}</td></tr>
-              <tr><td>Terpadu (50%)</td><td style="text-align: right;">${isExcel ? sumTerpaduDaerah : fmt(sumTerpaduDaerah)}</td></tr>
-              <tr><td>Khusus Daerah</td><td style="text-align: right;">${isExcel ? sumKhususDaerah : fmt(sumKhususDaerah)}</td></tr>
-              <tr><td style="font-weight:bold; border-top: 1px solid #000;">Total Transfer Daerah</td><td style="font-weight:bold; text-align: right; border-top: 1px solid #000;">${isExcel ? sumPemasukanDaerah : fmt(sumPemasukanDaerah)}</td></tr>
-            </table>
-          </div>
-        </div>
+        <table style="width: 100%; margin-top: 15px; font-family: sans-serif; font-size: ${bottomFontSize}; line-height: 1.5; border:none;" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="vertical-align: top; width: 50%;">
+              <div><strong>Unit Pemberi Perpuluhan:</strong> ${totalUnitsPerpuluhan} Unit</div>
+              <div style="margin-top: 10px;">
+                <strong>Ditransfer ke Rekening Daerah:</strong><br>
+                Bank : ${systemConfig.transfer_bank || 'Mandiri'}<br>
+                No Rek : ${systemConfig.transfer_rekening || '1070 0850 0012 5'}<br>
+                Nama Rek : ${systemConfig.transfer_nama || 'MASEHI ADVENT HARI KETUJUH'}<br>
+              </div>
+            </td>
+            <td style="vertical-align: bottom; width: 50%;">
+              <table style="width: 100%; max-width: 350px; font-size: ${bottomFontSize}; float:right;" cellpadding="2">
+                <tr><td>Perpuluhan</td><td style="text-align: right;">${isExcel ? sumPerpuluhan : fmt(sumPerpuluhan)}</td></tr>
+                <tr><td>Terpadu (50%)</td><td style="text-align: right;">${isExcel ? sumTerpaduDaerah : fmt(sumTerpaduDaerah)}</td></tr>
+                <tr><td>Khusus Daerah</td><td style="text-align: right;">${isExcel ? sumKhususDaerah : fmt(sumKhususDaerah)}</td></tr>
+                <tr><td style="font-weight:bold; border-top: 1px solid #000;">Total Transfer Daerah</td><td style="font-weight:bold; text-align: right; border-top: 1px solid #000;">${isExcel ? sumPemasukanDaerah : fmt(sumPemasukanDaerah)}</td></tr>
+              </table>
+            </td>
+          </tr>
+        </table>
         <div style="clear: both; margin-bottom: 20px;"></div>
       `;
 

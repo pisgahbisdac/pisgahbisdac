@@ -350,21 +350,27 @@ import"./modulepreload-polyfill-B5Qt9EMX.js";/* empty css              */(functi
             <td style="${Z}"></td>
             <td style="${Z}"></td>
           </tr>`;Ot++};for(mt(!0,"label_top",""),ue.forEach((E,v)=>mt(!0,E,v+1)),mt(!1,"label_bot",""),re.forEach((E,v)=>mt(!1,E,v+1)),mt(!1,"label_total","");Ot<S.length;)mt(!1,null,"");Te+="</tbody></table>";const En=e?"10pt":"6.5pt";if(Te+=`
-        <div style="margin-top: 15px; font-family: sans-serif; font-size: ${En}; line-height: 1.5; float: left; width: 100%;">
-          <div><strong>Unit Pemberi Perpuluhan:</strong> ${m} Unit</div>
-          <div style="margin-top: 10px;">
-            <strong>Ditransfer ke Rekening Daerah:</strong><br>
-            Bank : ${A.transfer_bank||"Mandiri"}<br>
-            No Rek : ${A.transfer_rekening||"1070 0850 0012 5"}<br>
-            Nama Rek : ${A.transfer_nama||"MASEHI ADVENT HARI KETUJUH"}<br>
-            <table style="width: 100%; max-width: 350px; margin-top: 5px; font-size: ${En};" cellpadding="2">
-              <tr><td>Perpuluhan</td><td style="text-align: right;">${e?ke:I(ke)}</td></tr>
-              <tr><td>Terpadu (50%)</td><td style="text-align: right;">${e?Ie:I(Ie)}</td></tr>
-              <tr><td>Khusus Daerah</td><td style="text-align: right;">${e?ye:I(ye)}</td></tr>
-              <tr><td style="font-weight:bold; border-top: 1px solid #000;">Total Transfer Daerah</td><td style="font-weight:bold; text-align: right; border-top: 1px solid #000;">${e?Ke:I(Ke)}</td></tr>
-            </table>
-          </div>
-        </div>
+        <table style="width: 100%; margin-top: 15px; font-family: sans-serif; font-size: ${En}; line-height: 1.5; border:none;" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="vertical-align: top; width: 50%;">
+              <div><strong>Unit Pemberi Perpuluhan:</strong> ${m} Unit</div>
+              <div style="margin-top: 10px;">
+                <strong>Ditransfer ke Rekening Daerah:</strong><br>
+                Bank : ${A.transfer_bank||"Mandiri"}<br>
+                No Rek : ${A.transfer_rekening||"1070 0850 0012 5"}<br>
+                Nama Rek : ${A.transfer_nama||"MASEHI ADVENT HARI KETUJUH"}<br>
+              </div>
+            </td>
+            <td style="vertical-align: bottom; width: 50%;">
+              <table style="width: 100%; max-width: 350px; font-size: ${En}; float:right;" cellpadding="2">
+                <tr><td>Perpuluhan</td><td style="text-align: right;">${e?ke:I(ke)}</td></tr>
+                <tr><td>Terpadu (50%)</td><td style="text-align: right;">${e?Ie:I(Ie)}</td></tr>
+                <tr><td>Khusus Daerah</td><td style="text-align: right;">${e?ye:I(ye)}</td></tr>
+                <tr><td style="font-weight:bold; border-top: 1px solid #000;">Total Transfer Daerah</td><td style="font-weight:bold; text-align: right; border-top: 1px solid #000;">${e?Ke:I(Ke)}</td></tr>
+              </table>
+            </td>
+          </tr>
+        </table>
         <div style="clear: both; margin-bottom: 20px;"></div>
       `,Te+=se,Te+=`
         <table style="${De} margin-top: 30px; page-break-before: always;">
