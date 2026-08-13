@@ -1806,7 +1806,7 @@ button:disabled, .btn:disabled {
   .sidebar:not(:hover) .user-name,
   .sidebar:not(:hover) .user-role,
   .sidebar:not(:hover) .logo-badge > div:nth-child(2) {
-    display: none;
+    display: none !important;
   }
   
   .sidebar:not(:hover) .nav-item.active {
