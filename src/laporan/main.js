@@ -5058,7 +5058,15 @@
       try { await apiPost('saveUnit', { name, note, jumlah_anggota: jumlah, oldName: editingUnit, isUpdate: !!editingUnit }); notify('Berhasil', 'success'); cancelEditUnit(); await loadMasterData(); renderMasterUnits(); initForms(); }
       catch (e) { notify(e.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = 'Simpan'; }
     }
-    function renderMasterUnits() { document.getElementById('unitList').innerHTML = (masterData?.units || []).map(x => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--glass-border)"><div><strong>${x.name}</strong>${x.jumlah_anggota ? `<br><small style="color:var(--text3)">${x.jumlah_anggota} Jiwa</small>` : ''}</div><div style="display:flex; gap:6px;"><button class="btn-icon-only" onclick="editUnit('${x.name.replace(/'/g, "\\'")}', '${(x.note || '').replace(/'/g, "\\'")}', ${x.jumlah_anggota || 0})">${safeIcon('edit')}</button><button class="btn-icon-only" style="color:var(--red-pop);" onclick="deleteUnit('${x.name.replace(/'/g, "\\'")}')">${safeIcon('trash')}</button></div></div>`).join('') || '<div class="empty-state">No Data</div>'; }
+    function renderMasterUnits() {
+      document.getElementById('unitList').innerHTML = (masterData?.units || []).map(x => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--glass-border)"><div><strong>${x.name}</strong>${x.jumlah_anggota ? `<br><small style="color:var(--text3)">${x.jumlah_anggota} Jiwa</small>` : ''}</div><div style="display:flex; gap:6px;"><button class="btn-icon-only" onclick="editUnit('${x.name.replace(/'/g, "\\'")}', '${(x.note || '').replace(/'/g, "\\'")}', ${x.jumlah_anggota || 0})">${safeIcon('edit')}</button><button class="btn-icon-only" style="color:var(--red-pop);" onclick="deleteUnit('${x.name.replace(/'/g, "\\'")}')">${safeIcon('trash')}</button></div></div>`).join('') || '<div class="empty-state">No Data</div>';
+      const elUnits = document.getElementById('summaryTotalUnits');
+      const elAnggota = document.getElementById('summaryTotalAnggota');
+      if (elUnits && elAnggota) {
+        elUnits.textContent = (masterData?.units || []).length;
+        elAnggota.textContent = (masterData?.units || []).reduce((acc, u) => acc + (parseInt(u.jumlah_anggota) || 0), 0);
+      }
+    }
     async function deleteUnit(name) { if (await showCustomConfirm('Hapus', `Yakin?`)) { try { await apiPost('deleteUnit', { name }); notify('Terhapus', 'success'); await loadMasterData(); renderMasterUnits(); initForms(); } catch (e) { notify(e.message, 'error'); } } }
     async function updateMyAccount() {
       const newUsername = document.getElementById('myNewUsername').value.trim();
