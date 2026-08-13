@@ -831,16 +831,15 @@
               img.onload = function () {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                let quality = 0.95; let scale = 1.0; let result = ''; let iterations = 0;
-                let baseWidth = img.width; let baseHeight = img.height; const MAX_START = 1600;
+                let quality = 0.8; let scale = 1.0; let result = ''; let iterations = 0;
+                let baseWidth = img.width; let baseHeight = img.height; const MAX_START = 1000;
                 if (baseWidth > baseHeight && baseWidth > MAX_START) { baseHeight *= MAX_START / baseWidth; baseWidth = MAX_START; }
                 else if (baseHeight > MAX_START) { baseWidth *= MAX_START / baseHeight; baseHeight = MAX_START; }
 
                 do {
                   canvas.width = Math.floor(baseWidth * scale);
                   canvas.height = Math.floor(baseHeight * scale);
-                  // Apply Grayscale and mild Contrast filter for better compression without losing text
-                  ctx.filter = 'grayscale(100%) contrast(1.1)';
+                  // Removed grayscale filter to retain color and improve appearance
                   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                   result = canvas.toDataURL('image/webp', quality);
                   if (result.length > MAX_CHARS) {
@@ -855,7 +854,7 @@
                   scale *= 0.5;
                   canvas.width = Math.floor(baseWidth * scale);
                   canvas.height = Math.floor(baseHeight * scale);
-                  ctx.filter = 'grayscale(100%) contrast(1.1)';
+                  // Removed grayscale filter
                   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                   result = canvas.toDataURL('image/webp', 0.6);
                 }
@@ -3621,7 +3620,12 @@
       const filterApproval = document.getElementById('filterApproval')?.value || '';
 
       let list = [];
-      if (type === '' || type === 'income') (cachedIncome || []).forEach(x => list.push({ ...x, type: 'income', badge: 'badge-green', label: 'In', style: 'amount-pos', sign: '+' }));
+      if (type === '' || type === 'income' || type === 'mutasi') (cachedIncome || []).forEach(x => {
+        if (x.income_type === 'Mutasi Kas / Setor Bank') return;
+        if (type === '' || type === 'income') {
+          list.push({ ...x, type: 'income', badge: 'badge-green', label: 'In', style: 'amount-pos', sign: '+' });
+        }
+      });
       if (type === '' || type === 'expense' || type === 'mutasi') (cachedExpense || []).forEach(x => {
         if (x.department === 'Mutasi Kas / Setor Bank') {
           if (type === '' || type === 'mutasi') {

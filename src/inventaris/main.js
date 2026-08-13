@@ -1,4 +1,4 @@
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzz_RmKR_q_BQvS42Z4EkF7VVXLk-N8M_iZ3L0EJbH3kzMRnLKT0lQd8pULdOVbG2hAag/exec';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwfBsZNTUD-3Ss-eV6Vk7g3x1FbSBpMIjzGuZcxYkV2dQhj9Nw82YJNNsfoZ5nlSz7mnw/exec';
 function getActiveApiUrl() { return DEFAULT_API_URL; }
 
 let currentUser = null;
@@ -1072,10 +1072,10 @@ document.getElementById('formPhoto').addEventListener('change', function (e) {
     reader.onload = function (event) {
       const img = new Image();
       img.onload = function () {
-        // Compress (Keeping 500x500 to avoid Google Sheets 50k char cell limit)
+        // Compress (Keeping 800x800 to balance quality and Google Sheets limits)
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 500;
-        const MAX_HEIGHT = 500;
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
         let width = img.width;
         let height = img.height;
         if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
@@ -1086,7 +1086,7 @@ document.getElementById('formPhoto').addEventListener('change', function (e) {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
 
-        const base64 = canvas.toDataURL('image/jpeg', 0.4); // 40% quality
+        const base64 = canvas.toDataURL('image/webp', 0.7); // Better quality with WebP
         window.currentPhotosBase64.push(base64);
         window.renderPhotoPreview();
       };
