@@ -2369,6 +2369,8 @@
       const receiver = 'Kas Utama (Bank)';
 
       const [src, type] = rawSrc.includes('|') ? rawSrc.split('|') : [rawSrc, ''];
+      if (type === 'BANK' && !note.includes('[BANK]')) note = (note + ' [BANK]').trim();
+      if (type === 'CASH' && !note.includes('[CASH]')) note = (note + ' [CASH]').trim();
 
       if (!date || !receipt || amount <= 0) { notify('Lengkapi data!', 'error'); return; }
       if (isReceiptDuplicate(receipt)) {
