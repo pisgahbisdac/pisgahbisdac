@@ -361,7 +361,7 @@ import"./modulepreload-polyfill-B5Qt9EMX.js";/* empty css              */(functi
                 Nama Rek : ${A.transfer_nama||"MASEHI ADVENT HARI KETUJUH"}<br>
               </div>
             </td>
-            <td style="vertical-align: bottom; width: 50%;">
+            <td style="vertical-align: top; width: 50%;">
               <table style="width: 100%; max-width: 350px; font-size: ${In}; float:right;" cellpadding="0" cellspacing="0">
                 <tr><td>Perpuluhan</td><td style="text-align: right;">${e?Ie:E(Ie)}</td></tr>
                 <tr><td>Terpadu (50%)</td><td style="text-align: right;">${e?ye:E(ye)}</td></tr>
