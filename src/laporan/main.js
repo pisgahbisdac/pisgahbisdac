@@ -1019,8 +1019,18 @@
           setTimeout(async () => {
             try {
               const htmlStr = generateReceiptHTML(type, r);
-              const genBase64 = await generateReceiptImageBase64(htmlStr, true);
-              openPhotoModal(genBase64, r.receipt_photo, r.receipt_photo_2);
+              if (hasAutoReceipt && isMutasi) {
+                const genBase64 = await generateReceiptImageBase64(htmlStr, false);
+                if (currentUser && (hasRole(currentUser, 'Admin') || hasRole(currentUser, 'Bendahara'))) {
+                   const editPayload = { ...r, type: type, receipt_photo_base64: genBase64 };
+                   // Silent background upload
+                   apiPost('editRecord', editPayload).catch(e => console.error('Silent photo update failed', e));
+                }
+                openPhotoModal(genBase64, r.receipt_photo_2, r.receipt_photo_3);
+              } else {
+                const genBase64 = await generateReceiptImageBase64(htmlStr, true);
+                openPhotoModal(genBase64, r.receipt_photo, r.receipt_photo_2);
+              }
             } catch (err) {
               console.error('Failed generating receipt on the fly', err);
               openPhotoModal(r.receipt_photo, r.receipt_photo_2, r.receipt_photo_3);
