@@ -305,10 +305,10 @@ import"./modulepreload-polyfill-B5Qt9EMX.js";/* empty css              */(functi
               <th colspan="2" style="${te}">LAPORAN KEUANGAN</th>
             </tr>
             <tr>
-              <th style="${te} width: 2%;">No</th>
-              <th style="${te} width: 4.5%;">Tanggal</th>
-              <th style="${te} width: 9.5%;">Nama Unit Pemberi /<br>Perpuluhan & Terpadu</th>
-              <th style="${te} width: 4.5%;">Nomor<br>Kwitansi</th>
+              <th style="${te} width: 1.5%;">No</th>
+              <th style="${te} width: 4%;">Tanggal</th>
+              <th style="${te} width: 11%;">Nama Unit Pemberi /<br>Perpuluhan & Terpadu</th>
+              <th style="${te} width: 4%;">Nomor<br>Kwitansi</th>
               <th style="${te} width: 5.5%;">Perpuluhan</th>
               <th style="${te} width: 5.5%;">Persembahan<br>Terpadu</th>
               <th style="${te} width: 5.5%;">Persembahan Khusus<br>Kas Jemaat</th>
@@ -320,8 +320,8 @@ import"./modulepreload-polyfill-B5Qt9EMX.js";/* empty css              */(functi
               <th style="${te} width: 5.5%;">50% Terpadu<br>Jemaat</th>
               <th style="${te} width: 5.5%;">Persembahan Khusus<br>Kas Jemaat</th>
               <th style="${te} width: 6%;">Jumlah Uang<br>Jemaat</th>
-              <th style="${te} width: 11%;">Pemasukan &<br>Pengeluaran Jemaat</th>
-              <th style="${te} width: 6.5%;">TOTAL</th>
+              <th style="${te} width: 12%;">Pemasukan &<br>Pengeluaran Jemaat</th>
+              <th style="${te} width: 5.5%;">TOTAL</th>
             </tr>
           </thead>
           <tbody>
@@ -396,12 +396,12 @@ import"./modulepreload-polyfill-B5Qt9EMX.js";/* empty css              */(functi
               </th>
             </tr>
             <tr>
-              <th style="${te} width: 4%;">No</th>
-              <th style="${te} width: 10%;">Tanggal</th>
-              <th style="${te} width: 12%;">No Bukti</th>
+              <th style="${te} width: 2%;">No</th>
+              <th style="${te} width: 8%;">Tanggal</th>
+              <th style="${te} width: 10%;">No Bukti</th>
               <th style="${te} width: 14%;">Sumber Kas</th>
               <th style="${te} width: 16%;">Bagian / Dept</th>
-              <th style="${te} width: 30%;">Keterangan</th>
+              <th style="${te} width: 36%;">Keterangan</th>
               <th style="${te} width: 14%;">Nominal</th>
             </tr>
           </thead>
