@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.css" rel="stylesheet">
 
-  <script type="module" crossorigin src="/assets/laporan-DlKnrhWX.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-CGbF1zcO.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/laporan-DLl9-j_y.css">
   <link rel="stylesheet" crossorigin href="/assets/index-MHM_t1Ia.css">
@@ -1124,6 +1124,28 @@
               <input class="form-input" id="komitmenRealisasiInput" type="text" placeholder="Misal: 63.356.900"
                 oninput="formatRupiah(this)"
                 onchange="saveSignatureText('komitmen_realisasi', parseRupiah(this.value))">
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="max-width:1400px; margin:24px auto 0;">
+          <div class="form-section-title">Pengaturan Transfer Rekening Daerah</div>
+          <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Atur detail rekening bank untuk tujuan transfer daerah pada cetakan laporan.</p>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Bank Tujuan</label>
+              <input class="form-input" id="settingTransferBank" type="text" placeholder="Misal: Mandiri"
+                onchange="saveSignatureText('transfer_bank', this.value)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">No. Rekening</label>
+              <input class="form-input" id="settingTransferRek" type="text" placeholder="Misal: 1070 0850 0012 5"
+                onchange="saveSignatureText('transfer_rekening', this.value)">
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label class="form-label">Nama Rekening</label>
+              <input class="form-input" id="settingTransferNama" type="text" placeholder="Misal: MASEHI ADVENT HARI KETUJUH"
+                onchange="saveSignatureText('transfer_nama', this.value)">
             </div>
           </div>
         </div>

@@ -523,6 +523,13 @@
       const inputServer = document.getElementById('customApiUrlInput');
       if (inputServer) inputServer.value = localStorage.getItem('BISDAC_api_url') || '';
 
+      const inputTransferBank = document.getElementById('settingTransferBank');
+      if (inputTransferBank) inputTransferBank.value = systemConfig.transfer_bank || '';
+      const inputTransferRek = document.getElementById('settingTransferRek');
+      if (inputTransferRek) inputTransferRek.value = systemConfig.transfer_rekening || '';
+      const inputTransferNama = document.getElementById('settingTransferNama');
+      if (inputTransferNama) inputTransferNama.value = systemConfig.transfer_nama || '';
+
       const inputKota = document.getElementById('kotaKuitansiInput');
       if (inputKota) inputKota.value = systemConfig.kota_kuitansi || 'Manado';
       const inputH1 = document.getElementById('headerKuitansi1Input');
@@ -3142,7 +3149,9 @@
           <div><strong>Unit Pemberi Perpuluhan:</strong> ${totalUnitsPerpuluhan} Unit</div>
           <div style="margin-top: 10px;">
             <strong>Ditransfer ke Rekening Daerah:</strong><br>
-            1070 0850 0012 5 a.n MASEHI ADVENT HARI KETUJUH<br>
+            Bank : ${systemConfig.transfer_bank || 'Mandiri'}<br>
+            No Rek : ${systemConfig.transfer_rekening || '1070 0850 0012 5'}<br>
+            Nama Rek : ${systemConfig.transfer_nama || 'MASEHI ADVENT HARI KETUJUH'}<br>
             <table style="width: 100%; max-width: 350px; margin-top: 5px; font-size: ${bottomFontSize};" cellpadding="2">
               <tr><td>Perpuluhan</td><td style="text-align: right;">${isExcel ? sumPerpuluhan : fmt(sumPerpuluhan)}</td></tr>
               <tr><td>Terpadu (50%)</td><td style="text-align: right;">${isExcel ? sumTerpaduDaerah : fmt(sumTerpaduDaerah)}</td></tr>
