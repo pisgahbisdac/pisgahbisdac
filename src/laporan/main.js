@@ -4716,13 +4716,13 @@
           }
         });
         
-        // Wait briefly for DOM to render completely
+            // Wait briefly for DOM to render completely
         setTimeout(() => {
           html2canvas(container, {
             scale: isForViewing ? 1.5 : 2,
             useCORS: true,
             backgroundColor: '#ffffff'
-          }).then(origCanvas => {
+          }).then(async origCanvas => {
             const MAX_CHARS = 48000; // Google Sheets cell limit is ~50000 chars
             
             // Convert to grayscale (like manual upload) for better compression + quality
@@ -4740,14 +4740,16 @@
             
             if (!isForViewing) {
               while (base64Str.length > MAX_CHARS && quality > 0.2) {
-                quality -= 0.1;
+                await new Promise(r => setTimeout(r, 10));
+                quality -= 0.2;
                 base64Str = bwCanvas.toDataURL('image/webp', quality);
               }
               
               // If still too large, scale down
               if (base64Str.length > MAX_CHARS) {
-                let scale = 0.7;
+                let scale = 0.6;
                 while (base64Str.length > MAX_CHARS && scale > 0.15) {
+                  await new Promise(r => setTimeout(r, 10));
                   const scaledCanvas = document.createElement('canvas');
                   scaledCanvas.width = Math.floor(bwCanvas.width * scale);
                   scaledCanvas.height = Math.floor(bwCanvas.height * scale);
@@ -4756,7 +4758,7 @@
                   ctx.fillRect(0, 0, scaledCanvas.width, scaledCanvas.height);
                   ctx.drawImage(bwCanvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
                   base64Str = scaledCanvas.toDataURL('image/webp', 0.6);
-                  scale *= 0.7;
+                  scale *= 0.6;
                 }
               }
             }
