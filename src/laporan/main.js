@@ -3311,7 +3311,7 @@
         iframe.style.display = 'none';
         document.body.appendChild(iframe);
         const baseUrl = window.location.origin + window.location.pathname;
-        iframe.contentDocument.write(`<html><head><base href="${baseUrl}"><title>Laporan Keuangan</title><style>@page { size: landscape; margin: 1cm; } @media print { body { margin: 0; } table { page-break-inside: auto; } tr { page-break-inside: avoid; page-break-after: auto; } thead { display: table-header-group; } }</style></head><body onload="setTimeout(function(){ window.focus(); window.print(); }, 800)">${html}</body></html>`);
+        iframe.contentDocument.write(`<html><head><base href="${baseUrl}"><title>Laporan Keuangan</title><style>@page { size: landscape; margin: 1cm; } @media print { body { margin: 0; } table { page-break-inside: auto; } thead { display: table-header-group; } }</style></head><body onload="setTimeout(function(){ window.focus(); window.print(); }, 800)">${html}</body></html>`);
         iframe.contentDocument.close();
 
         setTimeout(() => {
@@ -5250,7 +5250,7 @@
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
       document.body.appendChild(iframe);
-      iframe.contentDocument.write(`<html><head><title>Laporan Pembangunan</title><style>@media print { body { margin: 0; } table { page-break-inside: auto; } tr { page-break-inside: avoid; page-break-after: auto; } thead { display: table-header-group; } }</style></head><body onload="setTimeout(function(){ window.focus(); window.print(); }, 800)">${html}</body></html>`);
+      iframe.contentDocument.write(`<html><head><title>Laporan Pembangunan</title><style>@media print { body { margin: 0; } table { page-break-inside: auto; } thead { display: table-header-group; } }</style></head><body onload="setTimeout(function(){ window.focus(); window.print(); }, 800)">${html}</body></html>`);
       iframe.contentDocument.close();
 
       setTimeout(() => {
