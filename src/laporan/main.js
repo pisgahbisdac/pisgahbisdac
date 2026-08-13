@@ -2574,6 +2574,7 @@
         (cachedIncome || []).filter(x => isMatch(x.date)).forEach(x => {
           const isBangun = (x.income_type || '').toLowerCase().includes('pembangunan') || parseFloat(x.alloc_bangun || 0) > 0;
           if (isBangun) return;
+          if (x.income_type === 'Mutasi Kas / Setor Bank') return;
           const cat = x.income_type || 'Lainnya';
           if (!incByCat[cat]) incByCat[cat] = [];
           incByCat[cat].push(x);
@@ -5236,9 +5237,9 @@
       const isManualSignature = document.getElementById('manualSignature') ? document.getElementById('manualSignature').checked : false;
 
       // Pemasukan & Pengeluaran Bulan Ini
-      const pemBulanIni = (cachedIncome || []).filter(x => {
+      let pemBulanIni = (cachedIncome || []).filter(x => {
         const tDate = new Date(x.date);
-        return tDate >= targetDateStart && tDate <= targetDateEnd && (x.alloc_bangun > 0 || (x.income_type || '').toLowerCase().includes('pembangunan'));
+        return tDate >= targetDateStart && tDate <= targetDateEnd && (x.alloc_bangun > 0 || (x.income_type || '').toLowerCase().includes('pembangunan')) && x.income_type !== 'Mutasi Kas / Setor Bank';
       });
 
       let pengBulanIni = (cachedExpense || []).filter(x => {
