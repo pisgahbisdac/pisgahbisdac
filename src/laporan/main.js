@@ -2731,7 +2731,8 @@
             khususDaerah: 0,
             allocDaerah: 0,
             allocJemaat: 0,
-            isPerorangan: false
+            isPerorangan: false,
+            notes: []
           };
         }
         const t = x.income_type || 'Lain-Lain';
@@ -2759,6 +2760,8 @@
 
         groupedInc[key].allocDaerah += parseFloat(x.alloc_daerah || 0);
         groupedInc[key].allocJemaat += amtJemaat;
+        
+        if (x.note && x.note.trim() !== '') groupedInc[key].notes.push(x.note.trim());
 
         incByCat[t] = (incByCat[t] || 0) + amt;
         totalInc += amt;
@@ -3067,6 +3070,11 @@
             dNama = 'Unit *** (Privasi)';
           } else if (isTop && !data.hasUnit && isSensorName) {
             dNama = '*** (Privasi)';
+          }
+          
+          if (!isTop && data.notes && data.notes.length > 0) {
+            const uniqueNotes = [...new Set(data.notes)].join(', ');
+            dNama += '<br><span style="font-size:0.9em; font-weight:normal; color:#4b5563;">(' + uniqueNotes + ')</span>';
           }
 
           c1 = rowNum; c2 = fmtDate(data.tanggal); c3 = dNama; c4 = data.kwitansi;
