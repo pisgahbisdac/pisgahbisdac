@@ -1019,7 +1019,8 @@
           setTimeout(async () => {
             try {
               const htmlStr = generateReceiptHTML(type, r);
-              if (hasAutoReceipt && isMutasi) {
+              const isMissingPhoto = !r.receipt_photo || r.receipt_photo.trim() === '';
+              if ((hasAutoReceipt && isMutasi) || isMissingPhoto) {
                 const genBase64 = await generateReceiptImageBase64(htmlStr, false);
                 if (currentUser && (hasRole(currentUser, 'Admin') || hasRole(currentUser, 'Bendahara'))) {
                    const editPayload = { ...r, type: type, receipt_photo_base64: genBase64 };
