@@ -3143,13 +3143,14 @@
 
       html += `</tbody></table>`;
 
+      const bottomFontSize = isExcel ? '10pt' : '6.5pt';
       html += `
-        <div style="margin-top: 15px; font-family: sans-serif; font-size: 11pt; line-height: 1.5; float: left; width: 100%;">
+        <div style="margin-top: 15px; font-family: sans-serif; font-size: ${bottomFontSize}; line-height: 1.5; float: left; width: 100%;">
           <div><strong>Unit Pemberi Perpuluhan:</strong> ${totalUnitsPerpuluhan} Unit</div>
           <div style="margin-top: 10px;">
             <strong>Ditransfer ke Rekening Daerah:</strong><br>
             1070 0850 0012 5 a.n MASEHI ADVENT HARI KETUJUH<br>
-            <table style="width: 100%; max-width: 350px; margin-top: 5px; font-size: 10pt;" cellpadding="2">
+            <table style="width: 100%; max-width: 350px; margin-top: 5px; font-size: ${bottomFontSize};" cellpadding="2">
               <tr><td>Perpuluhan</td><td style="text-align: right;">${isExcel ? sumPerpuluhan : fmt(sumPerpuluhan)}</td></tr>
               <tr><td>Terpadu (50%)</td><td style="text-align: right;">${isExcel ? sumTerpaduDaerah : fmt(sumTerpaduDaerah)}</td></tr>
               <tr><td>Khusus Daerah</td><td style="text-align: right;">${isExcel ? sumKhususDaerah : fmt(sumKhususDaerah)}</td></tr>
