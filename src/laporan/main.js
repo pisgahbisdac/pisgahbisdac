@@ -1012,14 +1012,21 @@
         if (hasAutoReceipt) {
           openPhotoModal(r.receipt_photo, r.receipt_photo_2, r.receipt_photo_3);
         } else {
-          try {
-            const htmlStr = generateReceiptHTML(type, r);
-            const genBase64 = await generateReceiptImageBase64(htmlStr);
-            openPhotoModal(genBase64, r.receipt_photo, r.receipt_photo_2);
-          } catch (err) {
-            console.error('Failed generating receipt on the fly', err);
-            openPhotoModal(r.receipt_photo, r.receipt_photo_2, r.receipt_photo_3);
-          }
+          const overlay = document.getElementById('loadingOverlay');
+          if (overlay) overlay.style.display = 'flex';
+          
+          setTimeout(async () => {
+            try {
+              const htmlStr = generateReceiptHTML(type, r);
+              const genBase64 = await generateReceiptImageBase64(htmlStr, true);
+              openPhotoModal(genBase64, r.receipt_photo, r.receipt_photo_2);
+            } catch (err) {
+              console.error('Failed generating receipt on the fly', err);
+              openPhotoModal(r.receipt_photo, r.receipt_photo_2, r.receipt_photo_3);
+            } finally {
+              if (overlay) overlay.style.display = 'none';
+            }
+          }, 10);
         }
       } else {
         notify('Data foto tidak ditemukan.', 'error');
@@ -4644,7 +4651,7 @@
       `;
     }
 
-    function generateReceiptImageBase64(htmlString) {
+    function generateReceiptImageBase64(htmlString, isForViewing = false) {
       return new Promise((resolve, reject) => {
         const overlay = document.getElementById('loadingOverlay');
         const container = document.getElementById('hiddenReceiptContainer');
@@ -4676,7 +4683,7 @@
         // Wait briefly for DOM to render completely
         setTimeout(() => {
           html2canvas(container, {
-            scale: 2,
+            scale: isForViewing ? 1.5 : 2,
             useCORS: true,
             backgroundColor: '#ffffff'
           }).then(origCanvas => {
@@ -4692,27 +4699,29 @@
             bwCtx.drawImage(origCanvas, 0, 0);
             
             // Use WebP for much better quality at smaller sizes
-            let quality = 0.92;
+            let quality = isForViewing ? 0.8 : 0.92;
             let base64Str = bwCanvas.toDataURL('image/webp', quality);
             
-            while (base64Str.length > MAX_CHARS && quality > 0.2) {
-              quality -= 0.1;
-              base64Str = bwCanvas.toDataURL('image/webp', quality);
-            }
-            
-            // If still too large, scale down
-            if (base64Str.length > MAX_CHARS) {
-              let scale = 0.7;
-              while (base64Str.length > MAX_CHARS && scale > 0.15) {
-                const scaledCanvas = document.createElement('canvas');
-                scaledCanvas.width = Math.floor(bwCanvas.width * scale);
-                scaledCanvas.height = Math.floor(bwCanvas.height * scale);
-                const ctx = scaledCanvas.getContext('2d');
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, scaledCanvas.width, scaledCanvas.height);
-                ctx.drawImage(bwCanvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
-                base64Str = scaledCanvas.toDataURL('image/webp', 0.6);
-                scale *= 0.7;
+            if (!isForViewing) {
+              while (base64Str.length > MAX_CHARS && quality > 0.2) {
+                quality -= 0.1;
+                base64Str = bwCanvas.toDataURL('image/webp', quality);
+              }
+              
+              // If still too large, scale down
+              if (base64Str.length > MAX_CHARS) {
+                let scale = 0.7;
+                while (base64Str.length > MAX_CHARS && scale > 0.15) {
+                  const scaledCanvas = document.createElement('canvas');
+                  scaledCanvas.width = Math.floor(bwCanvas.width * scale);
+                  scaledCanvas.height = Math.floor(bwCanvas.height * scale);
+                  const ctx = scaledCanvas.getContext('2d');
+                  ctx.fillStyle = '#ffffff';
+                  ctx.fillRect(0, 0, scaledCanvas.width, scaledCanvas.height);
+                  ctx.drawImage(bwCanvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
+                  base64Str = scaledCanvas.toDataURL('image/webp', 0.6);
+                  scale *= 0.7;
+                }
               }
             }
             
