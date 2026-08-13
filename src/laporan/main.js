@@ -1615,6 +1615,7 @@
     function updateGlobalApprovalBadge() {
       const navItem = document.getElementById('navRiwayat');
       const topBadge = document.getElementById('globalApprovalBadge');
+      const topBtn = document.getElementById('globalApprovalBtn');
       if (!navItem && !topBadge) return;
 
       const isAdmin = currentUser && hasRole(currentUser, 'Admin');
@@ -1626,8 +1627,10 @@
       if (!isApprover && !hasRole(currentUser, 'Bendahara')) {
         if (navItem) navItem.classList.remove('has-notification');
         if (topBadge) topBadge.style.display = 'none';
+        if (topBtn) topBtn.style.display = 'none';
         return;
       }
+      if (topBtn) topBtn.style.display = 'block';
 
       let list = [...(cachedIncome || []).map(x => ({...x})), ...(cachedExpense || []).map(x => ({...x}))];
       list = groupTransactions(list);

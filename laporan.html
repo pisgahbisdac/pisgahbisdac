@@ -288,8 +288,8 @@
           <span class="topbar-title" id="pageTitle">Dashboard</span>
         </div>
         <div class="topbar-actions" style="display:flex; gap:8px;">
-          <div class="notification-btn topbar-icon-hover" title="Persetujuan Tertunda" onclick="navigateToApprovals()"
-            style="position:relative; cursor:pointer;">
+          <div id="globalApprovalBtn" class="notification-btn topbar-icon-hover" title="Persetujuan Tertunda" onclick="navigateToApprovals()"
+            style="position:relative; cursor:pointer; display:none;">
             <span class="icon-placeholder" data-icon="bell" data-size="lucide-md"></span>
             <span id="globalApprovalBadge" class="badge"
               style="display:none; position:absolute; top:-4px; right:-6px; background:var(--red-pop); color:white; border:none; padding: 2px 5px; border-radius: 6px; font-size: 10px; min-width: 16px; height: 16px; line-height: 1;"></span>
