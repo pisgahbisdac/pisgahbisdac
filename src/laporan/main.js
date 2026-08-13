@@ -3170,6 +3170,7 @@
 
       const bottomFontSize = isExcel ? '10pt' : '6.5pt';
       html += `
+        <div style="page-break-inside: avoid;">
         <table style="width: 100%; margin-top: 15px; font-family: sans-serif; font-size: ${bottomFontSize}; line-height: 1.5; border:none;" cellpadding="0" cellspacing="0">
           <tr>
             <td style="vertical-align: top; width: 50%;">
@@ -3196,6 +3197,7 @@
 
       // SIGNATURE FOR MAIN REPORT
       html += signHtml;
+      html += `</div>`;
 
       // --- EXPENSES TABLE ---
       html += `
