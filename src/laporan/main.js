@@ -2660,12 +2660,26 @@
       const saldoAwalJemaat = (currentReportData.summary && currentReportData.summary.saldoAwalJemaat) || 0;
 
       const txIn = [];
+      const unitsGavePersepuluhan = new Set();
       if (currentReportData.incByCategory) {
         Object.values(currentReportData.incByCategory).forEach(arr => arr.forEach(x => {
           if (x.income_type !== 'Mutasi Kas / Setor Bank') txIn.push(x);
+          const tLower = (x.income_type || '').toLowerCase();
+          if (tLower.includes('perpuluhan') || tLower.includes('persepuluhan')) {
+            if (x.unit_name && x.unit_name.trim() !== '' && x.unit_name.trim() !== '-') {
+              unitsGavePersepuluhan.add(x.unit_name);
+            }
+          }
         }));
       }
-      const totalUnitsPerpuluhan = (masterData && masterData.units) ? masterData.units.length : 0;
+      let totalJiwaPemberi = 0;
+      if (masterData && masterData.units) {
+        masterData.units.forEach(u => {
+          if (unitsGavePersepuluhan.has(u.name)) {
+            totalJiwaPemberi += (parseInt(u.jumlah_anggota) || 0);
+          }
+        });
+      }
       const txOut = [];
       if (currentReportData.expByDept) {
         Object.values(currentReportData.expByDept).forEach(arr => arr.forEach(x => {
@@ -3148,7 +3162,7 @@
         <table style="width: 100%; margin-top: 15px; font-family: sans-serif; font-size: ${bottomFontSize}; line-height: 1.5; border:none;" cellpadding="0" cellspacing="0">
           <tr>
             <td style="vertical-align: top; width: 50%;">
-              <div><strong>Unit Pemberi Perpuluhan:</strong> ${totalUnitsPerpuluhan} Unit</div>
+              <div><strong>Total Jiwa Pemberi Perpuluhan:</strong> ${totalJiwaPemberi} Jiwa</div>
               <div style="margin-top: 10px;">
                 <strong>Ditransfer ke Rekening Daerah:</strong><br>
                 Bank : ${systemConfig.transfer_bank || 'Mandiri'}<br>
