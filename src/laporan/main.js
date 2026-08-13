@@ -6059,8 +6059,9 @@ function getNextReceiptNumber(dateStr, typeCat, prefix) {
     if (!tx.date || !tx.date.startsWith(key)) return;
     
     let matchCat = false;
-    if (typeCat === 'PemasukanPembangunan' && tx.income_type === 'Pembangunan') matchCat = true;
-    else if (typeCat === 'Pemasukan' && tx.income_type !== 'Pembangunan' && tx.income_type !== 'Saldo Awal Sistem') matchCat = true;
+    const isBgnInc = (tx.income_type || '').toLowerCase().includes('pembangunan');
+    if (typeCat === 'PemasukanPembangunan' && isBgnInc) matchCat = true;
+    else if (typeCat === 'Pemasukan' && !isBgnInc && tx.income_type !== 'Saldo Awal Sistem') matchCat = true;
     else if (typeCat === 'PengeluaranJemaat' && tx.source_balance === 'Kas Jemaat' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
     else if (typeCat === 'PengeluaranDaerah' && tx.source_balance === 'Daerah' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
     else if (typeCat === 'PengeluaranPembangunan' && tx.source_balance === 'Pembangunan' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
@@ -6068,17 +6069,20 @@ function getNextReceiptNumber(dateStr, typeCat, prefix) {
     
     if (matchCat && tx.receipt_no) {
       let rNumStr = String(tx.receipt_no).trim();
+      let startNum = parseInt(config.start);
+      let endNum = config.end ? parseInt(config.end) : null;
+
       if (prefix === '') {
         if (/^\d+$/.test(rNumStr)) {
           let num = parseInt(rNumStr);
-          if (num > maxNum && num >= config.start && (config.end ? num <= config.end : true)) maxNum = num;
+          if (num > maxNum && num >= startNum && (endNum ? num <= endNum : true)) maxNum = num;
         }
       } else {
         if (rNumStr.startsWith(prefix)) {
           let numPart = rNumStr.substring(prefix.length);
           if (/^\d+$/.test(numPart)) {
             let num = parseInt(numPart);
-            if (num > maxNum && num >= config.start && (config.end ? num <= config.end : true)) maxNum = num;
+            if (num > maxNum && num >= startNum && (endNum ? num <= endNum : true)) maxNum = num;
           }
         }
       }
@@ -6086,11 +6090,17 @@ function getNextReceiptNumber(dateStr, typeCat, prefix) {
   });
   
   let nextNum = maxNum === -1 ? config.start : maxNum + 1;
-  if (config.end && nextNum > config.end) {
+  let endNum = config.end ? parseInt(config.end) : null;
+  if (endNum && parseInt(nextNum) > endNum) {
     return { err: `Nomor seri untuk ${typeCat} bulan ${key} sudah habis (melewati ${config.end}). Silakan perbarui pengaturan No. Series.` };
   }
   
-  return { val: prefix + nextNum };
+  let nextNumStr = String(nextNum);
+  if (typeof config.start === 'string' && config.start.startsWith('0')) {
+    nextNumStr = nextNumStr.padStart(config.start.length, '0');
+  }
+  
+  return { val: prefix + nextNumStr };
 }
 
 window.autoGenerateReceipt = function(formType) {
@@ -6098,8 +6108,8 @@ window.autoGenerateReceipt = function(formType) {
   if (formType === 'INC') {
     dateInput = document.getElementById('incDate').value;
     inputElem = document.getElementById('incReceipt');
-    let incType = document.getElementById('incType').value;
-    if (incType === 'Pembangunan') {
+    let incType = (document.getElementById('incType').value || '').toLowerCase();
+    if (incType.includes('pembangunan')) {
       typeCat = 'PemasukanPembangunan'; prefix = 'PEMB-';
     } else {
       typeCat = 'Pemasukan'; prefix = '';
