@@ -1009,7 +1009,8 @@
 
       if (r) {
         const hasAutoReceipt = r.receipt_photo && r.receipt_photo.includes('name=auto-receipt');
-        if (hasAutoReceipt) {
+        const isMutasi = (r.department === 'Mutasi Kas / Setor Bank' || r.income_type === 'Mutasi Kas / Setor Bank');
+        if (hasAutoReceipt && !isMutasi) {
           openPhotoModal(r.receipt_photo, r.receipt_photo_2, r.receipt_photo_3);
         } else {
           const overlay = document.getElementById('loadingOverlay');
