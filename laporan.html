@@ -1812,20 +1812,6 @@
     <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.js"></script>
-  <script>
-    let _laporanLastScrollY = window.scrollY;
-    window.addEventListener('scroll', () => {
-      const currentScrollY = window.scrollY;
-      const fab = document.getElementById('floatingSyncBtn');
-      if (fab) {
-        if (currentScrollY > _laporanLastScrollY && currentScrollY > 50) {
-          fab.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
-        } else if (currentScrollY < _laporanLastScrollY) {
-          fab.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
-        }
-      }
-      _laporanLastScrollY = currentScrollY;
-    }, { passive: true });
-  </script>
+  <!-- Script removed to make floatingSyncBtn always visible -->
 </body>
 </html>
