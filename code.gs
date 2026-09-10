@@ -193,17 +193,16 @@ function handleLogin(params) {
       const inputHash = hashPassword(params.password);
       
       if (inputHash === passHashOrText || params.password === passHashOrText) {
-        const token = generateToken();
-        const userData = {
-          username: username,
-          role: role,
-          nama: nama,
-          expires: Date.now() + 24 * 60 * 60 * 1000  // 24 jam
-        };
+        // Generate non-expiring token with embedded user data
+        const userData = { username: username, role: role, nama: nama };
+        // In Apps Script, base64Encode requires byte[]
+        const jsonStr = JSON.stringify(userData);
+        const token = Utilities.base64Encode(Utilities.newBlob(jsonStr).getBytes());
         
+        // Also put in cache for backward compatibility if needed, but not required
         CacheService.getScriptCache().put(token, JSON.stringify(userData), 21600);
         writeLog(username, 'LOGIN', 'Login berhasil');
-        return { success: true, token, user: { username, role, nama } };
+        return { success: true, token, user: userData };
       }
     }
   }
@@ -212,15 +211,28 @@ function handleLogin(params) {
 
 function verifyToken(token) {
   if (!token) return null;
-  const cached = CacheService.getScriptCache().get(token);
-  if (!cached) return null;
   
-  const session = JSON.parse(cached);
-  if (Date.now() > session.expires) {
-    CacheService.getScriptCache().remove(token);
-    return null;
+  // Try to decode the non-expiring base64 token first
+  try {
+    const decodedBytes = Utilities.base64Decode(token);
+    const decodedStr = Utilities.newBlob(decodedBytes).getDataAsString();
+    const session = JSON.parse(decodedStr);
+    if (session && session.username && session.role) {
+      return session; // Valid forever
+    }
+  } catch (e) {
+    // If decoding fails, it might be an old UUID token, fallback to CacheService
+    const cached = CacheService.getScriptCache().get(token);
+    if (cached) {
+      const session = JSON.parse(cached);
+      if (Date.now() > session.expires) {
+        CacheService.getScriptCache().remove(token);
+        return null;
+      }
+      return session;
+    }
   }
-  return session;
+  return null;
 }
 
 function generateToken() {

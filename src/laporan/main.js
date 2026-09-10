@@ -262,8 +262,8 @@
       document.getElementById('dashboardDetailModal').style.display = 'flex';
     }
 
-    const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbwfBsZNTUD-3Ss-eV6Vk7g3x1FbSBpMIjzGuZcxYkV2dQhj9Nw82YJNNsfoZ5nlSz7mnw/exec';
-    const INVENTARIS_URL = 'https://script.google.com/macros/s/AKfycbwfBsZNTUD-3Ss-eV6Vk7g3x1FbSBpMIjzGuZcxYkV2dQhj9Nw82YJNNsfoZ5nlSz7mnw/exec';
+    const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbxv6_4xuZNgdKhav3W-64e_l7QrsaBQ7kV_A34SnjjT2hmn1NXma4uswa14h_5ifFCt2Q/exec';
+    const INVENTARIS_URL = 'https://script.google.com/macros/s/AKfycbxv6_4xuZNgdKhav3W-64e_l7QrsaBQ7kV_A34SnjjT2hmn1NXma4uswa14h_5ifFCt2Q/exec';
 
     function getActiveApiUrl() {
       if (window.location.pathname.includes('pembangunan')) {
@@ -1171,7 +1171,12 @@
     async function launchApp() {
       document.getElementById('loginPage').style.display = 'none'; document.getElementById('app').style.display = 'flex';
       const syncBtn = document.getElementById('floatingSyncBtn');
-      if (syncBtn) { syncBtn.classList.remove('bottom-8'); syncBtn.classList.add('bottom-28'); }
+      if (syncBtn) { 
+        syncBtn.classList.remove('bottom-8', 'hidden'); 
+        syncBtn.classList.add('bottom-28'); 
+        syncBtn.style.display = 'flex';
+        syncBtn.style.setProperty('display', 'flex', 'important');
+      }
       const nameStr = currentUser.nama || currentUser.username || 'User';
       document.getElementById('userNameDisplay').textContent = nameStr;
       document.getElementById('userRoleDisplay').textContent = currentUser.role || 'Unknown';
@@ -1422,6 +1427,7 @@
 
     async function syncAllData() {
       try {
+        window.isBulkProcessing = true;
         await loadMasterData();
         await loadAllTransactions();
         await loadPembangunanData();
@@ -1430,6 +1436,9 @@
         updateLastReceipts();
       } catch (e) {
         notify('Sinkronisasi gagal: ' + e.message, 'error');
+      } finally {
+        window.isBulkProcessing = false;
+        hideGlobalLoading();
       }
     }
 
@@ -1492,9 +1501,11 @@
 
     async function loadAllTransactions() {
       try {
-        const inc = await apiGet('getIncomeList');
-        const exp = await apiGet('getExpenseList');
-        const bal = await apiGet('getBalances');
+        const [inc, exp, bal] = await Promise.all([
+          apiGet('getIncomeList'),
+          apiGet('getExpenseList'),
+          apiGet('getBalances')
+        ]);
         cachedIncome = Array.isArray(inc.data) ? inc.data : [];
         cachedExpense = Array.isArray(exp.data) ? exp.data : [];
         window.cachedIncome = cachedIncome;
@@ -2551,10 +2562,33 @@
             return false;
           };
           (cachedIncome || []).forEach(x => {
-            const isBangun = (x.income_type || '').toLowerCase().includes('pembangunan') || parseFloat(x.alloc_bangun || 0) > 0;
-            if (isBefore(x.date) && !isBangun) {
-              saldoAwal += parseFloat(x.amount || 0);
-              saldoAwalJemaat += (parseFloat(x.alloc_jemaat) || 0);
+            if (x.income_type === 'Mutasi Kas / Setor Bank') return;
+            if (isBefore(x.date)) {
+              let amtUmum = parseFloat(x.amount || 0) - parseFloat(x.alloc_bangun || 0);
+              if (amtUmum > 0) {
+                saldoAwal += amtUmum;
+                
+                // PREFER EXPLICIT ALLOC IF IT EXISTS, FALLBACK TO MATH
+                let jemaatAmt = 0;
+                if (x.alloc_jemaat !== undefined && x.alloc_jemaat !== null && x.alloc_jemaat !== '') {
+                  jemaatAmt = parseFloat(x.alloc_jemaat) || 0;
+                } else {
+                  const t = x.income_type || '';
+                  const tLower = t.toLowerCase();
+                  const isSabat13 = tLower.includes('sabat') && tLower.includes('13');
+                  const isSabat = tLower.includes('sabat') && !tLower.includes('13');
+                  
+                  if (t === 'Perpuluhan' || t === 'Khusus Daerah' || isSabat13) {
+                    jemaatAmt = 0;
+                  } else if (t === 'Terpadu' || isSabat) {
+                    jemaatAmt = amtUmum * 0.5;
+                  } else if (t !== 'Saldo Awal Sistem' && t !== 'Saldo Awal') {
+                    jemaatAmt = amtUmum;
+                  }
+                }
+                
+                saldoAwalJemaat += jemaatAmt;
+              }
             }
           });
           (cachedExpense || []).forEach(x => {
@@ -2585,13 +2619,16 @@
         };
 
         (cachedIncome || []).filter(x => isMatch(x.date)).forEach(x => {
-          const isBangun = (x.income_type || '').toLowerCase().includes('pembangunan') || parseFloat(x.alloc_bangun || 0) > 0;
-          if (isBangun) return;
           if (x.income_type === 'Mutasi Kas / Setor Bank') return;
-          const cat = x.income_type || 'Lainnya';
+          
+          let amtUmum = parseFloat(x.amount || 0) - parseFloat(x.alloc_bangun || 0);
+          if (amtUmum <= 0) return; // Entirely for pembangunan, skip it here.
+          
+          let clone = { ...x, amount: amtUmum };
+          const cat = clone.income_type || 'Lainnya';
           if (!incByCat[cat]) incByCat[cat] = [];
-          incByCat[cat].push(x);
-          totalInc += parseFloat(x.amount || 0);
+          incByCat[cat].push(clone);
+          totalInc += amtUmum;
         });
 
         (cachedExpense || []).filter(x => isMatch(x.date)).forEach(x => {
@@ -2743,13 +2780,17 @@
         const isSabat13 = tLower.includes('sabat') && tLower.includes('13');
         const isSabat = tLower.includes('sabat') && !tLower.includes('13');
 
-        // FORCE STRICT MATH TO PREVENT DATA INCONSISTENCIES
-        if (t === 'Perpuluhan' || t === 'Khusus Daerah' || isSabat13) {
-          amtJemaat = 0;
-        } else if (t === 'Terpadu' || isSabat) {
-          amtJemaat = amt * 0.5;
-        } else if (t !== 'Saldo Awal Sistem' && t !== 'Saldo Awal') {
-          amtJemaat = amt; // Khusus Jemaat / Sumbangan / Others get 100%
+        // PREFER EXPLICIT ALLOC IF IT EXISTS, FALLBACK TO MATH
+        if (x.alloc_jemaat !== undefined && x.alloc_jemaat !== null && x.alloc_jemaat !== '') {
+          amtJemaat = parseFloat(x.alloc_jemaat) || 0;
+        } else {
+          if (t === 'Perpuluhan' || t === 'Khusus Daerah' || isSabat13) {
+            amtJemaat = 0;
+          } else if (t === 'Terpadu' || isSabat) {
+            amtJemaat = amt * 0.5;
+          } else if (t !== 'Saldo Awal Sistem' && t !== 'Saldo Awal') {
+            amtJemaat = amt; // Khusus Jemaat / Sumbangan / Others get 100%
+          }
         }
 
         if (t === 'Perpuluhan') { groupedInc[key].perpuluhan += amt; groupedInc[key].isPerorangan = true; }
@@ -2781,7 +2822,8 @@
         expByDept[d] = (expByDept[d] || 0) + amt;
         if (!isMutasi) totalExp += amt;
 
-        if (x.source_balance === 'Kas Jemaat') {
+        const sb = x.source_balance || '';
+        if (sb === 'Kas Jemaat' || sb === 'Kas Jemaat (Di Tangan)' || sb === 'Kas Jemaat (Bank)') {
           expJemaatByDept[d] = (expJemaatByDept[d] || 0) + amt;
           if (!isMutasi) totalExpJemaat += amt;
         }
@@ -5347,7 +5389,14 @@
 
       // Saldo Awal Pembangunan (dari awal waktu s.d targetDateStart - 1 ms)
       let calcBangun = cachedSaldo.initBangun || 0;
-      (cachedIncome || []).forEach(i => { if (new Date(i.date) < targetDateStart) calcBangun += (i.alloc_bangun || 0); });
+      (cachedIncome || []).forEach(i => { 
+        if (new Date(i.date) < targetDateStart) {
+          const isBangun = (i.alloc_bangun > 0 || (i.income_type || '').toLowerCase().includes('pembangunan')) && i.income_type !== 'Mutasi Kas / Setor Bank';
+          if (isBangun) {
+            calcBangun += parseFloat(i.alloc_bangun || i.amount || 0);
+          }
+        } 
+      });
       (cachedExpense || []).forEach(e => { 
         if (new Date(e.date) < targetDateStart && e.source_balance === 'Pembangunan') {
           if (e.department !== 'Mutasi Kas / Setor Bank') {
