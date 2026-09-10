@@ -7,7 +7,7 @@ import DashboardCharts from './components/hadir/DashboardCharts';
 
         
 
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW-Km_huyHl-RZ18MSjVXTF46bNJGDb634-hqqhGCwRgV2VsCqx6vG3dmQSqStJhE-/exec";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfBsZNTUD-3Ss-eV6Vk7g3x1FbSBpMIjzGuZcxYkV2dQhj9Nw82YJNNsfoZ5nlSz7mnw/exec";
 
 
 
