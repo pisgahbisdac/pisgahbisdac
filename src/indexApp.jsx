@@ -380,7 +380,7 @@ const formatDate = (dateString) => {
     return `${d}/${m}/${y}`;
 };
 
-const Home = ({ setActiveTab, youtubeUrl, anthemUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, perjamuanNote, perpuluhanNote, kontakGereja }) => {
+const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, perjamuanNote, perpuluhanNote, kontakGereja }) => {
     const [currentSlide, setCurrentSlide] = React.useState(0);
     const [tappedMenu, setTappedMenu] = React.useState(null);
 
@@ -726,15 +726,29 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, heroImages = [], jadwalDB, 
                             </div>
                         )}
 
-                        {/* Adventist Church Anthem */}
-                        {anthemUrl && (
-                            <div className="glass-box rounded-[2rem] p-4 md:p-6 transition-colors">
-                                <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
-                                    <Icon name="Music" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" /> Adventist Church Anthem
-                                </h2>
-                                <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
-                                    <iframe className="absolute top-0 left-0 w-full h-full" src={`${anthemUrl}${anthemUrl?.includes('?') ? '&' : '?'}vq=hd1080`} title="Adventist Church Anthem" frameBorder="0" allowFullScreen></iframe>
-                                </div>
+                        {/* Adventist Church Anthem & Additional Video */}
+                        {(anthemUrl || anthemUrl2) && (
+                            <div className={`grid grid-cols-1 ${anthemUrl && anthemUrl2 ? 'lg:grid-cols-2 gap-8 md:gap-12' : ''} mb-8`}>
+                                {anthemUrl && (
+                                    <div className="glass-box rounded-[2rem] p-4 md:p-6 transition-colors">
+                                        <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
+                                            <Icon name="Music" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" /> Adventist Church Anthem
+                                        </h2>
+                                        <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
+                                            <iframe className="absolute top-0 left-0 w-full h-full" src={`${anthemUrl}${anthemUrl?.includes('?') ? '&' : '?'}vq=hd1080`} title="Adventist Church Anthem" frameBorder="0" allowFullScreen></iframe>
+                                        </div>
+                                    </div>
+                                )}
+                                {anthemUrl2 && (
+                                    <div className="glass-box rounded-[2rem] p-4 md:p-6 transition-colors">
+                                        <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
+                                            <Icon name="Youtube" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" /> Video Tambahan
+                                        </h2>
+                                        <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
+                                            <iframe className="absolute top-0 left-0 w-full h-full" src={`${anthemUrl2}${anthemUrl2?.includes('?') ? '&' : '?'}vq=hd1080`} title="Video Tambahan" frameBorder="0" allowFullScreen></iframe>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -2604,7 +2618,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
 
 // --- KOMPONEN AdminDashboard yang DIPERBAIKI (dengan fitur warta) ---
 const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken,
-    youtubeUrl, setYoutubeUrl, anthemUrl, setAnthemUrl, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages,
+    youtubeUrl, setYoutubeUrl, anthemUrl, setAnthemUrl, anthemUrl2, setAnthemUrl2, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages,
     pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, perpuluhanDate, setPerpuluhanDate, perjamuanNote, setPerjamuanNote, perpuluhanNote, setPerpuluhanNote, daftarRekening, setDaftarRekening, handleLogout }) => {
     const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan, buku
     const [viewMonth, setViewMonth] = React.useState(new Date().getMonth());
@@ -2702,6 +2716,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
     // State URL Anthem
     const [editAnthemUrl, setEditAnthemUrl] = React.useState(anthemUrl);
+    const [editAnthemUrl2, setEditAnthemUrl2] = React.useState(anthemUrl2);
     const [isSavingAnthemUrl, setIsSavingAnthemUrl] = React.useState(false);
 
     // State untuk Live URL
@@ -3838,12 +3853,13 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         try {
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'saveAnthemUrl', password: adminToken, url: editAnthemUrl })
+                body: JSON.stringify({ action: 'saveAnthemUrl', password: adminToken, url: editAnthemUrl, url2: editAnthemUrl2 })
             });
             const result = await res.json();
             if (result.success) {
                 alert("URL Anthem berhasil diperbarui!");
                 setAnthemUrl(editAnthemUrl);
+                setAnthemUrl2(editAnthemUrl2);
             } else {
                 alert("Gagal merubah URL: " + (result.message || "Akses ditolak."));
             }
@@ -5113,7 +5129,11 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                     <div>
                                         <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Video Embed (Anthem)</label>
                                         <textarea value={editAnthemUrl} onChange={e => setEditAnthemUrl(e.target.value)} rows="3" placeholder="https://www.youtube.com/embed/..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono font-medium shadow-sm leading-relaxed"></textarea>
-                                        <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Kotak video akan muncul di atas section Video Penting di halaman utama.<br />Kosongkan untuk menyembunyikan kotak anthem. Pastikan URL diawali dengan <br /><span className="text-gold-600">https://www.youtube.com/embed/</span>...</p>
+                                    </div>
+                                    <div className="mt-4">
+                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Video Kedua (Opsional)</label>
+                                        <textarea value={editAnthemUrl2} onChange={e => setEditAnthemUrl2(e.target.value)} rows="3" placeholder="https://www.youtube.com/embed/..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono font-medium shadow-sm leading-relaxed"></textarea>
+                                        <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Jika diisi, video akan terbagi dua secara proporsional.<br />Kosongkan jika hanya ingin satu video besar. Pastikan URL diawali dengan <br /><span className="text-gold-600">https://www.youtube.com/embed/</span>...</p>
                                     </div>
                                     <button type="submit" disabled={isSavingAnthemUrl} className={`w-full ${isSavingAnthemUrl ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center`}>
                                         {isSavingAnthemUrl ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan URL Anthem'}
@@ -6189,6 +6209,7 @@ const App = () => {
     const [kategoriPejabat, setKategoriPejabat] = React.useState(["Gembala", "Officers", "Departemen & Pelayanan", "Lainnya"]);
     const [youtubeUrl, setYoutubeUrl] = React.useState(""); // untuk video terbaru
     const [anthemUrl, setAnthemUrl] = React.useState(""); // untuk Adventist Church Anthem
+    const [anthemUrl2, setAnthemUrl2] = React.useState(""); // untuk video tambahan
     const [liveUrl, setLiveUrl] = React.useState("https://www.youtube.com/embed/live_stream?channel=UCaTPS74NOHACRYU0zInVZ4g");
     const [heroImages, setHeroImages] = React.useState(["./carousel/hero-default.png"]);
     const [perjamuanDate, setPerjamuanDate] = React.useState('');
@@ -6329,6 +6350,7 @@ const App = () => {
                         if (cached.jadwalDB) setJadwalDB(cached.jadwalDB);
                         if (cached.youtubeUrl) setYoutubeUrl(cached.youtubeUrl);
                         if (cached.anthemUrl !== undefined) setAnthemUrl(cached.anthemUrl || '');
+                        if (cached.anthemUrl2 !== undefined) setAnthemUrl2(cached.anthemUrl2 || '');
                         if (cached.liveUrl) setLiveUrl(cached.liveUrl);
                         if (cached.perjamuanDate) setPerjamuanDate(cached.perjamuanDate);
                         if (cached.perpuluhanDate) setPerpuluhanDate(cached.perpuluhanDate);
@@ -6364,6 +6386,7 @@ const App = () => {
                 if (data.jadwalDB) setJadwalDB(data.jadwalDB);
                 if (data.youtubeUrl) setYoutubeUrl(data.youtubeUrl);
                 if (data.anthemUrl !== undefined) setAnthemUrl(data.anthemUrl || '');
+                if (data.anthemUrl2 !== undefined) setAnthemUrl2(data.anthemUrl2 || '');
                 if (data.liveUrl) setLiveUrl(data.liveUrl);
                 if (data.perjamuanDate !== undefined) setPerjamuanDate(data.perjamuanDate || '');
                 if (data.perpuluhanDate !== undefined) setPerpuluhanDate(data.perpuluhanDate || '');
@@ -6451,6 +6474,7 @@ const App = () => {
                     jadwalDB: data.jadwalDB,
                     youtubeUrl: data.youtubeUrl,
                     anthemUrl: data.anthemUrl || '',
+                    anthemUrl2: data.anthemUrl2 || '',
                     liveUrl: data.liveUrl, // Tambahan: Simpan Live URL ke cache
                     perjamuanDate: data.perjamuanDate, // Tambahan: Simpan Tanggal Perjamuan ke cache
                     perpuluhanDate: data.perpuluhanDate,
@@ -6526,7 +6550,7 @@ const App = () => {
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
+            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
             case 'belajar': return <Belajar setActiveTab={setActiveTab} />;
             case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
@@ -6542,9 +6566,9 @@ const App = () => {
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
+            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
-            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
+            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
         }
     };
 

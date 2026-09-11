@@ -117,7 +117,10 @@ function doPost(e) {
       case 'deleteBook': return deleteBook(payload.data || payload.id);
 
       // Di handler doPost, tambahkan case ini:
-      case 'saveAnthemUrl': return saveSetting('ANTHEM_URL', payload.url);
+      case 'saveAnthemUrl': 
+        saveSettingRecord('ANTHEM_URL', payload.url);
+        if (payload.url2 !== undefined) saveSettingRecord('ANTHEM_URL2', payload.url2);
+        return jsonResponse({ success: true });
 
       default:
         return jsonResponse({ success: false, message: 'Action doPost tidak dikenali.' });
@@ -200,6 +203,7 @@ function getInitialData() {
     kategoriPejabat: getKategoriDB(),
     youtubeUrl: getSetting('YOUTUBE_URL') || "https://www.youtube.com/embed/EAO55pnNsgs",
     anthemUrl: getSetting('ANTHEM_URL') || '',
+    anthemUrl2: getSetting('ANTHEM_URL2') || '',
     liveUrl: getSetting('LIVE_URL') || "https://www.youtube.com/embed/live_stream?channel=UCaTPS74NOHACRYU0zInVZ4g",
     heroImageUrl: JSON.stringify(heroImages),
     pengumuman: getSetting('PENGUMUMAN_DATA') || JSON.stringify({ header: "Pengumuman", isi: "" }),
