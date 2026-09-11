@@ -5406,6 +5406,18 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                 >Hapus</button>
                                             </div>
                                         </div>
+
+                                        <div className="mt-4">
+                                            <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">
+                                                Catatan / Pengumuman
+                                            </label>
+                                            <textarea
+                                                value={editPerjamuanNote}
+                                                onChange={e => setEditPerjamuanNote(e.target.value)}
+                                                placeholder="Contoh: Bawa alat perjamuan masing-masing..."
+                                                className="w-full p-3.5 border-2 border-navy-200 focus:border-gold-500 rounded-xl outline-none transition-all bg-white text-sm font-medium text-navy-900 shadow-sm min-h-[80px]"
+                                            />
+                                        </div>
                                     </div>
 
                                     {/* Info Box */}
@@ -5483,6 +5495,18 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                     className="bg-red-50 hover:bg-red-100 text-red-600 px-4 rounded-xl border border-red-200 font-bold text-sm transition-all shadow-sm whitespace-nowrap"
                                                 >Hapus</button>
                                             </div>
+                                        </div>
+
+                                        <div className="mt-4">
+                                            <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">
+                                                Catatan / Pengumuman
+                                            </label>
+                                            <textarea
+                                                value={editPerpuluhanNote}
+                                                onChange={e => setEditPerpuluhanNote(e.target.value)}
+                                                placeholder="Contoh: Amplop tersedia di pintu masuk..."
+                                                className="w-full p-3.5 border-2 border-navy-200 focus:border-gold-500 rounded-xl outline-none transition-all bg-white text-sm font-medium text-navy-900 shadow-sm min-h-[80px]"
+                                            />
                                         </div>
                                     </div>
 
