@@ -283,6 +283,8 @@ const initialDataPejabat = [
 // --- ICONS (SVG MAPPING) ---
 const Icon = ({ name, className }) => {
     const icons = {
+        Backspace: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>,
+        Grid: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>,
         Sun: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg>,
         Moon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>,
         Home: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>,
@@ -304,6 +306,7 @@ const Icon = ({ name, className }) => {
         Phone: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>,
         ChevronLeft: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="15 18 9 12 15 6" /></svg>,
         ArrowLeft: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg>,
+        ArrowRight: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 5 7 7-7 7" /><path d="M5 12h14" /></svg>,
         ChevronRight: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6" /></svg>,
         ChevronDown: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9" /></svg>,
         ChevronUp: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="18 15 12 9 6 15" /></svg>,
@@ -2633,17 +2636,6 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const [daftarBuku, setDaftarBuku] = React.useState([]);
     const [initialBook, setInitialBook] = React.useState(null); // Buku yang dibuka langsung dari pencarian
     const [bookFormModal, setBookFormModal] = React.useState(false);
-
-    const [laguSionDb, setLaguSionDb] = React.useState([]);
-    const [laguSionInitialSong, setLaguSionInitialSong] = React.useState(null);
-    const [laguSionSubTab, setLaguSionSubTab] = React.useState('numpad');
-
-    React.useEffect(() => {
-        fetch('/lagu_sion.json')
-            .then(r => r.json())
-            .then(data => setLaguSionDb(data))
-            .catch(err => console.error("Error loading Lagu Sion DB:", err));
-    }, []);
 
     const [editingBook, setEditingBook] = React.useState(null);
     const [bookFormData, setBookFormData] = React.useState({
@@ -5871,6 +5863,7 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
     const [songNo, setSongNo] = React.useState('');
     const [selectedSong, setSelectedSong] = React.useState(null);
     const [indexTab, setIndexTab] = React.useState('number'); // number, alphabet
+    const [searchQuery, setSearchQuery] = React.useState('');
     const [db, setDb] = React.useState([]);
     const [isLoading, setIsLoading] = React.useState(false);
     const [copied, setCopied] = React.useState(false);
@@ -5946,35 +5939,90 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
     // Share song
     const handleShare = () => {
         if (!selectedSong) return;
-        const lyricsText = selectedSong.verses.map(v => `[${v.label}]\n${v.lines.join('\n')}`).join('\n\n');
+        
+        let lyricsLines = [];
+        let chorusRef = null;
+        const verses = selectedSong.verses || [];
+        for (let i = 0; i < verses.length; i++) {
+            const v = verses[i];
+            lyricsLines.push(`[${v.label}]\n${v.lines.join('\n')}`);
+            if (v.type === 'chorus') chorusRef = v;
+            if ((v.type === 'verse' || v.type === 'bait') && chorusRef) {
+                const nextV = verses[i + 1];
+                if (!nextV || nextV.type !== 'chorus') {
+                    lyricsLines.push(`[${chorusRef.label}]\n${chorusRef.lines.join('\n')}`);
+                }
+            }
+        }
+        
+        const lyricsText = lyricsLines.join('\n\n');
         const shareText = `Lagu Sion No. ${selectedSong.number} - ${selectedSong.title}\nKey/Time: ${selectedSong.keyTime}\n\n${lyricsText}`;
         
-        if (navigator.share) {
+        const fallbackCopy = (text) => {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                }).catch(err => console.error('Copy failed', err));
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                } catch (err) {
+                    console.error('Fallback copy failed', err);
+                }
+                textArea.remove();
+            }
+        };
+
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (navigator.share && isMobile) {
             navigator.share({
                 title: `Lagu Sion No. ${selectedSong.number} - ${selectedSong.title}`,
                 text: shareText,
-            }).catch(err => console.log('Error sharing:', err));
-        } else {
-            navigator.clipboard.writeText(shareText).then(() => {
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
+            }).catch(err => {
+                console.log('Error sharing:', err);
+                fallbackCopy(shareText);
             });
+        } else {
+            fallbackCopy(shareText);
         }
     };
 
     // Sorted index list
     const indexedSongs = React.useMemo(() => {
-        const list = [...db];
+        let list = [...db];
+        
+        if (searchQuery.trim() !== '') {
+            const q = searchQuery.toLowerCase();
+            list = list.filter(song => {
+                if (String(song.number) === q) return true;
+                if (song.title.toLowerCase().includes(q)) return true;
+                if (song.verses && song.verses.some(v => v.lines && v.lines.some(line => line.toLowerCase().includes(q)))) return true;
+                return false;
+            });
+        }
+
         if (indexTab === 'alphabet') {
             list.sort((a, b) => a.title.localeCompare(b.title));
         } else {
             list.sort((a, b) => a.number - b.number);
         }
         return list;
-    }, [db, indexTab]);
+    }, [db, indexTab, searchQuery]);
 
     return (
-        <div className="animate-fade-in relative z-10 pb-32">
+        <div className={`animate-fade-in relative z-10 ${subTab === 'numpad' ? 'pb-2' : 'pb-32'}`}>
             {isLoading && (
                 <div className="fixed inset-0 bg-white/80 flex flex-col items-center justify-center z-50">
                     <div className="w-10 h-10 border-4 border-gold-500 border-t-transparent rounded-full animate-spin mb-3"></div>
@@ -5982,35 +6030,66 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                 </div>
             )}
 
+            {/* Shared Search Box for Numpad and Index */}
+            {(subTab === 'numpad' || subTab === 'index') && (
+                <div className="max-w-xl mx-auto mt-2 mb-4 px-4">
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Icon name="Search" className="h-5 w-5 text-navy-400" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Cari judul, nomor, atau lirik lagu..."
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                if (e.target.value.trim() !== '' && subTab === 'numpad') {
+                                    setSubTab('index');
+                                }
+                            }}
+                            className="block w-full pl-11 pr-10 py-3.5 bg-white border border-navy-100/80 rounded-2xl text-navy-900 placeholder-navy-300 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all shadow-sm"
+                        />
+                        {searchQuery && (
+                            <button 
+                                onClick={() => setSearchQuery('')}
+                                className="absolute inset-y-0 right-0 pr-4 flex items-center text-navy-400 hover:text-navy-600 outline-none"
+                            >
+                                <Icon name="X" className="h-5 w-5" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {/* Subtab: Numpad */}
             {subTab === 'numpad' && (
-                <div className="flex flex-col justify-end min-h-[calc(100vh-220px)] pb-2">
-                    <div className="max-w-md w-full mx-auto bg-sky-400 rounded-3xl overflow-hidden shadow-lg border border-sky-300/30 flex flex-col mt-auto">
+                <div className="flex flex-col px-4 mt-2">
+                    <div className="max-w-md w-full mx-auto bg-white dark:bg-navy-800 rounded-[2rem] overflow-hidden shadow-2xl border border-navy-100 dark:border-navy-700 flex flex-col transition-colors">
                         {/* Song Number display */}
-                        <div className="bg-navy-900 text-white text-5xl font-black tracking-widest py-8 text-center shrink-0">
+                        <div className="bg-gradient-to-r from-[#D19B45] to-[#B8863B] dark:from-gold-600 dark:to-gold-500 text-white text-5xl font-black tracking-widest py-5 md:py-8 text-center shrink-0 shadow-inner">
                             {songNo || '---'}
                         </div>
 
                         {/* Numpad Keypad Grid */}
-                        <div className="grid grid-cols-3 bg-sky-400 divide-x divide-y divide-sky-300/40 border-t border-b border-sky-300/40 text-white shrink-0 select-none">
+                        <div className="grid grid-cols-3 bg-transparent divide-x divide-y divide-navy-100 dark:divide-navy-700 border-t border-b border-navy-100 dark:border-navy-700 text-navy-900 dark:text-white shrink-0 select-none">
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                                <button key={num} onClick={() => handleKeyPress(num)} className="py-5 text-2xl font-bold hover:bg-sky-300/20 active:bg-sky-300/40 transition-colors cursor-pointer outline-none">
+                                <button key={num} onClick={() => handleKeyPress(num)} className="py-3 md:py-6 text-3xl font-bold hover:bg-navy-50 dark:hover:bg-navy-700/50 active:bg-navy-100 dark:active:bg-navy-600 transition-colors cursor-pointer outline-none">
                                     {num}
                                 </button>
                             ))}
-                            <button onClick={() => handleKeyPress('clear')} className="py-5 text-sm font-bold uppercase tracking-wider hover:bg-sky-300/20 active:bg-sky-300/40 transition-colors cursor-pointer outline-none">
+                            <button onClick={() => handleKeyPress('clear')} className="py-3 md:py-6 text-sm font-bold uppercase tracking-wider text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/40 transition-colors cursor-pointer outline-none">
                                 Clear
                             </button>
-                            <button onClick={() => handleKeyPress(0)} className="py-5 text-2xl font-bold hover:bg-sky-300/20 active:bg-sky-300/40 transition-colors cursor-pointer outline-none">
+                            <button onClick={() => handleKeyPress(0)} className="py-3 md:py-6 text-3xl font-bold hover:bg-navy-50 dark:hover:bg-navy-700/50 active:bg-navy-100 dark:active:bg-navy-600 transition-colors cursor-pointer outline-none">
                                 0
                             </button>
-                            <button onClick={() => handleKeyPress('backspace')} className="py-5 flex items-center justify-center hover:bg-sky-300/20 active:bg-sky-300/40 transition-colors cursor-pointer outline-none">
-                                <Icon name="Backspace" className="w-6 h-6" />
+                            <button onClick={() => handleKeyPress('backspace')} className="py-3 md:py-6 flex items-center justify-center hover:bg-navy-50 dark:hover:bg-navy-700/50 active:bg-navy-100 dark:active:bg-navy-600 transition-colors cursor-pointer outline-none text-navy-600 dark:text-navy-300">
+                                <Icon name="Backspace" className="w-7 h-7" />
                             </button>
                         </div>
 
                         {/* Go Button */}
-                        <button onClick={handleGo} className="w-full bg-navy-900 hover:bg-navy-800 text-white py-5 font-black text-lg tracking-widest uppercase transition-colors shrink-0 cursor-pointer outline-none">
+                        <button onClick={handleGo} className="w-full bg-[#4A7045] hover:bg-[#3A5836] dark:bg-navy-900 dark:hover:bg-navy-950 text-white py-4 md:py-6 font-black text-xl tracking-widest uppercase transition-colors shrink-0 cursor-pointer outline-none shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
                             Go
                         </button>
                     </div>
@@ -6035,11 +6114,11 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                                 </div>
                             </div>
 
-                            {/* Sky Blue Song Title block */}
-                            <div className="bg-sky-400 text-white px-5 py-4 rounded-2xl flex items-center justify-between shadow-md">
+                            {/* Gold Song Title block */}
+                            <div className="bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white px-5 py-4 rounded-2xl flex items-center justify-between shadow-md">
                                 <div className="flex-1 min-w-0 pr-4">
                                     <h2 className="font-black text-xl leading-tight truncate">{selectedSong.title}</h2>
-                                    <p className="text-xs text-sky-100 font-medium mt-0.5 truncate">
+                                    <p className="text-xs text-amber-100/90 font-medium mt-0.5 truncate">
                                         {selectedSong.keyTime} {selectedSong.artist ? `| ${selectedSong.artist}` : ''}
                                     </p>
                                 </div>
@@ -6055,21 +6134,40 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
 
                             {/* Lyrics sheet card */}
                             <div className="bg-white rounded-3xl border border-navy-100/50 p-6 md:p-8 shadow-sm space-y-6 select-text">
-                                {selectedSong.verses.map((verse, idx) => {
-                                    const isCh = verse.type === 'chorus';
-                                    return (
-                                        <div key={idx} className={`space-y-2 ${isCh ? 'pl-4 border-l-4 border-sky-400 bg-sky-50/30 py-2 pr-2 rounded-r-lg' : ''}`}>
-                                            <div className={`text-xs font-black uppercase tracking-wider ${isCh ? 'text-sky-500' : 'text-navy-400'}`}>
-                                                {verse.label}
+                                {(() => {
+                                    let result = [];
+                                    let chorusRef = null;
+                                    const verses = selectedSong.verses || [];
+                                    
+                                    for (let i = 0; i < verses.length; i++) {
+                                        const v = verses[i];
+                                        result.push(v);
+                                        if (v.type === 'chorus') chorusRef = v;
+                                        
+                                        if ((v.type === 'verse' || v.type === 'bait') && chorusRef) {
+                                            const nextV = verses[i + 1];
+                                            if (!nextV || nextV.type !== 'chorus') {
+                                                result.push({ ...chorusRef, isAuto: true });
+                                            }
+                                        }
+                                    }
+                                    
+                                    return result.map((verse, idx) => {
+                                        const isCh = verse.type === 'chorus';
+                                        return (
+                                            <div key={idx} className={`space-y-2 ${isCh ? 'pl-4 border-l-4 border-[#D19B45] bg-[#D19B45]/10 py-2 pr-2 rounded-r-lg' : ''} ${verse.isAuto ? 'opacity-90' : ''}`}>
+                                                <div className={`text-xs font-black uppercase tracking-wider ${isCh ? 'text-[#D19B45]' : 'text-navy-400'}`}>
+                                                    {verse.label} {verse.isAuto && <span className="text-[10px] ml-1 opacity-60 normal-case font-normal">(otomatis)</span>}
+                                                </div>
+                                                <div className={`text-base md:text-lg leading-relaxed font-medium ${isCh ? 'italic text-navy-800' : 'text-navy-900'}`}>
+                                                    {verse.lines.map((line, lIdx) => (
+                                                        <p key={lIdx} className="mb-1">{line}</p>
+                                                    ))}
+                                                </div>
                                             </div>
-                                            <div className={`text-base md:text-lg leading-relaxed font-medium ${isCh ? 'italic text-navy-800' : 'text-navy-900'}`}>
-                                                {verse.lines.map((line, lIdx) => (
-                                                    <p key={lIdx} className="mb-1">{line}</p>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                        );
+                                    });
+                                })()}
                             </div>
                         </>
                     ) : (
@@ -6077,7 +6175,7 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                             <Icon name="BookOpen" className="w-14 h-14 text-navy-300 mb-4 animate-pulse" />
                             <h3 className="font-black text-navy-800 uppercase tracking-widest text-sm mb-2">Belum ada lirik aktif</h3>
                             <p className="text-xs text-navy-500 max-w-xs leading-relaxed">Ketik nomor lagu di Numpad atau cari judul/lirik di kotak pencarian di atas.</p>
-                            <button onClick={() => setSubTab('numpad')} className="mt-5 px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold rounded-full uppercase tracking-wider shadow-md transition-all">
+                            <button onClick={() => setSubTab('numpad')} className="mt-5 px-6 py-3 bg-gradient-to-r from-[#D19B45] to-[#B8863B] hover:from-[#c58f3c] hover:to-[#a97831] text-white text-xs font-black rounded-full uppercase tracking-widest shadow-lg shadow-gold-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
                                 Buka Numpad
                             </button>
                         </div>
@@ -6087,7 +6185,7 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
 
             {/* Subtab: Index (Daftar) */}
             {subTab === 'index' && (
-                <div className="max-w-xl mx-auto space-y-4">
+                <div className="max-w-xl mx-auto space-y-4 px-4">
                     <div className="bg-white rounded-2xl border border-navy-100/50 px-4 py-3 flex items-center justify-between shadow-sm">
                         <span className="text-xs font-black text-navy-400 uppercase tracking-wide">Urutkan Daftar</span>
                         <div className="flex bg-navy-100/60 p-0.5 rounded-lg">
@@ -6473,6 +6571,18 @@ const App = () => {
         return hash || 'home';
     };
     const [activeTab, setRawActiveTab] = React.useState(getInitialTab());
+
+    const [laguSionDb, setLaguSionDb] = React.useState([]);
+    const [laguSionInitialSong, setLaguSionInitialSong] = React.useState(null);
+    const [laguSionSubTab, setLaguSionSubTab] = React.useState('numpad');
+
+    React.useEffect(() => {
+        fetch('./lagu_sion.json')
+            .then(r => r.json())
+            .then(data => setLaguSionDb(data))
+            .catch(err => console.error("Error loading Lagu Sion DB:", err));
+    }, []);
+
 
     const setActiveTab = React.useCallback((tabId) => {
         setRawActiveTab(tabId);
@@ -6994,8 +7104,8 @@ const App = () => {
                 </div>
             )}
 
-            <main className="flex-1 w-full mx-auto p-4 md:px-8 lg:px-4 pb-32 md:pb-12">
-                {activeTab !== 'home' && !hideGlobalBack && (
+            <main className={`flex-1 w-full mx-auto p-4 md:px-8 lg:px-4 ${(activeTab === 'lagu_sion' && laguSionSubTab === 'numpad') ? 'pb-20 md:pb-6' : 'pb-32 md:pb-12'}`}>
+                {activeTab !== 'home' && activeTab !== 'lagu_sion' && !hideGlobalBack && (
                     <div className="sticky top-16 md:top-[4.5rem] z-[35] -mx-4 md:-mx-8 lg:-mx-4 px-4 md:px-8 lg:px-4 py-3 mb-6 bg-white/80 backdrop-blur-md border-b border-navy-50 shadow-sm transition-all">
                         <button
                             onClick={() => window.history.back()}
@@ -7010,8 +7120,8 @@ const App = () => {
             </main>
 
             {activeTab === 'lagu_sion' && (
-                <nav className="fixed bottom-0 w-full backdrop-blur-xl pb-safe z-50 transition-all duration-300 bg-navy-900/95 border-t border-navy-800 shadow-[0_-8px_30px_rgba(11,26,48,0.4)]">
-                    <div className="relative flex justify-around items-center max-w-lg mx-auto">
+                <nav className="bottom-bar mx-auto max-w-lg transition-all duration-300" style={{ zIndex: 50 }}>
+                    <div className="relative flex justify-around items-center w-full">
                         {(() => {
                             const lsTabs = [
                                 { id: 'home', label: 'Home', icon: 'Home' },
@@ -7058,7 +7168,8 @@ const App = () => {
 
 
             {/* Navigasi Mobile (Disembunyikan di Desktop dengan md:hidden) */}
-            <nav className="bottom-bar md:hidden" style={{ zIndex: 50 }}>
+            {activeTab !== 'lagu_sion' && (
+                <nav className="bottom-bar md:hidden" style={{ zIndex: 50 }}>
                 {['belajar', 'warta', 'home', 'jadwal', 'live'].map(tabId => {
                     const tab = tabs.find(t => t.id === tabId);
                     if (!tab) return null;
@@ -7077,7 +7188,8 @@ const App = () => {
                         </div>
                     );
                 })}
-            </nav>
+                </nav>
+            )}
 
             {/* Floating Action Button (Hubungi / WA) */}
             {activeTab !== 'admin_dashboard' && activeTab !== 'hubungi' && activeTab !== 'lagu_sion' && (
@@ -7129,8 +7241,38 @@ const App = () => {
     );
 }
 
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+  componentDidCatch(error, errorInfo) {
+    this.setState({ error: error, errorInfo: errorInfo });
+    console.error("Caught by ErrorBoundary:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 20, color: 'red', background: 'white' }}>
+            <h2>Something went wrong.</h2>
+            <details style={{ whiteSpace: 'pre-wrap' }}>
+                {this.state.error && this.state.error.toString()}
+                <br />
+                {this.state.errorInfo && this.state.errorInfo.componentStack}
+            </details>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+root.render(<ErrorBoundary><App /></ErrorBoundary>);
 
 // Service Worker Registration
 if ('serviceWorker' in navigator) {
