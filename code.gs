@@ -197,7 +197,7 @@ function handleLogin(params) {
         const userData = { username: username, role: role, nama: nama };
         // In Apps Script, base64Encode requires byte[]
         const jsonStr = JSON.stringify(userData);
-        const token = Utilities.base64Encode(Utilities.newBlob(jsonStr).getBytes());
+        const token = Utilities.base64EncodeWebSafe(Utilities.newBlob(jsonStr).getBytes());
         
         // Also put in cache for backward compatibility if needed, but not required
         CacheService.getScriptCache().put(token, JSON.stringify(userData), 21600);
@@ -214,7 +214,7 @@ function verifyToken(token) {
   
   // Try to decode the non-expiring base64 token first
   try {
-    const decodedBytes = Utilities.base64Decode(token);
+    const decodedBytes = Utilities.base64DecodeWebSafe(token);
     const decodedStr = Utilities.newBlob(decodedBytes).getDataAsString();
     const session = JSON.parse(decodedStr);
     if (session && session.username && session.role) {

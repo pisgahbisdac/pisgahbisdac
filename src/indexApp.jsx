@@ -33,7 +33,7 @@ window.installPWA = async () => {
 };
 // -----------------------------------
 
-const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwfBsZNTUD-3Ss-eV6Vk7g3x1FbSBpMIjzGuZcxYkV2dQhj9Nw82YJNNsfoZ5nlSz7mnw/exec'; // PASTIKAN UNTUK MENGISI KEMBALI URL GAS ANDA DI SINI
+const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwQJWQ2hKXQMdnFqVYr8Tan_9BIKQLtZyM_Wil6y19mRrgiQhEb1KB0hwOvJsPThcIX/exec'; // PASTIKAN UNTUK MENGISI KEMBALI URL GAS ANDA DI SINI
 
 // Default cover buku berdasarkan kategori
 const getDefaultBookCover = (category) => {

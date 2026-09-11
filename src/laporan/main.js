@@ -262,7 +262,7 @@
       document.getElementById('dashboardDetailModal').style.display = 'flex';
     }
 
-    const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbxv6_4xuZNgdKhav3W-64e_l7QrsaBQ7kV_A34SnjjT2hmn1NXma4uswa14h_5ifFCt2Q/exec';
+    const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbx35l57FiEOFXFbv93JuoVyiEWlYAblB60moTbfl8DtdfANRddzSDyzi3TxmAVDAB7fKQ/exec';
     const INVENTARIS_URL = 'https://script.google.com/macros/s/AKfycbxv6_4xuZNgdKhav3W-64e_l7QrsaBQ7kV_A34SnjjT2hmn1NXma4uswa14h_5ifFCt2Q/exec';
 
     function getActiveApiUrl() {
