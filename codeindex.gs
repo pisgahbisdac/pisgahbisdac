@@ -80,6 +80,8 @@ function doPost(e) {
       case 'savePerjamuanDate':
         saveSettingRecord('PERJAMUAN_DATE', payload.tanggal);
         saveSettingRecord('PERPULUHAN_DATE', payload.tanggalPerpuluhan);
+        if (payload.catatanPerjamuan !== undefined) saveSettingRecord('PERJAMUAN_NOTE', payload.catatanPerjamuan);
+        if (payload.catatanPerpuluhan !== undefined) saveSettingRecord('PERPULUHAN_NOTE', payload.catatanPerpuluhan);
         return jsonResponse({ success: true });
 
       // PENAMBAHAN: Aksi untuk menyimpan Rekening dan QRIS
@@ -205,6 +207,8 @@ function getInitialData() {
     daftarWarta: getDaftarWarta(),
     perjamuanDate: getSetting('PERJAMUAN_DATE') || '',
     perpuluhanDate: getSetting('PERPULUHAN_DATE') || '',
+    perjamuanNote: getSetting('PERJAMUAN_NOTE') || '',
+    perpuluhanNote: getSetting('PERPULUHAN_NOTE') || '',
     daftarRekening: getSetting('DAFTAR_REKENING') || '',
     legacyNamaBank: getSetting('NAMA_BANK') || 'Mandiri',
     legacyRekeningBank: getSetting('REKENING_BANK') || '1090001711043',
