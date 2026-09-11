@@ -1371,7 +1371,7 @@ const renderPerjamuanGroup = (title, members) => (
     </div>
 );
 
-const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, perjamuanYMD, activePerjamuan }) => {
+const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, perjamuanYMD, activePerjamuan, perjamuanNote }) => {
     const [isPerjamuanExpanded, setIsPerjamuanExpanded] = React.useState(false);
     const isRabuEarlier = new Date(rabuYMD) <= new Date(sabatYMD);
 
@@ -6534,7 +6534,7 @@ const App = () => {
             case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} initialBook={initialBook} onBookOpened={() => setInitialBook(null)} setHideGlobalBack={setHideGlobalBack} />;
             case 'warta': return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta} selectedWarta={selectedWartaDetail} setSelectedWarta={setSelectedWartaDetail} setHideGlobalBack={setHideGlobalBack} />;
             case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} liveUrl={liveUrl} />;
-            case 'jadwal': return <Jadwal activeRabu={jadwalKhususRabu} activeSabat={jadwalKhususSabat} rabuYMD={displayRabuYMD} sabatYMD={displaySabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} />;
+            case 'jadwal': return <Jadwal activeRabu={jadwalKhususRabu} activeSabat={jadwalKhususSabat} rabuYMD={displayRabuYMD} sabatYMD={displaySabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} perjamuanNote={perjamuanNote} />;
             case 'persembahan': return <Persembahan dataPejabat={dataPejabat} daftarRekening={daftarRekening} />;
             case 'keanggotaan': return <Keanggotaan setActiveTab={setActiveTab} />;
             case 'member_baru': return <MemberBaru setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
