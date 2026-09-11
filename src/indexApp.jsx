@@ -380,7 +380,7 @@ const formatDate = (dateString) => {
     return `${d}/${m}/${y}`;
 };
 
-const Home = ({ setActiveTab, youtubeUrl, anthemUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, kontakGereja }) => {
+const Home = ({ setActiveTab, youtubeUrl, anthemUrl, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, perjamuanNote, perpuluhanNote, kontakGereja }) => {
     const [currentSlide, setCurrentSlide] = React.useState(0);
     const [tappedMenu, setTappedMenu] = React.useState(null);
 
@@ -546,6 +546,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, heroImages = [], jadwalDB, 
                                     <div className="relative z-10 text-center sm:text-left text-white dark:text-navy-900">
                                         <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5"><Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perjamuan</h3>
                                         <p className="text-2xl md:text-3xl font-extrabold opacity-95 tracking-tight">{formatIndoDate(perjamuanYMD)}</p>
+                                        {perjamuanNote && <p className="text-sm font-medium mt-2 opacity-90 whitespace-pre-wrap leading-tight">{perjamuanNote}</p>}
                                     </div>
                                     <button onClick={() => setActiveTab('jadwal')} className="relative z-10 bg-[#4A7045] hover:bg-[#3A5836] dark:bg-navy-900 dark:hover:bg-navy-800 text-white dark:text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">Lihat Petugas</button>
                                 </div>
@@ -560,6 +561,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, heroImages = [], jadwalDB, 
                                             <Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perpuluhan
                                         </h3>
                                         <p className="text-2xl md:text-3xl text-white dark:text-navy-200 font-extrabold tracking-tight">{formatIndoDate(perpuluhanYMD)}</p>
+                                        {perpuluhanNote && <p className="text-sm font-medium mt-2 opacity-90 text-white/90 dark:text-navy-300 whitespace-pre-wrap leading-tight">{perpuluhanNote}</p>}
                                     </div>
                                     <button onClick={() => setActiveTab('persembahan')} className="relative z-10 bg-[#D19B45] hover:bg-[#C18B35] dark:bg-gold-400 dark:hover:bg-gold-300 text-white dark:text-navy-900 px-6 py-3 rounded-xl text-sm font-black shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">
                                         Transfer Perpuluhan
@@ -1405,6 +1407,7 @@ const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, per
                     <div className="flex-1">
                         <h2 className="text-xl font-black text-navy-900 dark:text-white leading-tight group-hover:text-amber-700 dark:group-hover:text-gold-300 transition-colors">Pelayanan Perjamuan Kudus</h2>
                         <p className="text-sm font-bold text-navy-700 dark:text-amber-200/90 mt-0.5">{formatIndoDate(perjamuanYMD)}</p>
+                        {perjamuanNote && <p className="text-xs font-medium text-navy-600 dark:text-amber-100/80 mt-1 whitespace-pre-wrap">{perjamuanNote}</p>}
                     </div>
                     <div className="text-amber-600 dark:text-gold-400 p-2 rounded-full bg-amber-100/50 dark:bg-gold-900/30 group-hover:bg-amber-200 dark:group-hover:bg-gold-800/50 transition-colors">
                         <Icon name={isPerjamuanExpanded ? "ChevronUp" : "ChevronDown"} className="w-5 h-5" />
@@ -2602,7 +2605,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
 // --- KOMPONEN AdminDashboard yang DIPERBAIKI (dengan fitur warta) ---
 const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken,
     youtubeUrl, setYoutubeUrl, anthemUrl, setAnthemUrl, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages,
-    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, perpuluhanDate, setPerpuluhanDate, daftarRekening, setDaftarRekening, handleLogout }) => {
+    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, perpuluhanDate, setPerpuluhanDate, perjamuanNote, setPerjamuanNote, perpuluhanNote, setPerpuluhanNote, daftarRekening, setDaftarRekening, handleLogout }) => {
     const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan, buku
     const [viewMonth, setViewMonth] = React.useState(new Date().getMonth());
     const [viewYear, setViewYear] = React.useState(new Date().getFullYear());
@@ -2706,6 +2709,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const [isSavingLiveUrl, setIsSavingLiveUrl] = React.useState(false);
     const [editPerjamuanDate, setEditPerjamuanDate] = React.useState(perjamuanDate);
     const [editPerpuluhanDate, setEditPerpuluhanDate] = React.useState(perpuluhanDate);
+    const [editPerjamuanNote, setEditPerjamuanNote] = React.useState(perjamuanNote);
+    const [editPerpuluhanNote, setEditPerpuluhanNote] = React.useState(perpuluhanNote);
     const [isSavingPerjamuanDate, setIsSavingPerjamuanDate] = React.useState(false);
 
     const [editDaftarRekening, setEditDaftarRekening] = React.useState(daftarRekening || []);
@@ -2715,8 +2720,10 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     React.useEffect(() => {
         setEditPerjamuanDate(perjamuanDate);
         setEditPerpuluhanDate(perpuluhanDate);
+        setEditPerjamuanNote(perjamuanNote);
+        setEditPerpuluhanNote(perpuluhanNote);
         setEditDaftarRekening(daftarRekening || []);
-    }, [perjamuanDate, perpuluhanDate, daftarRekening]);
+    }, [perjamuanDate, perpuluhanDate, perjamuanNote, perpuluhanNote, daftarRekening]);
 
     // State Hero Image Array (Carousel)
     const [editHeroImages, setEditHeroImages] = React.useState(heroImages);
@@ -3942,7 +3949,9 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                     action: 'savePerjamuanDate',
                     password: adminToken,
                     tanggal: editPerjamuanDate,
-                    tanggalPerpuluhan: editPerpuluhanDate
+                    tanggalPerpuluhan: editPerpuluhanDate,
+                    catatanPerjamuan: editPerjamuanNote,
+                    catatanPerpuluhan: editPerpuluhanNote
                 })
             });
 
@@ -3964,6 +3973,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 alert('Jadwal Sabat Khusus berhasil disimpan!');
                 setPerjamuanDate(editPerjamuanDate);
                 setPerpuluhanDate(editPerpuluhanDate);
+                setPerjamuanNote(editPerjamuanNote);
+                setPerpuluhanNote(editPerpuluhanNote);
                 // Sinkronisasi cache localStorage agar data langsung terupdate saat reload
                 try {
                     const cachedStr = localStorage.getItem('pisgah_data_cache');
@@ -3971,6 +3982,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                         const cached = JSON.parse(cachedStr);
                         cached.perjamuanDate = editPerjamuanDate;
                         cached.perpuluhanDate = editPerpuluhanDate;
+                        cached.perjamuanNote = editPerjamuanNote;
+                        cached.perpuluhanNote = editPerpuluhanNote;
                         localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
                     }
                 } catch (e) { console.warn('Gagal update cache:', e); }
@@ -3983,6 +3996,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             alert('Jadwal Sabat Khusus berhasil disimpan (Optimis)!');
             setPerjamuanDate(editPerjamuanDate);
             setPerpuluhanDate(editPerpuluhanDate);
+            setPerjamuanNote(editPerjamuanNote);
+            setPerpuluhanNote(editPerpuluhanNote);
             // Sinkronisasi cache localStorage saat fallback juga
             try {
                 const cachedStr = localStorage.getItem('pisgah_data_cache');
@@ -6154,6 +6169,8 @@ const App = () => {
     const [heroImages, setHeroImages] = React.useState(["./carousel/hero-default.png"]);
     const [perjamuanDate, setPerjamuanDate] = React.useState('');
     const [perpuluhanDate, setPerpuluhanDate] = React.useState('');
+    const [perjamuanNote, setPerjamuanNote] = React.useState('');
+    const [perpuluhanNote, setPerpuluhanNote] = React.useState('');
     const [daftarRekening, setDaftarRekening] = React.useState([{ id: 1, namaBank: 'Mandiri', rekeningBank: '1090001711043', atasNama: 'GMAHK PISGAH BISDAC', qrisUrl: '' }]);
 
     // Default State Kontak Gereja & Peta
@@ -6291,6 +6308,8 @@ const App = () => {
                         if (cached.liveUrl) setLiveUrl(cached.liveUrl);
                         if (cached.perjamuanDate) setPerjamuanDate(cached.perjamuanDate);
                         if (cached.perpuluhanDate) setPerpuluhanDate(cached.perpuluhanDate);
+                        if (cached.perjamuanNote) setPerjamuanNote(cached.perjamuanNote);
+                        if (cached.perpuluhanNote) setPerpuluhanNote(cached.perpuluhanNote);
                         if (cached.daftarRekening) {
                             try { setDaftarRekening(JSON.parse(cached.daftarRekening)); } catch (e) { }
                         }
@@ -6324,6 +6343,8 @@ const App = () => {
                 if (data.liveUrl) setLiveUrl(data.liveUrl);
                 if (data.perjamuanDate !== undefined) setPerjamuanDate(data.perjamuanDate || '');
                 if (data.perpuluhanDate !== undefined) setPerpuluhanDate(data.perpuluhanDate || '');
+                if (data.perjamuanNote !== undefined) setPerjamuanNote(data.perjamuanNote || '');
+                if (data.perpuluhanNote !== undefined) setPerpuluhanNote(data.perpuluhanNote || '');
                 if (data.daftarRekening) {
                     try {
                         const parsed = JSON.parse(data.daftarRekening);
@@ -6481,7 +6502,7 @@ const App = () => {
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} kontakGereja={kontakGereja} />;
+            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
             case 'belajar': return <Belajar setActiveTab={setActiveTab} />;
             case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
@@ -6497,9 +6518,9 @@ const App = () => {
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} kontakGereja={kontakGereja} />;
+            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} />;
-            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} kontakGereja={kontakGereja} />;
+            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
         }
     };
 
