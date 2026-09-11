@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#0b1a30">
+    <link rel="apple-touch-icon" href="./icons/Pisgahpavicon.png">
+    <title>PISGAH-BISDAC App</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="./icons/Pisgahpavicon.png">
+    <link rel="icon" type="image/png" href="./icons/Pisgahpavicon.png">
+    <link rel="apple-touch-icon" href="./icons/Pisgahpavicon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    
+    <script>
+        // Set tema awal sebelum React render untuk mencegah FOUC (Flash of Unstyled Content)
+        // Default diubah menjadi Light mode (jika tidak ada data di localStorage)
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    
+    
+    
+    <!-- HAPUS SCRIPT LUCIDE KARENA ANDA SUDAH MEMILIKI KOMPONEN ICON CUSTOM (Mengurangi beban download) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+        crossorigin="anonymous"></script>
+    <!-- Library untuk konversi HEIC/HEIF ke format standard -->
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+  <script type="module" crossorigin src="/assets/main-BIWWoopR.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/assets/jsx-runtime-ByBz4OXm.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-BpZ-E7oV.css">
+</head>
+
+<body class="text-navy-900 font-sans antialiased overflow-x-hidden">
+    <div id="root">
+        <!-- Preloader: Ditampilkan saat React & Babel sedang diproses, mencegah blank screen lambat -->
+        <div class="preloader-bg" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+            <style>
+                .preloader-bg { background-color: rgba(255, 255, 255, 0.4); }
+                .spinner-raw { position: absolute; inset: 0; border: 4px solid rgba(74, 112, 69, 0.2); border-top-color: #4A7045; border-radius: 50%; animation: spin-raw 1s linear infinite; box-shadow: 0 0 20px rgba(74, 112, 69, 0.1); }
+                @keyframes spin-raw { 100% { transform: rotate(360deg); } }
+                @keyframes pulse-raw { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.9); opacity: 0.7; } }
+                @media (prefers-color-scheme: dark) {
+                    .preloader-bg { background-color: rgba(15, 23, 42, 0.4); }
+                    .spinner-raw { border: 4px solid rgba(212, 175, 55, 0.2); border-top-color: #D4AF37; box-shadow: 0 0 20px rgba(212, 175, 55, 0.15); }
+                }
+            </style>
+            <div style="position: relative; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                <div class="spinner-raw"></div>
+                <img src="./icons/PisgahColor.png" style="width: 45px; height: 45px; object-fit: contain; animation: pulse-raw 2s ease-in-out infinite;" alt="Loading Logo">
+            </div>
+        </div>
+    </div>
+
+    
+</body>
+
+</html>
