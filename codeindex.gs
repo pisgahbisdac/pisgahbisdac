@@ -72,7 +72,11 @@ function doPost(e) {
     // C. Aksi Admin
     switch (action) {
       case 'changePassword': return changePassword(payload.oldPassword, payload.newPassword);
-      case 'saveYoutubeUrl': return saveSetting('YOUTUBE_URL', payload.url);
+      case 'saveYoutubeUrl':
+        saveSettingRecord('YOUTUBE_URL', payload.url);
+        if (payload.title !== undefined) saveSettingRecord('YOUTUBE_TITLE', payload.title);
+        if (payload.channelTitle !== undefined) saveSettingRecord('YOUTUBE_CHANNEL_TITLE', payload.channelTitle);
+        return jsonResponse({ success: true });
       case 'saveLiveUrl': return saveSetting('LIVE_URL', payload.url);
       case 'saveHeroImage': return saveHeroImages(payload.url);
       case 'savePengumuman': return saveSetting('PENGUMUMAN_DATA', payload.pengumuman);
@@ -120,6 +124,8 @@ function doPost(e) {
       case 'saveAnthemUrl': 
         saveSettingRecord('ANTHEM_URL', payload.url);
         if (payload.url2 !== undefined) saveSettingRecord('ANTHEM_URL2', payload.url2);
+        if (payload.title !== undefined) saveSettingRecord('ANTHEM_TITLE', payload.title);
+        if (payload.title2 !== undefined) saveSettingRecord('ANTHEM_TITLE2', payload.title2);
         return jsonResponse({ success: true });
 
       default:
@@ -204,6 +210,10 @@ function getInitialData() {
     youtubeUrl: getSetting('YOUTUBE_URL') || "https://www.youtube.com/embed/EAO55pnNsgs",
     anthemUrl: getSetting('ANTHEM_URL') || '',
     anthemUrl2: getSetting('ANTHEM_URL2') || '',
+    anthemTitle: getSetting('ANTHEM_TITLE') || 'Adventist Church Anthem',
+    anthemTitle2: getSetting('ANTHEM_TITLE2') || 'Video Tambahan',
+    youtubeTitle: getSetting('YOUTUBE_TITLE') || 'Video Penting',
+    youtubeChannelTitle: getSetting('YOUTUBE_CHANNEL_TITLE') || 'Youtube Channel',
     liveUrl: getSetting('LIVE_URL') || "https://www.youtube.com/embed/live_stream?channel=UCaTPS74NOHACRYU0zInVZ4g",
     heroImageUrl: JSON.stringify(heroImages),
     pengumuman: getSetting('PENGUMUMAN_DATA') || JSON.stringify({ header: "Pengumuman", isi: "" }),
