@@ -2659,21 +2659,15 @@
         };
 
         renderReportView();
-        const exportBtn = document.getElementById('btnExportExcel');
-        if (exportBtn) exportBtn.style.display = 'inline-block';
-        const printBtn = document.getElementById('btnPrintReport');
-        if (printBtn) printBtn.style.display = 'inline-block';
-        const combinedBtn = document.getElementById('btnCombinedReport');
-        if (combinedBtn) combinedBtn.style.display = 'inline-block';
-        const pmbBtn = document.getElementById('btnPembangunanReport');
-        if (pmbBtn) pmbBtn.style.display = 'inline-block';
-        const pmbExpBtn = document.getElementById('btnExportPembangunanExcel');
-        if (pmbExpBtn) pmbExpBtn.style.display = 'inline-block';
-        const partisipasiBtn = document.getElementById('btnPartisipasiReport');
+        const exportMenu = document.getElementById('btnExportMenu');
+        if (exportMenu) exportMenu.style.display = 'inline-block';
+        const printMenu = document.getElementById('btnPrintMenu');
+        if (printMenu) printMenu.style.display = 'inline-block';
+        const partisipasiBtn = document.getElementById('btnModalPartisipasi');
         if (partisipasiBtn) {
           const allowedRoles = ['Admin', 'Bendahara', 'Ketua Jemaat', 'Pendeta', 'Gembala'];
           if (currentUser && allowedRoles.includes(currentUser.role)) {
-            partisipasiBtn.style.display = 'inline-block';
+            partisipasiBtn.style.display = 'block';
           } else {
             partisipasiBtn.style.display = 'none';
           }
@@ -5299,12 +5293,13 @@
           htmlCombined += generateComplexReportHtml(false);
         }
         
-        const hasPembangunan = (currentReportData.pembByDiv || (currentReportData.pembTransactions && currentReportData.pembTransactions.length > 0));
+        const htmlPembangunan = generatePembangunanReportHtml(currentReportData, false);
+        const hasPembangunan = htmlPembangunan && htmlPembangunan.trim() !== '' && htmlPembangunan.includes('<tr>');
         if (hasPembangunan) {
            if (hasJemaat) {
                htmlCombined += '<div style="page-break-before: always; margin-top: 1cm;"></div>';
            }
-           htmlCombined += generatePembangunanReportHtml(currentReportData);
+           htmlCombined += htmlPembangunan;
         }
         
         if (!htmlCombined) {
@@ -5698,6 +5693,7 @@ window.applyRoleAccess = applyRoleAccess;
 window.renderDashboard = renderDashboard;
 window.editUser = editUser;
 window.getCatBadge = getCatBadge;
+window.doPrintCombined = doPrintCombined;
 window.changePhoto = changePhoto;
 window.closeBulkPrintModal = closeBulkPrintModal;
 window.deleteUser = deleteUser;
