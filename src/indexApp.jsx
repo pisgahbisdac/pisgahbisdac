@@ -485,7 +485,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                             style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                         >
                             {displayImages.map((img, idx) => (
-                                <img key={idx} src={img} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=2000&auto=format&fit=crop"; }} alt={`Hero ${idx}`} className="w-full h-full object-cover flex-shrink-0" />
+                                <img key={idx} src={img} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=2000&auto=format&fit=crop"; }} alt={`Hero ${idx}`} className="w-full h-full object-fill flex-shrink-0" />
                             ))}
                         </div>
                         {/* Dark overlay for center text readability */}
@@ -5186,7 +5186,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                 <div className="mb-5 space-y-4">
                                     {editHeroImages.map((img, idx) => (
                                         <div key={idx} className="relative w-full overflow-hidden rounded-xl border border-navy-100 shadow-sm" style={{ aspectRatio: '10/3' }}>
-                                            <img src={img} alt={`Hero Preview ${idx + 1}`} className="w-full h-full object-cover bg-navy-50" />
+                                            <img src={img} alt={`Hero Preview ${idx + 1}`} className="w-full h-full object-fill bg-navy-50" />
                                             <div className="absolute top-0 left-0 bg-black/60 text-white px-3 py-1 rounded-br-lg text-xs font-bold shadow-sm backdrop-blur-sm">
                                                 Slide {idx + 1} {img.startsWith('data:image') && <span className="text-gold-400 ml-1 font-black tracking-widest">(BARU)</span>}
                                             </div>
