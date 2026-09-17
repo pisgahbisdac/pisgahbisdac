@@ -1303,6 +1303,7 @@
       const btnJurnal = document.getElementById('btnJurnalDashboard'); if (btnJurnal) btnJurnal.style.display = (mPemasukan.edit || mPengeluaran.edit) ? '' : 'none';
       const recentTransCard = document.getElementById('recentTransCard'); if (recentTransCard) recentTransCard.style.display = mRiwayat.view ? '' : 'none';
       const btnPrint = document.getElementById('btnPrintReport'); if (btnPrint) btnPrint.style.display = '';
+      const btnCombined = document.getElementById('btnCombinedReport'); if (btnCombined) btnCombined.style.display = '';
 
       const mMaster = perms.menus.masterData || { view: false, edit: false, del: false };
       document.getElementById('navMasterIncType').style.display = mMaster.view ? '' : 'none';
@@ -2662,6 +2663,8 @@
         if (exportBtn) exportBtn.style.display = 'inline-block';
         const printBtn = document.getElementById('btnPrintReport');
         if (printBtn) printBtn.style.display = 'inline-block';
+        const combinedBtn = document.getElementById('btnCombinedReport');
+        if (combinedBtn) combinedBtn.style.display = 'inline-block';
         const pmbBtn = document.getElementById('btnPembangunanReport');
         if (pmbBtn) pmbBtn.style.display = 'inline-block';
         const pmbExpBtn = document.getElementById('btnExportPembangunanExcel');
@@ -5284,6 +5287,49 @@
 
       setTimeout(updateBottomNavIndicator, 50); // Small delay to ensure display is calculated
     }
+    function doPrintCombined() {
+      try {
+        if (!currentReportData) return notify('Generate laporan terlebih dahulu', 'error');
+        if (currentReportData.mode === 'akumulasi') return notify('Laporan Pembangunan hanya tersedia untuk Mode Bulanan', 'error');
+
+        let htmlCombined = '';
+        
+        const hasJemaat = (currentReportData.incByCategory || currentReportData.expByDept);
+        if (hasJemaat) {
+          htmlCombined += generateComplexReportHtml(false);
+        }
+        
+        const hasPembangunan = (currentReportData.pembByDiv || (currentReportData.pembTransactions && currentReportData.pembTransactions.length > 0));
+        if (hasPembangunan) {
+           if (hasJemaat) {
+               htmlCombined += '<div style="page-break-before: always; margin-top: 1cm;"></div>';
+           }
+           htmlCombined += generatePembangunanReportHtml(currentReportData);
+        }
+        
+        if (!htmlCombined) {
+           return notify('Tidak ada data Laporan Umum maupun Pembangunan untuk dicetak.', 'error');
+        }
+
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        const baseUrl = window.location.origin + window.location.pathname;
+        iframe.contentDocument.write(`<html><head><base href="${baseUrl}"><title>Laporan Gabungan</title><style>@page { size: landscape; margin: 1cm; } @media print { body { margin: 0; } table { page-break-inside: auto; } thead { display: table-header-group; } }</style></head><body onload="setTimeout(function(){ window.focus(); window.print(); }, 800)">${htmlCombined}</body></html>`);
+        iframe.contentDocument.close();
+
+        setTimeout(() => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+        }, 15000);
+      } catch (e) {
+        console.error('doPrintCombined error:', e);
+        notify('Error cetak PDF Gabungan: ' + e.message, 'error');
+        alert('Error cetak PDF Gabungan: ' + e.message + '\\n\\nStack: ' + e.stack);
+      }
+    }
+
     function doPrintPembangunan() {
       if (!currentReportData) return notify('Generate laporan terlebih dahulu', 'error');
       if (currentReportData.mode === 'akumulasi') return notify('Laporan Pembangunan hanya tersedia untuk Mode Bulanan', 'error');
