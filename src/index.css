@@ -2017,3 +2017,38 @@ button:disabled, .btn:disabled {
   color: #fff !important;
   font-weight: 600 !important;
 }
+
+/* Fix Laporan Print Preview for Dark Mode */
+html.dark #reportContentContainer,
+html.dark #reportContentPembangunan,
+[data-theme="dark"] #reportContentContainer,
+[data-theme="dark"] #reportContentPembangunan {
+    background-color: white !important;
+    color: black !important;
+}
+
+html.dark #reportContentContainer td,
+html.dark #reportContentPembangunan td,
+[data-theme="dark"] #reportContentContainer td,
+[data-theme="dark"] #reportContentPembangunan td {
+    background-color: white;
+}
+
+html.dark #reportContentContainer h2,
+html.dark #reportContentContainer h3,
+html.dark #reportContentContainer div,
+html.dark #reportContentContainer span,
+html.dark #reportContentPembangunan h2,
+html.dark #reportContentPembangunan h3,
+html.dark #reportContentPembangunan div,
+html.dark #reportContentPembangunan span,
+[data-theme="dark"] #reportContentContainer h2,
+[data-theme="dark"] #reportContentContainer h3,
+[data-theme="dark"] #reportContentContainer div,
+[data-theme="dark"] #reportContentContainer span,
+[data-theme="dark"] #reportContentPembangunan h2,
+[data-theme="dark"] #reportContentPembangunan h3,
+[data-theme="dark"] #reportContentPembangunan div,
+[data-theme="dark"] #reportContentPembangunan span {
+    color: black;
+}
