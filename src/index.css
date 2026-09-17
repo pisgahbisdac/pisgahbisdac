@@ -2018,37 +2018,62 @@ button:disabled, .btn:disabled {
   font-weight: 600 !important;
 }
 
-/* Fix Laporan Print Preview for Dark Mode */
-html.dark #reportContentContainer,
-html.dark #reportContentPembangunan,
-[data-theme="dark"] #reportContentContainer,
-[data-theme="dark"] #reportContentPembangunan {
-    background-color: white !important;
-    color: black !important;
-}
+/* Fix Laporan Print Preview for Dark Mode (Screen Only) */
+@media screen {
+    html.dark #reportContentContainer,
+    html.dark #reportContentPembangunan,
+    [data-theme="dark"] #reportContentContainer,
+    [data-theme="dark"] #reportContentPembangunan {
+        background-color: var(--bg-deep) !important;
+        color: var(--text) !important;
+    }
 
-html.dark #reportContentContainer td,
-html.dark #reportContentPembangunan td,
-[data-theme="dark"] #reportContentContainer td,
-[data-theme="dark"] #reportContentPembangunan td {
-    background-color: white;
-}
+    html.dark #reportContentContainer table,
+    html.dark #reportContentContainer th,
+    html.dark #reportContentContainer td,
+    html.dark #reportContentPembangunan table,
+    html.dark #reportContentPembangunan th,
+    html.dark #reportContentPembangunan td,
+    [data-theme="dark"] #reportContentContainer table,
+    [data-theme="dark"] #reportContentContainer th,
+    [data-theme="dark"] #reportContentContainer td,
+    [data-theme="dark"] #reportContentPembangunan table,
+    [data-theme="dark"] #reportContentPembangunan th,
+    [data-theme="dark"] #reportContentPembangunan td {
+        background-color: transparent !important;
+        border-color: var(--glass-border2) !important;
+        color: var(--text) !important;
+    }
 
-html.dark #reportContentContainer h2,
-html.dark #reportContentContainer h3,
-html.dark #reportContentContainer div,
-html.dark #reportContentContainer span,
-html.dark #reportContentPembangunan h2,
-html.dark #reportContentPembangunan h3,
-html.dark #reportContentPembangunan div,
-html.dark #reportContentPembangunan span,
-[data-theme="dark"] #reportContentContainer h2,
-[data-theme="dark"] #reportContentContainer h3,
-[data-theme="dark"] #reportContentContainer div,
-[data-theme="dark"] #reportContentContainer span,
-[data-theme="dark"] #reportContentPembangunan h2,
-[data-theme="dark"] #reportContentPembangunan h3,
-[data-theme="dark"] #reportContentPembangunan div,
-[data-theme="dark"] #reportContentPembangunan span {
-    color: black;
+    html.dark #reportContentContainer *,
+    html.dark #reportContentPembangunan *,
+    [data-theme="dark"] #reportContentContainer *,
+    [data-theme="dark"] #reportContentPembangunan * {
+        color: var(--text) !important;
+    }
+
+    /* Keep the total summary rows styled properly but with dark mode colors */
+    html.dark #reportContentContainer [style*="background-color:#ffd966"],
+    html.dark #reportContentPembangunan [style*="background-color:#ffd966"],
+    [data-theme="dark"] #reportContentContainer [style*="background-color:#ffd966"],
+    [data-theme="dark"] #reportContentPembangunan [style*="background-color:#ffd966"] {
+        background-color: rgba(212, 175, 55, 0.2) !important;
+        color: var(--gold) !important;
+    }
+    
+    html.dark #reportContentContainer [style*="background-color:#f3f4f6"],
+    html.dark #reportContentPembangunan [style*="background-color:#f3f4f6"],
+    html.dark #reportContentContainer [style*="background: white"],
+    html.dark #reportContentPembangunan [style*="background: white"],
+    html.dark #reportContentContainer [style*="background-color: #e2e8f0"],
+    html.dark #reportContentPembangunan [style*="background-color: #e2e8f0"],
+    [data-theme="dark"] #reportContentContainer [style*="background-color:#f3f4f6"],
+    [data-theme="dark"] #reportContentPembangunan [style*="background-color:#f3f4f6"],
+    [data-theme="dark"] #reportContentContainer [style*="background: white"],
+    [data-theme="dark"] #reportContentPembangunan [style*="background: white"],
+    [data-theme="dark"] #reportContentContainer [style*="background-color: #e2e8f0"],
+    [data-theme="dark"] #reportContentPembangunan [style*="background-color: #e2e8f0"] {
+        background-color: var(--bg-dark) !important;
+        color: var(--text) !important;
+    }
 }
