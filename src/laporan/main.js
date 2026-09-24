@@ -262,14 +262,21 @@
       document.getElementById('dashboardDetailModal').style.display = 'flex';
     }
 
+    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwcWcT0jRzF_sQG8_D3d7_lM3Z-R0x-Y3P-G6eZt0T8E_Q6x8v0D8K6n0S2/exec';
     const PEMBANGUNAN_URL = 'https://script.google.com/macros/s/AKfycbx35l57FiEOFXFbv93JuoVyiEWlYAblB60moTbfl8DtdfANRddzSDyzi3TxmAVDAB7fKQ/exec';
     const INVENTARIS_URL = 'https://script.google.com/macros/s/AKfycbxv6_4xuZNgdKhav3W-64e_l7QrsaBQ7kV_A34SnjjT2hmn1NXma4uswa14h_5ifFCt2Q/exec';
 
     function getActiveApiUrl() {
+      const savedUrl = localStorage.getItem('BISDAC_api_url');
+      if (savedUrl) return savedUrl;
+      
       if (window.location.pathname.includes('pembangunan')) {
         return PEMBANGUNAN_URL;
       }
-      return INVENTARIS_URL;
+      if (window.location.pathname.includes('inventaris')) {
+        return INVENTARIS_URL;
+      }
+      return DEFAULT_API_URL;
     }
 
     let currentIncPhotos = [];
