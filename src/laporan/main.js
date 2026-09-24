@@ -2731,13 +2731,20 @@
       let ketuaApprovedAll = hasTransactions;
       
       if (hasTransactions) {
+        let hasExpenses = false;
         for (let i = 0; i < allTx.length; i++) {
           const x = allTx[i];
+          if (x.income_type !== undefined) continue; // Skip income transactions
+          hasExpenses = true;
           const isAdminApp = x.approved_by && x.approved_by.includes('Admin');
           const isKetua = x.approved_by && x.approved_by.includes('Ketua Jemaat');
           const isPendeta = x.approved_by && x.approved_by.includes('Pendeta');
           if (!isAdminApp && !isPendeta) gembalaApprovedAll = false;
           if (!isAdminApp && !isKetua) ketuaApprovedAll = false;
+        }
+        if (!hasExpenses) {
+          gembalaApprovedAll = true;
+          ketuaApprovedAll = true;
         }
       }
 
@@ -5412,13 +5419,20 @@
       let gembalaApprovedAll = hasTransactions;
       let ketuaApprovedAll = hasTransactions;
       if (hasTransactions) {
+        let hasExpenses = false;
         for (let i = 0; i < allTx.length; i++) {
           const x = allTx[i];
+          if (x.income_type !== undefined) continue; // Skip income transactions
+          hasExpenses = true;
           const isAdminApp = x.approved_by && x.approved_by.includes('Admin');
           const isKetua = x.approved_by && x.approved_by.includes('Ketua Jemaat');
           const isPendeta = x.approved_by && x.approved_by.includes('Pendeta');
           if (!isAdminApp && !isPendeta) gembalaApprovedAll = false;
           if (!isAdminApp && !isKetua) ketuaApprovedAll = false;
+        }
+        if (!hasExpenses) {
+          gembalaApprovedAll = true;
+          ketuaApprovedAll = true;
         }
       }
       
