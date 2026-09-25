@@ -6234,10 +6234,16 @@ const Alkitab = ({ setHideGlobalBack }) => {
             <div className="animate-fade-in pb-10">
                 <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex flex-col gap-3">
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-3 w-full">
-                        <button onClick={() => setSelectedChapter(null)} className="flex items-center justify-center px-4 py-2 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group shrink-0 h-[3.25rem]">
-                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                            <span className="hidden sm:inline">Kembali</span>
-                        </button>
+                        <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
+                            <button onClick={() => setSelectedChapter(null)} className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group h-[3.25rem]">
+                                <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                                <span className="hidden sm:inline">Kembali</span>
+                            </button>
+                            <button onClick={() => { setSelectedBook(null); setSelectedChapter(null); setVerses([]); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all gap-2 h-[3.25rem]" title="Daftar Kitab">
+                                <Icon name="Home" className="w-4 h-4 md:w-5 md:h-5" />
+                                <span className="hidden sm:inline">Kitab</span>
+                            </button>
+                        </div>
                         
                         {renderDropdowns()}
                     </div>
