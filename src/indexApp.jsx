@@ -5868,7 +5868,7 @@ const Alkitab = () => {
     const [searchQuery, setSearchQuery] = React.useState('');
 
     React.useEffect(() => {
-        fetch('./alkitab.json')
+        fetch('./alkitab.json?v=2')
             .then(res => res.json())
             .then(data => {
                 setAlkitabDb(data);
