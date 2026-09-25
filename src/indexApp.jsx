@@ -5868,7 +5868,7 @@ const Alkitab = () => {
     const [searchQuery, setSearchQuery] = React.useState('');
 
     React.useEffect(() => {
-        fetch('./alkitab.json?v=2')
+        fetch('https://cdn.jsdelivr.net/gh/handiheraldo/alkitab-react-offline@main/src/data/alkitab.json')
             .then(res => res.json())
             .then(data => {
                 setAlkitabDb(data);
