@@ -5861,16 +5861,164 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
 // --- COMPONENT: ALKITAB ---
 const Alkitab = () => {
-    return (
-        <div className="animate-fade-in w-full h-[85vh] rounded-[1.5rem] overflow-hidden shadow-sm border border-[#E2E8D8] dark:border-navy-700 bg-white dark:bg-navy-900 mt-2">
-            <iframe 
-                src="https://alkitab.tidar1.org/" 
-                title="Alkitab"
-                className="w-full h-full border-0"
-                allowFullScreen
-            />
-        </div>
-    );
+    const [alkitabDb, setAlkitabDb] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [selectedBook, setSelectedBook] = React.useState(null);
+    const [selectedChapter, setSelectedChapter] = React.useState(null);
+    const [searchQuery, setSearchQuery] = React.useState('');
+
+    React.useEffect(() => {
+        fetch('./alkitab.json')
+            .then(res => res.json())
+            .then(data => {
+                setAlkitabDb(data);
+                setIsLoading(false);
+            })
+            .catch(err => {
+                console.error("Error loading Alkitab DB:", err);
+                setIsLoading(false);
+            });
+    }, []);
+
+    if (isLoading) {
+        return (
+            <div className="w-full h-64 flex flex-col items-center justify-center">
+                <div className="w-10 h-10 border-4 border-navy-100 border-t-[#D19B45] rounded-full animate-spin mb-3"></div>
+                <p className="text-navy-500 font-bold uppercase tracking-widest text-xs animate-pulse">Memuat Alkitab...</p>
+            </div>
+        );
+    }
+
+    if (!selectedBook) {
+        const pl = alkitabDb.filter(b => b.kategori === 'Perjanjian Lama');
+        const pb = alkitabDb.filter(b => b.kategori === 'Perjanjian Baru');
+        
+        const filterBooks = (books) => books.filter(b => b.nama.toLowerCase().includes(searchQuery.toLowerCase()));
+        
+        const renderBookList = (books, title) => {
+            const filtered = filterBooks(books);
+            if (filtered.length === 0) return null;
+            return (
+                <div className="mb-6">
+                    <h3 className="text-sm font-black text-gold-600 uppercase tracking-widest mb-3 px-2">{title}</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        {filtered.map((b, i) => (
+                            <button 
+                                key={i} 
+                                onClick={() => setSelectedBook(b)}
+                                className="bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700 p-3 rounded-xl hover:bg-gold-50 dark:hover:bg-navy-700 hover:border-gold-200 transition-colors text-left shadow-sm"
+                            >
+                                <span className="font-bold text-navy-900 dark:text-navy-100">{b.nama}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        return (
+            <div className="animate-fade-in pb-10">
+                <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800">
+                    <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white flex items-center mb-4">
+                        <Icon name="Book" className="w-6 h-6 mr-2 text-gold-500" />
+                        Alkitab TB
+                    </h2>
+                    <div className="relative">
+                        <Icon name="Search" className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-navy-400" />
+                        <input
+                            type="text"
+                            placeholder="Cari Kitab..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full bg-white dark:bg-navy-900 border-2 border-navy-100 dark:border-navy-700 rounded-xl py-3 pl-12 pr-4 text-sm font-bold focus:outline-none focus:border-gold-400 dark:focus:border-gold-500 transition-colors text-navy-900 dark:text-white"
+                        />
+                    </div>
+                </div>
+                
+                <div className="mt-6">
+                    {renderBookList(pl, 'Perjanjian Lama')}
+                    {renderBookList(pb, 'Perjanjian Baru')}
+                </div>
+            </div>
+        );
+    }
+
+    if (selectedBook && !selectedChapter) {
+        return (
+            <div className="animate-fade-in pb-10">
+                <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex items-center gap-3">
+                    <button onClick={() => setSelectedBook(null)} className="w-10 h-10 rounded-full bg-white dark:bg-navy-800 border border-navy-200 dark:border-navy-600 flex items-center justify-center hover:bg-navy-50 dark:hover:bg-navy-700 transition shadow-sm">
+                        <Icon name="ArrowLeft" className="w-5 h-5 text-navy-700 dark:text-navy-200" />
+                    </button>
+                    <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white">
+                        Kitab {selectedBook.nama}
+                    </h2>
+                </div>
+
+                <div className="mt-6">
+                    <h3 className="text-sm font-black text-gold-600 uppercase tracking-widest mb-3 px-2">Pilih Pasal</h3>
+                    <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
+                        {selectedBook.pasal.map((p, i) => (
+                            <button 
+                                key={i} 
+                                onClick={() => setSelectedChapter(p.pasal)}
+                                className="bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700 p-3 rounded-xl hover:bg-gold-50 dark:hover:bg-navy-700 hover:border-gold-200 transition-colors text-center shadow-sm"
+                            >
+                                <span className="font-bold text-navy-900 dark:text-navy-100">{p.pasal}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (selectedBook && selectedChapter) {
+        const chapterData = selectedBook.pasal.find(p => p.pasal === selectedChapter);
+        
+        return (
+            <div className="animate-fade-in pb-10">
+                <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex flex-col gap-3">
+                    <div className="flex items-center gap-3">
+                        <button onClick={() => setSelectedChapter(null)} className="w-10 h-10 rounded-full bg-white dark:bg-navy-800 border border-navy-200 dark:border-navy-600 flex items-center justify-center hover:bg-navy-50 dark:hover:bg-navy-700 transition shrink-0 shadow-sm">
+                            <Icon name="ArrowLeft" className="w-5 h-5 text-navy-700 dark:text-navy-200" />
+                        </button>
+                        <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white truncate">
+                            {selectedBook.nama} {selectedChapter}
+                        </h2>
+                        
+                        <div className="ml-auto flex gap-1">
+                            {selectedChapter > 1 && (
+                                <button onClick={() => setSelectedChapter(selectedChapter - 1)} className="px-3 py-1.5 rounded-lg bg-navy-100 dark:bg-navy-700 text-navy-700 dark:text-navy-200 text-xs font-bold hover:bg-navy-200 transition">
+                                    <Icon name="ChevronLeft" className="w-4 h-4" />
+                                </button>
+                            )}
+                            {selectedChapter < selectedBook.pasal.length && (
+                                <button onClick={() => setSelectedChapter(selectedChapter + 1)} className="px-3 py-1.5 rounded-lg bg-navy-100 dark:bg-navy-700 text-navy-700 dark:text-navy-200 text-xs font-bold hover:bg-navy-200 transition">
+                                    <Icon name="ChevronRight" className="w-4 h-4" />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-6 bg-white dark:bg-navy-900 p-5 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100 dark:border-navy-800">
+                    <div className="space-y-4">
+                        {chapterData.ayat.map((a, i) => (
+                            <div key={i} className="flex gap-3 items-start group">
+                                <span className="text-[10px] md:text-xs font-black text-gold-500 mt-1.5 min-w-[1.5rem] select-none">{a.ayat}</span>
+                                <p className="text-sm md:text-base text-navy-800 dark:text-navy-100 leading-relaxed group-hover:bg-gold-50/50 dark:group-hover:bg-navy-800/50 p-1 -ml-1 rounded transition-colors">
+                                    {a.teks}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return null;
 };
 
 // --- COMPONENT: SEARCH ---
