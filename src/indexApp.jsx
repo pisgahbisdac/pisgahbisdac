@@ -465,6 +465,30 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
 const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, anthemTitle2, youtubeTitle, youtubeChannelTitle, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, perjamuanNote, perpuluhanNote, kontakGereja, carouselVideos = [] }) => {
     const [currentSlide, setCurrentSlide] = React.useState(0);
     const [tappedMenu, setTappedMenu] = React.useState(null);
+    const videoCarouselRef = React.useRef(null);
+    const [isVideoHovered, setIsVideoHovered] = React.useState(false);
+
+    React.useEffect(() => {
+        if (!carouselVideos || carouselVideos.length <= 1 || isVideoHovered) return;
+        const interval = setInterval(() => {
+            if (videoCarouselRef.current) {
+                const maxScrollLeft = videoCarouselRef.current.scrollWidth - videoCarouselRef.current.clientWidth;
+                if (videoCarouselRef.current.scrollLeft >= maxScrollLeft - 10) {
+                    videoCarouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    videoCarouselRef.current.scrollBy({ left: videoCarouselRef.current.clientWidth / 2, behavior: 'smooth' });
+                }
+            }
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [carouselVideos, isVideoHovered]);
+
+    const scrollVideoCarousel = (direction) => {
+        if (videoCarouselRef.current) {
+            const scrollAmount = videoCarouselRef.current.clientWidth / 2;
+            videoCarouselRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+        }
+    };
 
     const handleMenuClick = (e, item) => {
         if (window.innerWidth < 768 && tappedMenu !== item.id) {
@@ -811,11 +835,15 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                         {/* Video Carousel */}
                         {carouselVideos && carouselVideos.length > 0 && (
-                            <div className="mb-12 relative group w-full">
+                            <div 
+                                className="mb-12 relative group w-full"
+                                onMouseEnter={() => setIsVideoHovered(true)}
+                                onMouseLeave={() => setIsVideoHovered(false)}
+                            >
                                 <h2 className="text-2xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-8 transition-colors px-2 flex items-center">
                                     <Icon name="Video" className="w-6 h-6 md:w-8 md:h-8 mr-3 text-[#D19B45] dark:text-gold-500" /> Galeri Video
                                 </h2>
-                                <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-6 w-full custom-scrollbar">
+                                <div ref={videoCarouselRef} className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-2 w-full custom-scrollbar scroll-smooth">
                                     {carouselVideos.map((video, idx) => (
                                         <div key={idx} className="snap-start shrink-0 w-[85vw] md:w-[calc(50%-12px)] glass-box rounded-[2rem] p-4 md:p-6 transition-colors flex flex-col">
                                             <h3 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors truncate">
@@ -826,6 +854,15 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                             </div>
                                         </div>
                                     ))}
+                                </div>
+                                {/* Navigation Buttons */}
+                                <div className="flex justify-center items-center gap-4 mt-6">
+                                    <button onClick={() => scrollVideoCarousel('left')} className="w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border-2 border-[#E9EEDF] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-colors shadow-sm focus:outline-none">
+                                        <Icon name="ChevronLeft" className="w-6 h-6" />
+                                    </button>
+                                    <button onClick={() => scrollVideoCarousel('right')} className="w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border-2 border-[#E9EEDF] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-colors shadow-sm focus:outline-none">
+                                        <Icon name="ChevronRight" className="w-6 h-6" />
+                                    </button>
                                 </div>
                             </div>
                         )}
@@ -7707,6 +7744,7 @@ const App = () => {
                             // Fallback to existing videos if empty
                             const fallback = [];
                             if (data.youtubeUrl) fallback.push({ title: data.youtubeTitle || "Video Penting", url: data.youtubeUrl });
+                            if (data.liveUrl) fallback.push({ title: "Live Streaming", url: data.liveUrl });
                             if (data.anthemUrl) fallback.push({ title: data.anthemTitle || "Adventist Church Anthem", url: data.anthemUrl });
                             if (data.anthemUrl2) fallback.push({ title: data.anthemTitle2 || "Video Tambahan", url: data.anthemUrl2 });
                             parsedVideos = fallback;
