@@ -776,17 +776,16 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                 </div>
                             </div>
                             
+                            {/* Interactive floating Install App icon */}
+                            <button
+                                onClick={() => window.installPWA && window.installPWA()}
+                                title="Instal Aplikasi"
+                                className="absolute -bottom-5 -right-2 bg-white/80 dark:bg-navy-700/80 backdrop-blur-xl p-4 md:p-5 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] z-50 flex items-center justify-center border border-white/60 dark:border-white/10 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 hover:-translate-y-2"
+                            >
+                                <Icon name="MonitorDown" className="w-6 h-6 md:w-7 md:h-7 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
+                            </button>
                         </div>
                     </div>
-                    
-                    {/* Interactive floating Install App icon */}
-                    <button
-                        onClick={() => window.installPWA && window.installPWA()}
-                        title="Instal Aplikasi"
-                        className="absolute -bottom-5 -right-2 md:-right-6 md:-bottom-8 bg-white/80 dark:bg-navy-700/80 backdrop-blur-xl p-4 md:p-5 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] z-50 flex items-center justify-center border border-white/60 dark:border-white/10 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 hover:-translate-y-2"
-                    >
-                        <Icon name="MonitorDown" className="w-6 h-6 md:w-7 md:h-7 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
-                    </button>
                 </div>
 
 
