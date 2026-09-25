@@ -375,8 +375,9 @@
           method: 'GET',
           redirect: 'follow'
         }).catch(() => { throw new Error('Jaringan Error. Periksa koneksi.'); });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+        const text = await res.text();
+        let data;
+        try { data = JSON.parse(text); } catch (e) { throw new Error('URL API Tidak Valid (404). Silakan periksa pengaturan URL.'); }
         if (!data.success) {
           if (data.message && data.message.includes('Token tidak valid')) {
             if (typeof notify === 'function') notify('Sesi Anda telah berakhir. Halaman akan dimuat ulang...', 'error');
@@ -1139,6 +1140,26 @@
       await checkAPIConnection(); updateAppStatus();
     }
 
+    function promptApiUrl() {
+      const current = getActiveApiUrl();
+      const input = prompt("Masukkan URL Apps Script (Kosongkan untuk kembali ke default):", current);
+      if (input !== null) {
+        const newUrl = input.trim();
+        if (newUrl === '') {
+          localStorage.removeItem('BISDAC_api_url');
+          alert('URL dikembalikan ke bawaan sistem.');
+          window.location.reload();
+        } else if (!newUrl.startsWith('https://script.google.com/macros/s/')) {
+          alert('URL tidak valid. Harus diawali dengan https://script.google.com/macros/s/');
+        } else {
+          localStorage.setItem('BISDAC_api_url', newUrl.endsWith('/') ? newUrl.slice(0, -1) : newUrl);
+          alert('URL berhasil disimpan!');
+          window.location.reload();
+        }
+      }
+    }
+    window.promptApiUrl = promptApiUrl;
+
     async function checkAPIConnection() {
       setStatus('loading', 'Menghubungkan...');
       try {
@@ -1149,10 +1170,12 @@
           redirect: 'follow'
         }).catch(() => { throw new Error('Jaringan Error'); });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
+        const text = await res.text();
+        let json;
+        try { json = JSON.parse(text); } catch (e) { throw new Error('URL API Tidak Valid (404)'); }
         if (json.success) { setStatus('online', 'Server Online'); isServerOnline = true; return true; }
         throw new Error(json.message);
-      } catch (e) { setStatus('offline', 'Koneksi Gagal'); isServerOnline = false; return false; }
+      } catch (e) { setStatus('offline', e.message || 'Koneksi Gagal'); isServerOnline = false; return false; }
     }
 
     async function doLogin(autoUser, autoPass) {
@@ -1435,8 +1458,10 @@
         updateAppStatus();
         if (masterData) renderDashboard();
         updateLastReceipts();
+        return true;
       } catch (e) {
         notify('Sinkronisasi gagal: ' + e.message, 'error');
+        return false;
       } finally {
         window.isBulkProcessing = false;
         hideGlobalLoading();
@@ -1452,11 +1477,16 @@
       if (btn) { btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Sync...'; }
       if (floatIcon) { floatIcon.innerHTML = `<i class="fa-solid fa-rotate fa-spin text-amber-500 text-xl md:text-lg"></i>`; }
       if (statusTxt) statusTxt.textContent = 'Sync...'; if (statusDot) statusDot.className = 'status-dot loading';
-      await checkAPIConnection(); await syncAllData();
+      
+      await checkAPIConnection(); 
+      const success = await syncAllData();
+      
       if (floatBtn) { floatBtn.disabled = false; }
       if (floatIcon) { floatIcon.innerHTML = '<span class="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span><span class="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>'; }
       if (btn) { btn.disabled = false; btn.innerHTML = safeIcon('refresh', 'lucide-sm') + ' Sinkronisasi'; }
-      notify('Data tersinkron!', 'success');
+      if (success) {
+        notify('Data tersinkron!', 'success');
+      }
     }
 
     async function loadMasterData() { const res = await apiGet('getMasterData'); if (res.success) masterData = res.data; }
