@@ -331,6 +331,7 @@ const Icon = ({ name, className }) => {
         Upload: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" x2="12" y1="3" y2="15" /></svg>,
         PlusCircle: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><path d="M8 12h8" /><path d="M12 8v8" /></svg>,
         Plus: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14" /><path d="M12 5v14" /></svg>,
+        Minus: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14" /></svg>,
         Trash2: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>,
         Camera: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>,
         Save: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>,
@@ -6325,18 +6326,17 @@ const Alkitab = ({ setHideGlobalBack }) => {
                             </button>
                         ) : <div className="flex-1"></div>}
 
-                        <div className="flex-[1.2] md:flex-[2] flex items-center justify-center gap-1.5 md:gap-3 bg-navy-50 dark:bg-navy-800/50 rounded-xl px-2 md:px-4 py-1.5 h-full border border-transparent dark:border-navy-800 shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 md:w-3.5 md:h-3.5 text-navy-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><text y="18" fontSize="12" fontFamily="serif" fontWeight="bold">A</text></svg>
-                            <input
-                                type="range"
-                                min="12"
-                                max="28"
-                                value={fontSize}
-                                onChange={(e) => setFontSize(Number(e.target.value))}
-                                className="w-12 md:w-auto md:flex-1 h-1.5 rounded-full accent-[#D19B45] cursor-pointer"
-                            />
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 md:w-5 md:h-5 text-navy-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><text y="20" fontSize="20" fontFamily="serif" fontWeight="bold">A</text></svg>
-                            <span className="text-[9px] md:text-xs font-bold text-navy-400 min-w-[1.2rem] md:min-w-[2rem] text-right">{fontSize}px</span>
+                        <div className="flex-[1.2] md:flex-[2] flex items-center justify-between md:justify-center gap-1 bg-navy-50 dark:bg-navy-800/50 rounded-xl px-1.5 md:px-2 py-1.5 h-full border border-transparent dark:border-navy-800 shrink-0">
+                            <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="w-10 md:w-12 h-full flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-navy-700 text-navy-500 dark:text-navy-300 shadow-sm transition-colors active:scale-95" title="Perkecil Teks">
+                                <Icon name="Minus" className="w-4 h-4 md:w-5 md:h-5" />
+                            </button>
+                            <div className="flex flex-col items-center justify-center px-2 min-w-[3rem]">
+                                <span className="text-[10px] md:text-xs font-bold text-navy-600 dark:text-navy-300 leading-none">Aa</span>
+                                <span className="text-[9px] md:text-[10px] text-navy-400 font-bold tracking-tighter leading-none mt-1">{fontSize}px</span>
+                            </div>
+                            <button onClick={() => setFontSize(Math.min(28, fontSize + 2))} className="w-10 md:w-12 h-full flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-navy-700 text-navy-500 dark:text-navy-300 shadow-sm transition-colors active:scale-95" title="Perbesar Teks">
+                                <Icon name="Plus" className="w-4 h-4 md:w-5 md:h-5" />
+                            </button>
                         </div>
 
                         {nextChapterInfo ? (
