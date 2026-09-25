@@ -5954,10 +5954,9 @@ const Alkitab = ({ setHideGlobalBack }) => {
         setFetchError(null);
         setVerses([]);
         try {
-            // bolls.life is a free Bible API with open CORS support and TB (Terjemahan Baru) translation
-            const res = await fetch(`https://bolls.life/get-chapter/TB/${bookId}/${chapter}/`);
+            const res = await fetch(`https://beeble.vercel.app/api/v1/passage/${bookId}/${chapter}`);
             const data = await res.json();
-            const parsed = data.map(v => ({ ayat: v.verse, teks: v.text }));
+            const parsed = data.data.verses.map(v => ({ ayat: v.verse, teks: v.content, type: v.type }));
             setVerses(parsed);
         } catch (err) {
             setFetchError('Gagal memuat. Periksa koneksi internet Anda.');
@@ -6073,8 +6072,8 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-3 py-2 text-navy-900 dark:text-white font-bold text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <option value="" disabled>--</option>
-                    {verses.map(v => (
-                        <option key={v.ayat} value={v.ayat}>{v.ayat}</option>
+                    {verses.filter(v => v.type === 'content').map(v => (
+                        <option key={`opt-${v.ayat}`} value={v.ayat}>{v.ayat}</option>
                     ))}
                 </select>
             </div>
@@ -6221,13 +6220,35 @@ const Alkitab = ({ setHideGlobalBack }) => {
                         </div>
                     )}
                     {!isLoadingChapter && !fetchError && verses.length > 0 && (
-                        <div className="space-y-4">
-                            {verses.map((a) => (
-                                <div key={a.ayat} id={`ayat-${a.ayat}`} className="flex gap-3 items-start group transition-colors duration-500 rounded-lg p-1 -ml-1">
-                                    <span className="font-black text-gold-500 select-none shrink-0" style={{ fontSize: Math.max(10, fontSize - 4) + 'px', marginTop: '0.2em', minWidth: '1.5rem' }}>{a.ayat}</span>
-                                    <p className="text-navy-800 dark:text-navy-100 leading-relaxed" style={{ fontSize: fontSize + 'px' }}>{a.teks}</p>
+                        <>
+                            <div className="mb-8 border-b border-navy-100 dark:border-navy-800 pb-6">
+                                <div className="flex justify-between items-center mb-1">
+                                    <span className="text-[10px] font-black text-gold-600 uppercase tracking-widest">{selectedBook.testamen === 'PL' ? 'PERJANJIAN LAMA' : 'PERJANJIAN BARU'} • TERJEMAHAN BARU</span>
                                 </div>
-                            ))}
+                                <div className="flex justify-between items-end">
+                                    <h2 className="text-3xl font-black text-navy-900 dark:text-white tracking-tight">{selectedBook.nama} {selectedChapter}</h2>
+                                    <span className="bg-navy-100 dark:bg-navy-800 text-navy-600 dark:text-navy-300 text-xs font-bold px-3 py-1.5 rounded-full">{verses.filter(v => v.type === 'content').length} ayat</span>
+                                </div>
+                            </div>
+                            <div className="space-y-4">
+                                {verses.map((a, index) => {
+                                    if (a.type === 'title') {
+                                        return (
+                                            <h3 key={`title-${index}`} className="text-lg md:text-xl font-bold text-navy-900 dark:text-white mt-10 mb-5 border-l-4 border-gold-500 pl-3">
+                                                {a.teks}
+                                            </h3>
+                                        );
+                                    }
+                                    return (
+                                        <div key={a.ayat} id={`ayat-${a.ayat}`} className="flex gap-4 items-start group transition-colors duration-500 rounded-lg p-1 -ml-1">
+                                            <span className="font-bold text-navy-500 bg-navy-50 dark:bg-navy-800 rounded-full flex items-center justify-center shrink-0" style={{ fontSize: Math.max(10, fontSize - 6) + 'px', width: '2.5em', height: '2.5em', marginTop: '0.25em' }}>{a.ayat}</span>
+                                            <p className="text-navy-800 dark:text-navy-100 leading-relaxed" style={{ fontSize: fontSize + 'px' }}>{a.teks}</p>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </>
+                    )}
                         </div>
                     )}
                     {!isLoadingChapter && !fetchError && verses.length === 0 && (
