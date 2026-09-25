@@ -626,8 +626,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         </div>
                     </div>
                 </div>
-
-                <AcaraTerdekat jadwalDB={jadwalDB} setActiveTab={setActiveTab} />
+                </div>
 
                 {/* SABAT PERJAMUAN & PERPULUHAN SECTION */}
                 {(showPerjamuan || showPerpuluhan) && (() => {
@@ -1482,12 +1481,14 @@ const renderPerjamuanGroup = (title, members) => (
     </div>
 );
 
-const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, perjamuanYMD, activePerjamuan, perjamuanNote }) => {
+const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, perjamuanYMD, activePerjamuan, perjamuanNote, setActiveTab }) => {
     const [isPerjamuanExpanded, setIsPerjamuanExpanded] = React.useState(false);
     const isRabuEarlier = new Date(rabuYMD) <= new Date(sabatYMD);
 
     return (
     <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
+        <AcaraTerdekat setActiveTab={setActiveTab} />
+        
         {/* Tombol GDrive Jadwal Lengkap */}
         <div className="bg-white dark:bg-navy-800/70 p-5 md:p-6 rounded-[1.25rem] shadow-sm border border-navy-100/60 dark:border-navy-700 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
@@ -7691,7 +7692,7 @@ const App = () => {
             case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} initialBook={initialBook} onBookOpened={() => setInitialBook(null)} setHideGlobalBack={setHideGlobalBack} />;
             case 'warta': return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta} selectedWarta={selectedWartaDetail} setSelectedWarta={setSelectedWartaDetail} setHideGlobalBack={setHideGlobalBack} />;
             case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} liveUrl={liveUrl} />;
-            case 'jadwal': return <Jadwal activeRabu={jadwalKhususRabu} activeSabat={jadwalKhususSabat} rabuYMD={displayRabuYMD} sabatYMD={displaySabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} perjamuanNote={perjamuanNote} />;
+            case 'jadwal': return <Jadwal activeRabu={jadwalKhususRabu} activeSabat={jadwalKhususSabat} rabuYMD={displayRabuYMD} sabatYMD={displaySabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} perjamuanNote={perjamuanNote} setActiveTab={setActiveTab} />;
             case 'persembahan': return <Persembahan dataPejabat={dataPejabat} daftarRekening={daftarRekening} />;
             case 'keanggotaan': return <Keanggotaan setActiveTab={setActiveTab} />;
             case 'member_baru': return <MemberBaru setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
