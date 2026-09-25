@@ -6249,8 +6249,6 @@ const Alkitab = ({ setHideGlobalBack }) => {
                             </div>
                         </>
                     )}
-                        </div>
-                    )}
                     {!isLoadingChapter && !fetchError && verses.length === 0 && (
                         <p className="text-center text-navy-400 py-10 font-semibold text-sm">Tidak ada data ayat.</p>
                     )}
