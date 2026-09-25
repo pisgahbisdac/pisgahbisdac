@@ -5975,7 +5975,13 @@ const Alkitab = ({ setHideGlobalBack }) => {
         try {
             const res = await fetch(`https://bolls.life/search/TB/?search=${encodeURIComponent(searchQuery)}&match_case=false&match_whole=false`);
             const data = await res.json();
-            setSearchResults(data);
+            // Client-side filtering to fix API returning unrelated verses (e.g. synonym matching)
+            const lowerQuery = searchQuery.trim().toLowerCase();
+            const filteredData = data.filter(item => {
+                const cleanText = item.text.replace(/<[^>]+>/g, '').toLowerCase();
+                return cleanText.includes(lowerQuery);
+            });
+            setSearchResults(filteredData);
         } catch (err) {
             console.error(err);
             setSearchResults([]);
