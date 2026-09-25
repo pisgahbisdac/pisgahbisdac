@@ -1292,6 +1292,28 @@
               <input type="file" id="sigPendetaUpload" accept="image/*" style="display:none;"
                 onchange="handleSignatureUpload(this, 'preview-sig-pendeta', 'text-sig-pendeta', 'sig_pendeta')">
             </div>
+
+            <!-- Stempel Jemaat -->
+            <div
+              style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:12px;">
+              <div style="font-weight:700; font-size:15px; color:var(--text); width:100%; text-align:center;">Stempel Jemaat</div>
+              <div style="width:100%; display:flex; flex-direction:column; gap:6px;">
+                <input type="text" class="form-input" id="sigNameStempel" placeholder="(Abaikan ini)"
+                  disabled style="text-align:center; font-weight:600; opacity:0; pointer-events:none;">
+                <input type="text" class="form-input" id="sigTitleStempel" placeholder="(Abaikan ini)"
+                  disabled style="text-align:center; font-size:13px; opacity:0; pointer-events:none;">
+              </div>
+              <div
+                style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden; margin-top:4px;">
+                <img id="preview-sig-stempel" src=""
+                  style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
+                <span id="text-sig-stempel" style="color: var(--text4); font-size: 12px;">Belum ada Stempel</span>
+              </div>
+              <label for="sigStempelUpload" class="btn btn-outline"
+                style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah Stempel</label>
+              <input type="file" id="sigStempelUpload" accept="image/*" style="display:none;"
+                onchange="handleSignatureUpload(this, 'preview-sig-stempel', 'text-sig-stempel', 'sig_stempel')">
+            </div>
           </div>
         </div>
       </div>

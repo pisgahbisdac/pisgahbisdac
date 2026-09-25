@@ -553,7 +553,7 @@
       const inRK = document.getElementById('komitmenRealisasiInput');
       if (inRK) inRK.value = systemConfig.komitmen_realisasi ? fmt(systemConfig.komitmen_realisasi) : '';
 
-      const sigKeys = ['sig_bendahara', 'sig_bangun', 'sig_ketua', 'sig_pendeta'];
+      const sigKeys = ['sig_bendahara', 'sig_bangun', 'sig_ketua', 'sig_pendeta', 'sig_stempel'];
       sigKeys.forEach(k => {
         const imgEl = document.getElementById('preview-' + k.replace('_', '-'));
         const txtEl = document.getElementById('text-' + k.replace('_', '-'));
@@ -3046,7 +3046,7 @@
       rightPanel.push({ label: '<span style="font-size:6pt;">Total Uang Untuk Daerah</span>', val: saldoAkhirDaerah, bold: true, large: true, isBorderTop: true, isColoredDaerah: true });
 
       const imgBen = useBenImg ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
-      const imgKet = useKetuaImg ? `<div style="position:relative; margin:25px auto 5px auto; height:60px; width:140px;"><img src="/stamp.png" style="position: absolute; top: 50%; left: 5px; transform: translate(-50%, -50%) rotate(-5deg); height: 110px; width: 110px; opacity: 0.9; z-index: 5; pointer-events: none;"><img src="${systemConfig.sig_ketua}" style="height:60px; max-width:140px; object-fit:contain; position:relative; z-index:10; display:block; margin:0 auto;"></div>` : `<br><br><br><br><br>`;
+      const imgKet = useKetuaImg ? `<div style="position:relative; margin:25px auto 5px auto; height:60px; width:140px;"><img src="${systemConfig.sig_stempel || '/stamp.png'}" style="position: absolute; top: 50%; left: 5px; transform: translate(-50%, -50%) rotate(-5deg); height: 110px; width: 110px; opacity: 0.9; z-index: 5; pointer-events: none;"><img src="${systemConfig.sig_ketua}" style="height:60px; max-width:140px; object-fit:contain; position:relative; z-index:10; display:block; margin:0 auto;"></div>` : `<br><br><br><br><br>`;
       const imgPen = useGembalaImg ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
 
       const nameBen = systemConfig.sig_name_bendahara || 'Herbert JS Sagala';
@@ -4706,7 +4706,7 @@
               <p style="margin: 0 0 5px 0; color:#333;">${systemConfig.kota_kuitansi || 'Manado'}, ${fmtDate(mainTx.date)}</p>
               <p style="margin: 0; color:#333; position: relative; z-index: 2;">Bendahara,</p>
               <div style="height: 50px; position: relative; z-index: 1;">
-                <img src="/stamp.png" style="position: absolute; top: 50%; left: -10px; transform: translate(-50%, -50%) rotate(-5deg); height: 110px; width: 110px; opacity: 0.9; z-index: 5; pointer-events: none;">
+                <img src="${systemConfig.sig_stempel || '/stamp.png'}" style="position: absolute; top: 50%; left: -10px; transform: translate(-50%, -50%) rotate(-5deg); height: 110px; width: 110px; opacity: 0.9; z-index: 5; pointer-events: none;">
                 ${(systemConfig.sig_bendahara) ? `<img src="${systemConfig.sig_bendahara}" style="max-height: 80px; max-width: 150px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); object-fit: contain; z-index: 10;">` : ''}
               </div>
               <p style="margin: 0; text-decoration: underline; font-weight: 600; color:#111; position: relative; z-index: 12;">${systemConfig.sig_name_bendahara || '....................'}</p>
@@ -5628,7 +5628,7 @@
       `;
 
       const imgBen = useBenImg ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
-      const imgBgn = useBgnImg ? `<div style="position:relative; margin:10px auto 5px auto; height:90px; width:180px;"><img src="/stamp.png" style="position: absolute; top: 50%; left: 5px; transform: translate(-50%, -50%) rotate(-5deg); height: 110px; width: 110px; opacity: 0.9; z-index: 5; pointer-events: none;"><img src="${systemConfig.sig_bangun}" style="height:90px; max-width:180px; object-fit:contain; position:relative; z-index:10; display:block; margin:0 auto; filter: contrast(1.5) drop-shadow(0.5px 0.5px 0px #000) drop-shadow(-0.5px -0.5px 0px #000);"></div>` : `<br><br><br><br><br>`;
+      const imgBgn = useBgnImg ? `<div style="position:relative; margin:10px auto 5px auto; height:90px; width:180px;"><img src="${systemConfig.sig_stempel || '/stamp.png'}" style="position: absolute; top: 50%; left: 5px; transform: translate(-50%, -50%) rotate(-5deg); height: 110px; width: 110px; opacity: 0.9; z-index: 5; pointer-events: none;"><img src="${systemConfig.sig_bangun}" style="height:90px; max-width:180px; object-fit:contain; position:relative; z-index:10; display:block; margin:0 auto; filter: contrast(1.5) drop-shadow(0.5px 0.5px 0px #000) drop-shadow(-0.5px -0.5px 0px #000);"></div>` : `<br><br><br><br><br>`;
       const imgKet = useKetuaImg ? `<img src="${systemConfig.sig_ketua}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
       const imgPen = useGembalaImg ? `<img src="${systemConfig.sig_pendeta}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
 
