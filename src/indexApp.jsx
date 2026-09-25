@@ -5373,9 +5373,9 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                     <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><Icon name="Image" className="w-6 h-6" /></div>
                                     <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Hero Image Banner</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Gambar Carousel Homepage</p></div>
                                 </div>
-                                <div className="mb-5 space-y-4">
+                                <div className="mb-5 grid grid-cols-2 md:grid-cols-4 gap-4">
                                     {editHeroImages.map((img, idx) => (
-                                        <div key={idx} className="relative w-full overflow-hidden rounded-xl border border-navy-100 shadow-sm" style={{ aspectRatio: '10/3' }}>
+                                        <div key={idx} className="relative w-full overflow-hidden rounded-xl border border-navy-100 shadow-sm aspect-video">
                                             <img src={img} alt={`Hero Preview ${idx + 1}`} className="w-full h-full object-fill bg-navy-50" />
                                             <div className="absolute top-0 left-0 bg-black/60 text-white px-3 py-1 rounded-br-lg text-xs font-bold shadow-sm backdrop-blur-sm">
                                                 Slide {idx + 1} {img.startsWith('data:image') && <span className="text-gold-400 ml-1 font-black tracking-widest">(BARU)</span>}
