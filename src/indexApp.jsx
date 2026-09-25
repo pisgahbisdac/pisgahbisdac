@@ -389,47 +389,49 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
     const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
     const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
 
-    if (eventsToDisplay.length === 0) {
-        return null; // Jangan tampilkan jika tidak ada acara
-    }
+    const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
 
     return (
         <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
-            <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-1">Jangan Lewatkan</h3>
-            <h2 className="text-xl md:text-2xl font-extrabold text-[#2C3F21] dark:text-white mb-4">Acara Terdekat</h2>
+            {eventsToDisplay.length > 0 && (
+                <>
+                    <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-1">Jangan Lewatkan</h3>
+                    <h2 className="text-xl md:text-2xl font-extrabold text-[#2C3F21] dark:text-white mb-4">Acara Terdekat</h2>
 
-            {/* Dark Card Carousel */}
-            <div className="relative w-full rounded-[1.5rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-900 shadow-xl aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group">
-                {eventsToDisplay[currentEventIdx]?.imageUrl ? (
-                    <>
-                        <img src={eventsToDisplay[currentEventIdx].imageUrl} alt="Event Background" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
-                    </>
-                ) : (
-                    <div className="absolute top-0 right-0 w-[60%] sm:w-[50%] h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
-                        <div className="absolute top-[-30%] right-[-10%] w-[100%] sm:w-[80%] pt-[100%] sm:pt-[80%] rounded-full border-[30px] sm:border-[50px] border-white"></div>
+                    {/* Dark Card Carousel */}
+                    <div className="relative w-full rounded-[1.5rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-900 shadow-xl aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group">
+                        {eventsToDisplay[currentEventIdx]?.imageUrl ? (
+                            <>
+                                <img src={eventsToDisplay[currentEventIdx].imageUrl} alt="Event Background" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+                            </>
+                        ) : (
+                            <div className="absolute top-0 right-0 w-[60%] sm:w-[50%] h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
+                                <div className="absolute top-[-30%] right-[-10%] w-[100%] sm:w-[80%] pt-[100%] sm:pt-[80%] rounded-full border-[30px] sm:border-[50px] border-white"></div>
+                            </div>
+                        )}
+
+                        <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
+                            <span className="inline-block bg-[#D19B45] text-[#2C3F21] text-[9px] sm:text-[10px] md:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-3 shadow-md">{eventsToDisplay[currentEventIdx]?.dateStr || ''}</span>
+                            <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight">{eventsToDisplay[currentEventIdx]?.title || ''}</h3>
+                            <p className="text-xs sm:text-sm md:text-base text-gray-200 dark:text-navy-100 flex items-center font-medium opacity-90"><Icon name="Check" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0" /> <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span></p>
+                        </div>
+
+                        {/* Event Controls */}
+                        <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-1 sm:gap-2 z-20">
+                            <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10"><Icon name="ChevronLeft" className="w-3 h-3 sm:w-4 sm:h-4" /></button>
+                            <button onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10"><Icon name="ChevronRight" className="w-3 h-3 sm:w-4 sm:h-4" /></button>
+                        </div>
+
+                        {/* Event Dots */}
+                        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex gap-1 sm:gap-1.5 z-20">
+                            {eventsToDisplay.map((_, idx) => (
+                                <div key={idx} className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-4 sm:w-6 bg-[#D19B45]' : 'w-1 sm:w-1.5 bg-white/30'}`}></div>
+                            ))}
+                        </div>
                     </div>
-                )}
-
-                <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
-                    <span className="inline-block bg-[#D19B45] text-[#2C3F21] text-[9px] sm:text-[10px] md:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-3 shadow-md">{eventsToDisplay[currentEventIdx]?.dateStr || ''}</span>
-                    <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight">{eventsToDisplay[currentEventIdx]?.title || ''}</h3>
-                    <p className="text-xs sm:text-sm md:text-base text-gray-200 dark:text-navy-100 flex items-center font-medium opacity-90"><Icon name="Check" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0" /> <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span></p>
-                </div>
-
-                {/* Event Controls */}
-                <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-1 sm:gap-2 z-20">
-                    <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10"><Icon name="ChevronLeft" className="w-3 h-3 sm:w-4 sm:h-4" /></button>
-                    <button onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10"><Icon name="ChevronRight" className="w-3 h-3 sm:w-4 sm:h-4" /></button>
-                </div>
-
-                {/* Event Dots */}
-                <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex gap-1 sm:gap-1.5 z-20">
-                    {eventsToDisplay.map((_, idx) => (
-                        <div key={idx} className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-4 sm:w-6 bg-[#D19B45]' : 'w-1 sm:w-1.5 bg-white/30'}`}></div>
-                    ))}
-                </div>
-            </div>
+                </>
+            )}
 
             {/* White Pill Schedule */}
             <div className="mt-4 bg-white dark:bg-navy-800 rounded-2xl md:rounded-full p-3 sm:p-4 shadow-sm border border-gray-200 dark:border-navy-700 flex items-center justify-between">
