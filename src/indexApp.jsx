@@ -5954,9 +5954,10 @@ const Alkitab = ({ setHideGlobalBack }) => {
         setFetchError(null);
         setVerses([]);
         try {
-            const res = await fetch(`https://beeble.vercel.app/api/v1/passage/${bookId}/${chapter}`);
+            // Revert back to bolls.life due to CORS block from beeble on github pages
+            const res = await fetch(`https://bolls.life/get-chapter/TB/${bookId}/${chapter}/`);
             const data = await res.json();
-            const parsed = data.data.verses.map(v => ({ ayat: v.verse, teks: v.content, type: v.type }));
+            const parsed = data.map(v => ({ ayat: v.verse, teks: v.text, type: 'content' }));
             setVerses(parsed);
         } catch (err) {
             setFetchError('Gagal memuat. Periksa koneksi internet Anda.');
