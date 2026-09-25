@@ -5890,8 +5890,8 @@ const Alkitab = () => {
     }
 
     if (!selectedBook) {
-        const pl = alkitabDb.filter(b => b.kategori === 'Perjanjian Lama');
-        const pb = alkitabDb.filter(b => b.kategori === 'Perjanjian Baru');
+        const pl = alkitabDb.slice(0, 39);
+        const pb = alkitabDb.slice(39);
         
         const filterBooks = (books) => books.filter(b => b.nama.toLowerCase().includes(searchQuery.toLowerCase()));
         
