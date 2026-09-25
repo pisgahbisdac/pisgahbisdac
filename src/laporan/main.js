@@ -1023,9 +1023,8 @@
       }
 
       if (r) {
-        const hasAutoReceipt = r.receipt_photo && r.receipt_photo.includes('name=auto-receipt');
-        const isMutasi = (r.department === 'Mutasi Kas / Setor Bank' || r.income_type === 'Mutasi Kas / Setor Bank');
-        if (hasAutoReceipt && !isMutasi) {
+        const isMissingPhoto = !r.receipt_photo || String(r.receipt_photo).trim() === '' || String(r.receipt_photo).trim() === '-';
+        if (!isMissingPhoto) {
           openPhotoModal(r.receipt_photo, r.receipt_photo_2, r.receipt_photo_3);
         } else {
           const overlay = document.getElementById('loadingOverlay');
@@ -1034,21 +1033,17 @@
           setTimeout(async () => {
             try {
               let actualTypeForHtml = type;
+              const isMutasi = (r.department === 'Mutasi Kas / Setor Bank' || r.income_type === 'Mutasi Kas / Setor Bank');
               if (isMutasi) actualTypeForHtml = 'mutasi';
+              
               const htmlStr = generateReceiptHTML(actualTypeForHtml, r);
-              const isMissingPhoto = !r.receipt_photo || r.receipt_photo.trim() === '';
-              if ((hasAutoReceipt && isMutasi) || isMissingPhoto) {
-                const genBase64 = await generateReceiptImageBase64(htmlStr, false);
-                if (currentUser && (hasRole(currentUser, 'Admin') || hasRole(currentUser, 'Bendahara'))) {
-                   const editPayload = { ...r, type: type, receipt_photo_base64: genBase64 };
-                   // Silent background upload
-                   apiPost('editRecord', editPayload).catch(e => console.error('Silent photo update failed', e));
-                }
-                openPhotoModal(genBase64, r.receipt_photo_2, r.receipt_photo_3);
-              } else {
-                const genBase64 = await generateReceiptImageBase64(htmlStr, true);
-                openPhotoModal(genBase64, r.receipt_photo, r.receipt_photo_2);
+              const genBase64 = await generateReceiptImageBase64(htmlStr, false);
+              
+              if (currentUser && (hasRole(currentUser, 'Admin') || hasRole(currentUser, 'Bendahara'))) {
+                 const editPayload = { ...r, type: type, receipt_photo_base64: genBase64 };
+                 apiPost('editRecord', editPayload).catch(e => console.error('Silent photo update failed', e));
               }
+              openPhotoModal(genBase64, r.receipt_photo_2, r.receipt_photo_3);
             } catch (err) {
               console.error('Failed generating receipt on the fly', err);
               openPhotoModal(r.receipt_photo, r.receipt_photo_2, r.receipt_photo_3);
