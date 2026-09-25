@@ -389,8 +389,6 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
     const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
     const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
 
-    const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
-
     return (
         <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
             {eventsToDisplay.length > 0 && (
