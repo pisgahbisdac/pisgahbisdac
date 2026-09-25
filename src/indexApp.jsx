@@ -684,7 +684,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                 })()}
 
                 {/* ACARA TERDEKAT, PENGUMUMAN & VISI MISI */}
-                <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-16 md:mt-24 mb-28 relative">
+                <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-16 md:mt-24 mb-28 relative z-20">
                     <div className={`grid grid-cols-1 ${eventsToDisplay.length > 0 && !isPengumumanReallyEmpty() ? 'lg:grid-cols-3' : (eventsToDisplay.length > 0 || !isPengumumanReallyEmpty() ? 'lg:grid-cols-2' : 'lg:grid-cols-1')} gap-8 lg:gap-8 relative z-10 items-stretch`}>
                         
                         {/* ACARA TERDEKAT */}
