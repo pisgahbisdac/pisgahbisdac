@@ -5961,8 +5961,23 @@ const Alkitab = ({ setHideGlobalBack }) => {
             const chapterData = bookData[chapter];
             if (!chapterData) throw new Error('Pasal tidak ditemukan');
             
-            // chapterData already has the correct format: { ayat, teks, type }
-            setVerses(chapterData);
+            // Deduplicate verses (Sabda API sometimes prepends duplicate verse fragments)
+            const dedupedVerses = [];
+            const seenVerses = new Set();
+            for (let i = chapterData.length - 1; i >= 0; i--) {
+                const v = chapterData[i];
+                if (v.type === 'title') {
+                    dedupedVerses.push(v);
+                } else {
+                    if (!seenVerses.has(v.ayat)) {
+                        seenVerses.add(v.ayat);
+                        dedupedVerses.push(v);
+                    }
+                }
+            }
+            dedupedVerses.reverse();
+            
+            setVerses(dedupedVerses);
         } catch (err) {
             setFetchError('Gagal memuat. Periksa koneksi internet Anda.');
         }
