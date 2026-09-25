@@ -428,6 +428,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     const featureItems = [
         { id: 'sekolah_sabat', label: 'Sekolah Sabat', icon: 'BookOpen', isExternal: true, link: 'https://sabbath-school.adventech.io/in' },
         { id: 'lagu_sion', label: 'Lagu Sion', icon: 'Music' },
+        { id: 'alkitab', label: 'Alkitab', icon: 'Book', isExternal: true, link: 'https://alkitab.tidar1.org' },
         { id: 'keanggotaan', label: 'Keanggotaan', icon: 'Users' },
         { id: 'susunan_ibadah', label: 'Susunan Ibadah', icon: 'List' },
         { id: 'persembahan', label: 'Persembahan', icon: 'Gift' },
