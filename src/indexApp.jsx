@@ -385,7 +385,7 @@ const formatDate = (dateString) => {
     return `${d}/${m}/${y}`;
 };
 
-const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, canGoPrev, canGoNext, title, setActiveTab }) => {
+const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, canGoPrev, canGoNext, title, setActiveTab, carouselEvents }) => {
     const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
     const dummyEvents = [
         {
@@ -399,6 +399,7 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
             location: "Gedung Gereja Pisgah"
         }
     ];
+    const eventsToDisplay = (carouselEvents && carouselEvents.length > 0) ? carouselEvents : dummyEvents;
 
     return (
         <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
@@ -412,20 +413,20 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                 </div>
 
                 <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
-                    <span className="inline-block bg-[#D19B45] text-[#2C3F21] text-[9px] sm:text-[10px] md:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-3 shadow-md">{dummyEvents[currentEventIdx].dateStr}</span>
-                    <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight">{dummyEvents[currentEventIdx].title}</h3>
-                    <p className="text-xs sm:text-sm md:text-base text-gray-200 dark:text-navy-100 flex items-center font-medium opacity-90"><Icon name="Check" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0" /> <span className="truncate">{dummyEvents[currentEventIdx].location}</span></p>
+                    <span className="inline-block bg-[#D19B45] text-[#2C3F21] text-[9px] sm:text-[10px] md:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-3 shadow-md">{eventsToDisplay[currentEventIdx]?.dateStr || ''}</span>
+                    <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight">{eventsToDisplay[currentEventIdx]?.title || ''}</h3>
+                    <p className="text-xs sm:text-sm md:text-base text-gray-200 dark:text-navy-100 flex items-center font-medium opacity-90"><Icon name="Check" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0" /> <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span></p>
                 </div>
 
                 {/* Event Controls */}
                 <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-1 sm:gap-2 z-20">
-                    <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? dummyEvents.length - 1 : prev - 1))} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10"><Icon name="ChevronLeft" className="w-3 h-3 sm:w-4 sm:h-4" /></button>
-                    <button onClick={() => setCurrentEventIdx(prev => (prev === dummyEvents.length - 1 ? 0 : prev + 1))} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10"><Icon name="ChevronRight" className="w-3 h-3 sm:w-4 sm:h-4" /></button>
+                    <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10"><Icon name="ChevronLeft" className="w-3 h-3 sm:w-4 sm:h-4" /></button>
+                    <button onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10"><Icon name="ChevronRight" className="w-3 h-3 sm:w-4 sm:h-4" /></button>
                 </div>
 
                 {/* Event Dots */}
                 <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex gap-1 sm:gap-1.5 z-20">
-                    {dummyEvents.map((_, idx) => (
+                    {eventsToDisplay.map((_, idx) => (
                         <div key={idx} className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-4 sm:w-6 bg-[#D19B45]' : 'w-1 sm:w-1.5 bg-white/30'}`}></div>
                     ))}
                 </div>
@@ -1455,7 +1456,7 @@ const renderPerjamuanGroup = (title, members) => (
     </div>
 );
 
-const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjamuanNote, setActiveTab }) => {
+const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjamuanNote, setActiveTab, carouselEvents }) => {
     const [isPerjamuanExpanded, setIsPerjamuanExpanded] = React.useState(false);
 
     const mergeJadwalDataLocal = (saved, initial) => {
@@ -1549,7 +1550,7 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
 
     return (
     <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
-        <AcaraTerdekat allDates={allDates} selectedDate={selectedDate} handlePrev={handlePrev} handleNext={handleNext} canGoPrev={canGoPrev} canGoNext={canGoNext} title={title} setActiveTab={setActiveTab} />
+        <AcaraTerdekat allDates={allDates} selectedDate={selectedDate} handlePrev={handlePrev} handleNext={handleNext} canGoPrev={canGoPrev} canGoNext={canGoNext} title={title} setActiveTab={setActiveTab} carouselEvents={carouselEvents} />
         
         {/* Tombol GDrive Jadwal Lengkap */}
         <div className="bg-white dark:bg-navy-800/70 p-5 md:p-6 rounded-[1.25rem] shadow-sm border border-navy-100/60 dark:border-navy-700 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -2774,7 +2775,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
 // --- KOMPONEN AdminDashboard yang DIPERBAIKI (dengan fitur warta) ---
 const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken,
     youtubeUrl, setYoutubeUrl, anthemUrl, setAnthemUrl, anthemUrl2, setAnthemUrl2, anthemTitle, setAnthemTitle, anthemTitle2, setAnthemTitle2, youtubeTitle, setYoutubeTitle, youtubeChannelTitle, setYoutubeChannelTitle, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages,
-    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, perpuluhanDate, setPerpuluhanDate, perjamuanNote, setPerjamuanNote, perpuluhanNote, setPerpuluhanNote, daftarRekening, setDaftarRekening, handleLogout }) => {
+    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, perpuluhanDate, setPerpuluhanDate, perjamuanNote, setPerjamuanNote, perpuluhanNote, setPerpuluhanNote, daftarRekening, setDaftarRekening, handleLogout, carouselEvents, setCarouselEvents }) => {
     const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan, buku
     const [viewMonth, setViewMonth] = React.useState(new Date().getMonth());
     const [viewYear, setViewYear] = React.useState(new Date().getFullYear());
@@ -2783,6 +2784,13 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const [editForm, setEditForm] = React.useState([]);
     const [isSavingJadwal, setIsSavingJadwal] = React.useState(false);
     const [isSavingPejabat, setIsSavingPejabat] = React.useState(false);
+    
+    // ============ STATE CAROUSEL EVENTS ============
+    const [editCarouselEvents, setEditCarouselEvents] = React.useState([]);
+    const [isSavingCarouselEvents, setIsSavingCarouselEvents] = React.useState(false);
+    React.useEffect(() => {
+        if (carouselEvents) setEditCarouselEvents(JSON.parse(JSON.stringify(carouselEvents)));
+    }, [carouselEvents]);
 
     // ============ STATE BOOK MANAGEMENT ============
     const [daftarBuku, setDaftarBuku] = React.useState([]);
@@ -4299,6 +4307,28 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         setIsSavingHero(false);
     };
 
+    // SIMPAN CAROUSEL EVENTS (ACARA TERDEKAT)
+    const handleSaveCarouselEvents = async (e) => {
+        e.preventDefault();
+        setIsSavingCarouselEvents(true);
+        try {
+            const res = await fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'saveCarouselEvents', password: adminToken, carouselEvents: editCarouselEvents })
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert("Acara Terdekat berhasil diperbarui!");
+                setCarouselEvents(editCarouselEvents);
+            } else {
+                alert("Gagal merubah Acara Terdekat: " + (result.message || "Akses ditolak."));
+            }
+        } catch (err) {
+            alert("Gagal terhubung ke server.");
+        }
+        setIsSavingCarouselEvents(false);
+    };
+
     const handleAddHeroUrl = () => {
         const url = prompt("Masukkan URL gambar gambar penuh (https://...):");
         if (url) {
@@ -5367,6 +5397,43 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                     </div>
                                     <button type="submit" disabled={isSavingHero} className={`w-full ${isSavingHero ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
                                         {isSavingHero ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Perubahan Carousel'}
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            {/* --- FORM CAROUSEL EVENTS (ACARA TERDEKAT) --- */}
+                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm mt-6">
+                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                                    <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-500 shadow-inner"><Icon name="Calendar" className="w-6 h-6" /></div>
+                                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Acara Terdekat</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Acara pada Jadwal & Home</p></div>
+                                </div>
+                                <form onSubmit={handleSaveCarouselEvents} className="space-y-4">
+                                    {editCarouselEvents.map((evt, idx) => (
+                                        <div key={idx} className="p-4 border border-navy-100 rounded-xl relative">
+                                            <button type="button" onClick={() => setEditCarouselEvents(editCarouselEvents.filter((_, i) => i !== idx))} className="absolute top-2 right-2 text-red-500 hover:text-red-700 bg-red-50 rounded-lg p-1.5"><Icon name="Trash" className="w-4 h-4" /></button>
+                                            <div className="space-y-3 pt-2">
+                                                <div>
+                                                    <label className="block text-xs font-bold text-navy-600 mb-1">Tanggal Acara</label>
+                                                    <input type="text" value={evt.dateStr} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].dateStr = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: 31 OKTOBER 2026" required />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold text-navy-600 mb-1">Judul Acara</label>
+                                                    <input type="text" value={evt.title} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].title = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: Perayaan Ulang Tahun Jemaat" required />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold text-navy-600 mb-1">Lokasi</label>
+                                                    <input type="text" value={evt.location} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].location = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: Gedung Gereja Pisgah" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    
+                                    <button type="button" onClick={() => setEditCarouselEvents([...editCarouselEvents, { dateStr: "", title: "", location: "" }])} className="w-full border-2 border-dashed border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
+                                        <Icon name="PlusCircle" className="w-4 h-4 mr-2" /> Tambah Acara
+                                    </button>
+                                    
+                                    <button type="submit" disabled={isSavingCarouselEvents} className={`w-full ${isSavingCarouselEvents ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
+                                        {isSavingCarouselEvents ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Acara Terdekat'}
                                     </button>
                                 </form>
                             </div>
@@ -7399,6 +7466,18 @@ const App = () => {
     const [youtubeChannelTitle, setYoutubeChannelTitle] = React.useState("");
     const [liveUrl, setLiveUrl] = React.useState("https://www.youtube.com/embed/live_stream?channel=UCaTPS74NOHACRYU0zInVZ4g");
     const [heroImages, setHeroImages] = React.useState(["./carousel/hero-default.png"]);
+    const [carouselEvents, setCarouselEvents] = React.useState([
+        {
+            dateStr: "23-26 SEPTEMBER 2026",
+            title: "Minggu Sembahyang Rumah Tangga",
+            location: "Gereja dan daring Google Meet"
+        },
+        {
+            dateStr: "31 OKTOBER 2026",
+            title: "Perayaan Ulang Tahun Jemaat",
+            location: "Gedung Gereja Pisgah"
+        }
+    ]);
     const [perjamuanDate, setPerjamuanDate] = React.useState('');
     const [perpuluhanDate, setPerpuluhanDate] = React.useState('');
     const [perjamuanNote, setPerjamuanNote] = React.useState('');
@@ -7549,6 +7628,7 @@ const App = () => {
 
                         if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
                         if (cached.heroImages) setHeroImages(cached.heroImages);
+                        if (cached.carouselEvents) { try { setCarouselEvents(JSON.parse(cached.carouselEvents)); } catch (e) { } }
                         if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
                         if (cached.daftarBuku) setDaftarBuku(cached.daftarBuku);
                         if (cached.pengumumanObj) setPengumuman(cached.pengumumanObj);
@@ -7614,6 +7694,15 @@ const App = () => {
                     setHeroImages(newHeroImages);
                 }
 
+                if (data.carouselEvents) {
+                    try {
+                        const parsed = JSON.parse(data.carouselEvents);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            setCarouselEvents(parsed);
+                        }
+                    } catch (e) { console.error("Error parsing carouselEvents"); }
+                }
+
                 if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
 
                 let fetchedBuku = [];
@@ -7672,6 +7761,7 @@ const App = () => {
                     daftarRekening: data.daftarRekening !== undefined ? data.daftarRekening : JSON.stringify(daftarRekening),
                     kategoriPejabat: data.kategoriPejabat,
                     heroImages: newHeroImages,
+                    carouselEvents: data.carouselEvents,
                     daftarWarta: data.daftarWarta,
                     daftarBuku: fetchedBuku.length > 0 ? fetchedBuku : daftarBuku, // Simpan ke cache
                     pengumumanObj: newPengumumanObj,
@@ -7749,7 +7839,7 @@ const App = () => {
             case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} initialBook={initialBook} onBookOpened={() => setInitialBook(null)} setHideGlobalBack={setHideGlobalBack} />;
             case 'warta': return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta} selectedWarta={selectedWartaDetail} setSelectedWarta={setSelectedWartaDetail} setHideGlobalBack={setHideGlobalBack} />;
             case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} liveUrl={liveUrl} />;
-            case 'jadwal': return <Jadwal jadwalDB={jadwalDB} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} perjamuanNote={perjamuanNote} setActiveTab={setActiveTab} />;
+            case 'jadwal': return <Jadwal jadwalDB={jadwalDB} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} perjamuanNote={perjamuanNote} setActiveTab={setActiveTab} carouselEvents={carouselEvents} />;
             case 'persembahan': return <Persembahan dataPejabat={dataPejabat} daftarRekening={daftarRekening} />;
             case 'keanggotaan': return <Keanggotaan setActiveTab={setActiveTab} />;
             case 'member_baru': return <MemberBaru setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
@@ -7757,7 +7847,7 @@ const App = () => {
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
+            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
             case 'alkitab': return <Alkitab setHideGlobalBack={setHideGlobalBack} />;
             case 'lagu_sion': return <LaguSion setActiveTab={setActiveTab} subTab={laguSionSubTab} setSubTab={setLaguSionSubTab} initialSong={laguSionInitialSong} clearInitialSong={() => setLaguSionInitialSong(null)} laguSionDb={laguSionDb} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} />;

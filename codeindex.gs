@@ -127,6 +127,10 @@ function doPost(e) {
         if (payload.title !== undefined) saveSettingRecord('ANTHEM_TITLE', payload.title);
         if (payload.title2 !== undefined) saveSettingRecord('ANTHEM_TITLE2', payload.title2);
         return jsonResponse({ success: true });
+        
+      case 'saveCarouselEvents':
+        saveSettingRecord('CAROUSEL_EVENTS', typeof payload.carouselEvents === 'string' ? payload.carouselEvents : JSON.stringify(payload.carouselEvents));
+        return jsonResponse({ success: true });
 
       default:
         return jsonResponse({ success: false, message: 'Action doPost tidak dikenali.' });
@@ -227,7 +231,8 @@ function getInitialData() {
     legacyNamaBank: getSetting('NAMA_BANK') || 'Mandiri',
     legacyRekeningBank: getSetting('REKENING_BANK') || '1090001711043',
     legacyAtasNama: getSetting('ATAS_NAMA') || 'GMAHK PISGAH BISDAC',
-    legacyQrisUrl: getSetting('QRIS_URL') || ''
+    legacyQrisUrl: getSetting('QRIS_URL') || '',
+    carouselEvents: getSetting('CAROUSEL_EVENTS') || ''
   });
 }
 
