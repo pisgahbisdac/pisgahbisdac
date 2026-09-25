@@ -462,11 +462,14 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
     );
 };
 
-const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, anthemTitle2, youtubeTitle, youtubeChannelTitle, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, perjamuanNote, perpuluhanNote, kontakGereja, carouselVideos = [] }) => {
+const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, anthemTitle2, youtubeTitle, youtubeChannelTitle, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, perjamuanNote, perpuluhanNote, kontakGereja, carouselVideos = [], carouselEvents = [] }) => {
     const [currentSlide, setCurrentSlide] = React.useState(0);
     const [tappedMenu, setTappedMenu] = React.useState(null);
     const videoCarouselRef = React.useRef(null);
     const [isVideoHovered, setIsVideoHovered] = React.useState(false);
+    
+    const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
+    const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
 
     React.useEffect(() => {
         if (!carouselVideos || carouselVideos.length <= 1 || isVideoHovered) return;
@@ -680,14 +683,53 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                     );
                 })()}
 
+                {/* ACARA TERDEKAT */}
+                {eventsToDisplay.length > 0 && (
+                    <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-16 md:mt-24 mb-10">
+                        <div className="text-center mb-10">
+                            <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-2">Jangan Lewatkan</h3>
+                            <h2 className="text-3xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-white transition-colors">Acara Terdekat</h2>
+                        </div>
+                        <div className="relative w-full rounded-[2rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-900 shadow-2xl aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-12 text-white group">
+                            {eventsToDisplay[currentEventIdx]?.imageUrl ? (
+                                <>
+                                    <img src={eventsToDisplay[currentEventIdx].imageUrl} alt="Event Background" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20"></div>
+                                </>
+                            ) : (
+                                <div className="absolute top-0 right-0 w-[60%] sm:w-[50%] h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
+                                    <div className="absolute top-[-30%] right-[-10%] w-[100%] sm:w-[80%] pt-[100%] sm:pt-[80%] rounded-full border-[30px] sm:border-[50px] border-white"></div>
+                                </div>
+                            )}
+
+                            <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
+                                <span className="inline-block bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white text-[10px] md:text-xs font-black px-4 py-1.5 rounded-full mb-4 shadow-lg">{eventsToDisplay[currentEventIdx]?.dateStr || ''}</span>
+                                <h3 className="text-2xl sm:text-3xl md:text-5xl font-black leading-tight mb-3 tracking-tight drop-shadow-md">{eventsToDisplay[currentEventIdx]?.title || ''}</h3>
+                                <p className="text-sm md:text-lg text-gray-200 flex items-center font-medium drop-shadow-sm"><Icon name="MapPin" className="w-4 h-4 mr-2 shrink-0 text-[#D19B45]" /> <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span></p>
+                            </div>
+
+                            <div className="absolute top-6 right-6 flex gap-2 z-20">
+                                <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))} className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow-lg"><Icon name="ChevronLeft" className="w-5 h-5" /></button>
+                                <button onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))} className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow-lg"><Icon name="ChevronRight" className="w-5 h-5" /></button>
+                            </div>
+
+                            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                                {eventsToDisplay.map((_, idx) => (
+                                    <div key={idx} className={`h-2 rounded-full transition-all duration-300 shadow-sm ${idx === currentEventIdx ? 'w-8 bg-[#D19B45]' : 'w-2 bg-white/40'}`}></div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* PENGUMUMAN & VISI MISI (Split Layout) */}
                 <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-24 md:mt-32 mb-28 relative">
 
                     <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24 relative z-10">
                         {/* Left: Image Card OR Announcement - GLASSMORPHISM */}
-                        <div className="w-full lg:w-1/2 relative group">
-                            <div className="relative z-10 glass-box p-4 rounded-[2.5rem] transition-all duration-500 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.1)]">
-                                {pengumuman && !isPengumumanReallyEmpty() ? (
+                        {(!isPengumumanReallyEmpty()) && (
+                            <div className="w-full lg:w-1/2 relative group">
+                                <div className="relative z-10 glass-box p-4 rounded-[2.5rem] transition-all duration-500 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.1)]">
                                     <div className="rounded-[2rem] bg-white/50 dark:bg-navy-900/50 p-8 min-h-[300px] flex flex-col justify-center items-center text-center relative border border-white/60 dark:border-navy-600/50 shadow-inner">
                                         <div className="absolute top-6 left-6 bg-gradient-to-r from-[#D19B45] to-[#B8863B] dark:from-gold-600 dark:to-gold-500 text-white text-xs font-bold px-5 py-2.5 rounded-full flex items-center shadow-lg backdrop-blur-md border border-white/20">
                                             <Icon name="Megaphone" className="w-4 h-4 mr-2 drop-shadow-sm" /> Pengumuman
@@ -695,26 +737,11 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                         <h3 className="text-3xl font-extrabold text-[#2C3F21] dark:text-white mb-6 mt-10 drop-shadow-sm">{pengumuman.header || "Pengumuman Pekan Ini"}</h3>
                                         <div className="text-[#596B4D] dark:text-gray-300 text-base leading-relaxed max-h-[250px] overflow-y-auto custom-scrollbar w-full px-4 font-medium" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}></div>
                                     </div>
-                                ) : (
-                                    <div className="rounded-[2rem] overflow-hidden bg-white/40 dark:bg-navy-900/40 relative w-full flex items-center justify-center min-h-[250px] shadow-inner border border-white/50 dark:border-white/5">
-                                        <img src={kontakGereja?.informasiImageUrl || displayImages[0]} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=1000&auto=format&fit=crop"; }} className="w-full h-auto object-contain transition-transform duration-700 hover:scale-105" alt="Banner" />
-                                        <div className="absolute top-6 left-6 bg-white/80 dark:bg-navy-800/80 backdrop-blur-md text-[#4A7045] dark:text-gold-400 text-xs font-black px-5 py-2.5 rounded-full flex items-center shadow-lg border border-white/50 dark:border-white/10 tracking-wide uppercase">
-                                            <Icon name="Info" className="w-4 h-4 mr-2" /> Informasi
-                                        </div>
-                                    </div>
-                                )}
+                                </div>
                             </div>
-                            {/* Interactive floating Install App icon */}
-                            <button
-                                onClick={() => window.installPWA && window.installPWA()}
-                                title="Instal Aplikasi"
-                                className="absolute -bottom-6 -right-6 bg-white/80 dark:bg-navy-700/80 backdrop-blur-xl p-5 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] z-20 flex items-center justify-center border border-white/60 dark:border-white/10 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 hover:-translate-y-2"
-                            >
-                                <Icon name="MonitorDown" className="w-7 h-7 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
-                            </button>
-                        </div>
+                        )}
                         {/* Right: Text Content */}
-                        <div className="w-full lg:w-1/2 relative">
+                        <div className={`w-full ${!isPengumumanReallyEmpty() ? 'lg:w-1/2' : ''} relative`}>
                             <div className="glass-box rounded-[2.5rem] p-8 md:p-12 transition-all duration-500 flex flex-col items-center text-center">
                                 <h2 className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 mb-8 tracking-tight leading-[1.2] drop-shadow-sm">
                                     Visi & Misi GMAHK
@@ -7882,7 +7909,7 @@ const App = () => {
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} />;
+            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
             case 'belajar': return <Belajar setActiveTab={setActiveTab} />;
             case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
@@ -7898,11 +7925,11 @@ const App = () => {
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} carouselVideos={carouselVideos} setCarouselVideos={setCarouselVideos} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} />;
+            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} carouselVideos={carouselVideos} setCarouselVideos={setCarouselVideos} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
             case 'alkitab': return <Alkitab setHideGlobalBack={setHideGlobalBack} />;
             case 'lagu_sion': return <LaguSion setActiveTab={setActiveTab} subTab={laguSionSubTab} setSubTab={setLaguSionSubTab} initialSong={laguSionInitialSong} clearInitialSong={() => setLaguSionInitialSong(null)} laguSionDb={laguSionDb} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} />;
-            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} />;
+            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
         }
     };
 
