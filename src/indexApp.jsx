@@ -6018,6 +6018,32 @@ const Alkitab = ({ setHideGlobalBack }) => {
         }
     }, [selectedBook, selectedChapter, loadChapter]);
 
+    const prevChapterInfo = React.useMemo(() => {
+        if (!selectedBook || !selectedChapter) return null;
+        if (selectedChapter > 1) {
+            return { book: selectedBook, chapter: selectedChapter - 1 };
+        }
+        const bookIndex = ALKITAB_BOOKS.findIndex(b => b.id === selectedBook.id);
+        if (bookIndex > 0) {
+            const prevBook = ALKITAB_BOOKS[bookIndex - 1];
+            return { book: prevBook, chapter: prevBook.pasal };
+        }
+        return null;
+    }, [selectedBook, selectedChapter]);
+
+    const nextChapterInfo = React.useMemo(() => {
+        if (!selectedBook || !selectedChapter) return null;
+        if (selectedChapter < selectedBook.pasal) {
+            return { book: selectedBook, chapter: selectedChapter + 1 };
+        }
+        const bookIndex = ALKITAB_BOOKS.findIndex(b => b.id === selectedBook.id);
+        if (bookIndex < ALKITAB_BOOKS.length - 1) {
+            const nextBook = ALKITAB_BOOKS[bookIndex + 1];
+            return { book: nextBook, chapter: 1 };
+        }
+        return null;
+    }, [selectedBook, selectedChapter]);
+
     const filterBooks = (books) => books.filter(b => b.nama.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const renderBookList = (books, title) => {
@@ -6215,19 +6241,35 @@ const Alkitab = ({ setHideGlobalBack }) => {
                         
                         {renderDropdowns()}
                     </div>
-                    {/* Font Size Slider */}
-                    <div className="flex items-center gap-3 mt-3 bg-navy-50 dark:bg-navy-800/50 rounded-xl px-4 py-2.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-navy-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><text y="18" fontSize="12" fontFamily="serif" fontWeight="bold">A</text></svg>
-                        <input
-                            type="range"
-                            min="12"
-                            max="28"
-                            value={fontSize}
-                            onChange={(e) => setFontSize(Number(e.target.value))}
-                            className="flex-1 h-1.5 rounded-full accent-[#D19B45] cursor-pointer"
-                        />
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-navy-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><text y="20" fontSize="20" fontFamily="serif" fontWeight="bold">A</text></svg>
-                        <span className="text-xs font-bold text-navy-400 min-w-[2rem] text-right">{fontSize}px</span>
+                    {/* Navigation and Font Size Slider */}
+                    <div className="flex items-stretch gap-2 mt-3 h-14 md:h-12 w-full">
+                        {prevChapterInfo ? (
+                            <button onClick={() => { setSelectedBook(prevChapterInfo.book); setSelectedChapter(prevChapterInfo.chapter); setVerses([]); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="flex-1 flex flex-col items-start justify-center px-3 md:px-4 py-1.5 bg-white dark:bg-navy-800 rounded-xl border border-navy-100/80 dark:border-navy-700 shadow-sm hover:shadow hover:border-gold-300 dark:hover:border-gold-500/50 transition-all group min-w-0 overflow-hidden">
+                                <span className="text-[9px] md:text-[10px] text-navy-400 dark:text-navy-400 font-black uppercase tracking-widest flex items-center gap-1 w-full"><Icon name="ChevronLeft" className="w-3 h-3 shrink-0 group-hover:-translate-x-0.5 transition-transform" /> <span className="truncate">Sebelumnya</span></span>
+                                <span className="font-bold text-navy-800 dark:text-navy-100 text-[11px] md:text-sm pl-4 truncate w-full text-left">{prevChapterInfo.book.nama} {prevChapterInfo.chapter}</span>
+                            </button>
+                        ) : <div className="flex-1"></div>}
+
+                        <div className="flex-[1.2] md:flex-[2] flex items-center justify-center gap-1.5 md:gap-3 bg-navy-50 dark:bg-navy-800/50 rounded-xl px-2 md:px-4 py-1.5 h-full border border-transparent dark:border-navy-800 shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 md:w-3.5 md:h-3.5 text-navy-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><text y="18" fontSize="12" fontFamily="serif" fontWeight="bold">A</text></svg>
+                            <input
+                                type="range"
+                                min="12"
+                                max="28"
+                                value={fontSize}
+                                onChange={(e) => setFontSize(Number(e.target.value))}
+                                className="w-12 md:w-auto md:flex-1 h-1.5 rounded-full accent-[#D19B45] cursor-pointer"
+                            />
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 md:w-5 md:h-5 text-navy-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><text y="20" fontSize="20" fontFamily="serif" fontWeight="bold">A</text></svg>
+                            <span className="text-[9px] md:text-xs font-bold text-navy-400 min-w-[1.2rem] md:min-w-[2rem] text-right">{fontSize}px</span>
+                        </div>
+
+                        {nextChapterInfo ? (
+                            <button onClick={() => { setSelectedBook(nextChapterInfo.book); setSelectedChapter(nextChapterInfo.chapter); setVerses([]); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="flex-1 flex flex-col items-end justify-center px-3 md:px-4 py-1.5 bg-white dark:bg-navy-800 rounded-xl border border-navy-100/80 dark:border-navy-700 shadow-sm hover:shadow hover:border-gold-300 dark:hover:border-gold-500/50 transition-all group min-w-0 overflow-hidden">
+                                <span className="text-[9px] md:text-[10px] text-navy-400 dark:text-navy-400 font-black uppercase tracking-widest flex items-center justify-end gap-1 w-full"><span className="truncate">Berikutnya</span> <Icon name="ChevronRight" className="w-3 h-3 shrink-0 group-hover:translate-x-0.5 transition-transform" /></span>
+                                <span className="font-bold text-navy-800 dark:text-navy-100 text-[11px] md:text-sm pr-4 truncate w-full text-right">{nextChapterInfo.book.nama} {nextChapterInfo.chapter}</span>
+                            </button>
+                        ) : <div className="flex-1"></div>}
                     </div>
                 </div>
                 <div className="mt-6 bg-white dark:bg-navy-900 p-5 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100 dark:border-navy-800 min-h-[200px]">
