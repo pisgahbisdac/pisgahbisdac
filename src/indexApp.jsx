@@ -5937,6 +5937,7 @@ const Alkitab = () => {
     const [isLoadingChapter, setIsLoadingChapter] = React.useState(false);
     const [fetchError, setFetchError] = React.useState(null);
     const [searchQuery, setSearchQuery] = React.useState('');
+    const [fontSize, setFontSize] = React.useState(16);
 
     const pl = ALKITAB_BOOKS.filter(b => b.testamen === 'PL');
     const pb = ALKITAB_BOOKS.filter(b => b.testamen === 'PB');
@@ -6064,6 +6065,20 @@ const Alkitab = () => {
                             )}
                         </div>
                     </div>
+                    {/* Font Size Slider */}
+                    <div className="flex items-center gap-3 mt-3 bg-navy-50 dark:bg-navy-800/50 rounded-xl px-4 py-2.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-navy-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><text y="18" fontSize="12" fontFamily="serif" fontWeight="bold">A</text></svg>
+                        <input
+                            type="range"
+                            min="12"
+                            max="28"
+                            value={fontSize}
+                            onChange={(e) => setFontSize(Number(e.target.value))}
+                            className="flex-1 h-1.5 rounded-full accent-[#D19B45] cursor-pointer"
+                        />
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-navy-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><text y="20" fontSize="20" fontFamily="serif" fontWeight="bold">A</text></svg>
+                        <span className="text-xs font-bold text-navy-400 min-w-[2rem] text-right">{fontSize}px</span>
+                    </div>
                 </div>
                 <div className="mt-6 bg-white dark:bg-navy-900 p-5 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100 dark:border-navy-800 min-h-[200px]">
                     {isLoadingChapter && (
@@ -6082,8 +6097,8 @@ const Alkitab = () => {
                         <div className="space-y-4">
                             {verses.map((a) => (
                                 <div key={a.ayat} className="flex gap-3 items-start group">
-                                    <span className="text-[10px] md:text-xs font-black text-gold-500 mt-1.5 min-w-[1.5rem] select-none">{a.ayat}</span>
-                                    <p className="text-sm md:text-base text-navy-800 dark:text-navy-100 leading-relaxed group-hover:bg-gold-50/50 dark:group-hover:bg-navy-800/50 p-1 -ml-1 rounded transition-colors">{a.teks}</p>
+                                    <span className="font-black text-gold-500 select-none shrink-0" style={{ fontSize: Math.max(10, fontSize - 4) + 'px', marginTop: '0.2em', minWidth: '1.5rem' }}>{a.ayat}</span>
+                                    <p className="text-navy-800 dark:text-navy-100 leading-relaxed group-hover:bg-gold-50/50 dark:group-hover:bg-navy-800/50 p-1 -ml-1 rounded transition-colors" style={{ fontSize: fontSize + 'px' }}>{a.teks}</p>
                                 </div>
                             ))}
                         </div>
