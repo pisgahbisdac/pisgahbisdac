@@ -6055,7 +6055,8 @@ const Alkitab = ({ setHideGlobalBack }) => {
         ranges.push(start === end ? `${start}` : `${start}-${end}`);
         const ayatString = ranges.join(', ');
 
-        const shareText = `${selectedBook.nama} ${selectedChapter}:${ayatString}\n\n${textParts.join('\n')}`;
+        const appUrl = window.location.origin + window.location.pathname;
+        const shareText = `${selectedBook.nama} ${selectedChapter}:${ayatString}\n\n${textParts.join('\n')}\n\nBaca selengkapnya di: ${appUrl}`;
         
         const fallbackCopy = (text) => {
             if (navigator.clipboard && window.isSecureContext) {
@@ -6508,7 +6509,8 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
         }
         
         const lyricsText = lyricsLines.join('\n\n');
-        const shareText = `Lagu Sion No. ${selectedSong.number} - ${selectedSong.title}\nKey/Time: ${selectedSong.keyTime}\n\n${lyricsText}`;
+        const appUrl = window.location.origin + window.location.pathname;
+        const shareText = `Lagu Sion No. ${selectedSong.number} - ${selectedSong.title}\nKey/Time: ${selectedSong.keyTime}\n\n${lyricsText}\n\nNyanyikan di: ${appUrl}`;
         
         const fallbackCopy = (text) => {
             if (navigator.clipboard && window.isSecureContext) {
