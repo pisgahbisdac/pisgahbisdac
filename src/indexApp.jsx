@@ -408,9 +408,16 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
 
             {/* Dark Card Carousel */}
             <div className="relative w-full rounded-[1.5rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-900 shadow-xl aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group">
-                <div className="absolute top-0 right-0 w-[60%] sm:w-[50%] h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
-                    <div className="absolute top-[-30%] right-[-10%] w-[100%] sm:w-[80%] pt-[100%] sm:pt-[80%] rounded-full border-[30px] sm:border-[50px] border-white"></div>
-                </div>
+                {eventsToDisplay[currentEventIdx]?.imageUrl ? (
+                    <>
+                        <img src={eventsToDisplay[currentEventIdx].imageUrl} alt="Event Background" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+                    </>
+                ) : (
+                    <div className="absolute top-0 right-0 w-[60%] sm:w-[50%] h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
+                        <div className="absolute top-[-30%] right-[-10%] w-[100%] sm:w-[80%] pt-[100%] sm:pt-[80%] rounded-full border-[30px] sm:border-[50px] border-white"></div>
+                    </div>
+                )}
 
                 <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
                     <span className="inline-block bg-[#D19B45] text-[#2C3F21] text-[9px] sm:text-[10px] md:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-3 shadow-md">{eventsToDisplay[currentEventIdx]?.dateStr || ''}</span>
@@ -5425,11 +5432,15 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                     <label className="block text-xs font-bold text-navy-600 mb-1">Lokasi</label>
                                                     <input type="text" value={evt.location} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].location = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: Gedung Gereja Pisgah" required />
                                                 </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold text-navy-600 mb-1">URL Gambar <span className="text-navy-400 font-normal">(Opsional)</span></label>
+                                                    <input type="text" value={evt.imageUrl || ''} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].imageUrl = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: https://... (opsional untuk background)" />
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
                                     
-                                    <button type="button" onClick={() => setEditCarouselEvents([...editCarouselEvents, { dateStr: "", title: "", location: "" }])} className="w-full border-2 border-dashed border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
+                                    <button type="button" onClick={() => setEditCarouselEvents([...editCarouselEvents, { dateStr: "", title: "", location: "", imageUrl: "" }])} className="w-full border-2 border-dashed border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
                                         <Icon name="PlusCircle" className="w-4 h-4 mr-2" /> Tambah Acara
                                     </button>
                                     
