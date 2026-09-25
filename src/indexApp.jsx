@@ -385,7 +385,7 @@ const formatDate = (dateString) => {
     return `${d}/${m}/${y}`;
 };
 
-const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, canGoPrev, canGoNext, title, setActiveTab, carouselEvents }) => {
+const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, canGoPrev, canGoNext, title, setActiveTab, carouselEvents, handleDateSelect }) => {
     const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
     const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
 
@@ -442,7 +442,18 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                 
                 <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     <button onClick={handleNext} className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center transition-colors shadow-md mr-0 sm:mr-3 ${!canGoNext ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#3A5836] dark:hover:bg-navy-800'}`} disabled={!canGoNext}><Icon name="ChevronRight" className="w-4 h-4 sm:w-5 sm:h-5" /></button>
-                    <button onClick={() => setActiveTab('jadwal')} className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-2xl bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center hover:bg-[#3A5836] dark:hover:bg-navy-800 transition-colors shadow-lg"><Icon name="Calendar" className="w-5 h-5 sm:w-6 sm:h-6" /></button>
+                    <div className="relative inline-flex">
+                        <input 
+                            type="date" 
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                            value={selectedDate || ''}
+                            onChange={(e) => {
+                                if (e.target.value && handleDateSelect) handleDateSelect(e.target.value);
+                            }}
+                            title="Pilih Tanggal Jadwal"
+                        />
+                        <button className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-2xl bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center hover:bg-[#3A5836] dark:hover:bg-navy-800 transition-colors shadow-lg"><Icon name="Calendar" className="w-5 h-5 sm:w-6 sm:h-6" /></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1549,7 +1560,7 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
 
     return (
     <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
-        <AcaraTerdekat allDates={allDates} selectedDate={selectedDate} handlePrev={handlePrev} handleNext={handleNext} canGoPrev={canGoPrev} canGoNext={canGoNext} title={title} setActiveTab={setActiveTab} carouselEvents={carouselEvents} />
+        <AcaraTerdekat allDates={allDates} selectedDate={selectedDate} handlePrev={handlePrev} handleNext={handleNext} canGoPrev={canGoPrev} canGoNext={canGoNext} title={title} setActiveTab={setActiveTab} carouselEvents={carouselEvents} handleDateSelect={(d) => setJadwalSelectedDate(d)} />
         
         {/* Tombol GDrive Jadwal Lengkap */}
         <div className="bg-white dark:bg-navy-800/70 p-5 md:p-6 rounded-[1.25rem] shadow-sm border border-navy-100/60 dark:border-navy-700 flex flex-col sm:flex-row items-center justify-between gap-4">
