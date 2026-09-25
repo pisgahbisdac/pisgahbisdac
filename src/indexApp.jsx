@@ -5930,7 +5930,7 @@ const ALKITAB_BOOKS = [
     { id: 66, nama: 'Wahyu',          singkat: 'Why', pasal: 22, testamen: 'PB' },
 ];
 
-const Alkitab = () => {
+const Alkitab = ({ setHideGlobalBack }) => {
     const [selectedBook, setSelectedBook] = React.useState(null);
     const [selectedChapter, setSelectedChapter] = React.useState(null);
     const [verses, setVerses] = React.useState([]);
@@ -5938,6 +5938,11 @@ const Alkitab = () => {
     const [fetchError, setFetchError] = React.useState(null);
     const [searchQuery, setSearchQuery] = React.useState('');
     const [fontSize, setFontSize] = React.useState(16);
+
+    React.useEffect(() => {
+        if (setHideGlobalBack) setHideGlobalBack(!!selectedBook);
+        return () => { if (setHideGlobalBack) setHideGlobalBack(false); };
+    }, [selectedBook, setHideGlobalBack]);
 
     const pl = ALKITAB_BOOKS.filter(b => b.testamen === 'PL');
     const pb = ALKITAB_BOOKS.filter(b => b.testamen === 'PB');
@@ -6023,10 +6028,11 @@ const Alkitab = () => {
         return (
             <div className="animate-fade-in pb-10">
                 <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex items-center gap-3">
-                    <button onClick={() => setSelectedBook(null)} className="w-10 h-10 rounded-full bg-white dark:bg-navy-800 border border-navy-200 dark:border-navy-600 flex items-center justify-center hover:bg-navy-50 dark:hover:bg-navy-700 transition shadow-sm">
-                        <Icon name="ArrowLeft" className="w-5 h-5 text-navy-700 dark:text-navy-200" />
+                    <button onClick={() => setSelectedBook(null)} className="flex items-center justify-center px-4 py-2 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group shrink-0">
+                        <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        <span className="hidden sm:inline">Kembali</span>
                     </button>
-                    <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white">{selectedBook.nama}</h2>
+                    <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white truncate">{selectedBook.nama}</h2>
                 </div>
                 <div className="mt-6">
                     <h3 className="text-sm font-black text-gold-600 uppercase tracking-widest mb-3 px-2">Pilih Pasal</h3>
@@ -6047,12 +6053,13 @@ const Alkitab = () => {
         return (
             <div className="animate-fade-in pb-10">
                 <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex flex-col gap-3">
-                    <div className="flex items-center gap-3">
-                        <button onClick={() => setSelectedChapter(null)} className="w-10 h-10 rounded-full bg-white dark:bg-navy-800 border border-navy-200 dark:border-navy-600 flex items-center justify-center hover:bg-navy-50 dark:hover:bg-navy-700 transition shrink-0 shadow-sm">
-                            <Icon name="ArrowLeft" className="w-5 h-5 text-navy-700 dark:text-navy-200" />
+                    <div className="flex items-center gap-3 w-full">
+                        <button onClick={() => setSelectedChapter(null)} className="flex items-center justify-center px-4 py-2 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group shrink-0">
+                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                            <span className="hidden sm:inline">Kembali</span>
                         </button>
-                        <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white truncate">{selectedBook.nama} {selectedChapter}</h2>
-                        <div className="ml-auto flex gap-1">
+                        <h2 className="text-lg md:text-2xl font-black text-navy-900 dark:text-white truncate flex-1">{selectedBook.nama} {selectedChapter}</h2>
+                        <div className="ml-auto flex gap-1 shrink-0">
                             {selectedChapter > 1 && (
                                 <button onClick={() => setSelectedChapter(selectedChapter - 1)} className="px-3 py-1.5 rounded-lg bg-navy-100 dark:bg-navy-700 text-navy-700 dark:text-navy-200 text-xs font-bold hover:bg-navy-200 transition">
                                     <Icon name="ChevronLeft" className="w-4 h-4" />
@@ -7275,7 +7282,7 @@ const App = () => {
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
             case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
-            case 'alkitab': return <Alkitab />;
+            case 'alkitab': return <Alkitab setHideGlobalBack={setHideGlobalBack} />;
             case 'lagu_sion': return <LaguSion setActiveTab={setActiveTab} subTab={laguSionSubTab} setSubTab={setLaguSionSubTab} initialSong={laguSionInitialSong} clearInitialSong={() => setLaguSionInitialSong(null)} laguSionDb={laguSionDb} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} />;
             default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
