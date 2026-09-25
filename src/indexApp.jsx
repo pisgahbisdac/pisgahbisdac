@@ -5945,22 +5945,10 @@ const Alkitab = () => {
         setFetchError(null);
         setVerses([]);
         try {
-            const sabdaUrl = `https://alkitab.sabda.org/bible.php?book=${bookId}&chapter=${chapter}&version=tb&tab=text&mode=text`;
-            const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(sabdaUrl)}`;
-            const res = await fetch(proxyUrl);
-            const html = await res.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const bodyHTML = doc.body.innerHTML;
-            const regex = /<span class="vref">(\d+:\d+)<\/span>\s*([\s\S]*?)(?=<span class="vref">|<form|<\/body>|$)/gi;
-            let match;
-            const parsed = [];
-            while ((match = regex.exec(bodyHTML)) !== null) {
-                const ref = match[1];
-                const ayatNum = parseInt(ref.split(':')[1], 10);
-                const rawText = match[2].replace(/<[^>]+>/g, '').trim().replace(/\s+/g, ' ');
-                if (rawText) parsed.push({ ayat: ayatNum, teks: rawText });
-            }
+            // bolls.life is a free Bible API with open CORS support and TB (Terjemahan Baru) translation
+            const res = await fetch(`https://bolls.life/get-chapter/TB/${bookId}/${chapter}/`);
+            const data = await res.json();
+            const parsed = data.map(v => ({ ayat: v.verse, teks: v.text }));
             setVerses(parsed);
         } catch (err) {
             setFetchError('Gagal memuat. Periksa koneksi internet Anda.');
