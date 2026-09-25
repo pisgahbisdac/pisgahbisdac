@@ -132,6 +132,10 @@ function doPost(e) {
         saveSettingRecord('CAROUSEL_EVENTS', typeof payload.carouselEvents === 'string' ? payload.carouselEvents : JSON.stringify(payload.carouselEvents));
         return jsonResponse({ success: true });
 
+      case 'saveCarouselVideos':
+        saveSettingRecord('CAROUSEL_VIDEOS', typeof payload.carouselVideos === 'string' ? payload.carouselVideos : JSON.stringify(payload.carouselVideos));
+        return jsonResponse({ success: true });
+
       default:
         return jsonResponse({ success: false, message: 'Action doPost tidak dikenali.' });
     }
@@ -232,7 +236,8 @@ function getInitialData() {
     legacyRekeningBank: getSetting('REKENING_BANK') || '1090001711043',
     legacyAtasNama: getSetting('ATAS_NAMA') || 'GMAHK PISGAH BISDAC',
     legacyQrisUrl: getSetting('QRIS_URL') || '',
-    carouselEvents: getSetting('CAROUSEL_EVENTS') || ''
+    carouselEvents: getSetting('CAROUSEL_EVENTS') || '',
+    carouselVideos: getSetting('CAROUSEL_VIDEOS') || ''
   });
 }
 

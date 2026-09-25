@@ -809,52 +809,26 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                             </div>
                         )}
 
-                        {/* Adventist Church Anthem & Additional Video */}
-                        {(anthemUrl || anthemUrl2) && (
-                            <div className={`grid grid-cols-1 ${anthemUrl && anthemUrl2 ? 'lg:grid-cols-2 gap-8 md:gap-12' : ''} mb-8`}>
-                                {anthemUrl && (
-                                    <div className="glass-box rounded-[2rem] p-4 md:p-6 transition-colors">
-                                        <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
-                                            <Icon name="Music" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" />{anthemTitle || "Adventist Church Anthem"}
-                                        </h2>
-                                        <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
-                                            <iframe className="absolute top-0 left-0 w-full h-full" src={`${anthemUrl}${anthemUrl?.includes('?') ? '&' : '?'}vq=hd1080`} title="Adventist Church Anthem" frameBorder="0" allowFullScreen></iframe>
+                        {/* Video Carousel */}
+                        {carouselVideos && carouselVideos.length > 0 && (
+                            <div className="mb-12 relative group w-full">
+                                <h2 className="text-2xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-8 transition-colors px-2 flex items-center">
+                                    <Icon name="Video" className="w-6 h-6 md:w-8 md:h-8 mr-3 text-[#D19B45] dark:text-gold-500" /> Galeri Video
+                                </h2>
+                                <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-6 w-full custom-scrollbar">
+                                    {carouselVideos.map((video, idx) => (
+                                        <div key={idx} className="snap-start shrink-0 w-[85vw] md:w-[calc(50%-12px)] glass-box rounded-[2rem] p-4 md:p-6 transition-colors flex flex-col">
+                                            <h3 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors truncate">
+                                                <Icon name="Youtube" className="w-5 h-5 mr-3 shrink-0 text-[#D19B45] dark:text-gold-500" />{video.title}
+                                            </h3>
+                                            <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
+                                                <iframe className="absolute top-0 left-0 w-full h-full" src={`${video.url}${video.url?.includes('?') ? '&' : '?'}vq=hd1080`} title={video.title} frameBorder="0" allowFullScreen></iframe>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
-                                {anthemUrl2 && (
-                                    <div className="glass-box rounded-[2rem] p-4 md:p-6 transition-colors">
-                                        <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
-                                            <Icon name="Youtube" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" />{anthemTitle2 || "Video Tambahan"}
-                                        </h2>
-                                        <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
-                                            <iframe className="absolute top-0 left-0 w-full h-full" src={`${anthemUrl2}${anthemUrl2?.includes('?') ? '&' : '?'}vq=hd1080`} title="Video Tambahan" frameBorder="0" allowFullScreen></iframe>
-                                        </div>
-                                    </div>
-                                )}
+                                    ))}
+                                </div>
                             </div>
                         )}
-
-                        {/* Video */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-                            <div className="glass-box rounded-[2rem] p-4 md:p-6 transition-colors">
-                                <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
-                                    <Icon name="Video" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" />{youtubeTitle || "Video Penting"}
-                                </h2>
-                                <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
-                                    <iframe className="absolute top-0 left-0 w-full h-full" src={`${youtubeUrl}${youtubeUrl?.includes('?') ? '&' : '?'}vq=hd1080`} title="Video Penting" frameBorder="0" allowFullScreen></iframe>
-                                </div>
-                            </div>
-
-                            <div className="glass-box rounded-[2rem] p-4 md:p-6 transition-colors">
-                                <h2 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors">
-                                    <Icon name="Video" className="w-5 h-5 mr-3 text-[#D19B45] dark:text-gold-500" />{youtubeChannelTitle || "Youtube Channel"}
-                                </h2>
-                                <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
-                                    <iframe className="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?list=UUaTPS74NOHACRYU0zInVZ4g&vq=hd1080" title="Youtube Terbaru" frameBorder="0" allowFullScreen></iframe>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -2802,7 +2776,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const [isSavingCarouselEvents, setIsSavingCarouselEvents] = React.useState(false);
     React.useEffect(() => {
         if (carouselEvents) setEditCarouselEvents(JSON.parse(JSON.stringify(carouselEvents)));
-    }, [carouselEvents]);
+        if (carouselVideos) setEditCarouselVideos(JSON.parse(JSON.stringify(carouselVideos)));
+    }, [carouselEvents, carouselVideos]);
 
     // ============ STATE BOOK MANAGEMENT ============
     const [daftarBuku, setDaftarBuku] = React.useState([]);
@@ -2901,6 +2876,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
     // State untuk Live URL
     const [editLiveUrl, setEditLiveUrl] = React.useState(liveUrl);
+    const [editCarouselVideos, setEditCarouselVideos] = React.useState([]);
+    const [isSavingCarouselVideos, setIsSavingCarouselVideos] = React.useState(false);
     const [isSavingLiveUrl, setIsSavingLiveUrl] = React.useState(false);
     const [editPerjamuanDate, setEditPerjamuanDate] = React.useState(perjamuanDate);
     const [editPerpuluhanDate, setEditPerpuluhanDate] = React.useState(perpuluhanDate);
@@ -4341,6 +4318,28 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         setIsSavingCarouselEvents(false);
     };
 
+    // SIMPAN CAROUSEL VIDEOS (GALERI VIDEO)
+    const handleSaveCarouselVideos = async (e) => {
+        e.preventDefault();
+        setIsSavingCarouselVideos(true);
+        try {
+            const res = await fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'saveCarouselVideos', password: adminToken, carouselVideos: editCarouselVideos })
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert("Galeri Video berhasil diperbarui!");
+                setCarouselVideos(editCarouselVideos);
+            } else {
+                alert("Gagal merubah Galeri Video: " + (result.message || "Akses ditolak."));
+            }
+        } catch (err) {
+            alert("Gagal terhubung ke server.");
+        }
+        setIsSavingCarouselVideos(false);
+    };
+
     const handleAddHeroUrl = () => {
         const url = prompt("Masukkan URL gambar gambar penuh (https://...):");
         if (url) {
@@ -5304,47 +5303,36 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                             </button>
                         </div>
 
-                        {/* --- FORM YOUTUBE URL --- */}
-                        {pengaturanSubTab === 'youtube' && (
-                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                        {/* --- FORM GALERI VIDEO --- */}
+                        {pengaturanSubTab === 'video' && (
+                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm mt-6">
                                 <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                     <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
-                                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">URL YouTube Embed</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Video Penting</p></div>
+                                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Galeri Video (Home)</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Daftar Video Beranda</p></div>
                                 </div>
-                                <form onSubmit={handleSaveYoutubeUrl} className="space-y-5">
-                                    <div>
-                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Video Embed</label>
-                                        <textarea value={editYoutubeUrl} onChange={e => setEditYoutubeUrl(e.target.value)} required rows="3" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono font-medium shadow-sm leading-relaxed"></textarea>
-                                        <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Pastikan URL diawali dengan <br /><span className="text-gold-600">https://www.youtube.com/embed/</span>... atau <br /><span className="text-gold-600">https://www.youtube-nocookie.com/embed/</span>...</p>
-                                    </div>
-                                    <button type="submit" disabled={isSavingUrl} className={`w-full ${isSavingUrl ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center`}>
-                                        {isSavingUrl ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan URL Baru'}
+                                <form onSubmit={handleSaveCarouselVideos} className="space-y-4">
+                                    {editCarouselVideos.map((vid, idx) => (
+                                        <div key={idx} className="p-4 border border-navy-100 rounded-xl relative">
+                                            <button type="button" onClick={() => setEditCarouselVideos(editCarouselVideos.filter((_, i) => i !== idx))} className="absolute top-2 right-2 text-red-500 hover:text-red-700 bg-red-50 rounded-lg p-1.5"><Icon name="Trash" className="w-4 h-4" /></button>
+                                            <div className="space-y-3 pt-2">
+                                                <div>
+                                                    <label className="block text-xs font-bold text-navy-600 mb-1">Judul Video</label>
+                                                    <input type="text" value={vid.title} onChange={(e) => { const newArr = [...editCarouselVideos]; newArr[idx].title = e.target.value; setEditCarouselVideos(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: Video Penting" required />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold text-navy-600 mb-1">URL YouTube Embed</label>
+                                                    <input type="text" value={vid.url} onChange={(e) => { const newArr = [...editCarouselVideos]; newArr[idx].url = e.target.value; setEditCarouselVideos(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: https://www.youtube.com/embed/..." required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    
+                                    <button type="button" onClick={() => setEditCarouselVideos([...editCarouselVideos, { title: "", url: "" }])} className="w-full border-2 border-dashed border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
+                                        <Icon name="PlusCircle" className="w-4 h-4 mr-2" /> Tambah Video
                                     </button>
-                                </form>
-                            </div>
-                        )}
-
-                        {/* --- FORM ANTHEM URL --- */}
-                        {pengaturanSubTab === 'anthem' && (
-                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                    <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center text-purple-500 shadow-inner"><Icon name="Music" className="w-6 h-6" /></div>
-                                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">URL Adventist Church Anthem</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Video Lagu Tema Gereja</p></div>
-                                </div>
-                                <form onSubmit={handleSaveAnthemUrl} className="space-y-5">
-                                    <div>
-                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Video Embed (Anthem)</label>
-                                        <input type="text" value={editAnthemTitle} onChange={e => setEditAnthemTitle(e.target.value)} className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-3" placeholder="Adventist Church Anthem" />
-                                        <textarea value={editAnthemUrl} onChange={e => setEditAnthemUrl(e.target.value)} rows="3" placeholder="https://www.youtube.com/embed/..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono font-medium shadow-sm leading-relaxed"></textarea>
-                                    </div>
-                                    <div className="mt-4">
-                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Video Kedua (Opsional)</label>
-                                        <input type="text" value={editAnthemTitle2} onChange={e => setEditAnthemTitle2(e.target.value)} className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-3" placeholder="Video Tambahan" />
-                                        <textarea value={editAnthemUrl2} onChange={e => setEditAnthemUrl2(e.target.value)} rows="3" placeholder="https://www.youtube.com/embed/..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono font-medium shadow-sm leading-relaxed"></textarea>
-                                        <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Jika diisi, video akan terbagi dua secara proporsional.<br />Kosongkan jika hanya ingin satu video besar. Pastikan URL diawali dengan <br /><span className="text-gold-600">https://www.youtube.com/embed/</span>...</p>
-                                    </div>
-                                    <button type="submit" disabled={isSavingAnthemUrl} className={`w-full ${isSavingAnthemUrl ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center`}>
-                                        {isSavingAnthemUrl ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan URL Anthem'}
+                                    
+                                    <button type="submit" disabled={isSavingCarouselVideos} className={`w-full ${isSavingCarouselVideos ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
+                                        {isSavingCarouselVideos ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Galeri Video'}
                                     </button>
                                 </form>
                             </div>
@@ -7485,6 +7473,7 @@ const App = () => {
     const [liveUrl, setLiveUrl] = React.useState("https://www.youtube.com/embed/live_stream?channel=UCaTPS74NOHACRYU0zInVZ4g");
     const [heroImages, setHeroImages] = React.useState(["./carousel/hero-default.png"]);
     const [carouselEvents, setCarouselEvents] = React.useState([]);
+    const [carouselVideos, setCarouselVideos] = React.useState([]);
     const [perjamuanDate, setPerjamuanDate] = React.useState('');
     const [perpuluhanDate, setPerpuluhanDate] = React.useState('');
     const [perjamuanNote, setPerjamuanNote] = React.useState('');
@@ -7636,6 +7625,7 @@ const App = () => {
                         if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
                         if (cached.heroImages) setHeroImages(cached.heroImages);
                         if (cached.carouselEvents) { try { setCarouselEvents(JSON.parse(cached.carouselEvents)); } catch (e) { } }
+                        if (cached.carouselVideos) { try { setCarouselVideos(JSON.parse(cached.carouselVideos)); } catch (e) { } }
                         if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
                         if (cached.daftarBuku) setDaftarBuku(cached.daftarBuku);
                         if (cached.pengumumanObj) setPengumuman(cached.pengumumanObj);
@@ -7708,6 +7698,23 @@ const App = () => {
                     } catch (e) { setCarouselEvents([]); }
                 }
 
+                if (data.carouselVideos !== undefined) {
+                    try {
+                        let parsedVideos = [];
+                        if (data.carouselVideos) {
+                            parsedVideos = JSON.parse(data.carouselVideos);
+                        } else {
+                            // Fallback to existing videos if empty
+                            const fallback = [];
+                            if (data.youtubeUrl) fallback.push({ title: data.youtubeTitle || "Video Penting", url: data.youtubeUrl });
+                            if (data.anthemUrl) fallback.push({ title: data.anthemTitle || "Adventist Church Anthem", url: data.anthemUrl });
+                            if (data.anthemUrl2) fallback.push({ title: data.anthemTitle2 || "Video Tambahan", url: data.anthemUrl2 });
+                            parsedVideos = fallback;
+                        }
+                        setCarouselVideos(parsedVideos);
+                    } catch (e) { }
+                }
+
                 if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
 
                 let fetchedBuku = [];
@@ -7767,6 +7774,7 @@ const App = () => {
                     kategoriPejabat: data.kategoriPejabat,
                     heroImages: newHeroImages,
                     carouselEvents: data.carouselEvents,
+                    carouselVideos: data.carouselVideos,
                     daftarWarta: data.daftarWarta,
                     daftarBuku: fetchedBuku.length > 0 ? fetchedBuku : daftarBuku, // Simpan ke cache
                     pengumumanObj: newPengumumanObj,
@@ -7836,7 +7844,7 @@ const App = () => {
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
+            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} />;
             case 'belajar': return <Belajar setActiveTab={setActiveTab} />;
             case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
@@ -7852,11 +7860,11 @@ const App = () => {
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
+            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} carouselVideos={carouselVideos} setCarouselVideos={setCarouselVideos} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} />;
             case 'alkitab': return <Alkitab setHideGlobalBack={setHideGlobalBack} />;
             case 'lagu_sion': return <LaguSion setActiveTab={setActiveTab} subTab={laguSionSubTab} setSubTab={setLaguSionSubTab} initialSong={laguSionInitialSong} clearInitialSong={() => setLaguSionInitialSong(null)} laguSionDb={laguSionDb} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} />;
-            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} />;
+            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} />;
         }
     };
 
