@@ -3278,7 +3278,7 @@
         renderRow(false, null, '');
       }
 
-      html += `</tbody></table>`;
+      html += `<tr style="page-break-inside: avoid;"><td colspan="17" style="border: none; padding: 0;">`;
 
       const bottomFontSize = isExcel ? '10pt' : '6.5pt';
       html += `
@@ -3309,7 +3309,7 @@
 
       // SIGNATURE FOR MAIN REPORT
       html += signHtml;
-      html += `</div>`;
+      html += `</div></td></tr></tbody></table>`;
 
       // --- EXPENSES TABLE ---
       html += `
@@ -3405,10 +3405,12 @@
           <td style="${tdStyle} ${numStyle} font-weight:bold; background-color:#ffd966;">${isExcel ? grandExp : fmt(grandExp)}</td>
         </tr>`;
       }
-      html += `</tbody></table>`;
+      html += `<tr style="page-break-inside: avoid;"><td colspan="7" style="border: none; padding: 0;">`;
 
       // SIGNATURE FOR EXPENSES
       html += signHtml;
+      
+      html += `</td></tr></tbody></table>`;
 
       return html;
     }
@@ -5651,8 +5653,7 @@
               <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:yellow;">Saldo Akhir Pembangunan</td>
               <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:yellow;">IDR &nbsp; &nbsp; ${fmtEx(saldoAwal + sumPemasukan - sumPengeluaran)}</td>
             </tr>
-          </tbody>
-        </table>
+            <tr style="page-break-inside: avoid;"><td colspan="7" style="border: none; padding: 0;">
       `;
 
       const imgBen = useBenImg ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
@@ -5680,7 +5681,10 @@
         </table>
       `;
 
-      return html + signHtml;
+      html += signHtml;
+      html += `</td></tr></tbody></table>`;
+
+      return html;
     }
 
     function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
