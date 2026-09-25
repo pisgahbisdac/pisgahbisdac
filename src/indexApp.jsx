@@ -626,7 +626,6 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         </div>
                     </div>
                 </div>
-                </div>
 
                 {/* SABAT PERJAMUAN & PERPULUHAN SECTION */}
                 {(showPerjamuan || showPerpuluhan) && (() => {
