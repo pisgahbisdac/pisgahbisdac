@@ -5942,9 +5942,9 @@ const Alkitab = ({ setHideGlobalBack }) => {
     const [fontSize, setFontSize] = React.useState(16);
 
     React.useEffect(() => {
-        if (setHideGlobalBack) setHideGlobalBack(!!selectedBook);
+        if (setHideGlobalBack) setHideGlobalBack(true);
         return () => { if (setHideGlobalBack) setHideGlobalBack(false); };
-    }, [selectedBook, setHideGlobalBack]);
+    }, [setHideGlobalBack]);
 
     const pl = ALKITAB_BOOKS.filter(b => b.testamen === 'PL');
     const pb = ALKITAB_BOOKS.filter(b => b.testamen === 'PB');
@@ -6084,12 +6084,12 @@ const Alkitab = ({ setHideGlobalBack }) => {
     if (!selectedBook) {
         return (
             <div className="animate-fade-in pb-10">
-                <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800">
-                    <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white flex items-center mb-4">
-                        <Icon name="Book" className="w-6 h-6 mr-2 text-gold-500" />
-                        Alkitab TB
-                    </h2>
-                    <div className="mb-4">
+                <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex flex-col gap-3">
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-3 w-full">
+                        <button onClick={() => window.history.back()} className="flex items-center justify-center px-4 py-2 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group shrink-0 h-[3.25rem]">
+                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                            <span className="hidden sm:inline">Kembali</span>
+                        </button>
                         {renderDropdowns()}
                     </div>
                     <form onSubmit={handleSearch} className="relative flex items-center">
@@ -6136,6 +6136,10 @@ const Alkitab = ({ setHideGlobalBack }) => {
                         </div>
                     ) : (
                         <>
+                            <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white flex items-center mb-6 px-2 mt-2">
+                                <Icon name="Book" className="w-6 h-6 mr-2 text-gold-500" />
+                                Alkitab TB
+                            </h2>
                             {renderBookList(pl, 'Perjanjian Lama')}
                             {renderBookList(pb, 'Perjanjian Baru')}
                             {filterBooks([...pl, ...pb]).length === 0 && (
