@@ -689,38 +689,45 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         
                         {/* ACARA TERDEKAT */}
                         {eventsToDisplay.length > 0 && (
-                            <div className="flex flex-col group w-full">
-                                <div className="text-center mb-6">
-                                    <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-1">Jangan Lewatkan</h3>
-                                    <h2 className="text-2xl md:text-3xl font-extrabold text-[#2C3F21] dark:text-white transition-colors">Acara Terdekat</h2>
-                                </div>
-                                <div className="relative w-full rounded-[2.5rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-900 shadow-xl flex-1 flex flex-col justify-end p-8 text-white min-h-[420px]">
-                                    {eventsToDisplay[currentEventIdx]?.imageUrl ? (
-                                        <>
-                                            <img src={eventsToDisplay[currentEventIdx].imageUrl} alt="Event Background" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20"></div>
-                                        </>
-                                    ) : (
-                                        <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
-                                            <div className="absolute top-[-20%] right-[-20%] w-[120%] pt-[120%] rounded-full border-[40px] border-white"></div>
+                            <div className="flex flex-col group w-full relative">
+                                <div className="text-center mb-6 hidden lg:block"><h3 className="text-[10px] md:text-xs font-black text-transparent uppercase tracking-[0.2em] mb-1 opacity-0 pointer-events-none">Spacer</h3><h2 className="text-2xl md:text-3xl font-extrabold text-transparent opacity-0 pointer-events-none">Spacer</h2></div>
+                                <div className="relative z-10 glass-box p-4 rounded-[2.5rem] transition-all duration-500 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] flex-1 flex flex-col min-h-[420px]">
+                                    <div className="rounded-[2rem] bg-white/50 dark:bg-navy-900/50 p-6 xl:p-8 flex-1 flex flex-col items-center relative border border-white/60 dark:border-navy-600/50 shadow-inner w-full">
+                                        
+                                        <div className="text-center mb-6 w-full">
+                                            <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-1">Jangan Lewatkan</h3>
+                                            <h2 className="text-2xl md:text-3xl font-extrabold text-[#2C3F21] dark:text-white transition-colors">Acara Terdekat</h2>
                                         </div>
-                                    )}
 
-                                    <div className="relative z-10 w-full">
-                                        <span className="inline-block bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white text-[10px] font-black px-3 py-1.5 rounded-full mb-3 shadow-lg">{eventsToDisplay[currentEventIdx]?.dateStr || ''}</span>
-                                        <h3 className="text-2xl md:text-3xl font-black leading-tight mb-2 tracking-tight drop-shadow-md">{eventsToDisplay[currentEventIdx]?.title || ''}</h3>
-                                        <p className="text-sm text-gray-200 flex items-center font-medium drop-shadow-sm"><Icon name="MapPin" className="w-4 h-4 mr-1.5 shrink-0 text-[#D19B45]" /> <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span></p>
-                                    </div>
+                                        <div className="relative w-full rounded-[1.5rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-900 shadow-xl flex-1 flex flex-col justify-end p-6 text-white group text-left min-h-[250px]">
+                                            {eventsToDisplay[currentEventIdx]?.imageUrl ? (
+                                                <>
+                                                    <img src={eventsToDisplay[currentEventIdx].imageUrl} alt="Event Background" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20"></div>
+                                                </>
+                                            ) : (
+                                                <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
+                                                    <div className="absolute top-[-20%] right-[-20%] w-[120%] pt-[120%] rounded-full border-[40px] border-white"></div>
+                                                </div>
+                                            )}
 
-                                    <div className="absolute top-6 right-6 flex gap-2 z-20">
-                                        <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow-lg"><Icon name="ChevronLeft" className="w-4 h-4" /></button>
-                                        <button onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow-lg"><Icon name="ChevronRight" className="w-4 h-4" /></button>
-                                    </div>
+                                            <div className="relative z-10 w-full">
+                                                <span className="inline-block bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white text-[10px] font-black px-3 py-1.5 rounded-full mb-3 shadow-lg">{eventsToDisplay[currentEventIdx]?.dateStr || ''}</span>
+                                                <h3 className="text-xl md:text-2xl font-black leading-tight mb-2 tracking-tight drop-shadow-md">{eventsToDisplay[currentEventIdx]?.title || ''}</h3>
+                                                <p className="text-xs md:text-sm text-gray-200 flex items-center font-medium drop-shadow-sm"><Icon name="MapPin" className="w-4 h-4 mr-1.5 shrink-0 text-[#D19B45]" /> <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span></p>
+                                            </div>
 
-                                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
-                                        {eventsToDisplay.map((_, idx) => (
-                                            <div key={idx} className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${idx === currentEventIdx ? 'w-6 bg-[#D19B45]' : 'w-1.5 bg-white/40'}`}></div>
-                                        ))}
+                                            <div className="absolute top-4 right-4 flex gap-2 z-20">
+                                                <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow-lg"><Icon name="ChevronLeft" className="w-4 h-4" /></button>
+                                                <button onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow-lg"><Icon name="ChevronRight" className="w-4 h-4" /></button>
+                                            </div>
+
+                                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                                                {eventsToDisplay.map((_, idx) => (
+                                                    <div key={idx} className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${idx === currentEventIdx ? 'w-6 bg-[#D19B45]' : 'w-1.5 bg-white/40'}`}></div>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -769,16 +776,17 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                 </div>
                             </div>
                             
-                            {/* Interactive floating Install App icon */}
-                            <button
-                                onClick={() => window.installPWA && window.installPWA()}
-                                title="Instal Aplikasi"
-                                className="absolute -bottom-5 -right-2 bg-white/80 dark:bg-navy-700/80 backdrop-blur-xl p-4 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] z-20 flex items-center justify-center border border-white/60 dark:border-white/10 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 hover:-translate-y-2"
-                            >
-                                <Icon name="MonitorDown" className="w-6 h-6 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
-                            </button>
                         </div>
                     </div>
+                    
+                    {/* Interactive floating Install App icon */}
+                    <button
+                        onClick={() => window.installPWA && window.installPWA()}
+                        title="Instal Aplikasi"
+                        className="absolute -bottom-5 -right-2 md:-right-6 md:-bottom-8 bg-white/80 dark:bg-navy-700/80 backdrop-blur-xl p-4 md:p-5 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] z-50 flex items-center justify-center border border-white/60 dark:border-white/10 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 hover:-translate-y-2"
+                    >
+                        <Icon name="MonitorDown" className="w-6 h-6 md:w-7 md:h-7 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
+                    </button>
                 </div>
 
 
