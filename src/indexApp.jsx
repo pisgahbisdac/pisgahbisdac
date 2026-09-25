@@ -5964,10 +5964,14 @@ const Alkitab = ({ setHideGlobalBack }) => {
             // Deduplicate verses (Sabda API sometimes prepends duplicate verse fragments)
             const dedupedVerses = [];
             const seenVerses = new Set();
+            const seenTitles = new Set();
             for (let i = chapterData.length - 1; i >= 0; i--) {
                 const v = chapterData[i];
                 if (v.type === 'title') {
-                    dedupedVerses.push(v);
+                    if (!seenTitles.has(v.teks)) {
+                        seenTitles.add(v.teks);
+                        dedupedVerses.push(v);
+                    }
                 } else {
                     if (!seenVerses.has(v.ayat)) {
                         seenVerses.add(v.ayat);
