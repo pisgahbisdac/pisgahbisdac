@@ -5991,18 +5991,12 @@ const Alkitab = ({ setHideGlobalBack }) => {
         setIsLoadingChapter(false);
     }, []);
 
-    const handleSearch = async (e) => {
-        e.preventDefault();
-        if (!searchQuery.trim()) {
-            setSearchResults(null);
-            return;
-        }
+    const doSearch = React.useCallback(async (query) => {
         setIsSearching(true);
         try {
-            const res = await fetch(`https://bolls.life/search/TB/?search=${encodeURIComponent(searchQuery)}&match_case=false&match_whole=false`);
+            const res = await fetch(`https://bolls.life/search/TB/?search=${encodeURIComponent(query)}&match_case=false&match_whole=false`);
             const data = await res.json();
-            // Client-side filtering to fix API returning unrelated verses (e.g. synonym matching)
-            const lowerQuery = searchQuery.trim().toLowerCase();
+            const lowerQuery = query.trim().toLowerCase();
             const filteredData = data.filter(item => {
                 const cleanText = item.text.replace(/<[^>]+>/g, '').toLowerCase();
                 return cleanText.includes(lowerQuery);
@@ -6013,7 +6007,25 @@ const Alkitab = ({ setHideGlobalBack }) => {
             setSearchResults([]);
         }
         setIsSearching(false);
+    }, []);
+
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        if (!searchQuery.trim()) {
+            setSearchResults(null);
+            return;
+        }
+        doSearch(searchQuery);
     };
+
+    React.useEffect(() => {
+        const initialSearch = localStorage.getItem('alkitabInitialSearch');
+        if (initialSearch) {
+            setSearchQuery(initialSearch);
+            localStorage.removeItem('alkitabInitialSearch');
+            doSearch(initialSearch);
+        }
+    }, [doSearch]);
 
     React.useEffect(() => {
         if (selectedBook && selectedChapter) {
@@ -6896,6 +6908,9 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
             results.laguSion = results.laguSion.slice(0, 15);
         }
 
+        // 8. Alkitab
+        results.alkitab = [{ redirectQuery: query.trim() }];
+
         return results;
     }, [query, daftarWarta, dataPejabat, jadwalDB, daftarBuku, pengumuman, rabuYMD, sabatYMD, laguSionDb]);
 
@@ -6940,8 +6955,29 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
 
                     {/* Hasil Warta */}
                     
+                    {/* Hasil Alkitab */}
+                    {searchResults.alkitab && searchResults.alkitab.length > 0 && (
+                        <div>
+                            <h3 className="text-xs font-black text-navy-500 uppercase tracking-widest mb-3 px-2">Alkitab</h3>
+                            <div className="glass-box rounded-2xl border border-navy-100/60 overflow-hidden shadow-sm">
+                                <button onClick={() => {
+                                    window.localStorage.setItem('alkitabInitialSearch', query.trim());
+                                    setActiveTab('alkitab');
+                                }} className="w-full flex items-center p-4 text-left hover:bg-gold-50/50 transition-colors">
+                                    <div className="w-10 h-10 rounded-xl bg-navy-50 flex items-center justify-center text-navy-600 mr-4">
+                                        <Icon name="Book" className="w-5 h-5 text-gold-500" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-bold text-navy-900 text-sm md:text-base truncate">Cari "{query}" di Alkitab</div>
+                                    </div>
+                                    <Icon name="ArrowRight" className="w-4 h-4 text-navy-300" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Hasil Lagu Sion */}
-                    {searchResults.laguSion.length > 0 && (
+                    {searchResults.laguSion && searchResults.laguSion.length > 0 && (
                         <div>
                             <h3 className="text-xs font-black text-gold-600 uppercase tracking-widest mb-3 px-2">Lagu Sion</h3>
                             <div className="bg-white rounded-2xl border border-navy-100/60 overflow-hidden shadow-sm">
