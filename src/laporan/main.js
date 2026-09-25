@@ -359,9 +359,9 @@
       setTimeout(() => { window.print(); }, 1500);
     }
 
-    function getToken() { return sessionStorage.getItem('BISDAC_token'); }
-    function setToken(t) { sessionStorage.setItem('BISDAC_token', t); }
-    function clearToken() { sessionStorage.removeItem('BISDAC_token'); }
+    function getToken() { return localStorage.getItem('BISDAC_token'); }
+    function setToken(t) { localStorage.setItem('BISDAC_token', t); }
+    function clearToken() { localStorage.removeItem('BISDAC_token'); }
 
     async function apiGet(action, params = {}) {
       if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
@@ -378,7 +378,7 @@
         if (!data.success) {
           if (data.message && data.message.includes('Token tidak valid')) {
             if (typeof notify === 'function') notify('Sesi Anda telah berakhir. Halaman akan dimuat ulang...', 'error');
-            setTimeout(() => { clearToken(); sessionStorage.removeItem('BISDAC_user'); window.location.reload(); }, 3000);
+            setTimeout(() => { clearToken(); localStorage.removeItem('BISDAC_user'); window.location.reload(); }, 3000);
           }
           throw new Error(data.message || 'API Gagal');
         }
@@ -418,7 +418,7 @@
         if (!data.success) {
           if (data.message && data.message.includes('Token tidak valid')) {
             if (typeof notify === 'function') notify('Sesi Anda telah berakhir. Halaman akan dimuat ulang...', 'error');
-            setTimeout(() => { clearToken(); sessionStorage.removeItem('BISDAC_user'); window.location.reload(); }, 3000);
+            setTimeout(() => { clearToken(); localStorage.removeItem('BISDAC_user'); window.location.reload(); }, 3000);
           }
           throw new Error(data.message || 'Gagal mengirim data.');
         }
@@ -450,7 +450,7 @@
       }).catch(() => { throw new Error('Jaringan Error. Periksa koneksi internet.'); });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      if (data.success) { setToken(data.token); sessionStorage.setItem('BISDAC_user', JSON.stringify(data.user)); }
+      if (data.success) { setToken(data.token); localStorage.setItem('BISDAC_user', JSON.stringify(data.user)); }
       return data;
     }
 
@@ -463,9 +463,9 @@
           if (!confirm('Apakah Anda yakin ingin keluar?')) return;
         }
       }
-      clearToken(); sessionStorage.removeItem('BISDAC_user'); sessionStorage.removeItem('BISDAC_token'); window.location.reload();
+      clearToken(); localStorage.removeItem('BISDAC_user'); localStorage.removeItem('BISDAC_token'); window.location.reload();
     }
-    function getCurrentUser() { const u = sessionStorage.getItem('BISDAC_user'); return u ? JSON.parse(u) : null; }
+    function getCurrentUser() { const u = localStorage.getItem('BISDAC_user'); return u ? JSON.parse(u) : null; }
 
     function loginAsPublic() {
       // Login langsung di latar belakang tanpa mengisi form di layar
@@ -5193,7 +5193,7 @@
         // Update local session if username changed
         if (newUsername && newUsername !== currentUser.username) {
           currentUser.username = newUsername;
-          sessionStorage.setItem('BISDAC_user', JSON.stringify(currentUser));
+          localStorage.setItem('BISDAC_user', JSON.stringify(currentUser));
         }
 
         notify('Akun berhasil diperbarui', 'success');
