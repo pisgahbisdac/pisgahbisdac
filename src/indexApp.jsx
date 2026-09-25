@@ -5940,6 +5940,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
     const [searchResults, setSearchResults] = React.useState(null);
     const [isSearching, setIsSearching] = React.useState(false);
     const [fontSize, setFontSize] = React.useState(16);
+    const [selectedVerses, setSelectedVerses] = React.useState(new Set());
 
     React.useEffect(() => {
         if (setHideGlobalBack) setHideGlobalBack(true);
@@ -5982,6 +5983,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
             dedupedVerses.reverse();
             
             setVerses(dedupedVerses);
+            setSelectedVerses(new Set());
         } catch (err) {
             setFetchError('Gagal memuat. Periksa koneksi internet Anda.');
         }
@@ -6015,8 +6017,74 @@ const Alkitab = ({ setHideGlobalBack }) => {
     React.useEffect(() => {
         if (selectedBook && selectedChapter) {
             loadChapter(selectedBook.id, selectedChapter);
+            setSelectedVerses(new Set());
         }
     }, [selectedBook, selectedChapter, loadChapter]);
+
+    const toggleVerse = (ayatNum) => {
+        const newSet = new Set(selectedVerses);
+        if (newSet.has(ayatNum)) {
+            newSet.delete(ayatNum);
+        } else {
+            newSet.add(ayatNum);
+        }
+        setSelectedVerses(newSet);
+    };
+
+    const handleShareVerses = () => {
+        if (selectedVerses.size === 0) return;
+        const sortedSelected = Array.from(selectedVerses).sort((a,b) => a - b);
+        let textParts = [];
+        for (const ayat of sortedSelected) {
+            const v = verses.find(x => x.ayat === ayat);
+            if (v) textParts.push(`[${ayat}] ${v.teks}`);
+        }
+        
+        let ranges = [];
+        let start = sortedSelected[0];
+        let end = start;
+        for (let i = 1; i < sortedSelected.length; i++) {
+            if (sortedSelected[i] === end + 1) {
+                end = sortedSelected[i];
+            } else {
+                ranges.push(start === end ? `${start}` : `${start}-${end}`);
+                start = sortedSelected[i];
+                end = start;
+            }
+        }
+        ranges.push(start === end ? `${start}` : `${start}-${end}`);
+        const ayatString = ranges.join(', ');
+
+        const shareText = `${selectedBook.nama} ${selectedChapter}:${ayatString}\n\n${textParts.join('\n')}`;
+        
+        const fallbackCopy = (text) => {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Ayat berhasil disalin ke clipboard!');
+                }).catch(err => console.error('Copy failed', err));
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Ayat berhasil disalin ke clipboard!');
+                } catch (err) {}
+                textArea.remove();
+            }
+        };
+
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (navigator.share && isMobile) {
+            navigator.share({ text: shareText }).catch(() => fallbackCopy(shareText));
+        } else {
+            fallbackCopy(shareText);
+        }
+        setSelectedVerses(new Set());
+    };
 
     const prevChapterInfo = React.useMemo(() => {
         if (!selectedBook || !selectedChapter) return null;
@@ -6235,11 +6303,11 @@ const Alkitab = ({ setHideGlobalBack }) => {
                 <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex flex-col gap-3">
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-3 w-full">
                         <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
-                            <button onClick={() => setSelectedChapter(null)} className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group h-[3.25rem]">
+                            <button onClick={() => { setSelectedChapter(null); setSelectedVerses(new Set()); }} className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group h-[3.25rem]">
                                 <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                                 <span className="hidden sm:inline">Kembali</span>
                             </button>
-                            <button onClick={() => { setSelectedBook(null); setSelectedChapter(null); setVerses([]); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all gap-2 h-[3.25rem]" title="Daftar Kitab">
+                            <button onClick={() => { setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all gap-2 h-[3.25rem]" title="Daftar Kitab">
                                 <Icon name="Home" className="w-4 h-4 md:w-5 md:h-5" />
                                 <span className="hidden sm:inline">Kitab</span>
                             </button>
@@ -6312,9 +6380,9 @@ const Alkitab = ({ setHideGlobalBack }) => {
                                         );
                                     }
                                     return (
-                                        <div key={a.ayat} id={`ayat-${a.ayat}`} className="flex gap-4 items-start group transition-colors duration-500 rounded-lg p-1 -ml-1">
-                                            <span className="font-bold text-navy-500 bg-navy-50 dark:bg-navy-800 rounded-full flex items-center justify-center shrink-0" style={{ fontSize: Math.max(10, fontSize - 6) + 'px', width: '2.5em', height: '2.5em', marginTop: '0.25em' }}>{a.ayat}</span>
-                                            <p className="text-navy-800 dark:text-navy-100 leading-relaxed" style={{ fontSize: fontSize + 'px' }}>{a.teks}</p>
+                                        <div key={a.ayat} id={`ayat-${a.ayat}`} onClick={() => toggleVerse(a.ayat)} className={`flex gap-4 items-start group transition-all duration-300 rounded-[1.25rem] p-3 md:p-4 -mx-3 md:-mx-4 cursor-pointer select-none ${selectedVerses.has(a.ayat) ? 'bg-gold-50 dark:bg-gold-500/10 shadow-sm border border-gold-200 dark:border-gold-500/30' : 'hover:bg-navy-50/70 dark:hover:bg-navy-800/60 border border-transparent'}`}>
+                                            <span className={`font-bold rounded-full flex items-center justify-center shrink-0 transition-colors shadow-sm ${selectedVerses.has(a.ayat) ? 'bg-[#D19B45] text-white' : 'text-navy-500 bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700'}`} style={{ fontSize: Math.max(10, fontSize - 6) + 'px', width: '2.5em', height: '2.5em', marginTop: '0.25em' }}>{a.ayat}</span>
+                                            <p className="text-navy-800 dark:text-navy-100 leading-relaxed transition-all" style={{ fontSize: fontSize + 'px' }}>{a.teks}</p>
                                         </div>
                                     );
                                 })}
@@ -6323,6 +6391,16 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     )}
                     {!isLoadingChapter && !fetchError && verses.length === 0 && (
                         <p className="text-center text-navy-400 py-10 font-semibold text-sm">Tidak ada data ayat.</p>
+                    )}
+
+                    {/* Share Selected Verses FAB */}
+                    {selectedVerses.size > 0 && (
+                        <div className="fixed bottom-6 left-0 right-0 z-[60] flex justify-center px-4 pointer-events-none animate-slide-up">
+                            <button onClick={handleShareVerses} className="pointer-events-auto bg-[#4A7045] hover:bg-[#3A5836] text-white px-6 py-3.5 rounded-full font-bold shadow-[0_8px_30px_rgba(74,112,69,0.4)] flex items-center gap-3 transition-transform hover:scale-105 group border border-white/20">
+                                <Icon name="Share" className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                <span>Bagikan {selectedVerses.size} Ayat</span>
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>
