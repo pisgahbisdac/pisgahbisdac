@@ -385,32 +385,7 @@ const formatDate = (dateString) => {
     return `${d}/${m}/${y}`;
 };
 
-const AcaraTerdekat = ({ jadwalDB, setActiveTab }) => {
-    // Determine upcoming schedules
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const getNextDay = (date, dayOfWeek) => {
-        const result = new Date(date);
-        result.setDate(result.getDate() + (dayOfWeek + 7 - result.getDay()) % 7);
-        if (result.getTime() < today.getTime()) {
-            result.setDate(result.getDate() + 7);
-        }
-        return result;
-    };
-
-    const nextWednesday = getNextDay(today, 3);
-    const nextSabbath = getNextDay(today, 6);
-    
-    // Sort them
-    const upcomingSchedules = [
-        { date: toYMD(nextWednesday), title: 'IBADAH PERMINTAAN DOA' },
-        { date: toYMD(nextSabbath), title: 'IBADAH SABAT' }
-    ].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    const [currentScheduleIdx, setCurrentScheduleIdx] = React.useState(0);
-    const currentSchedule = upcomingSchedules[currentScheduleIdx];
-
+const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, canGoPrev, canGoNext, title, setActiveTab }) => {
     const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
     const dummyEvents = [
         {
@@ -458,15 +433,15 @@ const AcaraTerdekat = ({ jadwalDB, setActiveTab }) => {
 
             {/* White Pill Schedule */}
             <div className="mt-4 bg-white dark:bg-navy-800 rounded-2xl md:rounded-full p-3 sm:p-4 shadow-sm border border-gray-200 dark:border-navy-700 flex items-center justify-between">
-                <button onClick={() => setCurrentScheduleIdx(prev => (prev === 0 ? upcomingSchedules.length - 1 : prev - 1))} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center shrink-0 hover:bg-[#3A5836] dark:hover:bg-navy-800 transition-colors shadow-md"><Icon name="ChevronLeft" className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                <button onClick={handlePrev} className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center shrink-0 transition-colors shadow-md ${!canGoPrev ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#3A5836] dark:hover:bg-navy-800'}`} disabled={!canGoPrev}><Icon name="ChevronLeft" className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                 
-                <div className="flex-1 text-center cursor-pointer px-2 sm:px-4 min-w-0" onClick={() => setActiveTab('jadwal')}>
-                    <h4 className="text-sm sm:text-base font-extrabold text-[#2C3F21] dark:text-white truncate">{formatIndoDate(currentSchedule.date)}</h4>
-                    <p className="text-[9px] sm:text-[10px] md:text-xs font-bold text-[#596B4D] dark:text-navy-400 uppercase tracking-widest truncate">{currentSchedule.title}</p>
+                <div className="flex-1 text-center px-2 sm:px-4 min-w-0">
+                    <h4 className="text-sm sm:text-base font-extrabold text-[#2C3F21] dark:text-white truncate">{selectedDate ? formatIndoDate(selectedDate) : '-'}</h4>
+                    <p className="text-[9px] sm:text-[10px] md:text-xs font-bold text-[#596B4D] dark:text-navy-400 uppercase tracking-widest truncate">{title}</p>
                 </div>
                 
                 <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                    <button onClick={() => setCurrentScheduleIdx(prev => (prev === upcomingSchedules.length - 1 ? 0 : prev + 1))} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center hover:bg-[#3A5836] dark:hover:bg-navy-800 transition-colors shadow-md mr-0 sm:mr-3"><Icon name="ChevronRight" className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                    <button onClick={handleNext} className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center transition-colors shadow-md mr-0 sm:mr-3 ${!canGoNext ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#3A5836] dark:hover:bg-navy-800'}`} disabled={!canGoNext}><Icon name="ChevronRight" className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                     <button onClick={() => setActiveTab('jadwal')} className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-2xl bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center hover:bg-[#3A5836] dark:hover:bg-navy-800 transition-colors shadow-lg"><Icon name="Calendar" className="w-5 h-5 sm:w-6 sm:h-6" /></button>
                 </div>
             </div>
@@ -1480,13 +1455,101 @@ const renderPerjamuanGroup = (title, members) => (
     </div>
 );
 
-const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, perjamuanYMD, activePerjamuan, perjamuanNote, setActiveTab }) => {
+const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjamuanNote, setActiveTab }) => {
     const [isPerjamuanExpanded, setIsPerjamuanExpanded] = React.useState(false);
-    const isRabuEarlier = new Date(rabuYMD) <= new Date(sabatYMD);
+
+    const mergeJadwalDataLocal = (saved, initial) => {
+        if (!saved) return initial;
+        const merged = { ...initial, ...saved };
+        const arrayKeys = ['petugas', 'sekolahSabat', 'khotbah', 'diakon', 'musik', 'perjamuan'];
+        arrayKeys.forEach(key => {
+            if (initial[key]) {
+                merged[key] = initial[key].map(baseItem => {
+                    const match = (saved[key] || []).find(s => s.tugas === baseItem.tugas);
+                    return match ? { ...match } : { ...baseItem };
+                });
+            }
+        });
+        if (initial.susunan) merged.susunan = { ...initial.susunan, ...(saved.susunan || {}) };
+        return merged;
+    };
+
+    const [jadwalSelectedDate, setJadwalSelectedDate] = React.useState(null);
+    const today = React.useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
+
+    const allDates = React.useMemo(() => {
+        const dates = [];
+        const seen = new Set();
+        if (jadwalSelectedDate) {
+            const selDate = new Date(jadwalSelectedDate + 'T00:00:00');
+            const selDay = selDate.getDay();
+            if ((selDay === 3 || selDay === 6) && !isNaN(selDate.getTime())) {
+                seen.add(jadwalSelectedDate);
+                dates.push(jadwalSelectedDate);
+            }
+        }
+        for (let i = 0; i <= 56; i++) {
+            const d = new Date(today);
+            d.setDate(today.getDate() + i);
+            const day = d.getDay();
+            if (day === 3 || day === 6) {
+                const ymd = toYMD(d);
+                if (!seen.has(ymd)) { seen.add(ymd); dates.push(ymd); }
+            }
+        }
+        Object.keys(jadwalDB || {}).forEach(dateStr => {
+            if (!seen.has(dateStr)) {
+                const d = new Date(dateStr + 'T00:00:00');
+                if (d >= today && (d.getDay() === 3 || d.getDay() === 6)) { seen.add(dateStr); dates.push(dateStr); }
+            }
+        });
+        dates.sort();
+        return dates;
+    }, [jadwalDB, today, jadwalSelectedDate]);
+
+    const selectedDate = (jadwalSelectedDate && allDates.includes(jadwalSelectedDate)) ? jadwalSelectedDate : allDates[0] || null;
+    const currentIndex = selectedDate ? allDates.indexOf(selectedDate) : 0;
+    const canGoPrev = currentIndex > 0;
+    const canGoNext = currentIndex < allDates.length - 1;
+
+    const handlePrev = () => { if (canGoPrev) setJadwalSelectedDate(allDates[currentIndex - 1]); };
+    const handleNext = () => { if (canGoNext) setJadwalSelectedDate(allDates[currentIndex + 1]); };
+
+    const isRabu = selectedDate ? new Date(selectedDate + 'T00:00:00').getDay() === 3 : false;
+    const title = isRabu ? 'IBADAH PERMINTAAN DOA' : 'IBADAH SABAT';
+
+    const activeJadwal = mergeJadwalDataLocal(jadwalDB?.[selectedDate], isRabu ? initialJadwalRabu : initialJadwalSabat);
+
+    const handleShare = () => {
+        const formatTime = (t) => t ? t.replace(/:/g, '.') : '';
+        let text = `*Pengumuman ${title}*\n*${formatIndoDate(selectedDate)}*\nPukul ${formatTime(activeJadwal.time)}\n\n`;
+
+        if (isRabu) {
+            text += `*Petugas Pelayanan:*\n`;
+            activeJadwal.petugas.forEach(p => { if (p.tugas && p.nama) text += `${p.tugas}: ${p.nama}\n`; });
+        } else {
+            text += `*Sekolah Sabat (${formatTime(activeJadwal.sekolahSabatTime)})*\n`;
+            activeJadwal.sekolahSabat.forEach(p => { if (p.tugas && p.nama) text += `${p.tugas}: ${p.nama}\n`; });
+            text += `\n*Khotbah / Umum (${formatTime(activeJadwal.khotbahTime)})*\n`;
+            activeJadwal.khotbah.forEach(p => { if (p.tugas && p.nama) text += `${p.tugas}: ${p.nama}\n`; });
+        }
+        text += `\nMohon kehadiran tepat waktu. Tuhan memberkati.\n\nLihat selengkapnya di: ${window.location.href}`;
+
+        if (navigator.share) {
+            navigator.share({ text: text }).catch(err => console.log('Share failed:', err));
+        } else {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Teks pengumuman disalin ke clipboard!");
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+            }).catch(() => {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+            });
+        }
+    };
 
     return (
     <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
-        <AcaraTerdekat setActiveTab={setActiveTab} />
+        <AcaraTerdekat allDates={allDates} selectedDate={selectedDate} handlePrev={handlePrev} handleNext={handleNext} canGoPrev={canGoPrev} canGoNext={canGoNext} title={title} setActiveTab={setActiveTab} />
         
         {/* Tombol GDrive Jadwal Lengkap */}
         <div className="bg-white dark:bg-navy-800/70 p-5 md:p-6 rounded-[1.25rem] shadow-sm border border-navy-100/60 dark:border-navy-700 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -1537,103 +1600,98 @@ const Jadwal = ({ activeRabu, activeSabat, rabuYMD, sabatYMD, showPerjamuan, per
         )}
 
         <div className="flex flex-col gap-6 md:gap-8">
-            {/* Rabu */}
-            <div className={`bg-white dark:bg-navy-800/70 p-5 md:p-7 rounded-[1.5rem] shadow-sm border border-navy-100/60 dark:border-navy-700 relative overflow-hidden group ${isRabuEarlier ? 'order-1' : 'order-2'}`}>
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-5 border-b pb-4 border-navy-50 dark:border-navy-700">
-                <div className="flex items-center space-x-3">
-                    <Icon name="Calendar" className="w-[1.4rem] h-[1.4rem] text-gold-500" />
-                    <div>
-                        <h2 className="text-lg font-bold text-navy-900 dark:text-white tracking-tight">{activeRabu.title}</h2>
-                        <p className="text-sm font-semibold text-navy-400 dark:text-gray-400 mt-0.5">{formatIndoDate(rabuYMD)}</p>
+            <div className="bg-white dark:bg-navy-800/70 p-5 md:p-7 rounded-[1.5rem] shadow-sm border-t-[6px] border-navy-800 dark:border-gold-600 border-x border-b border-navy-100/60 dark:border-navy-700 relative overflow-hidden group">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-5 border-b pb-4 border-navy-50 dark:border-navy-700">
+                    <div className="flex items-center space-x-3">
+                        <Icon name="Calendar" className="w-[1.4rem] h-[1.4rem] text-gold-500" />
+                        <div>
+                            <h2 className="text-lg font-bold text-navy-900 dark:text-white tracking-tight">{activeJadwal.title}</h2>
+                            <p className="text-sm font-semibold text-navy-400 dark:text-gray-400 mt-0.5">{formatIndoDate(selectedDate)}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3 mt-3 md:mt-0">
+                        <button onClick={handleShare} className="flex items-center text-xs font-bold text-white bg-[#4A7045] dark:bg-gold-600 hover:bg-[#3A5836] dark:hover:bg-gold-700 px-4 py-2 rounded-full uppercase tracking-widest shadow-sm transition-colors">
+                            <Icon name="Share" className="w-4 h-4 mr-2" /> Bagikan
+                        </button>
+                        <span className="text-xs font-bold text-navy-800 dark:text-navy-200 bg-gold-50 dark:bg-navy-700 px-4 py-2 rounded-full border border-gold-200 dark:border-gold-800 uppercase tracking-widest shadow-sm">
+                            {isRabu ? activeJadwal.time : `Waktu: ${activeJadwal.time}`}
+                        </span>
                     </div>
                 </div>
-                <span className="text-xs font-bold text-navy-800 dark:text-navy-200 bg-gold-50 dark:bg-navy-700 px-4 py-1.5 rounded-full mt-3 md:mt-0 w-fit border border-gold-200 dark:border-gold-800 uppercase tracking-widest shadow-sm">{activeRabu.time}</span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
-                {activeRabu.petugas.map((p, idx) => (
-                    <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                        <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                        <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
+
+                {isRabu ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
+                        {activeJadwal.petugas.map((p, idx) => (
+                            <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
+                                <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
+                            </div>
+                        ))}
                     </div>
-                ))}
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
+                        <div className="space-y-6">
+                            <div>
+                                <div className="flex justify-between items-end mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
+                                    <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Khotbah / Umum</h3>
+                                    <span className="text-[11px] text-navy-600 dark:text-gray-400 font-bold bg-white dark:bg-navy-800 px-2 py-0.5 rounded-full border border-navy-100 dark:border-navy-600">{activeJadwal.khotbahTime}</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    {activeJadwal.khotbah.map((p, idx) => (
+                                        <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
+                                            <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                            <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <div className="mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
+                                    <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Diakon & Diakones</h3>
+                                </div>
+                                <div className="flex flex-col">
+                                    {activeJadwal.diakon.map((p, idx) => (
+                                        <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
+                                            <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                            <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="space-y-6">
+                            <div>
+                                <div className="flex justify-between items-end mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
+                                    <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Sekolah Sabat</h3>
+                                    <span className="text-[11px] text-navy-600 dark:text-gray-400 font-bold bg-white dark:bg-navy-800 px-2 py-0.5 rounded-full border border-navy-100 dark:border-navy-600">{activeJadwal.sekolahSabatTime}</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    {activeJadwal.sekolahSabat.map((p, idx) => (
+                                        <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
+                                            <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                            <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <div className="mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
+                                    <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Pelayanan Musik</h3>
+                                </div>
+                                <div className="flex flex-col">
+                                    {activeJadwal.musik.map((p, idx) => (
+                                        <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
+                                            <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                            <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
-
-            {/* Sabat */}
-            <div className={`bg-white dark:bg-navy-800/70 p-5 md:p-7 rounded-[1.5rem] shadow-sm border-t-[6px] border-navy-800 dark:border-gold-600 border-x border-b border-navy-100/60 dark:border-navy-700 relative ${isRabuEarlier ? 'order-2' : 'order-1'}`}>
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 border-b pb-4 border-navy-50 dark:border-navy-700">
-                <div className="flex items-center space-x-3">
-                    <Icon name="Calendar" className="w-[1.4rem] h-[1.4rem] text-gold-500" />
-                    <div>
-                        <h2 className="text-lg font-bold text-navy-900 dark:text-white tracking-tight">{activeSabat.title}</h2>
-                        <p className="text-sm font-semibold text-navy-400 dark:text-gray-400 mt-0.5">{formatIndoDate(sabatYMD)}</p>
-                    </div>
-                </div>
-                <span className="text-xs font-bold text-navy-800 dark:text-navy-200 bg-gold-50 dark:bg-navy-700 px-4 py-1.5 rounded-full mt-3 md:mt-0 w-fit border border-gold-200 dark:border-gold-800 uppercase tracking-widest shadow-sm">Waktu: {activeSabat.time}</span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
-                <div className="space-y-6">
-                    <div>
-                        <div className="flex justify-between items-end mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
-                            <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Khotbah / Umum</h3>
-                            <span className="text-[11px] text-navy-600 dark:text-gray-400 font-bold bg-white dark:bg-navy-800 px-2 py-0.5 rounded-full border border-navy-100 dark:border-navy-600">{activeSabat.khotbahTime}</span>
-                        </div>
-                        <div className="flex flex-col">
-                            {activeSabat.khotbah.map((p, idx) => (
-                                <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                    <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div>
-                        <div className="mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
-                            <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Diakon & Diakones</h3>
-                        </div>
-                        <div className="flex flex-col">
-                            {activeSabat.diakon.map((p, idx) => (
-                                <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                    <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-                <div className="space-y-6">
-                    <div>
-                        <div className="flex justify-between items-end mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
-                            <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Sekolah Sabat</h3>
-                            <span className="text-[11px] text-navy-600 dark:text-gray-400 font-bold bg-white dark:bg-navy-800 px-2 py-0.5 rounded-full border border-navy-100 dark:border-navy-600">{activeSabat.sekolahSabatTime}</span>
-                        </div>
-                        <div className="flex flex-col">
-                            {activeSabat.sekolahSabat.map((p, idx) => (
-                                <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                    <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div>
-                        <div className="mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
-                            <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Pelayanan Musik</h3>
-                        </div>
-                        <div className="flex flex-col">
-                            {activeSabat.musik.map((p, idx) => (
-                                <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                    <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     </div>
     );
 };
@@ -7691,7 +7749,7 @@ const App = () => {
             case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} initialBook={initialBook} onBookOpened={() => setInitialBook(null)} setHideGlobalBack={setHideGlobalBack} />;
             case 'warta': return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta} selectedWarta={selectedWartaDetail} setSelectedWarta={setSelectedWartaDetail} setHideGlobalBack={setHideGlobalBack} />;
             case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} liveUrl={liveUrl} />;
-            case 'jadwal': return <Jadwal activeRabu={jadwalKhususRabu} activeSabat={jadwalKhususSabat} rabuYMD={displayRabuYMD} sabatYMD={displaySabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} perjamuanNote={perjamuanNote} setActiveTab={setActiveTab} />;
+            case 'jadwal': return <Jadwal jadwalDB={jadwalDB} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} perjamuanNote={perjamuanNote} setActiveTab={setActiveTab} />;
             case 'persembahan': return <Persembahan dataPejabat={dataPejabat} daftarRekening={daftarRekening} />;
             case 'keanggotaan': return <Keanggotaan setActiveTab={setActiveTab} />;
             case 'member_baru': return <MemberBaru setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
