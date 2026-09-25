@@ -387,19 +387,11 @@ const formatDate = (dateString) => {
 
 const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, canGoPrev, canGoNext, title, setActiveTab, carouselEvents }) => {
     const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
-    const dummyEvents = [
-        {
-            dateStr: "23-26 SEPTEMBER 2026",
-            title: "Minggu Sembahyang Rumah Tangga",
-            location: "Gereja dan daring Google Meet"
-        },
-        {
-            dateStr: "31 OKTOBER 2026",
-            title: "Perayaan Ulang Tahun Jemaat",
-            location: "Gedung Gereja Pisgah"
-        }
-    ];
-    const eventsToDisplay = (carouselEvents && carouselEvents.length > 0) ? carouselEvents : dummyEvents;
+    const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
+
+    if (eventsToDisplay.length === 0) {
+        return null; // Jangan tampilkan jika tidak ada acara
+    }
 
     return (
         <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
@@ -7479,18 +7471,7 @@ const App = () => {
     const [youtubeChannelTitle, setYoutubeChannelTitle] = React.useState("");
     const [liveUrl, setLiveUrl] = React.useState("https://www.youtube.com/embed/live_stream?channel=UCaTPS74NOHACRYU0zInVZ4g");
     const [heroImages, setHeroImages] = React.useState(["./carousel/hero-default.png"]);
-    const [carouselEvents, setCarouselEvents] = React.useState([
-        {
-            dateStr: "23-26 SEPTEMBER 2026",
-            title: "Minggu Sembahyang Rumah Tangga",
-            location: "Gereja dan daring Google Meet"
-        },
-        {
-            dateStr: "31 OKTOBER 2026",
-            title: "Perayaan Ulang Tahun Jemaat",
-            location: "Gedung Gereja Pisgah"
-        }
-    ]);
+    const [carouselEvents, setCarouselEvents] = React.useState([]);
     const [perjamuanDate, setPerjamuanDate] = React.useState('');
     const [perpuluhanDate, setPerpuluhanDate] = React.useState('');
     const [perjamuanNote, setPerjamuanNote] = React.useState('');
@@ -7707,13 +7688,11 @@ const App = () => {
                     setHeroImages(newHeroImages);
                 }
 
-                if (data.carouselEvents) {
+                if (data.carouselEvents !== undefined) {
                     try {
-                        const parsed = JSON.parse(data.carouselEvents);
-                        if (Array.isArray(parsed) && parsed.length > 0) {
-                            setCarouselEvents(parsed);
-                        }
-                    } catch (e) { console.error("Error parsing carouselEvents"); }
+                        const parsed = data.carouselEvents ? JSON.parse(data.carouselEvents) : [];
+                        setCarouselEvents(Array.isArray(parsed) ? parsed : []);
+                    } catch (e) { setCarouselEvents([]); }
                 }
 
                 if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
