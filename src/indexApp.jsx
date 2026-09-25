@@ -5360,6 +5360,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
                         {/* --- FORM Hero-Image --- */}
                         {pengaturanSubTab === 'carousel' && (
+                            <>
                             <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
                                 <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
                                     <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><Icon name="Image" className="w-6 h-6" /></div>
@@ -5437,6 +5438,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                     </button>
                                 </form>
                             </div>
+                            </>
                         )}
 
                         {/* --- FORM PENGUMUMAN --- */}
