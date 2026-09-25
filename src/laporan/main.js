@@ -3087,9 +3087,19 @@
       const signHtml = `
         <table style="width: 100%; margin-top: 40px; text-align: center; font-family: sans-serif; font-size: 10pt; color: #000; border: none; background: transparent; page-break-inside: avoid;">
           <tr>
-            <td style="width: 33%; border: none; vertical-align: bottom;">Dibuat Oleh,<br>${imgBen}<br><strong>${nameBen}</strong><br>${titleBen}</td>
-            <td style="width: 33%; border: none; vertical-align: bottom;">Disahkan Oleh,<br>${imgKet}<br><strong>${nameKet}</strong><br>${titleKet}</td>
-            <td style="width: 33%; border: none; vertical-align: bottom;">Mengetahui,<br>${imgPen}<br><strong>${namePen}</strong><br>${titlePen}</td>
+            <td style="width: 33%; border: none; vertical-align: top;">Dibuat Oleh,</td>
+            <td style="width: 33%; border: none; vertical-align: top;">Disahkan Oleh,</td>
+            <td style="width: 33%; border: none; vertical-align: top;">Mengetahui,</td>
+          </tr>
+          <tr>
+            <td style="width: 33%; border: none; vertical-align: middle; height: 100px;">${imgBen}</td>
+            <td style="width: 33%; border: none; vertical-align: middle; height: 100px;">${imgKet}</td>
+            <td style="width: 33%; border: none; vertical-align: middle; height: 100px;">${imgPen}</td>
+          </tr>
+          <tr>
+            <td style="width: 33%; border: none; vertical-align: bottom;"><strong>${nameBen}</strong><br>${titleBen}</td>
+            <td style="width: 33%; border: none; vertical-align: bottom;"><strong>${nameKet}</strong><br>${titleKet}</td>
+            <td style="width: 33%; border: none; vertical-align: bottom;"><strong>${namePen}</strong><br>${titlePen}</td>
           </tr>
         </table>
       `;
@@ -5673,10 +5683,22 @@
       const signHtml = `
         <table style="width: 100%; margin-top: 40px; text-align: center; font-family: sans-serif; font-size: 10pt; color: #000; border: none; background: transparent; page-break-inside: avoid;">
           <tr>
-            <td style="width: 25%; border: none; vertical-align: bottom;">Dibuat Oleh,<br>${imgBen}<br><strong>${nameBen}</strong><br>${titleBen}</td>
-            <td style="width: 25%; border: none; vertical-align: bottom;">Disetujui Oleh,<br>${imgBgn}<br><strong>${nameBgn}</strong><br>${titleBgn}</td>
-            <td style="width: 25%; border: none; vertical-align: bottom;">Disahkan Oleh,<br>${imgKet}<br><strong>${nameKet}</strong><br>${titleKet}</td>
-            <td style="width: 25%; border: none; vertical-align: bottom;">Mengetahui,<br>${imgPen}<br><strong>${namePen}</strong><br>${titlePen}</td>
+            <td style="width: 25%; border: none; vertical-align: top;">Dibuat Oleh,</td>
+            <td style="width: 25%; border: none; vertical-align: top;">Disetujui Oleh,</td>
+            <td style="width: 25%; border: none; vertical-align: top;">Disahkan Oleh,</td>
+            <td style="width: 25%; border: none; vertical-align: top;">Mengetahui,</td>
+          </tr>
+          <tr>
+            <td style="width: 25%; border: none; vertical-align: middle; height: 100px;">${imgBen}</td>
+            <td style="width: 25%; border: none; vertical-align: middle; height: 100px;">${imgBgn}</td>
+            <td style="width: 25%; border: none; vertical-align: middle; height: 100px;">${imgKet}</td>
+            <td style="width: 25%; border: none; vertical-align: middle; height: 100px;">${imgPen}</td>
+          </tr>
+          <tr>
+            <td style="width: 25%; border: none; vertical-align: bottom;"><strong>${nameBen}</strong><br>${titleBen}</td>
+            <td style="width: 25%; border: none; vertical-align: bottom;"><strong>${nameBgn}</strong><br>${titleBgn}</td>
+            <td style="width: 25%; border: none; vertical-align: bottom;"><strong>${nameKet}</strong><br>${titleKet}</td>
+            <td style="width: 25%; border: none; vertical-align: bottom;"><strong>${namePen}</strong><br>${titlePen}</td>
           </tr>
         </table>
       `;
