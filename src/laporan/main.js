@@ -366,12 +366,14 @@
     async function apiGet(action, params = {}) {
       if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
       try {
-        const body = JSON.stringify({ action, token: getToken() || '', data: params });
-        const res = await fetch(getActiveApiUrl(), {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          redirect: 'follow',
-          body
+        const queryParams = new URLSearchParams({ action, token: getToken() || '' });
+        for (const key in params) {
+          queryParams.append(key, typeof params[key] === 'object' ? JSON.stringify(params[key]) : params[key]);
+        }
+        const url = `${getActiveApiUrl()}?${queryParams.toString()}`;
+        const res = await fetch(url, {
+          method: 'GET',
+          redirect: 'follow'
         }).catch(() => { throw new Error('Jaringan Error. Periksa koneksi.'); });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
@@ -440,13 +442,11 @@
     }
 
     async function login(username, password) {
-      const body = JSON.stringify({ action: 'login', username: username.trim().toLowerCase(), password });
-      const res = await fetch(getActiveApiUrl(), {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        credentials: 'omit',
-        redirect: 'follow',
-        body
+      const queryParams = new URLSearchParams({ action: 'login', username: username.trim().toLowerCase(), password: password });
+      const url = `${getActiveApiUrl()}?${queryParams.toString()}`;
+      const res = await fetch(url, {
+        method: 'GET',
+        redirect: 'follow'
       }).catch(() => { throw new Error('Jaringan Error. Periksa koneksi internet.'); });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -1142,13 +1142,11 @@
     async function checkAPIConnection() {
       setStatus('loading', 'Menghubungkan...');
       try {
-        const url = getActiveApiUrl(); if (!url || url.trim() === '') { setStatus('offline', 'URL Belum Diset!'); isServerOnline = false; return false; }
+        const baseUrl = getActiveApiUrl(); if (!baseUrl || baseUrl.trim() === '') { setStatus('offline', 'URL Belum Diset!'); isServerOnline = false; return false; }
+        const url = `${baseUrl}?action=ping`;
         const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          credentials: 'omit',
-          redirect: 'follow',
-          body: JSON.stringify({ action: 'ping' })
+          method: 'GET',
+          redirect: 'follow'
         }).catch(() => { throw new Error('Jaringan Error'); });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
