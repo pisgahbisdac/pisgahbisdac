@@ -5954,11 +5954,15 @@ const Alkitab = ({ setHideGlobalBack }) => {
         setFetchError(null);
         setVerses([]);
         try {
-            // Revert back to bolls.life due to CORS block from beeble on github pages
-            const res = await fetch(`https://bolls.life/get-chapter/TB/${bookId}/${chapter}/`);
-            const data = await res.json();
-            const parsed = data.map(v => ({ ayat: v.verse, teks: v.text, type: 'content' }));
-            setVerses(parsed);
+            // Load the entire book from our local static API cache
+            const res = await fetch(import.meta.env.BASE_URL + `alkitab/${bookId}.json`);
+            if (!res.ok) throw new Error('Data kitab belum tersedia');
+            const bookData = await res.json();
+            const chapterData = bookData[chapter];
+            if (!chapterData) throw new Error('Pasal tidak ditemukan');
+            
+            // chapterData already has the correct format: { ayat, teks, type }
+            setVerses(chapterData);
         } catch (err) {
             setFetchError('Gagal memuat. Periksa koneksi internet Anda.');
         }
