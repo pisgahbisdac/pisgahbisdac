@@ -5993,6 +5993,68 @@ const Alkitab = ({ setHideGlobalBack }) => {
         );
     };
 
+    const renderDropdowns = () => (
+        <div className="flex-1 w-full flex flex-row gap-2 bg-white dark:bg-navy-900 p-2 rounded-[1.25rem] shadow-sm border border-navy-100 dark:border-navy-800 overflow-x-auto">
+            {/* KITAB */}
+            <div className="flex-1 min-w-[120px]">
+                <label className="text-[10px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-2">Kitab</label>
+                <select 
+                    value={selectedBook?.id || ''}
+                    onChange={(e) => {
+                        const newBook = ALKITAB_BOOKS.find(b => b.id === parseInt(e.target.value));
+                        setSelectedBook(newBook);
+                        setSelectedChapter(1);
+                    }}
+                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-3 py-2 text-navy-900 dark:text-white font-bold text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer"
+                >
+                    <option value="" disabled>Pilih Kitab...</option>
+                    {ALKITAB_BOOKS.map(b => (
+                        <option key={b.id} value={b.id}>{b.nama}</option>
+                    ))}
+                </select>
+            </div>
+            
+            {/* PASAL */}
+            <div className="flex-1 min-w-[80px]">
+                <label className="text-[10px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-2">Pasal</label>
+                <select 
+                    value={selectedChapter || ''}
+                    onChange={(e) => setSelectedChapter(parseInt(e.target.value))}
+                    disabled={!selectedBook}
+                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-3 py-2 text-navy-900 dark:text-white font-bold text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <option value="" disabled>--</option>
+                    {selectedBook && Array.from({ length: selectedBook.pasal }, (_, i) => i + 1).map(ch => (
+                        <option key={ch} value={ch}>{ch}</option>
+                    ))}
+                </select>
+            </div>
+            
+            {/* AYAT */}
+            <div className="flex-1 min-w-[80px]">
+                <label className="text-[10px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-2">Ayat</label>
+                <select 
+                    onChange={(e) => {
+                        const el = document.getElementById(`ayat-${e.target.value}`);
+                        if(el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            el.classList.add('bg-gold-50', 'dark:bg-navy-800');
+                            setTimeout(() => el.classList.remove('bg-gold-50', 'dark:bg-navy-800'), 2000);
+                        }
+                        e.target.value = "";
+                    }}
+                    disabled={!selectedChapter || verses.length === 0}
+                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-3 py-2 text-navy-900 dark:text-white font-bold text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <option value="" disabled>--</option>
+                    {verses.map(v => (
+                        <option key={v.ayat} value={v.ayat}>{v.ayat}</option>
+                    ))}
+                </select>
+            </div>
+        </div>
+    );
+
     if (!selectedBook) {
         return (
             <div className="animate-fade-in pb-10">
@@ -6001,6 +6063,9 @@ const Alkitab = ({ setHideGlobalBack }) => {
                         <Icon name="Book" className="w-6 h-6 mr-2 text-gold-500" />
                         Alkitab TB
                     </h2>
+                    <div className="mb-4">
+                        {renderDropdowns()}
+                    </div>
                     <div className="relative">
                         <Icon name="Search" className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-navy-400" />
                         <input
@@ -6027,12 +6092,14 @@ const Alkitab = ({ setHideGlobalBack }) => {
         const chapters = Array.from({ length: selectedBook.pasal }, (_, i) => i + 1);
         return (
             <div className="animate-fade-in pb-10">
-                <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex items-center gap-3">
-                    <button onClick={() => setSelectedBook(null)} className="flex items-center justify-center px-4 py-2 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group shrink-0">
-                        <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                        <span className="hidden sm:inline">Kembali</span>
-                    </button>
-                    <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white truncate">{selectedBook.nama}</h2>
+                <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex flex-col gap-3">
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-3 w-full">
+                        <button onClick={() => setSelectedBook(null)} className="flex items-center justify-center px-4 py-2 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group shrink-0 h-[3.25rem]">
+                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                            <span className="hidden sm:inline">Kembali</span>
+                        </button>
+                        {renderDropdowns()}
+                    </div>
                 </div>
                 <div className="mt-6">
                     <h3 className="text-sm font-black text-gold-600 uppercase tracking-widest mb-3 px-2">Pilih Pasal</h3>
@@ -6059,61 +6126,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
                             <span className="hidden sm:inline">Kembali</span>
                         </button>
                         
-                        <div className="flex-1 w-full flex flex-row gap-2 bg-white dark:bg-navy-900 p-2 rounded-[1.25rem] shadow-sm border border-navy-100 dark:border-navy-800 overflow-x-auto">
-                            {/* KITAB */}
-                            <div className="flex-1 min-w-[120px]">
-                                <label className="text-[10px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-2">Kitab</label>
-                                <select 
-                                    value={selectedBook.id}
-                                    onChange={(e) => {
-                                        const newBook = ALKITAB_BOOKS.find(b => b.id === parseInt(e.target.value));
-                                        setSelectedBook(newBook);
-                                        setSelectedChapter(1);
-                                    }}
-                                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-3 py-2 text-navy-900 dark:text-white font-bold text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer"
-                                >
-                                    {ALKITAB_BOOKS.map(b => (
-                                        <option key={b.id} value={b.id}>{b.nama}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            
-                            {/* PASAL */}
-                            <div className="flex-1 min-w-[80px]">
-                                <label className="text-[10px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-2">Pasal</label>
-                                <select 
-                                    value={selectedChapter}
-                                    onChange={(e) => setSelectedChapter(parseInt(e.target.value))}
-                                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-3 py-2 text-navy-900 dark:text-white font-bold text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer"
-                                >
-                                    {Array.from({ length: selectedBook.pasal }, (_, i) => i + 1).map(ch => (
-                                        <option key={ch} value={ch}>{ch}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            
-                            {/* AYAT */}
-                            <div className="flex-1 min-w-[80px]">
-                                <label className="text-[10px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-2">Ayat</label>
-                                <select 
-                                    onChange={(e) => {
-                                        const el = document.getElementById(`ayat-${e.target.value}`);
-                                        if(el) {
-                                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                            el.classList.add('bg-gold-50', 'dark:bg-navy-800');
-                                            setTimeout(() => el.classList.remove('bg-gold-50', 'dark:bg-navy-800'), 2000);
-                                        }
-                                        e.target.value = "";
-                                    }}
-                                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-3 py-2 text-navy-900 dark:text-white font-bold text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer"
-                                >
-                                    <option value="">--</option>
-                                    {verses.map(v => (
-                                        <option key={v.ayat} value={v.ayat}>{v.ayat}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
+                        {renderDropdowns()}
                     </div>
                     {/* Font Size Slider */}
                     <div className="flex items-center gap-3 mt-3 bg-navy-50 dark:bg-navy-800/50 rounded-xl px-4 py-2.5">
