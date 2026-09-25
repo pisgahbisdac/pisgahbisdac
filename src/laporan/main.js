@@ -2153,63 +2153,77 @@
       if (dest === 'BANK') finalNote = '[BANK] ' + note;
       else if (dest === 'CASH') finalNote = '[CASH] ' + note;
 
-      const btn = document.getElementById('savIncBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
-      try {
-        let genBase64 = null;
-        if (type === 'Perpuluhan') {
-          const items = [];
-          ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'].forEach(k => { const val = parseRupiah(document.getElementById(`incAmt${k.replace(/\s/g, '')}`).value); if (val > 0) items.push({ income_type: k, amount: val, note: finalNote }); });
-          if (items.length === 0) throw new Error('Isi nominal perpuluhan!');
-          
-          try {
-            const mappedItems = items.map(x => {
-              let alloc_d = 0, alloc_j = 0, alloc_b = 0;
-              if (x.income_type === 'Perpuluhan' || x.income_type === 'Khusus Daerah') alloc_d = x.amount;
-              else if (x.income_type === 'Terpadu') { alloc_d = x.amount / 2; alloc_j = x.amount / 2; }
-              else if (x.income_type === 'Khusus Jemaat') alloc_j = x.amount;
-              return { ...x, alloc_daerah: alloc_d, alloc_jemaat: alloc_j, alloc_bangun: alloc_b, date, receipt_no: receipt };
-            });
-            const htmlStr = generateReceiptHTML('income', { receipt_no: receipt, date, nama_pemberi: giver || 'Umum', unit_name: unit || '-' }, mappedItems);
-            genBase64 = await generateReceiptImageBase64(htmlStr);
-          } catch(e) { console.error('Failed generating receipt', e); }
-          
-          if (genBase64) { currentIncPhotos.unshift(genBase64); if (currentIncPhotos.length > 3) currentIncPhotos.pop(); }
+      let itemsToProcess = [];
+      let amountToProcess = 0;
+      let pctD = 0, pctJ = 100, pctB = 0;
 
-          await apiPost('saveBulkIncome', { date, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, items, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
+      if (type === 'Perpuluhan') {
+        ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah'].forEach(k => { const val = parseRupiah(document.getElementById(`incAmt${k.replace(/\s/g, '')}`).value); if (val > 0) itemsToProcess.push({ income_type: k, amount: val, note: finalNote }); });
+        if (itemsToProcess.length === 0) { notify('Isi nominal perpuluhan!', 'error'); return; }
+      } else {
+        amountToProcess = parseRupiah(document.getElementById('incAmount').value); if (amountToProcess <= 0) { notify('Isi nominal!', 'error'); return; }
+        const cfg = getIncomeTypeConfig(type);
+        if (cfg) {
+          pctD = cfg.pct_daerah; pctJ = cfg.pct_jemaat; pctB = cfg.pct_bangun;
         } else {
-          const amount = parseRupiah(document.getElementById('incAmount').value); if (amount <= 0) throw new Error('Isi nominal!');
-          let pctD = 0; let pctJ = 100; let pctB = 0;
-          const cfg = getIncomeTypeConfig(type);
-          if (cfg) {
-            pctD = cfg.pct_daerah; pctJ = cfg.pct_jemaat; pctB = cfg.pct_bangun;
-          } else {
-            const tLower = type.toLowerCase();
-            const isSabat13 = tLower.includes('sabat') && tLower.includes('13');
-            const isSabat = tLower.includes('sabat') && !tLower.includes('13');
-            if (type === 'Khusus Daerah' || type === 'Perpuluhan' || isSabat13) { pctD = 100; pctJ = 0; }
-            else if (type === 'Terpadu' || isSabat) { pctD = 50; pctJ = 50; }
-          }
-          
-          try {
-            const mappedItems = [{
-              income_type: type, amount, note: finalNote, date, receipt_no: receipt,
-              alloc_daerah: amount * (pctD / 100), alloc_jemaat: amount * (pctJ / 100), alloc_bangun: amount * (pctB / 100)
-            }];
-            const htmlStr = generateReceiptHTML('income', { receipt_no: receipt, date, nama_pemberi: giver || 'Umum', unit_name: unit || '-' }, mappedItems);
-            genBase64 = await generateReceiptImageBase64(htmlStr);
-          } catch(e) { console.error('Failed generating receipt', e); }
-          
-          if (genBase64) { currentIncPhotos.unshift(genBase64); if (currentIncPhotos.length > 3) currentIncPhotos.pop(); }
-
-          await apiPost('saveIncome', { date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount, note: finalNote, alloc_pct_daerah: pctD, alloc_pct_jemaat: pctJ, alloc_pct_bangun: pctB, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
+          const tLower = type.toLowerCase();
+          const isSabat13 = tLower.includes('sabat') && tLower.includes('13');
+          const isSabat = tLower.includes('sabat') && !tLower.includes('13');
+          if (type === 'Khusus Daerah' || type === 'Perpuluhan' || isSabat13) { pctD = 100; pctJ = 0; }
+          else if (type === 'Terpadu' || isSabat) { pctD = 50; pctJ = 50; }
         }
-        notify('Berhasil disimpan!', 'success');
+      }
 
-        document.getElementById('incType').value = ''; handleTypeChange(); document.getElementById('incUnit').value = ''; document.getElementById('incGiver').value = ''; document.getElementById('incReceipt').value = ''; document.getElementById('incAmount').value = ''; document.getElementById('incAmtPerpuluhan').value = ''; document.getElementById('incAmtTerpadu').value = ''; document.getElementById('incAmtKhususJemaat').value = ''; document.getElementById('incAmtKhususDaerah').value = ''; document.getElementById('incNote').value = '';
-        resetPhotoUpload('income');
+      const btn = document.getElementById('savIncBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Memproses...';
+      notify('Transaksi ' + receipt + ' diproses di latar belakang...', 'info');
 
-        updateIncomeAlloc(); await syncAllData(); renderIncomeList();
-      } catch (err) { notify(err.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = `Posting Pemasukan`; }
+      // Reset form synchronously
+      document.getElementById('incType').value = ''; handleTypeChange(); document.getElementById('incUnit').value = ''; document.getElementById('incGiver').value = ''; document.getElementById('incReceipt').value = ''; document.getElementById('incAmount').value = ''; document.getElementById('incAmtPerpuluhan').value = ''; document.getElementById('incAmtTerpadu').value = ''; document.getElementById('incAmtKhususJemaat').value = ''; document.getElementById('incAmtKhususDaerah').value = ''; document.getElementById('incNote').value = '';
+      resetPhotoUpload('income');
+      updateIncomeAlloc();
+      btn.disabled = false; btn.innerHTML = `Posting Pemasukan`;
+
+      // Async IIFE for background processing
+      (async () => {
+        try {
+          let genBase64 = null;
+          if (type === 'Perpuluhan') {
+            try {
+              const mappedItems = itemsToProcess.map(x => {
+                let alloc_d = 0, alloc_j = 0, alloc_b = 0;
+                if (x.income_type === 'Perpuluhan' || x.income_type === 'Khusus Daerah') alloc_d = x.amount;
+                else if (x.income_type === 'Terpadu') { alloc_d = x.amount / 2; alloc_j = x.amount / 2; }
+                else if (x.income_type === 'Khusus Jemaat') alloc_j = x.amount;
+                return { ...x, alloc_daerah: alloc_d, alloc_jemaat: alloc_j, alloc_bangun: alloc_b, date, receipt_no: receipt };
+              });
+              const htmlStr = generateReceiptHTML('income', { receipt_no: receipt, date, nama_pemberi: giver || 'Umum', unit_name: unit || '-' }, mappedItems);
+              genBase64 = await generateReceiptImageBase64(htmlStr);
+            } catch(e) { console.error('Failed generating receipt', e); }
+            
+            if (genBase64) { currentIncPhotos.unshift(genBase64); if (currentIncPhotos.length > 3) currentIncPhotos.pop(); }
+
+            await apiPost('saveBulkIncome', { date, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, items: itemsToProcess, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
+          } else {
+            try {
+              const mappedItems = [{
+                income_type: type, amount: amountToProcess, note: finalNote, date, receipt_no: receipt,
+                alloc_daerah: amountToProcess * (pctD / 100), alloc_jemaat: amountToProcess * (pctJ / 100), alloc_bangun: amountToProcess * (pctB / 100)
+              }];
+              const htmlStr = generateReceiptHTML('income', { receipt_no: receipt, date, nama_pemberi: giver || 'Umum', unit_name: unit || '-' }, mappedItems);
+              genBase64 = await generateReceiptImageBase64(htmlStr);
+            } catch(e) { console.error('Failed generating receipt', e); }
+            
+            if (genBase64) { currentIncPhotos.unshift(genBase64); if (currentIncPhotos.length > 3) currentIncPhotos.pop(); }
+
+            await apiPost('saveIncome', { date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount: amountToProcess, note: finalNote, alloc_pct_daerah: pctD, alloc_pct_jemaat: pctJ, alloc_pct_bangun: pctB, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
+          }
+          notify('Pemasukan ' + receipt + ' berhasil disimpan!', 'success');
+          await syncAllData(); renderIncomeList();
+        } catch (err) {
+          notify('Gagal menyimpan pemasukan ' + receipt + ': ' + err.message, 'error');
+        }
+      })();
     }
 
     function renderIncomeList() {
@@ -2384,23 +2398,34 @@
       let avail = Math.round(getSaldoForSource(rawSrc));
       if (amount > avail) { notify('Saldo tidak cukup!', 'error'); return; }
 
-      const btn = document.getElementById('savExpBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
-      try {
-        try {
-          const mappedItems = [{
-            department: dept, amount, note, date, receipt_no: receipt
-          }];
-          const htmlStr = generateReceiptHTML('expense', { receipt_no: receipt, date, nama_penerima: receiver || '-' }, mappedItems);
-          let genBase64 = await generateReceiptImageBase64(htmlStr);
-          if (genBase64) { currentExpPhotos.unshift(genBase64); if (currentExpPhotos.length > 3) currentExpPhotos.pop(); }
-        } catch(e) { console.error('Failed generating receipt', e); }
+      const btn = document.getElementById('savExpBtn'); 
+      btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Memproses...';
+      notify('Transaksi ' + receipt + ' diproses di latar belakang...', 'info');
 
-        await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentExpPhotos[0] || '', receipt_photo_base64_2: currentExpPhotos[1] || '', receipt_photo_base64_3: currentExpPhotos[2] || '', nama_penerima: receiver || '-' });
-        notify('Berhasil!', 'success');
-        document.getElementById('expDept').value = ''; document.getElementById('expReceipt').value = ''; document.getElementById('expAmount').value = ''; document.getElementById('expNote').value = ''; document.getElementById('expReceiver').value = '';
-        resetPhotoUpload('expense');
-        await syncAllData(); renderExpenseList();
-      } catch (err) { notify(err.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = `Posting Pengeluaran`; }
+      // Reset UI synchronously
+      document.getElementById('expDept').value = ''; document.getElementById('expReceipt').value = ''; document.getElementById('expAmount').value = ''; document.getElementById('expNote').value = ''; document.getElementById('expReceiver').value = '';
+      resetPhotoUpload('expense');
+      btn.disabled = false; btn.innerHTML = `Posting Pengeluaran`;
+
+      // Async IIFE for background processing
+      (async () => {
+        try {
+          try {
+            const mappedItems = [{
+              department: dept, amount, note, date, receipt_no: receipt
+            }];
+            const htmlStr = generateReceiptHTML('expense', { receipt_no: receipt, date, nama_penerima: receiver || '-' }, mappedItems);
+            let genBase64 = await generateReceiptImageBase64(htmlStr);
+            if (genBase64) { currentExpPhotos.unshift(genBase64); if (currentExpPhotos.length > 3) currentExpPhotos.pop(); }
+          } catch(e) { console.error('Failed generating receipt', e); }
+
+          await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentExpPhotos[0] || '', receipt_photo_base64_2: currentExpPhotos[1] || '', receipt_photo_base64_3: currentExpPhotos[2] || '', nama_penerima: receiver || '-' });
+          notify('Pengeluaran ' + receipt + ' berhasil disimpan!', 'success');
+          await syncAllData(); renderExpenseList();
+        } catch (err) {
+          notify('Gagal menyimpan pengeluaran ' + receipt + ': ' + err.message, 'error');
+        }
+      })();
     }
 
     async function saveMutasiForm() {
@@ -2428,23 +2453,34 @@
       let avail = Math.round(getSaldoForSource(rawSrc));
       if (amount > avail) { notify('Saldo tidak cukup!', 'error'); return; }
 
-      const btn = document.getElementById('savMutBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
-      try {
-        try {
-          const mappedItems = [{
-            department: dept, amount, note, date, receipt_no: receipt
-          }];
-          const htmlStr = generateReceiptHTML('mutasi', { receipt_no: receipt, date, nama_penerima: receiver }, mappedItems);
-          let genBase64 = await generateReceiptImageBase64(htmlStr);
-          if (genBase64) { currentMutPhotos.unshift(genBase64); if (currentMutPhotos.length > 3) currentMutPhotos.pop(); }
-        } catch(e) { console.error('Failed generating receipt', e); }
+      const btn = document.getElementById('savMutBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Memproses...';
+      notify('Transaksi ' + receipt + ' diproses di latar belakang...', 'info');
 
-        await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentMutPhotos[0] || '', receipt_photo_base64_2: currentMutPhotos[1] || '', receipt_photo_base64_3: currentMutPhotos[2] || '', nama_penerima: receiver, approved_by: 'Admin,Ketua Jemaat,Pendeta' });
-        notify('Berhasil Setor ke Bank!', 'success');
-        document.getElementById('mutReceipt').value = ''; document.getElementById('mutAmount').value = ''; document.getElementById('mutNote').value = '';
-        resetPhotoUpload('mutasi');
-        await syncAllData(); renderMutasiList();
-      } catch (err) { notify(err.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = `Proses Setoran Bank`; }
+      // Reset form synchronously
+      document.getElementById('mutReceipt').value = ''; document.getElementById('mutAmount').value = ''; document.getElementById('mutNote').value = '';
+      resetPhotoUpload('mutasi');
+      btn.disabled = false; btn.innerHTML = `Proses Setoran Bank`;
+
+      // Async IIFE for background processing
+      (async () => {
+        try {
+          try {
+            const mappedItems = [{
+              department: dept, amount, note, date, receipt_no: receipt
+            }];
+            const htmlStr = generateReceiptHTML('mutasi', { receipt_no: receipt, date, nama_penerima: receiver }, mappedItems);
+            let genBase64 = await generateReceiptImageBase64(htmlStr);
+            if (genBase64) { currentMutPhotos.unshift(genBase64); if (currentMutPhotos.length > 3) currentMutPhotos.pop(); }
+          } catch(e) { console.error('Failed generating receipt', e); }
+
+          await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentMutPhotos[0] || '', receipt_photo_base64_2: currentMutPhotos[1] || '', receipt_photo_base64_3: currentMutPhotos[2] || '', nama_penerima: receiver, approved_by: 'Admin,Ketua Jemaat,Pendeta' });
+          notify('Mutasi ' + receipt + ' berhasil Setor ke Bank!', 'success');
+          await syncAllData(); renderMutasiList();
+        } catch (err) {
+          notify('Gagal menyimpan mutasi ' + receipt + ': ' + err.message, 'error');
+        }
+      })();
     }
 
     function renderExpenseList() {
