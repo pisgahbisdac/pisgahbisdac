@@ -385,6 +385,95 @@ const formatDate = (dateString) => {
     return `${d}/${m}/${y}`;
 };
 
+const AcaraTerdekat = ({ jadwalDB, setActiveTab }) => {
+    // Determine upcoming schedules
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const getNextDay = (date, dayOfWeek) => {
+        const result = new Date(date);
+        result.setDate(result.getDate() + (dayOfWeek + 7 - result.getDay()) % 7);
+        if (result.getTime() < today.getTime()) {
+            result.setDate(result.getDate() + 7);
+        }
+        return result;
+    };
+
+    const nextWednesday = getNextDay(today, 3);
+    const nextSabbath = getNextDay(today, 6);
+    
+    // Sort them
+    const upcomingSchedules = [
+        { date: toYMD(nextWednesday), title: 'IBADAH PERMINTAAN DOA' },
+        { date: toYMD(nextSabbath), title: 'IBADAH SABAT' }
+    ].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    const [currentScheduleIdx, setCurrentScheduleIdx] = React.useState(0);
+    const currentSchedule = upcomingSchedules[currentScheduleIdx];
+
+    const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
+    const dummyEvents = [
+        {
+            dateStr: "23-26 SEPTEMBER 2026",
+            title: "Minggu Sembahyang Rumah Tangga",
+            location: "Gereja dan daring Google Meet"
+        },
+        {
+            dateStr: "31 OKTOBER 2026",
+            title: "Perayaan Ulang Tahun Jemaat",
+            location: "Gedung Gereja Pisgah"
+        }
+    ];
+
+    return (
+        <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
+            <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-1">Jangan Lewatkan</h3>
+            <h2 className="text-xl md:text-2xl font-extrabold text-[#2C3F21] dark:text-white mb-4">Acara Terdekat</h2>
+
+            {/* Dark Card Carousel */}
+            <div className="relative w-full rounded-[1.5rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-900 shadow-xl aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group">
+                <div className="absolute top-0 right-0 w-[60%] sm:w-[50%] h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
+                    <div className="absolute top-[-30%] right-[-10%] w-[100%] sm:w-[80%] pt-[100%] sm:pt-[80%] rounded-full border-[30px] sm:border-[50px] border-white"></div>
+                </div>
+
+                <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
+                    <span className="inline-block bg-[#D19B45] text-[#2C3F21] text-[9px] sm:text-[10px] md:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-3 shadow-md">{dummyEvents[currentEventIdx].dateStr}</span>
+                    <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight">{dummyEvents[currentEventIdx].title}</h3>
+                    <p className="text-xs sm:text-sm md:text-base text-gray-200 dark:text-navy-100 flex items-center font-medium opacity-90"><Icon name="Check" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0" /> <span className="truncate">{dummyEvents[currentEventIdx].location}</span></p>
+                </div>
+
+                {/* Event Controls */}
+                <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-1 sm:gap-2 z-20">
+                    <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? dummyEvents.length - 1 : prev - 1))} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10"><Icon name="ChevronLeft" className="w-3 h-3 sm:w-4 sm:h-4" /></button>
+                    <button onClick={() => setCurrentEventIdx(prev => (prev === dummyEvents.length - 1 ? 0 : prev + 1))} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10"><Icon name="ChevronRight" className="w-3 h-3 sm:w-4 sm:h-4" /></button>
+                </div>
+
+                {/* Event Dots */}
+                <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex gap-1 sm:gap-1.5 z-20">
+                    {dummyEvents.map((_, idx) => (
+                        <div key={idx} className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-4 sm:w-6 bg-[#D19B45]' : 'w-1 sm:w-1.5 bg-white/30'}`}></div>
+                    ))}
+                </div>
+            </div>
+
+            {/* White Pill Schedule */}
+            <div className="mt-4 bg-white dark:bg-navy-800 rounded-2xl md:rounded-full p-3 sm:p-4 shadow-sm border border-gray-200 dark:border-navy-700 flex items-center justify-between">
+                <button onClick={() => setCurrentScheduleIdx(prev => (prev === 0 ? upcomingSchedules.length - 1 : prev - 1))} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center shrink-0 hover:bg-[#3A5836] dark:hover:bg-navy-800 transition-colors shadow-md"><Icon name="ChevronLeft" className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                
+                <div className="flex-1 text-center cursor-pointer px-2 sm:px-4 min-w-0" onClick={() => setActiveTab('jadwal')}>
+                    <h4 className="text-sm sm:text-base font-extrabold text-[#2C3F21] dark:text-white truncate">{formatIndoDate(currentSchedule.date)}</h4>
+                    <p className="text-[9px] sm:text-[10px] md:text-xs font-bold text-[#596B4D] dark:text-navy-400 uppercase tracking-widest truncate">{currentSchedule.title}</p>
+                </div>
+                
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <button onClick={() => setCurrentScheduleIdx(prev => (prev === upcomingSchedules.length - 1 ? 0 : prev + 1))} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center hover:bg-[#3A5836] dark:hover:bg-navy-800 transition-colors shadow-md mr-0 sm:mr-3"><Icon name="ChevronRight" className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                    <button onClick={() => setActiveTab('jadwal')} className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-2xl bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center hover:bg-[#3A5836] dark:hover:bg-navy-800 transition-colors shadow-lg"><Icon name="Calendar" className="w-5 h-5 sm:w-6 sm:h-6" /></button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, anthemTitle2, youtubeTitle, youtubeChannelTitle, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, perjamuanNote, perpuluhanNote, kontakGereja }) => {
     const [currentSlide, setCurrentSlide] = React.useState(0);
     const [tappedMenu, setTappedMenu] = React.useState(null);
@@ -537,6 +626,8 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         </div>
                     </div>
                 </div>
+
+                <AcaraTerdekat jadwalDB={jadwalDB} setActiveTab={setActiveTab} />
 
                 {/* SABAT PERJAMUAN & PERPULUHAN SECTION */}
                 {(showPerjamuan || showPerpuluhan) && (() => {
