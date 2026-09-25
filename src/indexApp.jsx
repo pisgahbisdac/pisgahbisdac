@@ -5937,6 +5937,8 @@ const Alkitab = ({ setHideGlobalBack }) => {
     const [isLoadingChapter, setIsLoadingChapter] = React.useState(false);
     const [fetchError, setFetchError] = React.useState(null);
     const [searchQuery, setSearchQuery] = React.useState('');
+    const [searchResults, setSearchResults] = React.useState(null);
+    const [isSearching, setIsSearching] = React.useState(false);
     const [fontSize, setFontSize] = React.useState(16);
 
     React.useEffect(() => {
@@ -5962,6 +5964,24 @@ const Alkitab = ({ setHideGlobalBack }) => {
         }
         setIsLoadingChapter(false);
     }, []);
+
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        if (!searchQuery.trim()) {
+            setSearchResults(null);
+            return;
+        }
+        setIsSearching(true);
+        try {
+            const res = await fetch(`https://bolls.life/search/TB/?search=${encodeURIComponent(searchQuery)}&match_case=false&match_whole=false`);
+            const data = await res.json();
+            setSearchResults(data);
+        } catch (err) {
+            console.error(err);
+            setSearchResults([]);
+        }
+        setIsSearching(false);
+    };
 
     React.useEffect(() => {
         if (selectedBook && selectedChapter) {
@@ -6066,22 +6086,56 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     <div className="mb-4">
                         {renderDropdowns()}
                     </div>
-                    <div className="relative">
-                        <Icon name="Search" className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-navy-400" />
+                    <form onSubmit={handleSearch} className="relative flex items-center">
+                        <Icon name="Search" className="absolute left-4 w-5 h-5 text-navy-400" />
                         <input
                             type="text"
-                            placeholder="Cari Kitab..."
+                            placeholder="Cari Kitab atau ketik kata untuk cari ayat..."
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-white dark:bg-navy-900 border-2 border-navy-100 dark:border-navy-700 rounded-xl py-3 pl-12 pr-4 text-sm font-bold focus:outline-none focus:border-gold-400 dark:focus:border-gold-500 transition-colors text-navy-900 dark:text-white"
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                if (e.target.value === '') setSearchResults(null);
+                            }}
+                            className="w-full bg-white dark:bg-navy-900 border-2 border-navy-100 dark:border-navy-700 rounded-xl py-3 pl-12 pr-28 text-sm font-bold focus:outline-none focus:border-gold-400 dark:focus:border-gold-500 transition-colors text-navy-900 dark:text-white"
                         />
-                    </div>
+                        {searchQuery.trim() && (
+                            <button type="submit" disabled={isSearching} className="absolute right-2 bg-gold-400 hover:bg-gold-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors disabled:opacity-50">
+                                {isSearching ? 'Mencari...' : 'Cari Ayat'}
+                            </button>
+                        )}
+                    </form>
                 </div>
                 <div className="mt-6">
-                    {renderBookList(pl, 'Perjanjian Lama')}
-                    {renderBookList(pb, 'Perjanjian Baru')}
-                    {filterBooks([...pl, ...pb]).length === 0 && (
-                        <p className="text-center text-navy-400 py-10 font-semibold">Kitab tidak ditemukan.</p>
+                    {searchResults ? (
+                        <div>
+                            <div className="flex justify-between items-end mb-4 px-2">
+                                <h3 className="text-sm font-black text-gold-600 uppercase tracking-widest">Hasil Pencarian Ayat</h3>
+                                <button onClick={() => { setSearchResults(null); setSearchQuery(''); }} className="text-xs font-bold text-navy-400 hover:text-navy-600 dark:hover:text-white transition">Tutup</button>
+                            </div>
+                            {searchResults.length === 0 ? (
+                                <p className="text-center text-navy-400 py-10 font-semibold">Tidak ada ayat yang cocok dengan kata "{searchQuery}".</p>
+                            ) : (
+                                <div className="space-y-3">
+                                    {searchResults.map((res, i) => {
+                                        const b = ALKITAB_BOOKS.find(book => book.id === res.book);
+                                        return (
+                                            <div key={i} onClick={() => { setSelectedBook(b); setSelectedChapter(res.chapter); setSearchResults(null); }} className="bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700 p-4 rounded-xl shadow-sm hover:border-gold-300 dark:hover:border-gold-500 transition cursor-pointer group">
+                                                <div className="font-black text-gold-500 text-xs mb-1.5">{b?.nama} {res.chapter}:{res.verse}</div>
+                                                <p className="text-sm md:text-base text-navy-800 dark:text-navy-100 leading-relaxed" dangerouslySetInnerHTML={{ __html: res.text.replace(/<mark>/g, '<mark className="bg-gold-200 dark:bg-gold-600/50 text-navy-900 dark:text-white rounded px-1">') }} />
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <>
+                            {renderBookList(pl, 'Perjanjian Lama')}
+                            {renderBookList(pb, 'Perjanjian Baru')}
+                            {filterBooks([...pl, ...pb]).length === 0 && (
+                                <p className="text-center text-navy-400 py-10 font-semibold">Kitab tidak ditemukan. Tekan "Cari Ayat" untuk mencari isi ayat.</p>
+                            )}
+                        </>
                     )}
                 </div>
             </div>
