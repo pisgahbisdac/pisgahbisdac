@@ -683,90 +683,100 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                     );
                 })()}
 
-                {/* ACARA TERDEKAT */}
-                {eventsToDisplay.length > 0 && (
-                    <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-16 md:mt-24 mb-10">
-                        <div className="text-center mb-10">
-                            <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-2">Jangan Lewatkan</h3>
-                            <h2 className="text-3xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-white transition-colors">Acara Terdekat</h2>
-                        </div>
-                        <div className="relative w-full rounded-[2rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-900 shadow-2xl aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-12 text-white group">
-                            {eventsToDisplay[currentEventIdx]?.imageUrl ? (
-                                <>
-                                    <img src={eventsToDisplay[currentEventIdx].imageUrl} alt="Event Background" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20"></div>
-                                </>
-                            ) : (
-                                <div className="absolute top-0 right-0 w-[60%] sm:w-[50%] h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
-                                    <div className="absolute top-[-30%] right-[-10%] w-[100%] sm:w-[80%] pt-[100%] sm:pt-[80%] rounded-full border-[30px] sm:border-[50px] border-white"></div>
+                {/* ACARA TERDEKAT, PENGUMUMAN & VISI MISI */}
+                <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-16 md:mt-24 mb-28 relative">
+                    <div className={`grid grid-cols-1 ${eventsToDisplay.length > 0 && !isPengumumanReallyEmpty() ? 'lg:grid-cols-3' : (eventsToDisplay.length > 0 || !isPengumumanReallyEmpty() ? 'lg:grid-cols-2' : 'lg:grid-cols-1')} gap-8 lg:gap-8 relative z-10 items-stretch`}>
+                        
+                        {/* ACARA TERDEKAT */}
+                        {eventsToDisplay.length > 0 && (
+                            <div className="flex flex-col group w-full">
+                                <div className="text-center mb-6">
+                                    <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-1">Jangan Lewatkan</h3>
+                                    <h2 className="text-2xl md:text-3xl font-extrabold text-[#2C3F21] dark:text-white transition-colors">Acara Terdekat</h2>
                                 </div>
-                            )}
-
-                            <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
-                                <span className="inline-block bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white text-[10px] md:text-xs font-black px-4 py-1.5 rounded-full mb-4 shadow-lg">{eventsToDisplay[currentEventIdx]?.dateStr || ''}</span>
-                                <h3 className="text-2xl sm:text-3xl md:text-5xl font-black leading-tight mb-3 tracking-tight drop-shadow-md">{eventsToDisplay[currentEventIdx]?.title || ''}</h3>
-                                <p className="text-sm md:text-lg text-gray-200 flex items-center font-medium drop-shadow-sm"><Icon name="MapPin" className="w-4 h-4 mr-2 shrink-0 text-[#D19B45]" /> <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span></p>
-                            </div>
-
-                            <div className="absolute top-6 right-6 flex gap-2 z-20">
-                                <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))} className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow-lg"><Icon name="ChevronLeft" className="w-5 h-5" /></button>
-                                <button onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))} className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow-lg"><Icon name="ChevronRight" className="w-5 h-5" /></button>
-                            </div>
-
-                            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-                                {eventsToDisplay.map((_, idx) => (
-                                    <div key={idx} className={`h-2 rounded-full transition-all duration-300 shadow-sm ${idx === currentEventIdx ? 'w-8 bg-[#D19B45]' : 'w-2 bg-white/40'}`}></div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* PENGUMUMAN & VISI MISI (Split Layout) */}
-                <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-24 md:mt-32 mb-28 relative">
-
-                    <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24 relative z-10">
-                        {/* Left: Image Card OR Announcement - GLASSMORPHISM */}
-                        {(!isPengumumanReallyEmpty()) && (
-                            <div className="w-full lg:w-1/2 relative group">
-                                <div className="relative z-10 glass-box p-4 rounded-[2.5rem] transition-all duration-500 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.1)]">
-                                    <div className="rounded-[2rem] bg-white/50 dark:bg-navy-900/50 p-8 min-h-[300px] flex flex-col justify-center items-center text-center relative border border-white/60 dark:border-navy-600/50 shadow-inner">
-                                        <div className="absolute top-6 left-6 bg-gradient-to-r from-[#D19B45] to-[#B8863B] dark:from-gold-600 dark:to-gold-500 text-white text-xs font-bold px-5 py-2.5 rounded-full flex items-center shadow-lg backdrop-blur-md border border-white/20">
-                                            <Icon name="Megaphone" className="w-4 h-4 mr-2 drop-shadow-sm" /> Pengumuman
+                                <div className="relative w-full rounded-[2.5rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-900 shadow-xl flex-1 flex flex-col justify-end p-8 text-white min-h-[420px]">
+                                    {eventsToDisplay[currentEventIdx]?.imageUrl ? (
+                                        <>
+                                            <img src={eventsToDisplay[currentEventIdx].imageUrl} alt="Event Background" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20"></div>
+                                        </>
+                                    ) : (
+                                        <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
+                                            <div className="absolute top-[-20%] right-[-20%] w-[120%] pt-[120%] rounded-full border-[40px] border-white"></div>
                                         </div>
-                                        <h3 className="text-3xl font-extrabold text-[#2C3F21] dark:text-white mb-6 mt-10 drop-shadow-sm">{pengumuman.header || "Pengumuman Pekan Ini"}</h3>
-                                        <div className="text-[#596B4D] dark:text-gray-300 text-base leading-relaxed max-h-[250px] overflow-y-auto custom-scrollbar w-full px-4 font-medium" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}></div>
+                                    )}
+
+                                    <div className="relative z-10 w-full">
+                                        <span className="inline-block bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white text-[10px] font-black px-3 py-1.5 rounded-full mb-3 shadow-lg">{eventsToDisplay[currentEventIdx]?.dateStr || ''}</span>
+                                        <h3 className="text-2xl md:text-3xl font-black leading-tight mb-2 tracking-tight drop-shadow-md">{eventsToDisplay[currentEventIdx]?.title || ''}</h3>
+                                        <p className="text-sm text-gray-200 flex items-center font-medium drop-shadow-sm"><Icon name="MapPin" className="w-4 h-4 mr-1.5 shrink-0 text-[#D19B45]" /> <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span></p>
+                                    </div>
+
+                                    <div className="absolute top-6 right-6 flex gap-2 z-20">
+                                        <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow-lg"><Icon name="ChevronLeft" className="w-4 h-4" /></button>
+                                        <button onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow-lg"><Icon name="ChevronRight" className="w-4 h-4" /></button>
+                                    </div>
+
+                                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                                        {eventsToDisplay.map((_, idx) => (
+                                            <div key={idx} className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${idx === currentEventIdx ? 'w-6 bg-[#D19B45]' : 'w-1.5 bg-white/40'}`}></div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
                         )}
-                        {/* Right: Text Content */}
-                        <div className={`w-full ${!isPengumumanReallyEmpty() ? 'lg:w-1/2' : ''} relative`}>
-                            <div className="glass-box rounded-[2.5rem] p-8 md:p-12 transition-all duration-500 flex flex-col items-center text-center">
-                                <h2 className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 mb-8 tracking-tight leading-[1.2] drop-shadow-sm">
-                                    Visi & Misi GMAHK
-                                </h2>
 
-                                <div className="text-[#4A7045] dark:text-gold-200/90 text-lg md:text-xl leading-relaxed mb-10 space-y-10 w-full">
-                                    <div className="flex flex-col items-center">
-                                        <span className="inline-block px-5 py-2 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-sm mb-4 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Visi</span>
-                                        <span className="pt-1">Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">selaras sepenuhnya dengan kehendak dan kebenaran-Nya</span>.</span>
-                                    </div>
-                                    <div className="flex flex-col items-center">
-                                        <span className="inline-block px-5 py-2 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-sm mb-4 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Misi</span>
-                                        <span className="pt-1"><span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">Memanggil semua orang menjadi murid Yesus Kristus</span>, <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">memberitakan Injil kekal</span>, dan <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">mempersiapkan dunia bagi kedatangan-Nya</span>.</span>
+                        {/* PENGUMUMAN */}
+                        {(!isPengumumanReallyEmpty()) && (
+                            <div className="flex flex-col group w-full relative">
+                                <div className="text-center mb-6 hidden lg:block"><h3 className="text-[10px] md:text-xs font-black text-transparent uppercase tracking-[0.2em] mb-1 opacity-0 pointer-events-none">Spacer</h3><h2 className="text-2xl md:text-3xl font-extrabold text-transparent opacity-0 pointer-events-none">Spacer</h2></div>
+                                <div className="relative z-10 glass-box p-4 rounded-[2.5rem] transition-all duration-500 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] flex-1 flex flex-col min-h-[420px]">
+                                    <div className="rounded-[2rem] bg-white/50 dark:bg-navy-900/50 p-6 xl:p-8 flex-1 flex flex-col justify-center items-center text-center relative border border-white/60 dark:border-navy-600/50 shadow-inner">
+                                        <div className="absolute top-6 left-6 bg-gradient-to-r from-[#D19B45] to-[#B8863B] dark:from-gold-600 dark:to-gold-500 text-white text-[10px] md:text-xs font-bold px-4 py-2 rounded-full flex items-center shadow-lg backdrop-blur-md border border-white/20">
+                                            <Icon name="Megaphone" className="w-3 h-3 md:w-4 md:h-4 mr-2 drop-shadow-sm" /> Pengumuman
+                                        </div>
+                                        <h3 className="text-2xl md:text-3xl font-extrabold text-[#2C3F21] dark:text-white mb-6 mt-12 drop-shadow-sm">{pengumuman.header || "Pengumuman Pekan Ini"}</h3>
+                                        <div className="text-[#596B4D] dark:text-gray-300 text-sm md:text-base leading-relaxed overflow-y-auto custom-scrollbar w-full px-2 font-medium max-h-[250px]" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}></div>
                                     </div>
                                 </div>
-
-                                <div className="flex gap-4 mt-2">
-                                    <a href="./pembangunan.html" className="group bg-white/60 dark:bg-navy-700/50 backdrop-blur-md hover:bg-white dark:hover:bg-navy-600 border border-[#4A7045]/20 dark:border-gold-500/30 text-[#4A7045] dark:text-gold-400 font-bold py-4 px-8 rounded-2xl transition-all duration-300 inline-flex items-center shadow-lg hover:shadow-xl hover:-translate-y-1">
-                                        <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-gold-400 dark:to-gold-600 text-white dark:text-navy-900 rounded-xl p-2 mr-4 group-hover:scale-110 transition-transform duration-300 shadow-md">
-                                            <Icon name="Church" className="w-5 h-5" />
+                            </div>
+                        )}
+                        
+                        {/* VISI MISI */}
+                        <div className="flex flex-col w-full relative">
+                            <div className="text-center mb-6 hidden lg:block"><h3 className="text-[10px] md:text-xs font-black text-transparent uppercase tracking-[0.2em] mb-1 opacity-0 pointer-events-none">Spacer</h3><h2 className="text-2xl md:text-3xl font-extrabold text-transparent opacity-0 pointer-events-none">Spacer</h2></div>
+                            <div className="glass-box rounded-[2.5rem] p-6 xl:p-8 transition-all duration-500 flex flex-col items-center text-center flex-1 justify-center min-h-[420px]">
+                                <h2 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 mb-6 tracking-tight leading-[1.2] drop-shadow-sm">
+                                    Visi & Misi GMAHK
+                                </h2>
+                                <div className="text-[#4A7045] dark:text-gold-200/90 text-sm md:text-base leading-relaxed space-y-6 w-full mb-8">
+                                    <div className="flex flex-col items-center">
+                                        <span className="inline-block px-4 py-1.5 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] mb-3 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Visi</span>
+                                        <span className="pt-1">Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar <span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">selaras sepenuhnya dengan kehendak dan kebenaran-Nya</span>.</span>
+                                    </div>
+                                    <div className="flex flex-col items-center">
+                                        <span className="inline-block px-4 py-1.5 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] mb-3 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Misi</span>
+                                        <span className="pt-1"><span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">Memanggil semua orang menjadi murid Yesus Kristus</span>, <span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">memberitakan Injil kekal</span>, dan <span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">mempersiapkan dunia bagi kedatangan-Nya</span>.</span>
+                                    </div>
+                                </div>
+                                <div className="flex gap-4 mt-auto">
+                                    <a href="./pembangunan.html" className="group bg-white/60 dark:bg-navy-700/50 backdrop-blur-md hover:bg-white dark:hover:bg-navy-600 border border-[#4A7045]/20 dark:border-gold-500/30 text-[#4A7045] dark:text-gold-400 font-bold py-3 px-6 rounded-2xl transition-all duration-300 inline-flex items-center shadow-lg hover:shadow-xl hover:-translate-y-1 text-xs md:text-sm">
+                                        <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-gold-400 dark:to-gold-600 text-white dark:text-navy-900 rounded-xl p-2 mr-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                                            <Icon name="Church" className="w-4 h-4" />
                                         </div>
-                                        Lihat Progres Pembangunan
+                                        Progres Pembangunan
                                     </a>
                                 </div>
                             </div>
+                            
+                            {/* Interactive floating Install App icon */}
+                            <button
+                                onClick={() => window.installPWA && window.installPWA()}
+                                title="Instal Aplikasi"
+                                className="absolute -bottom-5 -right-2 bg-white/80 dark:bg-navy-700/80 backdrop-blur-xl p-4 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] z-20 flex items-center justify-center border border-white/60 dark:border-white/10 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 hover:-translate-y-2"
+                            >
+                                <Icon name="MonitorDown" className="w-6 h-6 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
+                            </button>
                         </div>
                     </div>
                 </div>
