@@ -386,6 +386,7 @@ const formatDate = (dateString) => {
 };
 
 const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, canGoPrev, canGoNext, title, setActiveTab, carouselEvents, handleDateSelect }) => {
+    const dateInputRef = React.useRef(null);
     const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
     const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
 
@@ -444,6 +445,7 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                     <button onClick={handleNext} className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center transition-colors shadow-md mr-0 sm:mr-3 ${!canGoNext ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#3A5836] dark:hover:bg-navy-800'}`} disabled={!canGoNext}><Icon name="ChevronRight" className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                     <div className="relative inline-flex">
                         <input 
+                            ref={dateInputRef}
                             type="date" 
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                             value={selectedDate || ''}
@@ -452,7 +454,7 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                             }}
                             title="Pilih Tanggal Jadwal"
                         />
-                        <button className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-2xl bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center hover:bg-[#3A5836] dark:hover:bg-navy-800 transition-colors shadow-lg"><Icon name="Calendar" className="w-5 h-5 sm:w-6 sm:h-6" /></button>
+                        <button onClick={() => { if(dateInputRef.current && typeof dateInputRef.current.showPicker === 'function') dateInputRef.current.showPicker(); }} className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-2xl bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center hover:bg-[#3A5836] dark:hover:bg-navy-800 transition-colors shadow-lg relative z-20"><Icon name="Calendar" className="w-5 h-5 sm:w-6 sm:h-6 pointer-events-none" /></button>
                     </div>
                 </div>
             </div>
