@@ -5860,62 +5860,145 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 };
 
 // --- COMPONENT: ALKITAB ---
+const ALKITAB_BOOKS = [
+    { id: 1,  nama: 'Kejadian',       singkat: 'Kej', pasal: 50, testamen: 'PL' },
+    { id: 2,  nama: 'Keluaran',       singkat: 'Kel', pasal: 40, testamen: 'PL' },
+    { id: 3,  nama: 'Imamat',         singkat: 'Im',  pasal: 27, testamen: 'PL' },
+    { id: 4,  nama: 'Bilangan',       singkat: 'Bil', pasal: 36, testamen: 'PL' },
+    { id: 5,  nama: 'Ulangan',        singkat: 'Ul',  pasal: 34, testamen: 'PL' },
+    { id: 6,  nama: 'Yosua',          singkat: 'Yos', pasal: 24, testamen: 'PL' },
+    { id: 7,  nama: 'Hakim-hakim',    singkat: 'Hak', pasal: 21, testamen: 'PL' },
+    { id: 8,  nama: 'Rut',            singkat: 'Rut', pasal: 4,  testamen: 'PL' },
+    { id: 9,  nama: '1 Samuel',       singkat: '1Sam',pasal: 31, testamen: 'PL' },
+    { id: 10, nama: '2 Samuel',       singkat: '2Sam',pasal: 24, testamen: 'PL' },
+    { id: 11, nama: '1 Raja-raja',    singkat: '1Raj',pasal: 22, testamen: 'PL' },
+    { id: 12, nama: '2 Raja-raja',    singkat: '2Raj',pasal: 25, testamen: 'PL' },
+    { id: 13, nama: '1 Tawarikh',     singkat: '1Taw',pasal: 29, testamen: 'PL' },
+    { id: 14, nama: '2 Tawarikh',     singkat: '2Taw',pasal: 36, testamen: 'PL' },
+    { id: 15, nama: 'Ezra',           singkat: 'Ezr', pasal: 10, testamen: 'PL' },
+    { id: 16, nama: 'Nehemia',        singkat: 'Neh', pasal: 13, testamen: 'PL' },
+    { id: 17, nama: 'Ester',          singkat: 'Est', pasal: 10, testamen: 'PL' },
+    { id: 18, nama: 'Ayub',           singkat: 'Ayb', pasal: 42, testamen: 'PL' },
+    { id: 19, nama: 'Mazmur',         singkat: 'Mzm', pasal: 150,testamen: 'PL' },
+    { id: 20, nama: 'Amsal',          singkat: 'Ams', pasal: 31, testamen: 'PL' },
+    { id: 21, nama: 'Pengkhotbah',    singkat: 'Pkh', pasal: 12, testamen: 'PL' },
+    { id: 22, nama: 'Kidung Agung',   singkat: 'Kid', pasal: 8,  testamen: 'PL' },
+    { id: 23, nama: 'Yesaya',         singkat: 'Yes', pasal: 66, testamen: 'PL' },
+    { id: 24, nama: 'Yeremia',        singkat: 'Yer', pasal: 52, testamen: 'PL' },
+    { id: 25, nama: 'Ratapan',        singkat: 'Rat', pasal: 5,  testamen: 'PL' },
+    { id: 26, nama: 'Yehezkiel',      singkat: 'Yeh', pasal: 48, testamen: 'PL' },
+    { id: 27, nama: 'Daniel',         singkat: 'Dan', pasal: 12, testamen: 'PL' },
+    { id: 28, nama: 'Hosea',          singkat: 'Hos', pasal: 14, testamen: 'PL' },
+    { id: 29, nama: 'Yoel',           singkat: 'Yoe', pasal: 3,  testamen: 'PL' },
+    { id: 30, nama: 'Amos',           singkat: 'Am',  pasal: 9,  testamen: 'PL' },
+    { id: 31, nama: 'Obaja',          singkat: 'Ob',  pasal: 1,  testamen: 'PL' },
+    { id: 32, nama: 'Yunus',          singkat: 'Yun', pasal: 4,  testamen: 'PL' },
+    { id: 33, nama: 'Mikha',          singkat: 'Mi',  pasal: 7,  testamen: 'PL' },
+    { id: 34, nama: 'Nahum',          singkat: 'Nah', pasal: 3,  testamen: 'PL' },
+    { id: 35, nama: 'Habakuk',        singkat: 'Hab', pasal: 3,  testamen: 'PL' },
+    { id: 36, nama: 'Zefanya',        singkat: 'Zef', pasal: 3,  testamen: 'PL' },
+    { id: 37, nama: 'Hagai',          singkat: 'Hag', pasal: 2,  testamen: 'PL' },
+    { id: 38, nama: 'Zakharia',       singkat: 'Za',  pasal: 14, testamen: 'PL' },
+    { id: 39, nama: 'Maleakhi',       singkat: 'Mal', pasal: 4,  testamen: 'PL' },
+    { id: 40, nama: 'Matius',         singkat: 'Mat', pasal: 28, testamen: 'PB' },
+    { id: 41, nama: 'Markus',         singkat: 'Mrk', pasal: 16, testamen: 'PB' },
+    { id: 42, nama: 'Lukas',          singkat: 'Luk', pasal: 24, testamen: 'PB' },
+    { id: 43, nama: 'Yohanes',        singkat: 'Yoh', pasal: 21, testamen: 'PB' },
+    { id: 44, nama: 'Kisah Para Rasul',singkat:'Kis', pasal: 28, testamen: 'PB' },
+    { id: 45, nama: 'Roma',           singkat: 'Rom', pasal: 16, testamen: 'PB' },
+    { id: 46, nama: '1 Korintus',     singkat: '1Kor',pasal: 16, testamen: 'PB' },
+    { id: 47, nama: '2 Korintus',     singkat: '2Kor',pasal: 13, testamen: 'PB' },
+    { id: 48, nama: 'Galatia',        singkat: 'Gal', pasal: 6,  testamen: 'PB' },
+    { id: 49, nama: 'Efesus',         singkat: 'Ef',  pasal: 6,  testamen: 'PB' },
+    { id: 50, nama: 'Filipi',         singkat: 'Flp', pasal: 4,  testamen: 'PB' },
+    { id: 51, nama: 'Kolose',         singkat: 'Kol', pasal: 4,  testamen: 'PB' },
+    { id: 52, nama: '1 Tesalonika',   singkat: '1Tes',pasal: 5,  testamen: 'PB' },
+    { id: 53, nama: '2 Tesalonika',   singkat: '2Tes',pasal: 3,  testamen: 'PB' },
+    { id: 54, nama: '1 Timotius',     singkat: '1Tim',pasal: 6,  testamen: 'PB' },
+    { id: 55, nama: '2 Timotius',     singkat: '2Tim',pasal: 4,  testamen: 'PB' },
+    { id: 56, nama: 'Titus',          singkat: 'Tit', pasal: 3,  testamen: 'PB' },
+    { id: 57, nama: 'Filemon',        singkat: 'Flm', pasal: 1,  testamen: 'PB' },
+    { id: 58, nama: 'Ibrani',         singkat: 'Ibr', pasal: 13, testamen: 'PB' },
+    { id: 59, nama: 'Yakobus',        singkat: 'Yak', pasal: 5,  testamen: 'PB' },
+    { id: 60, nama: '1 Petrus',       singkat: '1Pet',pasal: 5,  testamen: 'PB' },
+    { id: 61, nama: '2 Petrus',       singkat: '2Pet',pasal: 3,  testamen: 'PB' },
+    { id: 62, nama: '1 Yohanes',      singkat: '1Yoh',pasal: 5,  testamen: 'PB' },
+    { id: 63, nama: '2 Yohanes',      singkat: '2Yoh',pasal: 1,  testamen: 'PB' },
+    { id: 64, nama: '3 Yohanes',      singkat: '3Yoh',pasal: 1,  testamen: 'PB' },
+    { id: 65, nama: 'Yudas',          singkat: 'Yud', pasal: 1,  testamen: 'PB' },
+    { id: 66, nama: 'Wahyu',          singkat: 'Why', pasal: 22, testamen: 'PB' },
+];
+
 const Alkitab = () => {
-    const [alkitabDb, setAlkitabDb] = React.useState([]);
-    const [isLoading, setIsLoading] = React.useState(true);
     const [selectedBook, setSelectedBook] = React.useState(null);
     const [selectedChapter, setSelectedChapter] = React.useState(null);
+    const [verses, setVerses] = React.useState([]);
+    const [isLoadingChapter, setIsLoadingChapter] = React.useState(false);
+    const [fetchError, setFetchError] = React.useState(null);
     const [searchQuery, setSearchQuery] = React.useState('');
 
-    React.useEffect(() => {
-        fetch('./alkitab.json')
-            .then(res => res.json())
-            .then(data => {
-                setAlkitabDb(data);
-                setIsLoading(false);
-            })
-            .catch(err => {
-                console.error("Error loading Alkitab DB:", err);
-                setIsLoading(false);
-            });
+    const pl = ALKITAB_BOOKS.filter(b => b.testamen === 'PL');
+    const pb = ALKITAB_BOOKS.filter(b => b.testamen === 'PB');
+
+    const loadChapter = React.useCallback(async (bookId, chapter) => {
+        setIsLoadingChapter(true);
+        setFetchError(null);
+        setVerses([]);
+        try {
+            const sabdaUrl = `https://alkitab.sabda.org/bible.php?book=${bookId}&chapter=${chapter}&version=tb&tab=text&mode=text`;
+            const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(sabdaUrl)}`;
+            const res = await fetch(proxyUrl);
+            const html = await res.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const bodyHTML = doc.body.innerHTML;
+            const regex = /<span class="vref">(\d+:\d+)<\/span>\s*([\s\S]*?)(?=<span class="vref">|<form|<\/body>|$)/gi;
+            let match;
+            const parsed = [];
+            while ((match = regex.exec(bodyHTML)) !== null) {
+                const ref = match[1];
+                const ayatNum = parseInt(ref.split(':')[1], 10);
+                const rawText = match[2].replace(/<[^>]+>/g, '').trim().replace(/\s+/g, ' ');
+                if (rawText) parsed.push({ ayat: ayatNum, teks: rawText });
+            }
+            setVerses(parsed);
+        } catch (err) {
+            setFetchError('Gagal memuat. Periksa koneksi internet Anda.');
+        }
+        setIsLoadingChapter(false);
     }, []);
 
-    if (isLoading) {
+    React.useEffect(() => {
+        if (selectedBook && selectedChapter) {
+            loadChapter(selectedBook.id, selectedChapter);
+        }
+    }, [selectedBook, selectedChapter, loadChapter]);
+
+    const filterBooks = (books) => books.filter(b => b.nama.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const renderBookList = (books, title) => {
+        const filtered = filterBooks(books);
+        if (filtered.length === 0) return null;
         return (
-            <div className="w-full h-64 flex flex-col items-center justify-center">
-                <div className="w-10 h-10 border-4 border-navy-100 border-t-[#D19B45] rounded-full animate-spin mb-3"></div>
-                <p className="text-navy-500 font-bold uppercase tracking-widest text-xs animate-pulse">Memuat Alkitab...</p>
+            <div className="mb-6">
+                <h3 className="text-sm font-black text-gold-600 uppercase tracking-widest mb-3 px-2">{title}</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {filtered.map((b) => (
+                        <button
+                            key={b.id}
+                            onClick={() => { setSelectedBook(b); setSelectedChapter(null); setVerses([]); }}
+                            className="bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700 p-3 rounded-xl hover:bg-gold-50 dark:hover:bg-navy-700 hover:border-gold-200 transition-colors text-left shadow-sm"
+                        >
+                            <span className="font-bold text-navy-900 dark:text-navy-100 text-sm">{b.nama}</span>
+                            <span className="block text-xs text-navy-400 mt-0.5">{b.pasal} pasal</span>
+                        </button>
+                    ))}
+                </div>
             </div>
         );
-    }
+    };
 
     if (!selectedBook) {
-        const pl = alkitabDb.slice(0, 39);
-        const pb = alkitabDb.slice(39);
-        
-        const filterBooks = (books) => books.filter(b => b.nama.toLowerCase().includes(searchQuery.toLowerCase()));
-        
-        const renderBookList = (books, title) => {
-            const filtered = filterBooks(books);
-            if (filtered.length === 0) return null;
-            return (
-                <div className="mb-6">
-                    <h3 className="text-sm font-black text-gold-600 uppercase tracking-widest mb-3 px-2">{title}</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        {filtered.map((b, i) => (
-                            <button 
-                                key={i} 
-                                onClick={() => setSelectedBook(b)}
-                                className="bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700 p-3 rounded-xl hover:bg-gold-50 dark:hover:bg-navy-700 hover:border-gold-200 transition-colors text-left shadow-sm"
-                            >
-                                <span className="font-bold text-navy-900 dark:text-navy-100">{b.nama}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            );
-        };
-
         return (
             <div className="animate-fade-in pb-10">
                 <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800">
@@ -5934,37 +6017,34 @@ const Alkitab = () => {
                         />
                     </div>
                 </div>
-                
                 <div className="mt-6">
                     {renderBookList(pl, 'Perjanjian Lama')}
                     {renderBookList(pb, 'Perjanjian Baru')}
+                    {filterBooks([...pl, ...pb]).length === 0 && (
+                        <p className="text-center text-navy-400 py-10 font-semibold">Kitab tidak ditemukan.</p>
+                    )}
                 </div>
             </div>
         );
     }
 
     if (selectedBook && !selectedChapter) {
+        const chapters = Array.from({ length: selectedBook.pasal }, (_, i) => i + 1);
         return (
             <div className="animate-fade-in pb-10">
                 <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex items-center gap-3">
                     <button onClick={() => setSelectedBook(null)} className="w-10 h-10 rounded-full bg-white dark:bg-navy-800 border border-navy-200 dark:border-navy-600 flex items-center justify-center hover:bg-navy-50 dark:hover:bg-navy-700 transition shadow-sm">
                         <Icon name="ArrowLeft" className="w-5 h-5 text-navy-700 dark:text-navy-200" />
                     </button>
-                    <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white">
-                        Kitab {selectedBook.nama}
-                    </h2>
+                    <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white">{selectedBook.nama}</h2>
                 </div>
-
                 <div className="mt-6">
                     <h3 className="text-sm font-black text-gold-600 uppercase tracking-widest mb-3 px-2">Pilih Pasal</h3>
                     <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
-                        {selectedBook.pasal.map((p, i) => (
-                            <button 
-                                key={i} 
-                                onClick={() => setSelectedChapter(p.pasal)}
-                                className="bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700 p-3 rounded-xl hover:bg-gold-50 dark:hover:bg-navy-700 hover:border-gold-200 transition-colors text-center shadow-sm"
-                            >
-                                <span className="font-bold text-navy-900 dark:text-navy-100">{p.pasal}</span>
+                        {chapters.map((ch) => (
+                            <button key={ch} onClick={() => setSelectedChapter(ch)}
+                                className="bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700 p-3 rounded-xl hover:bg-gold-50 dark:hover:bg-navy-700 hover:border-gold-200 transition-colors text-center shadow-sm font-bold text-navy-900 dark:text-navy-100">
+                                {ch}
                             </button>
                         ))}
                     </div>
@@ -5974,8 +6054,6 @@ const Alkitab = () => {
     }
 
     if (selectedBook && selectedChapter) {
-        const chapterData = selectedBook.pasal.find(p => p.pasal === selectedChapter);
-        
         return (
             <div className="animate-fade-in pb-10">
                 <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex flex-col gap-3">
@@ -5983,17 +6061,14 @@ const Alkitab = () => {
                         <button onClick={() => setSelectedChapter(null)} className="w-10 h-10 rounded-full bg-white dark:bg-navy-800 border border-navy-200 dark:border-navy-600 flex items-center justify-center hover:bg-navy-50 dark:hover:bg-navy-700 transition shrink-0 shadow-sm">
                             <Icon name="ArrowLeft" className="w-5 h-5 text-navy-700 dark:text-navy-200" />
                         </button>
-                        <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white truncate">
-                            {selectedBook.nama} {selectedChapter}
-                        </h2>
-                        
+                        <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white truncate">{selectedBook.nama} {selectedChapter}</h2>
                         <div className="ml-auto flex gap-1">
                             {selectedChapter > 1 && (
                                 <button onClick={() => setSelectedChapter(selectedChapter - 1)} className="px-3 py-1.5 rounded-lg bg-navy-100 dark:bg-navy-700 text-navy-700 dark:text-navy-200 text-xs font-bold hover:bg-navy-200 transition">
                                     <Icon name="ChevronLeft" className="w-4 h-4" />
                                 </button>
                             )}
-                            {selectedChapter < selectedBook.pasal.length && (
+                            {selectedChapter < selectedBook.pasal && (
                                 <button onClick={() => setSelectedChapter(selectedChapter + 1)} className="px-3 py-1.5 rounded-lg bg-navy-100 dark:bg-navy-700 text-navy-700 dark:text-navy-200 text-xs font-bold hover:bg-navy-200 transition">
                                     <Icon name="ChevronRight" className="w-4 h-4" />
                                 </button>
@@ -6001,18 +6076,32 @@ const Alkitab = () => {
                         </div>
                     </div>
                 </div>
-
-                <div className="mt-6 bg-white dark:bg-navy-900 p-5 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100 dark:border-navy-800">
-                    <div className="space-y-4">
-                        {chapterData.ayat.map((a, i) => (
-                            <div key={i} className="flex gap-3 items-start group">
-                                <span className="text-[10px] md:text-xs font-black text-gold-500 mt-1.5 min-w-[1.5rem] select-none">{a.ayat}</span>
-                                <p className="text-sm md:text-base text-navy-800 dark:text-navy-100 leading-relaxed group-hover:bg-gold-50/50 dark:group-hover:bg-navy-800/50 p-1 -ml-1 rounded transition-colors">
-                                    {a.teks}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
+                <div className="mt-6 bg-white dark:bg-navy-900 p-5 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100 dark:border-navy-800 min-h-[200px]">
+                    {isLoadingChapter && (
+                        <div className="flex flex-col items-center justify-center py-16">
+                            <div className="w-10 h-10 border-4 border-navy-100 border-t-[#D19B45] rounded-full animate-spin mb-3"></div>
+                            <p className="text-navy-500 font-bold uppercase tracking-widest text-xs animate-pulse">Memuat pasal...</p>
+                        </div>
+                    )}
+                    {fetchError && !isLoadingChapter && (
+                        <div className="text-center py-10">
+                            <p className="text-red-500 font-bold mb-3">{fetchError}</p>
+                            <button onClick={() => loadChapter(selectedBook.id, selectedChapter)} className="px-5 py-2 bg-navy-900 text-gold-400 rounded-xl font-bold text-sm hover:bg-navy-800 transition">Coba Lagi</button>
+                        </div>
+                    )}
+                    {!isLoadingChapter && !fetchError && verses.length > 0 && (
+                        <div className="space-y-4">
+                            {verses.map((a) => (
+                                <div key={a.ayat} className="flex gap-3 items-start group">
+                                    <span className="text-[10px] md:text-xs font-black text-gold-500 mt-1.5 min-w-[1.5rem] select-none">{a.ayat}</span>
+                                    <p className="text-sm md:text-base text-navy-800 dark:text-navy-100 leading-relaxed group-hover:bg-gold-50/50 dark:group-hover:bg-navy-800/50 p-1 -ml-1 rounded transition-colors">{a.teks}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    {!isLoadingChapter && !fetchError && verses.length === 0 && (
+                        <p className="text-center text-navy-400 py-10 font-semibold text-sm">Tidak ada data ayat.</p>
+                    )}
                 </div>
             </div>
         );
