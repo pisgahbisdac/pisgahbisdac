@@ -9,7 +9,7 @@
  * keperluan lain di masa depan (misalnya: widget ringkasan keuangan).
  */
 
-export const LAPORAN_URL = '/laporan.html';
+export const LAPORAN_URL = './laporan.html';
 
 /**
  * Buka halaman Cek Transaksi di laporan.html dengan query pencarian.
