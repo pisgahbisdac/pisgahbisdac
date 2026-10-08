@@ -4304,7 +4304,7 @@
       }
     }
 
-    function openEditTrans(type, id) {
+    async function openEditTrans(type, id) {
       const list = type === 'income' ? cachedIncome : cachedExpense;
       const trx = list.find(x => (x.transaction_id || x.receipt_no) === id);
       if (!trx) { notify('Transaksi tidak ditemukan.', 'error'); return; }
