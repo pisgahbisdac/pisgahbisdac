@@ -4227,7 +4227,7 @@
           let editBtn = txCanEdit && deleteId ? `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:var(--input-bg); color:var(--text); border:1px solid var(--glass-border);" onclick="openEditTrans('${x.type}', '${deleteId}')">${safeIcon('edit', 'lucide-sm')} <span style="margin-left:4px">Edit</span></button>` : '';
           let delBtn = txCanDel && deleteId ? `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:rgba(244,63,94,0.1); color:var(--rose-pop); border:1px solid rgba(244,63,94,0.2);" onclick="deleteTransaction('${x.type}', '${deleteId}')">${safeIcon('trash', 'lucide-sm')} <span style="margin-left:4px">Hapus</span></button>` : '';
 
-          let cetakBtn = deleteId ? `<button class="btn" style="padding:4px 8px; font-size:9px; background:var(--input-bg); color:var(--text); border:1px solid var(--glass-border);display:inline-flex;align-items:center;gap:4px;" onclick="printTransaction('${x.type}', '${deleteId}')" title="Cetak">${safeIcon('printer', 'lucide-sm')} Cetak</button>` : '';
+          let cetakBtn = deleteId ? `<button class="btn" style="flex:1; justify-content:center; padding:6px 0; font-size:11px; background:var(--input-bg); color:var(--text); border:1px solid var(--glass-border);" onclick="printTransaction('${x.type}', '${deleteId}')" title="Cetak Kuitansi">${safeIcon('printer', 'lucide-sm')} <span style="margin-left:4px">Cetak</span></button>` : '';
 
           return `
           <div class="dash-tx-card" style="position:relative; margin: 20px 12px 12px 12px; padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--input-bg);">
@@ -4248,15 +4248,15 @@
                 <strong style="color:var(--text); font-weight:600; display:flex; align-items:center; height:100%;">${fmtDate(x.date)}</strong>
                 <div style="display:flex; gap:4px;">
                   ${approveBtn}
-                  ${cetakBtn}
                 </div>
               </div>
               <span style="color:var(--text4)">Pihak</span><strong style="color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis;">${pihak}</strong>
               <span style="color:var(--text4)">Ket</span><strong style="color:var(--text); font-weight:600;">${x.income_type || x.department || '-'}</strong>
               <span style="color:var(--text4)">Note</span><span style="color:var(--text4); overflow:hidden; text-overflow:ellipsis;">${shouldHide ? '***' : (() => { let nT = x.note || '-'; let bB = ''; if (nT.includes('[BANK]')) { nT = nT.replace(/\[BANK\]\s?|\s?\[BANK\]/g, ''); bB = '<span class="badge badge-green" style="font-size:10px; padding:2px 4px; margin-right:4px;">VIA BANK</span>'; } else if (nT.includes('[CASH]')) { nT = nT.replace(/\[CASH\]\s?|\s?\[CASH\]/g, ''); bB = '<span class="badge badge-amber" style="font-size:10px; padding:2px 4px; margin-right:4px;">TUNAI</span>'; } return bB + nT; })()}</span>
             </div>
-            <div style="display:flex; gap:6px; margin-top:12px; width:100%;">
+            <div style="display:flex; gap:6px; margin-top:12px; width:100%; flex-wrap:wrap;">
               ${photoBtn}
+              ${cetakBtn}
               ${editBtn}
               ${delBtn}
             </div>
