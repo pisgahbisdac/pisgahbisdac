@@ -3740,8 +3740,18 @@
         historySortCol = col;
         historySortDesc = true;
       }
+      historyCurrentPage = 1; // Reset page on sort
       renderHistory();
     }
+
+    let historyCurrentPage = 1;
+    const historyItemsPerPage = 20;
+
+    function changeHistoryPage(page) {
+      historyCurrentPage = page;
+      renderHistory();
+    }
+    window.changeHistoryPage = changeHistoryPage;
 
     function renderHistory() {
       const q = document.getElementById('searchTrans').value.toLowerCase();
@@ -4032,7 +4042,16 @@
       } else {
         const userUnits = getUserUnits();
 
-        let desktopHtml = list.map(x => {
+        const totalItems = list.length;
+        const totalPages = Math.ceil(totalItems / historyItemsPerPage);
+        if (historyCurrentPage > totalPages && totalPages > 0) historyCurrentPage = totalPages;
+        if (historyCurrentPage < 1) historyCurrentPage = 1;
+        
+        const startIndex = (historyCurrentPage - 1) * historyItemsPerPage;
+        const endIndex = Math.min(startIndex + historyItemsPerPage, totalItems);
+        const paginatedList = list.slice(startIndex, endIndex);
+
+        let desktopHtml = paginatedList.map(x => {
           const isMutasi = x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank';
           const txCanEdit = canEdit || (isMutasi && mPindahBuku.edit);
           const txCanDel = canDel || (isMutasi && mPindahBuku.del);
@@ -4129,7 +4148,7 @@
       </tr>`;
         }).join('');
 
-        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column;">' + list.map(x => {
+        let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column;">' + paginatedList.map(x => {
           const isMutasi = x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank';
           const txCanEdit = canEdit || (isMutasi && mPindahBuku.edit);
           const txCanDel = canDel || (isMutasi && mPindahBuku.del);
@@ -4269,7 +4288,7 @@
           <div class="mobile-only" style="padding-bottom:12px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; margin-bottom:16px; padding: 0 12px;">
               <span style="font-size:12px; color:var(--text3); font-weight:600;">Urut Berdasarkan:</span>
-              <select class="select-sm" style="font-size:12px; padding:4px 24px 4px 8px; width:auto; border-radius:var(--radius);" onchange="historySortCol=this.value.split('|')[0]; historySortDesc=(this.value.split('|')[1]==='desc'); renderHistory();">
+              <select class="select-sm" style="font-size:12px; padding:4px 24px 4px 8px; width:auto; border-radius:var(--radius);" onchange="historySortCol=this.value.split('|')[0]; historySortDesc=(this.value.split('|')[1]==='desc'); historyCurrentPage=1; renderHistory();">
                  <option value="date|desc" ${historySortCol === 'date' && historySortDesc ? 'selected' : ''}>Tanggal (Terbaru)</option>
                  <option value="date|asc" ${historySortCol === 'date' && !historySortDesc ? 'selected' : ''}>Tanggal (Terlama)</option>
                  <option value="amount|desc" ${historySortCol === 'amount' && historySortDesc ? 'selected' : ''}>Nominal (Tertinggi)</option>
@@ -4281,6 +4300,17 @@
             ${mobileHtml}
           </div>
         `;
+
+        if (totalPages > 1) {
+          const paginationHtml = `
+            <div style="display:flex; justify-content:center; align-items:center; gap: 16px; padding: 16px; margin-top: 12px; border-top: 1px solid var(--glass-border);">
+              <button class="btn btn-ghost" style="padding:6px 12px; border: 1px solid var(--glass-border);" ${historyCurrentPage === 1 ? 'disabled' : `onclick="changeHistoryPage(${historyCurrentPage - 1})"`}>&laquo; Prev</button>
+              <span style="font-size:13px; color:var(--text3); font-weight: 600;">Hal ${historyCurrentPage} dari ${totalPages}</span>
+              <button class="btn btn-ghost" style="padding:6px 12px; border: 1px solid var(--glass-border);" ${historyCurrentPage === totalPages ? 'disabled' : `onclick="changeHistoryPage(${historyCurrentPage + 1})"`}>Next &raquo;</button>
+            </div>
+          `;
+          document.getElementById('historyListContainer').innerHTML += paginationHtml;
+        }
       }
     }
 
