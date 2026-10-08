@@ -62,6 +62,10 @@ function doGet(e) {
     if (action === 'getInventoryService') {
       return corsResponse(getInventoryService(e.parameter));
     }
+    
+    if (action === 'getTransactionPhotos') {
+      return corsResponse(getTransactionPhotos(e.parameter));
+    }
 
     const user = verifyToken(token);
     if (!user) {
@@ -104,6 +108,7 @@ function doPost(e) {
     if (action === 'getConfig')           return corsResponse(getConfig());
     if (action === 'getInventory')        return corsResponse(getInventory());
     if (action === 'getInventoryService') return corsResponse(getInventoryService(data));
+    if (action === 'getTransactionPhotos') return corsResponse(getTransactionPhotos(data));
 
     const user = verifyToken(token);
     if (!user) {
@@ -147,6 +152,7 @@ function doPost(e) {
       case 'getBalances':     return corsResponse(getBalances());
       case 'getUsers':        return corsResponse(getUsers(user));
       case 'getLogs':         return corsResponse(getLogs(user));
+      case 'getTransactionPhotos': return corsResponse(getTransactionPhotos(data));
       // POST actions
       case 'saveIncome':        return corsResponse(saveIncome(data, user));
       case 'saveBulkIncome':    return corsResponse(saveBulkIncome(data, user));
@@ -584,9 +590,9 @@ function getAllIncome() {
       note:           r[12],
       created_by:     r[13],
       created_at:     r[14],
-      receipt_photo:    r[15] || '',
-      receipt_photo_2:  r[16] || '',
-      receipt_photo_3:  r[17] || '',
+      receipt_photo:    r[15] ? true : false,
+      receipt_photo_2:  r[16] ? true : false,
+      receipt_photo_3:  r[17] ? true : false,
       approved_by:      r[18] || ''
     });
   }
@@ -724,14 +730,43 @@ function getAllExpense() {
       note:           r[8],
       created_by:     r[9],
       created_at:     r[10],
-      receipt_photo:    r[11] || '',
+      receipt_photo:    r[11] ? true : false,
       nama_penerima:    r[12] || '-',
-      receipt_photo_2:  r[13] || '',
-      receipt_photo_3:  r[14] || '',
+      receipt_photo_2:  r[13] ? true : false,
+      receipt_photo_3:  r[14] ? true : false,
       approved_by:      r[15] || ''
     });
   }
   return result;
+}
+
+// ============================================================
+//  FOTO - LAZY LOADING
+// ============================================================
+function getTransactionPhotos(params) {
+  const id = params.id;
+  const type = params.type; // 'income' or 'expense'
+  if (!id || !type) return { success: false, message: 'ID dan tipe transaksi diperlukan' };
+  
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(type === 'income' ? SHEETS.INCOME : SHEETS.EXPENSE);
+  if (!sheet) return { success: false, message: 'Sheet tidak ditemukan' };
+  
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (r[0] === id || (type === 'income' ? r[7] === id : r[6] === id)) {
+      return {
+        success: true,
+        data: {
+          photo1: type === 'income' ? r[15] || '' : r[11] || '',
+          photo2: type === 'income' ? r[16] || '' : r[13] || '',
+          photo3: type === 'income' ? r[17] || '' : r[14] || ''
+        }
+      };
+    }
+  }
+  return { success: false, message: 'Transaksi tidak ditemukan' };
 }
 
 // ============================================================

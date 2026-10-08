@@ -1024,9 +1024,28 @@
       }
 
       if (r) {
-        const isMissingPhoto = !r.receipt_photo || String(r.receipt_photo).trim() === '' || String(r.receipt_photo).trim() === '-';
+        const isMissingPhoto = !r.receipt_photo && !r.receipt_photo_2 && !r.receipt_photo_3;
         if (!isMissingPhoto) {
-          openPhotoModal(r.receipt_photo, r.receipt_photo_2, r.receipt_photo_3);
+          showGlobalLoading('Mengambil foto dari server...');
+          try {
+            const res = await apiGet('getTransactionPhotos', { id: (r.transaction_id || r.receipt_no), type: type });
+            if (res && res.success && res.data) {
+              const p1 = res.data.photo1 || '';
+              const p2 = res.data.photo2 || '';
+              const p3 = res.data.photo3 || '';
+              if (!p1 && !p2 && !p3) {
+                notify('Foto tidak ditemukan di server.', 'error');
+              } else {
+                openPhotoModal(p1, p2, p3);
+              }
+            } else {
+              notify(res.message || 'Gagal mengambil foto.', 'error');
+            }
+          } catch (e) {
+            notify('Gagal memuat foto dari server. Periksa koneksi.', 'error');
+          } finally {
+            hideGlobalLoading();
+          }
         } else {
           const overlay = document.getElementById('loadingOverlay');
           if (overlay) overlay.style.display = 'flex';
@@ -4392,7 +4411,24 @@
       }
 
       // Load existing photos into edit preview
-      currentEditPhotos = [trx.receipt_photo, trx.receipt_photo_2, trx.receipt_photo_3].filter(p => p && String(p).trim() !== '');
+      if (trx.receipt_photo || trx.receipt_photo_2 || trx.receipt_photo_3) {
+        showGlobalLoading('Memuat foto asli dari server...');
+        try {
+          const res = await apiGet('getTransactionPhotos', { id: trx.transaction_id || trx.receipt_no, type: type });
+          if (res && res.success && res.data) {
+            currentEditPhotos = [res.data.photo1, res.data.photo2, res.data.photo3].filter(p => p && String(p).trim() !== '');
+          } else {
+            currentEditPhotos = [];
+          }
+        } catch (e) {
+          notify('Gagal memuat foto asli.', 'error');
+          currentEditPhotos = [];
+        } finally {
+          hideGlobalLoading();
+        }
+      } else {
+        currentEditPhotos = [];
+      }
       renderPhotoPreview(currentEditPhotos, 'editPhotoGrid', 'editPhotoUploadBox', 'edit');
 
       handleEditTypeChange();
