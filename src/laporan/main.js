@@ -5042,13 +5042,9 @@
 
       document.getElementById('printContainer').innerHTML = generateReceiptHTML(actualType, mainTx);
       
-      const floatBtn = document.getElementById('floatingSyncBtn');
-      if (floatBtn) floatBtn.style.setProperty('display', 'none', 'important');
-      
       setTimeout(() => { 
         window.print(); 
-        if (floatBtn) floatBtn.style.setProperty('display', 'flex', 'important');
-      }, 1000);
+      }, 500);
     }
 
     function openBulkPrintModal() {
@@ -5161,14 +5157,10 @@
 
       document.getElementById('printContainer').innerHTML = allHtml;
       
-      const floatBtn = document.getElementById('floatingSyncBtn');
-      if (floatBtn) floatBtn.style.setProperty('display', 'none', 'important');
-      
       setTimeout(() => {
         window.print();
-        if (floatBtn) floatBtn.style.setProperty('display', 'flex', 'important');
         closeBulkPrintModal();
-      }, 1500);
+      }, 1000);
     }
 
     async function approveTx(type, id) {
