@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import ReactDOM from 'react-dom/client';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Play, Maximize, FileText, Download, Share2, Info, BookOpen, Search as SearchIcon, X, CheckCircle, Navigation, MapPin, Calendar, Phone, Mail, Clock, Globe, ArrowRight, User, PlusCircle, PenTool, Layout, File, ExternalLink, Menu, Music, Activity, Megaphone, Video, ArrowLeft, MoreHorizontal, MessageCircle, Heart, Star, Compass, Anchor, Copy, Check, Upload, Trash2, Map } from 'lucide-react';
-import html2pdf from 'html2pdf.js';
+
 // searchlaporan: redirect ke laporan.html (Cek Transaksi)
 
 // --- PWA & SERVICE WORKER LOGIC ---
@@ -2255,17 +2255,25 @@ const FormACMS = ({ setActiveTab }) => {
     const handleKirimClick = () => { generateCaptcha(); setShowCaptcha(true); };
     const verifyAndKirim = () => { if (parseInt(captchaInput) === captcha.num1 + captcha.num2) { setShowCaptcha(false); processPDF(); } else { setCaptchaError(true); generateCaptcha(); } };
 
-    const processPDF = () => {
+    const processPDF = async () => {
         setIsGenerating(true);
         const element = document.getElementById('pdf-content');
         const filename = `ACMS_03_${formData.namaLengkap.replace(/\s+/g, '_')}.pdf`;
         const opt = { margin: [0, 0, 30, 0], filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-        html2pdf().set(opt).from(element).save().then(() => {
+        
+        try {
+            const html2pdfModule = await import('html2pdf.js');
+            const html2pdf = html2pdfModule.default;
+            await html2pdf().set(opt).from(element).save();
             setIsGenerating(false); setStep('success');
             const subject = encodeURIComponent(`Permohonan Pindah Masuk ACMS - ${formData.namaLengkap}`);
             const body = encodeURIComponent(`Syalom Admin,\n\nBerikut saya lampirkan dokumen PDF permohonan pindah keanggotaan (ACMS) atas nama ${formData.namaLengkap} yang baru saja saya unduh dari aplikasi PISGAH BISDAC.\n\nTerima kasih.\n\n(Mohon jangan lupa untuk melampirkan file ${filename} yang baru saja terdownload ke dalam email ini)`);
             window.location.href = `mailto:gmahkpisgahbisdac@gmail.com?subject=${subject}&body=${body}`;
-        });
+        } catch (e) {
+            console.error(e);
+            setIsGenerating(false);
+            alert('Gagal membuat PDF.');
+        }
     };
 
     if (step === 'success') {
