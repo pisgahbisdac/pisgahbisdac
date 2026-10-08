@@ -5041,7 +5041,14 @@
       if (mainTx.department === 'Mutasi Kas / Setor Bank') actualType = 'mutasi';
 
       document.getElementById('printContainer').innerHTML = generateReceiptHTML(actualType, mainTx);
-      setTimeout(() => { window.print(); }, 1000);
+      
+      const floatBtn = document.getElementById('floatingSyncBtn');
+      if (floatBtn) floatBtn.style.setProperty('display', 'none', 'important');
+      
+      setTimeout(() => { 
+        window.print(); 
+        if (floatBtn) floatBtn.style.setProperty('display', 'flex', 'important');
+      }, 1000);
     }
 
     function openBulkPrintModal() {
@@ -5153,8 +5160,13 @@
       });
 
       document.getElementById('printContainer').innerHTML = allHtml;
+      
+      const floatBtn = document.getElementById('floatingSyncBtn');
+      if (floatBtn) floatBtn.style.setProperty('display', 'none', 'important');
+      
       setTimeout(() => {
         window.print();
+        if (floatBtn) floatBtn.style.setProperty('display', 'flex', 'important');
         closeBulkPrintModal();
       }, 1500);
     }
