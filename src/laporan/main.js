@@ -1042,7 +1042,7 @@
               notify(res.message || 'Gagal mengambil foto.', 'error');
             }
           } catch (e) {
-            notify(e.message || 'Gagal memuat foto dari server. Periksa koneksi.', 'error');
+            notify((e.message || 'Gagal memuat foto.') + ' | URL: ' + getActiveApiUrl().substring(0, 45) + '...', 'error');
           } finally {
             hideGlobalLoading();
           }
@@ -4451,7 +4451,7 @@
             currentEditPhotos = [];
           }
         } catch (e) {
-          notify(e.message || 'Gagal memuat foto asli.', 'error');
+          notify((e.message || 'Gagal memuat foto asli.') + ' | URL: ' + getActiveApiUrl().substring(0, 45) + '...', 'error');
           currentEditPhotos = [];
         } finally {
           hideGlobalLoading();
