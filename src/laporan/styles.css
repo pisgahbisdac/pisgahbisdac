@@ -1,5 +1,5 @@
     @media print {
-      body>*:not(#printContainer) {
+      body>*:not(#printContainer), .no-print {
         display: none !important;
       }
 

@@ -7965,7 +7965,7 @@ const App = () => {
             <button
                 onClick={() => window.installPWA && window.installPWA()}
                 title="Instal Aplikasi PWA"
-                className="fixed bottom-6 right-6 bg-white/90 dark:bg-navy-700/90 backdrop-blur-xl p-4 md:p-5 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] z-[100] flex items-center justify-center border border-white/60 dark:border-white/10 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 hover:-translate-y-2"
+                className="fixed bottom-6 right-6 bg-white/90 dark:bg-navy-700/90 backdrop-blur-xl p-4 md:p-5 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] z-[100] flex items-center justify-center border border-white/60 dark:border-white/10 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 hover:-translate-y-2 no-print"
             >
                 <Icon name="MonitorDown" className="w-6 h-6 md:w-7 md:h-7 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
             </button>
