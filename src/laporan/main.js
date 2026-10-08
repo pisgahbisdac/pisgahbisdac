@@ -1,3 +1,5 @@
+import { supabaseGet, supabasePost } from './supabaseAdapter.js';
+
     (function () {
       const savedTheme = localStorage.getItem('BISDAC_theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
@@ -366,26 +368,15 @@
     async function apiGet(action, params = {}) {
       if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
       try {
-        const queryParams = new URLSearchParams({ action, token: getToken() || '' });
-        for (const key in params) {
-          queryParams.append(key, typeof params[key] === 'object' ? JSON.stringify(params[key]) : params[key]);
-        }
-        const url = `${getActiveApiUrl()}?${queryParams.toString()}`;
-        const res = await fetch(url, {
-          method: 'GET',
-          redirect: 'follow'
-        }).catch(() => { throw new Error('Jaringan Error. Periksa koneksi.'); });
-        const text = await res.text();
-        let data;
-        try { data = JSON.parse(text); } catch (e) { throw new Error('URL API Tidak Valid (404). Silakan periksa pengaturan URL.'); }
-        if (!data.success) {
-          if (data.message && data.message.includes('Token tidak valid')) {
+        const res = await supabaseGet(action, params);
+        if (!res.success) {
+          if (res.message && res.message.includes('Token tidak valid')) {
             if (typeof notify === 'function') notify('Sesi Anda telah berakhir. Halaman akan dimuat ulang...', 'error');
             setTimeout(() => { clearToken(); localStorage.removeItem('BISDAC_user'); window.location.reload(); }, 3000);
           }
-          throw new Error(data.message || 'API Gagal');
+          throw new Error(res.message || 'API Gagal');
         }
-        return data;
+        return res;
       } finally {
         if (action !== 'syncData' && !window.isBulkProcessing) hideGlobalLoading();
       }
@@ -411,21 +402,15 @@
     async function apiPost(action, payload = {}) {
       if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
       try {
-        const body = JSON.stringify({ action, token: getToken(), data: payload });
-        const res = await fetch(getActiveApiUrl(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', body: body }).catch(() => { throw new Error('Jaringan Error. URL di-reset.'); });
-        if (!res.ok) {
-          if (res.status === 404 || res.status === 400) { }
-          throw new Error(`HTTP ${res.status}`);
-        }
-        const data = await res.json();
-        if (!data.success) {
-          if (data.message && data.message.includes('Token tidak valid')) {
+        const res = await supabasePost(action, payload);
+        if (!res.success) {
+          if (res.message && res.message.includes('Token tidak valid')) {
             if (typeof notify === 'function') notify('Sesi Anda telah berakhir. Halaman akan dimuat ulang...', 'error');
             setTimeout(() => { clearToken(); localStorage.removeItem('BISDAC_user'); window.location.reload(); }, 3000);
           }
-          throw new Error(data.message || 'Gagal mengirim data.');
+          throw new Error(res.message || 'Gagal menyimpan data.');
         }
-        return data;
+        return res;
       } finally {
         if (action !== 'syncData' && !window.isBulkProcessing) hideGlobalLoading();
       }
@@ -443,16 +428,19 @@
     }
 
     async function login(username, password) {
-      const queryParams = new URLSearchParams({ action: 'login', username: username.trim().toLowerCase(), password: password });
-      const url = `${getActiveApiUrl()}?${queryParams.toString()}`;
-      const res = await fetch(url, {
-        method: 'GET',
-        redirect: 'follow'
-      }).catch(() => { throw new Error('Jaringan Error. Periksa koneksi internet.'); });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data.success) { setToken(data.token); localStorage.setItem('BISDAC_user', JSON.stringify(data.user)); }
-      return data;
+      if (typeof showGlobalLoading === 'function') showGlobalLoading('Memverifikasi Login...');
+      try {
+        const res = await supabasePost('login', { username: username.trim().toLowerCase(), password: password });
+        if (res.success) {
+          setToken(res.token);
+          localStorage.setItem('BISDAC_user', JSON.stringify(res.user));
+        } else {
+          throw new Error(res.message || 'Login gagal');
+        }
+        return res;
+      } finally {
+        if (typeof hideGlobalLoading === 'function') hideGlobalLoading();
+      }
     }
 
     async function doLogout() {

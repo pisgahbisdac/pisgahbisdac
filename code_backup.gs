@@ -3,66 +3,6 @@
 //  Google Apps Script Backend (laporan.gs) - UPDATED: Multi-Photo Support (3 Foto)
 //  Tempel seluruh file ini ke Apps Script Editor Anda
 // ============================================================
-// ============================================================
-//  CACHE SERVICE HELPER
-// ============================================================
-function getCacheVersion() {
-  try {
-    const cache = CacheService.getScriptCache();
-    let v = cache.get('CACHE_VERSION');
-    if (!v) {
-      v = Date.now().toString();
-      cache.put('CACHE_VERSION', v, 21600);
-    }
-    return v;
-  } catch (e) {
-    return Date.now().toString();
-  }
-}
-
-function bumpCacheVersion() {
-  try {
-    CacheService.getScriptCache().put('CACHE_VERSION', Date.now().toString(), 21600);
-  } catch(e) {}
-}
-
-function putCachedChunks(baseKey, dataObj) {
-  try {
-    const cache = CacheService.getScriptCache();
-    const str = JSON.stringify(dataObj);
-    const chunkSize = 100000;
-    const chunks = Math.ceil(str.length / chunkSize);
-    const data = {};
-    const versionedKey = baseKey + '_' + getCacheVersion();
-    data[versionedKey + '_chunks'] = chunks.toString();
-    for (let i = 0; i < chunks; i++) {
-      data[versionedKey + '_' + i] = str.slice(i * chunkSize, (i + 1) * chunkSize);
-    }
-    cache.putAll(data, 21600);
-  } catch (e) {}
-}
-
-function getCachedChunks(baseKey) {
-  try {
-    const cache = CacheService.getScriptCache();
-    const versionedKey = baseKey + '_' + getCacheVersion();
-    const chunksStr = cache.get(versionedKey + '_chunks');
-    if (!chunksStr) return null;
-    const chunks = parseInt(chunksStr);
-    const keys = [];
-    for (let i = 0; i < chunks; i++) keys.push(versionedKey + '_' + i);
-    const dataMap = cache.getAll(keys);
-    let fullStr = '';
-    for (let i = 0; i < chunks; i++) {
-      if (dataMap[versionedKey + '_' + i] === undefined) return null;
-      fullStr += dataMap[versionedKey + '_' + i];
-    }
-    return JSON.parse(fullStr);
-  } catch (e) {
-    return null;
-  }
-}
-
 const SPREADSHEET_ID = '11sU4BhJAu1h5_5Bz2DGxftIy-2b-o62Sq5sewzR6OaQ';
 const INVENTORY_SPREADSHEET_ID = '11sU4BhJAu1h5_5Bz2DGxftIy-2b-o62Sq5sewzR6OaQ';
 
@@ -214,28 +154,28 @@ function doPost(e) {
       case 'getLogs':         return corsResponse(getLogs(user));
       case 'getTransactionPhotos': return corsResponse(getTransactionPhotos(data));
       // POST actions
-      case 'saveIncome':        const res_saveIncome = saveIncome(data, user); if (res_saveIncome.success) bumpCacheVersion(); return corsResponse(res_saveIncome);
-      case 'saveBulkIncome':    const res_saveBulkIncome = saveBulkIncome(data, user); if (res_saveBulkIncome.success) bumpCacheVersion(); return corsResponse(res_saveBulkIncome);
-      case 'saveExpense':       const res_saveExpense = saveExpense(data, user); if (res_saveExpense.success) bumpCacheVersion(); return corsResponse(res_saveExpense);
-      case 'saveDepartment':    const res_saveDepartment = saveDepartment(data, user); if (res_saveDepartment.success) bumpCacheVersion(); return corsResponse(res_saveDepartment);
-      case 'saveUnit':          const res_saveUnit = saveUnit(data, user); if (res_saveUnit.success) bumpCacheVersion(); return corsResponse(res_saveUnit);
-      case 'saveUser':          const res_saveUser = saveUser(data, user); return corsResponse(res_saveUser);
-      case 'setInitialBalance': const res_setInitialBalance = setInitialBalance(data, user); if (res_setInitialBalance.success) bumpCacheVersion(); return corsResponse(res_setInitialBalance);
-      case 'deleteRecord':      const res_deleteRecord = deleteRecord(data, user); if (res_deleteRecord.success) bumpCacheVersion(); return corsResponse(res_deleteRecord);
-      case 'editRecord':        const res_editRecord = editRecord(data, user); if (res_editRecord.success) bumpCacheVersion(); return corsResponse(res_editRecord);
-      case 'editBulkIncome':    const res_editBulkIncome = editBulkIncome(data, user); if (res_editBulkIncome.success) bumpCacheVersion(); return corsResponse(res_editBulkIncome);
-      case 'deleteDepartment':  const res_deleteDepartment = deleteDepartment(data, user); if (res_deleteDepartment.success) bumpCacheVersion(); return corsResponse(res_deleteDepartment);
-      case 'deleteUnit':        const res_deleteUnit = deleteUnit(data, user); if (res_deleteUnit.success) bumpCacheVersion(); return corsResponse(res_deleteUnit);
+      case 'saveIncome':        return corsResponse(saveIncome(data, user));
+      case 'saveBulkIncome':    return corsResponse(saveBulkIncome(data, user));
+      case 'saveExpense':       return corsResponse(saveExpense(data, user));
+      case 'saveDepartment':    return corsResponse(saveDepartment(data, user));
+      case 'saveUnit':          return corsResponse(saveUnit(data, user));
+      case 'saveUser':          return corsResponse(saveUser(data, user));
+      case 'setInitialBalance': return corsResponse(setInitialBalance(data, user));
+      case 'deleteRecord':      return corsResponse(deleteRecord(data, user));
+      case 'editRecord':        return corsResponse(editRecord(data, user));
+      case 'editBulkIncome':    return corsResponse(editBulkIncome(data, user));
+      case 'deleteDepartment':  return corsResponse(deleteDepartment(data, user));
+      case 'deleteUnit':        return corsResponse(deleteUnit(data, user));
       case 'saveConfig':        return corsResponse(saveConfig(data, user));
-      case 'deleteIncomeType':  const res_deleteIncomeType = deleteIncomeType(data, user); if (res_deleteIncomeType.success) bumpCacheVersion(); return corsResponse(res_deleteIncomeType);
-      case 'saveIncomeType':    const res_saveIncomeType = saveIncomeType(data, user); if (res_saveIncomeType.success) bumpCacheVersion(); return corsResponse(res_saveIncomeType);
+      case 'deleteIncomeType':  return corsResponse(deleteIncomeType(data, user));
+      case 'saveIncomeType':    return corsResponse(saveIncomeType(data, user));
       case 'saveInventory':     return corsResponse(saveInventory(data, user));
       case 'deleteInventory':   return corsResponse(deleteInventory(data, user));
       case 'saveInventoryService': return corsResponse(saveInventoryService(data, user));
       case 'deleteInventoryService': return corsResponse(deleteInventoryService(data, user));
       case 'approveTransaction':
         if (!hasRole(user.role, 'Admin') && !hasRole(user.role, 'Ketua Jemaat') && !hasRole(user.role, 'Pendeta')) return corsResponse({ success: false, message: 'Akses ditolak. Hanya Ketua Jemaat, Pendeta, atau Admin.' });
-        const res_approveTransaction = approveTransaction(data, user); if (res_approveTransaction.success) bumpCacheVersion(); return corsResponse(res_approveTransaction);
+        return corsResponse(approveTransaction(data, user));
       default:
         return corsResponse({ success: false, message: 'Action tidak dikenali: ' + action });
     }
@@ -626,8 +566,6 @@ function getIncomeList(params) {
 }
 
 function getAllIncome() {
-  const cached = getCachedChunks('ALL_INCOME');
-  if (cached) return cached;
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(SHEETS.INCOME);
   const rows  = sheet.getDataRange().getValues();
@@ -658,7 +596,6 @@ function getAllIncome() {
       approved_by:      r[18] || ''
     });
   }
-  putCachedChunks('ALL_INCOME', result);
   return result;
 }
 
@@ -773,8 +710,6 @@ function getExpenseList(params) {
 }
 
 function getAllExpense() {
-  const cached = getCachedChunks('ALL_EXPENSE');
-  if (cached) return cached;
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(SHEETS.EXPENSE);
   const rows  = sheet.getDataRange().getValues();
@@ -802,7 +737,6 @@ function getAllExpense() {
       approved_by:      r[15] || ''
     });
   }
-  putCachedChunks('ALL_EXPENSE', result);
   return result;
 }
 
@@ -892,15 +826,14 @@ function getMonthlyReport(params) {
 //  MASTER DATA — GET
 // ============================================================
 function getMasterData() {
-  const cached = getCachedChunks('MASTER_DATA');
-  if (cached) return { success: true, data: cached };
-  const data = {
-    departments:  getDepartments(),
-    units:        getUnits(),
-    incomeTypes:  getIncomeTypes()
+  return {
+    success: true,
+    data: {
+      departments:  getDepartments(),
+      units:        getUnits(),
+      incomeTypes:  getIncomeTypes()
+    }
   };
-  putCachedChunks('MASTER_DATA', data);
-  return { success: true, data };
 }
 
 function getDepartments() {
