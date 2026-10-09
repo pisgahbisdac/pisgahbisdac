@@ -103,7 +103,7 @@ export async function supabasePost(action, payload = {}) {
 
     switch (action) {
       case 'login': {
-        const { data, error } = await supabase.from('users').select('*').ilike('username', payload.username).eq('aktif', true).single();
+        const { data, error } = await supabase.from('users').select('*').ilike('username', payload.username).eq('active', true).single();
         if (error || !data) return { success: false, message: 'Username salah atau dinonaktifkan.' };
         if (data.password !== payload.password) return { success: false, message: 'Password salah.' };
         const token = btoa(JSON.stringify({ username: data.username, role: data.role, nama: data.nama }));
