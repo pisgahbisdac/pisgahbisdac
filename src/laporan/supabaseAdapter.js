@@ -330,9 +330,9 @@ export async function supabasePost(action, payload = {}) {
                    note: item.note || 'Setoran Kolektif',
                    created_by: username,
                    created_at: new Date().toISOString(),
-                   receipt_photo: payload.photo || '',
-                   receipt_photo_2: payload.photo2 || '',
-                   receipt_photo_3: payload.photo3 || '',
+                   receipt_photo: payload.receipt_photo_base64 || '',
+                   receipt_photo_2: payload.receipt_photo_base64_2 || '',
+                   receipt_photo_3: payload.receipt_photo_base64_3 || '',
                    approved_by: ''
                });
            }
@@ -343,6 +343,52 @@ export async function supabasePost(action, payload = {}) {
            writeLog(username, 'SAVE_BULK_INCOME', `Kolektif: ${payload.receipt_no}`);
         }
         return { success: true, message: 'Setoran kolektif disimpan.' };
+      }
+
+      case 'editBulkIncome': {
+        if (!isAdmin) return { success: false, message: 'Hanya Admin.' };
+        // Hapus data lama berdasarkan old_receipt_no
+        await supabase.from('income').delete().eq('receipt_no', payload.old_receipt_no);
+        
+        const { data: types } = await supabase.from('income_types').select('*');
+        const inserts = [];
+        for (const item of payload.items) {
+           const amount = parseFloat(item.amount) || 0;
+           if (amount > 0) {
+               const typeConf = types.find(t => t.name === item.income_type);
+               let ad = 0, aj = 0, ab = 0;
+               if (typeConf) {
+                  ad = (amount * typeConf.pct_daerah) / 100;
+                  aj = (amount * typeConf.pct_jemaat) / 100;
+                  ab = (amount * typeConf.pct_bangun) / 100;
+               }
+               inserts.push({
+                   transaction_id: 'INC-' + Date.now() + Math.floor(Math.random()*1000),
+                   date: payload.date,
+                   month: parseInt(payload.date.split('-')[1]),
+                   year: parseInt(payload.date.split('-')[0]),
+                   income_type: item.income_type,
+                   nama_pemberi: 'Kolektif ' + payload.unit_name,
+                   unit_name: payload.unit_name,
+                   receipt_no: payload.receipt_no,
+                   amount: amount,
+                   alloc_daerah: ad, alloc_jemaat: aj, alloc_bangun: ab,
+                   note: item.note || 'Setoran Kolektif',
+                   created_by: username,
+                   created_at: new Date().toISOString(),
+                   receipt_photo: payload.receipt_photo_base64 || payload.original_photo || '',
+                   receipt_photo_2: payload.receipt_photo_base64_2 || '',
+                   receipt_photo_3: payload.receipt_photo_base64_3 || '',
+                   approved_by: ''
+               });
+           }
+        }
+        if (inserts.length > 0) {
+           const { error } = await supabase.from('income').insert(inserts);
+           if (error) throw error;
+           writeLog(username, 'EDIT_BULK_INCOME', `Kolektif: ${payload.receipt_no}`);
+        }
+        return { success: true, message: 'Setoran kolektif berhasil diedit.' };
       }
 
       case 'saveConfig': {
