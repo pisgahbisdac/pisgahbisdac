@@ -27,21 +27,43 @@ export async function supabaseGet(action, params = {}) {
       }
 
       case 'getIncomeList': {
-        let q = supabase.from('income').select('*');
+        let q = supabase.from('income').select('transaction_id, date, month, year, income_type, nama_pemberi, unit_name, receipt_no, amount, alloc_daerah, alloc_jemaat, alloc_bangun, note, created_by, created_at, approved_by');
         if (params.year) q = q.eq('year', params.year);
         if (params.month) q = q.eq('month', params.month);
-        const { data, error } = await q;
-        if (error) throw error;
-        return { success: true, data: data || [] };
+        
+        let p = supabase.from('income').select('transaction_id').not('receipt_photo', 'is', null).neq('receipt_photo', '');
+        if (params.year) p = p.eq('year', params.year);
+        if (params.month) p = p.eq('month', params.month);
+
+        const [resData, resPhotos] = await Promise.all([q, p]);
+        if (resData.error) throw resData.error;
+        
+        const photoMap = {};
+        if (resPhotos.data) resPhotos.data.forEach(r => photoMap[r.transaction_id] = true);
+        
+        const data = resData.data || [];
+        data.forEach(r => { r.receipt_photo = photoMap[r.transaction_id] ? true : false; });
+        return { success: true, data };
       }
 
       case 'getExpenseList': {
-        let q = supabase.from('expense').select('*');
+        let q = supabase.from('expense').select('transaction_id, date, month, year, department, source_balance, receipt_no, amount, nama_penerima, note, created_by, created_at, approved_by');
         if (params.year) q = q.eq('year', params.year);
         if (params.month) q = q.eq('month', params.month);
-        const { data, error } = await q;
-        if (error) throw error;
-        return { success: true, data: data || [] };
+        
+        let p = supabase.from('expense').select('transaction_id').not('receipt_photo', 'is', null).neq('receipt_photo', '');
+        if (params.year) p = p.eq('year', params.year);
+        if (params.month) p = p.eq('month', params.month);
+
+        const [resData, resPhotos] = await Promise.all([q, p]);
+        if (resData.error) throw resData.error;
+        
+        const photoMap = {};
+        if (resPhotos.data) resPhotos.data.forEach(r => photoMap[r.transaction_id] = true);
+        
+        const data = resData.data || [];
+        data.forEach(r => { r.receipt_photo = photoMap[r.transaction_id] ? true : false; });
+        return { success: true, data };
       }
 
       case 'getBalances': {
