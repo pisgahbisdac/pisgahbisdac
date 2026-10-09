@@ -1012,32 +1012,9 @@ import { supabaseGet, supabasePost } from './supabaseAdapter.js';
       }
 
       if (r) {
-        const isMissingPhoto = !r.receipt_photo && !r.receipt_photo_2 && !r.receipt_photo_3;
-        if (!isMissingPhoto) {
-          showGlobalLoading('Mengambil foto dari server...');
-          try {
-            const res = await apiGet('getTransactionPhotos', { id: (r.transaction_id || r.receipt_no), type: type });
-            if (res && res.success && res.data) {
-              const p1 = res.data.photo1 || '';
-              const p2 = res.data.photo2 || '';
-              const p3 = res.data.photo3 || '';
-              if (!p1 && !p2 && !p3) {
-                notify('Foto tidak ditemukan di server.', 'error');
-              } else {
-                openPhotoModal(p1, p2, p3);
-              }
-            } else {
-              notify(res.message || 'Gagal mengambil foto.', 'error');
-            }
-          } catch (e) {
-            notify((e.message || 'Gagal memuat foto.') + ' | URL: ' + getActiveApiUrl().substring(0, 45) + '...', 'error');
-          } finally {
-            hideGlobalLoading();
-          }
-        } else {
+        const generateAndShowAutoReceipt = () => {
           const overlay = document.getElementById('loadingOverlay');
           if (overlay) overlay.style.display = 'flex';
-          
           setTimeout(async () => {
             try {
               let actualTypeForHtml = type;
@@ -1051,14 +1028,52 @@ import { supabaseGet, supabasePost } from './supabaseAdapter.js';
                  const editPayload = { ...r, type: type, receipt_photo_base64: genBase64 };
                  apiPost('editRecord', editPayload).catch(e => console.error('Silent photo update failed', e));
               }
-              openPhotoModal(genBase64, r.receipt_photo_2, r.receipt_photo_3);
+              openPhotoModal(genBase64, '', '');
             } catch (err) {
               console.error('Failed generating receipt on the fly', err);
-              openPhotoModal(r.receipt_photo, r.receipt_photo_2, r.receipt_photo_3);
+              notify('Gagal membuat kuitansi otomatis.', 'error');
             } finally {
               if (overlay) overlay.style.display = 'none';
             }
           }, 10);
+        };
+
+        const isMissingPhoto = !r.receipt_photo && !r.receipt_photo_2 && !r.receipt_photo_3;
+        if (!isMissingPhoto) {
+          showGlobalLoading('Mengambil foto dari server...');
+          try {
+            const res = await apiGet('getTransactionPhotos', { id: (r.transaction_id || r.receipt_no), type: type });
+            if (res && res.success && res.data) {
+              const p1 = res.data.photo1 || '';
+              const p2 = res.data.photo2 || '';
+              const p3 = res.data.photo3 || '';
+              
+              // Cek apakah data terpotong akibat ekspor excel (32767 karakter) atau rusak
+              if ((p1 && p1.length === 32767) || (p1 && !p1.startsWith('data:image/'))) {
+                 hideGlobalLoading();
+                 notify('Foto asli rusak. Membuat kuitansi otomatis...', 'info');
+                 generateAndShowAutoReceipt();
+                 return;
+              }
+
+              if (!p1 && !p2 && !p3) {
+                hideGlobalLoading();
+                generateAndShowAutoReceipt();
+              } else {
+                openPhotoModal(p1, p2, p3);
+              }
+            } else {
+              hideGlobalLoading();
+              generateAndShowAutoReceipt();
+            }
+          } catch (e) {
+            hideGlobalLoading();
+            generateAndShowAutoReceipt();
+          } finally {
+            hideGlobalLoading();
+          }
+        } else {
+          generateAndShowAutoReceipt();
         }
       } else {
         notify('Data foto tidak ditemukan.', 'error');
