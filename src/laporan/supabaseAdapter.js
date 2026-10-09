@@ -20,9 +20,9 @@ export async function supabaseGet(action, params = {}) {
       }
 
       case 'getMasterData': {
-        const { data: depts } = await supabase.from('departments').select('*').eq('is_active', true);
-        const { data: units } = await supabase.from('units').select('*').eq('is_active', true);
-        const { data: incTypes } = await supabase.from('income_types').select('*').eq('is_active', true);
+        const { data: depts } = await supabase.from('departments').select('*').eq('active', true);
+        const { data: units } = await supabase.from('units').select('*').eq('active', true);
+        const { data: incTypes } = await supabase.from('income_types').select('*').eq('active', true);
         return { success: true, data: { departments: depts || [], units: units || [], incomeTypes: incTypes || [] } };
       }
 
