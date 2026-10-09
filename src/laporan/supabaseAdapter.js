@@ -94,7 +94,7 @@ export async function supabaseGet(action, params = {}) {
       
       case 'getTransactionPhotos': {
         const table = params.type === 'income' ? 'income' : 'expense';
-        const { data, error } = await supabase.from(table).select('receipt_photo, receipt_photo_2, receipt_photo_3').or(`transaction_id.eq.${params.id},receipt_no.eq.${params.id}`).single();
+        const { data, error } = await supabase.from(table).select('receipt_photo, receipt_photo_2, receipt_photo_3').or(`transaction_id.eq."${params.id}",receipt_no.eq."${params.id}"`).single();
         if (error || !data) return { success: false, message: 'Transaksi tidak ditemukan' };
         return { success: true, data: { photo1: data.receipt_photo || '', photo2: data.receipt_photo_2 || '', photo3: data.receipt_photo_3 || '' } };
       }
