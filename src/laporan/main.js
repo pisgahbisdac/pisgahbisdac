@@ -1019,7 +1019,16 @@ import { supabaseGet, supabasePost } from './supabaseAdapter.js';
             try {
               let actualTypeForHtml = type;
               const isMutasi = (r.department === 'Mutasi Kas / Setor Bank' || r.income_type === 'Mutasi Kas / Setor Bank');
-              if (isMutasi) actualTypeForHtml = 'mutasi';
+              if (isMutasi) {
+                actualTypeForHtml = 'mutasi';
+                if (type === 'income') {
+                  const expSide = cachedExpense.find(x => (x.transaction_id || x.receipt_no) === (r.transaction_id || r.receipt_no));
+                  if (expSide) {
+                    r = expSide;
+                    type = 'expense';
+                  }
+                }
+              }
               
               const htmlStr = generateReceiptHTML(actualTypeForHtml, r);
               const genBase64 = await generateReceiptImageBase64(htmlStr, false);
