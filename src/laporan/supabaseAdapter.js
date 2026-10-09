@@ -98,8 +98,9 @@ export async function supabasePost(action, payload = {}) {
     const role = user.role || 'Viewer';
 
     // Helper functions for checking auth
-    const isAdmin = role === 'Admin' || role === 'Ketua Jemaat' || role === 'Pendeta';
-    const isBendaharaOrAdmin = role === 'Bendahara' || isAdmin;
+    const userRoles = role ? role.split(',').map(r => r.trim()) : [];
+    const isAdmin = userRoles.includes('Admin') || userRoles.includes('Ketua Jemaat') || userRoles.includes('Pendeta');
+    const isBendaharaOrAdmin = userRoles.includes('Bendahara') || isAdmin;
 
     switch (action) {
       case 'login': {
