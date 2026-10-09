@@ -179,9 +179,10 @@ export async function supabasePost(action, payload = {}) {
         if (!isAdmin) return { success: false, message: 'Hanya Admin.' };
         const table = payload.type === 'income' ? 'income' : (payload.type === 'expense' ? 'expense' : 'users');
         const col = table === 'users' ? 'username' : 'transaction_id';
-        const { error } = await supabase.from(table).delete().eq(col, payload.id);
+        const targetId = payload.id || payload.transaction_id;
+        const { error } = await supabase.from(table).delete().eq(col, targetId);
         if (error) throw error;
-        writeLog(username, 'DELETE_' + table.toUpperCase(), 'ID: ' + payload.id);
+        writeLog(username, 'DELETE_' + table.toUpperCase(), 'ID: ' + targetId);
         return { success: true, message: 'Data berhasil dihapus.' };
       }
 
@@ -224,9 +225,10 @@ export async function supabasePost(action, payload = {}) {
             };
         }
 
-        const { error } = await supabase.from(table).update(updateData).eq('transaction_id', payload.id);
+        const targetId = payload.id || payload.transaction_id;
+        const { error } = await supabase.from(table).update(updateData).eq('transaction_id', targetId);
         if (error) throw error;
-        writeLog(username, 'EDIT_' + table.toUpperCase(), 'ID: ' + payload.id);
+        writeLog(username, 'EDIT_' + table.toUpperCase(), 'ID: ' + targetId);
         return { success: true, message: 'Data berhasil diedit.' };
       }
 
