@@ -90,6 +90,27 @@ function writeLog(username, action, detail) {
   supabase.from('logs').insert([{ id: 'LOG-' + Date.now(), timestamp: new Date().toISOString(), username, action, detail }]).then();
 }
 
+async function getNextSeqNum(table, prefix, year, month) {
+    const yStr = year.toString();
+    const mStr = month.toString().padStart(2, '0');
+    const prefixFull = `${prefix}-${yStr}${mStr}`;
+    const { data } = await supabase
+        .from(table)
+        .select('transaction_id')
+        .like('transaction_id', `${prefixFull}%`)
+        .order('transaction_id', { ascending: false })
+        .limit(1);
+    
+    let nextNum = 1;
+    if (data && data.length > 0) {
+        const lastId = data[0].transaction_id;
+        const lastNumStr = lastId.replace(prefixFull, '');
+        const lastNum = parseInt(lastNumStr, 10);
+        if (!isNaN(lastNum)) nextNum = lastNum + 1;
+    }
+    return nextNum;
+}
+
 export async function supabasePost(action, payload = {}) {
   try {
     const userStr = localStorage.getItem('BISDAC_user');
@@ -124,11 +145,16 @@ export async function supabasePost(action, payload = {}) {
         if (payload.income_type === 'Mutasi Kas / Setor Bank') {
             alloc_daerah = 0; alloc_jemaat = 0; alloc_bangun = 0;
         }
+        const year = parseInt(payload.date.split('-')[0]);
+        const month = parseInt(payload.date.split('-')[1]);
+        const nextNum = await getNextSeqNum('income', 'INC', year, month);
+        const transaction_id = `INC-${year}${month.toString().padStart(2, '0')}${String(nextNum).padStart(3, '0')}`;
+        
         const insertData = {
-           transaction_id: 'INC-' + Date.now() + Math.floor(Math.random()*1000),
+           transaction_id,
            date: payload.date,
-           month: parseInt(payload.date.split('-')[1]),
-           year: parseInt(payload.date.split('-')[0]),
+           month,
+           year,
            income_type: payload.income_type,
            nama_pemberi: payload.nama_pemberi,
            unit_name: payload.unit_name,
@@ -151,11 +177,16 @@ export async function supabasePost(action, payload = {}) {
 
       case 'saveExpense': {
         if (!isBendaharaOrAdmin) return { success: false, message: 'Akses ditolak.' };
+        const year = parseInt(payload.date.split('-')[0]);
+        const month = parseInt(payload.date.split('-')[1]);
+        const nextNum = await getNextSeqNum('expense', 'EXP', year, month);
+        const transaction_id = `EXP-${year}${month.toString().padStart(2, '0')}${String(nextNum).padStart(3, '0')}`;
+        
         const insertData = {
-           transaction_id: 'EXP-' + Date.now() + Math.floor(Math.random()*1000),
+           transaction_id,
            date: payload.date,
-           month: parseInt(payload.date.split('-')[1]),
-           year: parseInt(payload.date.split('-')[0]),
+           month,
+           year,
            department: payload.department,
            source_balance: payload.source_balance,
            receipt_no: payload.receipt_no || ('R-' + Date.now()),
@@ -306,6 +337,10 @@ export async function supabasePost(action, payload = {}) {
         if (!isBendaharaOrAdmin) return { success: false, message: 'Akses ditolak.' };
         const { data: types } = await supabase.from('income_types').select('*');
         const inserts = [];
+        const year = parseInt(payload.date.split('-')[0]);
+        const month = parseInt(payload.date.split('-')[1]);
+        let nextNum = await getNextSeqNum('income', 'INC', year, month);
+
         for (const item of payload.items) {
            const amount = parseFloat(item.amount) || 0;
            if (amount > 0) {
@@ -316,11 +351,13 @@ export async function supabasePost(action, payload = {}) {
                   aj = (amount * typeConf.pct_jemaat) / 100;
                   ab = (amount * typeConf.pct_bangun) / 100;
                }
+               const transaction_id = `INC-${year}${month.toString().padStart(2, '0')}${String(nextNum).padStart(3, '0')}`;
+               nextNum++;
                inserts.push({
-                   transaction_id: 'INC-' + Date.now() + Math.floor(Math.random()*1000),
+                   transaction_id,
                    date: payload.date,
-                   month: parseInt(payload.date.split('-')[1]),
-                   year: parseInt(payload.date.split('-')[0]),
+                   month,
+                   year,
                    income_type: item.income_type,
                    nama_pemberi: 'Kolektif ' + payload.unit_name,
                    unit_name: payload.unit_name,
@@ -352,6 +389,10 @@ export async function supabasePost(action, payload = {}) {
         
         const { data: types } = await supabase.from('income_types').select('*');
         const inserts = [];
+        const year = parseInt(payload.date.split('-')[0]);
+        const month = parseInt(payload.date.split('-')[1]);
+        let nextNum = await getNextSeqNum('income', 'INC', year, month);
+
         for (const item of payload.items) {
            const amount = parseFloat(item.amount) || 0;
            if (amount > 0) {
@@ -362,11 +403,13 @@ export async function supabasePost(action, payload = {}) {
                   aj = (amount * typeConf.pct_jemaat) / 100;
                   ab = (amount * typeConf.pct_bangun) / 100;
                }
+               const transaction_id = `INC-${year}${month.toString().padStart(2, '0')}${String(nextNum).padStart(3, '0')}`;
+               nextNum++;
                inserts.push({
-                   transaction_id: 'INC-' + Date.now() + Math.floor(Math.random()*1000),
+                   transaction_id,
                    date: payload.date,
-                   month: parseInt(payload.date.split('-')[1]),
-                   year: parseInt(payload.date.split('-')[0]),
+                   month,
+                   year,
                    income_type: item.income_type,
                    nama_pemberi: 'Kolektif ' + payload.unit_name,
                    unit_name: payload.unit_name,
