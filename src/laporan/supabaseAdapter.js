@@ -318,9 +318,27 @@ export async function supabasePost(action, payload = {}) {
       }
 
       case 'approveTransaction': {
-        if (!isAdmin) return { success: false, message: 'Hanya Admin/Ketua.' };
         const table = payload.type === 'income' ? 'income' : 'expense';
-        await supabase.from(table).update({ approved_by: username }).in('transaction_id', payload.ids);
+        const targetId = payload.transaction_id || payload.id;
+        if (!targetId) return { success: false, message: 'ID transaksi tidak valid.' };
+        
+        const { data: trx, error: fetchErr } = await supabase.from(table).select('approved_by').eq('transaction_id', targetId).single();
+        if (fetchErr) throw fetchErr;
+
+        let effectiveRole = "Admin";
+        if (role.includes('Pendeta')) effectiveRole = "Pendeta";
+        else if (role.includes('Ketua Jemaat')) effectiveRole = "Ketua Jemaat";
+
+        let currentApproved = trx.approved_by || '';
+        if (currentApproved.includes(effectiveRole)) {
+            return { success: true, message: 'Anda sudah menyetujui transaksi ini.' };
+        }
+        
+        let newApproved = currentApproved ? (currentApproved + ',' + effectiveRole) : effectiveRole;
+
+        const { error } = await supabase.from(table).update({ approved_by: newApproved }).eq('transaction_id', targetId);
+        if (error) throw error;
+        writeLog(username, 'APPROVE', `Approve ${table} ID: ${targetId}`);
         return { success: true, message: 'Berhasil disetujui.' };
       }
 
