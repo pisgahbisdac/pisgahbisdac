@@ -186,9 +186,9 @@ export async function supabasePost(action, payload = {}) {
            note: payload.note,
            created_by: username,
            created_at: new Date().toISOString(),
-           receipt_photo: payload.photo || '',
-           receipt_photo_2: payload.photo2 || '',
-           receipt_photo_3: payload.photo3 || '',
+           receipt_photo: payload.receipt_photo_base64 || payload.photo || '',
+           receipt_photo_2: payload.receipt_photo_base64_2 || payload.photo2 || '',
+           receipt_photo_3: payload.receipt_photo_base64_3 || payload.photo3 || '',
            approved_by: ''
         };
         const { error } = await supabase.from('income').insert([insertData]);
@@ -216,10 +216,10 @@ export async function supabasePost(action, payload = {}) {
            note: payload.note,
            created_by: username,
            created_at: new Date().toISOString(),
-           receipt_photo: payload.photo || '',
+           receipt_photo: payload.receipt_photo_base64 || payload.photo || '',
            nama_penerima: payload.nama_penerima || '-',
-           receipt_photo_2: payload.photo2 || '',
-           receipt_photo_3: payload.photo3 || '',
+           receipt_photo_2: payload.receipt_photo_base64_2 || payload.photo2 || '',
+           receipt_photo_3: payload.receipt_photo_base64_3 || payload.photo3 || '',
            approved_by: ''
         };
         const { error } = await supabase.from('expense').insert([insertData]);
@@ -240,7 +240,7 @@ export async function supabasePost(action, payload = {}) {
       }
 
       case 'editRecord': {
-        if (!isAdmin) return { success: false, message: 'Hanya Admin.' };
+        if (!isBendaharaOrAdmin) return { success: false, message: 'Hanya Admin atau Bendahara.' };
         const table = payload.type === 'income' ? 'income' : 'expense';
         
         let updateData = {};
@@ -264,6 +264,12 @@ export async function supabasePost(action, payload = {}) {
                alloc_daerah, alloc_jemaat, alloc_bangun,
                note: payload.note
             };
+            if (payload.receipt_photo_base64 !== undefined) updateData.receipt_photo = payload.receipt_photo_base64;
+            if (payload.receipt_photo_base64_2 !== undefined) updateData.receipt_photo_2 = payload.receipt_photo_base64_2;
+            if (payload.receipt_photo_base64_3 !== undefined) updateData.receipt_photo_3 = payload.receipt_photo_base64_3;
+            if (payload.photo !== undefined && !payload.receipt_photo_base64) updateData.receipt_photo = payload.photo;
+            if (payload.photo2 !== undefined && !payload.receipt_photo_base64_2) updateData.receipt_photo_2 = payload.photo2;
+            if (payload.photo3 !== undefined && !payload.receipt_photo_base64_3) updateData.receipt_photo_3 = payload.photo3;
         } else {
             updateData = {
                date: payload.date,
@@ -276,6 +282,12 @@ export async function supabasePost(action, payload = {}) {
                nama_penerima: payload.nama_penerima,
                note: payload.note
             };
+            if (payload.receipt_photo_base64 !== undefined) updateData.receipt_photo = payload.receipt_photo_base64;
+            if (payload.receipt_photo_base64_2 !== undefined) updateData.receipt_photo_2 = payload.receipt_photo_base64_2;
+            if (payload.receipt_photo_base64_3 !== undefined) updateData.receipt_photo_3 = payload.receipt_photo_base64_3;
+            if (payload.photo !== undefined && !payload.receipt_photo_base64) updateData.receipt_photo = payload.photo;
+            if (payload.photo2 !== undefined && !payload.receipt_photo_base64_2) updateData.receipt_photo_2 = payload.photo2;
+            if (payload.photo3 !== undefined && !payload.receipt_photo_base64_3) updateData.receipt_photo_3 = payload.photo3;
         }
 
         const targetId = payload.id || payload.transaction_id;
@@ -489,6 +501,162 @@ export async function supabasePost(action, payload = {}) {
     }
   } catch (err) {
     console.error('Supabase POST Error:', err);
+    return { success: false, message: err.message };
+  }
+}
+
+/**
+ * Cek apakah Supabase online dan tabel Laporan dapat diakses
+ */
+export async function checkLaporanSupabaseHealth() {
+  try {
+    const { data, error } = await supabase.from('config').select('key').limit(1);
+    return !error;
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * 1-Klik Migrasi seluruh data dari Google Apps Script ke Supabase untuk Laporan
+ */
+export async function migrateLaporanGASToSupabase(gasUrl, onProgress = () => {}) {
+  try {
+    const fetchGas = async (action, params = {}) => {
+      let url = `${gasUrl}?action=${encodeURIComponent(action)}`;
+      Object.keys(params).forEach(k => {
+        if (params[k] !== undefined && params[k] !== null) url += `&${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`;
+      });
+      const res = await fetch(url);
+      return await res.json();
+    };
+
+    onProgress('Mengambil konfigurasi sistem dari Google Sheets...');
+    const configRes = await fetchGas('getConfig');
+    if (configRes.success && configRes.data) {
+      const configEntries = Object.entries(configRes.data).map(([key, value]) => ({
+        key,
+        value: typeof value === 'object' ? JSON.stringify(value) : String(value)
+      }));
+      if (configEntries.length > 0) {
+        await supabase.from('config').upsert(configEntries, { onConflict: 'key' });
+      }
+    }
+
+    onProgress('Mengambil Master Data (Departemen, Unit, Jenis Pemasukan)...');
+    const masterRes = await fetchGas('getMasterData');
+    if (masterRes.success && masterRes.data) {
+      const { departments, units, incomeTypes } = masterRes.data;
+      if (departments && departments.length > 0) {
+        const dRows = departments.map(d => ({ name: d.name, active: d.active !== false }));
+        await supabase.from('departments').upsert(dRows, { onConflict: 'name' });
+      }
+      if (units && units.length > 0) {
+        const uRows = units.map(u => ({ name: u.name, active: u.active !== false }));
+        await supabase.from('units').upsert(uRows, { onConflict: 'name' });
+      }
+      if (incomeTypes && incomeTypes.length > 0) {
+        const iRows = incomeTypes.map(it => ({
+          name: it.name,
+          pct_daerah: parseFloat(it.pct_daerah) || 0,
+          pct_jemaat: parseFloat(it.pct_jemaat) || 0,
+          pct_bangun: parseFloat(it.pct_bangun) || 0,
+          active: it.active !== false
+        }));
+        await supabase.from('income_types').upsert(iRows, { onConflict: 'name' });
+      }
+    }
+
+    onProgress('Mengambil data pengguna...');
+    const usersRes = await fetchGas('getUsers');
+    if (usersRes.success && Array.isArray(usersRes.data) && usersRes.data.length > 0) {
+      const uRows = usersRes.data.map(u => ({
+        username: u.username,
+        password: u.password,
+        nama: u.nama || u.username,
+        role: u.role || 'Viewer',
+        active: u.active !== false
+      }));
+      await supabase.from('users').upsert(uRows, { onConflict: 'username' });
+    }
+
+    onProgress('Mengambil data saldo awal...');
+    const balancesRes = await fetchGas('getBalances');
+    if (balancesRes.success && balancesRes.data) {
+      const b = balancesRes.data;
+      const bRows = [
+        { department: 'Daerah', amount: parseFloat(b.initDaerah || b.daerah) || 0 },
+        { department: 'Kas Jemaat', amount: parseFloat(b.initJemaat || b.jemaat) || 0 },
+        { department: 'Pembangunan', amount: parseFloat(b.initBangun || b.bangun) || 0 }
+      ];
+      await supabase.from('balances').upsert(bRows, { onConflict: 'department' });
+    }
+
+    onProgress('Mengambil data transaksi pemasukan kas...');
+    const incRes = await fetchGas('getIncomeList');
+    let incCount = 0;
+    if (incRes.success && Array.isArray(incRes.data) && incRes.data.length > 0) {
+      const items = incRes.data;
+      const chunkSize = 50;
+      for (let i = 0; i < items.length; i += chunkSize) {
+        const chunk = items.slice(i, i + chunkSize).map(item => ({
+          transaction_id: item.transaction_id || ('INC-' + Date.now() + '-' + i),
+          date: item.date ? String(item.date).split('T')[0] : '2026-01-01',
+          month: parseInt(item.month) || (item.date ? parseInt(item.date.split('-')[1]) : 1),
+          year: parseInt(item.year) || (item.date ? parseInt(item.date.split('-')[0]) : 2026),
+          income_type: item.income_type || 'Perpuluhan',
+          nama_pemberi: item.nama_pemberi || '-',
+          unit_name: item.unit_name || '-',
+          receipt_no: item.receipt_no || '',
+          amount: parseFloat(item.amount) || 0,
+          alloc_daerah: parseFloat(item.alloc_daerah) || 0,
+          alloc_jemaat: parseFloat(item.alloc_jemaat) || 0,
+          alloc_bangun: parseFloat(item.alloc_bangun) || 0,
+          note: item.note || '',
+          created_by: item.created_by || 'System',
+          created_at: item.created_at || new Date().toISOString(),
+          approved_by: item.approved_by || ''
+        }));
+        await supabase.from('income').upsert(chunk, { onConflict: 'transaction_id' });
+        incCount += chunk.length;
+        onProgress(`Menyimpan pemasukan (${incCount} / ${items.length})...`);
+      }
+    }
+
+    onProgress('Mengambil data transaksi pengeluaran kas...');
+    const expRes = await fetchGas('getExpenseList');
+    let expCount = 0;
+    if (expRes.success && Array.isArray(expRes.data) && expRes.data.length > 0) {
+      const items = expRes.data;
+      const chunkSize = 50;
+      for (let i = 0; i < items.length; i += chunkSize) {
+        const chunk = items.slice(i, i + chunkSize).map(item => ({
+          transaction_id: item.transaction_id || ('EXP-' + Date.now() + '-' + i),
+          date: item.date ? String(item.date).split('T')[0] : '2026-01-01',
+          month: parseInt(item.month) || (item.date ? parseInt(item.date.split('-')[1]) : 1),
+          year: parseInt(item.year) || (item.date ? parseInt(item.date.split('-')[0]) : 2026),
+          department: item.department || '-',
+          source_balance: item.source_balance || 'Kas Jemaat',
+          receipt_no: item.receipt_no || '',
+          amount: parseFloat(item.amount) || 0,
+          nama_penerima: item.nama_penerima || '-',
+          note: item.note || '',
+          created_by: item.created_by || 'System',
+          created_at: item.created_at || new Date().toISOString(),
+          approved_by: item.approved_by || ''
+        }));
+        await supabase.from('expense').upsert(chunk, { onConflict: 'transaction_id' });
+        expCount += chunk.length;
+        onProgress(`Menyimpan pengeluaran (${expCount} / ${items.length})...`);
+      }
+    }
+
+    return {
+      success: true,
+      message: `Migrasi Berhasil! Disimpan ke Supabase:\n- ${incCount} Transaksi Pemasukan\n- ${expCount} Transaksi Pengeluaran\n- Master Data & Pengguna Lengkap`
+    };
+  } catch (err) {
+    console.error('migrateLaporanGASToSupabase Error:', err);
     return { success: false, message: err.message };
   }
 }

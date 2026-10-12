@@ -1,4 +1,4 @@
-import { supabaseGet, supabasePost } from './supabaseAdapter.js';
+import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGASToSupabase } from './supabaseAdapter.js';
 
     (function () {
       const savedTheme = localStorage.getItem('BISDAC_theme') || 'light';
@@ -365,10 +365,57 @@ import { supabaseGet, supabasePost } from './supabaseAdapter.js';
     function setToken(t) { localStorage.setItem('BISDAC_token', t); }
     function clearToken() { localStorage.removeItem('BISDAC_token'); }
 
+    async function gasGet(action, params = {}) {
+      const baseUrl = getActiveApiUrl();
+      let url = `${baseUrl}?action=${encodeURIComponent(action)}`;
+      const token = getToken();
+      if (token) url += `&token=${encodeURIComponent(token)}`;
+      url += `&_t=${Date.now()}`;
+      Object.keys(params).forEach(k => {
+        if (params[k] !== undefined && params[k] !== null) url += `&${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`;
+      });
+      const res = await fetch(url, { method: 'GET', redirect: 'follow' });
+      const data = await res.json();
+      return data;
+    }
+
+    async function gasPost(action, payload = {}) {
+      const baseUrl = getActiveApiUrl();
+      const bodyData = { action, ...payload };
+      const token = getToken();
+      if (token) bodyData.token = token;
+      const res = await fetch(baseUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        redirect: 'follow',
+        body: JSON.stringify(bodyData)
+      });
+      const data = await res.json();
+      return data;
+    }
+
     async function apiGet(action, params = {}) {
       if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
       try {
-        const res = await supabaseGet(action, params);
+        let res;
+        let usedGasFallback = false;
+        try {
+          res = await supabaseGet(action, params);
+          if (!res || !res.success) {
+            console.warn('supabaseGet unsuccessful, trying GAS fallback:', res?.message);
+            res = await gasGet(action, params);
+            usedGasFallback = true;
+          }
+        } catch (sbErr) {
+          console.warn('supabaseGet exception, falling back to GAS:', sbErr);
+          res = await gasGet(action, params);
+          usedGasFallback = true;
+        }
+
+        if (usedGasFallback) {
+          setStatus('warning', 'Google Sheets Cadangan');
+        }
+
         if (!res.success) {
           if (res.message && res.message.includes('Token tidak valid')) {
             if (typeof notify === 'function') notify('Sesi Anda telah berakhir. Halaman akan dimuat ulang...', 'error');
@@ -402,7 +449,29 @@ import { supabaseGet, supabasePost } from './supabaseAdapter.js';
     async function apiPost(action, payload = {}) {
       if (action !== 'syncData' && !window.isBulkProcessing) showGlobalLoading();
       try {
-        const res = await supabasePost(action, payload);
+        let res;
+        let usedGasFallback = false;
+        try {
+          res = await supabasePost(action, payload);
+          if (res && res.success) {
+            // Dual Backup di background: sync Google Sheets tanpa memblokir UI
+            gasPost(action, payload).catch(err => console.warn('Dual backup to GAS failed:', err));
+            return res;
+          } else {
+            console.warn('supabasePost unsuccessful, trying GAS fallback:', res?.message);
+            res = await gasPost(action, payload);
+            usedGasFallback = true;
+          }
+        } catch (sbErr) {
+          console.warn('supabasePost exception, falling back to GAS:', sbErr);
+          res = await gasPost(action, payload);
+          usedGasFallback = true;
+        }
+
+        if (usedGasFallback) {
+          setStatus('warning', 'Google Sheets Cadangan');
+        }
+
         if (!res.success) {
           if (res.message && res.message.includes('Token tidak valid')) {
             if (typeof notify === 'function') notify('Sesi Anda telah berakhir. Halaman akan dimuat ulang...', 'error');
@@ -430,14 +499,27 @@ import { supabaseGet, supabasePost } from './supabaseAdapter.js';
     async function login(username, password) {
       if (typeof showGlobalLoading === 'function') showGlobalLoading('Memverifikasi Login...');
       try {
-        const res = await supabasePost('login', { username: username.trim().toLowerCase(), password: password });
-        if (res.success) {
+        let res;
+        try {
+          res = await supabasePost('login', { username: username.trim().toLowerCase(), password: password });
+        } catch (e) {
+          console.warn('Supabase login error, fallback to GAS:', e);
+        }
+        if (!res || !res.success) {
+          // Fallback check GAS
+          const gasRes = await gasGet('login', { username: username.trim().toLowerCase(), password: password });
+          if (gasRes && gasRes.success) {
+            res = gasRes;
+            setStatus('warning', 'Google Sheets Cadangan');
+          }
+        }
+        if (res && res.success) {
           setToken(res.token);
           localStorage.setItem('BISDAC_user', JSON.stringify(res.user));
+          return res;
         } else {
-          throw new Error(res.message || 'Login gagal');
+          throw new Error(res?.message || 'Login gagal');
         }
-        return res;
       } finally {
         if (typeof hideGlobalLoading === 'function') hideGlobalLoading();
       }
@@ -1035,6 +1117,7 @@ import { supabaseGet, supabasePost } from './supabaseAdapter.js';
               
               if (currentUser && (hasRole(currentUser, 'Admin') || hasRole(currentUser, 'Bendahara'))) {
                  const editPayload = { ...r, type: type, receipt_photo_base64: genBase64 };
+                 r.receipt_photo = genBase64; // Update local cache to prevent regenerating on next click
                  apiPost('editRecord', editPayload).catch(e => console.error('Silent photo update failed', e));
               }
               openPhotoModal(genBase64, '', '');
@@ -1156,7 +1239,45 @@ import { supabaseGet, supabasePost } from './supabaseAdapter.js';
     function fmtInputDate(iso) { if (!iso) return ''; const d = new Date(iso); if (isNaN(d.getTime())) return String(iso).split('T')[0]; return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
     function fmtDate(iso) { if (!iso) return '-'; const d = new Date(iso); if (isNaN(d.getTime())) { const p = String(iso).split('T')[0].split('-'); if (p.length === 3) return `${p[2]}/${p[1]}/${p[0]}`; return String(iso).split('T')[0]; } return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`; }
     function todayStr() { return fmtInputDate(new Date()); }
-    function setStatus(state, text) { const dot = document.getElementById('statusDot'); const txt = document.getElementById('statusText'); if (dot && txt) { dot.className = 'status-dot ' + state; txt.textContent = text; } }
+    function setStatus(state, text) {
+      const dot = document.getElementById('statusDot');
+      const txt = document.getElementById('statusText');
+      if (dot && txt) {
+        dot.className = 'status-dot ' + (state === 'warning' ? 'offline' : state);
+        txt.textContent = text;
+      }
+      const topDot = document.getElementById('topbarDbStatusDot');
+      const topTxt = document.getElementById('topbarDbStatusText');
+      const topBadge = document.getElementById('topbarDbStatusBadge');
+      if (topDot && topTxt && topBadge) {
+        topTxt.textContent = text;
+        if (state === 'online') {
+          topBadge.style.background = 'rgba(16,185,129,0.1)';
+          topBadge.style.color = '#059669';
+          topBadge.style.borderColor = 'rgba(16,185,129,0.2)';
+          topDot.style.background = '#10b981';
+          topDot.style.boxShadow = '0 0 8px rgba(16,185,129,0.6)';
+        } else if (state === 'warning') {
+          topBadge.style.background = 'rgba(245,158,11,0.1)';
+          topBadge.style.color = '#d97706';
+          topBadge.style.borderColor = 'rgba(245,158,11,0.2)';
+          topDot.style.background = '#f59e0b';
+          topDot.style.boxShadow = '0 0 8px rgba(245,158,11,0.6)';
+        } else if (state === 'offline') {
+          topBadge.style.background = 'rgba(239,68,68,0.1)';
+          topBadge.style.color = '#dc2626';
+          topBadge.style.borderColor = 'rgba(239,68,68,0.2)';
+          topDot.style.background = '#ef4444';
+          topDot.style.boxShadow = 'none';
+        } else {
+          topBadge.style.background = 'rgba(100,116,139,0.1)';
+          topBadge.style.color = '#64748b';
+          topBadge.style.borderColor = 'rgba(100,116,139,0.2)';
+          topDot.style.background = '#94a3b8';
+          topDot.style.boxShadow = 'none';
+        }
+      }
+    }
 
     let confirmPromiseResolve = null;
     function showCustomConfirm(title, message) { return new Promise((resolve) => { confirmPromiseResolve = resolve; document.getElementById('confirmTitle').textContent = title; document.getElementById('confirmMessage').textContent = message; document.getElementById('customConfirmModal').style.display = 'flex'; }); }
@@ -1194,7 +1315,24 @@ import { supabaseGet, supabasePost } from './supabaseAdapter.js';
     async function checkAPIConnection() {
       setStatus('loading', 'Menghubungkan...');
       try {
-        const baseUrl = getActiveApiUrl(); if (!baseUrl || baseUrl.trim() === '') { setStatus('offline', 'URL Belum Diset!'); isServerOnline = false; return false; }
+        const isSbHealthy = await checkLaporanSupabaseHealth();
+        if (isSbHealthy) {
+          setStatus('online', 'Supabase Aktif');
+          isServerOnline = true;
+          return true;
+        }
+      } catch (e) {
+        console.warn('Supabase check failed, checking GAS:', e);
+      }
+
+      // Check GAS fallback
+      try {
+        const baseUrl = getActiveApiUrl();
+        if (!baseUrl || baseUrl.trim() === '') {
+          setStatus('offline', 'URL Belum Diset!');
+          isServerOnline = false;
+          return false;
+        }
         const url = `${baseUrl}?action=ping`;
         const res = await fetch(url, {
           method: 'GET',
@@ -1204,10 +1342,57 @@ import { supabaseGet, supabasePost } from './supabaseAdapter.js';
         const text = await res.text();
         let json;
         try { json = JSON.parse(text); } catch (e) { throw new Error('URL API Tidak Valid (404)'); }
-        if (json.success) { setStatus('online', 'Server Online'); isServerOnline = true; return true; }
+        if (json.success) {
+          setStatus('warning', 'Google Sheets Cadangan');
+          isServerOnline = true;
+          return true;
+        }
         throw new Error(json.message);
-      } catch (e) { setStatus('offline', e.message || 'Koneksi Gagal'); isServerOnline = false; return false; }
+      } catch (e) {
+        setStatus('offline', e.message || 'Koneksi Gagal');
+        isServerOnline = false;
+        return false;
+      }
     }
+
+    window.migrateLaporanToSupabase = async function() {
+      const yes = await showCustomConfirm(
+        'Konfirmasi Migrasi 1-Klik',
+        'Mulai menyalin seluruh data historis dari Google Sheets ke database Supabase?\n\nSemua data di Google Sheets akan tetap tersimpan aman sebagai cadangan ganda.'
+      );
+      if (!yes) return;
+
+      const btn = document.getElementById('btnMigrateLaporan');
+      const originalHtml = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="btn-spinner"></span> Memigrasikan...';
+      }
+
+      showGlobalLoading('Memulai migrasi data ke Supabase...');
+
+      try {
+        const res = await migrateLaporanGASToSupabase(getActiveApiUrl(), (progressText) => {
+          showGlobalLoading(progressText);
+        });
+
+        if (res.success) {
+          notify(res.message, 'success');
+          await checkAPIConnection();
+          if (typeof syncData === 'function') await syncData(true);
+        } else {
+          notify(`Migrasi gagal: ${res.message}`, 'error');
+        }
+      } catch (err) {
+        notify(`Terjadi kesalahan saat migrasi: ${err.message}`, 'error');
+      } finally {
+        hideGlobalLoading();
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+        }
+      }
+    };
 
     async function doLogin(autoUser, autoPass) {
       const user = (typeof autoUser === 'string') ? autoUser : document.getElementById('loginUser').value.trim();
@@ -4869,7 +5054,12 @@ import { supabaseGet, supabasePost } from './supabaseAdapter.js';
           html2canvas(container, {
             scale: isForViewing ? 1.5 : 2,
             useCORS: true,
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            ignoreElements: (node) => {
+              if (node.id === 'floatingSyncBtn') return true;
+              if (node.classList && node.classList.contains('fixed')) return true;
+              return false;
+            }
           }).then(async origCanvas => {
             const MAX_CHARS = 48000; // Google Sheets cell limit is ~50000 chars
             

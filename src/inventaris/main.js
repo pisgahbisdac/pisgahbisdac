@@ -1,8 +1,104 @@
+import {
+  checkInventarisSupabaseHealth,
+  fetchInventoryFromSupabase,
+  saveInventoryToSupabase,
+  deleteInventoryFromSupabase,
+  fetchInventoryServicesFromSupabase,
+  saveInventoryServiceToSupabase,
+  migrateInventarisGASToSupabase
+} from './supabaseAdapter.js';
+
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwfBsZNTUD-3Ss-eV6Vk7g3x1FbSBpMIjzGuZcxYkV2dQhj9Nw82YJNNsfoZ5nlSz7mnw/exec';
 function getActiveApiUrl() { return DEFAULT_API_URL; }
 
 let currentUser = null;
 let inventoryData = [];
+let isSupabaseOnline = false;
+
+// ==========================================
+// REAL-TIME DB STATUS BADGE
+// ==========================================
+function updateDbStatusBadge(state, text) {
+  const dot = document.getElementById('dbStatusDot');
+  const txt = document.getElementById('dbStatusText');
+  const badge = document.getElementById('dbStatusBadge');
+  if (!dot || !txt || !badge) return;
+
+  txt.textContent = text;
+  if (state === 'online') {
+    badge.style.background = 'rgba(16,185,129,0.1)';
+    badge.style.color = '#059669';
+    badge.style.borderColor = 'rgba(16,185,129,0.2)';
+    dot.style.background = '#10b981';
+    dot.style.boxShadow = '0 0 8px rgba(16,185,129,0.6)';
+  } else if (state === 'fallback') {
+    badge.style.background = 'rgba(245,158,11,0.1)';
+    badge.style.color = '#d97706';
+    badge.style.borderColor = 'rgba(245,158,11,0.2)';
+    dot.style.background = '#f59e0b';
+    dot.style.boxShadow = '0 0 8px rgba(245,158,11,0.6)';
+  } else if (state === 'offline') {
+    badge.style.background = 'rgba(239,68,68,0.1)';
+    badge.style.color = '#dc2626';
+    badge.style.borderColor = 'rgba(239,68,68,0.2)';
+    dot.style.background = '#ef4444';
+    dot.style.boxShadow = 'none';
+  } else {
+    badge.style.background = 'rgba(100,116,139,0.1)';
+    badge.style.color = '#64748b';
+    badge.style.borderColor = 'rgba(100,116,139,0.2)';
+    dot.style.background = '#94a3b8';
+    dot.style.boxShadow = 'none';
+  }
+}
+
+async function checkDbHealth() {
+  updateDbStatusBadge('loading', 'Menghubungkan...');
+  isSupabaseOnline = await checkInventarisSupabaseHealth();
+  if (isSupabaseOnline) {
+    updateDbStatusBadge('online', 'Supabase Aktif');
+  } else {
+    updateDbStatusBadge('fallback', 'Google Sheets Cadangan');
+  }
+  return isSupabaseOnline;
+}
+
+// 1-Klik Migrasi dari UI Admin
+window.migrateToSupabase = async function() {
+  const confirmed = confirm(
+    'Mulai 1-Klik Migrasi seluruh data inventaris dari Google Sheets ke Supabase?\n\n' +
+    'Data lama di Google Sheets akan tetap tersimpan aman sebagai cadangan ganda.'
+  );
+  if (!confirmed) return;
+
+  const btn = document.getElementById('migrateBtn');
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memigrasi...';
+  }
+
+  try {
+    const res = await migrateInventarisGASToSupabase(getActiveApiUrl(), (progressText) => {
+      if (btn) btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span class="hide-on-mobile">${progressText}</span>`;
+    });
+
+    if (res.success) {
+      alert(`Migrasi Berhasil!\n\n${res.message}`);
+      await checkDbHealth();
+      await loadData();
+    } else {
+      alert(`Migrasi Gagal:\n${res.message}`);
+    }
+  } catch (err) {
+    alert(`Terjadi kesalahan saat migrasi: ${err.message}`);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
+  }
+};
 
 // ==========================================
 // UTILS
@@ -17,9 +113,35 @@ function fmtDate(d) {
 }
 
 // ==========================================
-// API CALLS
+// API CALLS (SEAMLESS FALLBACK & DUAL BACKUP)
 // ==========================================
 async function apiGet(action, params = {}) {
+  // 1. Primary Read from Supabase if online
+  if (action === 'getInventory') {
+    if (isSupabaseOnline) {
+      try {
+        const res = await fetchInventoryFromSupabase();
+        if (res.success) return res;
+        console.warn('Supabase getInventory failed, falling back to GAS:', res.message);
+      } catch (err) {
+        console.warn('Supabase fetch error, falling back to GAS:', err);
+      }
+    }
+    updateDbStatusBadge('fallback', 'Google Sheets Cadangan');
+  }
+
+  if (action === 'getInventoryService') {
+    if (isSupabaseOnline) {
+      try {
+        const res = await fetchInventoryServicesFromSupabase(params.inventory_id);
+        if (res.success) return res;
+      } catch (err) {
+        console.warn('Supabase getInventoryService error, falling back to GAS:', err);
+      }
+    }
+  }
+
+  // Fallback to Google Apps Script
   const url = new URL(getActiveApiUrl());
   url.searchParams.set('action', action);
   url.searchParams.set('token', localStorage.getItem('BISDAC_token') || '');
@@ -33,20 +155,76 @@ async function apiGet(action, params = {}) {
 }
 
 async function apiPost(action, dataObj) {
-  const payload = {
-    action: action,
-    token: localStorage.getItem('BISDAC_token') || '',
-    data: dataObj
+  const postToGas = async () => {
+    const payload = {
+      action: action,
+      token: localStorage.getItem('BISDAC_token') || '',
+      data: dataObj
+    };
+    const res = await fetch(getActiveApiUrl(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      redirect: 'follow',
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'API Error');
+    return data;
   };
-  const res = await fetch(getActiveApiUrl(), {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    redirect: 'follow',
-    body: JSON.stringify(payload)
-  });
-  const data = await res.json();
-  if (!data.success) throw new Error(data.message || 'API Error');
-  return data;
+
+  // 1. saveInventory: Primary Supabase + Background Dual-Backup to GAS
+  if (action === 'saveInventory') {
+    if (isSupabaseOnline) {
+      try {
+        const sbRes = await saveInventoryToSupabase(dataObj);
+        if (sbRes.success) {
+          // Dual Backup: Sync ke Google Sheets di background tanpa memblokir user
+          postToGas().catch(err => console.warn('Background Dual Backup save to GAS failed:', err));
+          return sbRes;
+        }
+        console.warn('Supabase save failed, falling back to GAS:', sbRes.message);
+      } catch (err) {
+        console.warn('Supabase save error, falling back to GAS:', err);
+      }
+      updateDbStatusBadge('fallback', 'Google Sheets Cadangan');
+    }
+    return await postToGas();
+  }
+
+  // 2. deleteInventory: Primary Supabase + Background Dual-Backup delete to GAS
+  if (action === 'deleteInventory') {
+    if (isSupabaseOnline) {
+      try {
+        const sbRes = await deleteInventoryFromSupabase(dataObj.id);
+        if (sbRes.success) {
+          postToGas().catch(err => console.warn('Background Dual Backup delete to GAS failed:', err));
+          return sbRes;
+        }
+      } catch (err) {
+        console.warn('Supabase delete error, falling back to GAS:', err);
+      }
+      updateDbStatusBadge('fallback', 'Google Sheets Cadangan');
+    }
+    return await postToGas();
+  }
+
+  // 3. saveInventoryService
+  if (action === 'saveInventoryService') {
+    if (isSupabaseOnline) {
+      try {
+        const sbRes = await saveInventoryServiceToSupabase(dataObj);
+        if (sbRes.success) {
+          postToGas().catch(err => console.warn('Background Dual Backup service to GAS failed:', err));
+          return sbRes;
+        }
+      } catch (err) {
+        console.warn('Supabase service error, falling back to GAS:', err);
+      }
+    }
+    return await postToGas();
+  }
+
+  return await postToGas();
 }
 
 // ==========================================
@@ -1198,7 +1376,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   checkAuth();
-  loadData();
+  checkDbHealth().then(() => loadData());
 
   // Clock
   setInterval(() => {

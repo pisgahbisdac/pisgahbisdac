@@ -550,8 +550,13 @@
       <img src="/icons/PisgahColor.png" alt="PISGAH Logo" style="height: 38px; margin-left: 8px;">
     </div>
     <div style="display:flex; align-items:center; gap:10px;">
+      <div id="dbStatusBadge" style="display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; background:rgba(16,185,129,0.1); color:#059669; border:1px solid rgba(16,185,129,0.2);">
+        <span style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;" id="dbStatusDot"></span>
+        <span id="dbStatusText">Memeriksa Database...</span>
+      </div>
       <button id="loginBtn" class="btn btn-outline"><i class="fa-solid fa-user-lock"></i> <span class="hide-on-mobile">Login Admin</span></button>
       <div id="adminControls" style="display:none; gap:10px; align-items:center;">
+        <button id="migrateBtn" class="btn btn-outline" style="color:#6366f1; border-color:rgba(99,102,241,0.3);" onclick="window.migrateToSupabase()"><i class="fa-solid fa-cloud-arrow-up"></i> <span class="hide-on-mobile">Migrasi ke Supabase</span></button>
         <button id="backupBtn" class="btn btn-outline" style="color:#0f766e;"><i class="fa-solid fa-download"></i> <span class="hide-on-mobile">Backup</span></button>
         <button id="depreciationBtn" class="btn btn-outline" style="color:#0284c7;" onclick="window.showDepreciationReport()"><i class="fa-solid fa-calculator"></i> <span class="hide-on-mobile">Depresiasi</span></button>
         <button id="addBtn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> <span class="hide-on-mobile">Tambah Aset</span></button>
