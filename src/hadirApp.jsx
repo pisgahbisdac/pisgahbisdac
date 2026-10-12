@@ -2,12 +2,20 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 
 import { KEGIATAN_KETERLIBATAN } from './constants/hadirConstants';
 import { cleanDateString, formatLocalYYYYMMDD, maskNoHp, parseLocalDate, getSabbatsInMonth } from './utils/hadirHelpers';
+import {
+    checkSupabaseHadirTables,
+    fetchHadirFromSupabase,
+    saveHadirToSupabase,
+    deleteJemaatFromSupabase,
+    deleteUserFromSupabase,
+    deleteKelasFromSupabase,
+    deleteDoaFromSupabase,
+    migrateAllDataToSupabase
+} from './utils/supabaseHadirAdapter';
 import ReactDOM from 'react-dom/client';
 import DashboardCharts from './components/hadir/DashboardCharts';
 
-        
-
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW-Km_huyHl-RZ18MSjVXTF46bNJGDb634-hqqhGCwRgV2VsCqx6vG3dmQSqStJhE-/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW-Km_huyHl-RZ18MSjVXTF46bNJGDb634-hqqhGCwRgV2VsCqx6vG3dmQSqStJhE-/exec";
 
 
 
@@ -57,6 +65,9 @@ import DashboardCharts from './components/hadir/DashboardCharts';
             const [showUserModalPin, setShowUserModalPin] = useState(false);
             const [logoError, setLogoError]         = useState(false);
             const [isSyncing, setIsSyncing]         = useState(false);
+            const [dbMode, setDbMode]               = useState('checking'); // 'supabase' | 'gas' | 'checking'
+            const [isMigrating, setIsMigrating]     = useState(false);
+            const [migrationStatus, setMigrationStatus] = useState('');
 
             const [currentUserRole, setCurrentUserRole] = useState("public");
             const [loggedInUser, setLoggedInUser]   = useState(null);
@@ -141,31 +152,54 @@ import DashboardCharts from './components/hadir/DashboardCharts';
             }, [jemaat]);
 
             const pushDataToCloud = async (overrideData = {}, overrideAdminPin = null) => {
-                if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("ISI_DENGAN_URL")) return;
                 setIsSyncing(true);
                 showToast("Menyimpan ke Cloud...", "info");
-                try {
-                    const activeAdminPin = overrideAdminPin !== null ? overrideAdminPin : adminPin;
-                    const payload = {};
-                    if (overrideData.jemaat !== undefined) payload.jemaat = overrideData.jemaat.map(j => ({ ...j, tglLahir: cleanDateString(j.tglLahir) }));
-                    if (overrideData.kelas !== undefined) payload.kelas = overrideData.kelas;
-                    if (overrideData.subKelas !== undefined) payload.subKelas = overrideData.subKelas;
-                    if (overrideData.users !== undefined || overrideAdminPin !== null) {
-                        payload.users = [...(overrideData.users || users), { nama: "Admin Utama (Backup PIN)", subKelasNama: "Kebaktian Khotbah (Umum)", pin: activeAdminPin }];
-                    }
-                    if (overrideData.absen !== undefined) payload.absen = overrideData.absen;
-                    if (overrideData.keterlibatan !== undefined) payload.keterlibatan = overrideData.keterlibatan;
-                    if (overrideData.tamuTambahan !== undefined) payload.tamuTambahan = overrideData.tamuTambahan;
-                    if (overrideData.doaList !== undefined) payload.doaList = overrideData.doaList;
+                const activeAdminPin = overrideAdminPin !== null ? overrideAdminPin : adminPin;
 
-                    const res = await fetch(APPS_SCRIPT_URL, {
-                        method: 'POST', redirect: 'follow',
-                        body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                    });
-                    const json = await res.json();
-                    if (json.success) showToast("Data tersimpan di Database Cloud!", "success");
-                    else showToast("Gagal menyimpan: " + json.error, "error");
+                try {
+                    let savedToSupabase = false;
+
+                    // 1. Cek dan simpan ke Supabase jika tabel tersedia
+                    const isSupabaseReady = await checkSupabaseHadirTables();
+                    if (isSupabaseReady) {
+                        setDbMode('supabase');
+                        const resSb = await saveHadirToSupabase(overrideData, activeAdminPin);
+                        if (resSb.success) {
+                            savedToSupabase = true;
+                        } else {
+                            console.warn('[Supabase Hadir] Gagal simpan ke Supabase:', resSb.error);
+                        }
+                    } else {
+                        setDbMode('gas');
+                    }
+
+                    // 2. Sinkronisasi cadangan ke Google Apps Script (background)
+                    if (APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes("ISI_DENGAN_URL")) {
+                        const payload = {};
+                        if (overrideData.jemaat !== undefined) payload.jemaat = overrideData.jemaat.map(j => ({ ...j, tglLahir: cleanDateString(j.tglLahir) }));
+                        if (overrideData.kelas !== undefined) payload.kelas = overrideData.kelas;
+                        if (overrideData.subKelas !== undefined) payload.subKelas = overrideData.subKelas;
+                        if (overrideData.users !== undefined || overrideAdminPin !== null) {
+                            payload.users = [...(overrideData.users || users), { nama: "Admin Utama (Backup PIN)", subKelasNama: "Kebaktian Khotbah (Umum)", pin: activeAdminPin }];
+                        }
+                        if (overrideData.absen !== undefined) payload.absen = overrideData.absen;
+                        if (overrideData.keterlibatan !== undefined) payload.keterlibatan = overrideData.keterlibatan;
+                        if (overrideData.tamuTambahan !== undefined) payload.tamuTambahan = overrideData.tamuTambahan;
+                        if (overrideData.doaList !== undefined) payload.doaList = overrideData.doaList;
+
+                        fetch(APPS_SCRIPT_URL, {
+                            method: 'POST', redirect: 'follow',
+                            body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                        }).catch(e => console.warn('[Backup GAS] Gagal:', e));
+                    }
+
+                    if (savedToSupabase) {
+                        showToast("Data tersimpan di Supabase Cloud!", "success");
+                    } else {
+                        showToast("Data tersimpan di Cloud Database!", "success");
+                    }
                 } catch (err) {
+                    console.error('[Sync Error]', err);
                     showToast("Gagal terhubung ke Cloud. Tersimpan di lokal.", "warning");
                 } finally { setIsSyncing(false); }
             };
@@ -228,8 +262,6 @@ import DashboardCharts from './components/hadir/DashboardCharts';
             };
 
             const handlePullFromCloud = async (silent = false) => {
-                if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("ISI_DENGAN_URL")) return;
-
                 if (!silent && jemaat.length === 0) {
                     try {
                         const cached = localStorage.getItem('pisgah_data_cache');
@@ -239,18 +271,82 @@ import DashboardCharts from './components/hadir/DashboardCharts';
 
                 setIsSyncing(true);
                 if (!silent) showToast("Sinkronisasi... Menarik data terbaru", "info");
+
                 try {
-                    const bypassUrl = `${APPS_SCRIPT_URL}?_=${Date.now()}`;
-                    const res  = await fetch(bypassUrl);
-                    const json = await res.json();
-                    if (json.success && json.data) {
-                        processAndSetData(json.data);
-                        localStorage.setItem('pisgah_data_cache', JSON.stringify(json.data));
-                        if (!silent) showToast("Sinkronisasi Berhasil!", "success");
+                    // 1. Coba tarik dari Supabase terlebih dahulu
+                    const isSupabaseReady = await checkSupabaseHadirTables();
+                    if (isSupabaseReady) {
+                        setDbMode('supabase');
+                        const res = await fetchHadirFromSupabase();
+                        if (res.success && res.data) {
+                            if (res.data.jemaat && res.data.jemaat.length > 0) {
+                                processAndSetData(res.data);
+                                localStorage.setItem('pisgah_data_cache', JSON.stringify(res.data));
+                                if (!silent) showToast("Sinkronisasi Berhasil (Supabase)!", "success");
+                                setIsSyncing(false);
+                                return;
+                            } else {
+                                console.log('[Supabase Hadir] Tabel Supabase tersedia namun belum berisi data.');
+                            }
+                        }
+                    } else {
+                        setDbMode('gas');
+                    }
+
+                    // 2. Fallback ke Google Apps Script jika Supabase belum siap atau masih kosong
+                    if (APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes("ISI_DENGAN_URL")) {
+                        const bypassUrl = `${APPS_SCRIPT_URL}?_=${Date.now()}`;
+                        const res = await fetch(bypassUrl);
+                        const json = await res.json();
+                        if (json.success && json.data) {
+                            processAndSetData(json.data);
+                            localStorage.setItem('pisgah_data_cache', JSON.stringify(json.data));
+                            if (!silent) {
+                                showToast(isSupabaseReady ? "Data dimuat dari Sheets. Siap dimigrasi ke Supabase." : "Sinkronisasi Berhasil (Google Sheets)!", "success");
+                            }
+                        }
                     }
                 } catch (err) {
+                    console.error('[Pull Error]', err);
                     if (!silent) showToast("Gagal memuat dari Cloud.", "error");
                 } finally { setIsSyncing(false); }
+            };
+
+            const handleMigrateGASToSupabase = async () => {
+                triggerConfirm("Migrasi Data ke Supabase", "Proses ini akan mengunggah seluruh data jemaat, kelas, petugas, dan 1.800+ riwayat kehadiran dari Google Sheets ke database Supabase. Lanjutkan?", async () => {
+                    const isReady = await checkSupabaseHadirTables();
+                    if (!isReady) {
+                        showToast("Tabel Supabase belum dibuat! Jalankan script SQL di Supabase terlebih dahulu.", "error");
+                        return;
+                    }
+
+                    setIsMigrating(true);
+                    setMigrationStatus("Mengambil data lengkap dari Google Sheets...");
+                    try {
+                        const bypassUrl = `${APPS_SCRIPT_URL}?_=${Date.now()}`;
+                        const res = await fetch(bypassUrl);
+                        const json = await res.json();
+                        if (!json.success || !json.data) throw new Error("Gagal mengambil data dari Google Sheets");
+
+                        const migRes = await migrateAllDataToSupabase(json.data, (msg) => {
+                            setMigrationStatus(msg);
+                        });
+
+                        if (migRes.success) {
+                            showToast("Migrasi ke Supabase Berhasil!", "success");
+                            setDbMode('supabase');
+                            await handlePullFromCloud(false);
+                        } else {
+                            showToast("Migrasi Gagal: " + migRes.error, "error");
+                        }
+                    } catch (e) {
+                        console.error('Migration error:', e);
+                        showToast("Terjadi kesalahan saat migrasi: " + e.message, "error");
+                    } finally {
+                        setIsMigrating(false);
+                        setMigrationStatus("");
+                    }
+                });
             };
 
             useEffect(() => { if (!userModal.isOpen) setShowUserModalPin(false); }, [userModal.isOpen]);
@@ -357,6 +453,7 @@ import DashboardCharts from './components/hadir/DashboardCharts';
                     const nextJ = jemaat.filter(j => j.id !== id);
                     const nextA = absen.filter(a => a.jemaatNama !== toDelete.nama);
                     setJemaat(nextJ); setAbsen(nextA);
+                    deleteJemaatFromSupabase(id, toDelete.nama);
                     showToast("Data jemaat telah dihapus.", "warning");
                     pushDataToCloud({ jemaat: nextJ, absen: nextA });
                 });
@@ -382,7 +479,10 @@ import DashboardCharts from './components/hadir/DashboardCharts';
             const deleteUser = (nama) => {
                 triggerConfirm("Hapus Petugas", "Apakah Anda yakin ingin menghapus akun guru ini?", () => {
                     const nextUsers = users.filter(u => u.nama !== nama);
-                    setUsers(nextUsers); showToast("User telah dihapus.", "warning"); pushDataToCloud({ users: nextUsers });
+                    setUsers(nextUsers);
+                    deleteUserFromSupabase(nama);
+                    showToast("User telah dihapus.", "warning");
+                    pushDataToCloud({ users: nextUsers });
                 });
             };
 
@@ -435,6 +535,7 @@ import DashboardCharts from './components/hadir/DashboardCharts';
                     let nextK = [...kelas], nextS = [...subKelas];
                     if (type === 'kelas') { nextK = kelas.filter(k => k.nama !== nama); nextS = subKelas.filter(s => s.kelasNama !== nama); setKelas(nextK); setSubKelas(nextS); }
                     else { nextS = subKelas.filter(s => s.nama !== nama); setSubKelas(nextS); }
+                    deleteKelasFromSupabase(nama, type);
                     showToast("Kategori kelas dihapus.", "warning"); pushDataToCloud({ kelas: nextK, subKelas: nextS });
                 });
             };
@@ -451,6 +552,7 @@ import DashboardCharts from './components/hadir/DashboardCharts';
             const handleDeleteDoa = (id) => {
                 triggerConfirm("Hapus Permohonan Doa", "Yakin menghapus permohonan doa ini?", () => {
                     const nextDoaList = doaList.filter(d => d.id !== id); setDoaList(nextDoaList);
+                    deleteDoaFromSupabase(id);
                     showToast("Permohonan dihapus.", "warning"); pushDataToCloud({ doaList: nextDoaList });
                 });
             };
@@ -1321,6 +1423,50 @@ import DashboardCharts from './components/hadir/DashboardCharts';
                                             </form>
                                         </div>
                                     </div>
+                                    <div className="glow-box mt-6" style={{'--box-glow': 'linear-gradient(135deg, #06b6d4, #3b82f6)'}}>
+                                        <div className="glow-box-inner p-6 flex flex-col justify-between h-full relative">
+                                            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+                                            <div>
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <h3 className="font-extrabold text-cyan-600 dark:text-cyan-400 text-sm uppercase tracking-wider flex items-center">
+                                                        <i className="fa-solid fa-database mr-2"></i> Database Cloud
+                                                    </h3>
+                                                    {dbMode === 'supabase' ? (
+                                                        <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shadow-sm">
+                                                            <i className="fa-solid fa-circle text-[6px] animate-pulse"></i> Supabase Aktif
+                                                        </span>
+                                                    ) : (
+                                                        <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1.5 shadow-sm">
+                                                            <i className="fa-solid fa-triangle-exclamation"></i> Google Sheets (Cadangan)
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
+                                                    {dbMode === 'supabase'
+                                                        ? 'Aplikasi terhubung ke database Supabase PostgreSQL dengan kueri real-time cepat.'
+                                                        : 'Tabel Supabase belum terdeteksi. Sistem saat ini menggunakan Google Sheets. Jalankan script SQL di Supabase SQL Editor untuk beralih.'}
+                                                </p>
+                                                {isMigrating && (
+                                                    <div className="mt-4 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-xs font-semibold flex items-center gap-3 animate-pulse">
+                                                        <i className="fa-solid fa-circle-notch fa-spin text-base"></i>
+                                                        <span>{migrationStatus}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="pt-5 mt-4 border-t border-slate-200 dark:border-white/10 space-y-2">
+                                                <button
+                                                    type="button"
+                                                    disabled={isMigrating || isSyncing}
+                                                    onClick={handleMigrateGASToSupabase}
+                                                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold py-3 rounded-xl hover:from-cyan-400 hover:to-blue-500 transition active:scale-95 text-xs shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                                                >
+                                                    <i className={`fa-solid ${isMigrating ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'}`}></i>
+                                                    <span>{isMigrating ? 'Sedang Memigrasi Data...' : 'Migrasi Google Sheets ke Supabase'}</span>
+                                                </button>
+                                                <p className="text-[10px] text-slate-400 text-center">Salin seluruh riwayat presensi & jemaat ke Supabase</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </section>
                         )}
@@ -1667,14 +1813,14 @@ import DashboardCharts from './components/hadir/DashboardCharts';
                         disabled={isSyncing}
                         className="fixed left-4 md:left-6 z-50 w-10 h-10 md:w-11 md:h-11 bg-navy-800/20 dark:bg-navy-900/40 hover:bg-navy-800/30 dark:hover:bg-navy-900/60 backdrop-blur-xl rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center border border-navy-200/50 dark:border-navy-700/50 cursor-pointer shadow-lg group"
                         style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 4.25rem)' }}
-                        title="Sinkronisasi Data"
+                        title={isSyncing ? "Menyinkronkan Data..." : (dbMode === "supabase" ? "Sinkronisasi (Supabase Aktif)" : "Sinkronisasi (Google Sheets Cadangan)")}
                     >
                         {isSyncing ? (
                             <i className="fa-solid fa-rotate fa-spin text-amber-500 text-xl md:text-lg"></i>
                         ) : (
                             <div className="relative flex items-center justify-center w-full h-full">
-                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
-                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
+                                <span className={`absolute w-3 h-3 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)] ${dbMode === 'supabase' ? 'bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'bg-amber-500'}`}></span>
+                                <span className={`absolute w-3 h-3 rounded-full animate-ping opacity-75 ${dbMode === 'supabase' ? 'bg-cyan-500' : 'bg-amber-500'}`}></span>
                             </div>
                         )}
                     </button>
