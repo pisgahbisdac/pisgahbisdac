@@ -413,3 +413,39 @@ export async function migrateAllDataToSupabase(gasData, onProgress = () => {}) {
         return { success: false, error: err.message };
     }
 }
+
+/**
+ * Memvalidasi PIN langsung (live real-time) ke tabel hadir_users di Supabase
+ */
+export async function verifyHadirPinWithSupabase(pin) {
+    try {
+        const isReady = await checkSupabaseHadirTables();
+        if (!isReady) return null; // fallback jika tabel belum siap
+        
+        const cleanPin = String(pin).trim();
+        const { data, error } = await supabase
+            .from('hadir_users')
+            .select('*')
+            .eq('pin', cleanPin);
+
+        if (error || !data || data.length === 0) {
+            return { verified: false };
+        }
+
+        const adminUser = data.find(u => u.nama === 'Admin Utama (Backup PIN)');
+        if (adminUser) {
+            return { verified: true, role: 'admin', user: null, pin: adminUser.pin };
+        }
+
+        const matchedUser = data[0];
+        return {
+            verified: true,
+            role: 'user',
+            user: { nama: matchedUser.nama, subKelasNama: matchedUser.sub_kelas_nama, pin: matchedUser.pin }
+        };
+    } catch (err) {
+        console.warn('[Supabase Hadir] Live PIN verification error:', err);
+        return null;
+    }
+}
+

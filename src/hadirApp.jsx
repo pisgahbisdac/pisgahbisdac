@@ -10,7 +10,8 @@ import {
     deleteUserFromSupabase,
     deleteKelasFromSupabase,
     deleteDoaFromSupabase,
-    migrateAllDataToSupabase
+    migrateAllDataToSupabase,
+    verifyHadirPinWithSupabase
 } from './utils/supabaseHadirAdapter';
 import ReactDOM from 'react-dom/client';
 import DashboardCharts from './components/hadir/DashboardCharts';
@@ -353,9 +354,34 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW-Km_huyHl-RZ
             useEffect(() => { handlePullFromCloud(false); }, []);
             useEffect(() => { if (currentUserRole !== "public") handlePullFromCloud(true); }, [selectedSabbatDate]);
 
-            const handleLogin = (e) => {
+            const handleLogin = async (e) => {
                 e.preventDefault();
-                const inputPin = adminPassword.trim(), activeAdminPin = String(adminPin).trim();
+                const inputPin = adminPassword.trim();
+                if (!inputPin) return;
+
+                // 1. Coba validasi langsung secara live ke database Supabase
+                try {
+                    const liveResult = await verifyHadirPinWithSupabase(inputPin);
+                    if (liveResult && liveResult.verified) {
+                        if (liveResult.role === "admin") {
+                            setCurrentUserRole("admin"); setLoggedInUser(null);
+                            setAuthError(""); setAdminPassword(""); setShowLoginPassword(false);
+                            setActiveTab("dashboard"); showToast("Login Admin Berhasil (Supabase)!", "success");
+                            return;
+                        } else if (liveResult.role === "user") {
+                            setCurrentUserRole("user"); setLoggedInUser(liveResult.user);
+                            setAuthError(""); setAdminPassword(""); setShowLoginPassword(false);
+                            setSelectedSubKelasNama(liveResult.user.subKelasNama); setActiveTab("input-absen");
+                            showToast(`Selamat datang ${liveResult.user.nama}! Anda bertugas di ${liveResult.user.subKelasNama}.`, "success");
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    console.warn('[Login Live Check]', err);
+                }
+
+                // 2. Fallback: validasi dari data memori lokal / cache Google Sheets
+                const activeAdminPin = String(adminPin).trim();
                 if (inputPin === activeAdminPin) {
                     setCurrentUserRole("admin"); setLoggedInUser(null);
                     setAuthError(""); setAdminPassword(""); setShowLoginPassword(false);
