@@ -752,30 +752,40 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         {/* VISI MISI */}
                         <div className="flex flex-col w-full relative">
                             <div className="text-center mb-6 hidden lg:block"><h3 className="text-[10px] md:text-xs font-black text-transparent uppercase tracking-[0.2em] mb-1 opacity-0 pointer-events-none">Spacer</h3><h2 className="text-2xl md:text-3xl font-extrabold text-transparent opacity-0 pointer-events-none">Spacer</h2></div>
-                            <div className="glass-box rounded-[2.5rem] p-6 xl:p-8 transition-all duration-500 flex flex-col items-center text-center flex-1 justify-center min-h-[420px]">
-                                <h2 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 mb-6 tracking-tight leading-[1.2] drop-shadow-sm">
-                                    Visi & Misi GMAHK
-                                </h2>
-                                <div className="text-[#4A7045] dark:text-gold-200/90 text-sm md:text-base leading-relaxed space-y-6 w-full mb-8">
-                                    <div className="flex flex-col items-center">
-                                        <span className="inline-block px-4 py-1.5 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] mb-3 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Visi</span>
-                                        <span className="pt-1">Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar <span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">selaras sepenuhnya dengan kehendak dan kebenaran-Nya</span>.</span>
-                                    </div>
-                                    <div className="flex flex-col items-center">
-                                        <span className="inline-block px-4 py-1.5 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] mb-3 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Misi</span>
-                                        <span className="pt-1"><span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">Memanggil semua orang menjadi murid Yesus Kristus</span>, <span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">memberitakan Injil kekal</span>, dan <span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">mempersiapkan dunia bagi kedatangan-Nya</span>.</span>
-                                    </div>
-                                </div>
-                                <div className="flex gap-4 mt-auto">
-                                    <a href="./pembangunan.html" className="group bg-white/60 dark:bg-navy-700/50 backdrop-blur-md hover:bg-white dark:hover:bg-navy-600 border border-[#4A7045]/20 dark:border-gold-500/30 text-[#4A7045] dark:text-gold-400 font-bold py-3 px-6 rounded-2xl transition-all duration-300 inline-flex items-center shadow-lg hover:shadow-xl hover:-translate-y-1 text-xs md:text-sm">
-                                        <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-gold-400 dark:to-gold-600 text-white dark:text-navy-900 rounded-xl p-2 mr-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
-                                            <Icon name="Church" className="w-4 h-4" />
+                            <div className="relative flex-1 flex flex-col">
+                                <div className="glass-box rounded-[2.5rem] p-6 xl:p-8 transition-all duration-500 flex flex-col items-center text-center flex-1 justify-center min-h-[420px]">
+                                    <h2 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 mb-6 tracking-tight leading-[1.2] drop-shadow-sm">
+                                        Visi & Misi GMAHK
+                                    </h2>
+                                    <div className="text-[#4A7045] dark:text-gold-200/90 text-sm md:text-base leading-relaxed space-y-6 w-full mb-8">
+                                        <div className="flex flex-col items-center">
+                                            <span className="inline-block px-4 py-1.5 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] mb-3 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Visi</span>
+                                            <span className="pt-1">Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar <span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">selaras sepenuhnya dengan kehendak dan kebenaran-Nya</span>.</span>
                                         </div>
-                                        Progres Pembangunan
-                                    </a>
+                                        <div className="flex flex-col items-center">
+                                            <span className="inline-block px-4 py-1.5 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] mb-3 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Misi</span>
+                                            <span className="pt-1"><span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">Memanggil semua orang menjadi murid Yesus Kristus</span>, <span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">memberitakan Injil kekal</span>, dan <span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">mempersiapkan dunia bagi kedatangan-Nya</span>.</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-4 mt-auto">
+                                        <a href="./pembangunan.html" className="group bg-white/60 dark:bg-navy-700/50 backdrop-blur-md hover:bg-white dark:hover:bg-navy-600 border border-[#4A7045]/20 dark:border-gold-500/30 text-[#4A7045] dark:text-gold-400 font-bold py-3 px-6 rounded-2xl transition-all duration-300 inline-flex items-center shadow-lg hover:shadow-xl hover:-translate-y-1 text-xs md:text-sm">
+                                            <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-gold-400 dark:to-gold-600 text-white dark:text-navy-900 rounded-xl p-2 mr-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                                                <Icon name="Church" className="w-4 h-4" />
+                                            </div>
+                                            Progres Pembangunan
+                                        </a>
+                                    </div>
                                 </div>
+
+                                {/* Interactive floating Install App icon - menempel di samping kanan kotak Visi-Misi */}
+                                <button
+                                    onClick={() => window.installPWA && window.installPWA()}
+                                    title="Instal Aplikasi PWA"
+                                    className="absolute -right-3 sm:-right-5 md:-right-6 top-1/2 -translate-y-1/2 bg-white/95 dark:bg-navy-700/95 backdrop-blur-xl p-3.5 md:p-4 lg:p-5 rounded-full shadow-[0_10px_32px_0_rgba(0,0,0,0.18)] z-30 flex items-center justify-center border border-white/80 dark:border-white/15 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 no-print"
+                                >
+                                    <Icon name="MonitorDown" className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
+                                </button>
                             </div>
-                            
                         </div>
                     </div>
                 </div>
@@ -7961,14 +7971,7 @@ const App = () => {
             <IosInstallModal isOpen={showIosPrompt} onClose={() => setShowIosPrompt(false)} />
             <ManualInstallModal isOpen={showManualInstall} onClose={() => setShowManualInstall(false)} />
             
-            {/* Interactive floating Install App icon */}
-            <button
-                onClick={() => window.installPWA && window.installPWA()}
-                title="Instal Aplikasi PWA"
-                className="fixed bottom-6 right-6 bg-white/90 dark:bg-navy-700/90 backdrop-blur-xl p-4 md:p-5 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] z-[100] flex items-center justify-center border border-white/60 dark:border-white/10 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 hover:-translate-y-2 no-print"
-            >
-                <Icon name="MonitorDown" className="w-6 h-6 md:w-7 md:h-7 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
-            </button>
+
 
             {/* HEADER UTAMA (Responsif untuk Mobile & Desktop) */}
             <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 shadow-sm">
