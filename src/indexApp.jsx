@@ -467,6 +467,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     const [tappedMenu, setTappedMenu] = React.useState(null);
     const videoCarouselRef = React.useRef(null);
     const [isVideoHovered, setIsVideoHovered] = React.useState(false);
+    const [currentVideoIdx, setCurrentVideoIdx] = React.useState(0);
     
     const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
     const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
@@ -483,35 +484,63 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
         return videoCarouselRef.current.clientWidth;
     };
 
-    // Reset posisi awal scroll ke 0 saat komponen dimuat agar tidak terpotong di iPhone
+    // Sinkronkan active index saat pengguna menggeser kartu secara manual (swipe)
+    const handleVideoScroll = () => {
+        if (!videoCarouselRef.current) return;
+        const el = videoCarouselRef.current;
+        const step = getCardScrollStep();
+        if (step > 0) {
+            const newIdx = Math.round(el.scrollLeft / step);
+            if (newIdx !== currentVideoIdx && newIdx >= 0 && newIdx < (carouselVideos?.length || 0)) {
+                setCurrentVideoIdx(newIdx);
+            }
+        }
+    };
+
+    const scrollToVideoIdx = (idx) => {
+        if (!videoCarouselRef.current) return;
+        const step = getCardScrollStep();
+        videoCarouselRef.current.scrollTo({
+            left: idx * step,
+            behavior: 'smooth'
+        });
+        setCurrentVideoIdx(idx);
+    };
+
+    // Reset posisi awal scroll ke 0 saat komponen dimuat
     React.useEffect(() => {
         if (videoCarouselRef.current) {
             videoCarouselRef.current.scrollLeft = 0;
         }
     }, []);
 
+    // Auto scroll dinamis: hanya berjalan jika konten melebihi lebar layar
     React.useEffect(() => {
         if (!carouselVideos || carouselVideos.length <= 1 || isVideoHovered) return;
         const interval = setInterval(() => {
             if (videoCarouselRef.current) {
                 const el = videoCarouselRef.current;
-                const maxScrollLeft = el.scrollWidth - el.clientWidth;
-                const step = getCardScrollStep();
-                if (el.scrollLeft >= maxScrollLeft - 20) {
-                    el.scrollTo({ left: 0, behavior: 'smooth' });
-                } else {
-                    el.scrollBy({ left: step, behavior: 'smooth' });
-                }
+                // Jika semua kartu sudah tampil sekaligus di layar, tidak perlu scroll
+                if (el.scrollWidth - el.clientWidth <= 10) return;
+
+                const nextIdx = (currentVideoIdx + 1) % carouselVideos.length;
+                scrollToVideoIdx(nextIdx);
             }
         }, 5000);
         return () => clearInterval(interval);
-    }, [carouselVideos, isVideoHovered]);
+    }, [carouselVideos, isVideoHovered, currentVideoIdx]);
 
     const scrollVideoCarousel = (direction) => {
-        if (videoCarouselRef.current) {
-            const step = getCardScrollStep();
-            videoCarouselRef.current.scrollBy({ left: direction === 'left' ? -step : step, behavior: 'smooth' });
-        }
+        if (!videoCarouselRef.current) return;
+        const total = carouselVideos?.length || 0;
+        if (total <= 1) return;
+        const el = videoCarouselRef.current;
+        if (el.scrollWidth - el.clientWidth <= 10) return;
+
+        const nextIdx = direction === 'left'
+            ? (currentVideoIdx === 0 ? total - 1 : currentVideoIdx - 1)
+            : (currentVideoIdx >= total - 1 ? 0 : currentVideoIdx + 1);
+        scrollToVideoIdx(nextIdx);
     };
 
     const handleMenuClick = (e, item) => {
@@ -912,9 +941,22 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                 <h2 className="text-2xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-8 transition-colors px-2 flex items-center">
                                     <Icon name="Video" className="w-6 h-6 md:w-8 md:h-8 mr-3 text-[#D19B45] dark:text-gold-500" /> Galeri Video
                                 </h2>
-                                <div ref={videoCarouselRef} className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 w-full no-scrollbar md:custom-scrollbar scroll-smooth scroll-pl-0 scroll-pr-0">
+                                <div 
+                                    ref={videoCarouselRef} 
+                                    onScroll={handleVideoScroll}
+                                    className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 w-full no-scrollbar md:custom-scrollbar scroll-smooth"
+                                >
                                     {carouselVideos.map((video, idx) => (
-                                        <div key={idx} className={`snap-start snap-always shrink-0 ${carouselVideos.length === 1 ? 'w-full md:w-[calc(50%-12px)]' : 'w-[88%] sm:w-[82%] md:w-[calc(50%-12px)]'} glass-box rounded-[2rem] p-4 md:p-6 transition-colors flex flex-col`}>
+                                        <div 
+                                            key={idx} 
+                                            className={`snap-start snap-always shrink-0 ${
+                                                carouselVideos.length <= 1 
+                                                    ? 'w-full' 
+                                                    : carouselVideos.length === 2 
+                                                    ? 'w-full md:w-[calc(50%-12px)]' 
+                                                    : 'w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]'
+                                            } glass-box rounded-[2rem] p-4 md:p-6 transition-all duration-300 flex flex-col`}
+                                        >
                                             <h3 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors truncate">
                                                 <Icon name="Youtube" className="w-5 h-5 mr-3 shrink-0 text-[#D19B45] dark:text-gold-500" />{video.title}
                                             </h3>
@@ -924,14 +966,38 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                         </div>
                                     ))}
                                 </div>
-                                {/* Navigation Buttons */}
+                                {/* Navigation Buttons & Dots Indicator */}
                                 {carouselVideos.length > 1 && (
                                     <div className="flex justify-center items-center gap-4 mt-6">
-                                        <button onClick={() => scrollVideoCarousel('left')} className="w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border-2 border-[#E9EEDF] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-colors shadow-sm focus:outline-none">
-                                            <Icon name="ChevronLeft" className="w-6 h-6" />
+                                        <button 
+                                            onClick={() => scrollVideoCarousel('left')} 
+                                            className="w-11 h-11 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border-2 border-[#E9EEDF] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-all shadow-sm hover:scale-105 active:scale-95 focus:outline-none cursor-pointer"
+                                            aria-label="Video Sebelumnya"
+                                        >
+                                            <Icon name="ChevronLeft" className="w-5 h-5" />
                                         </button>
-                                        <button onClick={() => scrollVideoCarousel('right')} className="w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border-2 border-[#E9EEDF] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-colors shadow-sm focus:outline-none">
-                                            <Icon name="ChevronRight" className="w-6 h-6" />
+
+                                        <div className="flex items-center gap-2 px-1">
+                                            {carouselVideos.map((_, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => scrollToVideoIdx(idx)}
+                                                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                                                        idx === currentVideoIdx
+                                                            ? 'w-7 bg-[#D19B45] dark:bg-gold-500 shadow-sm'
+                                                            : 'w-2.5 bg-gray-300 dark:bg-navy-700 hover:bg-gray-400 dark:hover:bg-navy-600'
+                                                    }`}
+                                                    aria-label={`Ke video ${idx + 1}`}
+                                                />
+                                            ))}
+                                        </div>
+
+                                        <button 
+                                            onClick={() => scrollVideoCarousel('right')} 
+                                            className="w-11 h-11 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border-2 border-[#E9EEDF] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-all shadow-sm hover:scale-105 active:scale-95 focus:outline-none cursor-pointer"
+                                            aria-label="Video Selanjutnya"
+                                        >
+                                            <Icon name="ChevronRight" className="w-5 h-5" />
                                         </button>
                                     </div>
                                 )}
