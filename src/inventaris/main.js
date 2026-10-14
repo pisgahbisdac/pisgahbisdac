@@ -1523,8 +1523,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Search
-  document.getElementById('searchInput').addEventListener('input', () => {
+  // Search — paksa kosongkan saat halaman dimuat (cegah browser autofill)
+  const searchEl = document.getElementById('searchInput');
+  searchEl.value = '';
+  searchEl.addEventListener('input', () => {
     window.renderGrid();
   });
 });
