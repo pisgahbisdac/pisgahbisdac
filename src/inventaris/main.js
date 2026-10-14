@@ -1526,6 +1526,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Search — paksa kosongkan saat halaman dimuat (cegah browser autofill)
   const searchEl = document.getElementById('searchInput');
   searchEl.value = '';
+  // Browser kadang mengisi autofill SETELAH DOMContentLoaded — clear ulang dengan delay
+  setTimeout(() => { if (searchEl.value) { searchEl.value = ''; window.renderGrid(); } }, 50);
+  setTimeout(() => { if (searchEl.value) { searchEl.value = ''; window.renderGrid(); } }, 300);
   searchEl.addEventListener('input', () => {
     window.renderGrid();
   });
