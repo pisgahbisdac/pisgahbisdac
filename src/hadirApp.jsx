@@ -331,7 +331,7 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW-Km_huyHl-RZ
 
                         const migRes = await migrateAllDataToSupabase(json.data, (msg) => {
                             setMigrationStatus(msg);
-                        });
+                        }, adminPin);
 
                         if (migRes.success) {
                             showToast("Migrasi ke Supabase Berhasil!", "success");
@@ -479,7 +479,7 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW-Km_huyHl-RZ
                     const nextJ = jemaat.filter(j => j.id !== id);
                     const nextA = absen.filter(a => a.jemaatNama !== toDelete.nama);
                     setJemaat(nextJ); setAbsen(nextA);
-                    deleteJemaatFromSupabase(id, toDelete.nama);
+                    deleteJemaatFromSupabase(id, toDelete.nama, adminPin);
                     showToast("Data jemaat telah dihapus.", "warning");
                     pushDataToCloud({ jemaat: nextJ, absen: nextA });
                 });
@@ -506,7 +506,7 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW-Km_huyHl-RZ
                 triggerConfirm("Hapus Petugas", "Apakah Anda yakin ingin menghapus akun guru ini?", () => {
                     const nextUsers = users.filter(u => u.nama !== nama);
                     setUsers(nextUsers);
-                    deleteUserFromSupabase(nama);
+                    deleteUserFromSupabase(nama, adminPin);
                     showToast("User telah dihapus.", "warning");
                     pushDataToCloud({ users: nextUsers });
                 });
@@ -561,7 +561,7 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW-Km_huyHl-RZ
                     let nextK = [...kelas], nextS = [...subKelas];
                     if (type === 'kelas') { nextK = kelas.filter(k => k.nama !== nama); nextS = subKelas.filter(s => s.kelasNama !== nama); setKelas(nextK); setSubKelas(nextS); }
                     else { nextS = subKelas.filter(s => s.nama !== nama); setSubKelas(nextS); }
-                    deleteKelasFromSupabase(nama, type);
+                    deleteKelasFromSupabase(nama, type, adminPin);
                     showToast("Kategori kelas dihapus.", "warning"); pushDataToCloud({ kelas: nextK, subKelas: nextS });
                 });
             };
@@ -578,7 +578,7 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW-Km_huyHl-RZ
             const handleDeleteDoa = (id) => {
                 triggerConfirm("Hapus Permohonan Doa", "Yakin menghapus permohonan doa ini?", () => {
                     const nextDoaList = doaList.filter(d => d.id !== id); setDoaList(nextDoaList);
-                    deleteDoaFromSupabase(id);
+                    deleteDoaFromSupabase(id, adminPin);
                     showToast("Permohonan dihapus.", "warning"); pushDataToCloud({ doaList: nextDoaList });
                 });
             };
