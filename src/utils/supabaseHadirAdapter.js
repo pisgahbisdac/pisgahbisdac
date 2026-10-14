@@ -220,33 +220,62 @@ export async function migrateAllDataToSupabase(gasData, onProgress = () => {}, a
 }
 
 /**
- * Memvalidasi PIN langsung (live) ke Edge Function — PIN tidak pernah keluar ke frontend
+ * Memvalidasi PIN langsung (live).
+ * Prioritas: Edge Function (service_role aman) → fallback ke query langsung (anon)
  */
 export async function verifyHadirPinWithSupabase(pin) {
     try {
         const isReady = await checkSupabaseHadirTables();
         if (!isReady) return null;
 
-        // Kirim ke Edge Function — server yang mengecek PIN ke DB dengan service_role
-        const res = await fetch(EDGE_WRITE_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-            },
-            // Gunakan aksi verify_pin khusus (tanpa payload operasi)
-            body: JSON.stringify({ action: 'verify_pin', payload: {}, pin }),
-        });
+        const cleanPin = String(pin).trim();
 
-        if (!res.ok) return { verified: false };
+        // === JALUR 1: Edge Function (aman, service_role di server) ===
+        try {
+            const res = await fetch(EDGE_WRITE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+                body: JSON.stringify({ action: 'verify_pin', payload: {}, pin: cleanPin }),
+                signal: AbortSignal.timeout(5000), // timeout 5 detik
+            });
 
-        const data = await res.json();
-        if (data.error) return { verified: false };
+            if (res.ok) {
+                const data = await res.json();
+                if (!data.error) return data; // { verified, role, user }
+            }
+        } catch (edgeErr) {
+            console.warn('[Supabase Hadir] Edge Function tidak tersedia, fallback ke DB langsung:', edgeErr.message);
+        }
 
-        return data; // { verified, role, user }
+        // === JALUR 2: Fallback — query langsung ke hadir_users via anon ===
+        // (Digunakan saat Edge Function belum di-deploy)
+        const { data: users, error: pinErr } = await supabase
+            .from('hadir_users')
+            .select('nama, sub_kelas_nama, pin')
+            .eq('pin', cleanPin);
+
+        if (pinErr || !users || users.length === 0) {
+            return { verified: false };
+        }
+
+        const isAdmin = users.some(u => u.nama === 'Admin Utama (Backup PIN)');
+        const matchedUser = users[0];
+
+        if (isAdmin) {
+            return { verified: true, role: 'admin', user: null, pin: matchedUser.pin };
+        }
+        return {
+            verified: true,
+            role: 'user',
+            user: { nama: matchedUser.nama, subKelasNama: matchedUser.sub_kelas_nama, pin: matchedUser.pin }
+        };
+
     } catch (err) {
-        console.warn('[Supabase Hadir] Live PIN verification error:', err);
+        console.warn('[Supabase Hadir] PIN verification error:', err);
         return null;
     }
 }
