@@ -3243,11 +3243,12 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
         }
       });
 
-      rightPanel.push({ label: 'Saldo Akhir Bulan ini', val: saldoAkhirJemaat, bold: true, isBorderTop: true, isColored: true });
-      rightPanel.push({ label: 'Kas Pada Jemaat', val: saldoAkhirJemaat, indent: true });
+      const totalFisikJemaat = calcCashJ + calcBankJ;
+      rightPanel.push({ label: 'Saldo Akhir Bulan ini', val: totalFisikJemaat, bold: true, isBorderTop: true, isColored: true });
+      rightPanel.push({ label: 'Kas Pada Jemaat', val: totalFisikJemaat, indent: true });
       rightPanel.push({ label: 'CASH ON HAND / Tunai', val: calcCashJ, indent: true });
       rightPanel.push({ label: 'SALDO DI BANK', val: calcBankJ, indent: true });
-      rightPanel.push({ label: '<span style="font-size:6.5pt;">Balance Saldo Kas Jemaat</span>', val: saldoAkhirJemaat, bold: true, large: true, isBorderTop: true, isColoredDark: true });
+      rightPanel.push({ label: '<span style="font-size:6.5pt;">Balance Saldo Kas Jemaat</span>', val: totalFisikJemaat, bold: true, large: true, isBorderTop: true, isColoredDark: true });
 
       // Tambahan info Uang Daerah
       rightPanel.push({ label: '', val: null }); // Spacer
@@ -3300,9 +3301,10 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
       rightPanel.push({ label: 'Perpuluhan', val: sumPerpuluhan, indent: true, isLightDaerah: true });
       rightPanel.push({ label: '50% Terpadu Daerah', val: sumTerpaduDaerah, indent: true, isLightDaerah: true });
       rightPanel.push({ label: 'Persembahan Khusus Daerah', val: sumKhususDaerah, indent: true, isLightDaerah: true });
+      const totalFisikDaerah = calcCashD + calcBankD;
       rightPanel.push({ label: 'Tunai Di Tangan (Daerah)', val: calcCashD, indent: true, isLightDaerah: true });
       rightPanel.push({ label: 'Saldo Bank (Daerah)', val: calcBankD, indent: true, isLightDaerah: true });
-      rightPanel.push({ label: '<span style="font-size:6pt;">Total Uang Untuk Daerah</span>', val: saldoAkhirDaerah, bold: true, large: true, isBorderTop: true, isColoredDaerah: true });
+      rightPanel.push({ label: '<span style="font-size:6pt;">Total Uang Untuk Daerah</span>', val: totalFisikDaerah, bold: true, large: true, isBorderTop: true, isColoredDaerah: true });
 
       const imgBen = useBenImg ? `<img src="${systemConfig.sig_bendahara}" style="height:60px; max-width:140px; object-fit:contain; margin:5px auto; display:block;">` : `<br><br><br><br><br>`;
       const imgKet = useKetuaImg ? `<div style="position:relative; margin:25px auto 5px auto; height:60px; width:140px;"><img src="${systemConfig.sig_stempel || '/stamp.png'}" style="position: absolute; top: 50%; left: 5px; transform: translate(-50%, -50%) rotate(-5deg); height: 110px; width: 110px; opacity: 0.9; z-index: 5; pointer-events: none;"><img src="${systemConfig.sig_ketua}" style="height:60px; max-width:140px; object-fit:contain; position:relative; z-index:10; display:block; margin:0 auto;"></div>` : `<br><br><br><br><br>`;
