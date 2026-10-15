@@ -5614,7 +5614,38 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
     }
     async function deleteUser(username) { if (await showCustomConfirm('Hapus', `Yakin?`)) { try { await apiPost('deleteRecord', { type: 'users', transaction_id: username }); notify('Terhapus', 'success'); renderUsers(); } catch (e) { notify(e.message, 'error'); } } }
 
-    async function renderLogs() { try { const res = await apiGet('getLogs'); document.getElementById('logList').innerHTML = (res.data || []).map(x => `<tr><td class="fit-col" style="color:var(--text4); font-size:12px;">${new Date(x.timestamp).toLocaleString('id-ID')}</td><td><strong>${x.user}</strong></td><td class="fit-col"><span class="badge badge-gray">${x.action}</span></td><td>${x.detail}</td></tr>`).join(''); } catch (e) { } }
+    const LOG_ACTION_LABELS = {
+      'LOGIN': { label: 'Login', color: 'badge-blue' },
+      'INSERT_INCOME': { label: 'Tambah Pemasukan', color: 'badge-green' },
+      'INSERT_EXPENSE': { label: 'Tambah Pengeluaran', color: 'badge-amber' },
+      'EDIT_INCOME': { label: 'Edit Pemasukan', color: 'badge-blue' },
+      'EDIT_EXPENSE': { label: 'Edit Pengeluaran', color: 'badge-blue' },
+      'DELETE_INCOME': { label: 'Hapus Pemasukan', color: 'badge-red' },
+      'DELETE_EXPENSE': { label: 'Hapus Pengeluaran', color: 'badge-red' },
+      'DELETE_USERS': { label: 'Hapus Pengguna', color: 'badge-red' },
+      'APPROVE': { label: 'Setujui Transaksi', color: 'badge-green' },
+      'SAVE_BULK_INCOME': { label: 'Tambah Setoran Kolektif', color: 'badge-green' },
+      'EDIT_BULK_INCOME': { label: 'Edit Setoran Kolektif', color: 'badge-blue' },
+      'UPDATE_USER': { label: 'Kelola Pengguna', color: 'badge-blue' },
+      'SET_BALANCE': { label: 'Atur Saldo Awal', color: 'badge-amber' },
+      'UPDATE_CONFIG': { label: 'Ubah Pengaturan', color: 'badge-gray' },
+    };
+    async function renderLogs() {
+      try {
+        const res = await apiGet('getLogs');
+        const rows = (res.data || []).map(x => {
+          const lbl = LOG_ACTION_LABELS[x.action] || { label: x.action, color: 'badge-gray' };
+          const user = x.username || x.user || '(tidak diketahui)';
+          return `<tr>
+            <td class="fit-col" style="color:var(--text4); font-size:12px; white-space:nowrap;">${new Date(x.timestamp).toLocaleString('id-ID')}</td>
+            <td style="white-space:nowrap;"><strong>${user}</strong></td>
+            <td class="fit-col"><span class="badge ${lbl.color}" style="white-space:nowrap;">${lbl.label}</span></td>
+            <td style="font-size:13px; color:var(--text2);">${x.detail || '-'}</td>
+          </tr>`;
+        }).join('');
+        document.getElementById('logList').innerHTML = rows || '<tr><td colspan="4" style="text-align:center; color:var(--text4); padding:20px;">Belum ada log aktivitas.</td></tr>';
+      } catch (e) { }
+    }
 
     function notify(msg, type = 'success') {
       const el = document.getElementById('notification'); const icon = document.getElementById('notifIcon'); const text = document.getElementById('notifMsg');

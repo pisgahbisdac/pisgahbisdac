@@ -193,7 +193,7 @@ export async function supabasePost(action, payload = {}) {
         };
         const { error } = await supabase.from('income').insert([insertData]);
         if (error) throw error;
-        writeLog(username, 'INSERT_INCOME', 'Rp ' + payload.amount + ' - ' + payload.nama_pemberi);
+        writeLog(username, 'INSERT_INCOME', `No. Bukti: ${payload.receipt_no} | Jenis: ${payload.income_type} | Rp ${Number(payload.amount).toLocaleString('id-ID')} | Dari: ${payload.nama_pemberi || '-'}`);
         return { success: true, message: 'Data berhasil disimpan' };
       }
 
@@ -224,7 +224,7 @@ export async function supabasePost(action, payload = {}) {
         };
         const { error } = await supabase.from('expense').insert([insertData]);
         if (error) throw error;
-        writeLog(username, 'INSERT_EXPENSE', 'Rp ' + payload.amount + ' - ' + payload.department);
+        writeLog(username, 'INSERT_EXPENSE', `No. Bukti: ${payload.receipt_no} | Dept: ${payload.department} | Rp ${Number(payload.amount).toLocaleString('id-ID')} | Kepada: ${payload.nama_penerima || '-'}`);
         return { success: true, message: 'Data pengeluaran berhasil disimpan' };
       }
 
@@ -235,7 +235,7 @@ export async function supabasePost(action, payload = {}) {
         const targetId = payload.id || payload.transaction_id;
         const { error } = await supabase.from(table).delete().eq(col, targetId);
         if (error) throw error;
-        writeLog(username, 'DELETE_' + table.toUpperCase(), 'ID: ' + targetId);
+        writeLog(username, 'DELETE_' + table.toUpperCase(), `Hapus ID: ${targetId} dari tabel ${table}`);
         return { success: true, message: 'Data berhasil dihapus.' };
       }
 
@@ -293,7 +293,7 @@ export async function supabasePost(action, payload = {}) {
         const targetId = payload.id || payload.transaction_id;
         const { error } = await supabase.from(table).update(updateData).eq('transaction_id', targetId);
         if (error) throw error;
-        writeLog(username, 'EDIT_' + table.toUpperCase(), 'ID: ' + targetId);
+        writeLog(username, 'EDIT_' + table.toUpperCase(), `Edit ID: ${targetId} | Rp ${Number(updateData.amount || 0).toLocaleString('id-ID')} | No. Bukti: ${updateData.receipt_no || '-'}`);
         return { success: true, message: 'Data berhasil diedit.' };
       }
 
@@ -372,7 +372,7 @@ export async function supabasePost(action, payload = {}) {
 
         const { error } = await supabase.from(table).update({ approved_by: newApproved }).eq('transaction_id', targetId);
         if (error) throw error;
-        writeLog(username, 'APPROVE', `Approve ${table} ID: ${targetId}`);
+        writeLog(username, 'APPROVE', `Menyetujui ${table} ID: ${targetId}`);
         return { success: true, message: 'Berhasil disetujui.' };
       }
 
@@ -429,7 +429,7 @@ export async function supabasePost(action, payload = {}) {
         if (inserts.length > 0) {
            const { error } = await supabase.from('income').insert(inserts);
            if (error) throw error;
-           writeLog(username, 'SAVE_BULK_INCOME', `Kolektif: ${payload.receipt_no}`);
+           writeLog(username, 'SAVE_BULK_INCOME', `Setoran Kolektif No. ${payload.receipt_no} | Unit: ${payload.unit_name} | ${inserts.length} jenis pemasukan`);
         }
         return { success: true, message: 'Setoran kolektif disimpan.' };
       }
@@ -481,7 +481,7 @@ export async function supabasePost(action, payload = {}) {
         if (inserts.length > 0) {
            const { error } = await supabase.from('income').insert(inserts);
            if (error) throw error;
-           writeLog(username, 'EDIT_BULK_INCOME', `Kolektif: ${payload.receipt_no}`);
+           writeLog(username, 'EDIT_BULK_INCOME', `Edit Setoran Kolektif No. ${payload.receipt_no} | Unit: ${payload.unit_name} | ${inserts.length} jenis pemasukan`);
         }
         return { success: true, message: 'Setoran kolektif berhasil diedit.' };
       }
