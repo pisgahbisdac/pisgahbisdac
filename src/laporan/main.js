@@ -1729,7 +1729,9 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
         if (x.nama_pemberi && x.nama_pemberi !== '-' && x.nama_pemberi !== 'Umum') {
           let g = x.nama_pemberi;
           if (g.toLowerCase().startsWith('kolektif ')) {
-            g = g.substring(9).trim() + ' - Kolektif';
+            g = g.substring(9).trim();
+          } else if (g.toLowerCase().endsWith(' - kolektif')) {
+            g = g.substring(0, g.length - 11).trim();
           }
           givers.add(g);
         }
@@ -4292,7 +4294,9 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
           if (x.type === 'income') {
             pihak = shouldHide ? '***' : (x.nama_pemberi || '-');
             if (typeof pihak === 'string' && pihak.toLowerCase().startsWith('kolektif ')) {
-              pihak = pihak.substring(9).trim() + ' - Kolektif';
+              pihak = pihak.substring(9).trim();
+            } else if (typeof pihak === 'string' && pihak.toLowerCase().endsWith(' - kolektif')) {
+              pihak = pihak.substring(0, pihak.length - 11).trim();
             }
           } else if (isMutasi) {
             let srcName = x.source_balance || '-';
@@ -4389,7 +4393,9 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
           if (x.type === 'income') {
             pihak = shouldHide ? '***' : (x.nama_pemberi || '-');
             if (typeof pihak === 'string' && pihak.toLowerCase().startsWith('kolektif ')) {
-              pihak = pihak.substring(9).trim() + ' - Kolektif';
+              pihak = pihak.substring(9).trim();
+            } else if (typeof pihak === 'string' && pihak.toLowerCase().endsWith(' - kolektif')) {
+              pihak = pihak.substring(0, pihak.length - 11).trim();
             }
           } else if (isMutasi) {
             let srcName = x.source_balance || '-';
@@ -4950,7 +4956,9 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
 
       let pihakName = isIncome ? (mainTx.nama_pemberi || mainTx.pihak || 'Umum') : (mainTx.nama_penerima || mainTx.pihak || 'Umum');
       if (isIncome && typeof pihakName === 'string' && pihakName.toLowerCase().startsWith('kolektif ')) {
-        pihakName = pihakName.substring(9).trim() + ' - Kolektif';
+        pihakName = pihakName.substring(9).trim();
+      } else if (isIncome && typeof pihakName === 'string' && pihakName.toLowerCase().endsWith(' - kolektif')) {
+        pihakName = pihakName.substring(0, pihakName.length - 11).trim();
       }
       if (receiptHasHiddenItems) pihakName = '*** (Privasi)';
       let docTitle = isIncome ? 'BUKTI PEMASUKAN' : 'BUKTI PENGELUARAN';
