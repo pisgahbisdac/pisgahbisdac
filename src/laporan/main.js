@@ -2417,6 +2417,9 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
       btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Memproses...';
       notify('Transaksi ' + receipt + ' diproses di latar belakang...', 'info');
 
+      // Snapshot foto SEBELUM reset (karena resetPhotoUpload akan mengosongkan array)
+      const savedIncPhotos = [...currentIncPhotos];
+
       // Reset form synchronously
       document.getElementById('incType').value = ''; handleTypeChange(); document.getElementById('incUnit').value = ''; document.getElementById('incGiver').value = ''; document.getElementById('incReceipt').value = ''; document.getElementById('incAmount').value = ''; document.getElementById('incAmtPerpuluhan').value = ''; document.getElementById('incAmtTerpadu').value = ''; document.getElementById('incAmtKhususJemaat').value = ''; document.getElementById('incAmtKhususDaerah').value = ''; document.getElementById('incNote').value = '';
       resetPhotoUpload('income');
@@ -2427,6 +2430,8 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
       (async () => {
         try {
           let genBase64 = null;
+          // Gunakan snapshot foto (bukan currentIncPhotos yang sudah dikosongkan)
+          const photosToSave = [...savedIncPhotos];
           if (type === 'Perpuluhan') {
             try {
               const mappedItems = itemsToProcess.map(x => {
@@ -2440,9 +2445,9 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
               genBase64 = await generateReceiptImageBase64(htmlStr);
             } catch(e) { console.error('Failed generating receipt', e); }
             
-            if (genBase64) { currentIncPhotos.unshift(genBase64); if (currentIncPhotos.length > 3) currentIncPhotos.pop(); }
+            if (genBase64) { photosToSave.unshift(genBase64); if (photosToSave.length > 3) photosToSave.pop(); }
 
-            await apiPost('saveBulkIncome', { date, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, items: itemsToProcess, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
+            await apiPost('saveBulkIncome', { date, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, items: itemsToProcess, receipt_photo_base64: photosToSave[0] || '', receipt_photo_base64_2: photosToSave[1] || '', receipt_photo_base64_3: photosToSave[2] || '' });
           } else {
             try {
               const mappedItems = [{
@@ -2453,9 +2458,9 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
               genBase64 = await generateReceiptImageBase64(htmlStr);
             } catch(e) { console.error('Failed generating receipt', e); }
             
-            if (genBase64) { currentIncPhotos.unshift(genBase64); if (currentIncPhotos.length > 3) currentIncPhotos.pop(); }
+            if (genBase64) { photosToSave.unshift(genBase64); if (photosToSave.length > 3) photosToSave.pop(); }
 
-            await apiPost('saveIncome', { date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount: amountToProcess, note: finalNote, alloc_pct_daerah: pctD, alloc_pct_jemaat: pctJ, alloc_pct_bangun: pctB, receipt_photo_base64: currentIncPhotos[0] || '', receipt_photo_base64_2: currentIncPhotos[1] || '', receipt_photo_base64_3: currentIncPhotos[2] || '' });
+            await apiPost('saveIncome', { date, income_type: type, unit_name: unit || '-', nama_pemberi: giver || 'Umum', receipt_no: receipt, amount: amountToProcess, note: finalNote, alloc_pct_daerah: pctD, alloc_pct_jemaat: pctJ, alloc_pct_bangun: pctB, receipt_photo_base64: photosToSave[0] || '', receipt_photo_base64_2: photosToSave[1] || '', receipt_photo_base64_3: photosToSave[2] || '' });
           }
           notify('Pemasukan ' + receipt + ' berhasil disimpan!', 'success');
           await syncAllData(); renderIncomeList();
@@ -2641,6 +2646,9 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
       btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Memproses...';
       notify('Transaksi ' + receipt + ' diproses di latar belakang...', 'info');
 
+      // Snapshot foto SEBELUM reset
+      const savedExpPhotos = [...currentExpPhotos];
+
       // Reset UI synchronously
       document.getElementById('expDept').value = ''; document.getElementById('expReceipt').value = ''; document.getElementById('expAmount').value = ''; document.getElementById('expNote').value = ''; document.getElementById('expReceiver').value = '';
       resetPhotoUpload('expense');
@@ -2649,16 +2657,17 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
       // Async IIFE for background processing
       (async () => {
         try {
+          const photosToSave = [...savedExpPhotos];
           try {
             const mappedItems = [{
               department: dept, amount, note, date, receipt_no: receipt
             }];
             const htmlStr = generateReceiptHTML('expense', { receipt_no: receipt, date, nama_penerima: receiver || '-' }, mappedItems);
             let genBase64 = await generateReceiptImageBase64(htmlStr);
-            if (genBase64) { currentExpPhotos.unshift(genBase64); if (currentExpPhotos.length > 3) currentExpPhotos.pop(); }
+            if (genBase64) { photosToSave.unshift(genBase64); if (photosToSave.length > 3) photosToSave.pop(); }
           } catch(e) { console.error('Failed generating receipt', e); }
 
-          await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentExpPhotos[0] || '', receipt_photo_base64_2: currentExpPhotos[1] || '', receipt_photo_base64_3: currentExpPhotos[2] || '', nama_penerima: receiver || '-' });
+          await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: photosToSave[0] || '', receipt_photo_base64_2: photosToSave[1] || '', receipt_photo_base64_3: photosToSave[2] || '', nama_penerima: receiver || '-' });
           notify('Pengeluaran ' + receipt + ' berhasil disimpan!', 'success');
           await syncAllData(); renderExpenseList();
         } catch (err) {
@@ -2696,6 +2705,9 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
       btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Memproses...';
       notify('Transaksi ' + receipt + ' diproses di latar belakang...', 'info');
 
+      // Snapshot foto SEBELUM reset
+      const savedMutPhotos = [...currentMutPhotos];
+
       // Reset form synchronously
       document.getElementById('mutReceipt').value = ''; document.getElementById('mutAmount').value = ''; document.getElementById('mutNote').value = '';
       resetPhotoUpload('mutasi');
@@ -2704,16 +2716,17 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
       // Async IIFE for background processing
       (async () => {
         try {
+          const photosToSave = [...savedMutPhotos];
           try {
             const mappedItems = [{
               department: dept, amount, note, date, receipt_no: receipt
             }];
             const htmlStr = generateReceiptHTML('mutasi', { receipt_no: receipt, date, nama_penerima: receiver }, mappedItems);
             let genBase64 = await generateReceiptImageBase64(htmlStr);
-            if (genBase64) { currentMutPhotos.unshift(genBase64); if (currentMutPhotos.length > 3) currentMutPhotos.pop(); }
+            if (genBase64) { photosToSave.unshift(genBase64); if (photosToSave.length > 3) photosToSave.pop(); }
           } catch(e) { console.error('Failed generating receipt', e); }
 
-          await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: currentMutPhotos[0] || '', receipt_photo_base64_2: currentMutPhotos[1] || '', receipt_photo_base64_3: currentMutPhotos[2] || '', nama_penerima: receiver, approved_by: 'Admin,Ketua Jemaat,Pendeta' });
+          await apiPost('saveExpense', { date, department: dept, source_balance: src, receipt_no: receipt, amount, note, receipt_photo_base64: photosToSave[0] || '', receipt_photo_base64_2: photosToSave[1] || '', receipt_photo_base64_3: photosToSave[2] || '', nama_penerima: receiver, approved_by: 'Admin,Ketua Jemaat,Pendeta' });
           notify('Mutasi ' + receipt + ' berhasil Setor ke Bank!', 'success');
           await syncAllData(); renderMutasiList();
         } catch (err) {
