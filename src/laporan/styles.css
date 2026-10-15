@@ -3,6 +3,22 @@
         display: none !important;
       }
 
+      /* Sembunyikan semua elemen fixed/floating/overlay saat print */
+      *[style*="position: fixed"],
+      *[style*="position:fixed"],
+      .fab, .fab-btn, .floating-btn, .floating-action,
+      #notification, .notification, .notify-toast,
+      #topbar, .topbar, .sidebar, .nav-sidebar,
+      #loadingOverlay, .loading-overlay, .global-loading,
+      .modal, .modal-overlay, [id$="Modal"],
+      button[style*="position: fixed"],
+      div[style*="position: fixed"],
+      div[style*="border-radius: 50%"][style*="fixed"],
+      div[style*="border-radius:50%"][style*="fixed"] {
+        display: none !important;
+        visibility: hidden !important;
+      }
+
       #printContainer {
         display: block !important;
         width: 100%;

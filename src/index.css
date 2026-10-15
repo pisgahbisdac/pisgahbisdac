@@ -1273,7 +1273,10 @@ button, .btn, input, select, .nav-item, .bottom-nav-item, a { touch-action: mani
   }
   
   @page { size: auto; margin: 1.2cm; }
-  .sidebar, .topbar, .filter-bar, .btn, .btn-icon-only, .hamburger, .bottom-bar, #reportSensorContainer, .no-print { display: none !important; }
+  .sidebar, .topbar, .filter-bar, .btn, .btn-icon-only, .hamburger, .bottom-bar, #reportSensorContainer, .no-print,
+  .notification, .sidebar-overlay, .modal-overlay, .loading-overlay, #loadingOverlay, #globalLoadingOverlay,
+  .bottom-nav-item, .bottom-nav-icon,
+  *[style*="position: fixed"], *[style*="position:fixed"] { display: none !important; visibility: hidden !important; }
   .main { margin-left: 0; padding: 0; width: 100%; background: white !important;}
   .page { display: none !important; }
   #page-laporan { display: block !important; padding: 0; margin: 0; width: 100%; max-width: 100%; }
