@@ -291,7 +291,7 @@ const initialDataPejabat = [
 // --- ICONS (SVG MAPPING) ---
 const Icon = ({ name, className }) => {
     const icons = {
-        Cross: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 2v6H5v4h6v10h2V12h6V8h-6V2z" /></svg>,
+        Cross: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="2" x2="12" y2="22" /><line x1="5" y1="8" x2="19" y2="8" /></svg>,
         Backspace: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" /><line x1="18" y1="9" x2="12" y2="15" /><line x1="12" y1="9" x2="18" y2="15" /></svg>,
         Grid: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></svg>,
         Sun: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg>,
@@ -299,6 +299,8 @@ const Icon = ({ name, className }) => {
         Home: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>,
         ClipboardCheck: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="m9 14 2 2 4-4" /></svg>,
         Church: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m18 7 4 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9l4-2" /><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4" /><path d="M18 22V5l-6-3-6 3v17" /><path d="M12 7v5" /><path d="M10 9h4" /></svg>,
+        FileText: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><line x1="10" y1="9" x2="8" y2="9" /></svg>,
+        Rupiah: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><text x="12" y="15.5" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="currentColor" stroke="none" fontFamily="system-ui, -apple-system, sans-serif">Rp</text></svg>,
         BarChart: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 3v18h18" /><path d="M18 17V9" /><path d="M13 17V5" /><path d="M8 17v-3" /></svg>,
         BookOpen: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>,
         Warta: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" /><path d="M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14" /><path d="M8 6v8" /></svg>,
@@ -7235,6 +7237,48 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                 </div>
             )}
 
+            {/* Desktop SubTab Navigation Bar */}
+            <div className="hidden md:flex items-center justify-center mt-1 mb-6">
+                <div className="bg-white dark:bg-navy-800/90 backdrop-blur-md p-1.5 rounded-2xl border border-navy-100 dark:border-navy-700 shadow-sm flex items-center gap-2">
+                    <button
+                        onClick={() => setSubTab('numpad')}
+                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${subTab === 'numpad'
+                                ? 'bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white shadow-md'
+                                : 'text-navy-600 dark:text-navy-300 hover:text-navy-950 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-700/50'
+                            }`}
+                    >
+                        <Icon name="Grid" className="w-4 h-4" />
+                        <span>Numpad</span>
+                    </button>
+                    <button
+                        onClick={() => {
+                            if (selectedSong) setSubTab('lyrics');
+                        }}
+                        disabled={!selectedSong}
+                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${!selectedSong
+                                ? 'opacity-40 cursor-not-allowed text-navy-400'
+                                : subTab === 'lyrics'
+                                    ? 'bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white shadow-md'
+                                    : 'text-navy-600 dark:text-navy-300 hover:text-navy-950 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-700/50'
+                            }`}
+                        title={!selectedSong ? 'Pilih lagu terlebih dahulu' : 'Lihat lirik lagu'}
+                    >
+                        <Icon name="BookOpen" className="w-4 h-4" />
+                        <span>Lirik Lagu</span>
+                    </button>
+                    <button
+                        onClick={() => setSubTab('index')}
+                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${subTab === 'index'
+                                ? 'bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white shadow-md'
+                                : 'text-navy-600 dark:text-navy-300 hover:text-navy-950 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-700/50'
+                            }`}
+                    >
+                        <Icon name="List" className="w-4 h-4" />
+                        <span>Daftar Lagu</span>
+                    </button>
+                </div>
+            </div>
+
             {/* Shared Search Box for Numpad and Index */}
             {(subTab === 'numpad' || subTab === 'index') && (
                 <div className="max-w-xl mx-auto mt-2 mb-4 px-4">
@@ -7307,14 +7351,34 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                     {selectedSong ? (
                         <>
                             {/* Navy Song navigation header */}
-                            <div className="bg-navy-900 text-white px-5 py-3 rounded-2xl flex items-center justify-between shadow-md">
-                                <span className="font-black text-lg text-gold-400">Lagu Sion No. {selectedSong.number}</span>
-                                <div className="flex items-center gap-1">
-                                    <button onClick={() => handlePrevNext(-1)} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 active:bg-white/20 transition-colors">
-                                        <Icon name="ArrowLeft" className="w-5 h-5 stroke-2" />
+                            <div className="bg-navy-900 text-white px-4 sm:px-5 py-3 rounded-2xl flex items-center justify-between shadow-md">
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <button
+                                        onClick={() => setSubTab('numpad')}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-gold-500 hover:text-navy-950 text-gold-400 active:scale-95 transition-all text-xs font-bold cursor-pointer group"
+                                        title="Kembali ke Numpad (Pilih Lagu)"
+                                    >
+                                        <Icon name="ArrowLeft" className="w-4 h-4 stroke-[2.5] group-hover:-translate-x-0.5 transition-transform" />
+                                        <span>Numpad</span>
                                     </button>
-                                    <button onClick={() => handlePrevNext(1)} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 active:bg-white/20 transition-colors">
-                                        <Icon name="ArrowRight" className="w-5 h-5 stroke-2" />
+                                    <span className="font-black text-base sm:text-lg text-gold-400 truncate">
+                                        Lagu Sion No. {selectedSong.number}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-1 shrink-0">
+                                    <button
+                                        onClick={() => handlePrevNext(-1)}
+                                        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 active:bg-white/20 transition-colors text-white"
+                                        title="Lagu Sebelumnya"
+                                    >
+                                        <Icon name="ChevronLeft" className="w-5 h-5 stroke-2" />
+                                    </button>
+                                    <button
+                                        onClick={() => handlePrevNext(1)}
+                                        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 active:bg-white/20 transition-colors text-white"
+                                        title="Lagu Berikutnya"
+                                    >
+                                        <Icon name="ChevronRight" className="w-5 h-5 stroke-2" />
                                     </button>
                                 </div>
                             </div>
@@ -7374,6 +7438,24 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                                     });
                                 })()}
                             </div>
+
+                            {/* Action Buttons below lyrics */}
+                            <div className="flex items-center justify-center gap-3 pt-2">
+                                <button
+                                    onClick={() => setSubTab('numpad')}
+                                    className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white dark:bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-navy-800 dark:text-navy-100 font-bold text-xs uppercase tracking-wider transition-all border border-navy-100 dark:border-navy-700 shadow-sm cursor-pointer active:scale-95 group"
+                                >
+                                    <Icon name="Grid" className="w-4 h-4 text-gold-500 group-hover:text-navy-950" />
+                                    <span>Kembali ke Numpad</span>
+                                </button>
+                                <button
+                                    onClick={() => setSubTab('index')}
+                                    className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white dark:bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-navy-800 dark:text-navy-100 font-bold text-xs uppercase tracking-wider transition-all border border-navy-100 dark:border-navy-700 shadow-sm cursor-pointer active:scale-95 group"
+                                >
+                                    <Icon name="List" className="w-4 h-4 text-gold-500 group-hover:text-navy-950" />
+                                    <span>Daftar Lagu</span>
+                                </button>
+                            </div>
                         </>
                     ) : (
                         <div className="bg-white rounded-3xl border border-navy-100/50 p-10 shadow-sm flex flex-col items-center justify-center text-center opacity-70">
@@ -7392,14 +7474,24 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
             {subTab === 'index' && (
                 <div className="max-w-xl mx-auto space-y-4 px-4">
                     <div className="bg-white rounded-2xl border border-navy-100/50 px-4 py-3 flex items-center justify-between shadow-sm">
-                        <span className="text-xs font-black text-navy-400 uppercase tracking-wide">Urutkan Daftar</span>
-                        <div className="flex bg-navy-100/60 p-0.5 rounded-lg">
-                            <button onClick={() => setIndexTab('number')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${indexTab === 'number' ? 'bg-white text-navy-900 shadow-sm' : 'text-navy-500 hover:text-navy-700'}`}>
-                                Nomor
-                            </button>
-                            <button onClick={() => setIndexTab('alphabet')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${indexTab === 'alphabet' ? 'bg-white text-navy-900 shadow-sm' : 'text-navy-500 hover:text-navy-700'}`}>
-                                Abjad
-                            </button>
+                        <button
+                            onClick={() => setSubTab('numpad')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-navy-50 hover:bg-gold-500 hover:text-navy-950 text-navy-700 dark:text-navy-200 dark:bg-navy-800 font-bold text-xs transition-all cursor-pointer group"
+                            title="Kembali ke Numpad"
+                        >
+                            <Icon name="ArrowLeft" className="w-4 h-4 stroke-[2.5] group-hover:-translate-x-0.5 transition-transform" />
+                            <span>Numpad</span>
+                        </button>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-black text-navy-400 uppercase tracking-wide hidden sm:inline">Urutkan:</span>
+                            <div className="flex bg-navy-100/60 p-0.5 rounded-lg">
+                                <button onClick={() => setIndexTab('number')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${indexTab === 'number' ? 'bg-white text-navy-900 shadow-sm' : 'text-navy-500 hover:text-navy-700'}`}>
+                                    Nomor
+                                </button>
+                                <button onClick={() => setIndexTab('alphabet')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${indexTab === 'alphabet' ? 'bg-white text-navy-900 shadow-sm' : 'text-navy-500 hover:text-navy-700'}`}>
+                                    Abjad
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -7775,6 +7867,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
 const App = () => {
     const [isAppLoading, setIsAppLoading] = React.useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+    const [mobileNavPopup, setMobileNavPopup] = React.useState(null); // 'belajar' | 'ibadah' | null
     const [selectedWartaDetail, setSelectedWartaDetail] = React.useState(null);
 
     // --- THEME STATE ---
@@ -7815,10 +7908,15 @@ const App = () => {
 
     const setActiveTab = React.useCallback((tabId) => {
         setRawActiveTab(tabId);
+        setMobileNavPopup(null);
         if (tabId !== 'warta') setSelectedWartaDetail(null);
         // Mengganti hash di URL tanpa menambah tumpukan riwayat (history stack tetap stabil)
         window.history.replaceState(window.history.state, '', `#${tabId}`);
     }, []);
+
+    React.useEffect(() => {
+        setMobileNavPopup(null);
+    }, [activeTab]);
 
     React.useEffect(() => {
         // State 'root': titik akhir sebelum keluar aplikasi
@@ -7827,6 +7925,7 @@ const App = () => {
         window.history.pushState({ dummy: true }, '', window.location.href);
 
         const handlePopState = (event) => {
+            setMobileNavPopup(null);
             setRawActiveTab((currentTab) => {
                 // Jika kembali ke state root (pengguna menekan back Android)
                 if (event.state && event.state.isAppRoot) {
@@ -8430,32 +8529,217 @@ const App = () => {
             )}
 
 
-            {/* Navigasi Mobile (Disembunyikan di Desktop dengan md:hidden) */}
-            {activeTab !== 'lagu_sion' && (
-                <nav className="bottom-bar md:hidden" style={{ zIndex: 50 }}>
-                    {['belajar', 'warta', 'home', 'jadwal', 'live'].map(tabId => {
-                        const tab = tabs.find(t => t.id === tabId);
-                        if (!tab) return null;
-                        const isActive = activeTab.startsWith(tab.id);
+            {/* Backdrop Blur untuk Popup Navigasi Mobile */}
+            {mobileNavPopup && (
+                <div
+                    className="fixed inset-0 z-[50] bg-black/40 backdrop-blur-sm md:hidden transition-opacity duration-300"
+                    onClick={() => setMobileNavPopup(null)}
+                />
+            )}
 
-                        return (
-                            <div
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`bottom-nav-item ${isActive ? 'active' : ''}`}
-                            >
-                                <div className="bottom-nav-icon">
-                                    <Icon name={tab.icon} />
-                                </div>
-                                <span>{tab.label}</span>
+            {/* Popup Card Navigasi Mobile (Belajar & Ibadah) */}
+            {mobileNavPopup && (
+                <div
+                    className="fixed z-[55] left-1/2 popup-slide-up md:hidden pointer-events-auto"
+                    style={{
+                        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 102px)',
+                        width: 'calc(100% - 32px)',
+                        maxWidth: '480px'
+                    }}
+                >
+                    <div className="bg-white/95 dark:bg-[#161b26]/95 backdrop-blur-2xl border border-slate-200/95 dark:border-white/10 rounded-[28px] p-2.5 sm:p-3 shadow-[0_10px_30px_-4px_rgba(15,23,42,0.12),0_4px_12px_-2px_rgba(15,23,42,0.08)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.5)]">
+                        {mobileNavPopup === 'belajar' && (
+                            <div className="flex items-center justify-around">
+                                {[
+                                    {
+                                        id: 'sekolah_sabat',
+                                        label: 'Sekolah Sabat',
+                                        icon: 'BookOpen',
+                                        onClick: () => {
+                                            setMobileNavPopup(null);
+                                            window.open('https://sabbath-school.adventech.io/in', '_blank');
+                                        }
+                                    },
+                                    {
+                                        id: 'alkitab',
+                                        label: 'Alkitab',
+                                        icon: 'Cross',
+                                        onClick: () => {
+                                            setMobileNavPopup(null);
+                                            setActiveTab('alkitab');
+                                        }
+                                    },
+                                    {
+                                        id: '28_doktrin',
+                                        label: '28 Doktrin',
+                                        icon: 'ListOrdered',
+                                        onClick: () => {
+                                            setMobileNavPopup(null);
+                                            setActiveTab('belajar_28dasar');
+                                        }
+                                    },
+                                    {
+                                        id: 'other',
+                                        label: 'other',
+                                        icon: 'Grid',
+                                        onClick: () => {
+                                            setMobileNavPopup(null);
+                                            setActiveTab('belajar');
+                                        }
+                                    }
+                                ].map((item) => (
+                                    <button
+                                        key={item.id}
+                                        onClick={item.onClick}
+                                        className="flex flex-col items-center justify-center flex-1 py-1.5 px-1 text-slate-800 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 active:scale-95 transition-all group cursor-pointer"
+                                    >
+                                        <div className="w-6 h-6 flex items-center justify-center mb-1 text-slate-800 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                                            <Icon name={item.icon} className="w-5 h-5 stroke-[2.2]" />
+                                        </div>
+                                        <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 text-center leading-tight">
+                                            {item.label}
+                                        </span>
+                                    </button>
+                                ))}
                             </div>
-                        );
-                    })}
+                        )}
+
+                        {mobileNavPopup === 'ibadah' && (
+                            <div className="flex items-center justify-around">
+                                {[
+                                    {
+                                        id: 'jadwal',
+                                        label: 'Jadwal',
+                                        icon: 'Calendar',
+                                        onClick: () => {
+                                            setMobileNavPopup(null);
+                                            setActiveTab('jadwal');
+                                        }
+                                    },
+                                    {
+                                        id: 'kertas_acara',
+                                        label: 'Kertas Acara',
+                                        icon: 'FileText',
+                                        onClick: () => {
+                                            setMobileNavPopup(null);
+                                            setActiveTab('susunan_ibadah');
+                                        }
+                                    },
+                                    {
+                                        id: 'warta',
+                                        label: 'Warta',
+                                        icon: 'Warta',
+                                        onClick: () => {
+                                            setMobileNavPopup(null);
+                                            setActiveTab('warta');
+                                        }
+                                    },
+                                    {
+                                        id: 'lagu_sion',
+                                        label: 'Lagu Sion',
+                                        icon: 'Music',
+                                        onClick: () => {
+                                            setMobileNavPopup(null);
+                                            setActiveTab('lagu_sion');
+                                        }
+                                    }
+                                ].map((item) => (
+                                    <button
+                                        key={item.id}
+                                        onClick={item.onClick}
+                                        className="flex flex-col items-center justify-center flex-1 py-1.5 px-1 text-slate-800 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 active:scale-95 transition-all group cursor-pointer"
+                                    >
+                                        <div className="w-6 h-6 flex items-center justify-center mb-1 text-slate-800 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                                            <Icon name={item.icon} className="w-5 h-5 stroke-[2.2]" />
+                                        </div>
+                                        <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 text-center leading-tight">
+                                            {item.label}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Navigasi Mobile Utama (Bentuk & Ukuran Sama Persis Seperti Popup) */}
+            {activeTab !== 'lagu_sion' && (
+                <nav
+                    className="fixed z-[52] left-1/2 -translate-x-1/2 md:hidden pointer-events-auto"
+                    style={{
+                        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
+                        width: 'calc(100% - 32px)',
+                        maxWidth: '480px'
+                    }}
+                >
+                    <div className="bg-white/95 dark:bg-[#161b26]/95 backdrop-blur-2xl border border-slate-200/95 dark:border-white/10 rounded-[28px] p-2.5 sm:p-3 shadow-[0_10px_30px_-4px_rgba(15,23,42,0.12),0_4px_12px_-2px_rgba(15,23,42,0.08)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.5)]">
+                        <div className="flex items-center justify-around">
+                            {[
+                                { id: 'belajar', label: 'Belajar', icon: 'BookOpen', isPopup: true },
+                                { id: 'ibadah', label: 'Ibadah', icon: 'FileText', isPopup: true },
+                                { id: 'home', label: 'Home', icon: 'Home' },
+                                { id: 'persembahan', label: 'Persembahan', icon: 'Rupiah' },
+                                { id: 'hubungi', label: 'Hubungi', icon: 'Phone' }
+                            ].map(item => {
+                                let isActive = false;
+                                if (item.id === 'belajar') {
+                                    isActive = mobileNavPopup === 'belajar' || (!mobileNavPopup && (activeTab.startsWith('belajar') || activeTab === 'alkitab'));
+                                } else if (item.id === 'ibadah') {
+                                    isActive = mobileNavPopup === 'ibadah' || (!mobileNavPopup && (activeTab === 'jadwal' || activeTab === 'susunan_ibadah' || activeTab === 'live' || activeTab === 'warta'));
+                                } else if (item.id === 'home') {
+                                    isActive = !mobileNavPopup && (activeTab === 'home' || activeTab === '' || !activeTab);
+                                } else if (item.id === 'persembahan') {
+                                    isActive = !mobileNavPopup && activeTab === 'persembahan';
+                                } else if (item.id === 'hubungi') {
+                                    isActive = !mobileNavPopup && activeTab === 'hubungi';
+                                }
+
+                                const handleClick = () => {
+                                    if (item.id === 'belajar') {
+                                        setMobileNavPopup(prev => prev === 'belajar' ? null : 'belajar');
+                                    } else if (item.id === 'ibadah') {
+                                        setMobileNavPopup(prev => prev === 'ibadah' ? null : 'ibadah');
+                                    } else {
+                                        setMobileNavPopup(null);
+                                        setActiveTab(item.id);
+                                    }
+                                };
+
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={handleClick}
+                                        className={`flex flex-col items-center justify-center flex-1 py-1 px-0.5 transition-all group cursor-pointer ${isActive
+                                            ? 'text-amber-600 dark:text-amber-400 font-bold'
+                                            : 'text-slate-800 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400'
+                                            }`}
+                                    >
+                                        <div className={`w-6 h-6 flex items-center justify-center mb-1 transition-all ${isActive
+                                            ? 'scale-110 text-amber-600 dark:text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]'
+                                            : 'text-slate-800 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 group-hover:scale-105'
+                                            }`}>
+                                            <Icon name={item.icon} className="w-5 h-5 stroke-[2.2]" />
+                                        </div>
+                                        <span className={`text-[10px] sm:text-[11px] font-bold text-center leading-tight transition-colors ${isActive
+                                            ? 'text-amber-600 dark:text-amber-400'
+                                            : 'text-slate-800 dark:text-slate-200'
+                                            }`}>
+                                            {item.label}
+                                        </span>
+                                        {isActive && (
+                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.8)] mt-1 animate-pulse" />
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </nav>
             )}
 
-            {/* Floating Action Button (Hubungi / WA) */}
-            {activeTab !== 'admin_dashboard' && activeTab !== 'hubungi' && activeTab !== 'lagu_sion' && (
+            {/* Floating Action Button (Hubungi / WA & Sinkronisasi) - Dipercantik dengan Glassmorphism & Diangkat agar Tidak Menyentuh Menu */}
+            {activeTab !== 'admin_dashboard' && activeTab !== 'hubungi' && activeTab !== 'lagu_sion' && !mobileNavPopup && (
                 <>
                     {/* Floating Sync Button */}
                     <button
@@ -8465,20 +8749,20 @@ const App = () => {
                                 setShowSyncNotif(true);
                             }
                         }}
-                        className="fixed left-4 md:left-6 z-[90] w-10 h-10 md:w-11 md:h-11 bg-navy-800/20 dark:bg-navy-900/40 hover:bg-navy-800/30 dark:hover:bg-navy-900/60 backdrop-blur-md rounded-full transition-all duration-300 flex items-center justify-center border border-navy-200/50 dark:border-navy-700/50 cursor-pointer shadow-lg group"
+                        className="fixed left-4 md:left-6 z-[45] w-11 h-11 md:w-12 md:h-12 bg-white/85 dark:bg-[#161b26]/85 hover:bg-white/95 dark:hover:bg-[#161b26]/95 backdrop-blur-2xl border border-slate-200/90 dark:border-white/15 rounded-full transition-all duration-300 flex items-center justify-center cursor-pointer shadow-[0_10px_30px_-4px_rgba(15,23,42,0.15),0_4px_12px_-2px_rgba(15,23,42,0.1)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.6)] group active:scale-95"
                         style={{
-                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.25rem)',
-                            transform: isScrollingDown ? 'translateY(100px)' : '',
+                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
+                            transform: isScrollingDown ? 'translateY(120px)' : '',
                             opacity: isScrollingDown ? 0 : 1,
                             pointerEvents: isScrollingDown ? 'none' : 'auto'
                         }}
                         title="Sinkronisasi Data"
                     >
                         {isSyncing ? (
-                            <i className="fa-solid fa-rotate fa-spin text-amber-500 text-xl md:text-lg"></i>
+                            <i className="fa-solid fa-rotate fa-spin text-amber-500 text-lg"></i>
                         ) : (
                             <div className="relative flex items-center justify-center w-full h-full">
-                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
+                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.9)]"></span>
                                 <span className="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
                             </div>
                         )}
@@ -8487,16 +8771,16 @@ const App = () => {
                     {/* Floating WhatsApp Button */}
                     <button
                         onClick={() => setActiveTab('hubungi')}
-                        className="fixed right-4 md:right-8 z-[90] w-10 h-10 md:w-11 md:h-11 bg-navy-800/20 dark:bg-navy-900/40 hover:bg-navy-800/30 dark:hover:bg-navy-900/60 backdrop-blur-xl rounded-full transition-all duration-300 flex items-center justify-center border border-navy-200/50 dark:border-navy-700/50 cursor-pointer shadow-lg group"
+                        className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 bg-white/85 dark:bg-[#161b26]/85 hover:bg-white/95 dark:hover:bg-[#161b26]/95 backdrop-blur-2xl border border-slate-200/90 dark:border-white/15 rounded-full transition-all duration-300 flex items-center justify-center cursor-pointer shadow-[0_10px_30px_-4px_rgba(15,23,42,0.15),0_4px_12px_-2px_rgba(15,23,42,0.1)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.6)] group active:scale-95"
                         style={{
-                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.25rem)',
-                            transform: isScrollingDown ? 'translateY(100px)' : '',
+                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
+                            transform: isScrollingDown ? 'translateY(120px)' : '',
                             opacity: isScrollingDown ? 0 : 1,
                             pointerEvents: isScrollingDown ? 'none' : 'auto'
                         }}
                         title="Hubungi Kami"
                     >
-                        <i className="fa-brands fa-whatsapp text-[#25D366] text-2xl md:text-xl transition-colors group-hover:text-green-400"></i>
+                        <i className="fa-brands fa-whatsapp text-[#25D366] text-2xl transition-transform group-hover:scale-110 drop-shadow-[0_0_8px_rgba(37,211,102,0.4)]"></i>
                     </button>
                 </>
             )}
