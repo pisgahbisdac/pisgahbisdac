@@ -2560,6 +2560,7 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
       let history = [];
 
       inc.forEach(i => {
+        if (i.income_type === 'Mutasi Kas / Setor Bank') return;
         const isCashInc = (i.note || '').includes('[CASH]');
         let amount = 0;
         if (baseSrc === 'Daerah') amount = i.alloc_daerah || 0;
@@ -3188,34 +3189,38 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
         }
       };
 
-      let calcBankJ = cachedSaldo.initJemaat || 0; let calcCashJ = 0;
-      let calcBankD = cachedSaldo.initDaerah || 0; let calcCashD = 0;
+      let calcCashJ = 0;
+      let calcCashD = 0;
 
       (cachedIncome || []).forEach(i => {
         if (!isUpToReportEnd(i.date)) return;
+        if (i.income_type === 'Mutasi Kas / Setor Bank') return;
         const isCashInc = (i.note || '').includes('[CASH]');
         let amtJ = parseFloat(i.alloc_jemaat) || 0;
         let amtD = parseFloat(i.alloc_daerah) || 0;
 
         if (isMatchDate(i.date)) {
-           const t = i.income_type || 'Lain-Lain';
-           const amt = parseFloat(i.amount) || 0;
-           const tLower = t.toLowerCase();
-           const isSabat13 = tLower.includes('sabat') && tLower.includes('13');
-           const isSabat = tLower.includes('sabat') && !tLower.includes('13');
-           if (t === 'Perpuluhan' || t === 'Khusus Daerah' || isSabat13) {
-             amtJ = 0; amtD = amt;
-           } else if (t === 'Terpadu' || isSabat) {
-             amtJ = amt * 0.5; amtD = amt * 0.5;
-           } else if (t !== 'Saldo Awal Sistem' && t !== 'Saldo Awal' && !tLower.includes('pembangunan') && !(parseFloat(i.alloc_bangun)>0)) {
-             amtJ = amt; amtD = 0;
+           // Hanya override jika alloc_jemaat/alloc_daerah belum tersimpan di DB
+           const hasStoredAlloc = (i.alloc_jemaat !== undefined && i.alloc_jemaat !== null && i.alloc_jemaat !== '');
+           if (!hasStoredAlloc) {
+             const t = i.income_type || 'Lain-Lain';
+             const amt = parseFloat(i.amount) || 0;
+             const tLower = t.toLowerCase();
+             const isSabat13 = tLower.includes('sabat') && tLower.includes('13');
+             const isSabat = tLower.includes('sabat') && !tLower.includes('13');
+             if (t === 'Perpuluhan' || t === 'Khusus Daerah' || isSabat13) {
+               amtJ = 0; amtD = amt;
+             } else if (t === 'Terpadu' || isSabat) {
+               amtJ = amt * 0.5; amtD = amt * 0.5;
+             } else if (t !== 'Saldo Awal Sistem' && t !== 'Saldo Awal' && !tLower.includes('pembangunan') && !(parseFloat(i.alloc_bangun)>0)) {
+               amtJ = amt; amtD = 0;
+             }
            }
+           // Jika alloc_jemaat tersimpan, gunakan nilai stored (amtJ/amtD sudah benar dari atas)
         }
 
         if (isCashInc) {
           calcCashD += amtD; calcCashJ += amtJ;
-        } else {
-          calcBankD += amtD; calcBankJ += amtJ;
         }
       });
 
@@ -3223,29 +3228,31 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
         if (!isUpToReportEnd(e.date)) return;
         const isMutasi = e.department === 'Mutasi Kas / Setor Bank';
         let srcBase = e.source_balance;
-        if (srcBase === 'Kas Daerah (Bank)') { srcBase = 'Daerah'; e.note = (e.note || '') + ' [BANK]'; }
-        if (srcBase === 'Kas Daerah (Di Tangan)') { srcBase = 'Daerah'; e.note = (e.note || '') + ' [CASH]'; }
-        if (srcBase === 'Kas Jemaat (Bank)') { srcBase = 'Kas Jemaat'; e.note = (e.note || '') + ' [BANK]'; }
-        if (srcBase === 'Kas Jemaat (Di Tangan)') { srcBase = 'Kas Jemaat'; e.note = (e.note || '') + ' [CASH]'; }
+        if (srcBase === 'Kas Daerah (Bank)' || srcBase === 'Kas Daerah (Di Tangan)') { srcBase = 'Daerah'; }
+        if (srcBase === 'Kas Jemaat (Bank)' || srcBase === 'Kas Jemaat (Di Tangan)') { srcBase = 'Kas Jemaat'; }
 
-        const isCashExp = (e.note || '').includes('[CASH]');
+        const isCashExp = (e.note || '').includes('[CASH]') || (e.source_balance || '').includes('Di Tangan');
         const amt = parseFloat(e.amount || 0);
         
         if (srcBase === 'Daerah') {
           if (!isMutasi) {
-            if (isCashExp) calcCashD -= amt; else calcBankD -= amt;
-          } else { calcCashD -= amt; calcBankD += amt; }
+            if (isCashExp) calcCashD -= amt;
+          } else { calcCashD -= amt; }
         }
         else if (srcBase === 'Kas Jemaat') {
           if (!isMutasi) {
-            if (isCashExp) calcCashJ -= amt; else calcBankJ -= amt;
-          } else { calcCashJ -= amt; calcBankJ += amt; }
+            if (isCashExp) calcCashJ -= amt;
+          } else { calcCashJ -= amt; }
         }
       });
 
-      const totalFisikJemaat = calcCashJ + calcBankJ;
-      rightPanel.push({ label: 'Saldo Akhir Bulan ini', val: totalFisikJemaat, bold: true, isBorderTop: true, isColored: true });
-      rightPanel.push({ label: 'Kas Pada Jemaat', val: totalFisikJemaat, indent: true });
+      calcCashJ = Math.max(0, calcCashJ);
+      calcCashD = Math.max(0, calcCashD);
+
+      const totalFisikJemaat = saldoAkhirJemaat;
+      const calcBankJ = totalFisikJemaat - calcCashJ;
+      rightPanel.push({ label: 'Saldo Akhir Bulan ini', val: saldoAkhirJemaat, bold: true, isBorderTop: true, isColored: true });
+      rightPanel.push({ label: 'Kas Pada Jemaat', val: saldoAkhirJemaat, indent: true });
       rightPanel.push({ label: 'CASH ON HAND / Tunai', val: calcCashJ, indent: true });
       rightPanel.push({ label: 'SALDO DI BANK', val: calcBankJ, indent: true });
       rightPanel.push({ label: '<span style="font-size:6.5pt;">Balance Saldo Kas Jemaat</span>', val: totalFisikJemaat, bold: true, large: true, isBorderTop: true, isColoredDark: true });
@@ -3301,7 +3308,8 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
       rightPanel.push({ label: 'Perpuluhan', val: sumPerpuluhan, indent: true, isLightDaerah: true });
       rightPanel.push({ label: '50% Terpadu Daerah', val: sumTerpaduDaerah, indent: true, isLightDaerah: true });
       rightPanel.push({ label: 'Persembahan Khusus Daerah', val: sumKhususDaerah, indent: true, isLightDaerah: true });
-      const totalFisikDaerah = calcCashD + calcBankD;
+      const totalFisikDaerah = saldoAkhirDaerah;
+      const calcBankD = totalFisikDaerah - calcCashD;
       rightPanel.push({ label: 'Tunai Di Tangan (Daerah)', val: calcCashD, indent: true, isLightDaerah: true });
       rightPanel.push({ label: 'Saldo Bank (Daerah)', val: calcBankD, indent: true, isLightDaerah: true });
       rightPanel.push({ label: '<span style="font-size:6pt;">Total Uang Untuk Daerah</span>', val: totalFisikDaerah, bold: true, large: true, isBorderTop: true, isColoredDaerah: true });
