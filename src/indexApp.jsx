@@ -318,6 +318,7 @@ const Icon = ({ name, className }) => {
         ChevronLeft: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="15 18 9 12 15 6" /></svg>,
         ArrowLeft: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg>,
         ArrowRight: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 5 7 7-7 7" /><path d="M5 12h14" /></svg>,
+        ArrowUp: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg>,
         ChevronRight: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6" /></svg>,
         ChevronDown: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9" /></svg>,
         ChevronUp: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="18 15 12 9 6 15" /></svg>,
@@ -634,7 +635,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
         { id: 'alkitab', label: 'Alkitab', icon: 'Cross' },
         { id: 'keanggotaan', label: 'Keanggotaan', icon: 'Users' },
         { id: 'susunan_ibadah', label: 'Susunan Ibadah', icon: 'List' },
-        { id: 'persembahan', label: 'Persembahan', icon: 'Gift' },
+        { id: 'persembahan', label: 'Persembahan', icon: 'Rupiah' },
         { id: 'kehadiran', label: 'Kehadiran', icon: 'ClipboardCheck', isSameTab: true, link: './hadir.html' },
         { id: 'laporan', label: 'Laporan Keuangan', icon: 'BarChart', isSameTab: true, link: './laporan.html' },
         { id: 'inventaris', label: 'Inventaris', icon: 'Package', isSameTab: true, link: './inventaris.html' },
@@ -6583,6 +6584,28 @@ const Alkitab = ({ setHideGlobalBack }) => {
     const [isSearching, setIsSearching] = React.useState(false);
     const [fontSize, setFontSize] = React.useState(16);
     const [selectedVerses, setSelectedVerses] = React.useState(new Set());
+    const [selectedAyat, setSelectedAyat] = React.useState('');
+
+    const scrollToVerse = React.useCallback((ayatNum) => {
+        if (!ayatNum) return;
+        setSelectedAyat(String(ayatNum));
+        const el = document.getElementById(`ayat-${ayatNum}`);
+        if (el) {
+            const headerOffset = 145;
+            const elementPosition = el.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+                top: Math.max(0, offsetPosition),
+                behavior: 'smooth'
+            });
+
+            el.classList.add('ring-2', 'ring-gold-500', 'bg-gold-100', 'dark:bg-gold-500/20');
+            setTimeout(() => {
+                el.classList.remove('ring-2', 'ring-gold-500', 'bg-gold-100', 'dark:bg-gold-500/20');
+            }, 3000);
+        }
+    }, []);
 
     React.useEffect(() => {
         if (setHideGlobalBack) setHideGlobalBack(true);
@@ -6596,6 +6619,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
         setIsLoadingChapter(true);
         setFetchError(null);
         setVerses([]);
+        setSelectedAyat('');
         try {
             // Load the entire book from our local static API cache
             const res = await fetch(import.meta.env.BASE_URL + `alkitab/${bookId}.json`);
@@ -6626,6 +6650,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
 
             setVerses(dedupedVerses);
             setSelectedVerses(new Set());
+            setSelectedAyat('');
         } catch (err) {
             setFetchError('Gagal memuat. Periksa koneksi internet Anda.');
         }
@@ -6792,18 +6817,19 @@ const Alkitab = ({ setHideGlobalBack }) => {
     };
 
     const renderDropdowns = () => (
-        <div className="flex-1 w-full flex flex-row gap-2 bg-white dark:bg-navy-900 p-2 rounded-[1.25rem] shadow-sm border border-navy-100 dark:border-navy-800 overflow-x-auto">
+        <div className="flex-1 w-full flex flex-row items-center gap-1.5 sm:gap-2 bg-white dark:bg-navy-900 px-2 sm:px-3 py-1.5 rounded-2xl shadow-sm border border-navy-100 dark:border-navy-800">
             {/* KITAB */}
-            <div className="flex-1 min-w-[120px]">
-                <label className="text-[10px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-2">Kitab</label>
+            <div className="flex-[1.4] min-w-[75px] sm:min-w-[110px]">
+                <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Kitab</label>
                 <select
                     value={selectedBook?.id || ''}
                     onChange={(e) => {
                         const newBook = ALKITAB_BOOKS.find(b => b.id === parseInt(e.target.value));
                         setSelectedBook(newBook);
                         setSelectedChapter(1);
+                        setSelectedAyat('');
                     }}
-                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-3 py-2 text-navy-900 dark:text-white font-bold text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer"
+                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer truncate"
                 >
                     <option value="" disabled>Pilih Kitab...</option>
                     {ALKITAB_BOOKS.map(b => (
@@ -6813,13 +6839,16 @@ const Alkitab = ({ setHideGlobalBack }) => {
             </div>
 
             {/* PASAL */}
-            <div className="flex-1 min-w-[80px]">
-                <label className="text-[10px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-2">Pasal</label>
+            <div className="flex-1 min-w-[50px] sm:min-w-[65px]">
+                <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Pasal</label>
                 <select
                     value={selectedChapter || ''}
-                    onChange={(e) => setSelectedChapter(parseInt(e.target.value))}
+                    onChange={(e) => {
+                        setSelectedChapter(parseInt(e.target.value));
+                        setSelectedAyat('');
+                    }}
                     disabled={!selectedBook}
-                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-3 py-2 text-navy-900 dark:text-white font-bold text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <option value="" disabled>--</option>
                     {selectedBook && Array.from({ length: selectedBook.pasal }, (_, i) => i + 1).map(ch => (
@@ -6829,22 +6858,18 @@ const Alkitab = ({ setHideGlobalBack }) => {
             </div>
 
             {/* AYAT */}
-            <div className="flex-1 min-w-[80px]">
-                <label className="text-[10px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-2">Ayat</label>
+            <div className="flex-1 min-w-[50px] sm:min-w-[65px]">
+                <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Ayat</label>
                 <select
+                    value={selectedAyat || ''}
                     onChange={(e) => {
-                        const el = document.getElementById(`ayat-${e.target.value}`);
-                        if (el) {
-                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            el.classList.add('bg-gold-50', 'dark:bg-navy-800');
-                            setTimeout(() => el.classList.remove('bg-gold-50', 'dark:bg-navy-800'), 2000);
-                        }
-                        e.target.value = "";
+                        const val = e.target.value;
+                        if (val) scrollToVerse(val);
                     }}
                     disabled={!selectedChapter || verses.length === 0}
-                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-3 py-2 text-navy-900 dark:text-white font-bold text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <option value="" disabled>--</option>
+                    <option value="">--</option>
                     {verses.filter(v => v.type === 'content').map(v => (
                         <option key={`opt-${v.ayat}`} value={v.ayat}>{v.ayat}</option>
                     ))}
@@ -6856,13 +6881,18 @@ const Alkitab = ({ setHideGlobalBack }) => {
     if (!selectedBook) {
         return (
             <div className="animate-fade-in pb-10">
-                <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex flex-col gap-3">
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-3 w-full">
-                        <button onClick={() => window.history.back()} className="flex items-center justify-center px-4 py-2 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group shrink-0 h-[3.25rem]">
-                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                            <span className="hidden sm:inline">Kembali</span>
+                <div className="sticky top-14 md:top-16 z-40 bg-white/95 dark:bg-[#0b1a30]/95 backdrop-blur-md pt-2 pb-3 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex flex-col gap-2.5 shadow-sm transition-all">
+                    <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
+                        <button
+                            onClick={() => window.history.back()}
+                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group"
+                            title="Kembali"
+                        >
+                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
                         </button>
-                        {renderDropdowns()}
+                        <div className="flex-1 min-w-0">
+                            {renderDropdowns()}
+                        </div>
                     </div>
                     <form onSubmit={handleSearch} className="relative flex items-center">
                         <Icon name="Search" className="absolute left-4 w-5 h-5 text-navy-400" />
@@ -6928,13 +6958,25 @@ const Alkitab = ({ setHideGlobalBack }) => {
         const chapters = Array.from({ length: selectedBook.pasal }, (_, i) => i + 1);
         return (
             <div className="animate-fade-in pb-10">
-                <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex flex-col gap-3">
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-3 w-full">
-                        <button onClick={() => setSelectedBook(null)} className="flex items-center justify-center px-4 py-2 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group shrink-0 h-[3.25rem]">
-                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                            <span className="hidden sm:inline">Kembali</span>
+                <div className="sticky top-14 md:top-16 z-40 bg-white/95 dark:bg-[#0b1a30]/95 backdrop-blur-md pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 shadow-sm transition-all">
+                    <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
+                        <button
+                            onClick={() => setSelectedBook(null)}
+                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group"
+                            title="Kembali ke Daftar Kitab"
+                        >
+                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
                         </button>
-                        {renderDropdowns()}
+                        <div className="flex-1 min-w-0">
+                            {renderDropdowns()}
+                        </div>
+                        <button
+                            onClick={() => { setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all shrink-0 active:scale-95 group"
+                            title="Daftar Kitab (Home)"
+                        >
+                            <Icon name="Home" className="w-5 h-5 group-hover:scale-105 transition-transform" />
+                        </button>
                     </div>
                 </div>
                 <div className="mt-6">
@@ -6955,50 +6997,62 @@ const Alkitab = ({ setHideGlobalBack }) => {
     if (selectedBook && selectedChapter) {
         return (
             <div className="animate-fade-in pb-10">
-                <div className="sticky top-[70px] md:top-[80px] z-30 bg-[#FAFAFA] dark:bg-[#0b1a30] pt-2 pb-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex flex-col gap-3">
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-3 w-full">
-                        <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
-                            <button onClick={() => { setSelectedChapter(null); setSelectedVerses(new Set()); }} className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group h-[3.25rem]">
-                                <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                                <span className="hidden sm:inline">Kembali</span>
-                            </button>
-                            <button onClick={() => { setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all gap-2 h-[3.25rem]" title="Daftar Kitab">
-                                <Icon name="Home" className="w-4 h-4 md:w-5 md:h-5" />
-                                <span className="hidden sm:inline">Kitab</span>
-                            </button>
+                {/* Sticky Header: Tombol Panah (Kiri), Kotak Kitab (Tengah), Tombol Home (Kanan) */}
+                <div className="sticky top-14 md:top-16 z-40 bg-white/95 dark:bg-[#0b1a30]/95 backdrop-blur-md pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 shadow-sm transition-all">
+                    <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
+                        {/* Tombol Panah (Kembali) di sebelah kiri */}
+                        <button
+                            onClick={() => { setSelectedChapter(null); setSelectedVerses(new Set()); setSelectedAyat(''); }}
+                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group"
+                            title="Kembali ke Pilih Pasal"
+                        >
+                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+                        </button>
+
+                        {/* Kotak Kitab (Dropdowns: Kitab, Pasal, Ayat) di tengah */}
+                        <div className="flex-1 min-w-0">
+                            {renderDropdowns()}
                         </div>
 
-                        {renderDropdowns()}
+                        {/* Tombol Home di sebelah kanan */}
+                        <button
+                            onClick={() => { setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all shrink-0 active:scale-95 group"
+                            title="Daftar Kitab (Home)"
+                        >
+                            <Icon name="Home" className="w-5 h-5 group-hover:scale-105 transition-transform" />
+                        </button>
                     </div>
-                    {/* Navigation and Font Size Slider */}
-                    <div className="flex items-stretch gap-2 mt-3 h-14 md:h-12 w-full">
-                        {prevChapterInfo ? (
-                            <button onClick={() => { setSelectedBook(prevChapterInfo.book); setSelectedChapter(prevChapterInfo.chapter); setVerses([]); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex-1 flex flex-col items-start justify-center px-3 md:px-4 py-1.5 bg-white dark:bg-navy-800 rounded-xl border border-navy-100/80 dark:border-navy-700 shadow-sm hover:shadow hover:border-gold-300 dark:hover:border-gold-500/50 transition-all group min-w-0 overflow-hidden">
-                                <span className="text-[9px] md:text-[10px] text-navy-400 dark:text-navy-400 font-black uppercase tracking-widest flex items-center gap-1 w-full"><Icon name="ChevronLeft" className="w-3 h-3 shrink-0 group-hover:-translate-x-0.5 transition-transform" /> <span className="truncate">Sebelumnya</span></span>
-                                <span className="font-bold text-navy-800 dark:text-navy-100 text-[11px] md:text-sm pl-4 truncate w-full text-left">{prevChapterInfo.book.nama} {prevChapterInfo.chapter}</span>
-                            </button>
-                        ) : <div className="flex-1"></div>}
+                </div>
 
-                        <div className="flex-[1.2] md:flex-[2] flex items-center justify-between md:justify-center gap-1 bg-navy-50 dark:bg-navy-800/50 rounded-xl px-1.5 md:px-2 py-1.5 h-full border border-transparent dark:border-navy-800 shrink-0">
-                            <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="w-10 md:w-12 h-full flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-navy-700 text-navy-500 dark:text-navy-300 shadow-sm transition-colors active:scale-95" title="Perkecil Teks">
-                                <Icon name="Minus" className="w-4 h-4 md:w-5 md:h-5" />
-                            </button>
-                            <div className="flex flex-col items-center justify-center px-2 min-w-[3rem]">
-                                <span className="text-[10px] md:text-xs font-bold text-navy-600 dark:text-navy-300 leading-none">Aa</span>
-                                <span className="text-[9px] md:text-[10px] text-navy-400 font-bold tracking-tighter leading-none mt-1">{fontSize}px</span>
-                            </div>
-                            <button onClick={() => setFontSize(Math.min(28, fontSize + 2))} className="w-10 md:w-12 h-full flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-navy-700 text-navy-500 dark:text-navy-300 shadow-sm transition-colors active:scale-95" title="Perbesar Teks">
-                                <Icon name="Plus" className="w-4 h-4 md:w-5 md:h-5" />
-                            </button>
+                {/* Navigation and Font Size Slider */}
+                <div className="flex items-stretch gap-2 mt-4 h-14 md:h-12 w-full">
+                    {prevChapterInfo ? (
+                        <button onClick={() => { setSelectedBook(prevChapterInfo.book); setSelectedChapter(prevChapterInfo.chapter); setVerses([]); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex-1 flex flex-col items-start justify-center px-3 md:px-4 py-1.5 bg-white dark:bg-navy-800 rounded-xl border border-navy-100/80 dark:border-navy-700 shadow-sm hover:shadow hover:border-gold-300 dark:hover:border-gold-500/50 transition-all group min-w-0 overflow-hidden">
+                            <span className="text-[9px] md:text-[10px] text-navy-400 dark:text-navy-400 font-black uppercase tracking-widest flex items-center gap-1 w-full"><Icon name="ChevronLeft" className="w-3 h-3 shrink-0 group-hover:-translate-x-0.5 transition-transform" /> <span className="truncate">Sebelumnya</span></span>
+                            <span className="font-bold text-navy-800 dark:text-navy-100 text-[11px] md:text-sm pl-4 truncate w-full text-left">{prevChapterInfo.book.nama} {prevChapterInfo.chapter}</span>
+                        </button>
+                    ) : <div className="flex-1"></div>}
+
+                    <div className="flex-[1.2] md:flex-[2] flex items-center justify-between md:justify-center gap-1 bg-navy-50 dark:bg-navy-800/50 rounded-xl px-1.5 md:px-2 py-1.5 h-full border border-transparent dark:border-navy-800 shrink-0">
+                        <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="w-10 md:w-12 h-full flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-navy-700 text-navy-500 dark:text-navy-300 shadow-sm transition-colors active:scale-95" title="Perkecil Teks">
+                            <Icon name="Minus" className="w-4 h-4 md:w-5 md:h-5" />
+                        </button>
+                        <div className="flex flex-col items-center justify-center px-2 min-w-[3rem]">
+                            <span className="text-[10px] md:text-xs font-bold text-navy-600 dark:text-navy-300 leading-none">Aa</span>
+                            <span className="text-[9px] md:text-[10px] text-navy-400 font-bold tracking-tighter leading-none mt-1">{fontSize}px</span>
                         </div>
-
-                        {nextChapterInfo ? (
-                            <button onClick={() => { setSelectedBook(nextChapterInfo.book); setSelectedChapter(nextChapterInfo.chapter); setVerses([]); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex-1 flex flex-col items-end justify-center px-3 md:px-4 py-1.5 bg-white dark:bg-navy-800 rounded-xl border border-navy-100/80 dark:border-navy-700 shadow-sm hover:shadow hover:border-gold-300 dark:hover:border-gold-500/50 transition-all group min-w-0 overflow-hidden">
-                                <span className="text-[9px] md:text-[10px] text-navy-400 dark:text-navy-400 font-black uppercase tracking-widest flex items-center justify-end gap-1 w-full"><span className="truncate">Berikutnya</span> <Icon name="ChevronRight" className="w-3 h-3 shrink-0 group-hover:translate-x-0.5 transition-transform" /></span>
-                                <span className="font-bold text-navy-800 dark:text-navy-100 text-[11px] md:text-sm pr-4 truncate w-full text-right">{nextChapterInfo.book.nama} {nextChapterInfo.chapter}</span>
-                            </button>
-                        ) : <div className="flex-1"></div>}
+                        <button onClick={() => setFontSize(Math.min(28, fontSize + 2))} className="w-10 md:w-12 h-full flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-navy-700 text-navy-500 dark:text-navy-300 shadow-sm transition-colors active:scale-95" title="Perbesar Teks">
+                            <Icon name="Plus" className="w-4 h-4 md:w-5 md:h-5" />
+                        </button>
                     </div>
+
+                    {nextChapterInfo ? (
+                        <button onClick={() => { setSelectedBook(nextChapterInfo.book); setSelectedChapter(nextChapterInfo.chapter); setVerses([]); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex-1 flex flex-col items-end justify-center px-3 md:px-4 py-1.5 bg-white dark:bg-navy-800 rounded-xl border border-navy-100/80 dark:border-navy-700 shadow-sm hover:shadow hover:border-gold-300 dark:hover:border-gold-500/50 transition-all group min-w-0 overflow-hidden">
+                            <span className="text-[9px] md:text-[10px] text-navy-400 dark:text-navy-400 font-black uppercase tracking-widest flex items-center justify-end gap-1 w-full"><span className="truncate">Berikutnya</span> <Icon name="ChevronRight" className="w-3 h-3 shrink-0 group-hover:translate-x-0.5 transition-transform" /></span>
+                            <span className="font-bold text-navy-800 dark:text-navy-100 text-[11px] md:text-sm pr-4 truncate w-full text-right">{nextChapterInfo.book.nama} {nextChapterInfo.chapter}</span>
+                        </button>
+                    ) : <div className="flex-1"></div>}
                 </div>
                 <div className="mt-6 bg-white dark:bg-navy-900 p-5 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100 dark:border-navy-800 min-h-[200px]">
                     {isLoadingChapter && (
@@ -7034,12 +7088,74 @@ const Alkitab = ({ setHideGlobalBack }) => {
                                         );
                                     }
                                     return (
-                                        <div key={a.ayat} id={`ayat-${a.ayat}`} onClick={() => toggleVerse(a.ayat)} className={`flex gap-4 items-start group transition-all duration-300 rounded-[1.25rem] p-3 md:p-4 -mx-3 md:-mx-4 cursor-pointer select-none ${selectedVerses.has(a.ayat) ? 'bg-gold-50 dark:bg-gold-500/10 shadow-sm border border-gold-200 dark:border-gold-500/30' : 'hover:bg-navy-50/70 dark:hover:bg-navy-800/60 border border-transparent'}`}>
+                                        <div
+                                            key={a.ayat}
+                                            id={`ayat-${a.ayat}`}
+                                            style={{ scrollMarginTop: '160px' }}
+                                            onClick={() => toggleVerse(a.ayat)}
+                                            className={`flex gap-4 items-start group transition-all duration-300 rounded-[1.25rem] p-3 md:p-4 -mx-3 md:-mx-4 cursor-pointer select-none ${selectedVerses.has(a.ayat) ? 'bg-gold-50 dark:bg-gold-500/10 shadow-sm border border-gold-200 dark:border-gold-500/30' : 'hover:bg-navy-50/70 dark:hover:bg-navy-800/60 border border-transparent'}`}
+                                        >
                                             <span className={`font-bold rounded-full flex items-center justify-center shrink-0 transition-colors shadow-sm ${selectedVerses.has(a.ayat) ? 'bg-[#D19B45] text-white' : 'text-navy-500 bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700'}`} style={{ fontSize: Math.max(10, fontSize - 6) + 'px', width: '2.5em', height: '2.5em', marginTop: '0.25em' }}>{a.ayat}</span>
                                             <p className="text-navy-800 dark:text-navy-100 leading-relaxed transition-all" style={{ fontSize: fontSize + 'px' }}>{a.teks}</p>
                                         </div>
                                     );
                                 })}
+                            </div>
+
+                            {/* Navigasi Bawah: Sebelumnya, Ke Atas, Berikutnya */}
+                            <div className="mt-10 pt-6 border-t border-navy-100 dark:border-navy-800 flex items-center justify-between gap-2 sm:gap-4 select-none">
+                                {prevChapterInfo ? (
+                                    <button
+                                        onClick={() => {
+                                            setSelectedBook(prevChapterInfo.book);
+                                            setSelectedChapter(prevChapterInfo.chapter);
+                                            setVerses([]);
+                                            setSelectedAyat('');
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                        className="flex-1 flex items-center justify-start gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl bg-navy-50 hover:bg-gold-500 hover:text-navy-950 dark:bg-navy-800 dark:hover:bg-gold-500 dark:hover:text-navy-950 text-navy-700 dark:text-navy-200 border border-navy-100/80 dark:border-navy-700 transition-all cursor-pointer group shadow-sm active:scale-95 min-w-0"
+                                        title={`Pasal Sebelumnya: ${prevChapterInfo.book.nama} ${prevChapterInfo.chapter}`}
+                                    >
+                                        <Icon name="ChevronLeft" className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 group-hover:-translate-x-0.5 transition-transform" />
+                                        <div className="flex flex-col text-left truncate min-w-0">
+                                            <span className="text-[9px] uppercase font-black text-navy-400 dark:text-navy-400 group-hover:text-navy-900 tracking-wider">Sebelumnya</span>
+                                            <span className="text-xs sm:text-sm font-black truncate">{prevChapterInfo.book.nama} {prevChapterInfo.chapter}</span>
+                                        </div>
+                                    </button>
+                                ) : (
+                                    <div className="flex-1" />
+                                )}
+
+                                <button
+                                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                                    className="flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-gold-500/15 hover:bg-gold-500 text-gold-600 dark:text-gold-400 hover:text-navy-950 dark:hover:text-navy-950 border border-gold-500/30 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0 group"
+                                    title="Kembali ke Bagian Atas"
+                                >
+                                    <Icon name="ArrowUp" className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 group-hover:-translate-y-0.5 transition-transform" />
+                                    <span className="text-xs sm:text-sm font-black whitespace-nowrap">Ke Atas</span>
+                                </button>
+
+                                {nextChapterInfo ? (
+                                    <button
+                                        onClick={() => {
+                                            setSelectedBook(nextChapterInfo.book);
+                                            setSelectedChapter(nextChapterInfo.chapter);
+                                            setVerses([]);
+                                            setSelectedAyat('');
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                        className="flex-1 flex items-center justify-end gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl bg-navy-50 hover:bg-gold-500 hover:text-navy-950 dark:bg-navy-800 dark:hover:bg-gold-500 dark:hover:text-navy-950 text-navy-700 dark:text-navy-200 border border-navy-100/80 dark:border-navy-700 transition-all cursor-pointer group shadow-sm active:scale-95 min-w-0"
+                                        title={`Pasal Berikutnya: ${nextChapterInfo.book.nama} ${nextChapterInfo.chapter}`}
+                                    >
+                                        <div className="flex flex-col text-right truncate min-w-0">
+                                            <span className="text-[9px] uppercase font-black text-navy-400 dark:text-navy-400 group-hover:text-navy-900 tracking-wider">Berikutnya</span>
+                                            <span className="text-xs sm:text-sm font-black truncate">{nextChapterInfo.book.nama} {nextChapterInfo.chapter}</span>
+                                        </div>
+                                        <Icon name="ChevronRight" className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                                    </button>
+                                ) : (
+                                    <div className="flex-1" />
+                                )}
                             </div>
                         </>
                     )}
@@ -7243,8 +7359,8 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                     <button
                         onClick={() => setSubTab('numpad')}
                         className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${subTab === 'numpad'
-                                ? 'bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white shadow-md'
-                                : 'text-navy-600 dark:text-navy-300 hover:text-navy-950 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-700/50'
+                            ? 'bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white shadow-md'
+                            : 'text-navy-600 dark:text-navy-300 hover:text-navy-950 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-700/50'
                             }`}
                     >
                         <Icon name="Grid" className="w-4 h-4" />
@@ -7256,10 +7372,10 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                         }}
                         disabled={!selectedSong}
                         className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${!selectedSong
-                                ? 'opacity-40 cursor-not-allowed text-navy-400'
-                                : subTab === 'lyrics'
-                                    ? 'bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white shadow-md'
-                                    : 'text-navy-600 dark:text-navy-300 hover:text-navy-950 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-700/50'
+                            ? 'opacity-40 cursor-not-allowed text-navy-400'
+                            : subTab === 'lyrics'
+                                ? 'bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white shadow-md'
+                                : 'text-navy-600 dark:text-navy-300 hover:text-navy-950 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-700/50'
                             }`}
                         title={!selectedSong ? 'Pilih lagu terlebih dahulu' : 'Lihat lirik lagu'}
                     >
@@ -7269,8 +7385,8 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                     <button
                         onClick={() => setSubTab('index')}
                         className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${subTab === 'index'
-                                ? 'bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white shadow-md'
-                                : 'text-navy-600 dark:text-navy-300 hover:text-navy-950 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-700/50'
+                            ? 'bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white shadow-md'
+                            : 'text-navy-600 dark:text-navy-300 hover:text-navy-950 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-700/50'
                             }`}
                     >
                         <Icon name="List" className="w-4 h-4" />
@@ -8352,7 +8468,7 @@ const App = () => {
         { id: 'warta', label: 'Warta', icon: 'Warta' },
         { id: 'live', label: 'Live', icon: 'Video' },
         { id: 'jadwal', label: 'Jadwal', icon: 'Calendar' },
-        { id: 'persembahan', label: 'Persembahan', icon: 'Gift' },
+        { id: 'persembahan', label: 'Persembahan', icon: 'Rupiah' },
         { id: 'hubungi', label: 'Kontak', icon: 'Phone' }
     ];
 

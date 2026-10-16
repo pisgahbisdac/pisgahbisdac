@@ -2185,9 +2185,13 @@ a {
   .table-wrap:not(.allow-scroll),
   .card,
   .page,
-  .main,
-  body {
+  .main {
     overflow-x: hidden !important;
+    max-width: 100vw;
+  }
+
+  body {
+    overflow-x: clip !important;
     max-width: 100vw;
   }
 
