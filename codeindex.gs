@@ -129,8 +129,7 @@ function doPost(e) {
         return jsonResponse({ success: true });
         
       case 'saveCarouselEvents':
-        saveSettingRecord('CAROUSEL_EVENTS', typeof payload.carouselEvents === 'string' ? payload.carouselEvents : JSON.stringify(payload.carouselEvents));
-        return jsonResponse({ success: true });
+        return saveCarouselEvents(payload.carouselEvents);
 
       case 'saveCarouselVideos':
         saveSettingRecord('CAROUSEL_VIDEOS', typeof payload.carouselVideos === 'string' ? payload.carouselVideos : JSON.stringify(payload.carouselVideos));
@@ -719,6 +718,31 @@ function saveHeroImages(payloadData) {
 
     saveSettingRecord('HERO_IMAGE_URL', JSON.stringify(updatedImages));
     return jsonResponse({ success: true, updatedUrls: updatedImages });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
+}
+
+function saveCarouselEvents(payloadEvents) {
+  try {
+    let events = typeof payloadEvents === 'string' ? JSON.parse(payloadEvents) : payloadEvents;
+    if (!Array.isArray(events)) events = [];
+
+    let targetFolderId = getOrCreateNestedFolder("Acara_Images");
+    for (let i = 0; i < events.length; i++) {
+      let evt = events[i];
+      if (evt && evt.imageUrl && typeof evt.imageUrl === 'string' && !evt.imageUrl.startsWith('http') && (evt.imageUrl.startsWith('data:image') || evt.imageUrl.length > 500)) {
+        let hash = getMd5Hash(evt.imageUrl);
+        let safeTitle = evt.title ? evt.title.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30) : "Acara";
+        let fileName = "Acara_" + safeTitle + "_" + hash + ".jpg";
+        let uploadedUrl = uploadFileToDrive(evt.imageUrl, fileName, targetFolderId);
+        if (uploadedUrl) {
+          evt.imageUrl = uploadedUrl;
+        }
+      }
+    }
+    saveSettingRecord('CAROUSEL_EVENTS', JSON.stringify(events));
+    return jsonResponse({ success: true, updatedEvents: events });
   } catch (e) {
     return jsonResponse({ success: false, message: e.toString() });
   }

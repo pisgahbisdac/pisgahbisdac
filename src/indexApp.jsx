@@ -80,38 +80,46 @@ const decodeHTML = (html) => {
     return txt.value;
 };
 
+const getGoogleDriveFileId = (url) => {
+    if (!url || typeof url !== 'string') return null;
+    const match = url.match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=[^&]+&)?id=|thumbnail\?id=)|docs\.google\.com\/(?:presentation|document|spreadsheets)\/d\/|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]{20,})/);
+    return match ? match[1] : null;
+};
+
+const handleImageErrorFallback = (e, originalUrl) => {
+    const driveId = getGoogleDriveFileId(originalUrl || (e.target && e.target.src));
+    if (driveId && e.target) {
+        if (e.target.src.includes('lh3.googleusercontent.com')) {
+            e.target.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`;
+            return;
+        }
+        if (e.target.src.includes('drive.google.com/thumbnail')) {
+            e.target.src = `https://lh3.googleusercontent.com/d/${driveId}`;
+            return;
+        }
+    }
+};
+
 const formatImageUrl = (url) => {
     if (!url) return '';
-    if (url.includes('drive.google.com/open?id=')) {
-        const id = url.split('id=')[1];
-        return `https://drive.google.com/thumbnail?id=${id}&sz=w2000`; // Naikkan dari w1200 ke w2000 untuk kualitas lebih baik
-    }
-    if (url.includes('drive.google.com/file/d/')) {
-        const id = url.split('/d/')[1].split('/')[0];
-        return `https://drive.google.com/thumbnail?id=${id}&sz=w2000`; // Naikkan dari w1200 ke w2000 untuk kualitas lebih baik
-    }
-    if (url.includes('docs.google.com/presentation/d/') || url.includes('docs.google.com/document/d/') || url.includes('docs.google.com/spreadsheets/d/')) {
-        const id = url.split('/d/')[1].split('/')[0];
-        return `https://drive.google.com/thumbnail?id=${id}&sz=w2000`;
-    }
-    if (url.includes('drive.google.com/uc?')) {
-        const ucMatch = url.match(/[?&]id=([^&]+)/);
-        const fileMatch = url.match(/\/d\/([^/]+)/);
-        let id = '';
-        if (ucMatch && ucMatch[1]) id = ucMatch[1];
-        else if (fileMatch && fileMatch[1]) id = fileMatch[1];
+    const trimmed = typeof url === 'string' ? url.trim() : '';
+    if (!trimmed) return '';
 
-        if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w2000`; // Naikkan dari w1200 ke w2000 untuk kualitas lebih baik
+    const driveId = getGoogleDriveFileId(trimmed);
+    if (driveId) {
+        return `https://lh3.googleusercontent.com/d/${driveId}=w1200`;
     }
+
     // Mengembalikan string Base64 murni jika kehilangan awalan data:image/ saat dikirim
-    if (!url.startsWith('http') && !url.startsWith('data:image') && url.length > 500) {
-        if (url.startsWith('UklG')) return `data:image/webp;base64,${url}`;
-        if (url.startsWith('iVBORw')) return `data:image/png;base64,${url}`;
-        if (url.startsWith('/9j/')) return `data:image/jpeg;base64,${url}`;
-        return `data:image/jpeg;base64,${url}`; // Fallback default
+    if (!trimmed.startsWith('http') && !trimmed.startsWith('data:image') && trimmed.length > 500) {
+        if (trimmed.startsWith('UklG')) return `data:image/webp;base64,${trimmed}`;
+        if (trimmed.startsWith('iVBORw')) return `data:image/png;base64,${trimmed}`;
+        if (trimmed.startsWith('/9j/')) return `data:image/jpeg;base64,${trimmed}`;
+        return `data:image/jpeg;base64,${trimmed}`; // Fallback default
     }
-    return url;
+    return trimmed;
 };
+
 
 const getCoverFallback = (b) => {
     if (b.cover && b.cover.trim() !== '') {
@@ -283,13 +291,13 @@ const initialDataPejabat = [
 // --- ICONS (SVG MAPPING) ---
 const Icon = ({ name, className }) => {
     const icons = {
-        Cross: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 2v6H5v4h6v10h2V12h6V8h-6V2z"/></svg>,
-        Backspace: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>,
-        Grid: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>,
+        Cross: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 2v6H5v4h6v10h2V12h6V8h-6V2z" /></svg>,
+        Backspace: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" /><line x1="18" y1="9" x2="12" y2="15" /><line x1="12" y1="9" x2="18" y2="15" /></svg>,
+        Grid: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></svg>,
         Sun: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg>,
         Moon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>,
         Home: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>,
-        ClipboardCheck: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>,
+        ClipboardCheck: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="m9 14 2 2 4-4" /></svg>,
         Church: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m18 7 4 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9l4-2" /><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4" /><path d="M18 22V5l-6-3-6 3v17" /><path d="M12 7v5" /><path d="M10 9h4" /></svg>,
         BarChart: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 3v18h18" /><path d="M18 17V9" /><path d="M13 17V5" /><path d="M8 17v-3" /></svg>,
         BookOpen: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>,
@@ -344,7 +352,7 @@ const Icon = ({ name, className }) => {
         MapPin: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>,
         Map: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" /><line x1="9" x2="9" y1="3" y2="18" /><line x1="15" x2="15" y1="6" y2="21" /></svg>,
         Navigation: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="3 11 22 2 13 21 11 13 3 11" /></svg>,
-        Package: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        Package: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="16.5" y1="9.4" x2="7.5" y2="4.21" /><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
     };
     return icons[name] || null;
 };
@@ -401,7 +409,13 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                     <div className="relative w-full rounded-[1.5rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-900 shadow-xl aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group">
                         {eventsToDisplay[currentEventIdx]?.imageUrl ? (
                             <>
-                                <img src={eventsToDisplay[currentEventIdx].imageUrl} alt="Event Background" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <img
+                                    src={formatImageUrl(eventsToDisplay[currentEventIdx].imageUrl)}
+                                    alt="Event Background"
+                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                    referrerPolicy="no-referrer"
+                                    onError={(e) => handleImageErrorFallback(e, eventsToDisplay[currentEventIdx].imageUrl)}
+                                />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
                             </>
                         ) : (
@@ -435,18 +449,18 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
             {/* White Pill Schedule */}
             <div className="mt-4 bg-white dark:bg-navy-800 rounded-2xl md:rounded-full p-3 sm:p-4 shadow-sm border border-gray-200 dark:border-navy-700 flex items-center justify-between">
                 <button onClick={handlePrev} className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center shrink-0 transition-colors shadow-md ${!canGoPrev ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#3A5836] dark:hover:bg-navy-800'}`} disabled={!canGoPrev}><Icon name="ChevronLeft" className="w-4 h-4 sm:w-5 sm:h-5" /></button>
-                
+
                 <div className="flex-1 text-center px-2 sm:px-4 min-w-0">
                     <h4 className="text-sm sm:text-base font-extrabold text-[#2C3F21] dark:text-white truncate">{selectedDate ? formatIndoDate(selectedDate) : '-'}</h4>
                     <p className="text-[9px] sm:text-[10px] md:text-xs font-bold text-[#596B4D] dark:text-navy-400 uppercase tracking-widest truncate">{title}</p>
                 </div>
-                
+
                 <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     <button onClick={handleNext} className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center transition-colors shadow-md mr-0 sm:mr-3 ${!canGoNext ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#3A5836] dark:hover:bg-navy-800'}`} disabled={!canGoNext}><Icon name="ChevronRight" className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                     <div className="relative inline-flex">
-                        <input 
+                        <input
                             ref={dateInputRef}
-                            type="date" 
+                            type="date"
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                             value={selectedDate || ''}
                             onChange={(e) => {
@@ -454,7 +468,7 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                             }}
                             title="Pilih Tanggal Jadwal"
                         />
-                        <button onClick={() => { if(dateInputRef.current && typeof dateInputRef.current.showPicker === 'function') dateInputRef.current.showPicker(); }} className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-2xl bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center hover:bg-[#3A5836] dark:hover:bg-navy-800 transition-colors shadow-lg relative z-20"><Icon name="Calendar" className="w-5 h-5 sm:w-6 sm:h-6 pointer-events-none" /></button>
+                        <button onClick={() => { if (dateInputRef.current && typeof dateInputRef.current.showPicker === 'function') dateInputRef.current.showPicker(); }} className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-2xl bg-[#2C3F21] dark:bg-navy-900 text-[#D19B45] dark:text-gold-400 flex items-center justify-center hover:bg-[#3A5836] dark:hover:bg-navy-800 transition-colors shadow-lg relative z-20"><Icon name="Calendar" className="w-5 h-5 sm:w-6 sm:h-6 pointer-events-none" /></button>
                     </div>
                 </div>
             </div>
@@ -468,7 +482,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     const videoCarouselRef = React.useRef(null);
     const [isVideoHovered, setIsVideoHovered] = React.useState(false);
     const [currentVideoIdx, setCurrentVideoIdx] = React.useState(0);
-    
+
     const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
     const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
 
@@ -598,7 +612,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     const renderFeatureItem = (item) => {
         const isTapped = tappedMenu === item.id;
         const textWrapperClass = `w-full transition-all duration-300 overflow-hidden flex justify-center ${isTapped ? 'max-h-[30px] opacity-100 mt-1.5' : 'max-h-0 opacity-0 md:max-h-[30px] md:opacity-100 md:mt-1.5'}`;
-        
+
         const content = (
             <>
                 <div className="w-11 h-11 md:w-14 md:h-14 rounded-[1rem] bg-white dark:bg-navy-700 group-hover:bg-[#4A7045] dark:group-hover:bg-gold-500 flex items-center justify-center transition-colors duration-300 shadow-sm border border-[#E2E8D8] dark:border-navy-600 group-hover:border-[#4A7045] dark:group-hover:border-gold-500">
@@ -642,7 +656,21 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                             style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                         >
                             {displayImages.map((img, idx) => (
-                                <img key={idx} src={img} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=2000&auto=format&fit=crop"; }} alt={`Hero ${idx}`} className="w-full h-full object-fill flex-shrink-0" />
+                                <img
+                                    key={idx}
+                                    src={formatImageUrl(img)}
+                                    referrerPolicy="no-referrer"
+                                    onError={(e) => {
+                                        const driveId = getGoogleDriveFileId(img);
+                                        if (driveId && e.target && e.target.src.includes('lh3.googleusercontent.com')) {
+                                            e.target.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`;
+                                        } else {
+                                            e.target.src = "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=2000&auto=format&fit=crop";
+                                        }
+                                    }}
+                                    alt={`Hero ${idx}`}
+                                    className="w-full h-full object-fill flex-shrink-0"
+                                />
                             ))}
                         </div>
                         {/* Dark overlay for center text readability */}
@@ -677,7 +705,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                     {/* OVERLAPPING QUICK ACTIONS PILL WITH SMOOTH TAB */}
                     <div className="relative z-30 -mt-6 md:-mt-10 lg:-mt-16 mx-auto w-[95%] md:w-[96%] lg:w-full lg:max-w-[1100px] flex flex-col items-center">
-                        
+
                         {/* The Floating Button */}
                         <div className="absolute -top-[1.25rem] md:-top-[1.5rem] left-1/2 -translate-x-1/2 z-40">
                             <button onClick={() => setActiveTab('susunan_ibadah')} className="bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-900 text-sm md:text-base font-bold py-2 md:py-3.5 px-8 md:px-12 rounded-full transition-colors flex items-center transform hover:-translate-y-0.5 duration-300 w-max shadow-lg">
@@ -697,53 +725,53 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                     // Cek tanggal mana yang lebih dekat (lebih awal)
                     const isPerjamuanEarlier = new Date(perjamuanYMD) <= new Date(perpuluhanYMD);
                     return (
-                    <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
-                        <div className="flex flex-col gap-4 w-full">
-                            {showPerjamuan && (
-                                <div className={`bg-gradient-to-br from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-5 md:p-6 rounded-[1.5rem] shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in border border-[#C18B35] dark:border-gold-400 ${!isPerjamuanEarlier ? 'order-2' : 'order-1'}`}>
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 dark:bg-navy-900/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 dark:bg-navy-900/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-                                    <div className="relative z-10 text-center sm:text-left text-white dark:text-navy-900">
-                                        <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5"><Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perjamuan</h3>
-                                        <p className="text-2xl md:text-3xl font-extrabold opacity-95 tracking-tight">{formatIndoDate(perjamuanYMD)}</p>
-                                        {perjamuanNote && <p className="text-sm font-medium mt-2 opacity-90 whitespace-pre-wrap leading-tight">{perjamuanNote}</p>}
+                        <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
+                            <div className="flex flex-col gap-4 w-full">
+                                {showPerjamuan && (
+                                    <div className={`bg-gradient-to-br from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-5 md:p-6 rounded-[1.5rem] shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in border border-[#C18B35] dark:border-gold-400 ${!isPerjamuanEarlier ? 'order-2' : 'order-1'}`}>
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 dark:bg-navy-900/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 dark:bg-navy-900/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                                        <div className="relative z-10 text-center sm:text-left text-white dark:text-navy-900">
+                                            <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5"><Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perjamuan</h3>
+                                            <p className="text-2xl md:text-3xl font-extrabold opacity-95 tracking-tight">{formatIndoDate(perjamuanYMD)}</p>
+                                            {perjamuanNote && <p className="text-sm font-medium mt-2 opacity-90 whitespace-pre-wrap leading-tight">{perjamuanNote}</p>}
+                                        </div>
+                                        <button onClick={() => setActiveTab('jadwal')} className="relative z-10 bg-[#4A7045] hover:bg-[#3A5836] dark:bg-navy-900 dark:hover:bg-navy-800 text-white dark:text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">Lihat Petugas</button>
                                     </div>
-                                    <button onClick={() => setActiveTab('jadwal')} className="relative z-10 bg-[#4A7045] hover:bg-[#3A5836] dark:bg-navy-900 dark:hover:bg-navy-800 text-white dark:text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">Lihat Petugas</button>
-                                </div>
-                            )}
+                                )}
 
-                            {showPerpuluhan && (
-                                <div className={`bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-navy-900 dark:to-navy-800 p-5 md:p-6 rounded-[1.5rem] shadow-lg border border-[#3A5836] dark:border-navy-700/50 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in ${isPerjamuanEarlier ? 'order-2' : 'order-1'}`}>
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-gold-400/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 dark:bg-gold-400/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-                                    <div className="relative z-10 text-center sm:text-left">
-                                        <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5 text-[#D19B45] dark:text-gold-400">
-                                            <Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perpuluhan
-                                        </h3>
-                                        <p className="text-2xl md:text-3xl text-white dark:text-navy-200 font-extrabold tracking-tight">{formatIndoDate(perpuluhanYMD)}</p>
-                                        {perpuluhanNote && <p className="text-sm font-medium mt-2 opacity-90 text-white/90 dark:text-navy-300 whitespace-pre-wrap leading-tight">{perpuluhanNote}</p>}
+                                {showPerpuluhan && (
+                                    <div className={`bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-navy-900 dark:to-navy-800 p-5 md:p-6 rounded-[1.5rem] shadow-lg border border-[#3A5836] dark:border-navy-700/50 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in ${isPerjamuanEarlier ? 'order-2' : 'order-1'}`}>
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-gold-400/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 dark:bg-gold-400/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                                        <div className="relative z-10 text-center sm:text-left">
+                                            <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5 text-[#D19B45] dark:text-gold-400">
+                                                <Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perpuluhan
+                                            </h3>
+                                            <p className="text-2xl md:text-3xl text-white dark:text-navy-200 font-extrabold tracking-tight">{formatIndoDate(perpuluhanYMD)}</p>
+                                            {perpuluhanNote && <p className="text-sm font-medium mt-2 opacity-90 text-white/90 dark:text-navy-300 whitespace-pre-wrap leading-tight">{perpuluhanNote}</p>}
+                                        </div>
+                                        <button onClick={() => setActiveTab('persembahan')} className="relative z-10 bg-[#D19B45] hover:bg-[#C18B35] dark:bg-gold-400 dark:hover:bg-gold-300 text-white dark:text-navy-900 px-6 py-3 rounded-xl text-sm font-black shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">
+                                            Transfer Perpuluhan
+                                        </button>
                                     </div>
-                                    <button onClick={() => setActiveTab('persembahan')} className="relative z-10 bg-[#D19B45] hover:bg-[#C18B35] dark:bg-gold-400 dark:hover:bg-gold-300 text-white dark:text-navy-900 px-6 py-3 rounded-xl text-sm font-black shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">
-                                        Transfer Perpuluhan
-                                    </button>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
-                    </div>
                     );
                 })()}
 
                 {/* ACARA TERDEKAT, PENGUMUMAN & VISI MISI */}
                 <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-16 md:mt-24 mb-28 relative z-20">
                     <div className={`grid grid-cols-1 ${eventsToDisplay.length > 0 && !isPengumumanReallyEmpty() ? 'lg:grid-cols-3' : (eventsToDisplay.length > 0 || !isPengumumanReallyEmpty() ? 'lg:grid-cols-2' : 'lg:grid-cols-1')} gap-8 lg:gap-8 relative z-10 items-stretch`}>
-                        
+
                         {/* ACARA TERDEKAT */}
                         {eventsToDisplay.length > 0 && (
                             <div className="flex flex-col group w-full relative">
                                 <div className="text-center mb-6 hidden lg:block"><h3 className="text-[10px] md:text-xs font-black text-transparent uppercase tracking-[0.2em] mb-1 opacity-0 pointer-events-none">Spacer</h3><h2 className="text-2xl md:text-3xl font-extrabold text-transparent opacity-0 pointer-events-none">Spacer</h2></div>
                                 <div className="relative z-10 glass-box p-4 rounded-[2.5rem] transition-all duration-500 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] flex-1 flex flex-col min-h-[420px]">
                                     <div className="rounded-[2rem] bg-white/50 dark:bg-navy-900/50 p-6 xl:p-8 flex-1 flex flex-col items-center relative border border-white/60 dark:border-navy-600/50 shadow-inner w-full">
-                                        
+
                                         <div className="text-center mb-6 w-full">
                                             <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-1">Jangan Lewatkan</h3>
                                             <h2 className="text-2xl md:text-3xl font-extrabold text-[#2C3F21] dark:text-white transition-colors">Acara Terdekat</h2>
@@ -752,7 +780,13 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                         <div className="relative w-full rounded-[1.5rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-900 shadow-xl flex-1 flex flex-col justify-end p-6 text-white group text-left min-h-[250px]">
                                             {eventsToDisplay[currentEventIdx]?.imageUrl ? (
                                                 <>
-                                                    <img src={eventsToDisplay[currentEventIdx].imageUrl} alt="Event Background" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                                    <img
+                                                        src={formatImageUrl(eventsToDisplay[currentEventIdx].imageUrl)}
+                                                        alt="Event Background"
+                                                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                        referrerPolicy="no-referrer"
+                                                        onError={(e) => handleImageErrorFallback(e, eventsToDisplay[currentEventIdx].imageUrl)}
+                                                    />
                                                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20"></div>
                                                 </>
                                             ) : (
@@ -798,7 +832,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                 </div>
                             </div>
                         )}
-                        
+
                         {/* VISI MISI */}
                         <div className="flex flex-col w-full relative">
                             <div className="text-center mb-6 hidden lg:block"><h3 className="text-[10px] md:text-xs font-black text-transparent uppercase tracking-[0.2em] mb-1 opacity-0 pointer-events-none">Spacer</h3><h2 className="text-2xl md:text-3xl font-extrabold text-transparent opacity-0 pointer-events-none">Spacer</h2></div>
@@ -931,7 +965,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                         {/* Video Carousel */}
                         {carouselVideos && carouselVideos.length > 0 && (
-                            <div 
+                            <div
                                 className="mb-12 relative group w-full"
                                 onMouseEnter={() => setIsVideoHovered(true)}
                                 onMouseLeave={() => setIsVideoHovered(false)}
@@ -941,21 +975,20 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                 <h2 className="text-2xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-8 transition-colors px-2 flex items-center">
                                     <Icon name="Video" className="w-6 h-6 md:w-8 md:h-8 mr-3 text-[#D19B45] dark:text-gold-500" /> Galeri Video
                                 </h2>
-                                <div 
-                                    ref={videoCarouselRef} 
+                                <div
+                                    ref={videoCarouselRef}
                                     onScroll={handleVideoScroll}
                                     className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 w-full no-scrollbar md:custom-scrollbar scroll-smooth"
                                 >
                                     {carouselVideos.map((video, idx) => (
-                                        <div 
-                                            key={idx} 
-                                            className={`snap-start snap-always shrink-0 ${
-                                                carouselVideos.length <= 1 
-                                                    ? 'w-full' 
-                                                    : carouselVideos.length === 2 
-                                                    ? 'w-full md:w-[calc(50%-12px)]' 
+                                        <div
+                                            key={idx}
+                                            className={`snap-start snap-always shrink-0 ${carouselVideos.length <= 1
+                                                ? 'w-full'
+                                                : carouselVideos.length === 2
+                                                    ? 'w-full md:w-[calc(50%-12px)]'
                                                     : 'w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]'
-                                            } glass-box rounded-[2rem] p-4 md:p-6 transition-all duration-300 flex flex-col`}
+                                                } glass-box rounded-[2rem] p-4 md:p-6 transition-all duration-300 flex flex-col`}
                                         >
                                             <h3 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors truncate">
                                                 <Icon name="Youtube" className="w-5 h-5 mr-3 shrink-0 text-[#D19B45] dark:text-gold-500" />{video.title}
@@ -969,8 +1002,8 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                 {/* Navigation Buttons & Dots Indicator */}
                                 {carouselVideos.length > 1 && (
                                     <div className="flex justify-center items-center gap-4 mt-6">
-                                        <button 
-                                            onClick={() => scrollVideoCarousel('left')} 
+                                        <button
+                                            onClick={() => scrollVideoCarousel('left')}
                                             className="w-11 h-11 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border-2 border-[#E9EEDF] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-all shadow-sm hover:scale-105 active:scale-95 focus:outline-none cursor-pointer"
                                             aria-label="Video Sebelumnya"
                                         >
@@ -982,18 +1015,17 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                                 <button
                                                     key={idx}
                                                     onClick={() => scrollToVideoIdx(idx)}
-                                                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                                                        idx === currentVideoIdx
-                                                            ? 'w-7 bg-[#D19B45] dark:bg-gold-500 shadow-sm'
-                                                            : 'w-2.5 bg-gray-300 dark:bg-navy-700 hover:bg-gray-400 dark:hover:bg-navy-600'
-                                                    }`}
+                                                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${idx === currentVideoIdx
+                                                        ? 'w-7 bg-[#D19B45] dark:bg-gold-500 shadow-sm'
+                                                        : 'w-2.5 bg-gray-300 dark:bg-navy-700 hover:bg-gray-400 dark:hover:bg-navy-600'
+                                                        }`}
                                                     aria-label={`Ke video ${idx + 1}`}
                                                 />
                                             ))}
                                         </div>
 
-                                        <button 
-                                            onClick={() => scrollVideoCarousel('right')} 
+                                        <button
+                                            onClick={() => scrollVideoCarousel('right')}
                                             className="w-11 h-11 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border-2 border-[#E9EEDF] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-all shadow-sm hover:scale-105 active:scale-95 focus:outline-none cursor-pointer"
                                             aria-label="Video Selanjutnya"
                                         >
@@ -1709,151 +1741,151 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
     };
 
     return (
-    <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
-        <AcaraTerdekat allDates={allDates} selectedDate={selectedDate} handlePrev={handlePrev} handleNext={handleNext} canGoPrev={canGoPrev} canGoNext={canGoNext} title={title} setActiveTab={setActiveTab} carouselEvents={carouselEvents} handleDateSelect={(d) => setJadwalSelectedDate(d)} />
-        
-        {/* Tombol GDrive Jadwal Lengkap */}
-        <div className="bg-white dark:bg-navy-800/70 p-5 md:p-6 rounded-[1.25rem] shadow-sm border border-navy-100/60 dark:border-navy-700 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-                <h3 className="font-bold text-navy-900 dark:text-white text-[1.15rem]">Jadwal Lengkap</h3>
-                <p className="text-sm text-navy-500 dark:text-gray-400 mt-1">Lihat dan unduh file PDF jadwal pelayanan bulanan / triwulan di Google Drive.</p>
-            </div>
-            <a href="./document/TW2-2026-R1.pdf" target="_blank" rel="noopener noreferrer" className="bg-navy-900 dark:bg-gold-500 hover:bg-navy-800 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-900 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center shrink-0 w-full sm:w-auto justify-center">
-                <Icon name="Drive" className="w-[1.15rem] h-[1.15rem] mr-2 text-current" /> Buka Google Drive
-            </a>
-        </div>
+        <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
+            <AcaraTerdekat allDates={allDates} selectedDate={selectedDate} handlePrev={handlePrev} handleNext={handleNext} canGoPrev={canGoPrev} canGoNext={canGoNext} title={title} setActiveTab={setActiveTab} carouselEvents={carouselEvents} handleDateSelect={(d) => setJadwalSelectedDate(d)} />
 
-        {/* Banner Spesial Perjamuan Kudus */}
-        {showPerjamuan && (
-            <div className="bg-gradient-to-br from-amber-50 via-white to-yellow-50 dark:from-navy-900 dark:via-navy-800 dark:to-navy-900 p-5 md:p-6 rounded-[1.25rem] shadow-sm dark:shadow-md border border-amber-200 dark:border-gold-800 relative overflow-hidden animate-fade-in">
-                {/* Background pattern halus */}
-                <div className="absolute inset-0 opacity-30 dark:opacity-10 bg-[radial-gradient(#fbbf24_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
-                {/* Badge */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-navy-900 dark:bg-gold-500 text-gold-500 dark:text-navy-900 text-[10px] font-bold px-4 py-1.5 rounded-b-xl uppercase tracking-widest shadow-sm">
-                    Jadwal Spesial
-                </div><br />
-                <div 
-                    className={`flex items-center space-x-3 cursor-pointer group relative z-10 transition-colors ${isPerjamuanExpanded ? 'mb-5 border-b border-amber-200 dark:border-gold-800/50 pb-3' : ''}`}
-                    onClick={() => setIsPerjamuanExpanded(!isPerjamuanExpanded)}
-                >
-                    <div className="w-10 h-10 bg-amber-100 dark:bg-gold-900/40 rounded-full flex items-center justify-center text-amber-600 dark:text-gold-400 group-hover:scale-110 transition-transform">
-                        <Icon name="Gift" className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1">
-                        <h2 className="text-xl font-black text-navy-900 dark:text-white leading-tight group-hover:text-amber-700 dark:group-hover:text-gold-300 transition-colors">Pelayanan Perjamuan Kudus</h2>
-                        <p className="text-sm font-bold text-navy-700 dark:text-amber-200/90 mt-0.5">{formatIndoDate(perjamuanYMD)}</p>
-                        {perjamuanNote && <p className="text-xs font-medium text-navy-600 dark:text-amber-100/80 mt-1 whitespace-pre-wrap">{perjamuanNote}</p>}
-                    </div>
-                    <div className="text-amber-600 dark:text-gold-400 p-2 rounded-full bg-amber-100/50 dark:bg-gold-900/30 group-hover:bg-amber-200 dark:group-hover:bg-gold-800/50 transition-colors">
-                        <Icon name={isPerjamuanExpanded ? "ChevronUp" : "ChevronDown"} className="w-5 h-5" />
-                    </div>
+            {/* Tombol GDrive Jadwal Lengkap */}
+            <div className="bg-white dark:bg-navy-800/70 p-5 md:p-6 rounded-[1.25rem] shadow-sm border border-navy-100/60 dark:border-navy-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h3 className="font-bold text-navy-900 dark:text-white text-[1.15rem]">Jadwal Lengkap</h3>
+                    <p className="text-sm text-navy-500 dark:text-gray-400 mt-1">Lihat dan unduh file PDF jadwal pelayanan bulanan / triwulan di Google Drive.</p>
                 </div>
-                
-                {isPerjamuanExpanded && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10 animate-fade-in">
-                        {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 3))}
-                        {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(3, 7))}
-                        {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(7, 11))}
-                        {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(11, 16))}
-                    </div>
-                )}
+                <a href="./document/TW2-2026-R1.pdf" target="_blank" rel="noopener noreferrer" className="bg-navy-900 dark:bg-gold-500 hover:bg-navy-800 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-900 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center shrink-0 w-full sm:w-auto justify-center">
+                    <Icon name="Drive" className="w-[1.15rem] h-[1.15rem] mr-2 text-current" /> Buka Google Drive
+                </a>
             </div>
-        )}
 
-        <div className="flex flex-col gap-6 md:gap-8">
-            <div className="bg-white dark:bg-navy-800/70 p-5 md:p-7 rounded-[1.5rem] shadow-sm border-t-[6px] border-navy-800 dark:border-gold-600 border-x border-b border-navy-100/60 dark:border-navy-700 relative overflow-hidden group">
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-5 border-b pb-4 border-navy-50 dark:border-navy-700">
-                    <div className="flex items-center space-x-3">
-                        <Icon name="Calendar" className="w-[1.4rem] h-[1.4rem] text-gold-500" />
-                        <div>
-                            <h2 className="text-lg font-bold text-navy-900 dark:text-white tracking-tight">{activeJadwal.title}</h2>
-                            <p className="text-sm font-semibold text-navy-400 dark:text-gray-400 mt-0.5">{formatIndoDate(selectedDate)}</p>
+            {/* Banner Spesial Perjamuan Kudus */}
+            {showPerjamuan && (
+                <div className="bg-gradient-to-br from-amber-50 via-white to-yellow-50 dark:from-navy-900 dark:via-navy-800 dark:to-navy-900 p-5 md:p-6 rounded-[1.25rem] shadow-sm dark:shadow-md border border-amber-200 dark:border-gold-800 relative overflow-hidden animate-fade-in">
+                    {/* Background pattern halus */}
+                    <div className="absolute inset-0 opacity-30 dark:opacity-10 bg-[radial-gradient(#fbbf24_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
+                    {/* Badge */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-navy-900 dark:bg-gold-500 text-gold-500 dark:text-navy-900 text-[10px] font-bold px-4 py-1.5 rounded-b-xl uppercase tracking-widest shadow-sm">
+                        Jadwal Spesial
+                    </div><br />
+                    <div
+                        className={`flex items-center space-x-3 cursor-pointer group relative z-10 transition-colors ${isPerjamuanExpanded ? 'mb-5 border-b border-amber-200 dark:border-gold-800/50 pb-3' : ''}`}
+                        onClick={() => setIsPerjamuanExpanded(!isPerjamuanExpanded)}
+                    >
+                        <div className="w-10 h-10 bg-amber-100 dark:bg-gold-900/40 rounded-full flex items-center justify-center text-amber-600 dark:text-gold-400 group-hover:scale-110 transition-transform">
+                            <Icon name="Gift" className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1">
+                            <h2 className="text-xl font-black text-navy-900 dark:text-white leading-tight group-hover:text-amber-700 dark:group-hover:text-gold-300 transition-colors">Pelayanan Perjamuan Kudus</h2>
+                            <p className="text-sm font-bold text-navy-700 dark:text-amber-200/90 mt-0.5">{formatIndoDate(perjamuanYMD)}</p>
+                            {perjamuanNote && <p className="text-xs font-medium text-navy-600 dark:text-amber-100/80 mt-1 whitespace-pre-wrap">{perjamuanNote}</p>}
+                        </div>
+                        <div className="text-amber-600 dark:text-gold-400 p-2 rounded-full bg-amber-100/50 dark:bg-gold-900/30 group-hover:bg-amber-200 dark:group-hover:bg-gold-800/50 transition-colors">
+                            <Icon name={isPerjamuanExpanded ? "ChevronUp" : "ChevronDown"} className="w-5 h-5" />
                         </div>
                     </div>
-                    <div className="flex items-center gap-3 mt-3 md:mt-0">
-                        <button onClick={handleShare} className="flex items-center text-xs font-bold text-white bg-[#4A7045] dark:bg-gold-600 hover:bg-[#3A5836] dark:hover:bg-gold-700 px-4 py-2 rounded-full uppercase tracking-widest shadow-sm transition-colors">
-                            <Icon name="Share" className="w-4 h-4 mr-2" /> Bagikan
-                        </button>
-                        <span className="text-xs font-bold text-navy-800 dark:text-navy-200 bg-gold-50 dark:bg-navy-700 px-4 py-2 rounded-full border border-gold-200 dark:border-gold-800 uppercase tracking-widest shadow-sm">
-                            {isRabu ? activeJadwal.time : `Waktu: ${activeJadwal.time}`}
-                        </span>
-                    </div>
+
+                    {isPerjamuanExpanded && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10 animate-fade-in">
+                            {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 3))}
+                            {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(3, 7))}
+                            {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(7, 11))}
+                            {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(11, 16))}
+                        </div>
+                    )}
                 </div>
+            )}
 
-                {isRabu ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
-                        {activeJadwal.petugas.map((p, idx) => (
-                            <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
+            <div className="flex flex-col gap-6 md:gap-8">
+                <div className="bg-white dark:bg-navy-800/70 p-5 md:p-7 rounded-[1.5rem] shadow-sm border-t-[6px] border-navy-800 dark:border-gold-600 border-x border-b border-navy-100/60 dark:border-navy-700 relative overflow-hidden group">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-5 border-b pb-4 border-navy-50 dark:border-navy-700">
+                        <div className="flex items-center space-x-3">
+                            <Icon name="Calendar" className="w-[1.4rem] h-[1.4rem] text-gold-500" />
+                            <div>
+                                <h2 className="text-lg font-bold text-navy-900 dark:text-white tracking-tight">{activeJadwal.title}</h2>
+                                <p className="text-sm font-semibold text-navy-400 dark:text-gray-400 mt-0.5">{formatIndoDate(selectedDate)}</p>
                             </div>
-                        ))}
+                        </div>
+                        <div className="flex items-center gap-3 mt-3 md:mt-0">
+                            <button onClick={handleShare} className="flex items-center text-xs font-bold text-white bg-[#4A7045] dark:bg-gold-600 hover:bg-[#3A5836] dark:hover:bg-gold-700 px-4 py-2 rounded-full uppercase tracking-widest shadow-sm transition-colors">
+                                <Icon name="Share" className="w-4 h-4 mr-2" /> Bagikan
+                            </button>
+                            <span className="text-xs font-bold text-navy-800 dark:text-navy-200 bg-gold-50 dark:bg-navy-700 px-4 py-2 rounded-full border border-gold-200 dark:border-gold-800 uppercase tracking-widest shadow-sm">
+                                {isRabu ? activeJadwal.time : `Waktu: ${activeJadwal.time}`}
+                            </span>
+                        </div>
                     </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
-                        <div className="space-y-6">
-                            <div>
-                                <div className="flex justify-between items-end mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
-                                    <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Khotbah / Umum</h3>
-                                    <span className="text-[11px] text-navy-600 dark:text-gray-400 font-bold bg-white dark:bg-navy-800 px-2 py-0.5 rounded-full border border-navy-100 dark:border-navy-600">{activeJadwal.khotbahTime}</span>
+
+                    {isRabu ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
+                            {activeJadwal.petugas.map((p, idx) => (
+                                <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
+                                    <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
                                 </div>
-                                <div className="flex flex-col">
-                                    {activeJadwal.khotbah.map((p, idx) => (
-                                        <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                            <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                            <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                                        </div>
-                                    ))}
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
+                            <div className="space-y-6">
+                                <div>
+                                    <div className="flex justify-between items-end mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
+                                        <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Khotbah / Umum</h3>
+                                        <span className="text-[11px] text-navy-600 dark:text-gray-400 font-bold bg-white dark:bg-navy-800 px-2 py-0.5 rounded-full border border-navy-100 dark:border-navy-600">{activeJadwal.khotbahTime}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        {activeJadwal.khotbah.map((p, idx) => (
+                                            <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
+                                                <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                                <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
+                                        <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Diakon & Diakones</h3>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        {activeJadwal.diakon.map((p, idx) => (
+                                            <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
+                                                <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                                <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <div className="mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
-                                    <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Diakon & Diakones</h3>
+                            <div className="space-y-6">
+                                <div>
+                                    <div className="flex justify-between items-end mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
+                                        <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Sekolah Sabat</h3>
+                                        <span className="text-[11px] text-navy-600 dark:text-gray-400 font-bold bg-white dark:bg-navy-800 px-2 py-0.5 rounded-full border border-navy-100 dark:border-navy-600">{activeJadwal.sekolahSabatTime}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        {activeJadwal.sekolahSabat.map((p, idx) => (
+                                            <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
+                                                <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                                <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                                <div className="flex flex-col">
-                                    {activeJadwal.diakon.map((p, idx) => (
-                                        <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                            <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                            <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                                        </div>
-                                    ))}
+                                <div>
+                                    <div className="mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
+                                        <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Pelayanan Musik</h3>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        {activeJadwal.musik.map((p, idx) => (
+                                            <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
+                                                <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                                                <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="space-y-6">
-                            <div>
-                                <div className="flex justify-between items-end mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
-                                    <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Sekolah Sabat</h3>
-                                    <span className="text-[11px] text-navy-600 dark:text-gray-400 font-bold bg-white dark:bg-navy-800 px-2 py-0.5 rounded-full border border-navy-100 dark:border-navy-600">{activeJadwal.sekolahSabatTime}</span>
-                                </div>
-                                <div className="flex flex-col">
-                                    {activeJadwal.sekolahSabat.map((p, idx) => (
-                                        <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                            <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                            <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                            <div>
-                                <div className="mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
-                                    <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Pelayanan Musik</h3>
-                                </div>
-                                <div className="flex flex-col">
-                                    {activeJadwal.musik.map((p, idx) => (
-                                        <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                            <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                            <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
-    </div>
     );
 };
 
@@ -2353,7 +2385,7 @@ const FormACMS = ({ setActiveTab }) => {
         const element = document.getElementById('pdf-content');
         const filename = `ACMS_03_${formData.namaLengkap.replace(/\s+/g, '_')}.pdf`;
         const opt = { margin: [0, 0, 30, 0], filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-        
+
         try {
             const html2pdfModule = await import('html2pdf.js');
             const html2pdf = html2pdfModule.default;
@@ -2952,7 +2984,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const [editForm, setEditForm] = React.useState([]);
     const [isSavingJadwal, setIsSavingJadwal] = React.useState(false);
     const [isSavingPejabat, setIsSavingPejabat] = React.useState(false);
-    
+
     // ============ STATE CAROUSEL EVENTS ============
     const [editCarouselEvents, setEditCarouselEvents] = React.useState([]);
     const [isSavingCarouselEvents, setIsSavingCarouselEvents] = React.useState(false);
@@ -4483,14 +4515,43 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         e.preventDefault();
         setIsSavingCarouselEvents(true);
         try {
+            // Upload Base64 image via uploadImageToDrive jika ada, agar langsung menjadi URL Drive
+            const updatedList = [...editCarouselEvents];
+            for (let i = 0; i < updatedList.length; i++) {
+                const item = { ...updatedList[i] };
+                if (item.imageUrl && item.imageUrl.startsWith('data:image')) {
+                    try {
+                        const upRes = await fetch(GAS_API_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                action: 'uploadImageToDrive',
+                                password: adminToken,
+                                folderId: null,
+                                title: `Acara_${(item.title || 'event').replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`,
+                                imageBase64: item.imageUrl
+                            })
+                        });
+                        const upData = await upRes.json();
+                        if (upData.success && upData.url) {
+                            item.imageUrl = upData.url;
+                        }
+                    } catch (uploadErr) {
+                        console.warn("Gagal upload via uploadImageToDrive:", uploadErr);
+                    }
+                }
+                updatedList[i] = item;
+            }
+
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'saveCarouselEvents', password: adminToken, carouselEvents: editCarouselEvents })
+                body: JSON.stringify({ action: 'saveCarouselEvents', password: adminToken, carouselEvents: updatedList })
             });
             const result = await res.json();
             if (result.success) {
                 alert("Acara Terdekat berhasil diperbarui!");
-                setCarouselEvents(editCarouselEvents);
+                const finalEvents = result.updatedEvents || updatedList;
+                setCarouselEvents(finalEvents);
+                setEditCarouselEvents(finalEvents);
             } else {
                 alert("Gagal merubah Acara Terdekat: " + (result.message || "Akses ditolak."));
             }
@@ -4556,6 +4617,34 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 setEditHeroImages([...editHeroImages, dataUrl]);
             };
         };
+    };
+
+    const handleEventFileUpload = (e, index) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const MAX_WIDTH = 1200;
+                let width = img.width;
+                let height = img.height;
+                if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                const dataUrl = canvas.toDataURL('image/webp', 0.7);
+
+                const newArr = [...editCarouselEvents];
+                newArr[index] = { ...newArr[index], imageUrl: dataUrl };
+                setEditCarouselEvents(newArr);
+            };
+        };
+        e.target.value = '';
     };
 
     const handleFileChange = (e, id) => {
@@ -5508,11 +5597,11 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                             </div>
                                         </div>
                                     ))}
-                                    
+
                                     <button type="button" onClick={() => setEditCarouselVideos([...editCarouselVideos, { title: "", url: "" }])} className="w-full border-2 border-dashed border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
                                         <Icon name="PlusCircle" className="w-4 h-4 mr-2" /> Tambah Video
                                     </button>
-                                    
+
                                     <button type="submit" disabled={isSavingCarouselVideos} className={`w-full ${isSavingCarouselVideos ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
                                         {isSavingCarouselVideos ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Galeri Video'}
                                     </button>
@@ -5543,87 +5632,173 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                         {/* --- FORM Hero-Image --- */}
                         {pengaturanSubTab === 'carousel' && (
                             <>
-                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                    <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><Icon name="Image" className="w-6 h-6" /></div>
-                                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Hero Image Banner</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Gambar Carousel Homepage</p></div>
-                                </div>
-                                <div className="mb-5 grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {editHeroImages.map((img, idx) => (
-                                        <div key={idx} className="relative w-full overflow-hidden rounded-xl border border-navy-100 shadow-sm aspect-video">
-                                            <img src={img} alt={`Hero Preview ${idx + 1}`} className="w-full h-full object-fill bg-navy-50" />
-                                            <div className="absolute top-0 left-0 bg-black/60 text-white px-3 py-1 rounded-br-lg text-xs font-bold shadow-sm backdrop-blur-sm">
-                                                Slide {idx + 1} {img.startsWith('data:image') && <span className="text-gold-400 ml-1 font-black tracking-widest">(BARU)</span>}
+                                <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
+                                    <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                                        <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><Icon name="Image" className="w-6 h-6" /></div>
+                                        <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Hero Image Banner</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Gambar Carousel Homepage</p></div>
+                                    </div>
+                                    <div className="mb-5 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        {editHeroImages.map((img, idx) => (
+                                            <div key={idx} className="relative w-full overflow-hidden rounded-xl border border-navy-100 shadow-sm aspect-video">
+                                                <img src={img} alt={`Hero Preview ${idx + 1}`} className="w-full h-full object-fill bg-navy-50" />
+                                                <div className="absolute top-0 left-0 bg-black/60 text-white px-3 py-1 rounded-br-lg text-xs font-bold shadow-sm backdrop-blur-sm">
+                                                    Slide {idx + 1} {img.startsWith('data:image') && <span className="text-gold-400 ml-1 font-black tracking-widest">(BARU)</span>}
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveHeroImage(idx)}
+                                                    className="absolute top-2 right-2 bg-red-500/90 text-white p-2.5 rounded-full hover:bg-red-600 shadow-md transition-colors backdrop-blur-md"
+                                                    title="Hapus gambar ini"
+                                                >
+                                                    <Icon name="Trash" className="w-4 h-4" />
+                                                </button>
                                             </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleRemoveHeroImage(idx)}
-                                                className="absolute top-2 right-2 bg-red-500/90 text-white p-2.5 rounded-full hover:bg-red-600 shadow-md transition-colors backdrop-blur-md"
-                                                title="Hapus gambar ini"
-                                            >
-                                                <Icon name="Trash" className="w-4 h-4" />
+                                        ))}
+                                    </div>
+                                    <form onSubmit={handleSaveHeroImage} className="space-y-4">
+                                        <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+                                            <label className="flex-1 flex items-center justify-center bg-navy-50 border-2 border-dashed border-navy-200 rounded-xl py-3 px-4 cursor-pointer hover:border-gold-400 hover:bg-gold-50 transition-all group">
+                                                <Icon name="Upload" className="w-5 h-5 mr-2 text-navy-400 group-hover:text-gold-500 transition-colors" />
+                                                <span className="text-sm font-bold text-navy-500 group-hover:text-gold-600 transition-colors">Upload Baru...</span>
+                                                <input type="file" accept="image/*" className="hidden" onChange={handleHeroFileUpload} />
+                                            </label>
+                                            <button type="button" onClick={handleAddHeroUrl} className="flex-1 bg-white border border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
+                                                <Icon name="PlusCircle" className="w-4 h-4 mr-2" />
+                                                Tambah via URL
                                             </button>
                                         </div>
-                                    ))}
-                                </div>
-                                <form onSubmit={handleSaveHeroImage} className="space-y-4">
-                                    <div className="flex flex-col sm:flex-row gap-3 items-stretch">
-                                        <label className="flex-1 flex items-center justify-center bg-navy-50 border-2 border-dashed border-navy-200 rounded-xl py-3 px-4 cursor-pointer hover:border-gold-400 hover:bg-gold-50 transition-all group">
-                                            <Icon name="Upload" className="w-5 h-5 mr-2 text-navy-400 group-hover:text-gold-500 transition-colors" />
-                                            <span className="text-sm font-bold text-navy-500 group-hover:text-gold-600 transition-colors">Upload Baru...</span>
-                                            <input type="file" accept="image/*" className="hidden" onChange={handleHeroFileUpload} />
-                                        </label>
-                                        <button type="button" onClick={handleAddHeroUrl} className="flex-1 bg-white border border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
-                                            <Icon name="PlusCircle" className="w-4 h-4 mr-2" />
-                                            Tambah via URL
+                                        <button type="submit" disabled={isSavingHero} className={`w-full ${isSavingHero ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
+                                            {isSavingHero ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Perubahan Carousel'}
                                         </button>
-                                    </div>
-                                    <button type="submit" disabled={isSavingHero} className={`w-full ${isSavingHero ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
-                                        {isSavingHero ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Perubahan Carousel'}
-                                    </button>
-                                </form>
-                            </div>
-                            
-                            {/* --- FORM CAROUSEL EVENTS (ACARA TERDEKAT) --- */}
-                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm mt-6">
-                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                    <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-500 shadow-inner"><Icon name="Calendar" className="w-6 h-6" /></div>
-                                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Acara Terdekat</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Acara pada Jadwal & Home</p></div>
+                                    </form>
                                 </div>
-                                <form onSubmit={handleSaveCarouselEvents} className="space-y-4">
-                                    {editCarouselEvents.map((evt, idx) => (
-                                        <div key={idx} className="p-4 border border-navy-100 rounded-xl relative">
-                                            <button type="button" onClick={() => setEditCarouselEvents(editCarouselEvents.filter((_, i) => i !== idx))} className="absolute top-2 right-2 text-red-500 hover:text-red-700 bg-red-50 rounded-lg p-1.5"><Icon name="Trash" className="w-4 h-4" /></button>
-                                            <div className="space-y-3 pt-2">
-                                                <div>
-                                                    <label className="block text-xs font-bold text-navy-600 mb-1">Tanggal Acara</label>
-                                                    <input type="text" value={evt.dateStr} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].dateStr = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: 31 OKTOBER 2026" required />
+
+                                {/* --- FORM CAROUSEL EVENTS (ACARA TERDEKAT) --- */}
+                                <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm mt-6">
+                                    <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
+                                        <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-500 shadow-inner"><Icon name="Calendar" className="w-6 h-6" /></div>
+                                        <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Acara Terdekat</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Acara pada Jadwal & Home</p></div>
+                                    </div>
+                                    <form onSubmit={handleSaveCarouselEvents} className="space-y-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {editCarouselEvents.map((evt, idx) => (
+                                                <div key={idx} className="p-4 sm:p-5 border border-navy-100 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between">
+                                                    <div className="flex items-center justify-between border-b border-navy-50 pb-2.5 mb-3">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="w-6 h-6 rounded-full bg-green-50 text-green-600 flex items-center justify-center text-xs font-black">
+                                                                {idx + 1}
+                                                            </span>
+                                                            <span className="text-xs font-black text-navy-800 tracking-tight uppercase">
+                                                                Acara #{idx + 1}
+                                                            </span>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setEditCarouselEvents(editCarouselEvents.filter((_, i) => i !== idx))}
+                                                            className="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg px-2.5 py-1 text-xs font-bold transition flex items-center gap-1"
+                                                            title="Hapus Acara ini"
+                                                        >
+                                                            <Icon name="Trash" className="w-3.5 h-3.5" /> Hapus
+                                                        </button>
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        <div>
+                                                            <label className="block text-xs font-bold text-navy-600 mb-1">Tanggal Acara</label>
+                                                            <input type="text" value={evt.dateStr} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].dateStr = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: 31 OKTOBER 2026" required />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold text-navy-600 mb-1">Judul Acara</label>
+                                                            <input type="text" value={evt.title} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].title = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: Perayaan Ulang Tahun Jemaat" required />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold text-navy-600 mb-1">Lokasi</label>
+                                                            <input type="text" value={evt.location} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].location = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: Gedung Gereja Pisgah" required />
+                                                        </div>
+                                                        <div className="pt-1">
+                                                            <label className="block text-xs font-bold text-navy-600 mb-1.5">Gambar Background Acara <span className="text-navy-400 font-normal">(Opsional)</span></label>
+
+                                                            {/* Preview Gambar jika ada */}
+                                                            {evt.imageUrl && (
+                                                                <div className="relative w-full h-32 sm:h-36 rounded-xl overflow-hidden mb-3 border border-navy-100 shadow-sm bg-navy-900 group/img">
+                                                                    <img
+                                                                        src={formatImageUrl(evt.imageUrl)}
+                                                                        alt={`Preview ${evt.title || 'Acara'}`}
+                                                                        className="w-full h-full object-cover"
+                                                                        referrerPolicy="no-referrer"
+                                                                        onError={(e) => handleImageErrorFallback(e, evt.imageUrl)}
+                                                                    />
+                                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+                                                                    <div className="absolute bottom-2.5 left-3 text-white text-xs font-bold drop-shadow">
+                                                                        {evt.imageUrl.startsWith('data:image') ? (
+                                                                            <span className="bg-gold-500/90 text-navy-950 px-2.5 py-1 rounded-md text-[11px] font-black tracking-wide shadow">
+                                                                                BARU DIUPLOAD (Siap Simpan)
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span className="bg-black/60 backdrop-blur-sm text-gray-200 px-2 py-0.5 rounded text-[11px]">
+                                                                                Gambar Aktif
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            const newArr = [...editCarouselEvents];
+                                                                            newArr[idx].imageUrl = '';
+                                                                            setEditCarouselEvents(newArr);
+                                                                        }}
+                                                                        className="absolute top-2 right-2 bg-red-600/90 hover:bg-red-700 text-white p-1.5 rounded-lg shadow-md transition-all flex items-center gap-1 text-xs font-bold backdrop-blur-sm"
+                                                                        title="Hapus gambar ini"
+                                                                    >
+                                                                        <Icon name="Trash" className="w-3.5 h-3.5" /> Hapus
+                                                                    </button>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Pilihan Upload Langsung atau Input URL */}
+                                                            <div className="space-y-2">
+                                                                <label className="flex items-center justify-center bg-navy-50 border-2 border-dashed border-navy-200 rounded-xl py-2.5 px-4 cursor-pointer hover:border-gold-400 hover:bg-gold-50 transition-all group">
+                                                                    <Icon name="Upload" className="w-4 h-4 mr-2 text-navy-400 group-hover:text-gold-500 transition-colors" />
+                                                                    <span className="text-xs font-bold text-navy-600 group-hover:text-gold-600 transition-colors">
+                                                                        {evt.imageUrl ? 'Ganti Gambar (Upload dari Galeri/File)...' : 'Upload Gambar dari Galeri/File...'}
+                                                                    </span>
+                                                                    <input
+                                                                        type="file"
+                                                                        accept="image/*"
+                                                                        className="hidden"
+                                                                        onChange={(e) => handleEventFileUpload(e, idx)}
+                                                                    />
+                                                                </label>
+
+                                                                <input
+                                                                    type="text"
+                                                                    value={evt.imageUrl && evt.imageUrl.startsWith('data:image') ? '' : (evt.imageUrl || '')}
+                                                                    onChange={(e) => {
+                                                                        const newArr = [...editCarouselEvents];
+                                                                        newArr[idx].imageUrl = e.target.value;
+                                                                        setEditCarouselEvents(newArr);
+                                                                    }}
+                                                                    className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-xs focus:border-gold-400 focus:outline-none"
+                                                                    placeholder={evt.imageUrl && evt.imageUrl.startsWith('data:image') ? 'Gambar lokal telah diupload. Atau tempel URL gambar baru di sini...' : 'Atau tempel URL Gambar / Link Google Drive (https://...)'}
+                                                                />
+                                                                <p className="text-[11px] text-navy-500 leading-normal">
+                                                                    💡 <strong>Bisa upload langsung</strong> dari HP/PC (seperti carousel), atau <strong>tempel link Google Drive</strong> (pastikan link diset publik: <em>&quot;Siapa saja yang memiliki link&quot;</em>).
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <label className="block text-xs font-bold text-navy-600 mb-1">Judul Acara</label>
-                                                    <input type="text" value={evt.title} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].title = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: Perayaan Ulang Tahun Jemaat" required />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-bold text-navy-600 mb-1">Lokasi</label>
-                                                    <input type="text" value={evt.location} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].location = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: Gedung Gereja Pisgah" required />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-bold text-navy-600 mb-1">URL Gambar <span className="text-navy-400 font-normal">(Opsional)</span></label>
-                                                    <input type="text" value={evt.imageUrl || ''} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].imageUrl = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: https://... (opsional untuk background)" />
-                                                </div>
-                                            </div>
+                                            ))}
                                         </div>
-                                    ))}
-                                    
-                                    <button type="button" onClick={() => setEditCarouselEvents([...editCarouselEvents, { dateStr: "", title: "", location: "", imageUrl: "" }])} className="w-full border-2 border-dashed border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
-                                        <Icon name="PlusCircle" className="w-4 h-4 mr-2" /> Tambah Acara
-                                    </button>
-                                    
-                                    <button type="submit" disabled={isSavingCarouselEvents} className={`w-full ${isSavingCarouselEvents ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
-                                        {isSavingCarouselEvents ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Acara Terdekat'}
-                                    </button>
-                                </form>
-                            </div>
+
+                                        <button type="button" onClick={() => setEditCarouselEvents([...editCarouselEvents, { dateStr: "", title: "", location: "", imageUrl: "" }])} className="w-full border-2 border-dashed border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
+                                            <Icon name="PlusCircle" className="w-4 h-4 mr-2" /> Tambah Acara
+                                        </button>
+
+                                        <button type="submit" disabled={isSavingCarouselEvents} className={`w-full ${isSavingCarouselEvents ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
+                                            {isSavingCarouselEvents ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Acara Terdekat'}
+                                        </button>
+                                    </form>
+                                </div>
                             </>
                         )}
 
@@ -6267,72 +6442,72 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
 // --- COMPONENT: ALKITAB ---
 const ALKITAB_BOOKS = [
-    { id: 1,  nama: 'Kejadian',       singkat: 'Kej', pasal: 50, testamen: 'PL' },
-    { id: 2,  nama: 'Keluaran',       singkat: 'Kel', pasal: 40, testamen: 'PL' },
-    { id: 3,  nama: 'Imamat',         singkat: 'Im',  pasal: 27, testamen: 'PL' },
-    { id: 4,  nama: 'Bilangan',       singkat: 'Bil', pasal: 36, testamen: 'PL' },
-    { id: 5,  nama: 'Ulangan',        singkat: 'Ul',  pasal: 34, testamen: 'PL' },
-    { id: 6,  nama: 'Yosua',          singkat: 'Yos', pasal: 24, testamen: 'PL' },
-    { id: 7,  nama: 'Hakim-hakim',    singkat: 'Hak', pasal: 21, testamen: 'PL' },
-    { id: 8,  nama: 'Rut',            singkat: 'Rut', pasal: 4,  testamen: 'PL' },
-    { id: 9,  nama: '1 Samuel',       singkat: '1Sam',pasal: 31, testamen: 'PL' },
-    { id: 10, nama: '2 Samuel',       singkat: '2Sam',pasal: 24, testamen: 'PL' },
-    { id: 11, nama: '1 Raja-raja',    singkat: '1Raj',pasal: 22, testamen: 'PL' },
-    { id: 12, nama: '2 Raja-raja',    singkat: '2Raj',pasal: 25, testamen: 'PL' },
-    { id: 13, nama: '1 Tawarikh',     singkat: '1Taw',pasal: 29, testamen: 'PL' },
-    { id: 14, nama: '2 Tawarikh',     singkat: '2Taw',pasal: 36, testamen: 'PL' },
-    { id: 15, nama: 'Ezra',           singkat: 'Ezr', pasal: 10, testamen: 'PL' },
-    { id: 16, nama: 'Nehemia',        singkat: 'Neh', pasal: 13, testamen: 'PL' },
-    { id: 17, nama: 'Ester',          singkat: 'Est', pasal: 10, testamen: 'PL' },
-    { id: 18, nama: 'Ayub',           singkat: 'Ayb', pasal: 42, testamen: 'PL' },
-    { id: 19, nama: 'Mazmur',         singkat: 'Mzm', pasal: 150,testamen: 'PL' },
-    { id: 20, nama: 'Amsal',          singkat: 'Ams', pasal: 31, testamen: 'PL' },
-    { id: 21, nama: 'Pengkhotbah',    singkat: 'Pkh', pasal: 12, testamen: 'PL' },
-    { id: 22, nama: 'Kidung Agung',   singkat: 'Kid', pasal: 8,  testamen: 'PL' },
-    { id: 23, nama: 'Yesaya',         singkat: 'Yes', pasal: 66, testamen: 'PL' },
-    { id: 24, nama: 'Yeremia',        singkat: 'Yer', pasal: 52, testamen: 'PL' },
-    { id: 25, nama: 'Ratapan',        singkat: 'Rat', pasal: 5,  testamen: 'PL' },
-    { id: 26, nama: 'Yehezkiel',      singkat: 'Yeh', pasal: 48, testamen: 'PL' },
-    { id: 27, nama: 'Daniel',         singkat: 'Dan', pasal: 12, testamen: 'PL' },
-    { id: 28, nama: 'Hosea',          singkat: 'Hos', pasal: 14, testamen: 'PL' },
-    { id: 29, nama: 'Yoel',           singkat: 'Yoe', pasal: 3,  testamen: 'PL' },
-    { id: 30, nama: 'Amos',           singkat: 'Am',  pasal: 9,  testamen: 'PL' },
-    { id: 31, nama: 'Obaja',          singkat: 'Ob',  pasal: 1,  testamen: 'PL' },
-    { id: 32, nama: 'Yunus',          singkat: 'Yun', pasal: 4,  testamen: 'PL' },
-    { id: 33, nama: 'Mikha',          singkat: 'Mi',  pasal: 7,  testamen: 'PL' },
-    { id: 34, nama: 'Nahum',          singkat: 'Nah', pasal: 3,  testamen: 'PL' },
-    { id: 35, nama: 'Habakuk',        singkat: 'Hab', pasal: 3,  testamen: 'PL' },
-    { id: 36, nama: 'Zefanya',        singkat: 'Zef', pasal: 3,  testamen: 'PL' },
-    { id: 37, nama: 'Hagai',          singkat: 'Hag', pasal: 2,  testamen: 'PL' },
-    { id: 38, nama: 'Zakharia',       singkat: 'Za',  pasal: 14, testamen: 'PL' },
-    { id: 39, nama: 'Maleakhi',       singkat: 'Mal', pasal: 4,  testamen: 'PL' },
-    { id: 40, nama: 'Matius',         singkat: 'Mat', pasal: 28, testamen: 'PB' },
-    { id: 41, nama: 'Markus',         singkat: 'Mrk', pasal: 16, testamen: 'PB' },
-    { id: 42, nama: 'Lukas',          singkat: 'Luk', pasal: 24, testamen: 'PB' },
-    { id: 43, nama: 'Yohanes',        singkat: 'Yoh', pasal: 21, testamen: 'PB' },
-    { id: 44, nama: 'Kisah Para Rasul',singkat:'Kis', pasal: 28, testamen: 'PB' },
-    { id: 45, nama: 'Roma',           singkat: 'Rom', pasal: 16, testamen: 'PB' },
-    { id: 46, nama: '1 Korintus',     singkat: '1Kor',pasal: 16, testamen: 'PB' },
-    { id: 47, nama: '2 Korintus',     singkat: '2Kor',pasal: 13, testamen: 'PB' },
-    { id: 48, nama: 'Galatia',        singkat: 'Gal', pasal: 6,  testamen: 'PB' },
-    { id: 49, nama: 'Efesus',         singkat: 'Ef',  pasal: 6,  testamen: 'PB' },
-    { id: 50, nama: 'Filipi',         singkat: 'Flp', pasal: 4,  testamen: 'PB' },
-    { id: 51, nama: 'Kolose',         singkat: 'Kol', pasal: 4,  testamen: 'PB' },
-    { id: 52, nama: '1 Tesalonika',   singkat: '1Tes',pasal: 5,  testamen: 'PB' },
-    { id: 53, nama: '2 Tesalonika',   singkat: '2Tes',pasal: 3,  testamen: 'PB' },
-    { id: 54, nama: '1 Timotius',     singkat: '1Tim',pasal: 6,  testamen: 'PB' },
-    { id: 55, nama: '2 Timotius',     singkat: '2Tim',pasal: 4,  testamen: 'PB' },
-    { id: 56, nama: 'Titus',          singkat: 'Tit', pasal: 3,  testamen: 'PB' },
-    { id: 57, nama: 'Filemon',        singkat: 'Flm', pasal: 1,  testamen: 'PB' },
-    { id: 58, nama: 'Ibrani',         singkat: 'Ibr', pasal: 13, testamen: 'PB' },
-    { id: 59, nama: 'Yakobus',        singkat: 'Yak', pasal: 5,  testamen: 'PB' },
-    { id: 60, nama: '1 Petrus',       singkat: '1Pet',pasal: 5,  testamen: 'PB' },
-    { id: 61, nama: '2 Petrus',       singkat: '2Pet',pasal: 3,  testamen: 'PB' },
-    { id: 62, nama: '1 Yohanes',      singkat: '1Yoh',pasal: 5,  testamen: 'PB' },
-    { id: 63, nama: '2 Yohanes',      singkat: '2Yoh',pasal: 1,  testamen: 'PB' },
-    { id: 64, nama: '3 Yohanes',      singkat: '3Yoh',pasal: 1,  testamen: 'PB' },
-    { id: 65, nama: 'Yudas',          singkat: 'Yud', pasal: 1,  testamen: 'PB' },
-    { id: 66, nama: 'Wahyu',          singkat: 'Why', pasal: 22, testamen: 'PB' },
+    { id: 1, nama: 'Kejadian', singkat: 'Kej', pasal: 50, testamen: 'PL' },
+    { id: 2, nama: 'Keluaran', singkat: 'Kel', pasal: 40, testamen: 'PL' },
+    { id: 3, nama: 'Imamat', singkat: 'Im', pasal: 27, testamen: 'PL' },
+    { id: 4, nama: 'Bilangan', singkat: 'Bil', pasal: 36, testamen: 'PL' },
+    { id: 5, nama: 'Ulangan', singkat: 'Ul', pasal: 34, testamen: 'PL' },
+    { id: 6, nama: 'Yosua', singkat: 'Yos', pasal: 24, testamen: 'PL' },
+    { id: 7, nama: 'Hakim-hakim', singkat: 'Hak', pasal: 21, testamen: 'PL' },
+    { id: 8, nama: 'Rut', singkat: 'Rut', pasal: 4, testamen: 'PL' },
+    { id: 9, nama: '1 Samuel', singkat: '1Sam', pasal: 31, testamen: 'PL' },
+    { id: 10, nama: '2 Samuel', singkat: '2Sam', pasal: 24, testamen: 'PL' },
+    { id: 11, nama: '1 Raja-raja', singkat: '1Raj', pasal: 22, testamen: 'PL' },
+    { id: 12, nama: '2 Raja-raja', singkat: '2Raj', pasal: 25, testamen: 'PL' },
+    { id: 13, nama: '1 Tawarikh', singkat: '1Taw', pasal: 29, testamen: 'PL' },
+    { id: 14, nama: '2 Tawarikh', singkat: '2Taw', pasal: 36, testamen: 'PL' },
+    { id: 15, nama: 'Ezra', singkat: 'Ezr', pasal: 10, testamen: 'PL' },
+    { id: 16, nama: 'Nehemia', singkat: 'Neh', pasal: 13, testamen: 'PL' },
+    { id: 17, nama: 'Ester', singkat: 'Est', pasal: 10, testamen: 'PL' },
+    { id: 18, nama: 'Ayub', singkat: 'Ayb', pasal: 42, testamen: 'PL' },
+    { id: 19, nama: 'Mazmur', singkat: 'Mzm', pasal: 150, testamen: 'PL' },
+    { id: 20, nama: 'Amsal', singkat: 'Ams', pasal: 31, testamen: 'PL' },
+    { id: 21, nama: 'Pengkhotbah', singkat: 'Pkh', pasal: 12, testamen: 'PL' },
+    { id: 22, nama: 'Kidung Agung', singkat: 'Kid', pasal: 8, testamen: 'PL' },
+    { id: 23, nama: 'Yesaya', singkat: 'Yes', pasal: 66, testamen: 'PL' },
+    { id: 24, nama: 'Yeremia', singkat: 'Yer', pasal: 52, testamen: 'PL' },
+    { id: 25, nama: 'Ratapan', singkat: 'Rat', pasal: 5, testamen: 'PL' },
+    { id: 26, nama: 'Yehezkiel', singkat: 'Yeh', pasal: 48, testamen: 'PL' },
+    { id: 27, nama: 'Daniel', singkat: 'Dan', pasal: 12, testamen: 'PL' },
+    { id: 28, nama: 'Hosea', singkat: 'Hos', pasal: 14, testamen: 'PL' },
+    { id: 29, nama: 'Yoel', singkat: 'Yoe', pasal: 3, testamen: 'PL' },
+    { id: 30, nama: 'Amos', singkat: 'Am', pasal: 9, testamen: 'PL' },
+    { id: 31, nama: 'Obaja', singkat: 'Ob', pasal: 1, testamen: 'PL' },
+    { id: 32, nama: 'Yunus', singkat: 'Yun', pasal: 4, testamen: 'PL' },
+    { id: 33, nama: 'Mikha', singkat: 'Mi', pasal: 7, testamen: 'PL' },
+    { id: 34, nama: 'Nahum', singkat: 'Nah', pasal: 3, testamen: 'PL' },
+    { id: 35, nama: 'Habakuk', singkat: 'Hab', pasal: 3, testamen: 'PL' },
+    { id: 36, nama: 'Zefanya', singkat: 'Zef', pasal: 3, testamen: 'PL' },
+    { id: 37, nama: 'Hagai', singkat: 'Hag', pasal: 2, testamen: 'PL' },
+    { id: 38, nama: 'Zakharia', singkat: 'Za', pasal: 14, testamen: 'PL' },
+    { id: 39, nama: 'Maleakhi', singkat: 'Mal', pasal: 4, testamen: 'PL' },
+    { id: 40, nama: 'Matius', singkat: 'Mat', pasal: 28, testamen: 'PB' },
+    { id: 41, nama: 'Markus', singkat: 'Mrk', pasal: 16, testamen: 'PB' },
+    { id: 42, nama: 'Lukas', singkat: 'Luk', pasal: 24, testamen: 'PB' },
+    { id: 43, nama: 'Yohanes', singkat: 'Yoh', pasal: 21, testamen: 'PB' },
+    { id: 44, nama: 'Kisah Para Rasul', singkat: 'Kis', pasal: 28, testamen: 'PB' },
+    { id: 45, nama: 'Roma', singkat: 'Rom', pasal: 16, testamen: 'PB' },
+    { id: 46, nama: '1 Korintus', singkat: '1Kor', pasal: 16, testamen: 'PB' },
+    { id: 47, nama: '2 Korintus', singkat: '2Kor', pasal: 13, testamen: 'PB' },
+    { id: 48, nama: 'Galatia', singkat: 'Gal', pasal: 6, testamen: 'PB' },
+    { id: 49, nama: 'Efesus', singkat: 'Ef', pasal: 6, testamen: 'PB' },
+    { id: 50, nama: 'Filipi', singkat: 'Flp', pasal: 4, testamen: 'PB' },
+    { id: 51, nama: 'Kolose', singkat: 'Kol', pasal: 4, testamen: 'PB' },
+    { id: 52, nama: '1 Tesalonika', singkat: '1Tes', pasal: 5, testamen: 'PB' },
+    { id: 53, nama: '2 Tesalonika', singkat: '2Tes', pasal: 3, testamen: 'PB' },
+    { id: 54, nama: '1 Timotius', singkat: '1Tim', pasal: 6, testamen: 'PB' },
+    { id: 55, nama: '2 Timotius', singkat: '2Tim', pasal: 4, testamen: 'PB' },
+    { id: 56, nama: 'Titus', singkat: 'Tit', pasal: 3, testamen: 'PB' },
+    { id: 57, nama: 'Filemon', singkat: 'Flm', pasal: 1, testamen: 'PB' },
+    { id: 58, nama: 'Ibrani', singkat: 'Ibr', pasal: 13, testamen: 'PB' },
+    { id: 59, nama: 'Yakobus', singkat: 'Yak', pasal: 5, testamen: 'PB' },
+    { id: 60, nama: '1 Petrus', singkat: '1Pet', pasal: 5, testamen: 'PB' },
+    { id: 61, nama: '2 Petrus', singkat: '2Pet', pasal: 3, testamen: 'PB' },
+    { id: 62, nama: '1 Yohanes', singkat: '1Yoh', pasal: 5, testamen: 'PB' },
+    { id: 63, nama: '2 Yohanes', singkat: '2Yoh', pasal: 1, testamen: 'PB' },
+    { id: 64, nama: '3 Yohanes', singkat: '3Yoh', pasal: 1, testamen: 'PB' },
+    { id: 65, nama: 'Yudas', singkat: 'Yud', pasal: 1, testamen: 'PB' },
+    { id: 66, nama: 'Wahyu', singkat: 'Why', pasal: 22, testamen: 'PB' },
 ];
 
 const Alkitab = ({ setHideGlobalBack }) => {
@@ -6366,7 +6541,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
             const bookData = await res.json();
             const chapterData = bookData[chapter];
             if (!chapterData) throw new Error('Pasal tidak ditemukan');
-            
+
             // Deduplicate verses (Sabda API sometimes prepends duplicate verse fragments)
             const dedupedVerses = [];
             const seenVerses = new Set();
@@ -6386,7 +6561,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
                 }
             }
             dedupedVerses.reverse();
-            
+
             setVerses(dedupedVerses);
             setSelectedVerses(new Set());
         } catch (err) {
@@ -6450,13 +6625,13 @@ const Alkitab = ({ setHideGlobalBack }) => {
 
     const handleShareVerses = () => {
         if (selectedVerses.size === 0) return;
-        const sortedSelected = Array.from(selectedVerses).sort((a,b) => a - b);
+        const sortedSelected = Array.from(selectedVerses).sort((a, b) => a - b);
         let textParts = [];
         for (const ayat of sortedSelected) {
             const v = verses.find(x => x.ayat === ayat);
             if (v) textParts.push(`[${ayat}] ${v.teks}`);
         }
-        
+
         let ranges = [];
         let start = sortedSelected[0];
         let end = start;
@@ -6474,7 +6649,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
 
         const appUrl = window.location.origin + window.location.pathname;
         const shareText = `${selectedBook.nama} ${selectedChapter}:${ayatString}\n\n${textParts.join('\n')}\n\nBaca selengkapnya di: ${appUrl}`;
-        
+
         const fallbackCopy = (text) => {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => {
@@ -6490,7 +6665,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
                 try {
                     document.execCommand('copy');
                     alert('Ayat berhasil disalin ke clipboard!');
-                } catch (err) {}
+                } catch (err) { }
                 textArea.remove();
             }
         };
@@ -6559,7 +6734,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
             {/* KITAB */}
             <div className="flex-1 min-w-[120px]">
                 <label className="text-[10px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-2">Kitab</label>
-                <select 
+                <select
                     value={selectedBook?.id || ''}
                     onChange={(e) => {
                         const newBook = ALKITAB_BOOKS.find(b => b.id === parseInt(e.target.value));
@@ -6574,11 +6749,11 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     ))}
                 </select>
             </div>
-            
+
             {/* PASAL */}
             <div className="flex-1 min-w-[80px]">
                 <label className="text-[10px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-2">Pasal</label>
-                <select 
+                <select
                     value={selectedChapter || ''}
                     onChange={(e) => setSelectedChapter(parseInt(e.target.value))}
                     disabled={!selectedBook}
@@ -6590,14 +6765,14 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     ))}
                 </select>
             </div>
-            
+
             {/* AYAT */}
             <div className="flex-1 min-w-[80px]">
                 <label className="text-[10px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-2">Ayat</label>
-                <select 
+                <select
                     onChange={(e) => {
                         const el = document.getElementById(`ayat-${e.target.value}`);
-                        if(el) {
+                        if (el) {
                             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                             el.classList.add('bg-gold-50', 'dark:bg-navy-800');
                             setTimeout(() => el.classList.remove('bg-gold-50', 'dark:bg-navy-800'), 2000);
@@ -6725,18 +6900,18 @@ const Alkitab = ({ setHideGlobalBack }) => {
                                 <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                                 <span className="hidden sm:inline">Kembali</span>
                             </button>
-                            <button onClick={() => { setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all gap-2 h-[3.25rem]" title="Daftar Kitab">
+                            <button onClick={() => { setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all gap-2 h-[3.25rem]" title="Daftar Kitab">
                                 <Icon name="Home" className="w-4 h-4 md:w-5 md:h-5" />
                                 <span className="hidden sm:inline">Kitab</span>
                             </button>
                         </div>
-                        
+
                         {renderDropdowns()}
                     </div>
                     {/* Navigation and Font Size Slider */}
                     <div className="flex items-stretch gap-2 mt-3 h-14 md:h-12 w-full">
                         {prevChapterInfo ? (
-                            <button onClick={() => { setSelectedBook(prevChapterInfo.book); setSelectedChapter(prevChapterInfo.chapter); setVerses([]); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="flex-1 flex flex-col items-start justify-center px-3 md:px-4 py-1.5 bg-white dark:bg-navy-800 rounded-xl border border-navy-100/80 dark:border-navy-700 shadow-sm hover:shadow hover:border-gold-300 dark:hover:border-gold-500/50 transition-all group min-w-0 overflow-hidden">
+                            <button onClick={() => { setSelectedBook(prevChapterInfo.book); setSelectedChapter(prevChapterInfo.chapter); setVerses([]); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex-1 flex flex-col items-start justify-center px-3 md:px-4 py-1.5 bg-white dark:bg-navy-800 rounded-xl border border-navy-100/80 dark:border-navy-700 shadow-sm hover:shadow hover:border-gold-300 dark:hover:border-gold-500/50 transition-all group min-w-0 overflow-hidden">
                                 <span className="text-[9px] md:text-[10px] text-navy-400 dark:text-navy-400 font-black uppercase tracking-widest flex items-center gap-1 w-full"><Icon name="ChevronLeft" className="w-3 h-3 shrink-0 group-hover:-translate-x-0.5 transition-transform" /> <span className="truncate">Sebelumnya</span></span>
                                 <span className="font-bold text-navy-800 dark:text-navy-100 text-[11px] md:text-sm pl-4 truncate w-full text-left">{prevChapterInfo.book.nama} {prevChapterInfo.chapter}</span>
                             </button>
@@ -6756,7 +6931,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
                         </div>
 
                         {nextChapterInfo ? (
-                            <button onClick={() => { setSelectedBook(nextChapterInfo.book); setSelectedChapter(nextChapterInfo.chapter); setVerses([]); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="flex-1 flex flex-col items-end justify-center px-3 md:px-4 py-1.5 bg-white dark:bg-navy-800 rounded-xl border border-navy-100/80 dark:border-navy-700 shadow-sm hover:shadow hover:border-gold-300 dark:hover:border-gold-500/50 transition-all group min-w-0 overflow-hidden">
+                            <button onClick={() => { setSelectedBook(nextChapterInfo.book); setSelectedChapter(nextChapterInfo.chapter); setVerses([]); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex-1 flex flex-col items-end justify-center px-3 md:px-4 py-1.5 bg-white dark:bg-navy-800 rounded-xl border border-navy-100/80 dark:border-navy-700 shadow-sm hover:shadow hover:border-gold-300 dark:hover:border-gold-500/50 transition-all group min-w-0 overflow-hidden">
                                 <span className="text-[9px] md:text-[10px] text-navy-400 dark:text-navy-400 font-black uppercase tracking-widest flex items-center justify-end gap-1 w-full"><span className="truncate">Berikutnya</span> <Icon name="ChevronRight" className="w-3 h-3 shrink-0 group-hover:translate-x-0.5 transition-transform" /></span>
                                 <span className="font-bold text-navy-800 dark:text-navy-100 text-[11px] md:text-sm pr-4 truncate w-full text-right">{nextChapterInfo.book.nama} {nextChapterInfo.chapter}</span>
                             </button>
@@ -6828,7 +7003,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
 };
 
 // --- COMPONENT: SEARCH ---
-const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = [], subTab = 'numpad', setSubTab = () => {} }) => {
+const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = [], subTab = 'numpad', setSubTab = () => { } }) => {
     const [songNo, setSongNo] = React.useState('');
     const [selectedSong, setSelectedSong] = React.useState(null);
     const [indexTab, setIndexTab] = React.useState('number'); // number, alphabet
@@ -6908,7 +7083,7 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
     // Share song
     const handleShare = () => {
         if (!selectedSong) return;
-        
+
         let lyricsLines = [];
         let chorusRef = null;
         const verses = selectedSong.verses || [];
@@ -6923,11 +7098,11 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                 }
             }
         }
-        
+
         const lyricsText = lyricsLines.join('\n\n');
         const appUrl = window.location.origin + window.location.pathname;
         const shareText = `Lagu Sion No. ${selectedSong.number} - ${selectedSong.title}\nKey/Time: ${selectedSong.keyTime}\n\n${lyricsText}\n\nNyanyikan di: ${appUrl}`;
-        
+
         const fallbackCopy = (text) => {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => {
@@ -6972,7 +7147,7 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
     // Sorted index list
     const indexedSongs = React.useMemo(() => {
         let list = [...db];
-        
+
         if (searchQuery.trim() !== '') {
             const q = searchQuery.toLowerCase();
             list = list.filter(song => {
@@ -7020,7 +7195,7 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                             className="block w-full pl-11 pr-10 py-3.5 bg-white border border-navy-100/80 rounded-2xl text-navy-900 placeholder-navy-300 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all shadow-sm"
                         />
                         {searchQuery && (
-                            <button 
+                            <button
                                 onClick={() => setSearchQuery('')}
                                 className="absolute inset-y-0 right-0 pr-4 flex items-center text-navy-400 hover:text-navy-600 outline-none"
                             >
@@ -7108,12 +7283,12 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                                     let result = [];
                                     let chorusRef = null;
                                     const verses = selectedSong.verses || [];
-                                    
+
                                     for (let i = 0; i < verses.length; i++) {
                                         const v = verses[i];
                                         result.push(v);
                                         if (v.type === 'chorus') chorusRef = v;
-                                        
+
                                         if ((v.type === 'verse' || v.type === 'bait') && chorusRef) {
                                             const nextV = verses[i + 1];
                                             if (!nextV || nextV.type !== 'chorus') {
@@ -7121,7 +7296,7 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                                             }
                                         }
                                     }
-                                    
+
                                     return result.map((verse, idx) => {
                                         const isCh = verse.type === 'chorus';
                                         return (
@@ -7286,7 +7461,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
             results.laporan = [{ redirectQuery: query.trim() }];
         }
 
-        
+
         // 7. Lagu Sion
         if (laguSionDb && laguSionDb.length > 0) {
             laguSionDb.forEach(song => {
@@ -7358,7 +7533,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                     )}
 
                     {/* Hasil Warta */}
-                    
+
                     {/* Hasil Alkitab */}
                     {searchResults.alkitab && searchResults.alkitab.length > 0 && (
                         <div>
@@ -8061,7 +8236,7 @@ const App = () => {
             <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} onSuccess={(token) => { setAdminToken(token); setIsAdminLoggedIn(true); setShowLoginModal(false); setActiveTab('admin_dashboard'); }} />
             <IosInstallModal isOpen={showIosPrompt} onClose={() => setShowIosPrompt(false)} />
             <ManualInstallModal isOpen={showManualInstall} onClose={() => setShowManualInstall(false)} />
-            
+
 
 
             {/* HEADER UTAMA (Responsif untuk Mobile & Desktop) */}
@@ -8161,7 +8336,7 @@ const App = () => {
                             return (
                                 <>
                                     {activeIndex !== -1 && (
-                                        <div 
+                                        <div
                                             className="absolute inset-y-0 left-0 transition-transform duration-350 ease-[cubic-bezier(0.34,1.5,0.64,1)] pointer-events-none z-0 will-change-transform"
                                             style={{ width: `${100 / lsTabs.length}%`, transform: `translateX(${activeIndex * 100}%)` }}
                                         >
@@ -8172,8 +8347,8 @@ const App = () => {
                                     {lsTabs.map((tab) => {
                                         const isActive = tab.id === laguSionSubTab;
                                         return (
-                                            <button 
-                                                key={tab.id} 
+                                            <button
+                                                key={tab.id}
                                                 onClick={() => {
                                                     if (tab.id === 'home') setActiveTab('home');
                                                     else setLaguSionSubTab(tab.id);
@@ -8198,24 +8373,24 @@ const App = () => {
             {/* Navigasi Mobile (Disembunyikan di Desktop dengan md:hidden) */}
             {activeTab !== 'lagu_sion' && (
                 <nav className="bottom-bar md:hidden" style={{ zIndex: 50 }}>
-                {['belajar', 'warta', 'home', 'jadwal', 'live'].map(tabId => {
-                    const tab = tabs.find(t => t.id === tabId);
-                    if (!tab) return null;
-                    const isActive = activeTab.startsWith(tab.id);
+                    {['belajar', 'warta', 'home', 'jadwal', 'live'].map(tabId => {
+                        const tab = tabs.find(t => t.id === tabId);
+                        if (!tab) return null;
+                        const isActive = activeTab.startsWith(tab.id);
 
-                    return (
-                        <div
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`bottom-nav-item ${isActive ? 'active' : ''}`}
-                        >
-                            <div className="bottom-nav-icon">
-                                <Icon name={tab.icon} />
+                        return (
+                            <div
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`bottom-nav-item ${isActive ? 'active' : ''}`}
+                            >
+                                <div className="bottom-nav-icon">
+                                    <Icon name={tab.icon} />
+                                </div>
+                                <span>{tab.label}</span>
                             </div>
-                            <span>{tab.label}</span>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
                 </nav>
             )}
 
@@ -8271,32 +8446,32 @@ const App = () => {
 
 
 class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null, errorInfo: null };
-  }
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-  componentDidCatch(error, errorInfo) {
-    this.setState({ error: error, errorInfo: errorInfo });
-    console.error("Caught by ErrorBoundary:", error, errorInfo);
-  }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding: 20, color: 'red', background: 'white' }}>
-            <h2>Something went wrong.</h2>
-            <details style={{ whiteSpace: 'pre-wrap' }}>
-                {this.state.error && this.state.error.toString()}
-                <br />
-                {this.state.errorInfo && this.state.errorInfo.componentStack}
-            </details>
-        </div>
-      );
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null, errorInfo: null };
     }
-    return this.props.children;
-  }
+    static getDerivedStateFromError(error) {
+        return { hasError: true };
+    }
+    componentDidCatch(error, errorInfo) {
+        this.setState({ error: error, errorInfo: errorInfo });
+        console.error("Caught by ErrorBoundary:", error, errorInfo);
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div style={{ padding: 20, color: 'red', background: 'white' }}>
+                    <h2>Something went wrong.</h2>
+                    <details style={{ whiteSpace: 'pre-wrap' }}>
+                        {this.state.error && this.state.error.toString()}
+                        <br />
+                        {this.state.errorInfo && this.state.errorInfo.componentStack}
+                    </details>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
