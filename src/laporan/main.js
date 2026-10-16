@@ -3430,7 +3430,12 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
           if (isPrivCategory) {
             dNama = '*** (Privasi)';
           } else if (data.hasUnit && isSensorUnit) {
-            dNama = 'Unit *** (Privasi)';
+            // Hanya sensor unit yang memiliki anggota (jumlah_anggota > 0)
+            const uData = masterData && masterData.units
+              ? masterData.units.find(u => String(u.name).toLowerCase() === String(data.nama).toLowerCase())
+              : null;
+            const unitHasMembers = uData && (parseInt(uData.jumlah_anggota || 0) > 0);
+            if (unitHasMembers) dNama = 'Unit *** (Privasi)';
           } else if (!data.hasUnit && isSensorName) {
             dNama = '*** (Privasi)';
           }
