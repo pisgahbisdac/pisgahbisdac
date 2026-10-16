@@ -3429,9 +3429,9 @@ import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGA
           let dNama = data.nama;
           if (isPrivCategory) {
             dNama = '*** (Privasi)';
-          } else if (isTop && data.hasUnit && isSensorUnit) {
+          } else if (data.hasUnit && isSensorUnit) {
             dNama = 'Unit *** (Privasi)';
-          } else if (isTop && !data.hasUnit && isSensorName) {
+          } else if (!data.hasUnit && isSensorName) {
             dNama = '*** (Privasi)';
           }
           
