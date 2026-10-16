@@ -398,6 +398,18 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
     const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
     const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
 
+    React.useEffect(() => {
+        setCurrentEventIdx(0);
+    }, [eventsToDisplay.length]);
+
+    React.useEffect(() => {
+        if (eventsToDisplay.length <= 1) return;
+        const timer = setInterval(() => {
+            setCurrentEventIdx((prev) => (prev + 1) % eventsToDisplay.length);
+        }, 5000);
+        return () => clearInterval(timer);
+    }, [eventsToDisplay.length]);
+
     return (
         <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
             {eventsToDisplay.length > 0 && (
@@ -425,7 +437,9 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                         )}
 
                         <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
-                            <span className="inline-block bg-[#D19B45] text-[#2C3F21] text-[9px] sm:text-[10px] md:text-xs font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-3 shadow-md">{eventsToDisplay[currentEventIdx]?.dateStr || ''}</span>
+                            <span className="inline-block bg-[#D19B45] text-[#2C3F21] text-xs sm:text-sm md:text-base font-black uppercase tracking-wider px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full mb-3 shadow-md">
+                                {eventsToDisplay[currentEventIdx]?.dateStr || ''}
+                            </span>
                             <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight">{eventsToDisplay[currentEventIdx]?.title || ''}</h3>
                             <p className="text-xs sm:text-sm md:text-base text-gray-200 dark:text-navy-100 flex items-center font-medium opacity-90"><Icon name="Check" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0" /> <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span></p>
                         </div>
@@ -439,7 +453,12 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                         {/* Event Dots */}
                         <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex gap-1 sm:gap-1.5 z-20">
                             {eventsToDisplay.map((_, idx) => (
-                                <div key={idx} className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-4 sm:w-6 bg-[#D19B45]' : 'w-1 sm:w-1.5 bg-white/30'}`}></div>
+                                <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => setCurrentEventIdx(idx)}
+                                    className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-4 sm:w-6 bg-[#D19B45]' : 'w-1 sm:w-1.5 bg-white/30 hover:bg-white/60'}`}
+                                />
                             ))}
                         </div>
                     </div>
@@ -485,6 +504,18 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
     const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
     const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
+
+    React.useEffect(() => {
+        setCurrentEventIdx(0);
+    }, [eventsToDisplay.length]);
+
+    React.useEffect(() => {
+        if (eventsToDisplay.length <= 1) return;
+        const timer = setInterval(() => {
+            setCurrentEventIdx((prev) => (prev + 1) % eventsToDisplay.length);
+        }, 5000);
+        return () => clearInterval(timer);
+    }, [eventsToDisplay.length]);
 
     // Helper untuk menghitung jarak scroll persis sebesar 1 kartu video
     const getCardScrollStep = () => {
@@ -695,11 +726,33 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                         {/* Carousel Controls */}
                         {displayImages.length > 1 && (
-                            <div className="absolute bottom-10 md:bottom-14 lg:bottom-24 left-0 w-full flex justify-center gap-2 z-20">
-                                {displayImages.map((_, idx) => (
-                                    <button key={idx} onClick={() => setCurrentSlide(idx)} className={`h-2.5 rounded-full transition-all duration-500 ${currentSlide === idx ? 'bg-[#4A7045] w-10' : 'bg-white/50 w-3 hover:bg-white'}`} />
-                                ))}
-                            </div>
+                            <>
+                                {/* Tombol Panah Manual Kiri & Kanan */}
+                                <button
+                                    type="button"
+                                    onClick={() => setCurrentSlide(prev => (prev === 0 ? displayImages.length - 1 : prev - 1))}
+                                    className="absolute top-1/2 -translate-y-1/2 left-3 sm:left-5 md:left-8 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white/20 hover:bg-white/40 active:scale-95 text-white backdrop-blur-md border border-white/30 flex items-center justify-center transition-all shadow-xl z-30 group"
+                                    title="Slide Sebelumnya"
+                                    aria-label="Previous Slide"
+                                >
+                                    <Icon name="ChevronLeft" className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:-translate-x-0.5 transition-transform" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setCurrentSlide(prev => (prev + 1) % displayImages.length)}
+                                    className="absolute top-1/2 -translate-y-1/2 right-3 sm:right-5 md:right-8 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white/20 hover:bg-white/40 active:scale-95 text-white backdrop-blur-md border border-white/30 flex items-center justify-center transition-all shadow-xl z-30 group"
+                                    title="Slide Berikutnya"
+                                    aria-label="Next Slide"
+                                >
+                                    <Icon name="ChevronRight" className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
+                                </button>
+
+                                <div className="absolute bottom-10 md:bottom-14 lg:bottom-24 left-0 w-full flex justify-center gap-2 z-20">
+                                    {displayImages.map((_, idx) => (
+                                        <button key={idx} onClick={() => setCurrentSlide(idx)} className={`h-2.5 rounded-full transition-all duration-500 ${currentSlide === idx ? 'bg-[#4A7045] w-10' : 'bg-white/50 w-3 hover:bg-white'}`} />
+                                    ))}
+                                </div>
+                            </>
                         )}
                     </div>
 
@@ -796,7 +849,9 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                             )}
 
                                             <div className="relative z-10 w-full">
-                                                <span className="inline-block bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white text-[10px] font-black px-3 py-1.5 rounded-full mb-3 shadow-lg">{eventsToDisplay[currentEventIdx]?.dateStr || ''}</span>
+                                                <span className="inline-block bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white text-xs sm:text-sm md:text-base font-black uppercase tracking-wider px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full mb-3 shadow-lg">
+                                                    {eventsToDisplay[currentEventIdx]?.dateStr || ''}
+                                                </span>
                                                 <h3 className="text-xl md:text-2xl font-black leading-tight mb-2 tracking-tight drop-shadow-md">{eventsToDisplay[currentEventIdx]?.title || ''}</h3>
                                                 <p className="text-xs md:text-sm text-gray-200 flex items-center font-medium drop-shadow-sm"><Icon name="MapPin" className="w-4 h-4 mr-1.5 shrink-0 text-[#D19B45]" /> <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span></p>
                                             </div>
@@ -808,7 +863,12 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                                             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
                                                 {eventsToDisplay.map((_, idx) => (
-                                                    <div key={idx} className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${idx === currentEventIdx ? 'w-6 bg-[#D19B45]' : 'w-1.5 bg-white/40'}`}></div>
+                                                    <button
+                                                        key={idx}
+                                                        type="button"
+                                                        onClick={() => setCurrentEventIdx(idx)}
+                                                        className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${idx === currentEventIdx ? 'w-6 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
+                                                    />
                                                 ))}
                                             </div>
                                         </div>
