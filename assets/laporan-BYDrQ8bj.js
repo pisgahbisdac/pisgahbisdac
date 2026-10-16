@@ -808,21 +808,21 @@ Stack: `+t.stack)}}function ro(){try{if(!window.currentHistoryData||window.curre
             <tr>
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px;"></td>
-              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:yellow;">Saldo Awal</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:yellow;"><center>Saldo Awal</center></td>
               <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:yellow;">IDR &nbsp; &nbsp; ${J(U)}</td>
-            </tr>
+            </tr>            
             <tr><td colspan="4" style="background-color:#4472c4; height:12px; border:1px solid #000;"></td></tr>
             ${L}
             <tr>
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px;"></td>
-              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:#ffc000;">Total pembangunan bulan ini</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:#ffc000;"><center>Total pembangunan bulan ini</center></td>
               <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:#ffc000;">IDR &nbsp; &nbsp; ${J(oe)}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px;"></td>
-              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:yellow;">Total saldo Pemasukan</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:yellow;"><center>Total saldo Pemasukan</center></td>
               <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:yellow;">IDR &nbsp; &nbsp; ${J(U+oe)}</td>
             </tr>
           </tbody>
@@ -843,13 +843,13 @@ Stack: `+t.stack)}}function ro(){try{if(!window.currentHistoryData||window.curre
             <tr>
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px;"></td>
-              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic;">Total saldo Pengeluaran</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic;"><center>Total saldo Pengeluaran</center></td>
               <td style="border:1px solid #000; padding:4px; text-align:right;">IDR &nbsp; &nbsp; ${G===0?"-":J(G)}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000; padding:4px;"></td>
               <td style="border:1px solid #000; padding:4px;"></td>
-              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:yellow;">Saldo Akhir Pembangunan</td>
+              <td style="border:1px solid #000; padding:4px; font-weight:bold; font-style:italic; background-color:yellow;"><center>Saldo Akhir Pembangunan</center></td>
               <td style="border:1px solid #000; padding:4px; font-weight:bold; text-align:right; background-color:yellow;">IDR &nbsp; &nbsp; ${J(U+oe-G)}</td>
             </tr>
             <tr style="page-break-inside: avoid;"><td colspan="7" style="border: none; padding: 0;">
