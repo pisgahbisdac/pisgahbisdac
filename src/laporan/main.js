@@ -70,6 +70,9 @@ function toggleTheme() {
   document.documentElement.setAttribute('data-theme', newTheme);
   localStorage.setItem('BISDAC_theme', newTheme);
   updateThemeIcons();
+  if (typeof updateDashboardChart === 'function') {
+    setTimeout(updateDashboardChart, 50);
+  }
 }
 
 function updateThemeIcons() {
@@ -2053,6 +2056,334 @@ function groupTransactions(arr) {
   return grouped;
 }
 
+let dashChartInstance = null;
+let dashChartMode = 'bar';
+
+function setDashboardChartMode(mode) {
+  dashChartMode = mode;
+  const btnBar = document.getElementById('btnChartModeBar');
+  const btnLine = document.getElementById('btnChartModeLine');
+  if (btnBar && btnLine) {
+    if (mode === 'bar') {
+      btnBar.classList.add('active');
+      btnLine.classList.remove('active');
+    } else {
+      btnLine.classList.add('active');
+      btnBar.classList.remove('active');
+    }
+  }
+  updateDashboardChart();
+}
+
+function populateChartCategoryOptions() {
+  const filterSelect = document.getElementById('dashChartCategoryFilter');
+  if (!filterSelect) return;
+  const currentVal = filterSelect.value || 'all';
+
+  const incTypes = new Set();
+  (cachedIncome || []).forEach(x => {
+    if (x.income_type && x.income_type !== 'Mutasi Kas / Setor Bank' && !x.income_type.startsWith('Kolektif (')) {
+      incTypes.add(x.income_type.trim());
+    }
+  });
+  if (masterData && masterData.incomeTypes) {
+    masterData.incomeTypes.forEach(x => {
+      if (x.name && x.name !== 'Mutasi Kas / Setor Bank') incTypes.add(x.name.trim());
+    });
+  }
+
+  const expDepts = new Set();
+  (cachedExpense || []).forEach(x => {
+    if (x.department && x.department !== 'Mutasi Kas / Setor Bank' && !x.department.startsWith('Kolektif (')) {
+      expDepts.add(x.department.trim());
+    }
+  });
+  if (masterData && masterData.departments) {
+    masterData.departments.forEach(x => {
+      if (x.name && x.name !== 'Mutasi Kas / Setor Bank') expDepts.add(x.name.trim());
+    });
+  }
+
+  const sortedInc = Array.from(incTypes).sort((a, b) => a.localeCompare(b));
+  const sortedExp = Array.from(expDepts).sort((a, b) => a.localeCompare(b));
+
+  let html = `
+    <option value="all">Semua (Total Pemasukan & Pengeluaran)</option>
+    <option value="pembangunan">Dana Pembangunan (Masuk & Keluar)</option>
+    <optgroup label="--- Jenis Penerimaan / Pemasukan ---">
+      ${sortedInc.map(cat => `<option value="inc:${cat}">${cat}</option>`).join('')}
+    </optgroup>
+    <optgroup label="--- Jenis Pengeluaran / Departemen ---">
+      ${sortedExp.map(dept => `<option value="exp:${dept}">${dept}</option>`).join('')}
+    </optgroup>
+  `;
+  filterSelect.innerHTML = html;
+  if ([...filterSelect.options].some(o => o.value === currentVal)) {
+    filterSelect.value = currentVal;
+  } else {
+    filterSelect.value = 'all';
+  }
+}
+
+function updateDashboardChart() {
+  const canvas = document.getElementById('dashFinanceChart');
+  if (!canvas) return;
+  if (typeof Chart === 'undefined') {
+    setTimeout(updateDashboardChart, 250);
+    return;
+  }
+
+  const yearInput = document.getElementById('dashYear');
+  const year = parseInt(yearInput ? yearInput.value : new Date().getFullYear()) || new Date().getFullYear();
+  const filterSelect = document.getElementById('dashChartCategoryFilter');
+  const filterVal = filterSelect ? filterSelect.value : 'all';
+
+  const subtitle = document.getElementById('dashChartSubtitle');
+  if (subtitle) {
+    let filterLabel = 'Semua Transaksi Kas';
+    if (filterVal === 'pembangunan') filterLabel = 'Kategori Pembangunan';
+    else if (filterVal.startsWith('inc:')) filterLabel = `Penerimaan: ${filterVal.substring(4)}`;
+    else if (filterVal.startsWith('exp:')) filterLabel = `Pengeluaran: ${filterVal.substring(4)}`;
+    subtitle.textContent = `Grafik per bulan selama tahun ${year} (${filterLabel})`;
+  }
+
+  const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const incomeData = [];
+  const expenseData = [];
+
+  let totalYearIn = 0;
+  let totalYearOut = 0;
+
+  months.forEach(m => {
+    const monthInc = (cachedIncome || []).filter(x => {
+      const rYear = parseInt(x.year) || (new Date(x.date).getFullYear());
+      const rMonth = parseInt(x.month) || (new Date(x.date).getMonth() + 1);
+      return rYear === year && rMonth === m;
+    });
+
+    const monthExp = (cachedExpense || []).filter(x => {
+      const rYear = parseInt(x.year) || (new Date(x.date).getFullYear());
+      const rMonth = parseInt(x.month) || (new Date(x.date).getMonth() + 1);
+      return rYear === year && rMonth === m;
+    });
+
+    let mIn = 0;
+    let mOut = 0;
+
+    if (filterVal === 'all') {
+      mIn = monthInc.filter(x => x.income_type !== 'Mutasi Kas / Setor Bank').reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
+      mOut = monthExp.filter(x => x.department !== 'Mutasi Kas / Setor Bank').reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
+    } else if (filterVal === 'pembangunan') {
+      mIn = monthInc.reduce((s, x) => {
+        if ((parseFloat(x.alloc_bangun) || 0) > 0) return s + parseFloat(x.alloc_bangun);
+        if ((x.income_type || '').toLowerCase().includes('bangun')) return s + (parseFloat(x.amount) || 0);
+        return s;
+      }, 0);
+      mOut = monthExp.reduce((s, x) => {
+        if (x.department === 'Mutasi Kas / Setor Bank') return s;
+        if ((x.department || '').toLowerCase().includes('bangun') || x.source_balance === 'Pembangunan') return s + (parseFloat(x.amount) || 0);
+        return s;
+      }, 0);
+    } else if (filterVal.startsWith('inc:')) {
+      const targetCat = filterVal.substring(4).toLowerCase().trim();
+      mIn = monthInc.filter(x => {
+        const cat = (x.income_type || '').toLowerCase().trim();
+        if (targetCat === 'perpuluhan' || targetCat === 'persepuluhan') {
+          return cat.includes('perpuluhan') || cat.includes('persepuluhan');
+        }
+        return cat === targetCat;
+      }).reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
+
+      mOut = monthExp.filter(x => {
+        if (x.department === 'Mutasi Kas / Setor Bank') return false;
+        const dept = (x.department || '').toLowerCase().trim();
+        return dept === targetCat;
+      }).reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
+    } else if (filterVal.startsWith('exp:')) {
+      const targetDept = filterVal.substring(4).toLowerCase().trim();
+      mOut = monthExp.filter(x => {
+        if (x.department === 'Mutasi Kas / Setor Bank') return false;
+        const dept = (x.department || '').toLowerCase().trim();
+        return dept === targetDept;
+      }).reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
+
+      mIn = monthInc.filter(x => {
+        const cat = (x.income_type || '').toLowerCase().trim();
+        return cat === targetDept;
+      }).reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
+    }
+
+    incomeData.push(mIn);
+    expenseData.push(mOut);
+    totalYearIn += mIn;
+    totalYearOut += mOut;
+  });
+
+  const summaryEl = document.getElementById('dashChartSummary');
+  if (summaryEl) {
+    const net = totalYearIn - totalYearOut;
+    const netColor = net >= 0 ? 'var(--accent-green, #10b981)' : 'var(--accent-orange, #f43f5e)';
+    const netSign = net >= 0 ? '+' : '';
+    summaryEl.innerHTML = `
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981;"></span>
+        <span style="color:var(--text3);">Penerimaan Setahun:</span>
+        <strong style="color:var(--accent-green, #10b981);">Rp ${fmt(totalYearIn)}</strong>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#f43f5e;"></span>
+        <span style="color:var(--text3);">Pengeluaran Setahun:</span>
+        <strong style="color:var(--accent-orange, #f43f5e);">Rp ${fmt(totalYearOut)}</strong>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${netColor};"></span>
+        <span style="color:var(--text3);">Surplus / Defisit:</span>
+        <strong style="color:${netColor};">${netSign}Rp ${fmt(net)}</strong>
+      </div>
+    `;
+  }
+
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const textColor = isDark ? '#94a3b8' : '#64748b';
+  const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+
+  const isOnlyInc = filterVal.startsWith('inc:') && expenseData.every(v => v === 0);
+  const isOnlyExp = filterVal.startsWith('exp:') && incomeData.every(v => v === 0);
+
+  const datasets = [];
+
+  if (!isOnlyExp) {
+    datasets.push({
+      label: 'Penerimaan',
+      data: incomeData,
+      backgroundColor: dashChartMode === 'line' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.85)',
+      borderColor: '#10b981',
+      borderWidth: 2,
+      borderRadius: dashChartMode === 'bar' ? 6 : 0,
+      fill: dashChartMode === 'line',
+      tension: 0.35,
+      pointRadius: dashChartMode === 'line' ? 4 : 0,
+      pointHoverRadius: 6,
+      pointBackgroundColor: '#10b981'
+    });
+  }
+
+  if (!isOnlyInc) {
+    datasets.push({
+      label: 'Pengeluaran',
+      data: expenseData,
+      backgroundColor: dashChartMode === 'line' ? 'rgba(244, 63, 94, 0.15)' : 'rgba(244, 63, 94, 0.85)',
+      borderColor: '#f43f5e',
+      borderWidth: 2,
+      borderRadius: dashChartMode === 'bar' ? 6 : 0,
+      fill: dashChartMode === 'line',
+      tension: 0.35,
+      pointRadius: dashChartMode === 'line' ? 4 : 0,
+      pointHoverRadius: 6,
+      pointBackgroundColor: '#f43f5e'
+    });
+  }
+
+  if (dashChartInstance) {
+    dashChartInstance.destroy();
+  }
+
+  const ctx = canvas.getContext('2d');
+  dashChartInstance = new Chart(ctx, {
+    type: dashChartMode,
+    data: {
+      labels: labels,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      onClick: (event, elements) => {
+        if (elements && elements.length > 0) {
+          const monthIndex = elements[0].index + 1;
+          const dashMonthSelect = document.getElementById('dashMonth');
+          if (dashMonthSelect) {
+            dashMonthSelect.value = String(monthIndex);
+            renderDashboard();
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'end',
+          labels: {
+            color: textColor,
+            font: { size: 12, family: 'Inter, system-ui, sans-serif', weight: 600 },
+            usePointStyle: true,
+            boxWidth: 8,
+            boxHeight: 8
+          }
+        },
+        tooltip: {
+          backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+          titleColor: isDark ? '#ffffff' : '#0f172a',
+          bodyColor: isDark ? '#e2e8f0' : '#334155',
+          borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+          borderWidth: 1,
+          padding: 12,
+          boxPadding: 6,
+          usePointStyle: true,
+          callbacks: {
+            label: function (context) {
+              const val = context.parsed.y || 0;
+              return ` ${context.dataset.label}: Rp ${fmt(val)}`;
+            },
+            afterBody: function (contexts) {
+              if (contexts.length >= 2) {
+                const inVal = contexts.find(c => c.dataset.label === 'Penerimaan')?.parsed.y || 0;
+                const outVal = contexts.find(c => c.dataset.label === 'Pengeluaran')?.parsed.y || 0;
+                const diff = inVal - outVal;
+                const sign = diff >= 0 ? '+' : '';
+                return `\n Selisih: ${sign}Rp ${fmt(diff)}`;
+              }
+              return '';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            color: gridColor,
+            drawBorder: false
+          },
+          ticks: {
+            color: textColor,
+            font: { size: 11, family: 'Inter, system-ui, sans-serif' }
+          }
+        },
+        y: {
+          grid: {
+            color: gridColor,
+            drawBorder: false
+          },
+          ticks: {
+            color: textColor,
+            font: { size: 11, family: 'Inter, system-ui, sans-serif' },
+            callback: function (val) {
+              if (val >= 1000000000) return (val / 1000000000).toFixed(1) + ' M';
+              if (val >= 1000000) return (val / 1000000).toFixed(0) + ' Jt';
+              if (val >= 1000) return (val / 1000).toFixed(0) + ' Rb';
+              return val;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
 function renderDashboard() {
   const userUnits = getUserUnits();
   if (userUnits.length > 0) {
@@ -2069,6 +2400,9 @@ function renderDashboard() {
   }
 
   if (!cachedSaldo) return;
+
+  populateChartCategoryOptions();
+  updateDashboardChart();
   const month = parseInt(document.getElementById('dashMonth').value); const year = parseInt(document.getElementById('dashYear').value);
   const perms = getRolePerms(currentUser ? currentUser.role : '');
   const isViewer = perms.isAnonymous;
@@ -6134,8 +6468,9 @@ window.selectRoleTab = selectRoleTab;
 window.handleManualSync = handleManualSync;
 window.openSidebar = openSidebar;
 window.formatRupiah = formatRupiah;
-window.applyRoleAccess = applyRoleAccess;
 window.renderDashboard = renderDashboard;
+window.setDashboardChartMode = setDashboardChartMode;
+window.updateDashboardChart = updateDashboardChart;
 window.editUser = editUser;
 window.getCatBadge = getCatBadge;
 window.doPrintCombined = doPrintCombined;

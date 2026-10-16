@@ -1,16 +1,30 @@
     @media print {
-      body>*:not(#printContainer), .no-print {
+
+      body>*:not(#printContainer),
+      .no-print {
         display: none !important;
       }
 
       /* Sembunyikan semua elemen fixed/floating/overlay saat print */
       *[style*="position: fixed"],
       *[style*="position:fixed"],
-      .fab, .fab-btn, .floating-btn, .floating-action,
-      #notification, .notification, .notify-toast,
-      #topbar, .topbar, .sidebar, .nav-sidebar,
-      #loadingOverlay, .loading-overlay, .global-loading,
-      .modal, .modal-overlay, [id$="Modal"],
+      .fab,
+      .fab-btn,
+      .floating-btn,
+      .floating-action,
+      #notification,
+      .notification,
+      .notify-toast,
+      #topbar,
+      .topbar,
+      .sidebar,
+      .nav-sidebar,
+      #loadingOverlay,
+      .loading-overlay,
+      .global-loading,
+      .modal,
+      .modal-overlay,
+      [id$="Modal"],
       button[style*="position: fixed"],
       div[style*="position: fixed"],
       div[style*="border-radius: 50%"][style*="fixed"],
@@ -52,6 +66,7 @@
       background: var(--bg-glass);
       z-index: 0;
     }
+
     [data-theme="dark"] .login-split::before {
       background: linear-gradient(135deg, rgba(11, 26, 48, 0.8) 0%, rgba(11, 26, 48, 0.3) 100%);
     }
@@ -241,52 +256,103 @@
 
     /* Proyek Gereja Banner */
     .proyek-banner {
-      margin-top: 16px; margin-bottom: 24px; position: relative; border-radius: 16px; padding: 56px 24px 32px 24px !important; text-align: center; box-shadow: 0 4px 12px -2px rgba(0,0,0,0.03);
+      margin-top: 16px;
+      margin-bottom: 24px;
+      position: relative;
+      border-radius: 16px;
+      padding: 56px 24px 32px 24px !important;
+      text-align: center;
+      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.03);
       background: linear-gradient(135deg, var(--bg-dark), var(--bg-mid));
       border: 1px solid var(--glass-border);
     }
+
     .proyek-banner-badge {
-      position: absolute; top: 0; left: 50%; transform: translateX(-50%); padding: 6px 16px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      background: var(--primary); color: #ffffff;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 16px;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background: var(--primary);
+      color: #ffffff;
     }
+
     .proyek-banner h2 {
-      font-size: 22px; font-weight: 700; margin: 0 0 16px 0;
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 16px 0;
       color: var(--primary);
     }
+
     .proyek-banner p.desc {
-      font-size: 14px; line-height: 1.6; max-width: 1400px; margin: 0 auto 16px auto;
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 1400px;
+      margin: 0 auto 16px auto;
       color: var(--text2);
     }
+
     .proyek-banner p.action {
-      font-size: 14px; font-weight: 700; margin: 0 0 24px 0;
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0 0 24px 0;
       color: var(--text);
     }
+
     .proyek-banner-btn {
-      display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-      background: var(--primary); border: 1px solid var(--primary-hover); color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      background: var(--primary);
+      border: 1px solid var(--primary-hover);
+      color: #ffffff;
     }
+
     .proyek-banner-btn:hover {
-      background: var(--primary-hover); border-color: var(--primary-hover);
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
     }
 
     /* Dark Mode Overrides for Banner */
     [data-theme="dark"] .proyek-banner {
       background: linear-gradient(135deg, var(--surface1), var(--surface2));
       border: 1px solid var(--glass-border);
-      box-shadow: 0 4px 12px -2px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.3);
     }
+
     [data-theme="dark"] .proyek-banner-badge {
       color: #ffffff;
     }
+
     [data-theme="dark"] .proyek-banner h2 {
       color: var(--primary);
     }
+
     [data-theme="dark"] .proyek-banner p.desc {
       color: var(--text2);
     }
+
     [data-theme="dark"] .proyek-banner p.action {
       color: var(--text1);
     }
+
     @keyframes spinOverlay {
       0% {
         transform: rotate(0deg);
@@ -294,5 +360,55 @@
 
       100% {
         transform: rotate(360deg);
+      }
+    }
+
+    /* Chart Styles */
+    .chart-toggle-btn {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      background: var(--input-bg, rgba(255, 255, 255, 0.05));
+      color: var(--text3, #888);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chart-toggle-btn:hover {
+      color: var(--text, #fff);
+      background: var(--surface2, rgba(255, 255, 255, 0.1));
+    }
+
+    .chart-toggle-btn.active {
+      background: var(--primary, #3a86ff);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    @media (max-width: 640px) {
+      #dashChartCard .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+      }
+
+      #dashChartCard .card-header>div:last-child {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      #dashChartCategoryFilter {
+        flex: 1;
+        min-width: 140px !important;
+      }
+
+      #dashChartSummary {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 8px;
       }
     }
