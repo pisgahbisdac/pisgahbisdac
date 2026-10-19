@@ -898,7 +898,7 @@ function handleSignatureUpload(inputEl, previewId, textId, keyType) {
 async function handleReceiptPhoto(event, type) {
   const files = Array.from(event.target.files);
   if (files.length === 0) return;
-  const MAX_CHARS = 49500;
+  const MAX_CHARS = 480000;
   let targetArray = type === 'income' ? currentIncPhotos : (type === 'expense' ? currentExpPhotos : (type === 'mutasi' ? currentMutPhotos : currentEditPhotos));
   let targetGridId = type === 'income' ? 'incPhotoGrid' : (type === 'expense' ? 'expPhotoGrid' : (type === 'mutasi' ? 'mutPhotoGrid' : 'editPhotoGrid'));
   let targetUploadBoxId = type === 'income' ? 'incPhotoUploadBox' : (type === 'expense' ? 'expPhotoUploadBox' : (type === 'mutasi' ? 'mutPhotoUploadBox' : 'editPhotoUploadBox'));
@@ -910,7 +910,7 @@ async function handleReceiptPhoto(event, type) {
     return;
   }
 
-  setStatus('loading', 'Memproses gambar...');
+  setStatus('loading', 'Memproses gambar resolusi tinggi...');
 
   for (const file of files) {
     try {
@@ -921,32 +921,37 @@ async function handleReceiptPhoto(event, type) {
           img.onload = function () {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            let quality = 0.8; let scale = 1.0; let result = ''; let iterations = 0;
-            let baseWidth = img.width; let baseHeight = img.height; const MAX_START = 1000;
+            let quality = 0.82; let scale = 1.0; let result = ''; let iterations = 0;
+            let baseWidth = img.width; let baseHeight = img.height; const MAX_START = 1600;
             if (baseWidth > baseHeight && baseWidth > MAX_START) { baseHeight *= MAX_START / baseWidth; baseWidth = MAX_START; }
             else if (baseHeight > MAX_START) { baseWidth *= MAX_START / baseHeight; baseHeight = MAX_START; }
 
             do {
-              canvas.width = Math.floor(baseWidth * scale);
-              canvas.height = Math.floor(baseHeight * scale);
-              // Removed grayscale filter to retain color and improve appearance
+              canvas.width = Math.max(1, Math.floor(baseWidth * scale));
+              canvas.height = Math.max(1, Math.floor(baseHeight * scale));
+              ctx.imageSmoothingEnabled = true;
+              ctx.imageSmoothingQuality = 'high';
               ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
               result = canvas.toDataURL('image/webp', quality);
+              if (!result.startsWith('data:image/webp')) {
+                result = canvas.toDataURL('image/jpeg', quality);
+              }
               if (result.length > MAX_CHARS) {
-                quality -= 0.15;
-                if (quality < 0.4) { quality = 0.8; scale *= 0.7; }
+                quality -= 0.08;
+                if (quality < 0.60) { quality = 0.80; scale *= 0.85; }
               }
               iterations++;
-            } while (result.length > MAX_CHARS && iterations < 25);
+            } while (result.length > MAX_CHARS && iterations < 12);
 
-            // Failsafe: if still too large, forcefully reduce it
-            while (result.length > MAX_CHARS && scale > 0.1) {
-              scale *= 0.5;
-              canvas.width = Math.floor(baseWidth * scale);
-              canvas.height = Math.floor(baseHeight * scale);
-              // Removed grayscale filter
+            // Failsafe: if still too large, gently scale down
+            while (result.length > MAX_CHARS && scale > 0.3) {
+              scale *= 0.8;
+              canvas.width = Math.max(1, Math.floor(baseWidth * scale));
+              canvas.height = Math.max(1, Math.floor(baseHeight * scale));
+              ctx.imageSmoothingEnabled = true;
+              ctx.imageSmoothingQuality = 'high';
               ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-              result = canvas.toDataURL('image/webp', 0.6);
+              result = canvas.toDataURL('image/jpeg', 0.75);
             }
             resolve(result);
           };
@@ -1043,20 +1048,124 @@ function resetPhotoUpload(type) {
 
 let modalPhotoList = [];
 let currentPhotoIndex = 0;
+let currentViewingContext = null;
+let isPhotoZoomed = false;
 
 function openPhotoModal(url, url2 = '', url3 = '') {
   modalPhotoList = [url, url2, url3].filter(u => u && u.trim() !== '');
   if (modalPhotoList.length === 0) return;
   currentPhotoIndex = 0;
+  isPhotoZoomed = false;
   updatePhotoModalView();
-  document.getElementById('receiptPhotoModal').style.display = 'flex';
+  const modal = document.getElementById('receiptPhotoModal');
+  if (modal) modal.style.display = 'flex';
 }
 
 function changePhoto(dir) {
   currentPhotoIndex += dir;
   if (currentPhotoIndex < 0) currentPhotoIndex = modalPhotoList.length - 1;
   if (currentPhotoIndex >= modalPhotoList.length) currentPhotoIndex = 0;
+  isPhotoZoomed = false;
   updatePhotoModalView();
+}
+
+function togglePhotoZoom() {
+  const imgEl = document.getElementById('photoModalImg');
+  const zoomLabel = document.getElementById('photoZoomLabel');
+  if (!imgEl) return;
+  isPhotoZoomed = !isPhotoZoomed;
+  if (isPhotoZoomed) {
+    imgEl.style.transform = 'scale(2)';
+    imgEl.style.cursor = 'zoom-out';
+    imgEl.style.maxHeight = 'none';
+    imgEl.style.maxWidth = 'none';
+    if (zoomLabel) zoomLabel.textContent = 'Reset Zoom';
+  } else {
+    imgEl.style.transform = 'scale(1)';
+    imgEl.style.cursor = 'zoom-in';
+    imgEl.style.maxHeight = '75vh';
+    imgEl.style.maxWidth = '100%';
+    if (zoomLabel) zoomLabel.textContent = 'Zoom 2x';
+  }
+}
+
+function openCurrentPhotoFull() {
+  const imgEl = document.getElementById('photoModalImg');
+  if (!imgEl || !imgEl.src) return;
+  const src = imgEl.src;
+  if (src.startsWith('data:')) {
+    try {
+      const arr = src.split(',');
+      const mime = (arr[0].match(/:(.*?);/) || ['', 'image/png'])[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      const blob = new Blob([u8arr], { type: mime });
+      const blobUrl = URL.createObjectURL(blob);
+      window.open(blobUrl, '_blank');
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+      return;
+    } catch (e) {
+      console.warn('Blob conversion failed, fallback to direct open', e);
+    }
+  }
+  const win = window.open();
+  if (win) {
+    win.document.write(`<title>Foto Kuitansi</title><body style="margin:0;background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh;"><img src="${src}" style="max-width:100%;height:auto;" /></body>`);
+  } else {
+    window.open(src, '_blank');
+  }
+}
+
+function downloadCurrentPhoto() {
+  const imgEl = document.getElementById('photoModalImg');
+  if (!imgEl || !imgEl.src) return;
+  const src = imgEl.src;
+  const recNo = (currentViewingContext && currentViewingContext.record && (currentViewingContext.record.receipt_no || currentViewingContext.record.transaction_id)) || 'kuitansi';
+  const a = document.createElement('a');
+  a.href = src;
+  a.download = `kuitansi-${recNo}-${currentPhotoIndex + 1}.webp`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+async function regenerateReceiptInModal() {
+  if (!currentViewingContext || !currentViewingContext.record) {
+    notify('Konteks transaksi tidak ditemukan.', 'error');
+    return;
+  }
+  const r = currentViewingContext.record;
+  const type = currentViewingContext.type;
+  showGlobalLoading('Membuat ulang kuitansi HD berwarna...');
+  try {
+    let actualTypeForHtml = type;
+    const isMutasi = (r.department === 'Mutasi Kas / Setor Bank' || r.income_type === 'Mutasi Kas / Setor Bank');
+    if (isMutasi) actualTypeForHtml = 'mutasi';
+
+    const htmlStr = generateReceiptHTML(actualTypeForHtml, r);
+    const genBase64 = await generateReceiptImageBase64(htmlStr, false);
+
+    if (currentUser && (hasRole(currentUser, 'Admin') || hasRole(currentUser, 'Bendahara'))) {
+      const editPayload = { ...r, type: type, receipt_photo_base64: genBase64 };
+      r.receipt_photo = genBase64;
+      apiPost('editRecord', editPayload).catch(e => console.error('Silent photo update failed', e));
+    }
+
+    modalPhotoList = [genBase64];
+    currentPhotoIndex = 0;
+    isPhotoZoomed = false;
+    updatePhotoModalView();
+    notify('Kuitansi berhasil diperbarui menjadi HD!', 'success');
+  } catch (err) {
+    console.error('Failed regenerating receipt', err);
+    notify('Gagal membuat ulang kuitansi: ' + err.message, 'error');
+  } finally {
+    hideGlobalLoading();
+  }
 }
 
 function updatePhotoModalView() {
@@ -1064,16 +1173,66 @@ function updatePhotoModalView() {
   const prevEl = document.getElementById('prevPhotoBtn');
   const nextEl = document.getElementById('nextPhotoBtn');
   const cntEl = document.getElementById('photoCounter');
-  if (imgEl) imgEl.src = modalPhotoList[currentPhotoIndex];
+  const badgeEl = document.getElementById('photoQualityBadge');
+  const btnRegen = document.getElementById('btnRegenerateHD');
+  const zoomLabel = document.getElementById('photoZoomLabel');
+
+  if (imgEl) {
+    imgEl.style.transform = 'scale(1)';
+    imgEl.style.cursor = 'zoom-in';
+    imgEl.style.maxHeight = '75vh';
+    imgEl.style.maxWidth = '100%';
+  }
+  if (zoomLabel) zoomLabel.textContent = 'Zoom 2x';
+  isPhotoZoomed = false;
+
+  const currentSrc = modalPhotoList[currentPhotoIndex] || '';
+  if (imgEl) {
+    imgEl.onload = function () {
+      if (badgeEl) {
+        const w = imgEl.naturalWidth;
+        const h = imgEl.naturalHeight;
+        if (w >= 1000 || h >= 1000) {
+          badgeEl.textContent = `${w}×${h} HD`;
+          badgeEl.style.background = 'rgba(16,185,129,0.15)';
+          badgeEl.style.color = '#10b981';
+          badgeEl.style.borderColor = 'rgba(16,185,129,0.3)';
+        } else if (w > 0) {
+          badgeEl.textContent = `${w}×${h} (Kompresi Lama)`;
+          badgeEl.style.background = 'rgba(245,158,11,0.15)';
+          badgeEl.style.color = '#f59e0b';
+          badgeEl.style.borderColor = 'rgba(245,158,11,0.3)';
+        }
+      }
+    };
+    imgEl.src = currentSrc;
+  }
+
   if (prevEl) prevEl.style.display = modalPhotoList.length > 1 ? 'flex' : 'none';
   if (nextEl) nextEl.style.display = modalPhotoList.length > 1 ? 'flex' : 'none';
   if (cntEl) cntEl.textContent = modalPhotoList.length > 1 ? `Foto ${currentPhotoIndex + 1} dari ${modalPhotoList.length}` : '';
+
+  if (btnRegen) {
+    if (currentViewingContext && currentViewingContext.record) {
+      btnRegen.style.display = 'inline-flex';
+    } else {
+      btnRegen.style.display = 'none';
+    }
+  }
 }
 
 function closePhotoModal() {
-  document.getElementById('receiptPhotoModal').style.display = 'none';
-  document.getElementById('photoModalImg').src = '';
+  const modal = document.getElementById('receiptPhotoModal');
+  if (modal) modal.style.display = 'none';
+  const imgEl = document.getElementById('photoModalImg');
+  if (imgEl) {
+    imgEl.src = '';
+    imgEl.style.transform = 'scale(1)';
+  }
+  isPhotoZoomed = false;
+  currentViewingContext = null;
 }
+
 async function openPhotoModalById(id, type) {
   let r = null;
   if (type === 'income') {
@@ -1098,6 +1257,8 @@ async function openPhotoModalById(id, type) {
   }
 
   if (r) {
+    currentViewingContext = { record: r, type: type };
+
     const generateAndShowAutoReceipt = () => {
       const overlay = document.getElementById('loadingOverlay');
       if (overlay) overlay.style.display = 'flex';
@@ -1112,6 +1273,7 @@ async function openPhotoModalById(id, type) {
               if (expSide) {
                 r = expSide;
                 type = 'expense';
+                currentViewingContext = { record: r, type: type };
               }
             }
           }
@@ -1156,6 +1318,14 @@ async function openPhotoModalById(id, type) {
             hideGlobalLoading();
             generateAndShowAutoReceipt();
           } else {
+            // Cek apakah p1 adalah kuitansi otomatis dari sistem lama yang buram/grayscale
+            const isAutoReceipt = p1 && p1.includes('name=auto-receipt');
+            if (isAutoReceipt && !p2 && !p3) {
+              hideGlobalLoading();
+              // Otomatis buat ulang kuitansi HD berwarna tajam
+              generateAndShowAutoReceipt();
+              return;
+            }
             openPhotoModal(p1, p2, p3);
           }
         } else {
@@ -5460,58 +5630,30 @@ function generateReceiptImageBase64(htmlString, isForViewing = false) {
     // Wait briefly for DOM to render completely
     setTimeout(() => {
       html2canvas(container, {
-        scale: isForViewing ? 1.5 : 2,
+        scale: 2, // High-definition 2x rendering
         useCORS: true,
         backgroundColor: '#ffffff',
+        imageTimeout: 15000,
         ignoreElements: (node) => {
           if (node.id === 'floatingSyncBtn') return true;
           if (node.classList && node.classList.contains('fixed')) return true;
           return false;
         }
       }).then(async origCanvas => {
-        const MAX_CHARS = 48000; // Google Sheets cell limit is ~50000 chars
-
-        // Convert to grayscale (like manual upload) for better compression + quality
-        const bwCanvas = document.createElement('canvas');
-        bwCanvas.width = origCanvas.width;
-        bwCanvas.height = origCanvas.height;
-        const bwCtx = bwCanvas.getContext('2d');
-        // grayscale + slight brightness boost so dark-colored headers stay readable (not pure black)
-        bwCtx.filter = 'grayscale(100%) brightness(1.1)';
-        bwCtx.drawImage(origCanvas, 0, 0);
-
-        // Use WebP for much better quality at smaller sizes
-        let quality = isForViewing ? 0.8 : 0.92;
-        let base64Str = bwCanvas.toDataURL('image/webp', quality);
-
-        if (!isForViewing) {
-          while (base64Str.length > MAX_CHARS && quality > 0.2) {
-            await new Promise(r => setTimeout(r, 10));
-            quality -= 0.2;
-            base64Str = bwCanvas.toDataURL('image/webp', quality);
-          }
-
-          // If still too large, scale down
-          if (base64Str.length > MAX_CHARS) {
-            let scale = 0.6;
-            while (base64Str.length > MAX_CHARS && scale > 0.15) {
-              await new Promise(r => setTimeout(r, 10));
-              const scaledCanvas = document.createElement('canvas');
-              scaledCanvas.width = Math.floor(bwCanvas.width * scale);
-              scaledCanvas.height = Math.floor(bwCanvas.height * scale);
-              const ctx = scaledCanvas.getContext('2d');
-              ctx.fillStyle = '#ffffff';
-              ctx.fillRect(0, 0, scaledCanvas.width, scaledCanvas.height);
-              ctx.drawImage(bwCanvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
-              base64Str = scaledCanvas.toDataURL('image/webp', 0.6);
-              scale *= 0.6;
-            }
-          }
+        // High-definition full-color output: preserve genuine colors of stamps, logos, text
+        let base64Str = origCanvas.toDataURL('image/webp', 0.88);
+        if (!base64Str.startsWith('data:image/webp')) {
+          base64Str = origCanvas.toDataURL('image/jpeg', 0.88);
         }
 
-        console.log(`Receipt image: ${base64Str.length} chars (limit: ${MAX_CHARS}), quality: ${quality.toFixed(2)}`);
-
+        // Tag as auto-receipt
         base64Str = base64Str.replace('image/webp', 'image/webp;name=auto-receipt');
+        if (!base64Str.includes('name=auto-receipt')) {
+          base64Str = base64Str.replace('image/jpeg', 'image/jpeg;name=auto-receipt');
+        }
+
+        console.log(`HD Receipt generated: ${base64Str.length} chars, dimension: ${origCanvas.width}x${origCanvas.height}`);
+
         container.innerHTML = '';
         if (overlay) overlay.style.display = 'none';
         resolve(base64Str);
@@ -5524,6 +5666,60 @@ function generateReceiptImageBase64(htmlString, isForViewing = false) {
     }, 150);
   });
 }
+
+// Utility to upgrade past receipts to HD
+window.upgradeOldReceiptsToHD = async function () {
+  const allTrans = [...cachedIncome, ...cachedExpense];
+  const toUpgrade = allTrans.filter(x => !x.receipt_photo || (typeof x.receipt_photo === 'string' && x.receipt_photo.includes('name=auto-receipt')));
+  if (toUpgrade.length === 0) {
+    alert("Semua kuitansi otomatis sudah dalam resolusi HD!");
+    return;
+  }
+  const confirmed = confirm(`Ditemukan ${toUpgrade.length} transaksi yang dapat di-upgrade ke kuitansi HD berwarna. Lanjutkan proses sekarang?`);
+  if (!confirmed) return;
+
+  let batchOverlay = document.createElement('div');
+  batchOverlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: sans-serif; text-align: center; padding: 20px;';
+  document.body.appendChild(batchOverlay);
+
+  let success = 0;
+  let failed = 0;
+
+  for (let i = 0; i < toUpgrade.length; i++) {
+    const r = toUpgrade[i];
+    const type = r.income_type ? 'income' : 'expense';
+    batchOverlay.innerHTML = `<h2 style="margin-bottom:8px;">Meng-upgrade Kuitansi HD (${i + 1}/${toUpgrade.length})</h2><p style="color:#10b981;font-weight:bold;">${r.receipt_no || r.transaction_id || ''}</p><p style="margin-top:16px;color:#aaa;font-size:13px;">Menyimpan kuitansi HD berwarna ke server...</p>`;
+    try {
+      const htmlStr = generateReceiptHTML(type, r);
+      const genBase64 = await generateReceiptImageBase64(htmlStr);
+
+      let payload;
+      if (type === 'income') {
+        payload = {
+          type: 'income', transaction_id: r.transaction_id || r.id, date: r.date, receipt_no: r.receipt_no, amount: r.amount, note: r.note,
+          receipt_photo_base64: genBase64,
+          original: r, income_type: r.income_type, unit_name: r.unit_name, nama_pemberi: r.nama_pemberi
+        };
+      } else {
+        payload = {
+          type: 'expense', transaction_id: r.transaction_id || r.id, date: r.date, receipt_no: r.receipt_no, amount: r.amount, note: r.note,
+          receipt_photo_base64: genBase64,
+          original: r, department: r.department, source_balance: r.source_balance, nama_penerima: r.nama_penerima
+        };
+      }
+      r.receipt_photo = genBase64;
+      await apiPostWithFallback('editRecord', payload);
+      success++;
+    } catch (e) {
+      console.error("Upgrade HD failed for", r.receipt_no, e);
+      failed++;
+    }
+    await new Promise(res => setTimeout(res, 300));
+  }
+
+  batchOverlay.remove();
+  alert(`Selesai meng-upgrade kuitansi!\nBerhasil: ${success}\nGagal: ${failed}`);
+};
 
 // Admin tool to batch upload old receipts (run via console: window.batchUploadOldReceipts())
 window.batchUploadOldReceipts = async function () {
@@ -6598,6 +6794,11 @@ window.cancelEditDept = cancelEditDept;
 window.openEditTrans = openEditTrans;
 window.toggleCloseMonthFromModal = toggleCloseMonthFromModal;
 window.showPage = showPage;
+window.togglePhotoZoom = togglePhotoZoom;
+window.openCurrentPhotoFull = openCurrentPhotoFull;
+window.downloadCurrentPhoto = downloadCurrentPhoto;
+window.regenerateReceiptInModal = regenerateReceiptInModal;
+window.upgradeOldReceiptsToHD = upgradeOldReceiptsToHD;
 
 function doPrintPartisipasi() {
   const allowedRoles = ['Admin', 'Bendahara', 'Ketua Jemaat', 'Pendeta', 'Gembala'];

@@ -1168,13 +1168,8 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     };
 
     const handleMenuClick = (e, item) => {
-        if (window.innerWidth < 768 && tappedMenu !== item.id) {
-            e.preventDefault();
-            setTappedMenu(item.id);
-            setTimeout(() => setTappedMenu(null), 3000); // hide after 3 seconds if not clicked again
-            return;
-        }
         if (!item.isExternal && !item.isSameTab) {
+            e.preventDefault();
             setActiveTab(item.id);
         }
     };
@@ -1220,21 +1215,18 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     ];
 
     const renderFeatureItem = (item) => {
-        const isTapped = tappedMenu === item.id;
-        const textWrapperClass = `w-full transition-all duration-300 overflow-hidden flex justify-center ${isTapped ? 'max-h-[30px] opacity-100 mt-1.5' : 'max-h-0 opacity-0 md:max-h-[30px] md:opacity-100 md:mt-1.5'}`;
-
         const content = (
             <>
-                <div className="w-11 h-11 md:w-14 md:h-14 rounded-[1rem] bg-white dark:bg-navy-700 group-hover:bg-[#4A7045] dark:group-hover:bg-gold-500 flex items-center justify-center transition-colors duration-300 shadow-sm border border-[#E2E8D8] dark:border-navy-600 group-hover:border-[#4A7045] dark:group-hover:border-gold-500">
+                <div className="w-11 h-11 md:w-14 md:h-14 rounded-[1rem] bg-white dark:bg-navy-700 group-hover:bg-[#4A7045] dark:group-hover:bg-gold-500 flex items-center justify-center transition-all duration-300 shadow-sm border border-[#E2E8D8] dark:border-navy-600 group-hover:border-[#4A7045] dark:group-hover:border-gold-500 group-active:scale-95">
                     <Icon name={item.icon} className="w-5 h-5 md:w-6 md:h-6 text-[#4A7045] dark:text-gold-400 group-hover:text-white dark:group-hover:text-navy-900 transition-colors duration-300" />
                 </div>
-                <div className={textWrapperClass}>
-                    <span className="font-bold text-[8.5px] md:text-[10px] lg:text-[12px] text-[#2C3F21] dark:text-navy-100 leading-tight text-center break-words">{item.label}</span>
+                <div className="w-full flex justify-center mt-1.5 px-0.5">
+                    <span className="font-bold text-[8.5px] sm:text-[9.5px] md:text-[10px] lg:text-[12px] text-[#2C3F21] dark:text-navy-100 leading-tight text-center break-words line-clamp-2">{item.label}</span>
                 </div>
             </>
         );
 
-        const className = "group flex flex-col items-center justify-start p-1.5 md:p-2 rounded-2xl hover:bg-[#F4F7EF] dark:hover:bg-navy-800 transition-all duration-300 cursor-pointer w-[20%] md:w-auto md:flex-1 min-w-0";
+        const className = "group flex flex-col items-center justify-start p-1 sm:p-1.5 md:p-2 rounded-2xl hover:bg-[#F4F7EF] dark:hover:bg-navy-800 transition-all duration-300 cursor-pointer w-[22%] sm:w-[15%] md:w-auto md:flex-1 min-w-0";
 
         if (item.isSameTab) return <a key={item.id} href={item.link} onClick={(e) => handleMenuClick(e, item)} className={className}>{content}</a>;
         if (item.isExternal) return <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" onClick={(e) => handleMenuClick(e, item)} className={className}>{content}</a>;
@@ -1348,7 +1340,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         </div>
 
                         {/* Main Pill */}
-                        <div className="relative w-full bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-2 md:p-5 pt-6 md:pt-10 shadow-xl border-4 border-white dark:border-navy-700 flex flex-wrap md:flex-nowrap items-start justify-center md:justify-evenly gap-0 transition-colors duration-500 z-10">
+                        <div className="relative w-full bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-3 md:p-5 pt-7 md:pt-10 shadow-xl border-4 border-white dark:border-navy-700 flex flex-wrap md:flex-nowrap items-start justify-center md:justify-evenly gap-y-3 sm:gap-y-4 md:gap-0 transition-colors duration-500 z-10">
                             {featureItems.map(item => renderFeatureItem(item))}
                         </div>
                     </div>
@@ -7268,7 +7260,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
             setSelectedVerses(new Set());
             setSelectedAyat('');
         } catch (err) {
-            setFetchError('Gagal memuat. Periksa koneksi internet Anda.');
+            setFetchError('Kitab ini belum tersimpan di memori offline. Sambungkan internet sekali agar otomatis tersimpan.');
         }
         setIsLoadingChapter(false);
     }, []);
@@ -7554,10 +7546,16 @@ const Alkitab = ({ setHideGlobalBack }) => {
                         </div>
                     ) : (
                         <>
-                            <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white flex items-center mb-6 px-2 mt-2">
-                                <Icon name="Book" className="w-6 h-6 mr-2 text-gold-500" />
-                                Alkitab TB
-                            </h2>
+                            <div className="flex flex-wrap items-center justify-between gap-3 mb-6 px-2 mt-2">
+                                <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white flex items-center">
+                                    <Icon name="Book" className="w-6 h-6 mr-2 text-gold-500" />
+                                    Alkitab TB
+                                </h2>
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-[11px] font-bold tracking-wide">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    66 Kitab Siap Offline
+                                </span>
+                            </div>
                             {renderBookList(pl, 'Perjanjian Lama')}
                             {renderBookList(pb, 'Perjanjian Baru')}
                             {filterBooks([...pl, ...pb]).length === 0 && (
@@ -7812,7 +7810,7 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
             setDb(laguSionDb);
         } else {
             setIsLoading(true);
-            fetch('/lagu_sion.json')
+            fetch('./lagu_sion.json')
                 .then(r => r.json())
                 .then(data => {
                     setDb(data);
@@ -8014,6 +8012,16 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
             {/* Shared Search Box for Numpad and Index */}
             {(subTab === 'numpad' || subTab === 'index') && (
                 <div className="max-w-xl mx-auto mt-2 mb-4 px-4">
+                    <div className="flex items-center justify-between gap-2 mb-2 px-1">
+                        <span className="text-xs font-black text-navy-800 dark:text-navy-100 uppercase tracking-wider flex items-center gap-1.5">
+                            <Icon name="Music" className="w-4 h-4 text-gold-500" />
+                            Lagu Sion
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-[10px] font-extrabold tracking-wide">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            525 Lagu Siap Offline
+                        </span>
+                    </div>
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             <Icon name="Search" className="h-5 w-5 text-navy-400" />
@@ -8840,6 +8848,18 @@ const App = () => {
     const [syncTrigger, setSyncTrigger] = React.useState(0);
     const [isSyncing, setIsSyncing] = React.useState(false);
     const [showSyncNotif, setShowSyncNotif] = React.useState(false);
+    const [isOnline, setIsOnline] = React.useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+
+    React.useEffect(() => {
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
 
     // MENGAMBIL DATA DARI REST API GOOGLE APPS SCRIPT DENGAN CACHING
     React.useEffect(() => {
@@ -9029,7 +9049,8 @@ const App = () => {
                     daftarWarta: data.daftarWarta,
                     daftarBuku: fetchedBuku.length > 0 ? fetchedBuku : daftarBuku, // Simpan ke cache
                     pengumumanObj: newPengumumanObj,
-                    kontakGerejaObj: newKontakGerejaObj
+                    kontakGerejaObj: newKontakGerejaObj,
+                    _cachedAt: Date.now()
                 }));
 
                 if (!hasCache) setIsAppLoading(false);
@@ -9182,6 +9203,14 @@ const App = () => {
                     </div>
                 </div>
             </header>
+
+            {/* Notifikasi Mode Offline */}
+            {!isOnline && (
+                <div className="fixed top-[70px] left-1/2 transform -translate-x-1/2 z-[45] bg-amber-900/90 dark:bg-amber-950/95 backdrop-blur-md border border-amber-500/50 text-amber-100 px-5 py-2.5 rounded-full shadow-2xl text-xs md:text-sm font-bold flex items-center gap-2.5 animate-fade-in w-max max-w-[92vw]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
+                    <span className="truncate">Mode Offline Aktif — Lagu Sion & Alkitab tetap dapat dibaca lancar</span>
+                </div>
+            )}
 
             {/* Notifikasi Sinkronisasi */}
             {showSyncNotif && (
