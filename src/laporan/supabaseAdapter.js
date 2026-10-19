@@ -30,17 +30,17 @@ export async function supabaseGet(action, params = {}) {
         let q = supabase.from('income').select('transaction_id, date, month, year, income_type, nama_pemberi, unit_name, receipt_no, amount, alloc_daerah, alloc_jemaat, alloc_bangun, note, created_by, created_at, approved_by');
         if (params.year) q = q.eq('year', params.year);
         if (params.month) q = q.eq('month', params.month);
-        
+
         let p = supabase.from('income').select('transaction_id').not('receipt_photo', 'is', null).neq('receipt_photo', '');
         if (params.year) p = p.eq('year', params.year);
         if (params.month) p = p.eq('month', params.month);
 
         const [resData, resPhotos] = await Promise.all([q, p]);
         if (resData.error) throw resData.error;
-        
+
         const photoMap = {};
         if (resPhotos.data) resPhotos.data.forEach(r => photoMap[r.transaction_id] = true);
-        
+
         const data = resData.data || [];
         data.forEach(r => { r.receipt_photo = photoMap[r.transaction_id] ? true : false; });
         return { success: true, data };
@@ -50,17 +50,17 @@ export async function supabaseGet(action, params = {}) {
         let q = supabase.from('expense').select('transaction_id, date, month, year, department, source_balance, receipt_no, amount, nama_penerima, note, created_by, created_at, approved_by');
         if (params.year) q = q.eq('year', params.year);
         if (params.month) q = q.eq('month', params.month);
-        
+
         let p = supabase.from('expense').select('transaction_id').not('receipt_photo', 'is', null).neq('receipt_photo', '');
         if (params.year) p = p.eq('year', params.year);
         if (params.month) p = p.eq('month', params.month);
 
         const [resData, resPhotos] = await Promise.all([q, p]);
         if (resData.error) throw resData.error;
-        
+
         const photoMap = {};
         if (resPhotos.data) resPhotos.data.forEach(r => photoMap[r.transaction_id] = true);
-        
+
         const data = resData.data || [];
         data.forEach(r => { r.receipt_photo = photoMap[r.transaction_id] ? true : false; });
         return { success: true, data };
@@ -91,7 +91,7 @@ export async function supabaseGet(action, params = {}) {
         if (error) throw error;
         return { success: true, data: data || [] };
       }
-      
+
       case 'getTransactionPhotos': {
         const table = params.type === 'income' ? 'income' : 'expense';
         const { data, error } = await supabase.from(table).select('receipt_photo, receipt_photo_2, receipt_photo_3').or(`transaction_id.eq."${params.id}",receipt_no.eq."${params.id}"`).single();
@@ -113,24 +113,24 @@ function writeLog(username, action, detail) {
 }
 
 async function getNextSeqNum(table, prefix, year, month) {
-    const yStr = year.toString();
-    const mStr = month.toString().padStart(2, '0');
-    const prefixFull = `${prefix}-${yStr}${mStr}`;
-    const { data } = await supabase
-        .from(table)
-        .select('transaction_id')
-        .like('transaction_id', `${prefixFull}%`)
-        .order('transaction_id', { ascending: false })
-        .limit(1);
-    
-    let nextNum = 1;
-    if (data && data.length > 0) {
-        const lastId = data[0].transaction_id;
-        const lastNumStr = lastId.replace(prefixFull, '');
-        const lastNum = parseInt(lastNumStr, 10);
-        if (!isNaN(lastNum)) nextNum = lastNum + 1;
-    }
-    return nextNum;
+  const yStr = year.toString();
+  const mStr = month.toString().padStart(2, '0');
+  const prefixFull = `${prefix}-${yStr}${mStr}`;
+  const { data } = await supabase
+    .from(table)
+    .select('transaction_id')
+    .like('transaction_id', `${prefixFull}%`)
+    .order('transaction_id', { ascending: false })
+    .limit(1);
+
+  let nextNum = 1;
+  if (data && data.length > 0) {
+    const lastId = data[0].transaction_id;
+    const lastNumStr = lastId.replace(prefixFull, '');
+    const lastNum = parseInt(lastNumStr, 10);
+    if (!isNaN(lastNum)) nextNum = lastNum + 1;
+  }
+  return nextNum;
 }
 
 export async function supabasePost(action, payload = {}) {
@@ -160,36 +160,36 @@ export async function supabasePost(action, payload = {}) {
         const { data: types } = await supabase.from('income_types').select('*').eq('name', payload.income_type).single();
         let alloc_daerah = 0, alloc_jemaat = 0, alloc_bangun = 0;
         if (types) {
-           alloc_daerah = (payload.amount * (types.pct_daerah || 0)) / 100;
-           alloc_jemaat = (payload.amount * (types.pct_jemaat || 0)) / 100;
-           alloc_bangun = (payload.amount * (types.pct_bangun || 0)) / 100;
+          alloc_daerah = (payload.amount * (types.pct_daerah || 0)) / 100;
+          alloc_jemaat = (payload.amount * (types.pct_jemaat || 0)) / 100;
+          alloc_bangun = (payload.amount * (types.pct_bangun || 0)) / 100;
         }
         if (payload.income_type === 'Mutasi Kas / Setor Bank') {
-            alloc_daerah = 0; alloc_jemaat = 0; alloc_bangun = 0;
+          alloc_daerah = 0; alloc_jemaat = 0; alloc_bangun = 0;
         }
         const year = parseInt(payload.date.split('-')[0]);
         const month = parseInt(payload.date.split('-')[1]);
         const nextNum = await getNextSeqNum('income', 'INC', year, month);
         const transaction_id = `INC-${year}${month.toString().padStart(2, '0')}${String(nextNum).padStart(3, '0')}`;
-        
+
         const insertData = {
-           transaction_id,
-           date: payload.date,
-           month,
-           year,
-           income_type: payload.income_type,
-           nama_pemberi: payload.nama_pemberi,
-           unit_name: payload.unit_name,
-           receipt_no: payload.receipt_no || ('R-' + Date.now()),
-           amount: payload.amount,
-           alloc_daerah, alloc_jemaat, alloc_bangun,
-           note: payload.note,
-           created_by: username,
-           created_at: new Date().toISOString(),
-           receipt_photo: payload.receipt_photo_base64 || payload.photo || '',
-           receipt_photo_2: payload.receipt_photo_base64_2 || payload.photo2 || '',
-           receipt_photo_3: payload.receipt_photo_base64_3 || payload.photo3 || '',
-           approved_by: ''
+          transaction_id,
+          date: payload.date,
+          month,
+          year,
+          income_type: payload.income_type,
+          nama_pemberi: payload.nama_pemberi,
+          unit_name: payload.unit_name,
+          receipt_no: payload.receipt_no || ('R-' + Date.now()),
+          amount: payload.amount,
+          alloc_daerah, alloc_jemaat, alloc_bangun,
+          note: payload.note,
+          created_by: username,
+          created_at: new Date().toISOString(),
+          receipt_photo: payload.receipt_photo_base64 || payload.photo || '',
+          receipt_photo_2: payload.receipt_photo_base64_2 || payload.photo2 || '',
+          receipt_photo_3: payload.receipt_photo_base64_3 || payload.photo3 || '',
+          approved_by: ''
         };
         const { error } = await supabase.from('income').insert([insertData]);
         if (error) throw error;
@@ -203,24 +203,24 @@ export async function supabasePost(action, payload = {}) {
         const month = parseInt(payload.date.split('-')[1]);
         const nextNum = await getNextSeqNum('expense', 'EXP', year, month);
         const transaction_id = `EXP-${year}${month.toString().padStart(2, '0')}${String(nextNum).padStart(3, '0')}`;
-        
+
         const insertData = {
-           transaction_id,
-           date: payload.date,
-           month,
-           year,
-           department: payload.department,
-           source_balance: payload.source_balance,
-           receipt_no: payload.receipt_no || ('R-' + Date.now()),
-           amount: payload.amount,
-           note: payload.note,
-           created_by: username,
-           created_at: new Date().toISOString(),
-           receipt_photo: payload.receipt_photo_base64 || payload.photo || '',
-           nama_penerima: payload.nama_penerima || '-',
-           receipt_photo_2: payload.receipt_photo_base64_2 || payload.photo2 || '',
-           receipt_photo_3: payload.receipt_photo_base64_3 || payload.photo3 || '',
-           approved_by: ''
+          transaction_id,
+          date: payload.date,
+          month,
+          year,
+          department: payload.department,
+          source_balance: payload.source_balance,
+          receipt_no: payload.receipt_no || ('R-' + Date.now()),
+          amount: payload.amount,
+          note: payload.note,
+          created_by: username,
+          created_at: new Date().toISOString(),
+          receipt_photo: payload.receipt_photo_base64 || payload.photo || '',
+          nama_penerima: payload.nama_penerima || '-',
+          receipt_photo_2: payload.receipt_photo_base64_2 || payload.photo2 || '',
+          receipt_photo_3: payload.receipt_photo_base64_3 || payload.photo3 || '',
+          approved_by: ''
         };
         const { error } = await supabase.from('expense').insert([insertData]);
         if (error) throw error;
@@ -242,52 +242,52 @@ export async function supabasePost(action, payload = {}) {
       case 'editRecord': {
         if (!isBendaharaOrAdmin) return { success: false, message: 'Hanya Admin atau Bendahara.' };
         const table = payload.type === 'income' ? 'income' : 'expense';
-        
+
         let updateData = {};
         if (table === 'income') {
-            const { data: types } = await supabase.from('income_types').select('*').eq('name', payload.income_type).single();
-            let alloc_daerah = 0, alloc_jemaat = 0, alloc_bangun = 0;
-            if (types && payload.income_type !== 'Mutasi Kas / Setor Bank') {
-               alloc_daerah = (payload.amount * types.pct_daerah) / 100;
-               alloc_jemaat = (payload.amount * types.pct_jemaat) / 100;
-               alloc_bangun = (payload.amount * types.pct_bangun) / 100;
-            }
-            updateData = {
-               date: payload.date,
-               month: parseInt(payload.date.split('-')[1]),
-               year: parseInt(payload.date.split('-')[0]),
-               income_type: payload.income_type,
-               nama_pemberi: payload.nama_pemberi,
-               unit_name: payload.unit_name,
-               receipt_no: payload.receipt_no,
-               amount: payload.amount,
-               alloc_daerah, alloc_jemaat, alloc_bangun,
-               note: payload.note
-            };
-            if (payload.receipt_photo_base64 !== undefined) updateData.receipt_photo = payload.receipt_photo_base64;
-            if (payload.receipt_photo_base64_2 !== undefined) updateData.receipt_photo_2 = payload.receipt_photo_base64_2;
-            if (payload.receipt_photo_base64_3 !== undefined) updateData.receipt_photo_3 = payload.receipt_photo_base64_3;
-            if (payload.photo !== undefined && !payload.receipt_photo_base64) updateData.receipt_photo = payload.photo;
-            if (payload.photo2 !== undefined && !payload.receipt_photo_base64_2) updateData.receipt_photo_2 = payload.photo2;
-            if (payload.photo3 !== undefined && !payload.receipt_photo_base64_3) updateData.receipt_photo_3 = payload.photo3;
+          const { data: types } = await supabase.from('income_types').select('*').eq('name', payload.income_type).single();
+          let alloc_daerah = 0, alloc_jemaat = 0, alloc_bangun = 0;
+          if (types && payload.income_type !== 'Mutasi Kas / Setor Bank') {
+            alloc_daerah = (payload.amount * types.pct_daerah) / 100;
+            alloc_jemaat = (payload.amount * types.pct_jemaat) / 100;
+            alloc_bangun = (payload.amount * types.pct_bangun) / 100;
+          }
+          updateData = {
+            date: payload.date,
+            month: parseInt(payload.date.split('-')[1]),
+            year: parseInt(payload.date.split('-')[0]),
+            income_type: payload.income_type,
+            nama_pemberi: payload.nama_pemberi,
+            unit_name: payload.unit_name,
+            receipt_no: payload.receipt_no,
+            amount: payload.amount,
+            alloc_daerah, alloc_jemaat, alloc_bangun,
+            note: payload.note
+          };
+          if (payload.receipt_photo_base64 !== undefined) updateData.receipt_photo = payload.receipt_photo_base64;
+          if (payload.receipt_photo_base64_2 !== undefined) updateData.receipt_photo_2 = payload.receipt_photo_base64_2;
+          if (payload.receipt_photo_base64_3 !== undefined) updateData.receipt_photo_3 = payload.receipt_photo_base64_3;
+          if (payload.photo !== undefined && !payload.receipt_photo_base64) updateData.receipt_photo = payload.photo;
+          if (payload.photo2 !== undefined && !payload.receipt_photo_base64_2) updateData.receipt_photo_2 = payload.photo2;
+          if (payload.photo3 !== undefined && !payload.receipt_photo_base64_3) updateData.receipt_photo_3 = payload.photo3;
         } else {
-            updateData = {
-               date: payload.date,
-               month: parseInt(payload.date.split('-')[1]),
-               year: parseInt(payload.date.split('-')[0]),
-               department: payload.department,
-               source_balance: payload.source_balance,
-               receipt_no: payload.receipt_no,
-               amount: payload.amount,
-               nama_penerima: payload.nama_penerima,
-               note: payload.note
-            };
-            if (payload.receipt_photo_base64 !== undefined) updateData.receipt_photo = payload.receipt_photo_base64;
-            if (payload.receipt_photo_base64_2 !== undefined) updateData.receipt_photo_2 = payload.receipt_photo_base64_2;
-            if (payload.receipt_photo_base64_3 !== undefined) updateData.receipt_photo_3 = payload.receipt_photo_base64_3;
-            if (payload.photo !== undefined && !payload.receipt_photo_base64) updateData.receipt_photo = payload.photo;
-            if (payload.photo2 !== undefined && !payload.receipt_photo_base64_2) updateData.receipt_photo_2 = payload.photo2;
-            if (payload.photo3 !== undefined && !payload.receipt_photo_base64_3) updateData.receipt_photo_3 = payload.photo3;
+          updateData = {
+            date: payload.date,
+            month: parseInt(payload.date.split('-')[1]),
+            year: parseInt(payload.date.split('-')[0]),
+            department: payload.department,
+            source_balance: payload.source_balance,
+            receipt_no: payload.receipt_no,
+            amount: payload.amount,
+            nama_penerima: payload.nama_penerima,
+            note: payload.note
+          };
+          if (payload.receipt_photo_base64 !== undefined) updateData.receipt_photo = payload.receipt_photo_base64;
+          if (payload.receipt_photo_base64_2 !== undefined) updateData.receipt_photo_2 = payload.receipt_photo_base64_2;
+          if (payload.receipt_photo_base64_3 !== undefined) updateData.receipt_photo_3 = payload.receipt_photo_base64_3;
+          if (payload.photo !== undefined && !payload.receipt_photo_base64) updateData.receipt_photo = payload.photo;
+          if (payload.photo2 !== undefined && !payload.receipt_photo_base64_2) updateData.receipt_photo_2 = payload.photo2;
+          if (payload.photo3 !== undefined && !payload.receipt_photo_base64_3) updateData.receipt_photo_3 = payload.photo3;
         }
 
         const targetId = payload.id || payload.transaction_id;
@@ -300,10 +300,10 @@ export async function supabasePost(action, payload = {}) {
       case 'setInitialBalance': {
         if (!isAdmin) return { success: false, message: 'Hanya Admin.' };
         for (const k of ['daerah', 'jemaat', 'pembangunan']) {
-            if (payload[k] !== undefined) {
-               const src = k === 'daerah' ? 'Daerah' : (k === 'jemaat' ? 'Kas Jemaat' : 'Pembangunan');
-               await supabase.from('balances').upsert({ source: src, balance: payload[k] });
-            }
+          if (payload[k] !== undefined) {
+            const src = k === 'daerah' ? 'Daerah' : (k === 'jemaat' ? 'Kas Jemaat' : 'Pembangunan');
+            await supabase.from('balances').upsert({ source: src, balance: payload[k] });
+          }
         }
         writeLog(username, 'SET_BALANCE', JSON.stringify(payload));
         return { success: true, message: 'Saldo awal disesuaikan.' };
@@ -326,7 +326,7 @@ export async function supabasePost(action, payload = {}) {
         if (error) throw error;
         return { success: true, message: 'Unit disimpan.' };
       }
-      
+
       case 'deleteUnit': {
         const { error } = await supabase.from('units').delete().eq('name', payload.name);
         if (error) throw error;
@@ -335,17 +335,17 @@ export async function supabasePost(action, payload = {}) {
 
       case 'saveIncomeType': {
         if (payload.isUpdate) {
-            await supabase.from('income_types').update({ 
-                name: payload.name, pct_daerah: payload.pct_daerah, pct_jemaat: payload.pct_jemaat, pct_bangun: payload.pct_bangun 
-            }).eq('name', payload.oldName);
+          await supabase.from('income_types').update({
+            name: payload.name, pct_daerah: payload.pct_daerah, pct_jemaat: payload.pct_jemaat, pct_bangun: payload.pct_bangun
+          }).eq('name', payload.oldName);
         } else {
-            await supabase.from('income_types').insert([{ 
-                id: 'TYP-' + Date.now(), name: payload.name, pct_daerah: payload.pct_daerah, pct_jemaat: payload.pct_jemaat, pct_bangun: payload.pct_bangun 
-            }]);
+          await supabase.from('income_types').insert([{
+            id: 'TYP-' + Date.now(), name: payload.name, pct_daerah: payload.pct_daerah, pct_jemaat: payload.pct_jemaat, pct_bangun: payload.pct_bangun
+          }]);
         }
         return { success: true, message: 'Jenis pemasukan disimpan.' };
       }
-      
+
       case 'deleteIncomeType': {
         await supabase.from('income_types').delete().eq('name', payload.name);
         return { success: true, message: 'Jenis pemasukan dihapus.' };
@@ -355,7 +355,7 @@ export async function supabasePost(action, payload = {}) {
         const table = payload.type === 'income' ? 'income' : 'expense';
         const targetId = payload.transaction_id || payload.id;
         if (!targetId) return { success: false, message: 'ID transaksi tidak valid.' };
-        
+
         const { data: trx, error: fetchErr } = await supabase.from(table).select('approved_by').eq('transaction_id', targetId).single();
         if (fetchErr) throw fetchErr;
 
@@ -365,9 +365,9 @@ export async function supabasePost(action, payload = {}) {
 
         let currentApproved = trx.approved_by || '';
         if (currentApproved.includes(effectiveRole)) {
-            return { success: true, message: 'Anda sudah menyetujui transaksi ini.' };
+          return { success: true, message: 'Anda sudah menyetujui transaksi ini.' };
         }
-        
+
         let newApproved = currentApproved ? (currentApproved + ',' + effectiveRole) : effectiveRole;
 
         const { error } = await supabase.from(table).update({ approved_by: newApproved }).eq('transaction_id', targetId);
@@ -394,42 +394,42 @@ export async function supabasePost(action, payload = {}) {
         let nextNum = await getNextSeqNum('income', 'INC', year, month);
 
         for (const item of payload.items) {
-           const amount = parseFloat(item.amount) || 0;
-           if (amount > 0) {
-               const typeConf = types.find(t => t.name === item.income_type);
-               let ad = 0, aj = 0, ab = 0;
-               if (typeConf) {
-                  ad = (amount * typeConf.pct_daerah) / 100;
-                  aj = (amount * typeConf.pct_jemaat) / 100;
-                  ab = (amount * typeConf.pct_bangun) / 100;
-               }
-               const transaction_id = `INC-${year}${month.toString().padStart(2, '0')}${String(nextNum).padStart(3, '0')}`;
-               nextNum++;
-               inserts.push({
-                   transaction_id,
-                   date: payload.date,
-                   month,
-                   year,
-                   income_type: item.income_type,
-                   nama_pemberi: 'Kolektif ' + payload.unit_name,
-                   unit_name: payload.unit_name,
-                   receipt_no: payload.receipt_no,
-                   amount: amount,
-                   alloc_daerah: ad, alloc_jemaat: aj, alloc_bangun: ab,
-                   note: item.note || 'Setoran Kolektif',
-                   created_by: username,
-                   created_at: new Date().toISOString(),
-                   receipt_photo: payload.receipt_photo_base64 || '',
-                   receipt_photo_2: payload.receipt_photo_base64_2 || '',
-                   receipt_photo_3: payload.receipt_photo_base64_3 || '',
-                   approved_by: ''
-               });
-           }
+          const amount = parseFloat(item.amount) || 0;
+          if (amount > 0) {
+            const typeConf = types.find(t => t.name === item.income_type);
+            let ad = 0, aj = 0, ab = 0;
+            if (typeConf) {
+              ad = (amount * typeConf.pct_daerah) / 100;
+              aj = (amount * typeConf.pct_jemaat) / 100;
+              ab = (amount * typeConf.pct_bangun) / 100;
+            }
+            const transaction_id = `INC-${year}${month.toString().padStart(2, '0')}${String(nextNum).padStart(3, '0')}`;
+            nextNum++;
+            inserts.push({
+              transaction_id,
+              date: payload.date,
+              month,
+              year,
+              income_type: item.income_type,
+              nama_pemberi: 'Kolektif ' + payload.unit_name,
+              unit_name: payload.unit_name,
+              receipt_no: payload.receipt_no,
+              amount: amount,
+              alloc_daerah: ad, alloc_jemaat: aj, alloc_bangun: ab,
+              note: item.note || 'Setoran Kolektif',
+              created_by: username,
+              created_at: new Date().toISOString(),
+              receipt_photo: payload.receipt_photo_base64 || '',
+              receipt_photo_2: payload.receipt_photo_base64_2 || '',
+              receipt_photo_3: payload.receipt_photo_base64_3 || '',
+              approved_by: ''
+            });
+          }
         }
         if (inserts.length > 0) {
-           const { error } = await supabase.from('income').insert(inserts);
-           if (error) throw error;
-           writeLog(username, 'SAVE_BULK_INCOME', `Setoran Kolektif No. ${payload.receipt_no} | Unit: ${payload.unit_name} | ${inserts.length} jenis pemasukan`);
+          const { error } = await supabase.from('income').insert(inserts);
+          if (error) throw error;
+          writeLog(username, 'SAVE_BULK_INCOME', `Setoran Kolektif No. ${payload.receipt_no} | Unit: ${payload.unit_name} | ${inserts.length} jenis pemasukan`);
         }
         return { success: true, message: 'Setoran kolektif disimpan.' };
       }
@@ -438,7 +438,7 @@ export async function supabasePost(action, payload = {}) {
         if (!isAdmin) return { success: false, message: 'Hanya Admin.' };
         // Hapus data lama berdasarkan old_receipt_no
         await supabase.from('income').delete().eq('receipt_no', payload.old_receipt_no);
-        
+
         const { data: types } = await supabase.from('income_types').select('*');
         const inserts = [];
         const year = parseInt(payload.date.split('-')[0]);
@@ -446,42 +446,42 @@ export async function supabasePost(action, payload = {}) {
         let nextNum = await getNextSeqNum('income', 'INC', year, month);
 
         for (const item of payload.items) {
-           const amount = parseFloat(item.amount) || 0;
-           if (amount > 0) {
-               const typeConf = types.find(t => t.name === item.income_type);
-               let ad = 0, aj = 0, ab = 0;
-               if (typeConf) {
-                  ad = (amount * typeConf.pct_daerah) / 100;
-                  aj = (amount * typeConf.pct_jemaat) / 100;
-                  ab = (amount * typeConf.pct_bangun) / 100;
-               }
-               const transaction_id = `INC-${year}${month.toString().padStart(2, '0')}${String(nextNum).padStart(3, '0')}`;
-               nextNum++;
-               inserts.push({
-                   transaction_id,
-                   date: payload.date,
-                   month,
-                   year,
-                   income_type: item.income_type,
-                   nama_pemberi: 'Kolektif ' + payload.unit_name,
-                   unit_name: payload.unit_name,
-                   receipt_no: payload.receipt_no,
-                   amount: amount,
-                   alloc_daerah: ad, alloc_jemaat: aj, alloc_bangun: ab,
-                   note: item.note || 'Setoran Kolektif',
-                   created_by: username,
-                   created_at: new Date().toISOString(),
-                   receipt_photo: payload.receipt_photo_base64 || payload.original_photo || '',
-                   receipt_photo_2: payload.receipt_photo_base64_2 || '',
-                   receipt_photo_3: payload.receipt_photo_base64_3 || '',
-                   approved_by: ''
-               });
-           }
+          const amount = parseFloat(item.amount) || 0;
+          if (amount > 0) {
+            const typeConf = types.find(t => t.name === item.income_type);
+            let ad = 0, aj = 0, ab = 0;
+            if (typeConf) {
+              ad = (amount * typeConf.pct_daerah) / 100;
+              aj = (amount * typeConf.pct_jemaat) / 100;
+              ab = (amount * typeConf.pct_bangun) / 100;
+            }
+            const transaction_id = `INC-${year}${month.toString().padStart(2, '0')}${String(nextNum).padStart(3, '0')}`;
+            nextNum++;
+            inserts.push({
+              transaction_id,
+              date: payload.date,
+              month,
+              year,
+              income_type: item.income_type,
+              nama_pemberi: 'Kolektif ' + payload.unit_name,
+              unit_name: payload.unit_name,
+              receipt_no: payload.receipt_no,
+              amount: amount,
+              alloc_daerah: ad, alloc_jemaat: aj, alloc_bangun: ab,
+              note: item.note || 'Setoran Kolektif',
+              created_by: username,
+              created_at: new Date().toISOString(),
+              receipt_photo: payload.receipt_photo_base64 || payload.original_photo || '',
+              receipt_photo_2: payload.receipt_photo_base64_2 || '',
+              receipt_photo_3: payload.receipt_photo_base64_3 || '',
+              approved_by: ''
+            });
+          }
         }
         if (inserts.length > 0) {
-           const { error } = await supabase.from('income').insert(inserts);
-           if (error) throw error;
-           writeLog(username, 'EDIT_BULK_INCOME', `Edit Setoran Kolektif No. ${payload.receipt_no} | Unit: ${payload.unit_name} | ${inserts.length} jenis pemasukan`);
+          const { error } = await supabase.from('income').insert(inserts);
+          if (error) throw error;
+          writeLog(username, 'EDIT_BULK_INCOME', `Edit Setoran Kolektif No. ${payload.receipt_no} | Unit: ${payload.unit_name} | ${inserts.length} jenis pemasukan`);
         }
         return { success: true, message: 'Setoran kolektif berhasil diedit.' };
       }
@@ -520,7 +520,7 @@ export async function checkLaporanSupabaseHealth() {
 /**
  * 1-Klik Migrasi seluruh data dari Google Apps Script ke Supabase untuk Laporan
  */
-export async function migrateLaporanGASToSupabase(gasUrl, onProgress = () => {}) {
+export async function migrateLaporanGASToSupabase(gasUrl, onProgress = () => { }) {
   try {
     const fetchGas = async (action, params = {}) => {
       let url = `${gasUrl}?action=${encodeURIComponent(action)}`;
@@ -658,5 +658,105 @@ export async function migrateLaporanGASToSupabase(gasUrl, onProgress = () => {})
   } catch (err) {
     console.error('migrateLaporanGASToSupabase Error:', err);
     return { success: false, message: err.message };
+  }
+}
+
+// ============================================================
+//  SINKRONISASI / CADANGKAN SUPABASE KE GOOGLE SHEETS
+// ============================================================
+export async function backupSupabaseToGAS(gasUrl, onProgress = () => { }) {
+  try {
+    onProgress('Mengambil master data & pengaturan dari Supabase...');
+    const [deptRes, unitRes, typeRes, balRes, cfgRes] = await Promise.all([
+      supabase.from('departments').select('*').order('id', { ascending: true }),
+      supabase.from('units').select('*').order('id', { ascending: true }),
+      supabase.from('income_types').select('*').order('id', { ascending: true }),
+      supabase.from('initial_balances').select('*'),
+      supabase.from('app_config').select('*')
+    ]);
+
+    const departments = deptRes.data || [];
+    const units = unitRes.data || [];
+    const incomeTypes = typeRes.data || [];
+    const balances = balRes.data || [];
+    const config = {};
+    (cfgRes.data || []).forEach(row => {
+      config[row.key] = row.value;
+    });
+
+    onProgress('Mengambil data transaksi pemasukan dari Supabase...');
+    let allIncome = [];
+    let fromInc = 0;
+    const stepInc = 1000;
+    while (true) {
+      const { data: chunk, error } = await supabase
+        .from('income')
+        .select('*')
+        .order('date', { ascending: true })
+        .range(fromInc, fromInc + stepInc - 1);
+      if (error) throw error;
+      if (!chunk || chunk.length === 0) break;
+      allIncome = allIncome.concat(chunk);
+      if (chunk.length < stepInc) break;
+      fromInc += stepInc;
+      onProgress(`Mengambil pemasukan (${allIncome.length} data)...`);
+    }
+
+    onProgress('Mengambil data transaksi pengeluaran dari Supabase...');
+    let allExpense = [];
+    let fromExp = 0;
+    const stepExp = 1000;
+    while (true) {
+      const { data: chunk, error } = await supabase
+        .from('expense')
+        .select('*')
+        .order('date', { ascending: true })
+        .range(fromExp, fromExp + stepExp - 1);
+      if (error) throw error;
+      if (!chunk || chunk.length === 0) break;
+      allExpense = allExpense.concat(chunk);
+      if (chunk.length < stepExp) break;
+      fromExp += stepExp;
+      onProgress(`Mengambil pengeluaran (${allExpense.length} data)...`);
+    }
+
+    onProgress(`Mengunggah ke Google Sheets (${allIncome.length} Pemasukan, ${allExpense.length} Pengeluaran)...`);
+
+    let token = localStorage.getItem('BISDAC_token') || '';
+    if (!token) {
+      try {
+        const u = JSON.parse(localStorage.getItem('BISDAC_user') || '{}');
+        if (u && u.username && u.role) {
+          token = btoa(JSON.stringify({ username: u.username, role: u.role, nama: u.nama || u.username }));
+        }
+      } catch (e) { }
+    }
+
+    const payload = {
+      action: 'syncSupabaseToSheets',
+      token,
+      data: {
+        departments,
+        units,
+        incomeTypes,
+        balances,
+        config,
+        income: allIncome,
+        expense: allExpense
+      }
+    };
+
+    const res = await fetch(gasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      redirect: 'follow',
+      body: JSON.stringify(payload)
+    });
+
+    const json = await res.json();
+    return json;
+  } catch (err) {
+    console.error('backupSupabaseToGAS Error:', err);
+    return { success: false, message: 'Gagal mencadangkan ke Sheets: ' + err.message };
   }
 }

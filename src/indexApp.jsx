@@ -313,6 +313,8 @@ const Icon = ({ name, className }) => {
         MonitorDown: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" /><line x1="12" x2="12" y1="17" y2="21" /><line x1="8" x2="16" y1="21" y2="21" /><polyline points="15 8 12 11 9 8" /><line x1="12" x2="12" y1="2" y2="11" /></svg>,
         Headphones: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" /></svg>,
         Users: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>,
+        User: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>,
+        Refresh: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" /></svg>,
         MessageCircle: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>,
         Phone: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>,
         ChevronLeft: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="15 18 9 12 15 6" /></svg>,
@@ -494,6 +496,580 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                     </div>
                 </div>
             </div>
+        </div>
+    );
+};
+
+// ============================================================
+// KOLEKSI AYAT EMAS ALKITAB HARIAN
+// ============================================================
+const DAILY_VERSES = [
+    {
+        bookId: 'YER', bookName: 'Yeremia', chapter: 29, verse: 11,
+        text: 'Sebab Aku ini mengetahui rancangan-rancangan apa yang ada pada-Ku mengenai kamu, demikianlah firman TUHAN, yaitu rancangan damai sejahtera dan bukan rancangan kecelakaan, untuk memberikan kepadamu hari depan yang penuh harapan.',
+        theme: 'Pengharapan & Damai'
+    },
+    {
+        bookId: 'FIL', bookName: 'Filipi', chapter: 4, verse: 13,
+        text: 'Segala perkara dapat kutanggung di dalam Dia yang memberi kekuatan kepadaku.',
+        theme: 'Kekuatan Iman'
+    },
+    {
+        bookId: 'MZM', bookName: 'Mazmur', chapter: 23, verse: '1-3',
+        text: 'TUHAN adalah gembalaku, takkan kekurangan aku. Ia membaringkan aku di padang yang berumput hijau, Ia membimbing aku ke air yang tenang; Ia menyegarkan jiwaku.',
+        theme: 'Penyertaan Tuhan'
+    },
+    {
+        bookId: 'YES', bookName: 'Yesaya', chapter: 40, verse: 31,
+        text: 'Tetapi orang-orang yang menanti-nantikan TUHAN mendapat kekuatan baru: mereka seumpama rajawali yang naik terbang dengan kekuatan sayapnya; mereka berlari dan tidak menjadi lesu, mereka berjalan dan tidak menjadi lelah.',
+        theme: 'Kekuatan Baru'
+    },
+    {
+        bookId: 'YOH', bookName: 'Yohanes', chapter: 14, verse: '1-3',
+        text: 'Janganlah gelisah hatimu; percayalah kepada Allah, percayalah juga kepada-Ku. Di rumah Bapa-Ku banyak tempat tinggal... Aku pergi ke situ untuk menyediakan tempat bagimu.',
+        theme: 'Kedatangan Kristus'
+    },
+    {
+        bookId: 'AMS', bookName: 'Amsal', chapter: 3, verse: '5-6',
+        text: 'Percayalah kepada TUHAN dengan segenap hatimu, dan janganlah bersandar kepada pengertianmu sendiri. Akuilah Dia dalam segala lakumu, maka Ia akan meluruskan jalanmu.',
+        theme: 'Pimpinan Hidup'
+    },
+    {
+        bookId: 'MZM', bookName: 'Mazmur', chapter: 46, verse: 2,
+        text: 'Allah bagi kita tempat perlindungan dan kekuatan, sebagai penolong dalam kesesakan sangat terbukti.',
+        theme: 'Tempat Perlindungan'
+    },
+    {
+        bookId: 'ROM', bookName: 'Roma', chapter: 8, verse: 28,
+        text: 'Kita tahu sekarang, bahwa Allah turut bekerja dalam segala sesuatu untuk mendatangkan kebaikan bagi mereka yang mengasihi Dia, yaitu bagi mereka yang terpanggil sesuai dengan rencana Allah.',
+        theme: 'Rencana Allah'
+    },
+    {
+        bookId: 'KEL', bookName: 'Keluaran', chapter: 20, verse: '8-10',
+        text: 'Ingatlah dan kuduskanlah hari Sabat: enam hari lamanya engkau akan bekerja dan melakukan segala pekerjaanmu, tetapi hari ketujuh adalah hari Sabat TUHAN, Allahmu.',
+        theme: 'Hari Sabat Kudus'
+    },
+    {
+        bookId: 'MAT', bookName: 'Matius', chapter: 11, verse: 28,
+        text: 'Marilah kepada-Ku, semua yang letih lesu dan berbeban berat, Aku akan memberi kelegaan kepadamu.',
+        theme: 'Kelegaan Sejati'
+    },
+    {
+        bookId: 'YOS', bookName: 'Yosua', chapter: 1, verse: 9,
+        text: 'Bukankah telah Kuperintahkan kepadamu: kuatkan dan teguhkanlah hatimu? Janganlah kecut dan tawar hati, sebab TUHAN, Allahmu, menyertai engkau, ke mana pun engkau pergi.',
+        theme: 'Keberanian & Keteguhan'
+    },
+    {
+        bookId: '1KO', bookName: '1 Korintus', chapter: 10, verse: 13,
+        text: 'Pencobaan-pencobaan yang kamu alami ialah pencobaan biasa... Allah setia dan karena itu Ia tidak akan membiarkan kamu dicobai melampaui kekuatanmu. Pada waktu kamu dicobai Ia akan memberikan kepadamu jalan keluar.',
+        theme: 'Kesetiaan Allah'
+    },
+    {
+        bookId: 'WAH', bookName: 'Wahyu', chapter: 14, verse: '6-7',
+        text: 'Takutlah akan Allah dan muliakanlah Dia, karena telah tiba saat penghakiman-Nya, dan sembahlah Dia yang telah menjadikan langit dan bumi dan laut dan semua mata air.',
+        theme: 'Pekabaran Akhir Zaman'
+    },
+    {
+        bookId: 'RAT', bookName: 'Ratapan', chapter: 3, verse: '22-23',
+        text: 'Tak berkesudahan kasih setia TUHAN, tak habis-habisnya rahmat-Nya, selalu baru tiap pagi; besar kesetiaan-Mu!',
+        theme: 'Kasih Setia Baru Tiap Pagi'
+    },
+    {
+        bookId: 'ZAP', bookName: 'Zefanya', chapter: 3, verse: 17,
+        text: 'TUHAN Allahmu ada di antaramu sebagai pahlawan yang memberi kemenangan. Ia bergirang karena engkau dengan sukacita, Ia membaharui engkau dalam kasih-Nya.',
+        theme: 'Kasih yang Membaharui'
+    },
+    {
+        bookId: 'MZM', bookName: 'Mazmur', chapter: 119, verse: 105,
+        text: 'Firman-Mu itu pelita bagi kakiku dan terang bagi jalanku.',
+        theme: 'Pelita Kehidupan'
+    },
+    {
+        bookId: 'YES', bookName: 'Yesaya', chapter: 41, verse: 10,
+        text: 'Janganlah takut, sebab Aku menyertai engkau, janganlah bimbang, sebab Aku ini Allahmu; Aku akan meneguhkan, bahkan akan menolong engkau; Aku akan memegang engkau dengan tangan kanan-Ku yang membawa kemenangan.',
+        theme: 'Jangan Bimbang'
+    },
+    {
+        bookId: 'FIL', bookName: 'Filipi', chapter: 4, verse: '6-7',
+        text: 'Janganlah hendaknya kamu kuatir tentang apa pun juga, tetapi nyatakanlah dalam segala hal keinginanmu kepada Allah dalam doa dan permohonan dengan ucapan syukur. Damai sejahtera Allah akan memelihara hati dan pikiranmu.',
+        theme: 'Doa & Ucapan Syukur'
+    },
+    {
+        bookId: '1PT', bookName: '1 Petrus', chapter: 5, verse: 7,
+        text: 'Serahkanlah segala kekuatiranmu kepada-Nya, sebab Ia yang memelihara kamu.',
+        theme: 'Kelegaan & Penyerahan'
+    },
+    {
+        bookId: 'IBR', bookName: 'Ibrani', chapter: 11, verse: 1,
+        text: 'Iman adalah dasar dari segala sesuatu yang kita harapkan dan bukti dari segala sesuatu yang tidak kita lihat.',
+        theme: 'Hakikat Iman'
+    },
+    {
+        bookId: 'YAK', bookName: 'Yakobus', chapter: 1, verse: 5,
+        text: 'Tetapi apabila di antara kamu ada yang kekurangan hikmat, hendaklah ia memintakannya kepada Allah, yang memberikan kepada semua orang dengan murah hati, maka hal itu akan diberikan kepadanya.',
+        theme: 'Hikmat Ilahi'
+    },
+    {
+        bookId: 'GAL', bookName: 'Galatia', chapter: 5, verse: '22-23',
+        text: 'Tetapi buah Roh ialah: kasih, sukacita, damai sejahtera, kesabaran, kemurahan, kebaikan, kesetiaan, kelemahlembutan, penguasaan diri.',
+        theme: 'Buah Roh'
+    },
+    {
+        bookId: 'MZM', bookName: 'Mazmur', chapter: 91, verse: '1-2',
+        text: 'Orang yang duduk dalam lindungan Yang Mahatinggi dan bermalam dalam naungan Yang Mahakuasa akan berkata kepada TUHAN: "Tempat perlindunganku dan kubu pertahananku, Allahku, yang kupercayai."',
+        theme: 'Lindungan Yang Mahatinggi'
+    },
+    {
+        bookId: 'KOL', bookName: 'Kolose', chapter: 3, verse: '12-14',
+        text: 'Kenakanlah belas kasihan, kemurahan, kerendahan hati, kelemahlembutan dan kesabaran... Dan di atas semuanya itu: kenakanlah kasih, sebagai pengikat yang mempersatukan dan menyempurnakan.',
+        theme: 'Kasih Persaudaraan'
+    },
+    {
+        bookId: 'MZM', bookName: 'Mazmur', chapter: 121, verse: '1-2',
+        text: 'Aku melayangkan mataku ke gunung-gunung; dari manakah akan datang pertolonganku? Pertolonganku ialah dari TUHAN, yang menjadikan langit dan bumi.',
+        theme: 'Pertolongan Sejati'
+    },
+    {
+        bookId: '1TE', bookName: '1 Tesalonika', chapter: 5, verse: '16-18',
+        text: 'Bersukacitalah senantiasa. Tetaplah berdoa. Mengucap syukurlah dalam segala hal, sebab itulah yang dikehendaki Allah di dalam Kristus Yesus bagi kamu.',
+        theme: 'Sukacita & Syukur'
+    },
+    {
+        bookId: 'YES', bookName: 'Yesaya', chapter: 58, verse: '13-14',
+        text: 'Apabila engkau tidak menginjak-injak hukum Sabat... dan menyebutkan hari Sabat "hari kenikmatan"... maka engkau akan bersenang-senang karena TUHAN.',
+        theme: 'Kenikmatan Sabat'
+    },
+    {
+        bookId: 'EFN', bookName: 'Efesus', chapter: 2, verse: '8-9',
+        text: 'Sebab karena kasih karunia kamu diselamatkan oleh iman; itu bukan hasil usahamu, tetapi pemberian Allah, itu bukan hasil pekerjaanmu: jangan ada orang yang memegahkan diri.',
+        theme: 'Kasih Karunia'
+    },
+    {
+        bookId: 'MZM', bookName: 'Mazmur', chapter: 103, verse: '1-3',
+        text: 'Pujilah TUHAN, hai jiwaku! Pujilah nama-Nya yang kudus, hai segenap batinku! Pujilah TUHAN, hai jiwaku, dan janganlah lupakan segala kebaikan-Nya!',
+        theme: 'Pujian & Rasa Syukur'
+    },
+    {
+        bookId: 'WAH', bookName: 'Wahyu', chapter: 21, verse: 4,
+        text: 'Dan Ia akan menghapus segala air mata dari mata mereka, dan maut tidak akan ada lagi; tidak akan ada lagi perkabungan, atau ratap tangis, atau dukacita, sebab segala sesuatu yang lama itu telah berlalu.',
+        theme: 'Pengharapan Kekal'
+    },
+    {
+        bookId: 'YOH', bookName: 'Yohanes', chapter: 3, verse: 16,
+        text: 'Karena begitu besar kasih Allah akan dunia ini, sehingga Ia telah mengaruniakan Anak-Nya yang tunggal, supaya setiap orang yang percaya kepada-Nya tidak binasa, melainkan beroleh hidup yang kekal.',
+        theme: 'Kasih Terbesar'
+    }
+];
+
+// ============================================================
+// WIDGET 1: SABBATH COUNTDOWN & GREETING
+// ============================================================
+const SabbathCountdownWidget = ({ setActiveTab }) => {
+    const [status, setStatus] = React.useState({
+        isSabbath: false,
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0
+    });
+
+    React.useEffect(() => {
+        const calculate = () => {
+            const now = new Date();
+            const day = now.getDay(); // 0: Min, 1: Sen, ..., 5: Jum, 6: Sab
+            const hour = now.getHours();
+            const min = now.getMinutes();
+            const sec = now.getSeconds();
+            const currentMinutes = hour * 60 + min;
+            const sunsetMinutes = 18 * 60; // 18:00 WIB
+
+            // Sabat: Jumat 18:00 s/d Sabtu 18:00
+            const isSabbath = (day === 5 && currentMinutes >= sunsetMinutes) || (day === 6 && currentMinutes < sunsetMinutes);
+
+            if (isSabbath) {
+                const end = new Date(now);
+                if (day === 5) end.setDate(now.getDate() + 1);
+                end.setHours(18, 0, 0, 0);
+                const diff = Math.max(0, end.getTime() - now.getTime());
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff / (1000 * 60)) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
+                setStatus({ isSabbath: true, days: 0, hours, minutes, seconds });
+            } else {
+                let daysUntilFriday = (5 - day + 7) % 7;
+                if (daysUntilFriday === 0 && currentMinutes >= sunsetMinutes) {
+                    daysUntilFriday = 7;
+                }
+                const target = new Date(now);
+                target.setDate(now.getDate() + daysUntilFriday);
+                target.setHours(18, 0, 0, 0);
+
+                const diff = Math.max(0, target.getTime() - now.getTime());
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((diff / (1000 * 60)) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
+                setStatus({ isSabbath: false, days, hours, minutes, seconds });
+            }
+        };
+
+        calculate();
+        const interval = setInterval(calculate, 1000);
+        return () => clearInterval(interval);
+    }, []);
+
+    if (status.isSabbath) {
+        return (
+            <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#2C3F21] via-[#3A5836] to-[#4A7045] dark:from-navy-950 dark:via-navy-900 dark:to-navy-800 text-white p-6 md:p-7 shadow-xl border-2 border-[#D19B45]/40 flex flex-col justify-between group">
+                <div className="absolute top-0 right-0 w-44 h-44 bg-[#D19B45]/15 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="relative z-10 flex items-center justify-between gap-3 mb-4">
+                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#D19B45] text-navy-950 font-black text-[11px] uppercase tracking-wider shadow-md">
+                        🕊️ Hari Sabat Kudus
+                    </span>
+                    <span className="text-xs text-white/80 font-medium bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/15">
+                        Berakhir pk 18:00 WIB
+                    </span>
+                </div>
+                <div className="relative z-10 mb-5">
+                    <h3 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight mb-2">
+                        Selamat Hari Sabat!
+                    </h3>
+                    <p className="text-white/90 text-xs md:text-sm leading-relaxed font-light italic">
+                        "Kuduskanlah hari Sabat-Ku, menjadi tanda antara Aku dan kamu, supaya kamu mengetahui bahwa Akulah TUHAN, Allahmu."
+                    </p>
+                    <span className="block text-[11px] font-bold text-[#D19B45] dark:text-gold-400 mt-1">
+                        — Yehezkiel 20:20
+                    </span>
+                </div>
+                <div className="relative z-10 flex flex-wrap items-center gap-3 pt-3 border-t border-white/15">
+                    <button
+                        onClick={() => setActiveTab('susunan_ibadah')}
+                        className="bg-[#D19B45] hover:bg-[#B8863B] active:scale-95 text-navy-950 text-xs md:text-sm font-extrabold px-5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                    >
+                        <Icon name="List" className="w-4 h-4" /> Susunan Ibadah
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('lagu_sion')}
+                        className="bg-white/15 hover:bg-white/25 active:scale-95 text-white text-xs md:text-sm font-bold px-4 py-2.5 rounded-xl transition-all backdrop-blur-md border border-white/20 flex items-center gap-1.5"
+                    >
+                        <Icon name="Music" className="w-4 h-4" /> Lagu Sion
+                    </button>
+                    <span className="text-[11px] text-white/70 ml-auto font-mono">
+                        Sisa: {String(status.hours).padStart(2, '0')}:{String(status.minutes).padStart(2, '0')}:{String(status.seconds).padStart(2, '0')}
+                    </span>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white via-[#F7F9F3] to-[#E9EFE2] dark:from-navy-900 dark:via-navy-800 dark:to-navy-900 p-6 md:p-7 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-[#4A7045]/10 dark:bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="relative z-10 flex items-center justify-between gap-3 mb-4">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
+                    <Icon name="Calendar" className="w-3.5 h-3.5 text-[#4A7045] dark:text-gold-400" /> Hitung Mundur Sabat
+                </span>
+                <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
+                    Jumat, pk 18:00 WIB
+                </span>
+            </div>
+
+            <div className="relative z-10 mb-4">
+                <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight leading-snug">
+                    Menyambut Hari Sabat Kudus
+                </h3>
+                <p className="text-[#596B4D] dark:text-gray-300 text-xs md:text-sm mt-1">
+                    Mari siapkan hati dan pikiran kita menyongsong perhentian kudus bersama Tuhan.
+                </p>
+            </div>
+
+            {/* Countdown Tiles */}
+            <div className="relative z-10 grid grid-cols-4 gap-2 md:gap-3 my-2">
+                <div className="bg-white/80 dark:bg-navy-950/70 backdrop-blur-md rounded-2xl p-2.5 text-center border border-[#E2E8D8] dark:border-navy-700 shadow-sm">
+                    <span className="block text-xl md:text-2xl font-black text-[#2C3F21] dark:text-gold-400 font-mono">
+                        {status.days}
+                    </span>
+                    <span className="text-[9px] md:text-[10px] font-bold text-[#596B4D] dark:text-gray-400 uppercase tracking-wider">
+                        Hari
+                    </span>
+                </div>
+                <div className="bg-white/80 dark:bg-navy-950/70 backdrop-blur-md rounded-2xl p-2.5 text-center border border-[#E2E8D8] dark:border-navy-700 shadow-sm">
+                    <span className="block text-xl md:text-2xl font-black text-[#2C3F21] dark:text-gold-400 font-mono">
+                        {String(status.hours).padStart(2, '0')}
+                    </span>
+                    <span className="text-[9px] md:text-[10px] font-bold text-[#596B4D] dark:text-gray-400 uppercase tracking-wider">
+                        Jam
+                    </span>
+                </div>
+                <div className="bg-white/80 dark:bg-navy-950/70 backdrop-blur-md rounded-2xl p-2.5 text-center border border-[#E2E8D8] dark:border-navy-700 shadow-sm">
+                    <span className="block text-xl md:text-2xl font-black text-[#2C3F21] dark:text-gold-400 font-mono">
+                        {String(status.minutes).padStart(2, '0')}
+                    </span>
+                    <span className="text-[9px] md:text-[10px] font-bold text-[#596B4D] dark:text-gray-400 uppercase tracking-wider">
+                        Menit
+                    </span>
+                </div>
+                <div className="bg-white/80 dark:bg-navy-950/70 backdrop-blur-md rounded-2xl p-2.5 text-center border border-[#E2E8D8] dark:border-navy-700 shadow-sm">
+                    <span className="block text-xl md:text-2xl font-black text-[#D19B45] dark:text-gold-400 font-mono">
+                        {String(status.seconds).padStart(2, '0')}
+                    </span>
+                    <span className="text-[9px] md:text-[10px] font-bold text-[#596B4D] dark:text-gray-400 uppercase tracking-wider">
+                        Detik
+                    </span>
+                </div>
+            </div>
+
+            <div className="relative z-10 pt-3 mt-3 border-t border-[#E2E8D8] dark:border-navy-700/60 flex items-center justify-between text-xs">
+                <span className="text-[11px] text-[#596B4D] dark:text-gray-400 italic">
+                    "Ingatlah dan kuduskanlah hari Sabat"
+                </span>
+                <button
+                    onClick={() => setActiveTab('jadwal')}
+                    className="text-[#4A7045] dark:text-gold-400 hover:underline font-extrabold flex items-center gap-1 text-xs"
+                >
+                    Lihat Jadwal <Icon name="ChevronRight" className="w-3.5 h-3.5" />
+                </button>
+            </div>
+        </div>
+    );
+};
+
+// ============================================================
+// WIDGET 2: AYAT HARIAN & RENUNGAN INSPIRATIF
+// ============================================================
+const DailyVerseWidget = ({ setActiveTab }) => {
+    const todayIndex = React.useMemo(() => {
+        const d = new Date();
+        return (d.getDate() + d.getMonth() * 31) % DAILY_VERSES.length;
+    }, []);
+
+    const [verseIdx, setVerseIdx] = React.useState(todayIndex);
+    const [copied, setCopied] = React.useState(false);
+
+    const verse = DAILY_VERSES[verseIdx] || DAILY_VERSES[0];
+
+    const handleNextVerse = () => {
+        setVerseIdx(prev => (prev + 1) % DAILY_VERSES.length);
+    };
+
+    const handleCopy = () => {
+        const shareText = `📖 *Ayat Alkitab Hari Ini*\n\n"${verse.text}"\n\n📌 *${verse.bookName} ${verse.chapter}:${verse.verse}*\nTema: ${verse.theme}\n\n🕊️ _GMAHK Pisgah BISDAC_\n${window.location.origin}`;
+        navigator.clipboard.writeText(shareText).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }).catch(() => { });
+    };
+
+    const handleShareWA = () => {
+        const shareText = `📖 *Ayat Alkitab Hari Ini*\n\n"${verse.text}"\n\n📌 *${verse.bookName} ${verse.chapter}:${verse.verse}*\nTema: ${verse.theme}\n\n🕊️ _GMAHK Pisgah BISDAC_\n${window.location.origin}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+    };
+
+    return (
+        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white via-[#FCFDF9] to-[#F1F5EB] dark:from-navy-900 dark:via-navy-800 dark:to-navy-900 p-6 md:p-7 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-[#D19B45]/10 dark:bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div className="relative z-10 flex items-center justify-between gap-3 mb-3">
+                <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D19B45]/15 text-[#9A6B1A] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#D19B45]/30">
+                        ✨ Ayat Hari Ini
+                    </span>
+                    <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
+                        {verse.theme}
+                    </span>
+                </div>
+                <button
+                    onClick={handleNextVerse}
+                    title="Ganti Ayat Lain"
+                    className="p-1.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-[#596B4D] dark:text-gray-400 transition-colors text-xs flex items-center gap-1 font-bold"
+                >
+                    <Icon name="Refresh" className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Ayat Lain</span>
+                </button>
+            </div>
+
+            <div className="relative z-10 my-auto py-2">
+                <p className="text-[#2C3F21] dark:text-white text-sm md:text-base leading-relaxed font-serif italic">
+                    "{verse.text}"
+                </p>
+                <div className="mt-3 flex items-center justify-between">
+                    <span className="font-extrabold text-[#4A7045] dark:text-gold-400 text-sm md:text-base tracking-wide">
+                        {verse.bookName} {verse.chapter}:{verse.verse}
+                    </span>
+                </div>
+            </div>
+
+            <div className="relative z-10 pt-4 mt-3 border-t border-[#E2E8D8] dark:border-navy-700/60 flex flex-wrap items-center justify-between gap-2">
+                <button
+                    onClick={() => setActiveTab('alkitab')}
+                    className="bg-[#4A7045] hover:bg-[#3A5836] active:scale-95 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+                >
+                    <Icon name="BookOpen" className="w-3.5 h-3.5" /> Buka di Alkitab
+                </button>
+                <div className="flex items-center gap-2 ml-auto">
+                    <button
+                        onClick={handleCopy}
+                        className="bg-white/80 dark:bg-navy-800 hover:bg-white dark:hover:bg-navy-700 active:scale-95 text-[#2C3F21] dark:text-gray-200 text-xs font-bold px-3 py-2 rounded-xl transition-all border border-[#E2E8D8] dark:border-navy-600 flex items-center gap-1.5 shadow-sm"
+                    >
+                        {copied ? (
+                            <>
+                                <Icon name="Check" className="w-3.5 h-3.5 text-emerald-600" />
+                                <span className="text-emerald-600 font-bold">Tersalin</span>
+                            </>
+                        ) : (
+                            <>
+                                <Icon name="Share" className="w-3.5 h-3.5" />
+                                <span>Salin</span>
+                            </>
+                        )}
+                    </button>
+                    <button
+                        onClick={handleShareWA}
+                        className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm"
+                    >
+                        <i className="fa-brands fa-whatsapp text-sm"></i> <span>Kirim WA</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// ============================================================
+// WIDGET 3: CARI TUGAS PELAYANAN SAYA
+// ============================================================
+const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab }) => {
+    const [searchQuery, setSearchQuery] = React.useState('');
+
+    const dutiesFound = React.useMemo(() => {
+        const query = searchQuery.trim().toLowerCase();
+        if (!query || query.length < 2) return [];
+
+        const results = [];
+        const todayStr = toYMD(new Date());
+
+        const dates = Object.keys(jadwalDB || {}).filter(d => d >= todayStr).sort();
+
+        dates.forEach(dateStr => {
+            const j = jadwalDB[dateStr];
+            if (!j) return;
+            const isRabu = new Date(dateStr + 'T00:00:00').getDay() === 3;
+
+            const checkOfficer = (p, sesi) => {
+                if (!p || !p.nama) return;
+                const officerName = String(p.nama).toLowerCase();
+                if (officerName.includes(query)) {
+                    results.push({
+                        dateStr,
+                        formattedDate: formatIndoDate(dateStr),
+                        sesi,
+                        tugas: p.tugas || 'Petugas',
+                        nama: p.nama
+                    });
+                }
+            };
+
+            if (isRabu && Array.isArray(j.petugas)) {
+                j.petugas.forEach(p => checkOfficer(p, 'Ibadah Permintaan Doa'));
+            } else {
+                if (Array.isArray(j.sekolahSabat)) j.sekolahSabat.forEach(p => checkOfficer(p, 'Sekolah Sabat'));
+                if (Array.isArray(j.khotbah)) j.khotbah.forEach(p => checkOfficer(p, 'Kebaktian Khotbah'));
+                if (Array.isArray(j.diakon)) j.diakon.forEach(p => checkOfficer(p, 'Pelayanan Diakon'));
+                if (Array.isArray(j.musik)) j.musik.forEach(p => checkOfficer(p, 'Pelayanan Musik'));
+            }
+        });
+
+        return results;
+    }, [jadwalDB, searchQuery]);
+
+    return (
+        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
+                <div>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider mb-2 border border-[#4A7045]/20 dark:border-gold-500/30">
+                        <Icon name="Users" className="w-3.5 h-3.5" /> Pelayanan Jemaat
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight">
+                        Cari Jadwal Tugas Pelayanan Saya
+                    </h3>
+                    <p className="text-xs md:text-sm text-[#596B4D] dark:text-gray-400 mt-1">
+                        Cek jadwal penugasan Anda pada kebaktian mendatang (Khotbah, Sekolah Sabat, Rabu Malam, Diakon, Musik).
+                    </p>
+                </div>
+
+                <div className="relative w-full md:w-80 shrink-0">
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Ketik nama Anda (misal: Sarah)..."
+                        className="w-full bg-[#F4F7EF] dark:bg-navy-950 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-white rounded-2xl px-4 py-3 pl-11 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#4A7045] dark:focus:ring-gold-500 transition shadow-inner placeholder-[#596B4D]/60 dark:placeholder-gray-500"
+                    />
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#596B4D] dark:text-gray-400">
+                        <Icon name="Search" className="w-4 h-4" />
+                    </div>
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery('')}
+                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white"
+                        >
+                            <Icon name="X" className="w-4 h-4" />
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {searchQuery.trim().length >= 2 ? (
+                dutiesFound.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-2">
+                        {dutiesFound.map((item, idx) => (
+                            <div
+                                key={idx}
+                                className="p-4 rounded-2xl bg-[#F7F9F3] dark:bg-navy-950/70 border border-[#E2E8D8] dark:border-navy-700/80 hover:border-[#4A7045] dark:hover:border-gold-500 transition-all flex flex-col justify-between group shadow-sm hover:shadow-md"
+                            >
+                                <div>
+                                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-[#4A7045]/15 text-[#2C3F21] dark:bg-gold-500/15 dark:text-gold-400">
+                                            {item.sesi}
+                                        </span>
+                                        <span className="text-xs text-[#596B4D] dark:text-gray-400 font-semibold">
+                                            {item.formattedDate}
+                                        </span>
+                                    </div>
+                                    <h4 className="text-base font-extrabold text-[#2C3F21] dark:text-white mt-2">
+                                        {item.tugas}
+                                    </h4>
+                                    <p className="text-xs text-[#596B4D] dark:text-gray-300 font-medium flex items-center gap-1.5 mt-1">
+                                        <Icon name="User" className="w-3.5 h-3.5 text-[#D19B45]" />
+                                        <span>Petugas: <strong>{item.nama}</strong></span>
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setActiveTab('jadwal')}
+                                    className="mt-3.5 pt-2 border-t border-[#E2E8D8] dark:border-navy-800 text-[#4A7045] dark:text-gold-400 hover:underline text-xs font-bold flex items-center justify-between w-full"
+                                >
+                                    <span>Lihat Jadwal Lengkap</span>
+                                    <Icon name="ChevronRight" className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="p-6 rounded-2xl bg-[#F7F9F3] dark:bg-navy-950/40 border border-dashed border-[#E2E8D8] dark:border-navy-700 text-center">
+                        <Icon name="Info" className="w-7 h-7 mx-auto text-[#D19B45] mb-2" />
+                        <p className="text-sm font-bold text-[#2C3F21] dark:text-white">
+                            Tidak ditemukan jadwal penugasan untuk "{searchQuery}"
+                        </p>
+                        <p className="text-xs text-[#596B4D] dark:text-gray-400 mt-1 max-w-md mx-auto">
+                            Nama tersebut belum terdaftar pada jadwal kebaktian terdekat. Jika terdapat pergantian atau penugasan baru, silakan konfirmasi ke koordinator jadwal.
+                        </p>
+                    </div>
+                )
+            ) : (
+                <div className="pt-2 text-xs text-[#596B4D] dark:text-gray-400 flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Ketik minimal 2 huruf nama untuk mencari jadwal pelayanan Anda di kebaktian mendatang.</span>
+                </div>
+            )}
         </div>
     );
 };
@@ -694,6 +1270,8 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                     key={idx}
                                     src={formatImageUrl(img)}
                                     referrerPolicy="no-referrer"
+                                    loading={idx === 0 ? "eager" : "lazy"}
+                                    decoding="async"
                                     onError={(e) => {
                                         const driveId = getGoogleDriveFileId(img);
                                         if (driveId && e.target && e.target.src.includes('lh3.googleusercontent.com')) {
@@ -776,15 +1354,24 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                     </div>
                 </div>
 
-                {/* SABAT PERJAMUAN & PERPULUHAN SECTION */}
-                {(showPerjamuan || showPerpuluhan) && (() => {
-                    // Cek tanggal mana yang lebih dekat (lebih awal)
-                    const isPerjamuanEarlier = new Date(perjamuanYMD) <= new Date(perpuluhanYMD);
-                    return (
-                        <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
+                {/* UNIFIED HOME SECTIONS CONTAINER: CONSISTENT SPACING & MATCHING MODERN CARDS */}
+                <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-6 md:mt-8 space-y-6 relative z-20">
+                    {/* ROW 1: HITUNG MUNDUR SABAT & AYAT HARIAN */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                        <SabbathCountdownWidget setActiveTab={setActiveTab} />
+                        <DailyVerseWidget setActiveTab={setActiveTab} />
+                    </div>
+
+                    {/* ROW 2: CARI TUGAS PELAYANAN SAYA */}
+                    <QuickDutyFinderWidget jadwalDB={jadwalDB} setActiveTab={setActiveTab} />
+
+                    {/* ROW 3: SABAT PERJAMUAN & PERPULUHAN SECTION (Jika Aktif) */}
+                    {(showPerjamuan || showPerpuluhan) && (() => {
+                        const isPerjamuanEarlier = new Date(perjamuanYMD) <= new Date(perpuluhanYMD);
+                        return (
                             <div className="flex flex-col gap-4 w-full">
                                 {showPerjamuan && (
-                                    <div className={`bg-gradient-to-br from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-5 md:p-6 rounded-[1.5rem] shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in border border-[#C18B35] dark:border-gold-400 ${!isPerjamuanEarlier ? 'order-2' : 'order-1'}`}>
+                                    <div className={`bg-gradient-to-br from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-5 md:p-6 rounded-[2rem] shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in border-2 border-[#C18B35] dark:border-gold-400 ${!isPerjamuanEarlier ? 'order-2' : 'order-1'}`}>
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 dark:bg-navy-900/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
                                         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 dark:bg-navy-900/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
                                         <div className="relative z-10 text-center sm:text-left text-white dark:text-navy-900">
@@ -797,7 +1384,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                 )}
 
                                 {showPerpuluhan && (
-                                    <div className={`bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-navy-900 dark:to-navy-800 p-5 md:p-6 rounded-[1.5rem] shadow-lg border border-[#3A5836] dark:border-navy-700/50 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in ${isPerjamuanEarlier ? 'order-2' : 'order-1'}`}>
+                                    <div className={`bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-navy-900 dark:to-navy-800 p-5 md:p-6 rounded-[2rem] shadow-xl border-2 border-[#3A5836] dark:border-navy-700/50 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in ${isPerjamuanEarlier ? 'order-2' : 'order-1'}`}>
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-gold-400/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
                                         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 dark:bg-gold-400/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
                                         <div className="relative z-10 text-center sm:text-left">
@@ -813,68 +1400,77 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                     </div>
                                 )}
                             </div>
-                        </div>
-                    );
-                })()}
+                        );
+                    })()}
 
-                {/* ACARA TERDEKAT, PENGUMUMAN & VISI MISI */}
-                <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-16 md:mt-24 mb-28 relative z-20">
-                    <div className={`grid grid-cols-1 ${eventsToDisplay.length > 0 && !isPengumumanReallyEmpty() ? 'lg:grid-cols-3' : (eventsToDisplay.length > 0 || !isPengumumanReallyEmpty() ? 'lg:grid-cols-2' : 'lg:grid-cols-1')} gap-8 lg:gap-8 relative z-10 items-stretch`}>
+                    {/* ROW 4: ACARA TERDEKAT, PENGUMUMAN & VISI MISI */}
+                    <div className={`grid grid-cols-1 ${eventsToDisplay.length > 0 && !isPengumumanReallyEmpty() ? 'lg:grid-cols-3' : (eventsToDisplay.length > 0 || !isPengumumanReallyEmpty() ? 'lg:grid-cols-2' : 'lg:grid-cols-1')} gap-6 items-stretch`}>
 
                         {/* ACARA TERDEKAT */}
                         {eventsToDisplay.length > 0 && (
-                            <div className="flex flex-col group w-full relative">
-                                <div className="text-center mb-6 hidden lg:block"><h3 className="text-[10px] md:text-xs font-black text-transparent uppercase tracking-[0.2em] mb-1 opacity-0 pointer-events-none">Spacer</h3><h2 className="text-2xl md:text-3xl font-extrabold text-transparent opacity-0 pointer-events-none">Spacer</h2></div>
-                                <div className="relative z-10 glass-box p-4 rounded-[2.5rem] transition-all duration-500 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] flex-1 flex flex-col min-h-[420px]">
-                                    <div className="rounded-[2rem] bg-white/50 dark:bg-navy-900/50 p-6 xl:p-8 flex-1 flex flex-col items-center relative border border-white/60 dark:border-navy-600/50 shadow-inner w-full">
+                            <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-7 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
+                                <div className="flex items-center justify-between gap-3 mb-3">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D19B45]/15 text-[#9A6B1A] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#D19B45]/30">
+                                        <Icon name="Calendar" className="w-3.5 h-3.5" /> Jangan Lewatkan
+                                    </span>
+                                    <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
+                                        {currentEventIdx + 1} dari {eventsToDisplay.length} Acara
+                                    </span>
+                                </div>
 
-                                        <div className="text-center mb-6 w-full">
-                                            <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-1">Jangan Lewatkan</h3>
-                                            <h2 className="text-2xl md:text-3xl font-extrabold text-[#2C3F21] dark:text-white transition-colors">Acara Terdekat</h2>
+                                <div className="mb-3">
+                                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight">
+                                        Acara Terdekat
+                                    </h3>
+                                </div>
+
+                                <div className="relative w-full rounded-[1.5rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-950 shadow-md flex-1 flex flex-col justify-end p-5 text-white group text-left min-h-[240px]">
+                                    {eventsToDisplay[currentEventIdx]?.imageUrl ? (
+                                        <>
+                                            <img
+                                                src={formatImageUrl(eventsToDisplay[currentEventIdx].imageUrl)}
+                                                alt="Event Background"
+                                                loading="lazy"
+                                                decoding="async"
+                                                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                referrerPolicy="no-referrer"
+                                                onError={(e) => handleImageErrorFallback(e, eventsToDisplay[currentEventIdx].imageUrl)}
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20"></div>
+                                        </>
+                                    ) : (
+                                        <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
+                                            <div className="absolute top-[-20%] right-[-20%] w-[120%] pt-[120%] rounded-full border-[40px] border-white"></div>
                                         </div>
+                                    )}
 
-                                        <div className="relative w-full rounded-[1.5rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-900 shadow-xl flex-1 flex flex-col justify-end p-6 text-white group text-left min-h-[250px]">
-                                            {eventsToDisplay[currentEventIdx]?.imageUrl ? (
-                                                <>
-                                                    <img
-                                                        src={formatImageUrl(eventsToDisplay[currentEventIdx].imageUrl)}
-                                                        alt="Event Background"
-                                                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                                        referrerPolicy="no-referrer"
-                                                        onError={(e) => handleImageErrorFallback(e, eventsToDisplay[currentEventIdx].imageUrl)}
-                                                    />
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20"></div>
-                                                </>
-                                            ) : (
-                                                <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
-                                                    <div className="absolute top-[-20%] right-[-20%] w-[120%] pt-[120%] rounded-full border-[40px] border-white"></div>
-                                                </div>
-                                            )}
+                                    <div className="relative z-10 w-full">
+                                        <span className="inline-block bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full mb-2 shadow-md">
+                                            {eventsToDisplay[currentEventIdx]?.dateStr || ''}
+                                        </span>
+                                        <h4 className="text-lg md:text-xl font-black leading-tight mb-1.5 tracking-tight drop-shadow-md">
+                                            {eventsToDisplay[currentEventIdx]?.title || ''}
+                                        </h4>
+                                        <p className="text-xs text-gray-200 flex items-center font-medium drop-shadow-sm">
+                                            <Icon name="MapPin" className="w-3.5 h-3.5 mr-1.5 shrink-0 text-[#D19B45]" />
+                                            <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span>
+                                        </p>
+                                    </div>
 
-                                            <div className="relative z-10 w-full">
-                                                <span className="inline-block bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white text-xs sm:text-sm md:text-base font-black uppercase tracking-wider px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full mb-3 shadow-lg">
-                                                    {eventsToDisplay[currentEventIdx]?.dateStr || ''}
-                                                </span>
-                                                <h3 className="text-xl md:text-2xl font-black leading-tight mb-2 tracking-tight drop-shadow-md">{eventsToDisplay[currentEventIdx]?.title || ''}</h3>
-                                                <p className="text-xs md:text-sm text-gray-200 flex items-center font-medium drop-shadow-sm"><Icon name="MapPin" className="w-4 h-4 mr-1.5 shrink-0 text-[#D19B45]" /> <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span></p>
-                                            </div>
+                                    <div className="absolute top-3.5 right-3.5 flex gap-1.5 z-20">
+                                        <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))} className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow"><Icon name="ChevronLeft" className="w-3.5 h-3.5" /></button>
+                                        <button onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))} className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow"><Icon name="ChevronRight" className="w-3.5 h-3.5" /></button>
+                                    </div>
 
-                                            <div className="absolute top-4 right-4 flex gap-2 z-20">
-                                                <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow-lg"><Icon name="ChevronLeft" className="w-4 h-4" /></button>
-                                                <button onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow-lg"><Icon name="ChevronRight" className="w-4 h-4" /></button>
-                                            </div>
-
-                                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
-                                                {eventsToDisplay.map((_, idx) => (
-                                                    <button
-                                                        key={idx}
-                                                        type="button"
-                                                        onClick={() => setCurrentEventIdx(idx)}
-                                                        className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${idx === currentEventIdx ? 'w-6 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
+                                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-20">
+                                        {eventsToDisplay.map((_, idx) => (
+                                            <button
+                                                key={idx}
+                                                type="button"
+                                                onClick={() => setCurrentEventIdx(idx)}
+                                                className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-5 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
+                                            />
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -882,228 +1478,248 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                         {/* PENGUMUMAN */}
                         {(!isPengumumanReallyEmpty()) && (
-                            <div className="flex flex-col group w-full relative">
-                                <div className="text-center mb-6 hidden lg:block"><h3 className="text-[10px] md:text-xs font-black text-transparent uppercase tracking-[0.2em] mb-1 opacity-0 pointer-events-none">Spacer</h3><h2 className="text-2xl md:text-3xl font-extrabold text-transparent opacity-0 pointer-events-none">Spacer</h2></div>
-                                <div className="relative z-10 glass-box p-4 rounded-[2.5rem] transition-all duration-500 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] flex-1 flex flex-col min-h-[420px]">
-                                    <div className="rounded-[2rem] bg-white/50 dark:bg-navy-900/50 p-6 xl:p-8 flex-1 flex flex-col justify-center items-center text-center relative border border-white/60 dark:border-navy-600/50 shadow-inner">
-                                        <div className="absolute top-6 left-6 bg-gradient-to-r from-[#D19B45] to-[#B8863B] dark:from-gold-600 dark:to-gold-500 text-white text-[10px] md:text-xs font-bold px-4 py-2 rounded-full flex items-center shadow-lg backdrop-blur-md border border-white/20">
-                                            <Icon name="Megaphone" className="w-3 h-3 md:w-4 md:h-4 mr-2 drop-shadow-sm" /> Pengumuman
-                                        </div>
-                                        <h3 className="text-2xl md:text-3xl font-extrabold text-[#2C3F21] dark:text-white mb-6 mt-12 drop-shadow-sm">{pengumuman.header || "Pengumuman Pekan Ini"}</h3>
-                                        <div className="text-[#596B4D] dark:text-gray-300 text-sm md:text-base leading-relaxed overflow-y-auto custom-scrollbar w-full px-2 font-medium max-h-[250px]" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}></div>
-                                    </div>
+                            <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-7 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
+                                <div className="flex items-center justify-between gap-3 mb-3">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
+                                        <Icon name="Megaphone" className="w-3.5 h-3.5" /> Pengumuman
+                                    </span>
+                                    <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
+                                        Pekan Ini
+                                    </span>
                                 </div>
+
+                                <div className="mb-3">
+                                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight">
+                                        {pengumuman.header || "Pengumuman Pekan Ini"}
+                                    </h3>
+                                </div>
+
+                                <div className="flex-1 bg-[#F7F9F3] dark:bg-navy-950/60 p-4 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 text-[#596B4D] dark:text-gray-300 text-xs md:text-sm leading-relaxed overflow-y-auto custom-scrollbar font-medium min-h-[200px] max-h-[260px]" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}></div>
                             </div>
                         )}
 
                         {/* VISI MISI */}
-                        <div className="flex flex-col w-full relative">
-                            <div className="text-center mb-6 hidden lg:block"><h3 className="text-[10px] md:text-xs font-black text-transparent uppercase tracking-[0.2em] mb-1 opacity-0 pointer-events-none">Spacer</h3><h2 className="text-2xl md:text-3xl font-extrabold text-transparent opacity-0 pointer-events-none">Spacer</h2></div>
-                            <div className="relative flex-1 flex flex-col">
-                                <div className="glass-box rounded-[2.5rem] p-6 xl:p-8 transition-all duration-500 flex flex-col items-center text-center flex-1 justify-center min-h-[420px]">
-                                    <h2 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 mb-6 tracking-tight leading-[1.2] drop-shadow-sm">
-                                        Visi & Misi GMAHK
-                                    </h2>
-                                    <div className="text-[#4A7045] dark:text-gold-200/90 text-sm md:text-base leading-relaxed space-y-6 w-full mb-8">
-                                        <div className="flex flex-col items-center">
-                                            <span className="inline-block px-4 py-1.5 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] mb-3 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Visi</span>
-                                            <span className="pt-1">Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar <span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">selaras sepenuhnya dengan kehendak dan kebenaran-Nya</span>.</span>
-                                        </div>
-                                        <div className="flex flex-col items-center">
-                                            <span className="inline-block px-4 py-1.5 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] mb-3 border border-[#4A7045]/20 dark:border-gold-400/20 shadow-sm">Misi</span>
-                                            <span className="pt-1"><span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">Memanggil semua orang menjadi murid Yesus Kristus</span>, <span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">memberitakan Injil kekal</span>, dan <span className="text-base md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D19B45] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 drop-shadow-sm leading-snug">mempersiapkan dunia bagi kedatangan-Nya</span>.</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-4 mt-auto">
-                                        <a href="./pembangunan.html" className="group bg-white/60 dark:bg-navy-700/50 backdrop-blur-md hover:bg-white dark:hover:bg-navy-600 border border-[#4A7045]/20 dark:border-gold-500/30 text-[#4A7045] dark:text-gold-400 font-bold py-3 px-6 rounded-2xl transition-all duration-300 inline-flex items-center shadow-lg hover:shadow-xl hover:-translate-y-1 text-xs md:text-sm">
-                                            <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-gold-400 dark:to-gold-600 text-white dark:text-navy-900 rounded-xl p-2 mr-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
-                                                <Icon name="Church" className="w-4 h-4" />
-                                            </div>
-                                            Progres Pembangunan
-                                        </a>
-                                    </div>
-                                </div>
+                        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-7 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
+                            <div className="flex items-center justify-between gap-3 mb-3">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] border border-[#4A7045]/20 dark:border-gold-400/20">
+                                    <Icon name="Church" className="w-3.5 h-3.5 text-[#4A7045] dark:text-gold-400" /> Jemaat Pisgah BISDAC
+                                </span>
+                            </div>
 
-                                {/* Interactive floating Install App icon - menempel di samping kanan kotak Visi-Misi */}
+                            <div className="mb-3">
+                                <h3 className="text-xl md:text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 tracking-tight leading-tight">
+                                    Visi & Misi GMAHK
+                                </h3>
+                            </div>
+
+                            <div className="text-[#4A7045] dark:text-gold-200/90 text-xs md:text-sm leading-relaxed space-y-3 w-full my-auto py-1">
+                                <div className="p-3 bg-[#F7F9F3] dark:bg-navy-950/60 rounded-2xl border border-[#E2E8D8] dark:border-navy-800">
+                                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#4A7045]/15 text-[#2C3F21] dark:text-gold-400 font-extrabold uppercase tracking-widest text-[10px] mb-1">Visi</span>
+                                    <p className="text-[#2C3F21] dark:text-gray-200 leading-snug">Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar <strong className="text-[#4A7045] dark:text-gold-400 font-black">selaras sepenuhnya dengan kehendak dan kebenaran-Nya</strong>.</p>
+                                </div>
+                                <div className="p-3 bg-[#F7F9F3] dark:bg-navy-950/60 rounded-2xl border border-[#E2E8D8] dark:border-navy-800">
+                                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#4A7045]/15 text-[#2C3F21] dark:text-gold-400 font-extrabold uppercase tracking-widest text-[10px] mb-1">Misi</span>
+                                    <p className="text-[#2C3F21] dark:text-gray-200 leading-snug"><strong className="text-[#4A7045] dark:text-gold-400 font-black">Memanggil semua orang menjadi murid Yesus Kristus</strong>, memberitakan Injil kekal, dan mempersiapkan dunia bagi kedatangan-Nya.</p>
+                                </div>
+                            </div>
+
+                            <div className="pt-3 mt-3 border-t border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between">
+                                <a href="./pembangunan.html" className="text-[#4A7045] dark:text-gold-400 hover:underline font-extrabold text-xs flex items-center gap-1.5">
+                                    <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-gold-400 dark:to-gold-600 text-white dark:text-navy-900 rounded-lg p-1.5 shadow-sm">
+                                        <Icon name="Church" className="w-3.5 h-3.5" />
+                                    </div>
+                                    Progres Pembangunan <Icon name="ChevronRight" className="w-3 h-3" />
+                                </a>
                                 <button
                                     onClick={() => window.installPWA && window.installPWA()}
                                     title="Instal Aplikasi PWA"
-                                    className="absolute -right-3 sm:-right-5 md:-right-6 top-1/2 -translate-y-1/2 bg-white/95 dark:bg-navy-700/95 backdrop-blur-xl p-3.5 md:p-4 lg:p-5 rounded-full shadow-[0_10px_32px_0_rgba(0,0,0,0.18)] z-30 flex items-center justify-center border border-white/80 dark:border-white/15 hover:bg-white dark:hover:bg-navy-600 cursor-pointer group transition-all duration-300 hover:scale-110 no-print"
+                                    className="p-2 rounded-xl bg-[#F7F9F3] dark:bg-navy-800 text-[#D19B45] hover:bg-[#E2E8D8] dark:hover:bg-navy-700 transition shadow-sm border border-[#E2E8D8] dark:border-navy-700"
                                 >
-                                    <Icon name="MonitorDown" className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-[#D19B45] dark:text-gold-400 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 transition-colors duration-300" />
+                                    <Icon name="MonitorDown" className="w-4 h-4" />
                                 </button>
                             </div>
                         </div>
                     </div>
-                </div>
 
 
-                {/* WARTA JEMAAT (3 Columns Card Layout) */}
-                <div className="glass-box rounded-[3.5rem] pt-16 md:pt-24 pb-20 md:pb-28 px-4 md:px-8 mt-10 mb-8 transition-colors duration-500 relative z-10">
-                    <div className="w-full mx-auto lg:px-4">
-                        <div className="text-center mb-12 md:mb-16">
-                            <h2 className="text-3xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-4 transition-colors">Berita Terkini?</h2>
-                            <p className="text-[#596B4D] dark:text-gray-300 font-medium text-lg max-w-2xl mx-auto transition-colors">Informasi pelayanan, kegiatan gereja, dan kabar sukacita jemaat pekan ini.</p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {sortedWartaHome.slice(0, 3).map((warta, idx) => {
-                                const rawUrls = parseGambarUrls(warta.gambarUrl);
-                                const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
-                                const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
-
-                                return (
-                                    <div key={idx} onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }} className="glass-box rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer flex flex-col group">
-                                        <div className="h-56 overflow-hidden relative m-3 rounded-[1.5rem]">
-                                            {thumb ? (
-                                                <img src={thumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Warta" />
-                                            ) : (
-                                                <div className="w-full h-full bg-[#E5E9D8] dark:bg-navy-900 flex items-center justify-center text-[#4A7045] dark:text-navy-600 transition-colors">
-                                                    <Icon name="Image" className="w-12 h-12 opacity-30" />
-                                                </div>
-                                            )}
-                                            <div className="absolute top-4 left-4 bg-white/90 dark:bg-navy-900/90 backdrop-blur-sm text-[#2C3F21] dark:text-gold-400 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm transition-colors">
-                                                {formatDate(warta.tanggal)}
-                                            </div>
-                                        </div>
-                                        <div className="p-6 md:p-8 pt-4 flex-1 flex flex-col">
-                                            <h3 className="font-extrabold text-[19px] text-[#2C3F21] dark:text-gold-400 leading-tight mb-3 line-clamp-2 transition-colors">{warta.judul}</h3>
-                                            <div className="text-[#6C7D5D] dark:text-gold-100/70 text-sm leading-relaxed mb-8 line-clamp-3 font-medium transition-colors">
-                                                {truncateText(stripHtml(warta.isi), 120)}
-                                            </div>
-                                            <div className="mt-auto">
-                                                <button className="bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-900 hover:bg-[#3A5836] dark:hover:bg-gold-600 font-bold py-3 px-8 rounded-full transition-colors text-sm w-max">
-                                                    Baca Lengkap
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        {sortedWartaHome.length > 3 && (
-                            <div className="text-center mt-12 flex justify-center space-x-2">
-                                <div className="w-3 h-3 rounded-full bg-[#4A7045]"></div>
-                                <div className="w-3 h-3 rounded-full bg-gray-300"></div>
-                                <div className="w-3 h-3 rounded-full bg-gray-300"></div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* PUSTAKA & VIDEO SECTION */}
-                    <div className="w-full mx-auto px-4 md:px-8 lg:px-4 mt-20 md:mt-28 space-y-16">
-
-                        {/* Pustaka */}
-                        {daftarBuku && daftarBuku.length > 0 && (
-                            <div>
-                                <div className="flex justify-between items-end mb-8">
-                                    <div>
-                                        <h2 className="text-2xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 transition-colors">Pustaka Buku</h2>
-                                        <p className="text-[#596B4D] dark:text-gold-200/80 font-medium text-sm md:text-base mt-2 transition-colors">Buku referensi & rohani terbaru.</p>
-                                    </div>
-                                    <button onClick={() => setActiveTab('belajar_perpustakaan')} className="border-2 border-[#4A7045] dark:border-gold-500 text-[#4A7045] dark:text-gold-500 hover:bg-[#4A7045] dark:hover:bg-gold-500 hover:text-white dark:hover:text-navy-900 font-bold py-2 px-5 rounded-full transition-all flex items-center text-sm md:text-base">
-                                        Selengkapnya <Icon name="ArrowRight" className="w-4 h-4 ml-2" />
-                                    </button>
+                    {/* ROW 5: WARTA JEMAAT, PUSTAKA & VIDEO */}
+                    <div className="rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 transition-colors duration-500 relative z-10">
+                        <div className="w-full mx-auto">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                                <div>
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30 mb-2">
+                                        <Icon name="Warta" className="w-3.5 h-3.5" /> Warta & Kabar Jemaat
+                                    </span>
+                                    <h2 className="text-2xl md:text-3xl font-black text-[#2C3F21] dark:text-gold-400 tracking-tight transition-colors">Berita Terkini</h2>
+                                    <p className="text-[#596B4D] dark:text-gray-300 font-medium text-xs md:text-sm mt-1 transition-colors">Informasi pelayanan, kegiatan gereja, dan kabar sukacita jemaat pekan ini.</p>
                                 </div>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                                    {[...daftarBuku].reverse().slice(0, 4).map((b, i) => (
-                                        <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className={`glass-box rounded-[2rem] overflow-hidden cursor-pointer hover:-translate-y-1 transition-all duration-300 group flex-col ${i === 3 ? 'flex md:hidden lg:flex' : 'flex'}`}>
-                                            <div className="h-40 md:h-56 overflow-hidden relative m-2 rounded-[1.5rem]">
-                                                <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
-                                                <DocumentBadge book={b} className="absolute top-2 left-2" />
-                                                <span className="absolute top-2 right-2 bg-white/90 dark:bg-navy-900/90 backdrop-blur-md text-[#2C3F21] dark:text-gold-400 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm transition-colors">{b.category}</span>
-                                            </div>
-                                            <div className="p-4 md:p-5 flex-1 flex flex-col justify-between">
-                                                <div>
-                                                    <div className="font-extrabold text-sm md:text-base text-[#2C3F21] dark:text-gold-400 line-clamp-2 leading-tight mb-1 transition-colors">{b.title}</div>
-                                                    <div className="text-xs text-[#6C7D5D] dark:text-gold-200/70 font-medium transition-colors">{b.author}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Video Carousel */}
-                        {carouselVideos && carouselVideos.length > 0 && (
-                            <div
-                                className="mb-12 relative group w-full"
-                                onMouseEnter={() => setIsVideoHovered(true)}
-                                onMouseLeave={() => setIsVideoHovered(false)}
-                                onTouchStart={() => setIsVideoHovered(true)}
-                                onTouchEnd={() => { setTimeout(() => setIsVideoHovered(false), 5000); }}
-                            >
-                                <h2 className="text-2xl md:text-4xl font-extrabold text-[#2C3F21] dark:text-gold-400 mb-8 transition-colors px-2 flex items-center">
-                                    <Icon name="Video" className="w-6 h-6 md:w-8 md:h-8 mr-3 text-[#D19B45] dark:text-gold-500" /> Galeri Video
-                                </h2>
-                                <div
-                                    ref={videoCarouselRef}
-                                    onScroll={handleVideoScroll}
-                                    className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 w-full no-scrollbar md:custom-scrollbar scroll-smooth"
+                                <button
+                                    onClick={() => setActiveTab('warta')}
+                                    className="self-start sm:self-center bg-[#4A7045] hover:bg-[#3A5836] text-white dark:bg-gold-500 dark:hover:bg-gold-600 dark:text-navy-900 text-xs font-bold py-2.5 px-5 rounded-xl transition-all shadow-sm flex items-center gap-1.5 shrink-0"
                                 >
-                                    {carouselVideos.map((video, idx) => (
-                                        <div
-                                            key={idx}
-                                            className={`snap-start snap-always shrink-0 ${carouselVideos.length <= 1
-                                                ? 'w-full'
-                                                : carouselVideos.length === 2
-                                                    ? 'w-full md:w-[calc(50%-12px)]'
-                                                    : 'w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]'
-                                                } glass-box rounded-[2rem] p-4 md:p-6 transition-all duration-300 flex flex-col`}
-                                        >
-                                            <h3 className="text-lg md:text-xl font-extrabold mb-4 text-[#2C3F21] dark:text-gold-400 flex items-center px-2 transition-colors truncate">
-                                                <Icon name="Youtube" className="w-5 h-5 mr-3 shrink-0 text-[#D19B45] dark:text-gold-500" />{video.title}
-                                            </h3>
-                                            <div className="relative w-full overflow-hidden rounded-[1.5rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors" style={{ paddingTop: '56.25%' }}>
-                                                <iframe className="absolute top-0 left-0 w-full h-full" src={`${video.url}${video.url?.includes('?') ? '&' : '?'}vq=hd1080`} title={video.title} frameBorder="0" allowFullScreen></iframe>
+                                    Semua Warta <Icon name="ChevronRight" className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {sortedWartaHome.slice(0, 3).map((warta, idx) => {
+                                    const rawUrls = parseGambarUrls(warta.gambarUrl);
+                                    const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
+                                    const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
+
+                                    return (
+                                        <div key={idx} onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }} className="rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 overflow-hidden transition-all duration-300 hover:border-[#4A7045] dark:hover:border-gold-500 hover:shadow-md cursor-pointer flex flex-col group shadow-sm">
+                                            <div className="h-48 overflow-hidden relative m-2.5 rounded-[1.25rem]">
+                                                {thumb ? (
+                                                    <img src={thumb} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Warta" />
+                                                ) : (
+                                                    <div className="w-full h-full bg-[#E5E9D8] dark:bg-navy-900 flex items-center justify-center text-[#4A7045] dark:text-navy-600 transition-colors">
+                                                        <Icon name="Image" className="w-12 h-12 opacity-30" />
+                                                    </div>
+                                                )}
+                                                <div className="absolute top-3 left-3 bg-white/90 dark:bg-navy-900/90 backdrop-blur-sm text-[#2C3F21] dark:text-gold-400 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm transition-colors">
+                                                    {formatDate(warta.tanggal)}
+                                                </div>
+                                            </div>
+                                            <div className="p-5 pt-2 flex-1 flex flex-col">
+                                                <h3 className="font-extrabold text-base text-[#2C3F21] dark:text-gold-400 leading-tight mb-2 line-clamp-2 transition-colors">{warta.judul}</h3>
+                                                <div className="text-[#6C7D5D] dark:text-gold-100/70 text-xs leading-relaxed mb-4 line-clamp-3 font-medium transition-colors">
+                                                    {truncateText(stripHtml(warta.isi), 120)}
+                                                </div>
+                                                <div className="mt-auto">
+                                                    <button className="bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-900 hover:bg-[#3A5836] dark:hover:bg-gold-600 font-bold py-2 px-5 rounded-xl transition-colors text-xs w-max">
+                                                        Baca Lengkap
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    ))}
+                                    );
+                                })}
+                            </div>
+
+                            {sortedWartaHome.length > 3 && (
+                                <div className="text-center mt-6 flex justify-center space-x-2">
+                                    <div className="w-3 h-3 rounded-full bg-[#4A7045]"></div>
+                                    <div className="w-3 h-3 rounded-full bg-gray-300"></div>
+                                    <div className="w-3 h-3 rounded-full bg-gray-300"></div>
                                 </div>
-                                {/* Navigation Buttons & Dots Indicator */}
-                                {carouselVideos.length > 1 && (
-                                    <div className="flex justify-center items-center gap-4 mt-6">
-                                        <button
-                                            onClick={() => scrollVideoCarousel('left')}
-                                            className="w-11 h-11 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border-2 border-[#E9EEDF] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-all shadow-sm hover:scale-105 active:scale-95 focus:outline-none cursor-pointer"
-                                            aria-label="Video Sebelumnya"
-                                        >
-                                            <Icon name="ChevronLeft" className="w-5 h-5" />
-                                        </button>
+                            )}
+                        </div>
 
-                                        <div className="flex items-center gap-2 px-1">
-                                            {carouselVideos.map((_, idx) => (
-                                                <button
-                                                    key={idx}
-                                                    onClick={() => scrollToVideoIdx(idx)}
-                                                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${idx === currentVideoIdx
-                                                        ? 'w-7 bg-[#D19B45] dark:bg-gold-500 shadow-sm'
-                                                        : 'w-2.5 bg-gray-300 dark:bg-navy-700 hover:bg-gray-400 dark:hover:bg-navy-600'
-                                                        }`}
-                                                    aria-label={`Ke video ${idx + 1}`}
-                                                />
-                                            ))}
+                        {/* PUSTAKA & VIDEO SECTION */}
+                        <div className="w-full mx-auto mt-8 md:mt-10 space-y-8 pt-8 border-t border-[#E2E8D8] dark:border-navy-800">
+
+                            {/* Pustaka */}
+                            {daftarBuku && daftarBuku.length > 0 && (
+                                <div>
+                                    <div className="flex justify-between items-end mb-6">
+                                        <div>
+                                            <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-gold-400 transition-colors">Pustaka Buku</h3>
+                                            <p className="text-[#596B4D] dark:text-gold-200/80 font-medium text-xs md:text-sm mt-1 transition-colors">Buku referensi & rohani terbaru.</p>
                                         </div>
-
-                                        <button
-                                            onClick={() => scrollVideoCarousel('right')}
-                                            className="w-11 h-11 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border-2 border-[#E9EEDF] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-all shadow-sm hover:scale-105 active:scale-95 focus:outline-none cursor-pointer"
-                                            aria-label="Video Selanjutnya"
-                                        >
-                                            <Icon name="ChevronRight" className="w-5 h-5" />
+                                        <button onClick={() => setActiveTab('belajar_perpustakaan')} className="border-2 border-[#4A7045] dark:border-gold-500 text-[#4A7045] dark:text-gold-500 hover:bg-[#4A7045] dark:hover:bg-gold-500 hover:text-white dark:hover:text-navy-900 font-bold py-2 px-4 rounded-xl transition-all flex items-center text-xs md:text-sm">
+                                            Selengkapnya <Icon name="ArrowRight" className="w-3.5 h-3.5 ml-1.5" />
                                         </button>
                                     </div>
-                                )}
-                            </div>
-                        )}
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+                                        {[...daftarBuku].reverse().slice(0, 4).map((b, i) => (
+                                            <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className={`rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 overflow-hidden cursor-pointer hover:-translate-y-1 transition-all duration-300 group flex-col ${i === 3 ? 'flex md:hidden lg:flex' : 'flex'} shadow-sm hover:shadow-md`}>
+                                                <div className="h-40 md:h-52 overflow-hidden relative m-2 rounded-[1.25rem]">
+                                                    <img src={getCoverFallback(b)} loading="lazy" decoding="async" alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
+                                                    <DocumentBadge book={b} className="absolute top-2 left-2" />
+                                                    <span className="absolute top-2 right-2 bg-white/90 dark:bg-navy-900/90 backdrop-blur-md text-[#2C3F21] dark:text-gold-400 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm transition-colors">{b.category}</span>
+                                                </div>
+                                                <div className="p-4 pt-1 flex-1 flex flex-col justify-between">
+                                                    <div>
+                                                        <div className="font-extrabold text-xs md:text-sm text-[#2C3F21] dark:text-gold-400 line-clamp-2 leading-tight mb-1 transition-colors">{b.title}</div>
+                                                        <div className="text-[11px] text-[#6C7D5D] dark:text-gold-200/70 font-medium transition-colors">{b.author}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Video Carousel */}
+                            {carouselVideos && carouselVideos.length > 0 && (
+                                <div
+                                    className="mb-4 relative group w-full"
+                                    onMouseEnter={() => setIsVideoHovered(true)}
+                                    onMouseLeave={() => setIsVideoHovered(false)}
+                                    onTouchStart={() => setIsVideoHovered(true)}
+                                    onTouchEnd={() => { setTimeout(() => setIsVideoHovered(false), 5000); }}
+                                >
+                                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-gold-400 mb-6 transition-colors px-1 flex items-center">
+                                        <Icon name="Video" className="w-5 h-5 md:w-6 md:h-6 mr-2.5 text-[#D19B45] dark:text-gold-500" /> Galeri Video
+                                    </h3>
+                                    <div
+                                        ref={videoCarouselRef}
+                                        onScroll={handleVideoScroll}
+                                        className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-4 w-full no-scrollbar md:custom-scrollbar scroll-smooth"
+                                    >
+                                        {carouselVideos.map((video, idx) => (
+                                            <div
+                                                key={idx}
+                                                className={`snap-start snap-always shrink-0 ${carouselVideos.length <= 1
+                                                    ? 'w-full'
+                                                    : carouselVideos.length === 2
+                                                        ? 'w-full md:w-[calc(50%-10px)]'
+                                                        : 'w-full md:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)]'
+                                                    } rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 p-4 transition-all duration-300 flex flex-col shadow-sm`}
+                                            >
+                                                <h4 className="text-base font-extrabold mb-3 text-[#2C3F21] dark:text-gold-400 flex items-center px-1 transition-colors truncate">
+                                                    <Icon name="Youtube" className="w-4 h-4 mr-2 shrink-0 text-[#D19B45] dark:text-gold-500" />{video.title}
+                                                </h4>
+                                                <div className="relative w-full overflow-hidden rounded-[1.25rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors shadow-inner" style={{ paddingTop: '56.25%' }}>
+                                                    <iframe className="absolute top-0 left-0 w-full h-full" src={`${video.url}${video.url?.includes('?') ? '&' : '?'}vq=hd1080`} title={video.title} frameBorder="0" allowFullScreen></iframe>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {/* Navigation Buttons & Dots Indicator */}
+                                    {carouselVideos.length > 1 && (
+                                        <div className="flex justify-center items-center gap-4 mt-4">
+                                            <button
+                                                onClick={() => scrollVideoCarousel('left')}
+                                                className="w-9 h-9 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-all shadow-sm active:scale-95"
+                                                aria-label="Video Sebelumnya"
+                                            >
+                                                <Icon name="ChevronLeft" className="w-4 h-4" />
+                                            </button>
+
+                                            <div className="flex items-center gap-1.5 px-1">
+                                                {carouselVideos.map((_, idx) => (
+                                                    <button
+                                                        key={idx}
+                                                        onClick={() => scrollToVideoIdx(idx)}
+                                                        className={`h-2 rounded-full transition-all duration-300 ${idx === currentVideoIdx
+                                                            ? 'w-6 bg-[#D19B45] dark:bg-gold-500 shadow-sm'
+                                                            : 'w-2 bg-gray-300 dark:bg-navy-700 hover:bg-gray-400 dark:hover:bg-navy-600'
+                                                            }`}
+                                                        aria-label={`Ke video ${idx + 1}`}
+                                                    />
+                                                ))}
+                                            </div>
+
+                                            <button
+                                                onClick={() => scrollVideoCarousel('right')}
+                                                className="w-9 h-9 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-all shadow-sm active:scale-95"
+                                                aria-label="Video Selanjutnya"
+                                            >
+                                                <Icon name="ChevronRight" className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* FOOTER */}
-            <footer className="mt-20 border-t border-[#E9EEDF] dark:border-navy-800 pt-12 pb-6 px-4 md:px-8 lg:px-[6vw] w-full mx-auto text-[#596B4D] dark:text-navy-300 transition-colors">
+            <footer className="mt-8 border-t border-[#E9EEDF] dark:border-navy-800 pt-8 pb-6 px-4 md:px-8 lg:px-[6vw] w-full mx-auto text-[#596B4D] dark:text-navy-300 transition-colors">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-10 mb-12">
                     {/* Col 1 */}
                     <div>
@@ -8076,6 +8692,7 @@ const App = () => {
     // -----------------------------------------
     const [hideGlobalBack, setHideGlobalBack] = React.useState(false);
     const [isScrollingDown, setIsScrollingDown] = React.useState(false);
+    const [showScrollTop, setShowScrollTop] = React.useState(false);
 
     React.useEffect(() => {
         let lastScrollY = window.scrollY;
@@ -8086,6 +8703,7 @@ const App = () => {
             } else if (currentScrollY < lastScrollY) {
                 setIsScrollingDown(false);
             }
+            setShowScrollTop(currentScrollY > 350);
             lastScrollY = currentScrollY;
         };
         window.addEventListener('scroll', handleScroll, { passive: true });
@@ -8898,6 +9516,21 @@ const App = () => {
                     >
                         <i className="fa-brands fa-whatsapp text-[#25D366] text-2xl transition-transform group-hover:scale-110 drop-shadow-[0_0_8px_rgba(37,211,102,0.4)]"></i>
                     </button>
+
+                    {/* Floating Scroll-to-Top Button */}
+                    {showScrollTop && (
+                        <button
+                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                            className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 bg-white/85 dark:bg-[#161b26]/85 hover:bg-[#4A7045] hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-900 text-[#4A7045] dark:text-gold-400 backdrop-blur-2xl border border-slate-200/90 dark:border-white/15 rounded-full transition-all duration-300 flex items-center justify-center cursor-pointer shadow-[0_10px_30px_-4px_rgba(15,23,42,0.15),0_4px_12px_-2px_rgba(15,23,42,0.1)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.6)] group active:scale-95"
+                            style={{
+                                bottom: 'calc(env(safe-area-inset-bottom, 0px) + 154px)'
+                            }}
+                            title="Kembali ke Atas"
+                            aria-label="Kembali ke Atas"
+                        >
+                            <Icon name="ArrowUp" className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
+                        </button>
+                    )}
                 </>
             )}
         </div>

@@ -5,6 +5,7 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [react()],
   build: {
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
@@ -13,6 +14,24 @@ export default defineConfig({
         pembangunan: resolve(__dirname, 'pembangunan.html'),
         inventaris: resolve(__dirname, 'inventaris.html'),
         worshipPresenter: resolve(__dirname, 'worship-presenter.html')
+      },
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
+              return 'vendor-react';
+            }
+            if (id.includes('@supabase')) {
+              return 'vendor-supabase';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-lucide';
+            }
+            if (id.includes('html2pdf') || id.includes('jspdf') || id.includes('html2canvas')) {
+              return 'vendor-pdf';
+            }
+          }
+        }
       }
     }
   }

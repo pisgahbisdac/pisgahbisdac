@@ -1,4 +1,4 @@
-import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGASToSupabase } from './supabaseAdapter.js';
+import { supabaseGet, supabasePost, checkLaporanSupabaseHealth, migrateLaporanGASToSupabase, backupSupabaseToGAS } from './supabaseAdapter.js';
 
 (function () {
   const savedTheme = localStorage.getItem('BISDAC_theme') || 'light';
@@ -57,7 +57,8 @@ const svgStore = {
   eyeOff: '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/>',
   image: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
   printer: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/>',
-  user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'
+  user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'
 };
 
 function getIcon(name, sizeClass = 'lucide-sm') {
@@ -1388,6 +1389,43 @@ window.migrateLaporanToSupabase = async function () {
     }
   } catch (err) {
     notify(`Terjadi kesalahan saat migrasi: ${err.message}`, 'error');
+  } finally {
+    hideGlobalLoading();
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
+  }
+};
+
+window.backupSupabaseToGoogleSheets = async function () {
+  const yes = await showCustomConfirm(
+    'Konfirmasi Pencadangan Supabase ke Sheets',
+    'Mulai menyalin seluruh data transaksi (Pemasukan, Pengeluaran), Master Data, dan Saldo Awal dari database Supabase ke Google Sheets sebagai cadangan lengkap?'
+  );
+  if (!yes) return;
+
+  const btn = document.getElementById('btnBackupToGas');
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span> Mencadangkan...';
+  }
+
+  showGlobalLoading('Memulai pencadangan data ke Google Sheets...');
+
+  try {
+    const res = await backupSupabaseToGAS(getActiveApiUrl(), (progressText) => {
+      showGlobalLoading(progressText);
+    });
+
+    if (res.success) {
+      notify(res.message, 'success');
+    } else {
+      notify(`Pencadangan gagal: ${res.message}`, 'error');
+    }
+  } catch (err) {
+    notify(`Terjadi kesalahan: ${err.message}`, 'error');
   } finally {
     hideGlobalLoading();
     if (btn) {

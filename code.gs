@@ -178,7 +178,8 @@ function doPost(e) {
     const adminOnly   = [
       'saveDepartment', 'deleteRecord', 'saveUnit', 'saveUser', 
       'setInitialBalance', 'deleteDepartment', 'deleteUnit',
-      'saveConfig', 'saveIncomeType', 'deleteIncomeType'
+      'saveConfig', 'saveIncomeType', 'deleteIncomeType',
+      'syncSupabaseToSheets'
     ];
     const bendaharaUp = ['saveIncome', 'saveBulkIncome', 'saveExpense', 'editRecord', 'editBulkIncome'];
     const inventoryUp = ['saveInventory', 'deleteInventory'];
@@ -188,6 +189,8 @@ function doPost(e) {
     if (adminOnly.includes(action) && !hasRole(user.role, 'Admin')) {
       if (action === 'saveConfig' && hasRole(user.role, 'Bendahara') && data.key === 'receipt_series') {
         // Izinkan Bendahara jika hanya menyimpan 'receipt_series' (No. Series)
+      } else if (action === 'syncSupabaseToSheets' && hasRole(user.role, 'Bendahara')) {
+        // Izinkan Bendahara mencadangkan Supabase ke Sheets
       } else {
         return corsResponse({ success: false, message: 'Akses ditolak. Hanya Admin.' });
       }
@@ -233,6 +236,10 @@ function doPost(e) {
       case 'deleteInventory':   return corsResponse(deleteInventory(data, user));
       case 'saveInventoryService': return corsResponse(saveInventoryService(data, user));
       case 'deleteInventoryService': return corsResponse(deleteInventoryService(data, user));
+      case 'syncSupabaseToSheets':
+        const res_syncSupabase = handleSyncSupabaseToSheets(data, user);
+        if (res_syncSupabase.success) bumpCacheVersion();
+        return corsResponse(res_syncSupabase);
       case 'approveTransaction':
         if (!hasRole(user.role, 'Admin') && !hasRole(user.role, 'Ketua Jemaat') && !hasRole(user.role, 'Pendeta')) return corsResponse({ success: false, message: 'Akses ditolak. Hanya Ketua Jemaat, Pendeta, atau Admin.' });
         const res_approveTransaction = approveTransaction(data, user); if (res_approveTransaction.success) bumpCacheVersion(); return corsResponse(res_approveTransaction);
@@ -278,10 +285,16 @@ function handleLogin(params) {
 function verifyToken(token) {
   if (!token) return null;
   
-  // Try to decode the non-expiring base64 token first
+  // Try to decode the non-expiring base64 token first (supports websafe & standard base64)
   try {
-    const decodedBytes = Utilities.base64DecodeWebSafe(token);
-    const decodedStr = Utilities.newBlob(decodedBytes).getDataAsString();
+    let decodedStr = '';
+    try {
+      const decodedBytes = Utilities.base64DecodeWebSafe(token);
+      decodedStr = Utilities.newBlob(decodedBytes).getDataAsString();
+    } catch (errWebSafe) {
+      const decodedBytes = Utilities.base64Decode(token);
+      decodedStr = Utilities.newBlob(decodedBytes).getDataAsString();
+    }
     const session = JSON.parse(decodedStr);
     if (session && session.username && session.role) {
       return session; // Valid forever
@@ -1817,3 +1830,169 @@ function deleteInventory(data, user) {
     return { success: false, message: 'Error deleteInventory: ' + e.message };
   }
 }
+
+// ============================================================
+//  SINKRONISASI SUPABASE KE GOOGLE SHEETS (DUAL BACKUP)
+// ============================================================
+function handleSyncSupabaseToSheets(data, user) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    // 1. Departemen
+    if (data.departments && Array.isArray(data.departments)) {
+      const sheet = ss.getSheetByName(SHEETS.DEPARTMENTS);
+      if (sheet) {
+        const lastRow = sheet.getLastRow();
+        if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).clearContent();
+        if (data.departments.length > 0) {
+          const rows = data.departments.map((d, idx) => [d.id || (idx + 1), d.name, d.active !== false]);
+          sheet.getRange(2, 1, rows.length, 3).setValues(rows);
+        }
+      }
+    }
+
+    // 2. Unit
+    if (data.units && Array.isArray(data.units)) {
+      const sheet = ss.getSheetByName(SHEETS.UNITS);
+      if (sheet) {
+        const lastRow = sheet.getLastRow();
+        if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).clearContent();
+        if (data.units.length > 0) {
+          const rows = data.units.map((u, idx) => [u.id || (idx + 1), u.name, u.note || '', u.active !== false, parseInt(u.jumlah_anggota) || 0]);
+          sheet.getRange(2, 1, rows.length, 5).setValues(rows);
+        }
+      }
+    }
+
+    // 3. Jenis Pemasukan
+    if (data.incomeTypes && Array.isArray(data.incomeTypes)) {
+      const sheet = ss.getSheetByName(SHEETS.INCOME_TYPES);
+      if (sheet) {
+        const lastRow = sheet.getLastRow();
+        if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).clearContent();
+        if (data.incomeTypes.length > 0) {
+          const rows = data.incomeTypes.map((it, idx) => [
+            it.id || (idx + 1),
+            it.name,
+            parseFloat(it.pct_daerah) || 0,
+            parseFloat(it.pct_jemaat) || 0,
+            parseFloat(it.pct_bangun) || 0,
+            it.active !== false
+          ]);
+          sheet.getRange(2, 1, rows.length, 6).setValues(rows);
+        }
+      }
+    }
+
+    // 4. Saldo Awal
+    if (data.balances && Array.isArray(data.balances)) {
+      const sheet = ss.getSheetByName(SHEETS.BALANCES);
+      if (sheet) {
+        const lastRow = sheet.getLastRow();
+        if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).clearContent();
+        if (data.balances.length > 0) {
+          const rows = data.balances.map(b => [b.department || b.source || '', parseFloat(b.amount || b.balance) || 0]);
+          sheet.getRange(2, 1, rows.length, 2).setValues(rows);
+        }
+      }
+    }
+
+    // 5. Konfigurasi
+    if (data.config && typeof data.config === 'object') {
+      const sheet = ss.getSheetByName(SHEETS.CONFIG);
+      if (sheet) {
+        const lastRow = sheet.getLastRow();
+        if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).clearContent();
+        const entries = Object.entries(data.config).map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)]);
+        if (entries.length > 0) {
+          sheet.getRange(2, 1, entries.length, 2).setValues(entries);
+        }
+      }
+    }
+
+    // 6. Pemasukan
+    let incCount = 0;
+    if (data.income && Array.isArray(data.income)) {
+      const sheet = ss.getSheetByName(SHEETS.INCOME);
+      if (sheet) {
+        const lastRow = sheet.getLastRow();
+        if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).clearContent();
+        if (data.income.length > 0) {
+          const rows = data.income.map(item => {
+            const d = item.date ? new Date(item.date) : new Date();
+            return [
+              item.transaction_id || '',
+              item.date || '',
+              item.month || (d.getMonth() + 1),
+              item.year || d.getFullYear(),
+              item.income_type || '',
+              item.nama_pemberi || '',
+              item.unit_name || '-',
+              item.receipt_no || '',
+              parseFloat(item.amount) || 0,
+              parseFloat(item.alloc_daerah) || 0,
+              parseFloat(item.alloc_jemaat) || 0,
+              parseFloat(item.alloc_bangun) || 0,
+              item.note || '',
+              item.created_by || 'System',
+              item.created_at || new Date().toISOString(),
+              item.receipt_photo ? true : false,
+              item.receipt_photo_2 ? true : false,
+              item.receipt_photo_3 ? true : false,
+              item.approved_by || ''
+            ];
+          });
+          sheet.getRange(2, 1, rows.length, 19).setValues(rows);
+          incCount = rows.length;
+        }
+      }
+    }
+
+    // 7. Pengeluaran
+    let expCount = 0;
+    if (data.expense && Array.isArray(data.expense)) {
+      const sheet = ss.getSheetByName(SHEETS.EXPENSE);
+      if (sheet) {
+        const lastRow = sheet.getLastRow();
+        if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).clearContent();
+        if (data.expense.length > 0) {
+          const rows = data.expense.map(item => {
+            const d = item.date ? new Date(item.date) : new Date();
+            return [
+              item.transaction_id || '',
+              item.date || '',
+              item.month || (d.getMonth() + 1),
+              item.year || d.getFullYear(),
+              item.department || '',
+              item.source_balance || 'Kas Jemaat',
+              item.receipt_no || '',
+              parseFloat(item.amount) || 0,
+              item.note || '',
+              item.created_by || 'System',
+              item.created_at || new Date().toISOString(),
+              item.receipt_photo ? true : false,
+              item.nama_penerima || '-',
+              item.receipt_photo_2 ? true : false,
+              item.receipt_photo_3 ? true : false,
+              item.approved_by || ''
+            ];
+          });
+          sheet.getRange(2, 1, rows.length, 16).setValues(rows);
+          expCount = rows.length;
+        }
+      }
+    }
+
+    writeLog(user ? user.username : 'System', 'BACKUP_SUPABASE_TO_SHEETS', `Inc: ${incCount}, Exp: ${expCount}`);
+    bumpCacheVersion();
+
+    return {
+      success: true,
+      message: `Pencadangan ke Google Sheets berhasil!\n- ${incCount} Transaksi Pemasukan\n- ${expCount} Transaksi Pengeluaran\n- Master Data & Saldo Awal Lengkap`
+    };
+  } catch (err) {
+    console.error('handleSyncSupabaseToSheets Error:', err);
+    return { success: false, message: 'Gagal mencadangkan ke Sheets: ' + err.message };
+  }
+}
+

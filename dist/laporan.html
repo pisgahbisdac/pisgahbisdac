@@ -16,10 +16,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.css" rel="stylesheet">
 
-  <script type="module" crossorigin src="/assets/laporan-XBGUhk3q.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-Dl2kKfDz.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="stylesheet" crossorigin href="/assets/laporan-DLpAwPM5.css">
-  <link rel="stylesheet" crossorigin href="/assets/index-BI5t41bg.css">
+  <link rel="stylesheet" crossorigin href="/assets/laporan-D9dphg-7.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-BD9b7yc1.css">
 </head>
 
 <body class="page-laporan">
@@ -136,7 +136,8 @@
             <img class="app-logo-sidebar-default" src="./icons/PisgahColor.png" alt="Logo Default"
               style="width: 40px; height: 40px; object-fit: contain;">
           </div>
-          <div class="sidebar-brand-text" style="display: flex; flex-direction: column; justify-content: center; min-width: 160px;">
+          <div class="sidebar-brand-text"
+            style="display: flex; flex-direction: column; justify-content: center; min-width: 160px;">
             <div class="app-name-display"
               style="font-size: 16px; font-weight: 800; color: var(--text); letter-spacing: 0.5px; line-height: 1.2; white-space: normal; word-break: break-word;">
               PISGAH BISDAC</div>
@@ -196,7 +197,8 @@
         </div>
         <div class="nav-item" onclick="showPage('riwayat')" id="navRiwayat">
           <span class="nav-icon">
-            <span class="icon-placeholder" id="navRiwayatIcon" data-icon="info" data-size="lucide-md" style="transition: color 0.3s;"></span>
+            <span class="icon-placeholder" id="navRiwayatIcon" data-icon="info" data-size="lucide-md"
+              style="transition: color 0.3s;"></span>
           </span> Histori Jurnal
         </div>
         <div class="nav-section-title" id="adminNavLabel">Administrasi</div>
@@ -290,14 +292,16 @@
               <line x1="3" y1="18" x2="21" y2="18" />
             </svg></button>
           <span class="topbar-title" id="pageTitle">Dashboard</span>
-          <div id="topbarDbStatusBadge" style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600; background:rgba(16,185,129,0.1); color:#059669; border:1px solid rgba(16,185,129,0.2);">
-            <span style="width:7px; height:7px; border-radius:50%; background:#10b981; display:inline-block;" id="topbarDbStatusDot"></span>
+          <div id="topbarDbStatusBadge"
+            style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600; background:rgba(16,185,129,0.1); color:#059669; border:1px solid rgba(16,185,129,0.2);">
+            <span style="width:7px; height:7px; border-radius:50%; background:#10b981; display:inline-block;"
+              id="topbarDbStatusDot"></span>
             <span id="topbarDbStatusText">Supabase Aktif</span>
           </div>
         </div>
         <div class="topbar-actions" style="display:flex; gap:8px;">
-          <div id="globalApprovalBtn" class="notification-btn topbar-icon-hover" title="Persetujuan Tertunda" onclick="navigateToApprovals()"
-            style="position:relative; cursor:pointer; display:none;">
+          <div id="globalApprovalBtn" class="notification-btn topbar-icon-hover" title="Persetujuan Tertunda"
+            onclick="navigateToApprovals()" style="position:relative; cursor:pointer; display:none;">
             <span class="icon-placeholder" data-icon="bell" data-size="lucide-md"></span>
             <span id="globalApprovalBadge" class="badge"
               style="display:none; position:absolute; top:-4px; right:-6px; background:var(--red-pop); color:white; border:none; padding: 2px 5px; border-radius: 6px; font-size: 10px; min-width: 16px; height: 16px; line-height: 1;"></span>
@@ -399,10 +403,12 @@
 
         <!-- KARTU GRAFIK KEUANGAN TAHUNAN -->
         <div class="card" id="dashChartCard" style="margin-bottom:24px; width: 100%;">
-          <div class="card-header" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px;">
+          <div class="card-header"
+            style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px;">
             <div>
               <div class="card-title" style="display:flex; align-items:center; gap:8px;">
-                <svg class="lucide lucide-md" style="color:var(--primary)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="lucide lucide-md" style="color:var(--primary)" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="18" y1="20" x2="18" y2="10"></line>
                   <line x1="12" y1="20" x2="12" y2="4"></line>
                   <line x1="6" y1="20" x2="6" y2="14"></line>
@@ -413,19 +419,24 @@
             </div>
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               <span class="filter-label" style="font-size:12px; margin:0;">Filter:</span>
-              <select class="select-sm" id="dashChartCategoryFilter" onchange="updateDashboardChart()" style="min-width:170px; max-width:260px; text-overflow:ellipsis;">
+              <select class="select-sm" id="dashChartCategoryFilter" onchange="updateDashboardChart()"
+                style="min-width:170px; max-width:260px; text-overflow:ellipsis;">
                 <option value="all">Semua (Total Pemasukan & Pengeluaran)</option>
               </select>
               <div style="display:flex; border:1px solid var(--glass-border); border-radius:6px; overflow:hidden;">
-                <button type="button" id="btnChartModeBar" class="chart-toggle-btn active" onclick="setDashboardChartMode('bar')" title="Tampilan Batang">Batang</button>
-                <button type="button" id="btnChartModeLine" class="chart-toggle-btn" onclick="setDashboardChartMode('line')" title="Tampilan Garis">Garis</button>
+                <button type="button" id="btnChartModeBar" class="chart-toggle-btn active"
+                  onclick="setDashboardChartMode('bar')" title="Tampilan Batang">Batang</button>
+                <button type="button" id="btnChartModeLine" class="chart-toggle-btn"
+                  onclick="setDashboardChartMode('line')" title="Tampilan Garis">Garis</button>
               </div>
             </div>
           </div>
           <div style="position:relative; width:100%; height:320px;">
             <canvas id="dashFinanceChart"></canvas>
           </div>
-          <div id="dashChartSummary" style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:12px; margin-top:16px; padding-top:12px; border-top:1px solid var(--glass-border); font-size:12px;"></div>
+          <div id="dashChartSummary"
+            style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:12px; margin-top:16px; padding-top:12px; border-top:1px solid var(--glass-border); font-size:12px;">
+          </div>
         </div>
 
         <div class="grid-2 dashboard-main-grid" style="margin-bottom:24px;">
@@ -491,7 +502,8 @@
               <div class="form-row keep-row">
                 <div class="form-group"><label class="form-label">Tanggal Transaksi</label>
                   <div class="premium-date-wrapper">
-                    <input class="form-input premium-date" id="incDate" type="text" placeholder="Pilih Tanggal" readonly>
+                    <input class="form-input premium-date" id="incDate" type="text" placeholder="Pilih Tanggal"
+                      readonly>
                     <span class="icon-placeholder left-icon" data-icon="calendar" data-size="lucide-md"></span>
                     <span class="icon-placeholder right-icon" data-icon="chevronDown" data-size="lucide-md"></span>
                   </div>
@@ -516,7 +528,8 @@
                   <label class="form-label">No. Kuitansi</label>
                   <div style="display: flex; gap: 8px;">
                     <input class="form-input" id="incReceipt" type="text" placeholder="No. Otomatis / Manual">
-                    <button type="button" class="btn" style="padding: 0 12px; background:#3b82f6; color:white;" onclick="autoGenerateReceipt('INC')" title="Generate Auto">Auto</button>
+                    <button type="button" class="btn" style="padding: 0 12px; background:#3b82f6; color:white;"
+                      onclick="autoGenerateReceipt('INC')" title="Generate Auto">Auto</button>
                   </div>
                   <div id="lastIncReceipt" style="font-size:11px; color:var(--text3); margin-top:4px;"></div>
                 </div>
@@ -572,7 +585,9 @@
                   onchange="handleReceiptPhoto(event, 'income')">
               </div>
               <div class="form-group"><label class="form-label">Keterangan (Selain Perpuluhan)</label>
-                <textarea class="form-input" id="incNote" placeholder="Misal: NN atau Rincian ..." rows="3" style="resize:vertical;"></textarea></div>
+                <textarea class="form-input" id="incNote" placeholder="Misal: NN atau Rincian ..." rows="3"
+                  style="resize:vertical;"></textarea>
+              </div>
               <button class="btn btn-success" style="width:100%; padding:14px;" id="savIncBtn"
                 onclick="saveIncomeForm()">Posting Pemasukan</button>
             </div>
@@ -627,7 +642,8 @@
                 <label class="form-label">No. Bukti/Kuitansi</label>
                 <div style="display: flex; gap: 8px;">
                   <input class="form-input" id="expReceipt" type="text" placeholder="No. Otomatis / Manual">
-                  <button type="button" class="btn" style="padding: 0 12px; background:#3b82f6; color:white;" onclick="autoGenerateReceipt('EXC')" title="Generate Auto">Auto</button>
+                  <button type="button" class="btn" style="padding: 0 12px; background:#3b82f6; color:white;"
+                    onclick="autoGenerateReceipt('EXC')" title="Generate Auto">Auto</button>
                 </div>
                 <div id="lastExpReceipt" style="font-size:11px; color:var(--text3); margin-top:4px;"></div>
               </div>
@@ -649,7 +665,9 @@
                 onchange="handleReceiptPhoto(event, 'expense')">
             </div>
             <div class="form-group"><label class="form-label">Keterangan</label>
-              <textarea class="form-input" id="expNote" placeholder="Deskripsi penggunaan..." rows="3" style="resize:vertical;"></textarea></div>
+              <textarea class="form-input" id="expNote" placeholder="Deskripsi penggunaan..." rows="3"
+                style="resize:vertical;"></textarea>
+            </div>
             <button class="btn btn-primary" style="width:100%; padding:14px;" id="savExpBtn"
               onclick="saveExpenseForm()">Posting Pengeluaran</button>
           </div>
@@ -685,8 +703,11 @@
                 <option value="Daerah|CASH">Kas Daerah [Di Tangan]</option>
               </select>
             </div>
-            <div class="form-group"><label class="form-label">Sisa Cash Tersedia <span style="font-size:11px; font-weight:normal; color:var(--text3);">(Klik nominal untuk lihat histori)</span></label>
-              <div class="saldo-display" id="mutSaldoTersedia" style="color:var(--accent-cyan, var(--teal-pop)); cursor:pointer;" onclick="showCashTransactions()">Rp 0
+            <div class="form-group"><label class="form-label">Sisa Cash Tersedia <span
+                  style="font-size:11px; font-weight:normal; color:var(--text3);">(Klik nominal untuk lihat
+                  histori)</span></label>
+              <div class="saldo-display" id="mutSaldoTersedia"
+                style="color:var(--accent-cyan, var(--teal-pop)); cursor:pointer;" onclick="showCashTransactions()">Rp 0
               </div>
             </div>
             <div class="saldo-warning" id="mutSaldoWarning">
@@ -698,7 +719,8 @@
                 <label class="form-label">Nomor Bukti Setor</label>
                 <div style="display: flex; gap: 8px;">
                   <input class="form-input" id="mutReceipt" type="text" placeholder="MUT-XXXX">
-                  <button type="button" class="btn" style="padding: 0 12px; background:#3b82f6; color:white;" onclick="autoGenerateReceipt('PB')" title="Generate Auto">Auto</button>
+                  <button type="button" class="btn" style="padding: 0 12px; background:#3b82f6; color:white;"
+                    onclick="autoGenerateReceipt('PB')" title="Generate Auto">Auto</button>
                 </div>
               </div>
             </div>
@@ -716,7 +738,9 @@
                 onchange="handleReceiptPhoto(event, 'mutasi')">
             </div>
             <div class="form-group"><label class="form-label">Keterangan</label>
-              <textarea class="form-input" id="mutNote" placeholder="Tujuan Pindah Buku..." rows="3" style="resize:vertical;"></textarea></div>
+              <textarea class="form-input" id="mutNote" placeholder="Tujuan Pindah Buku..." rows="3"
+                style="resize:vertical;"></textarea>
+            </div>
             <button class="btn btn-primary" style="width:100%; padding:14px;" id="savMutBtn"
               onclick="saveMutasiForm()">Proses Setoran Bank</button>
           </div>
@@ -753,10 +777,13 @@
           <input type="number" class="select-sm" id="rptYear" value="2026" min="2000" max="2100"
             style="background-image: none; padding-right: 12px; width: 80px;" title="Ketik tahun">
           <button class="btn btn-primary" onclick="loadReport()">Buat Laporan</button>
-          <button class="btn" id="btnExportMenu" onclick="document.getElementById('exportMenuModal').style.display='flex'"
-            style="background: #10b981; color: #ffffff; border: none; font-weight: 600; display:none;">Export Excel</button>
+          <button class="btn" id="btnExportMenu"
+            onclick="document.getElementById('exportMenuModal').style.display='flex'"
+            style="background: #10b981; color: #ffffff; border: none; font-weight: 600; display:none;">Export
+            Excel</button>
           <button class="btn" id="btnPrintMenu" onclick="document.getElementById('printMenuModal').style.display='flex'"
-            style="background: #ef4444; color: #ffffff; border: none; font-weight: 600; display:none;">Cetak / PDF</button>
+            style="background: #ef4444; color: #ffffff; border: none; font-weight: 600; display:none;">Cetak /
+            PDF</button>
           <button class="btn btn-danger" id="btnManageClosing" onclick="openClosingModal()"
             style="display:none;">Manajemen Tutup Buku</button>
         </div>
@@ -768,18 +795,25 @@
             border-radius: 0 !important;
             transition: all 0.3s ease;
           }
+
           .report-tabs .tab-btn:hover {
             color: var(--text) !important;
             background: rgba(0, 0, 0, 0.02) !important;
           }
+
           .report-tabs .tab-btn.active {
             color: var(--primary) !important;
             border-bottom-color: var(--primary) !important;
           }
         </style>
-        <div class="report-tabs" style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; overflow-x: auto;">
-          <button class="btn tab-btn active" onclick="switchReportTab('umum')" id="tabLaporanUmum" style="flex: 1; min-width: 150px; font-weight: 600; border: none; background: transparent;">Kas Umum & Jemaat</button>
-          <button class="btn tab-btn" onclick="switchReportTab('pembangunan')" id="tabLaporanPembangunan" style="flex: 1; min-width: 150px; font-weight: 600; border: none; background: transparent;">Laporan Pembangunan</button>
+        <div class="report-tabs"
+          style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; overflow-x: auto;">
+          <button class="btn tab-btn active" onclick="switchReportTab('umum')" id="tabLaporanUmum"
+            style="flex: 1; min-width: 150px; font-weight: 600; border: none; background: transparent;">Kas Umum &
+            Jemaat</button>
+          <button class="btn tab-btn" onclick="switchReportTab('pembangunan')" id="tabLaporanPembangunan"
+            style="flex: 1; min-width: 150px; font-weight: 600; border: none; background: transparent;">Laporan
+            Pembangunan</button>
         </div>
 
         <div id="reportSensorContainer"
@@ -962,9 +996,12 @@
               <button class="btn btn-ghost" id="unitCancelBtn" onclick="cancelEditUnit()"
                 style="display:none">Batal</button>
             </div>
-            <div id="unitSummaryBox" style="margin-top: 20px; padding: 15px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 8px;">
-               <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 5px;">Total Unit Terdaftar: <strong id="summaryTotalUnits" style="color: var(--text-main);">0</strong></div>
-               <div style="font-size: 14px; color: var(--text-muted);">Total Anggota/Keluarga Pemberi: <strong id="summaryTotalAnggota" style="color: var(--text-main);">0</strong> Jiwa</div>
+            <div id="unitSummaryBox"
+              style="margin-top: 20px; padding: 15px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 8px;">
+              <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 5px;">Total Unit Terdaftar: <strong
+                  id="summaryTotalUnits" style="color: var(--text-main);">0</strong></div>
+              <div style="font-size: 14px; color: var(--text-muted);">Total Anggota/Keluarga Pemberi: <strong
+                  id="summaryTotalAnggota" style="color: var(--text-main);">0</strong> Jiwa</div>
             </div>
           </div>
           <div class="card">
@@ -984,15 +1021,24 @@
                 id="userFullName" type="text"></div>
             <div class="form-group">
               <label class="form-label">Role Akses (Bisa pilih lebih dari satu)</label>
-              <div id="userRoleContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--glass-border); padding: 12px; border-radius: var(--radius); background: var(--input-bg); display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Admin"> Admin</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Ketua Jemaat"> Ketua Jemaat</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Pendeta"> Pendeta</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Bendahara"> Bendahara</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Diakon"> Diakon</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Viewer"> Viewer</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Daerah"> Daerah</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk" value="Publik"> Publik</label>
+              <div id="userRoleContainer"
+                style="max-height: 200px; overflow-y: auto; border: 1px solid var(--glass-border); padding: 12px; border-radius: var(--radius); background: var(--input-bg); display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                    value="Admin"> Admin</label>
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                    value="Ketua Jemaat"> Ketua Jemaat</label>
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                    value="Pendeta"> Pendeta</label>
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                    value="Bendahara"> Bendahara</label>
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                    value="Diakon"> Diakon</label>
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                    value="Viewer"> Viewer</label>
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                    value="Daerah"> Daerah</label>
+                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                    value="Publik"> Publik</label>
               </div>
             </div>
             <div class="form-group">
@@ -1005,15 +1051,15 @@
               </div>
             </div>
             <div class="form-group">
-            <label class="form-label">Kata Sandi</label>
-            <div class="password-box">
-              <input class="form-input" id="userPassword" type="password" placeholder="Kata Sandi">
-              <span class="eye-btn eye-icon" onclick="togglePassword('userPassword', this)">
-                <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
-              </span>
+              <label class="form-label">Kata Sandi</label>
+              <div class="password-box">
+                <input class="form-input" id="userPassword" type="password" placeholder="Kata Sandi">
+                <span class="eye-btn eye-icon" onclick="togglePassword('userPassword', this)">
+                  <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
+                </span>
+              </div>
+              <div class="password-strength" id="userPassStrength"></div>
             </div>
-            <div class="password-strength" id="userPassStrength"></div>
-          </div>
             <div style="display:flex; gap:12px; margin-top:10px">
               <button class="btn btn-primary" id="saveUserBtn" onclick="saveUserForm()" style="flex:1">Simpan</button>
               <button class="btn btn-ghost" id="cancelEditUserBtn" onclick="cancelEditUser()"
@@ -1035,40 +1081,44 @@
                 <span class="icon-placeholder" data-icon="user" data-size="lucide-md"></span>
               </span>
               Pengaturan Akun
-              <button id="btnEditAkun" class="badge badge-gray" style="margin-left:auto; cursor:pointer; background:transparent; border:1px solid var(--glass-border); padding:6px 12px; font-family:inherit; color:var(--text3); border-radius:8px; display:flex; gap:6px; align-items:center;" onclick="toggleEditMode('akunFieldset', 'btnEditAkun')">
+              <button id="btnEditAkun" class="badge badge-gray"
+                style="margin-left:auto; cursor:pointer; background:transparent; border:1px solid var(--glass-border); padding:6px 12px; font-family:inherit; color:var(--text3); border-radius:8px; display:flex; gap:6px; align-items:center;"
+                onclick="toggleEditMode('akunFieldset', 'btnEditAkun')">
                 <span class="icon-placeholder" data-icon="lock" data-size="lucide-md"></span> Mode Edit
               </button>
             </div>
           </div>
           <fieldset id="akunFieldset" disabled style="border:none; padding:0; margin:0; min-width:0;">
-          <div class="form-group">
-            <label class="form-label">Username</label>
-            <input type="text" class="form-input" id="myNewUsername" placeholder="Username baru">
-            <small style="color:var(--text4); font-size:11px;">Kosongkan jika tidak ingin mengubah username.</small>
-          </div>
-          <div style="border-top:1px solid var(--glass-border); margin:12px 0;"></div>
-          <div class="form-group" style="position:relative;">
-            <label class="form-label">Kata Sandi Baru</label>
-            <div class="password-box">
-              <input type="password" class="form-input" id="myNewPassword" placeholder="Kosongkan jika tidak diubah">
-              <span class="eye-btn eye-icon" onclick="togglePassword('myNewPassword', this)">
-                <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
-              </span>
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-input" id="myNewUsername" placeholder="Username baru">
+              <small style="color:var(--text4); font-size:11px;">Kosongkan jika tidak ingin mengubah username.</small>
             </div>
-            <div class="password-strength" id="myNewPassStrength"></div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Konfirmasi Kata Sandi Baru</label>
-            <div class="password-box">
-              <input type="password" class="form-input" id="myNewPasswordConfirm" placeholder="Ketik ulang sandi baru">
-              <span class="eye-btn eye-icon" onclick="togglePassword('myNewPasswordConfirm', this)">
-                <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
-              </span>
+            <div style="border-top:1px solid var(--glass-border); margin:12px 0;"></div>
+            <div class="form-group" style="position:relative;">
+              <label class="form-label">Kata Sandi Baru</label>
+              <div class="password-box">
+                <input type="password" class="form-input" id="myNewPassword" placeholder="Kosongkan jika tidak diubah">
+                <span class="eye-btn eye-icon" onclick="togglePassword('myNewPassword', this)">
+                  <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
+                </span>
+              </div>
+              <div class="password-strength" id="myNewPassStrength"></div>
             </div>
-            <small style="color:var(--text4); font-size:11px; margin-top:8px; display:block;">Kosongkan jika tidak ingin mengubah sandi.</small>
-          </div>
-          <button class="btn btn-primary" style="width:100%; margin-top:8px;" id="btnUpdateMyPassword"
-            onclick="updateMyAccount()">Simpan Perubahan</button>
+            <div class="form-group">
+              <label class="form-label">Konfirmasi Kata Sandi Baru</label>
+              <div class="password-box">
+                <input type="password" class="form-input" id="myNewPasswordConfirm"
+                  placeholder="Ketik ulang sandi baru">
+                <span class="eye-btn eye-icon" onclick="togglePassword('myNewPasswordConfirm', this)">
+                  <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
+                </span>
+              </div>
+              <small style="color:var(--text4); font-size:11px; margin-top:8px; display:block;">Kosongkan jika tidak
+                ingin mengubah sandi.</small>
+            </div>
+            <button class="btn btn-primary" style="width:100%; margin-top:8px;" id="btnUpdateMyPassword"
+              onclick="updateMyAccount()">Simpan Perubahan</button>
           </fieldset>
         </div>
       </div>
@@ -1162,7 +1212,8 @@
 
         <div class="card" style="max-width:1400px; margin:24px auto 0;">
           <div class="form-section-title">Pengaturan Transfer Rekening Daerah</div>
-          <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Atur detail rekening bank untuk tujuan transfer daerah pada cetakan laporan.</p>
+          <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Atur detail rekening bank untuk tujuan
+            transfer daerah pada cetakan laporan.</p>
           <div class="grid-2">
             <div class="form-group">
               <label class="form-label">Bank Tujuan</label>
@@ -1176,7 +1227,8 @@
             </div>
             <div class="form-group" style="grid-column: 1 / -1;">
               <label class="form-label">Nama Rekening</label>
-              <input class="form-input" id="settingTransferNama" type="text" placeholder="Misal: MASEHI ADVENT HARI KETUJUH"
+              <input class="form-input" id="settingTransferNama" type="text"
+                placeholder="Misal: MASEHI ADVENT HARI KETUJUH"
                 onchange="saveSignatureText('transfer_nama', this.value)">
             </div>
           </div>
@@ -1198,20 +1250,46 @@
         <div class="card" style="max-width:1400px; margin:24px auto 0;">
           <div class="form-section-title">Database Supabase & Migrasi Data Lama</div>
           <p style="color:var(--text2); font-size:14px; margin-bottom:16px;">
-            Sistem menggunakan Supabase sebagai database utama berkecepatan tinggi dengan cadangan ganda (Dual Backup) otomatis ke Google Sheets.
+            Sistem menggunakan Supabase sebagai database utama berkecepatan tinggi dengan cadangan ganda (Dual Backup)
+            otomatis ke Google Sheets.
           </p>
-          <div style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-              <div>
-                <div style="font-weight:700; color:var(--text); font-size:15px; margin-bottom:4px;">Migrasi 1-Klik ke Supabase</div>
-                <div style="color:var(--text-muted, var(--text3)); font-size:13px;">
-                  Salin seluruh data historis dari Google Sheets (Konfigurasi, Master Data, Saldo Awal, Pemasukan, dan Pengeluaran) langsung ke database Supabase.
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <div
+              style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                  <div style="font-weight:700; color:var(--text); font-size:15px; margin-bottom:4px;">Migrasi 1-Klik ke
+                    Supabase</div>
+                  <div style="color:var(--text-muted, var(--text3)); font-size:13px;">
+                    Salin seluruh data historis dari Google Sheets (Konfigurasi, Master Data, Saldo Awal, Pemasukan, dan
+                    Pengeluaran) langsung ke database Supabase.
+                  </div>
                 </div>
+                <button id="btnMigrateLaporan" class="btn btn-primary" onclick="migrateLaporanToSupabase()"
+                  style="background:#6366f1; border-color:#6366f1; gap:8px;">
+                  <span class="icon-placeholder" data-icon="refresh" data-size="lucide-sm"></span>
+                  <span>Mulai Migrasi 1-Klik</span>
+                </button>
               </div>
-              <button id="btnMigrateLaporan" class="btn btn-primary" onclick="migrateLaporanToSupabase()" style="background:#6366f1; border-color:#6366f1; gap:8px;">
-                <span class="icon-placeholder" data-icon="refresh" data-size="lucide-sm"></span>
-                <span>Mulai Migrasi 1-Klik</span>
-              </button>
+            </div>
+
+            <div
+              style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                  <div style="font-weight:700; color:var(--text); font-size:15px; margin-bottom:4px;">Cadangkan Supabase
+                    ke Google Sheets</div>
+                  <div style="color:var(--text-muted, var(--text3)); font-size:13px;">
+                    Salin seluruh data transaksi dan master data dari database Supabase ke Google Sheets sebagai
+                    cadangan (Dual Backup) lengkap.
+                  </div>
+                </div>
+                <button id="btnBackupToGas" class="btn btn-primary" onclick="backupSupabaseToGoogleSheets()"
+                  style="background:#10b981; border-color:#10b981; gap:8px;">
+                  <span class="icon-placeholder" data-icon="upload" data-size="lucide-sm"></span>
+                  <span>Cadangkan ke Sheets</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1356,12 +1434,13 @@
             <!-- Stempel Jemaat -->
             <div
               style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:12px;">
-              <div style="font-weight:700; font-size:15px; color:var(--text); width:100%; text-align:center;">Stempel Jemaat</div>
+              <div style="font-weight:700; font-size:15px; color:var(--text); width:100%; text-align:center;">Stempel
+                Jemaat</div>
               <div style="width:100%; display:flex; flex-direction:column; gap:6px;">
-                <input type="text" class="form-input" id="sigNameStempel" placeholder="(Abaikan ini)"
-                  disabled style="text-align:center; font-weight:600; opacity:0; pointer-events:none;">
-                <input type="text" class="form-input" id="sigTitleStempel" placeholder="(Abaikan ini)"
-                  disabled style="text-align:center; font-size:13px; opacity:0; pointer-events:none;">
+                <input type="text" class="form-input" id="sigNameStempel" placeholder="(Abaikan ini)" disabled
+                  style="text-align:center; font-weight:600; opacity:0; pointer-events:none;">
+                <input type="text" class="form-input" id="sigTitleStempel" placeholder="(Abaikan ini)" disabled
+                  style="text-align:center; font-size:13px; opacity:0; pointer-events:none;">
               </div>
               <div
                 style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden; margin-top:4px;">
@@ -1386,7 +1465,9 @@
                 <span class="icon-placeholder" data-icon="settings" data-size="lucide-md"></span>
               </span>
               No. Series Kuitansi
-              <button id="btnEditSeries" class="badge badge-gray" style="margin-left:auto; cursor:pointer; background:transparent; border:1px solid var(--glass-border); padding:6px 12px; font-family:inherit; color:var(--text3); border-radius:8px; display:flex; gap:6px; align-items:center;" onclick="toggleEditMode('seriesFieldset', 'btnEditSeries')">
+              <button id="btnEditSeries" class="badge badge-gray"
+                style="margin-left:auto; cursor:pointer; background:transparent; border:1px solid var(--glass-border); padding:6px 12px; font-family:inherit; color:var(--text3); border-radius:8px; display:flex; gap:6px; align-items:center;"
+                onclick="toggleEditMode('seriesFieldset', 'btnEditSeries')">
                 <span class="icon-placeholder" data-icon="lock" data-size="lucide-md"></span> Mode Edit
               </button>
             </div>
@@ -1395,7 +1476,7 @@
             Pengaturan ini berguna agar saat Admin/Bendahara membuat Kuitansi, nomor serinya akan berlanjut secara
             otomatis sesuai format per bulan yang diatur di bawah ini.
           </p>
-          
+
           <div style="display: flex; gap: 16px; margin-bottom: 24px;">
             <div class="form-group" style="flex:1;">
               <label class="form-label">Bulan</label>
@@ -1427,66 +1508,96 @@
           </div>
 
           <fieldset id="seriesFieldset" disabled style="border:none; padding:0; margin:0; min-width:0;">
-          <div id="seriesFormContainer" style="display:flex; flex-direction:column; gap:16px;">
-            <!-- Pemasukan -->
-            <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
-              <div style="font-weight:700; margin-bottom:12px;">1. Pemasukan (Format: Angka Saja)</div>
-              <div style="display:flex; gap:16px;">
-                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_Pemasukan_start" class="form-input" placeholder="Contoh: 10600"></div>
-                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_Pemasukan_end" class="form-input" placeholder="Contoh: 10899"></div>
+            <div id="seriesFormContainer" style="display:flex; flex-direction:column; gap:16px;">
+              <!-- Pemasukan -->
+              <div
+                style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+                <div style="font-weight:700; margin-bottom:12px;">1. Pemasukan (Format: Angka Saja)</div>
+                <div style="display:flex; gap:16px;">
+                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
+                      type="number" id="series_Pemasukan_start" class="form-input" placeholder="Contoh: 10600"></div>
+                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
+                      type="number" id="series_Pemasukan_end" class="form-input" placeholder="Contoh: 10899"></div>
+                </div>
+                <div id="series_Pemasukan_last"
+                  style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">
+                  No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
               </div>
-              <div id="series_Pemasukan_last" style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
-            </div>
-            <!-- Pemasukan Pembangunan -->
-            <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
-              <div style="font-weight:700; margin-bottom:12px;">2. Pemasukan Pembangunan (Prefix: PEMB-)</div>
-              <div style="display:flex; gap:16px;">
-                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_PemasukanPembangunan_start" class="form-input"></div>
-                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_PemasukanPembangunan_end" class="form-input"></div>
+              <!-- Pemasukan Pembangunan -->
+              <div
+                style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+                <div style="font-weight:700; margin-bottom:12px;">2. Pemasukan Pembangunan (Prefix: PEMB-)</div>
+                <div style="display:flex; gap:16px;">
+                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
+                      type="number" id="series_PemasukanPembangunan_start" class="form-input"></div>
+                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
+                      type="number" id="series_PemasukanPembangunan_end" class="form-input"></div>
+                </div>
+                <div id="series_PemasukanPembangunan_last"
+                  style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">
+                  No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
               </div>
-              <div id="series_PemasukanPembangunan_last" style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
-            </div>
-            <!-- Pengeluaran Kas Jemaat -->
-            <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
-              <div style="font-weight:700; margin-bottom:12px;">3. Pengeluaran Kas Jemaat (Prefix: COST-)</div>
-              <div style="display:flex; gap:16px;">
-                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_PengeluaranJemaat_start" class="form-input"></div>
-                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_PengeluaranJemaat_end" class="form-input"></div>
+              <!-- Pengeluaran Kas Jemaat -->
+              <div
+                style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+                <div style="font-weight:700; margin-bottom:12px;">3. Pengeluaran Kas Jemaat (Prefix: COST-)</div>
+                <div style="display:flex; gap:16px;">
+                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
+                      type="number" id="series_PengeluaranJemaat_start" class="form-input"></div>
+                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
+                      type="number" id="series_PengeluaranJemaat_end" class="form-input"></div>
+                </div>
+                <div id="series_PengeluaranJemaat_last"
+                  style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">
+                  No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
               </div>
-              <div id="series_PengeluaranJemaat_last" style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
-            </div>
-            <!-- Pengeluaran Daerah -->
-            <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
-              <div style="font-weight:700; margin-bottom:12px;">4. Pengeluaran Daerah (Prefix: MBR-)</div>
-              <div style="display:flex; gap:16px;">
-                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_PengeluaranDaerah_start" class="form-input"></div>
-                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_PengeluaranDaerah_end" class="form-input"></div>
+              <!-- Pengeluaran Daerah -->
+              <div
+                style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+                <div style="font-weight:700; margin-bottom:12px;">4. Pengeluaran Daerah (Prefix: MBR-)</div>
+                <div style="display:flex; gap:16px;">
+                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
+                      type="number" id="series_PengeluaranDaerah_start" class="form-input"></div>
+                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
+                      type="number" id="series_PengeluaranDaerah_end" class="form-input"></div>
+                </div>
+                <div id="series_PengeluaranDaerah_last"
+                  style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">
+                  No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
               </div>
-              <div id="series_PengeluaranDaerah_last" style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
-            </div>
-            <!-- Pengeluaran Pembangunan -->
-            <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
-              <div style="font-weight:700; margin-bottom:12px;">5. Pengeluaran Pembangunan (Prefix: CP-)</div>
-              <div style="display:flex; gap:16px;">
-                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_PengeluaranPembangunan_start" class="form-input"></div>
-                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_PengeluaranPembangunan_end" class="form-input"></div>
+              <!-- Pengeluaran Pembangunan -->
+              <div
+                style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+                <div style="font-weight:700; margin-bottom:12px;">5. Pengeluaran Pembangunan (Prefix: CP-)</div>
+                <div style="display:flex; gap:16px;">
+                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
+                      type="number" id="series_PengeluaranPembangunan_start" class="form-input"></div>
+                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
+                      type="number" id="series_PengeluaranPembangunan_end" class="form-input"></div>
+                </div>
+                <div id="series_PengeluaranPembangunan_last"
+                  style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">
+                  No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
               </div>
-              <div id="series_PengeluaranPembangunan_last" style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
-            </div>
-            <!-- Mutasi / Pindah Buku -->
-            <div style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
-              <div style="font-weight:700; margin-bottom:12px;">6. Mutasi / Pindah Buku (Prefix: PB-)</div>
-              <div style="display:flex; gap:16px;">
-                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input type="number" id="series_Mutasi_start" class="form-input"></div>
-                <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input type="number" id="series_Mutasi_end" class="form-input"></div>
+              <!-- Mutasi / Pindah Buku -->
+              <div
+                style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+                <div style="font-weight:700; margin-bottom:12px;">6. Mutasi / Pindah Buku (Prefix: PB-)</div>
+                <div style="display:flex; gap:16px;">
+                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
+                      type="number" id="series_Mutasi_start" class="form-input"></div>
+                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
+                      type="number" id="series_Mutasi_end" class="form-input"></div>
+                </div>
+                <div id="series_Mutasi_last"
+                  style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">
+                  No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
               </div>
-              <div id="series_Mutasi_last" style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
             </div>
-          </div>
 
-          <div style="display: flex; justify-content: flex-end; margin-top: 32px;">
-            <button id="btnSaveSeries" class="btn btn-primary" onclick="saveSeriesConfig()">Simpan No. Series</button>
-          </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 32px;">
+              <button id="btnSaveSeries" class="btn btn-primary" onclick="saveSeriesConfig()">Simpan No. Series</button>
+            </div>
           </fieldset>
         </div>
       </div>
@@ -1609,12 +1720,12 @@
         <button class="btn btn-danger" id="confirmYesBtn">Ya, Lanjutkan</button>
       </div>
     </div>
-  </div>  <!-- MODAL EDIT TRANSAKSI -->
+  </div> <!-- MODAL EDIT TRANSAKSI -->
   <div id="editTransModal" class="modal-overlay"
     style="display:none; justify-content:center; align-items:center; z-index:1200;">
     <div class="card"
       style="max-width:500px; width: 100%; padding:0; margin: 0 16px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;">
-      
+
       <!-- MODAL HEADER -->
       <div style="padding: 24px; border-bottom: 1px solid var(--glass-border); flex-shrink: 0;">
         <h3 style="margin: 0; color: var(--text); display:flex; align-items:center;">
@@ -1629,7 +1740,8 @@
         <div class="form-row keep-row">
           <div class="form-group"><label class="form-label">Tanggal</label>
             <div class="premium-date-wrapper">
-              <input class="form-input premium-date" id="editTransDate" type="text" placeholder="Pilih Tanggal" readonly>
+              <input class="form-input premium-date" id="editTransDate" type="text" placeholder="Pilih Tanggal"
+                readonly>
               <span class="icon-placeholder left-icon" data-icon="calendar" data-size="lucide-md"></span>
               <span class="icon-placeholder right-icon" data-icon="chevronDown" data-size="lucide-md"></span>
             </div>
@@ -1638,80 +1750,83 @@
               id="editTransReceipt" type="text"></div>
         </div>
 
-      <div class="form-row keep-row">
-        <div class="form-group" id="editTransAmtWrapper"><label class="form-label">Nominal (Rp)</label><input
-            class="form-input" id="editTransAmount" type="number"></div>
-        <div class="form-group"><label class="form-label" id="editTransCatLabel">Kategori</label><select
-            class="form-select" id="editTransCat" onchange="handleEditTypeChange()"></select></div>
-      </div>
-
-      <div id="editTransBulkGroup"
-        style="display:none; padding:20px; background:var(--input-bg); border-radius:var(--radius); border:1px dashed var(--glass-border); margin-bottom: 20px;">
-        <label class="form-label"
-          style="border-bottom:1px solid var(--glass-border); padding-bottom:12px; margin-bottom:16px; color:var(--text);">Rincian
-          Kolektif (Rp)</label>
-        <div class="form-row keep-row" style="margin-bottom:12px;">
-          <div class="form-group"><label class="form-label" style="font-size:12px">Perpuluhan</label><input
-              class="form-input" id="editTransAmtPerpuluhan" type="number" placeholder="0"></div>
-          <div class="form-group"><label class="form-label" style="font-size:12px">Terpadu</label><input
-              class="form-input" id="editTransAmtTerpadu" type="number" placeholder="0"></div>
-        </div>
         <div class="form-row keep-row">
-          <div class="form-group"><label class="form-label" style="font-size:12px">Khusus Jemaat</label><input
-              class="form-input" id="editTransAmtKhususJemaat" type="number" placeholder="0"></div>
-          <div class="form-group"><label class="form-label" style="font-size:12px">Khusus Daerah</label><input
-              class="form-input" id="editTransAmtKhususDaerah" type="number" placeholder="0"></div>
+          <div class="form-group" id="editTransAmtWrapper"><label class="form-label">Nominal (Rp)</label><input
+              class="form-input" id="editTransAmount" type="number"></div>
+          <div class="form-group"><label class="form-label" id="editTransCatLabel">Kategori</label><select
+              class="form-select" id="editTransCat" onchange="handleEditTypeChange()"></select></div>
         </div>
-      </div>
 
-      <div class="form-group" id="editTransSourceGroup" style="display:none;">
-        <label class="form-label">Sumber Kas</label>
-        <select class="form-select" id="editTransSource">
-          <option value="Kas Jemaat (Di Tangan)">Kas Jemaat (Di Tangan)</option>
-          <option value="Kas Jemaat (Bank)">Kas Jemaat (Bank)</option>
-          <option value="Kas Pembangunan (Di Tangan)">Kas Pembangunan (Di Tangan)</option>
-          <option value="Kas Pembangunan (Bank)">Kas Pembangunan (Bank)</option>
-          <option value="Kas Daerah (Di Tangan)">Kas Daerah (Di Tangan)</option>
-          <option value="Kas Daerah (Bank)">Kas Daerah (Bank)</option>
-          <option value="Daerah">Daerah (Legacy)</option>
-          <option value="Kas Jemaat">Kas Jemaat (Legacy)</option>
-          <option value="Pembangunan">Pembangunan (Legacy)</option>
-        </select>
-      </div>
-
-      <div class="form-group" id="editTransUnitGroup" style="display:none;"><label
-          class="form-label">Unit</label><select class="form-select" id="editTransUnit"></select></div>
-      <div class="form-group" id="editTransPihakGroup" style="display:none;"><label class="form-label"
-          id="editTransPihakLabel">Pihak Terkait</label><input class="form-input" id="editTransPihak" type="text"></div>
-
-      <div class="form-group">
-        <label class="form-label">Foto Bukti Transaksi</label>
-        <div class="photo-upload-grid" id="editPhotoGrid">
-          <label for="editTransPhoto" class="photo-upload-box" id="editPhotoUploadBox" style="display:flex;">
-            <div style="color:var(--text3); text-align:center;">
-              <span class="icon-placeholder" data-icon="image" data-size="lucide-lg"></span><br><span
-                style="margin-top:8px; display:inline-block; font-size:11px;">Unggah Foto</span>
-            </div>
-          </label>
+        <div id="editTransBulkGroup"
+          style="display:none; padding:20px; background:var(--input-bg); border-radius:var(--radius); border:1px dashed var(--glass-border); margin-bottom: 20px;">
+          <label class="form-label"
+            style="border-bottom:1px solid var(--glass-border); padding-bottom:12px; margin-bottom:16px; color:var(--text);">Rincian
+            Kolektif (Rp)</label>
+          <div class="form-row keep-row" style="margin-bottom:12px;">
+            <div class="form-group"><label class="form-label" style="font-size:12px">Perpuluhan</label><input
+                class="form-input" id="editTransAmtPerpuluhan" type="number" placeholder="0"></div>
+            <div class="form-group"><label class="form-label" style="font-size:12px">Terpadu</label><input
+                class="form-input" id="editTransAmtTerpadu" type="number" placeholder="0"></div>
+          </div>
+          <div class="form-row keep-row">
+            <div class="form-group"><label class="form-label" style="font-size:12px">Khusus Jemaat</label><input
+                class="form-input" id="editTransAmtKhususJemaat" type="number" placeholder="0"></div>
+            <div class="form-group"><label class="form-label" style="font-size:12px">Khusus Daerah</label><input
+                class="form-input" id="editTransAmtKhususDaerah" type="number" placeholder="0"></div>
+          </div>
         </div>
-        <input type="file" id="editTransPhoto" accept="image/*" multiple style="display:none"
-          onchange="handleReceiptPhoto(event, 'edit')">
-        <div style="font-size:11px; color:var(--text3); margin-top:4px;">Mengunggah foto baru akan menimpa foto
-          sebelumnya.</div>
-      </div>
-      <div class="form-group" id="editTransDestinationGroup" style="display:none;">
-        <label class="form-label">Tujuan Dana Masuk</label>
-        <select class="form-select" id="editTransDestination">
-          <option value="BANK">Transfer Rekening (Di Bank)</option>
-          <option value="CASH">Uang Tunai / Cash (Di Tangan)</option>
-        </select>
-      </div>
-      <div class="form-group"><label class="form-label">Keterangan</label>
-        <textarea class="form-input" id="editTransNote" rows="3" style="resize:vertical;"></textarea></div>
+
+        <div class="form-group" id="editTransSourceGroup" style="display:none;">
+          <label class="form-label">Sumber Kas</label>
+          <select class="form-select" id="editTransSource">
+            <option value="Kas Jemaat (Di Tangan)">Kas Jemaat (Di Tangan)</option>
+            <option value="Kas Jemaat (Bank)">Kas Jemaat (Bank)</option>
+            <option value="Kas Pembangunan (Di Tangan)">Kas Pembangunan (Di Tangan)</option>
+            <option value="Kas Pembangunan (Bank)">Kas Pembangunan (Bank)</option>
+            <option value="Kas Daerah (Di Tangan)">Kas Daerah (Di Tangan)</option>
+            <option value="Kas Daerah (Bank)">Kas Daerah (Bank)</option>
+            <option value="Daerah">Daerah (Legacy)</option>
+            <option value="Kas Jemaat">Kas Jemaat (Legacy)</option>
+            <option value="Pembangunan">Pembangunan (Legacy)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="editTransUnitGroup" style="display:none;"><label
+            class="form-label">Unit</label><select class="form-select" id="editTransUnit"></select></div>
+        <div class="form-group" id="editTransPihakGroup" style="display:none;"><label class="form-label"
+            id="editTransPihakLabel">Pihak Terkait</label><input class="form-input" id="editTransPihak" type="text">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Foto Bukti Transaksi</label>
+          <div class="photo-upload-grid" id="editPhotoGrid">
+            <label for="editTransPhoto" class="photo-upload-box" id="editPhotoUploadBox" style="display:flex;">
+              <div style="color:var(--text3); text-align:center;">
+                <span class="icon-placeholder" data-icon="image" data-size="lucide-lg"></span><br><span
+                  style="margin-top:8px; display:inline-block; font-size:11px;">Unggah Foto</span>
+              </div>
+            </label>
+          </div>
+          <input type="file" id="editTransPhoto" accept="image/*" multiple style="display:none"
+            onchange="handleReceiptPhoto(event, 'edit')">
+          <div style="font-size:11px; color:var(--text3); margin-top:4px;">Mengunggah foto baru akan menimpa foto
+            sebelumnya.</div>
+        </div>
+        <div class="form-group" id="editTransDestinationGroup" style="display:none;">
+          <label class="form-label">Tujuan Dana Masuk</label>
+          <select class="form-select" id="editTransDestination">
+            <option value="BANK">Transfer Rekening (Di Bank)</option>
+            <option value="CASH">Uang Tunai / Cash (Di Tangan)</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Keterangan</label>
+          <textarea class="form-input" id="editTransNote" rows="3" style="resize:vertical;"></textarea>
+        </div>
       </div> <!-- END MODAL BODY -->
 
       <!-- MODAL FOOTER -->
-      <div style="padding: 24px; border-top: 1px solid var(--glass-border); flex-shrink: 0; display:flex; gap:12px; justify-content:flex-end; background: var(--surface);">
+      <div
+        style="padding: 24px; border-top: 1px solid var(--glass-border); flex-shrink: 0; display:flex; gap:12px; justify-content:flex-end; background: var(--surface);">
         <button class="btn btn-ghost" onclick="closeEditModal()">Batal</button>
         <button class="btn btn-primary" id="btnSaveEditTrans" onclick="saveEditTransaction()">Simpan</button>
       </div>
@@ -1834,28 +1949,41 @@
   </div>
 
   <!-- Print Menu Modal -->
-  <div class="modal-overlay" id="printMenuModal" style="display:none;" onclick="if(event.target===this) this.style.display='none'">
+  <div class="modal-overlay" id="printMenuModal" style="display:none;"
+    onclick="if(event.target===this) this.style.display='none'">
     <div class="modal-content" style="max-width:400px; padding:24px; text-align:center;">
       <h3 style="margin-top:0; margin-bottom:20px; color:var(--text);">Pilih Laporan untuk Dicetak</h3>
       <div style="display:flex; flex-direction:column; gap:12px;">
-        <button class="btn" onclick="document.getElementById('printMenuModal').style.display='none'; doPrintReport();" style="background:#ef4444; color:white; width:100%;">Laporan Kas Umum & Jemaat</button>
-        <button class="btn" onclick="document.getElementById('printMenuModal').style.display='none'; doPrintPembangunan();" style="background:#3b82f6; color:white; width:100%;">Laporan Pembangunan</button>
-        <button class="btn" id="btnModalPartisipasi" onclick="document.getElementById('printMenuModal').style.display='none'; doPrintPartisipasi();" style="background:#8b5cf6; color:white; width:100%; display:none;">Laporan Partisipasi</button>
-        <button class="btn" onclick="document.getElementById('printMenuModal').style.display='none'; doPrintCombined();" style="background:#f59e0b; color:white; width:100%;">Cetak Gabungan</button>
+        <button class="btn" onclick="document.getElementById('printMenuModal').style.display='none'; doPrintReport();"
+          style="background:#ef4444; color:white; width:100%;">Laporan Kas Umum & Jemaat</button>
+        <button class="btn"
+          onclick="document.getElementById('printMenuModal').style.display='none'; doPrintPembangunan();"
+          style="background:#3b82f6; color:white; width:100%;">Laporan Pembangunan</button>
+        <button class="btn" id="btnModalPartisipasi"
+          onclick="document.getElementById('printMenuModal').style.display='none'; doPrintPartisipasi();"
+          style="background:#8b5cf6; color:white; width:100%; display:none;">Laporan Partisipasi</button>
+        <button class="btn" onclick="document.getElementById('printMenuModal').style.display='none'; doPrintCombined();"
+          style="background:#f59e0b; color:white; width:100%;">Cetak Gabungan</button>
       </div>
-      <button class="btn btn-outline" style="margin-top:20px; width:100%;" onclick="document.getElementById('printMenuModal').style.display='none'">Batal</button>
+      <button class="btn btn-outline" style="margin-top:20px; width:100%;"
+        onclick="document.getElementById('printMenuModal').style.display='none'">Batal</button>
     </div>
   </div>
 
   <!-- Export Menu Modal -->
-  <div class="modal-overlay" id="exportMenuModal" style="display:none;" onclick="if(event.target===this) this.style.display='none'">
+  <div class="modal-overlay" id="exportMenuModal" style="display:none;"
+    onclick="if(event.target===this) this.style.display='none'">
     <div class="modal-content" style="max-width:400px; padding:24px; text-align:center;">
       <h3 style="margin-top:0; margin-bottom:20px; color:var(--text);">Pilih Laporan untuk Export Excel</h3>
       <div style="display:flex; flex-direction:column; gap:12px;">
-        <button class="btn" onclick="document.getElementById('exportMenuModal').style.display='none'; exportToExcel();" style="background:#10b981; color:white; width:100%;">Laporan Kas Umum & Jemaat</button>
-        <button class="btn" onclick="document.getElementById('exportMenuModal').style.display='none'; exportPembangunanExcel();" style="background:#059669; color:white; width:100%;">Laporan Pembangunan</button>
+        <button class="btn" onclick="document.getElementById('exportMenuModal').style.display='none'; exportToExcel();"
+          style="background:#10b981; color:white; width:100%;">Laporan Kas Umum & Jemaat</button>
+        <button class="btn"
+          onclick="document.getElementById('exportMenuModal').style.display='none'; exportPembangunanExcel();"
+          style="background:#059669; color:white; width:100%;">Laporan Pembangunan</button>
       </div>
-      <button class="btn btn-outline" style="margin-top:20px; width:100%;" onclick="document.getElementById('exportMenuModal').style.display='none'">Batal</button>
+      <button class="btn btn-outline" style="margin-top:20px; width:100%;"
+        onclick="document.getElementById('exportMenuModal').style.display='none'">Batal</button>
     </div>
   </div>
 
@@ -1873,10 +2001,11 @@
 
   <!-- MODAL LEDGER CASH -->
   <div class="modal-overlay" id="ledgerModal" style="display:none;" onclick="if(event.target===this) hideLedgerModal()">
-    <div class="modal-content" style="max-width: 700px; max-height: 90vh; display: flex; flex-direction: column; padding: 24px;">
+    <div class="modal-content"
+      style="max-width: 700px; max-height: 90vh; display: flex; flex-direction: column; padding: 24px;">
       <h2 style="margin-bottom: 4px; margin-top: 0;">Mutasi Uang Cash</h2>
       <p id="ledgerSubTitle" style="color: var(--text3); font-size: 13px; margin-top: 0; margin-bottom: 16px;"></p>
-      
+
       <div style="flex: 1; overflow-y: auto;">
         <table class="report-table">
           <thead>
@@ -1900,15 +2029,31 @@
   </div>
 
   <div id="printContainer" style="display:none;"></div>
-  
-  <div id="hiddenReceiptContainer" style="position: absolute; left: -9999px; top: 0; width: 800px; height: auto; z-index: -100; background: white;"></div>
-  
-  <div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center; flex-direction:column; color:white;">
-    <div class="spinner" style="border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 16px;"></div>
+
+  <div id="hiddenReceiptContainer"
+    style="position: absolute; left: -9999px; top: 0; width: 800px; height: auto; z-index: -100; background: white;">
+  </div>
+
+  <div id="loadingOverlay"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center; flex-direction:column; color:white;">
+    <div class="spinner"
+      style="border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 16px;">
+    </div>
     <div id="loadingText" style="font-weight: 600; font-size: 16px;">Memproses kuitansi...</div>
-    <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+    <style>
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.js"></script>
   <!-- Script removed to make floatingSyncBtn always visible -->
 </body>
+
 </html>
