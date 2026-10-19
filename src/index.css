@@ -339,6 +339,19 @@ html.dark .bg-gold-400\/30 {
   border-color: rgba(231, 174, 48, 0.3) !important;
 }
 
+/* Mengamankan Gradient dalam Dark Mode agar tidak putih terang */
+html.dark [class*="to-white"] {
+  --tw-gradient-to: #112240 !important;
+}
+
+html.dark [class*="from-navy-50"] {
+  --tw-gradient-from: #0f1c30 !important;
+}
+
+html.dark [class*="from-gold-50"] {
+  --tw-gradient-from: #1e2638 !important;
+}
+
 /* Mengamankan Hover untuk Background Warna Lain (Merah, Hijau, Ungu, dll) di tabel jadwal */
 html.dark [class*="hover:bg-red-50"]:hover,
 html.dark [class*="hover:bg-green-50"]:hover,
