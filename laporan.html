@@ -16,10 +16,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.css" rel="stylesheet">
 
-  <script type="module" crossorigin src="/assets/laporan-BeVeOvaS.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-Dl2kKfDz.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/laporan-D9dphg-7.css">
-  <link rel="stylesheet" crossorigin href="/assets/index-BI5t41bg.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-BD9b7yc1.css">
 </head>
 
 <body class="page-laporan">
@@ -1253,22 +1253,43 @@
             Sistem menggunakan Supabase sebagai database utama berkecepatan tinggi dengan cadangan ganda (Dual Backup)
             otomatis ke Google Sheets.
           </p>
-          <div
-            style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-              <div>
-                <div style="font-weight:700; color:var(--text); font-size:15px; margin-bottom:4px;">Migrasi 1-Klik ke
-                  Supabase</div>
-                <div style="color:var(--text-muted, var(--text3)); font-size:13px;">
-                  Salin seluruh data historis dari Google Sheets (Konfigurasi, Master Data, Saldo Awal, Pemasukan, dan
-                  Pengeluaran) langsung ke database Supabase.
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <div
+              style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                  <div style="font-weight:700; color:var(--text); font-size:15px; margin-bottom:4px;">Migrasi 1-Klik ke
+                    Supabase</div>
+                  <div style="color:var(--text-muted, var(--text3)); font-size:13px;">
+                    Salin seluruh data historis dari Google Sheets (Konfigurasi, Master Data, Saldo Awal, Pemasukan, dan
+                    Pengeluaran) langsung ke database Supabase.
+                  </div>
                 </div>
+                <button id="btnMigrateLaporan" class="btn btn-primary" onclick="migrateLaporanToSupabase()"
+                  style="background:#6366f1; border-color:#6366f1; gap:8px;">
+                  <span class="icon-placeholder" data-icon="refresh" data-size="lucide-sm"></span>
+                  <span>Mulai Migrasi 1-Klik</span>
+                </button>
               </div>
-              <button id="btnMigrateLaporan" class="btn btn-primary" onclick="migrateLaporanToSupabase()"
-                style="background:#6366f1; border-color:#6366f1; gap:8px;">
-                <span class="icon-placeholder" data-icon="refresh" data-size="lucide-sm"></span>
-                <span>Mulai Migrasi 1-Klik</span>
-              </button>
+            </div>
+
+            <div
+              style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                  <div style="font-weight:700; color:var(--text); font-size:15px; margin-bottom:4px;">Cadangkan Supabase
+                    ke Google Sheets</div>
+                  <div style="color:var(--text-muted, var(--text3)); font-size:13px;">
+                    Salin seluruh data transaksi dan master data dari database Supabase ke Google Sheets sebagai
+                    cadangan (Dual Backup) lengkap.
+                  </div>
+                </div>
+                <button id="btnBackupToGas" class="btn btn-primary" onclick="backupSupabaseToGoogleSheets()"
+                  style="background:#10b981; border-color:#10b981; gap:8px;">
+                  <span class="icon-placeholder" data-icon="upload" data-size="lucide-sm"></span>
+                  <span>Cadangkan ke Sheets</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
