@@ -4449,14 +4449,31 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         setEditPerpuluhanDate(perpuluhanDate);
         setEditPerjamuanNote(perjamuanNote);
         setEditPerpuluhanNote(perpuluhanNote);
-        setEditDaftarRekening(daftarRekening || []);
         if (heroImages && Array.isArray(heroImages) && heroImages.length > 0) {
             setEditHeroImages(heroImages);
+        } else {
+            try {
+                const saved = localStorage.getItem('pisgah_hero_slides');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length > 0) setEditHeroImages(parsed);
+                }
+            } catch (e) { }
         }
     }, [youtubeUrl, youtubeTitle, youtubeChannelTitle, anthemUrl, anthemUrl2, anthemTitle, anthemTitle2, liveUrl, perjamuanDate, perpuluhanDate, perjamuanNote, perpuluhanNote, daftarRekening, heroImages]);
 
     // State Hero Image Array (Carousel)
-    const [editHeroImages, setEditHeroImages] = React.useState(heroImages);
+    const [editHeroImages, setEditHeroImages] = React.useState(() => {
+        if (heroImages && Array.isArray(heroImages) && heroImages.length > 0) return heroImages;
+        try {
+            const saved = localStorage.getItem('pisgah_hero_slides');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            }
+        } catch (e) { }
+        return heroImages || [];
+    });
     const [isSavingHero, setIsSavingHero] = React.useState(false);
 
     // State Pengumuman
@@ -5943,6 +5960,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 setHeroImages(finalSlides);
                 setEditHeroImages(finalSlides);
                 try {
+                    localStorage.setItem('pisgah_hero_slides', JSON.stringify(finalSlides));
                     const cachedStr = localStorage.getItem('pisgah_data_cache');
                     if (cachedStr) {
                         const cached = JSON.parse(cachedStr);
@@ -9980,9 +9998,23 @@ const App = () => {
     const [anthemTitle2, setAnthemTitle2] = React.useState("");
     const [youtubeTitle, setYoutubeTitle] = React.useState("");
     const [youtubeChannelTitle, setYoutubeChannelTitle] = React.useState("");
-    const [liveUrl, setLiveUrl] = React.useState("https://www.youtube.com/embed/live_stream?channel=UCaTPS74NOHACRYU0zInVZ4g");
-    const [heroImages, setHeroImages] = React.useState(["./carousel/hero-default.png"]);
-    const [carouselEvents, setCarouselEvents] = React.useState([]);
+    const [heroImages, setHeroImages] = React.useState(() => {
+        try {
+            const savedSlidesStr = localStorage.getItem('pisgah_hero_slides');
+            if (savedSlidesStr) {
+                const saved = JSON.parse(savedSlidesStr);
+                if (Array.isArray(saved) && saved.length > 0) return saved;
+            }
+            const cachedStr = localStorage.getItem('pisgah_data_cache');
+            if (cachedStr) {
+                const cached = JSON.parse(cachedStr);
+                if (cached.heroImages && Array.isArray(cached.heroImages) && cached.heroImages.length > 0) {
+                    return cached.heroImages;
+                }
+            }
+        } catch (e) { }
+        return ["./carousel/hero-default.png"];
+    });
     const [carouselVideos, setCarouselVideos] = React.useState([]);
     const [perjamuanDate, setPerjamuanDate] = React.useState('');
     const [perpuluhanDate, setPerpuluhanDate] = React.useState('');
@@ -10145,7 +10177,9 @@ const App = () => {
                         }
 
                         if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
-                        if (cached.heroImages) setHeroImages(cached.heroImages);
+                        if (cached.heroImages && Array.isArray(cached.heroImages) && cached.heroImages.length > 0) {
+                            setHeroImages(cached.heroImages);
+                        }
                         if (cached.carouselEvents) { try { setCarouselEvents(JSON.parse(cached.carouselEvents)); } catch (e) { } }
                         if (cached.carouselVideos) { try { setCarouselVideos(JSON.parse(cached.carouselVideos)); } catch (e) { } }
                         if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
@@ -10164,7 +10198,7 @@ const App = () => {
                 const res = await fetch(`${GAS_API_URL}?action=getData`);
                 const data = await res.json();
 
-                let newHeroImages = ["./carousel/hero-default.png"];
+                let newHeroImages = null;
                 let newPengumumanObj = { header: "Pengumuman Jemaat", isi: "" };
                 let newKontakGerejaObj = defaultKontak;
 
@@ -10207,10 +10241,36 @@ const App = () => {
                 if (data.heroImageUrl) {
                     try {
                         const parsed = JSON.parse(data.heroImageUrl);
-                        if (Array.isArray(parsed)) newHeroImages = parsed;
-                        else newHeroImages = [data.heroImageUrl];
-                    } catch (e) { newHeroImages = [data.heroImageUrl]; }
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            newHeroImages = parsed;
+                        } else if (typeof data.heroImageUrl === 'string' && data.heroImageUrl.trim() && data.heroImageUrl !== '[]') {
+                            newHeroImages = [data.heroImageUrl];
+                        }
+                    } catch (e) {
+                        if (data.heroImageUrl && data.heroImageUrl !== '[]') {
+                            newHeroImages = [data.heroImageUrl];
+                        }
+                    }
+                }
+
+                if (newHeroImages && newHeroImages.length > 0) {
                     setHeroImages(newHeroImages);
+                    try {
+                        localStorage.setItem('pisgah_hero_slides', JSON.stringify(newHeroImages));
+                    } catch (e) { }
+                } else {
+                    // Jika server mengembalikan [] (misal karena script lama belum redeploy),
+                    // tetap pertahankan slide yang tersimpan di localStorage agar tidak hilang!
+                    try {
+                        const savedSlidesStr = localStorage.getItem('pisgah_hero_slides');
+                        if (savedSlidesStr) {
+                            const saved = JSON.parse(savedSlidesStr);
+                            if (Array.isArray(saved) && saved.length > 0) {
+                                newHeroImages = saved;
+                                setHeroImages(saved);
+                            }
+                        }
+                    } catch (e) { }
                 }
 
                 if (data.carouselEvents !== undefined) {
@@ -10295,7 +10355,7 @@ const App = () => {
                     perpuluhanDate: data.perpuluhanDate,
                     daftarRekening: data.daftarRekening !== undefined ? data.daftarRekening : JSON.stringify(daftarRekening),
                     kategoriPejabat: data.kategoriPejabat,
-                    heroImages: newHeroImages,
+                    heroImages: (newHeroImages && newHeroImages.length > 0) ? newHeroImages : heroImages,
                     carouselEvents: data.carouselEvents,
                     carouselVideos: data.carouselVideos,
                     daftarWarta: data.daftarWarta,

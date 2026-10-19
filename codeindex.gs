@@ -148,6 +148,15 @@ function doPost(e) {
 // =========================================================================
 function makeSafeImageUrl(url) {
   if (!url) return "";
+  // Dukungan untuk objek slide carousel (berisi url, badge, title, subtitle)
+  if (typeof url === 'object') {
+    let copy = {};
+    for (let key in url) { copy[key] = url[key]; }
+    if (copy.url && typeof copy.url === 'string') copy.url = makeSafeImageUrl(copy.url);
+    if (copy.imageUrl && typeof copy.imageUrl === 'string') copy.imageUrl = makeSafeImageUrl(copy.imageUrl);
+    return copy;
+  }
+  if (typeof url !== 'string') return "";
   if (url.includes('drive.google.com/uc') && url.includes('id=')) {
     const idMatch = url.match(/id=([^&]+)/);
     if (idMatch && idMatch[1]) {
@@ -705,14 +714,25 @@ function saveHeroImages(payloadData) {
     let targetFolderId = getOrCreateNestedFolder("Hero_Images");
 
     for (let i = 0; i < images.length; i++) {
-      let img = images[i];
-      if (img && typeof img === 'string' && !img.startsWith('http') && (img.startsWith('data:image') || img.length > 500)) {
-        let hash = getMd5Hash(img);
+      let item = images[i];
+      if (typeof item === 'object' && item !== null) {
+        let slide = {};
+        for (let key in item) { slide[key] = item[key]; }
+        let imgUrl = slide.url || slide.imageUrl || '';
+        if (imgUrl && typeof imgUrl === 'string' && !imgUrl.startsWith('http') && (imgUrl.startsWith('data:image') || imgUrl.length > 500)) {
+          let hash = getMd5Hash(imgUrl);
+          let fileName = "Hero_Banner_" + hash + ".jpg";
+          let uploadedUrl = uploadFileToDrive(imgUrl, fileName, targetFolderId);
+          if (uploadedUrl) slide.url = uploadedUrl;
+        }
+        updatedImages.push(slide);
+      } else if (item && typeof item === 'string' && !item.startsWith('http') && (item.startsWith('data:image') || item.length > 500)) {
+        let hash = getMd5Hash(item);
         let fileName = "Hero_Banner_" + hash + ".jpg";
-        let url = uploadFileToDrive(img, fileName, targetFolderId);
-        if (url) updatedImages.push(url);
-      } else if (img) {
-        updatedImages.push(img);
+        let uploadedUrl = uploadFileToDrive(item, fileName, targetFolderId);
+        if (uploadedUrl) updatedImages.push(uploadedUrl);
+      } else if (item) {
+        updatedImages.push(item);
       }
     }
 
