@@ -866,42 +866,59 @@ const DailyVerseWidget = ({ setActiveTab }) => {
     };
 
     return (
-        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white via-[#FCFDF9] to-[#F1F5EB] dark:from-navy-900 dark:via-navy-800 dark:to-navy-900 p-6 md:p-7 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
-            <div className="absolute top-0 right-0 w-40 h-40 bg-[#D19B45]/10 dark:bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white via-[#FCFDF9] to-[#F1F5EB] dark:from-navy-900 dark:via-navy-950 dark:to-navy-900 p-6 md:p-7 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group transition-all duration-300">
+            {/* Ambient Lighting & Decorative Watermark */}
+            <div className="absolute top-0 right-0 w-44 h-44 bg-[#D19B45]/15 dark:bg-gold-500/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute -bottom-6 -right-3 text-[#D19B45]/10 dark:text-gold-400/10 font-serif font-black text-9xl leading-none select-none pointer-events-none">”</div>
 
+            {/* Header */}
             <div className="relative z-10 flex items-center justify-between gap-3 mb-3">
-                <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D19B45]/15 text-[#9A6B1A] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#D19B45]/30">
-                        ✨ Ayat Hari Ini
+                <div className="flex items-center gap-2 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#D19B45]/20 to-[#4A7045]/15 text-[#9A6B1A] dark:text-gold-300 font-black text-[11px] uppercase tracking-wider border border-[#D19B45]/30 dark:border-gold-400/30 shadow-xs">
+                        <Icon name="BookOpen" className="w-3.5 h-3.5 text-[#D19B45] dark:text-gold-400" /> Ayat Hari Ini
                     </span>
-                    <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] md:text-[11px] font-bold text-[#596B4D] dark:text-gray-300 bg-[#E2E8D8]/50 dark:bg-navy-800/80 border border-[#E2E8D8] dark:border-navy-700">
                         {verse.theme}
                     </span>
                 </div>
                 <button
                     onClick={handleNextVerse}
                     title="Ganti Ayat Lain"
-                    className="p-1.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-[#596B4D] dark:text-gray-400 transition-colors text-xs flex items-center gap-1 font-bold"
+                    className="p-1.5 px-2.5 rounded-xl bg-white/70 dark:bg-navy-800/80 hover:bg-white dark:hover:bg-navy-700 text-[#596B4D] dark:text-gray-300 transition-all text-xs flex items-center gap-1.5 font-bold border border-[#E2E8D8] dark:border-navy-700 shadow-xs active:scale-95"
                 >
-                    <Icon name="Refresh" className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Ayat Lain</span>
+                    <Icon name="Refresh" className="w-3.5 h-3.5 text-[#D19B45] dark:text-gold-400" /> <span className="hidden sm:inline">Ganti Ayat</span>
                 </button>
             </div>
 
+            {/* Verse Content Box */}
             <div className="relative z-10 my-auto py-2">
-                <p className="text-[#2C3F21] dark:text-white text-sm md:text-base leading-relaxed font-serif italic">
-                    "{verse.text}"
-                </p>
-                <div className="mt-3 flex items-center justify-between">
-                    <span className="font-extrabold text-[#4A7045] dark:text-gold-400 text-sm md:text-base tracking-wide">
-                        {verse.bookName} {verse.chapter}:{verse.verse}
-                    </span>
+                <div className="relative p-4 md:p-5 rounded-2xl bg-white/80 dark:bg-navy-950/70 backdrop-blur-md border border-[#E2E8D8] dark:border-navy-800 shadow-sm transition-all">
+                    {/* Decorative Quotation Mark */}
+                    <div className="text-[#D19B45] dark:text-gold-400 font-serif text-3xl md:text-4xl leading-none mb-1 opacity-75 select-none">“</div>
+
+                    <p className="text-[#1F3317] dark:text-gray-100 text-sm sm:text-base md:text-[1.05rem] leading-relaxed font-serif italic font-medium tracking-wide pl-2 border-l-2 border-[#D19B45]/50 dark:border-gold-400/50">
+                        {verse.text}
+                    </p>
+
+                    <div className="mt-4 pt-3 border-t border-[#E2E8D8]/60 dark:border-navy-800/80 flex items-center justify-between flex-wrap gap-2">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#4A7045]/15 to-[#D19B45]/20 dark:from-navy-800 dark:to-navy-800 border border-[#D19B45]/30 dark:border-gold-400/30 shadow-xs">
+                            <Icon name="Bookmark" className="w-3.5 h-3.5 text-[#D19B45] dark:text-gold-400" />
+                            <span className="font-black text-xs md:text-sm text-[#2C3F21] dark:text-gold-300 tracking-wider">
+                                {verse.bookName} {verse.chapter}:{verse.verse}
+                            </span>
+                        </div>
+                        <span className="text-[11px] font-semibold text-[#596B4D] dark:text-gray-400 italic">
+                            Alkitab Terjemahan Baru
+                        </span>
+                    </div>
                 </div>
             </div>
 
+            {/* Actions */}
             <div className="relative z-10 pt-4 mt-3 border-t border-[#E2E8D8] dark:border-navy-700/60 flex flex-wrap items-center justify-between gap-2">
                 <button
                     onClick={() => setActiveTab('alkitab')}
-                    className="bg-[#4A7045] hover:bg-[#3A5836] active:scale-95 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+                    className="bg-[#4A7045] hover:bg-[#3A5836] active:scale-95 text-white dark:bg-gold-500 dark:hover:bg-gold-600 dark:text-navy-900 text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
                 >
                     <Icon name="BookOpen" className="w-3.5 h-3.5" /> Buka di Alkitab
                 </button>
@@ -912,8 +929,8 @@ const DailyVerseWidget = ({ setActiveTab }) => {
                     >
                         {copied ? (
                             <>
-                                <Icon name="Check" className="w-3.5 h-3.5 text-emerald-600" />
-                                <span className="text-emerald-600 font-bold">Tersalin</span>
+                                <Icon name="Check" className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                                <span className="text-emerald-600 dark:text-emerald-400 font-bold">Tersalin</span>
                             </>
                         ) : (
                             <>
@@ -924,7 +941,7 @@ const DailyVerseWidget = ({ setActiveTab }) => {
                     </button>
                     <button
                         onClick={handleShareWA}
-                        className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm"
+                        className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm"
                     >
                         <i className="fa-brands fa-whatsapp text-sm"></i> <span>Kirim WA</span>
                     </button>
@@ -1234,7 +1251,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     };
 
     return (
-        <div className="animate-fade-in relative z-10 bg-[#FAFAFA] dark:bg-transparent text-[#2C3F21] dark:text-gray-100 font-sans pb-16 transition-colors duration-500">
+        <div className="animate-fade-in relative z-10 bg-transparent text-[#2C3F21] dark:text-gray-100 font-sans pb-16 transition-colors duration-500">
             {/* Wrapper to restrict bubbles to only float up from the green Warta box to the Carousel */}
             <div className="relative overflow-hidden w-full pb-10">
                 {/* Global Floating Bubbles Background for Home Page */}
@@ -1493,25 +1510,42 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         {/* VISI MISI */}
                         <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-7 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
                             <div className="flex items-center justify-between gap-3 mb-3">
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-400/10 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] border border-[#4A7045]/20 dark:border-gold-400/20">
-                                    <Icon name="Church" className="w-3.5 h-3.5 text-[#4A7045] dark:text-gold-400" /> Jemaat Pisgah BISDAC
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#4A7045]/10 to-[#D19B45]/15 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] border border-[#4A7045]/20 dark:border-gold-400/20">
+                                    <Icon name="Church" className="w-3.5 h-3.5 text-[#D19B45] dark:text-gold-400" /> Jemaat Pisgah BISDAC
                                 </span>
                             </div>
 
                             <div className="mb-3">
-                                <h3 className="text-xl md:text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] to-[#4A7045] dark:from-gold-300 dark:to-gold-500 tracking-tight leading-tight">
+                                <h3 className="text-xl md:text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] via-[#4A7045] to-[#D19B45] dark:from-gold-300 dark:to-gold-500 tracking-tight leading-tight">
                                     Visi & Misi GMAHK
                                 </h3>
                             </div>
 
-                            <div className="text-[#4A7045] dark:text-gold-200/90 text-xs md:text-sm leading-relaxed space-y-3 w-full my-auto py-1">
-                                <div className="p-3 bg-[#F7F9F3] dark:bg-navy-950/60 rounded-2xl border border-[#E2E8D8] dark:border-navy-800">
-                                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#4A7045]/15 text-[#2C3F21] dark:text-gold-400 font-extrabold uppercase tracking-widest text-[10px] mb-1">Visi</span>
-                                    <p className="text-[#2C3F21] dark:text-gray-200 leading-snug">Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar <strong className="text-[#4A7045] dark:text-gold-400 font-black">selaras sepenuhnya dengan kehendak dan kebenaran-Nya</strong>.</p>
+                            <div className="text-xs md:text-sm leading-relaxed space-y-3 w-full my-auto py-1">
+                                <div className="p-3.5 bg-amber-50/50 dark:bg-navy-950/70 rounded-2xl border border-amber-200/60 dark:border-navy-800 shadow-sm transition-colors">
+                                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#D19B45]/15 text-[#9A6B1A] dark:bg-gold-500/20 dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] mb-1.5 border border-[#D19B45]/30 dark:border-gold-500/30">Visi</span>
+                                    <p className="text-[#2C3F21] dark:text-gray-200 leading-snug">
+                                        Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar{' '}
+                                        <span className="font-extrabold text-[#9A6B1A] dark:text-gold-400">
+                                            selaras sepenuhnya dengan kehendak dan kebenaran-Nya
+                                        </span>.
+                                    </p>
                                 </div>
-                                <div className="p-3 bg-[#F7F9F3] dark:bg-navy-950/60 rounded-2xl border border-[#E2E8D8] dark:border-navy-800">
-                                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#4A7045]/15 text-[#2C3F21] dark:text-gold-400 font-extrabold uppercase tracking-widest text-[10px] mb-1">Misi</span>
-                                    <p className="text-[#2C3F21] dark:text-gray-200 leading-snug"><strong className="text-[#4A7045] dark:text-gold-400 font-black">Memanggil semua orang menjadi murid Yesus Kristus</strong>, memberitakan Injil kekal, dan mempersiapkan dunia bagi kedatangan-Nya.</p>
+                                <div className="p-3.5 bg-emerald-50/50 dark:bg-navy-950/70 rounded-2xl border border-emerald-200/60 dark:border-navy-800 shadow-sm transition-colors">
+                                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#4A7045]/15 text-[#2C3F21] dark:bg-emerald-500/20 dark:text-emerald-300 font-extrabold uppercase tracking-widest text-[10px] mb-1.5 border border-[#4A7045]/30 dark:border-emerald-500/30">Misi</span>
+                                    <p className="text-[#2C3F21] dark:text-gray-200 leading-snug">
+                                        <span className="font-extrabold text-[#2E5E28] dark:text-emerald-400">
+                                            Memanggil semua orang menjadi murid Yesus Kristus
+                                        </span>
+                                        ,{' '}
+                                        <span className="font-extrabold text-[#9A6B1A] dark:text-gold-400">
+                                            memberitakan Injil kekal
+                                        </span>
+                                        , dan{' '}
+                                        <span className="font-extrabold text-[#B4791E] dark:text-amber-300">
+                                            mempersiapkan dunia bagi kedatangan-Nya
+                                        </span>.
+                                    </p>
                                 </div>
                             </div>
 
@@ -3656,9 +3690,11 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const [isSavingJadwal, setIsSavingJadwal] = React.useState(false);
     const [isSavingPejabat, setIsSavingPejabat] = React.useState(false);
 
-    // ============ STATE CAROUSEL EVENTS ============
+    // ============ STATE CAROUSEL EVENTS & VIDEOS ============
     const [editCarouselEvents, setEditCarouselEvents] = React.useState([]);
     const [isSavingCarouselEvents, setIsSavingCarouselEvents] = React.useState(false);
+    const [editCarouselVideos, setEditCarouselVideos] = React.useState(carouselVideos || []);
+    const [isSavingCarouselVideos, setIsSavingCarouselVideos] = React.useState(false);
     React.useEffect(() => {
         if (carouselEvents) setEditCarouselEvents(JSON.parse(JSON.stringify(carouselEvents)));
         if (carouselVideos) setEditCarouselVideos(JSON.parse(JSON.stringify(carouselVideos)));
@@ -3761,8 +3797,6 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
     // State untuk Live URL
     const [editLiveUrl, setEditLiveUrl] = React.useState(liveUrl);
-    const [editCarouselVideos, setEditCarouselVideos] = React.useState([]);
-    const [isSavingCarouselVideos, setIsSavingCarouselVideos] = React.useState(false);
     const [isSavingLiveUrl, setIsSavingLiveUrl] = React.useState(false);
     const [editPerjamuanDate, setEditPerjamuanDate] = React.useState(perjamuanDate);
     const [editPerpuluhanDate, setEditPerpuluhanDate] = React.useState(perpuluhanDate);
@@ -3773,14 +3807,22 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const [editDaftarRekening, setEditDaftarRekening] = React.useState(daftarRekening || []);
     const [isSavingRekening, setIsSavingRekening] = React.useState(false);
 
-    // Sync form state when perjamuanDate is fetched/updated from parent App
+    // Sync form state when props are fetched/updated from parent App
     React.useEffect(() => {
+        setEditYoutubeUrl(youtubeUrl);
+        setEditYoutubeTitle(youtubeTitle || "Video Penting");
+        setEditYoutubeChannelTitle(youtubeChannelTitle || "Youtube Channel");
+        setEditAnthemUrl(anthemUrl);
+        setEditAnthemUrl2(anthemUrl2);
+        setEditAnthemTitle(anthemTitle || "Adventist Church Anthem");
+        setEditAnthemTitle2(anthemTitle2 || "Video Tambahan");
+        setEditLiveUrl(liveUrl);
         setEditPerjamuanDate(perjamuanDate);
         setEditPerpuluhanDate(perpuluhanDate);
         setEditPerjamuanNote(perjamuanNote);
         setEditPerpuluhanNote(perpuluhanNote);
         setEditDaftarRekening(daftarRekening || []);
-    }, [perjamuanDate, perpuluhanDate, perjamuanNote, perpuluhanNote, daftarRekening]);
+    }, [youtubeUrl, youtubeTitle, youtubeChannelTitle, anthemUrl, anthemUrl2, anthemTitle, anthemTitle2, liveUrl, perjamuanDate, perpuluhanDate, perjamuanNote, perpuluhanNote, daftarRekening]);
 
     // State Hero Image Array (Carousel)
     const [editHeroImages, setEditHeroImages] = React.useState(heroImages);
@@ -4881,6 +4923,30 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 setYoutubeUrl(editYoutubeUrl);
                 setYoutubeTitle(editYoutubeTitle);
                 setYoutubeChannelTitle(editYoutubeChannelTitle);
+                try {
+                    const cachedStr = localStorage.getItem('pisgah_data_cache');
+                    if (cachedStr) {
+                        const cached = JSON.parse(cachedStr);
+                        cached.youtubeUrl = editYoutubeUrl;
+                        cached.youtubeTitle = editYoutubeTitle;
+                        cached.youtubeChannelTitle = editYoutubeChannelTitle;
+                        localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
+                    }
+                } catch (e) { }
+                if (setCarouselVideos) {
+                    setCarouselVideos(prev => {
+                        if (!prev || prev.length === 0) return [{ title: editYoutubeTitle || "Video Penting", url: editYoutubeUrl }];
+                        let found = false;
+                        const updated = prev.map(v => {
+                            if (v.url === youtubeUrl || v.title === (youtubeTitle || "Video Penting")) {
+                                found = true;
+                                return { ...v, title: editYoutubeTitle || "Video Penting", url: editYoutubeUrl };
+                            }
+                            return v;
+                        });
+                        return found ? updated : [{ title: editYoutubeTitle || "Video Penting", url: editYoutubeUrl }, ...prev];
+                    });
+                }
             } else {
                 alert("Gagal merubah URL: " + (result.message || "Akses ditolak."));
             }
@@ -4906,6 +4972,31 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 setAnthemUrl2(editAnthemUrl2);
                 setAnthemTitle(editAnthemTitle);
                 setAnthemTitle2(editAnthemTitle2);
+                try {
+                    const cachedStr = localStorage.getItem('pisgah_data_cache');
+                    if (cachedStr) {
+                        const cached = JSON.parse(cachedStr);
+                        cached.anthemUrl = editAnthemUrl;
+                        cached.anthemUrl2 = editAnthemUrl2;
+                        cached.anthemTitle = editAnthemTitle;
+                        cached.anthemTitle2 = editAnthemTitle2;
+                        localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
+                    }
+                } catch (e) { }
+                if (setCarouselVideos) {
+                    setCarouselVideos(prev => {
+                        if (!prev) return prev;
+                        return prev.map(v => {
+                            if (v.url === anthemUrl || v.title === (anthemTitle || "Adventist Church Anthem")) {
+                                return { ...v, title: editAnthemTitle || "Adventist Church Anthem", url: editAnthemUrl };
+                            }
+                            if (v.url === anthemUrl2 || v.title === (anthemTitle2 || "Video Tambahan")) {
+                                return { ...v, title: editAnthemTitle2 || "Video Tambahan", url: editAnthemUrl2 };
+                            }
+                            return v;
+                        });
+                    });
+                }
             } else {
                 alert("Gagal merubah URL: " + (result.message || "Akses ditolak."));
             }
@@ -4928,6 +5019,14 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             if (result.success) {
                 alert("URL Live Streaming berhasil diperbarui!");
                 setLiveUrl(editLiveUrl);
+                try {
+                    const cachedStr = localStorage.getItem('pisgah_data_cache');
+                    if (cachedStr) {
+                        const cached = JSON.parse(cachedStr);
+                        cached.liveUrl = editLiveUrl;
+                        localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
+                    }
+                } catch (e) { }
             } else {
                 alert("Gagal: " + (result.message || "Akses ditolak."));
             }
@@ -5245,6 +5344,14 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             if (result.success) {
                 alert("Galeri Video berhasil diperbarui!");
                 setCarouselVideos(editCarouselVideos);
+                try {
+                    const cachedStr = localStorage.getItem('pisgah_data_cache');
+                    if (cachedStr) {
+                        const cached = JSON.parse(cachedStr);
+                        cached.carouselVideos = JSON.stringify(editCarouselVideos);
+                        localStorage.setItem('pisgah_data_cache', JSON.stringify(cached));
+                    }
+                } catch (e) { }
             } else {
                 alert("Gagal merubah Galeri Video: " + (result.message || "Akses ditolak."));
             }
@@ -6203,11 +6310,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                 <Icon name="ChevronLeft" className="w-5 h-5" />
                             </button>
                             <div ref={pengaturanScrollContainerRef} className="glass-box rounded-[1.25rem] flex-1 flex overflow-x-auto border border-navy-100/50 p-2 gap-2 hide-scrollbar scroll-smooth shadow-sm">
-                                <button onClick={() => setPengaturanSubTab('youtube')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'youtube' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
-                                    Youtube
-                                </button>
-                                <button onClick={() => setPengaturanSubTab('anthem')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'anthem' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
-                                    Anthem
+                                <button onClick={() => setPengaturanSubTab('video')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'video' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
+                                    Galeri Video
                                 </button>
                                 <button onClick={() => setPengaturanSubTab('live')} className={`px-4 py-2.5 rounded-xl text-xs md:text-sm whitespace-nowrap transition-colors ${pengaturanSubTab === 'live' ? 'bg-navy-900 shadow-sm font-bold text-gold-400' : 'font-bold text-navy-500 hover:bg-navy-50 hover:text-navy-800'}`}>
                                     Live
@@ -6247,33 +6351,40 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
                         {/* --- FORM GALERI VIDEO --- */}
                         {pengaturanSubTab === 'video' && (
-                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm mt-6">
-                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                    <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
-                                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Galeri Video (Home)</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Daftar Video Beranda</p></div>
+                            <div className="bg-white dark:bg-navy-900 border border-navy-100/60 dark:border-navy-700 rounded-[1.5rem] p-6 shadow-sm mt-6">
+                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 dark:border-navy-800 pb-5">
+                                    <div className="w-12 h-12 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
+                                    <div>
+                                        <h3 className="font-black text-navy-900 dark:text-gold-400 text-lg tracking-tight">Galeri Video (Beranda)</h3>
+                                        <p className="text-xs text-navy-500 dark:text-gray-400 font-bold uppercase tracking-widest mt-1">Daftar Video Carousel Homepage</p>
+                                    </div>
                                 </div>
                                 <form onSubmit={handleSaveCarouselVideos} className="space-y-4">
                                     {editCarouselVideos.map((vid, idx) => (
-                                        <div key={idx} className="p-4 border border-navy-100 rounded-xl relative">
-                                            <button type="button" onClick={() => setEditCarouselVideos(editCarouselVideos.filter((_, i) => i !== idx))} className="absolute top-2 right-2 text-red-500 hover:text-red-700 bg-red-50 rounded-lg p-1.5"><Icon name="Trash" className="w-4 h-4" /></button>
+                                        <div key={idx} className="p-4 border border-navy-100 dark:border-navy-700 rounded-xl relative bg-navy-50/30 dark:bg-navy-950/50">
+                                            <button type="button" onClick={() => setEditCarouselVideos(editCarouselVideos.filter((_, i) => i !== idx))} className="absolute top-2 right-2 text-red-500 hover:text-red-700 bg-red-50 dark:bg-red-900/30 rounded-lg p-1.5 transition" title="Hapus Video"><Icon name="Trash" className="w-4 h-4" /></button>
                                             <div className="space-y-3 pt-2">
                                                 <div>
-                                                    <label className="block text-xs font-bold text-navy-600 mb-1">Judul Video</label>
-                                                    <input type="text" value={vid.title} onChange={(e) => { const newArr = [...editCarouselVideos]; newArr[idx].title = e.target.value; setEditCarouselVideos(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: Video Penting" required />
+                                                    <label className="block text-xs font-bold text-navy-600 dark:text-gray-300 mb-1">Judul Video #{idx + 1}</label>
+                                                    <input type="text" value={vid.title} onChange={(e) => { const newArr = [...editCarouselVideos]; newArr[idx].title = e.target.value; setEditCarouselVideos(newArr); }} className="w-full border-2 border-navy-100 dark:border-navy-700 dark:bg-navy-900 dark:text-gray-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: Adventist Church Anthem / Video Khotbah" required />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs font-bold text-navy-600 mb-1">URL YouTube Embed</label>
-                                                    <input type="text" value={vid.url} onChange={(e) => { const newArr = [...editCarouselVideos]; newArr[idx].url = e.target.value; setEditCarouselVideos(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: https://www.youtube.com/embed/..." required />
+                                                    <label className="block text-xs font-bold text-navy-600 dark:text-gray-300 mb-1">URL YouTube Embed</label>
+                                                    <input type="text" value={vid.url} onChange={(e) => { const newArr = [...editCarouselVideos]; newArr[idx].url = e.target.value; setEditCarouselVideos(newArr); }} className="w-full border-2 border-navy-100 dark:border-navy-700 dark:bg-navy-900 dark:text-gray-100 rounded-xl px-3 py-2 text-sm font-mono focus:border-gold-400 focus:outline-none" placeholder="Cth: https://www.youtube.com/embed/..." required />
                                                 </div>
                                             </div>
                                         </div>
                                     ))}
 
-                                    <button type="button" onClick={() => setEditCarouselVideos([...editCarouselVideos, { title: "", url: "" }])} className="w-full border-2 border-dashed border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
-                                        <Icon name="PlusCircle" className="w-4 h-4 mr-2" /> Tambah Video
+                                    <button type="button" onClick={() => setEditCarouselVideos([...editCarouselVideos, { title: "", url: "" }])} className="w-full border-2 border-dashed border-navy-200 dark:border-navy-700 text-navy-600 dark:text-gray-300 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 dark:hover:bg-navy-800 hover:text-navy-900 dark:hover:text-gold-400 transition flex justify-center items-center">
+                                        <Icon name="PlusCircle" className="w-4 h-4 mr-2" /> Tambah Video ke Galeri
                                     </button>
 
-                                    <button type="submit" disabled={isSavingCarouselVideos} className={`w-full ${isSavingCarouselVideos ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
+                                    <p className="text-[10px] text-navy-500 dark:text-gray-400 mt-2 font-bold leading-relaxed bg-navy-50 dark:bg-navy-950 p-2.5 rounded-lg border border-navy-100 dark:border-navy-800">
+                                        Video yang ditambahkan di sini akan tampil secara berurutan pada slider <strong>Galeri Video</strong> di halaman Beranda. Pastikan URL berupa link embed YouTube (<span className="text-gold-600 dark:text-gold-400">https://www.youtube.com/embed/...</span>).
+                                    </p>
+
+                                    <button type="submit" disabled={isSavingCarouselVideos} className={`w-full ${isSavingCarouselVideos ? 'bg-navy-300 dark:bg-navy-800 text-navy-500 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
                                         {isSavingCarouselVideos ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Galeri Video'}
                                     </button>
                                 </form>
@@ -6282,20 +6393,22 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
                         {/* --- FORM LIVE YOUTUBE URL --- */}
                         {pengaturanSubTab === 'live' && (
-                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                    <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
-                                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">URL Live Streaming</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Halaman Live Gereja</p></div>
+                            <div className="bg-white dark:bg-navy-900 border border-navy-100/60 dark:border-navy-700 rounded-[1.5rem] p-6 shadow-sm mt-6">
+                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 dark:border-navy-800 pb-5">
+                                    <div className="w-12 h-12 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
+                                    <div><h3 className="font-black text-navy-900 dark:text-gold-400 text-lg tracking-tight">URL Live Streaming</h3><p className="text-xs text-navy-500 dark:text-gray-400 font-bold uppercase tracking-widest mt-1">Halaman Live Ibadah Gereja</p></div>
                                 </div>
                                 <form onSubmit={handleSaveLiveUrl}>
-                                    <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Live (Embed)</label>
-                                    <textarea value={editLiveUrl} onChange={e => setEditLiveUrl(e.target.value)} required rows="3" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono font-medium shadow-sm leading-relaxed"></textarea>
-                                    <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100">Pastikan URL diawali dengan <br />
-                                        <span className="text-gold-600">https://www.youtube.com/embed/</span>...<br />
-                                        <span className="text-gold-600">https://www.youtube-nocookie.com/embed/</span>...<br />
-                                        <span className="text-gold-600">https://www.youtube.com/embed/live_stream?channel=</span>...
+                                    <label className="block text-xs font-bold text-navy-700 dark:text-gray-200 mb-2 uppercase tracking-widest">Tautan Live (Embed)</label>
+                                    <textarea value={editLiveUrl} onChange={e => setEditLiveUrl(e.target.value)} required rows="3" className="w-full p-3.5 border border-navy-200 dark:border-navy-700 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 dark:bg-navy-950 text-sm font-mono font-medium dark:text-gray-100 shadow-sm leading-relaxed"></textarea>
+                                    <p className="text-[10px] text-navy-500 dark:text-gray-400 mt-2 font-bold leading-relaxed bg-navy-50 dark:bg-navy-950 p-2.5 rounded-lg border border-navy-100 dark:border-navy-800">Pastikan URL diawali dengan <br />
+                                        <span className="text-gold-600 dark:text-gold-400">https://www.youtube.com/embed/</span>...<br />
+                                        <span className="text-gold-600 dark:text-gold-400">https://www.youtube-nocookie.com/embed/</span>...<br />
+                                        <span className="text-gold-600 dark:text-gold-400">https://www.youtube.com/embed/live_stream?channel=</span>...
                                     </p>
-                                    <button type="submit" disabled={isSavingLiveUrl} className="w-full bg-navy-900 hover:bg-navy-800 text-gold-400 font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center">Simpan URL Live</button>
+                                    <button type="submit" disabled={isSavingLiveUrl} className="w-full bg-navy-900 dark:bg-gold-500 hover:bg-navy-800 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-900 font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center shadow-md hover:shadow-lg">
+                                        {isSavingLiveUrl ? 'Menyimpan...' : 'Simpan URL Live'}
+                                    </button>
                                 </form>
                             </div>
                         )}
@@ -8620,9 +8733,13 @@ const App = () => {
     React.useEffect(() => {
         if (isDarkMode) {
             document.documentElement.classList.add('dark');
+            document.documentElement.style.backgroundColor = '#0b1a30';
+            document.body.style.backgroundColor = '#0b1a30';
             localStorage.setItem('theme', 'dark');
         } else {
             document.documentElement.classList.remove('dark');
+            document.documentElement.style.backgroundColor = '#f9fafb';
+            document.body.style.backgroundColor = '#f9fafb';
             localStorage.setItem('theme', 'light');
         }
     }, [isDarkMode]);
@@ -9145,7 +9262,7 @@ const App = () => {
     // agar bisa interaktif di bawah 1 detik! Mencegah "stuck di loading page".
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#0b1a30] text-navy-900 dark:text-gray-100 flex flex-col transition-colors duration-300">
             {isAppLoading && <LoadingScreen />}
             <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} onSuccess={(token) => { setAdminToken(token); setIsAdminLoggedIn(true); setShowLoginModal(false); setActiveTab('admin_dashboard'); }} />
             <IosInstallModal isOpen={showIosPrompt} onClose={() => setShowIosPrompt(false)} />
@@ -9154,25 +9271,25 @@ const App = () => {
 
 
             {/* HEADER UTAMA (Responsif untuk Mobile & Desktop) */}
-            <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 shadow-sm">
+            <header className="bg-white/80 dark:bg-navy-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 dark:border-navy-800 shadow-sm transition-colors duration-300">
                 <div className="w-full mx-auto flex items-center justify-between px-4 lg:px-[6vw] py-3 gap-3">
                     <div className="flex items-center gap-2 md:gap-3 flex-1 justify-start">
                         <div className="flex flex-col items-start shrink-0 cursor-pointer" onClick={() => setActiveTab('home')}>
                             {/* Baris 1: Logo + Nama Gereja */}
                             <div className="flex items-center">
                                 <img src="./icons/PisgahColor.png" className="w-8 h-8 md:w-8 md:h-8 object-contain opacity-100 mr-1.5" alt="Logo" />
-                                <p className="block md:hidden lg:block text-xl md:text-2xl font-bold text-navy-700 tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></p>
+                                <p className="block md:hidden lg:block text-xl md:text-2xl font-bold text-navy-700 dark:text-white tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></p>
                             </div>
                         </div>
                     </div>
 
                     <div className="flex justify-end items-center gap-2 shrink-0">
                         {/* Navigasi Desktop (Disembunyikan di Mobile) - Kontak & Persembahan dihilangkan */}
-                        <div className="hidden md:flex items-center gap-1 mr-2 bg-navy-50/30 p-1 rounded-2xl border border-navy-50">
+                        <div className="hidden md:flex items-center gap-1 mr-2 bg-navy-50/30 dark:bg-navy-800/40 p-1 rounded-2xl border border-navy-50 dark:border-navy-700">
                             {tabs.filter(t => !['persembahan', 'hubungi'].includes(t.id)).map(tab => {
                                 const isActive = activeTab.startsWith(tab.id);
                                 return (
-                                    <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all text-sm font-bold ${isActive ? 'bg-white text-navy-900 shadow-sm border border-navy-100/50' : 'text-navy-500 hover:text-navy-700 hover:bg-navy-50'}`}>
+                                    <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all text-sm font-bold ${isActive ? 'bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-sm border border-navy-100/50 dark:border-navy-700' : 'text-navy-500 dark:text-navy-300 hover:text-navy-700 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-800/50'}`}>
                                         <Icon name={tab.icon} className={`w-4 h-4 ${isActive ? 'text-gold-500' : ''}`} />
                                         <span>{tab.label}</span>
                                     </button>
@@ -9183,7 +9300,7 @@ const App = () => {
                         {/* Toggle Theme Button */}
                         <button
                             onClick={() => setIsDarkMode(!isDarkMode)}
-                            className="w-10 h-10 text-navy-600 hover:text-gold-500 hover:scale-110 transition-all flex items-center justify-center shrink-0"
+                            className="w-10 h-10 text-navy-600 dark:text-gold-400 hover:text-gold-500 dark:hover:text-gold-300 hover:scale-110 transition-all flex items-center justify-center shrink-0"
                             title={isDarkMode ? "Ganti ke Mode Terang" : "Ganti ke Mode Gelap"}
                         >
                             <Icon name={isDarkMode ? "Sun" : "Moon"} className="w-5 h-5" />

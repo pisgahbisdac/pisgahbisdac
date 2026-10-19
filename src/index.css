@@ -239,10 +239,15 @@
 /* --- TEMA ELEGANT NAVY & GOLD (DARK MODE) --- */
 html.dark {
   color-scheme: dark;
+  background-color: #0b1a30 !important;
 }
 
 html.dark body,
-html.dark .bg-gray-50 {
+html.dark #root,
+html.dark .bg-gray-50,
+html.dark [class*="bg-gray-50"],
+html.dark .bg-\[\#FAFAFA\],
+html.dark [class*="bg-\[\#FAFAFA\]"] {
   background-color: #0b1a30 !important;
   /* Background utama Navy Gelap */
   color: #f4f6f9 !important;

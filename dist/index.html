@@ -21,13 +21,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 
+    <style>
+        html.dark {
+            background-color: #0b1a30 !important;
+            color-scheme: dark;
+        }
+        html.dark body {
+            background-color: #0b1a30 !important;
+        }
+    </style>
+
     <script>
         // Set tema awal sebelum React render untuk mencegah FOUC (Flash of Unstyled Content)
-        // Default diubah menjadi Light mode (jika tidak ada data di localStorage)
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
+            document.documentElement.style.backgroundColor = '#0b1a30';
         } else {
             document.documentElement.classList.remove('dark');
+            document.documentElement.style.backgroundColor = '#f9fafb';
         }
     </script>
 
@@ -38,13 +49,13 @@
         crossorigin="anonymous" defer></script>
     <!-- Library untuk konversi HEIC/HEIF ke format standard -->
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script type="module" crossorigin src="/assets/main-DyHdiEQZ.js"></script>
+  <script type="module" crossorigin src="/assets/main-BawbA4lE.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-react-COYk7vux.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-DOXDSZ3-.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-DvnvAmOt.css">
 </head>
 
-<body class="text-navy-900 font-sans antialiased overflow-x-clip">
+<body class="bg-gray-50 dark:bg-[#0b1a30] text-navy-900 dark:text-gray-100 font-sans antialiased overflow-x-clip transition-colors duration-300">
     <div id="root">
         <!-- Preloader: Ditampilkan saat React & Babel sedang diproses, mencegah blank screen lambat -->
         <div class="preloader-bg"
