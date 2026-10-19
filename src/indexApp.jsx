@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Play, Maximize, FileText, Download, Share2, Info, BookOpen, Search as SearchIcon, X, CheckCircle, Navigation, MapPin, Calendar, Phone, Mail, Clock, Globe, ArrowRight, User, PlusCircle, PenTool, Layout, File, ExternalLink, Menu, Music, Activity, Megaphone, Video, ArrowLeft, MoreHorizontal, MessageCircle, Heart, Star, Compass, Anchor, Copy, Check, Upload, Trash2, Map } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Maximize, FileText, Download, Share2, Info, BookOpen, Search as SearchIcon, X, CheckCircle, Navigation, MapPin, Calendar, Phone, Mail, Clock, Globe, ArrowRight, User, PlusCircle, PenTool, Layout, File, ExternalLink, Menu, Music, Activity, Megaphone, Video, ArrowLeft, MoreHorizontal, MessageCircle, Heart, Star, Compass, Anchor, Copy, Check, Upload, Trash2, Map as MapIcon } from 'lucide-react';
 
 // searchlaporan: redirect ke laporan.html (Cek Transaksi)
 
@@ -401,6 +401,9 @@ const formatDate = (dateString) => {
 const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, canGoPrev, canGoNext, title, setActiveTab, carouselEvents, handleDateSelect }) => {
     const dateInputRef = React.useRef(null);
     const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
+    const [isEventHovered, setIsEventHovered] = React.useState(false);
+    const eventTouchStartX = React.useRef(0);
+    const eventTouchEndX = React.useRef(0);
     const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
 
     React.useEffect(() => {
@@ -408,12 +411,30 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
     }, [eventsToDisplay.length]);
 
     React.useEffect(() => {
-        if (eventsToDisplay.length <= 1) return;
+        if (eventsToDisplay.length <= 1 || isEventHovered) return;
         const timer = setInterval(() => {
             setCurrentEventIdx((prev) => (prev + 1) % eventsToDisplay.length);
         }, 5000);
         return () => clearInterval(timer);
-    }, [eventsToDisplay.length]);
+    }, [eventsToDisplay.length, isEventHovered]);
+
+    const handleEventTouchStart = (e) => {
+        eventTouchStartX.current = e.targetTouches[0].clientX;
+    };
+    const handleEventTouchMove = (e) => {
+        eventTouchEndX.current = e.targetTouches[0].clientX;
+    };
+    const handleEventTouchEnd = () => {
+        if (!eventTouchStartX.current || !eventTouchEndX.current) return;
+        const diff = eventTouchStartX.current - eventTouchEndX.current;
+        if (diff > 50) {
+            setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1));
+        } else if (diff < -50) {
+            setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1));
+        }
+        eventTouchStartX.current = 0;
+        eventTouchEndX.current = 0;
+    };
 
     return (
         <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
@@ -422,18 +443,25 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                     <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-1">Jangan Lewatkan</h3>
                     <h2 className="text-xl md:text-2xl font-extrabold text-[#2C3F21] dark:text-white mb-4">Acara Terdekat</h2>
 
-                    {/* Dark Card Carousel */}
-                    <div className="relative w-full rounded-[1.5rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-900 shadow-xl aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group">
+                    {/* Modern Elevated Dark Card Carousel */}
+                    <div
+                        className="relative w-full rounded-[2rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-950 shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-800 aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group"
+                        onMouseEnter={() => setIsEventHovered(true)}
+                        onMouseLeave={() => setIsEventHovered(false)}
+                        onTouchStart={handleEventTouchStart}
+                        onTouchMove={handleEventTouchMove}
+                        onTouchEnd={handleEventTouchEnd}
+                    >
                         {eventsToDisplay[currentEventIdx]?.imageUrl ? (
                             <>
                                 <img
                                     src={formatImageUrl(eventsToDisplay[currentEventIdx].imageUrl)}
                                     alt="Event Background"
-                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                                     referrerPolicy="no-referrer"
                                     onError={(e) => handleImageErrorFallback(e, eventsToDisplay[currentEventIdx].imageUrl)}
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/25 pointer-events-none"></div>
                             </>
                         ) : (
                             <div className="absolute top-0 right-0 w-[60%] sm:w-[50%] h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
@@ -442,30 +470,68 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                         )}
 
                         <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
-                            <span className="inline-block bg-[#D19B45] text-[#2C3F21] text-xs sm:text-sm md:text-base font-black uppercase tracking-wider px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full mb-3 shadow-md">
-                                {eventsToDisplay[currentEventIdx]?.dateStr || ''}
-                            </span>
-                            <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight">{eventsToDisplay[currentEventIdx]?.title || ''}</h3>
-                            <p className="text-xs sm:text-sm md:text-base text-gray-200 dark:text-navy-100 flex items-center font-medium opacity-90"><Icon name="Check" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0" /> <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span></p>
+                            <div className="flex items-center gap-2 mb-3 flex-wrap">
+                                {eventsToDisplay[currentEventIdx]?.dateStr && (
+                                    <span className="inline-flex items-center bg-[#D19B45] text-[#2C3F21] text-xs sm:text-sm font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md">
+                                        <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5" />
+                                        {eventsToDisplay[currentEventIdx].dateStr}
+                                    </span>
+                                )}
+                                <span className="inline-flex items-center bg-black/40 backdrop-blur-md text-white border border-white/20 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+                                    Acara Mendatang
+                                </span>
+                            </div>
+                            <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight text-white drop-shadow-md">
+                                {eventsToDisplay[currentEventIdx]?.title || ''}
+                            </h3>
+                            {eventsToDisplay[currentEventIdx]?.location && (
+                                <p className="text-xs sm:text-sm md:text-base text-gray-200 dark:text-navy-100 flex items-center font-medium opacity-95 drop-shadow">
+                                    <Icon name="MapPin" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0 text-[#D19B45] dark:text-gold-400" />
+                                    <span className="truncate">{eventsToDisplay[currentEventIdx].location}</span>
+                                </p>
+                            )}
                         </div>
 
                         {/* Event Controls */}
-                        <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-1 sm:gap-2 z-20">
-                            <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10"><Icon name="ChevronLeft" className="w-3 h-3 sm:w-4 sm:h-4" /></button>
-                            <button onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors backdrop-blur-sm border border-white/10"><Icon name="ChevronRight" className="w-3 h-3 sm:w-4 sm:h-4" /></button>
-                        </div>
+                        {eventsToDisplay.length > 1 && (
+                            <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-2 z-20">
+                                <button
+                                    type="button"
+                                    onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))}
+                                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-95 flex items-center justify-center transition-all backdrop-blur-md border border-white/20 text-white shadow-lg"
+                                    title="Acara Sebelumnya"
+                                    aria-label="Acara Sebelumnya"
+                                >
+                                    <Icon name="ChevronLeft" className="w-4 h-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))}
+                                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-95 flex items-center justify-center transition-all backdrop-blur-md border border-white/20 text-white shadow-lg"
+                                    title="Acara Selanjutnya"
+                                    aria-label="Acara Selanjutnya"
+                                >
+                                    <Icon name="ChevronRight" className="w-4 h-4" />
+                                </button>
+                            </div>
+                        )}
 
                         {/* Event Dots */}
-                        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex gap-1 sm:gap-1.5 z-20">
-                            {eventsToDisplay.map((_, idx) => (
-                                <button
-                                    key={idx}
-                                    type="button"
-                                    onClick={() => setCurrentEventIdx(idx)}
-                                    className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-4 sm:w-6 bg-[#D19B45]' : 'w-1 sm:w-1.5 bg-white/30 hover:bg-white/60'}`}
-                                />
-                            ))}
-                        </div>
+                        {eventsToDisplay.length > 1 && (
+                            <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/15 z-20 shadow-md">
+                                {eventsToDisplay.map((_, idx) => (
+                                    <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={() => setCurrentEventIdx(idx)}
+                                        className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-6 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'
+                                            }`}
+                                        aria-label={`Ke acara ${idx + 1}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </>
             )}
@@ -507,157 +573,219 @@ const DAILY_VERSES = [
     {
         bookId: 'YER', bookName: 'Yeremia', chapter: 29, verse: 11,
         text: 'Sebab Aku ini mengetahui rancangan-rancangan apa yang ada pada-Ku mengenai kamu, demikianlah firman TUHAN, yaitu rancangan damai sejahtera dan bukan rancangan kecelakaan, untuk memberikan kepadamu hari depan yang penuh harapan.',
-        theme: 'Pengharapan & Damai'
+        theme: 'Pengharapan & Damai',
+        gold: ['TUHAN', 'hari depan yang penuh harapan'],
+        emerald: ['rancangan damai sejahtera']
     },
     {
         bookId: 'FIL', bookName: 'Filipi', chapter: 4, verse: 13,
         text: 'Segala perkara dapat kutanggung di dalam Dia yang memberi kekuatan kepadaku.',
-        theme: 'Kekuatan Iman'
+        theme: 'Kekuatan Iman',
+        gold: ['Dia yang memberi kekuatan'],
+        emerald: ['Segala perkara dapat kutanggung']
     },
     {
         bookId: 'MZM', bookName: 'Mazmur', chapter: 23, verse: '1-3',
         text: 'TUHAN adalah gembalaku, takkan kekurangan aku. Ia membaringkan aku di padang yang berumput hijau, Ia membimbing aku ke air yang tenang; Ia menyegarkan jiwaku.',
-        theme: 'Penyertaan Tuhan'
+        theme: 'Penyertaan Tuhan',
+        gold: ['TUHAN adalah gembalaku'],
+        emerald: ['padang yang berumput hijau', 'air yang tenang', 'menyegarkan jiwaku']
     },
     {
         bookId: 'YES', bookName: 'Yesaya', chapter: 40, verse: 31,
         text: 'Tetapi orang-orang yang menanti-nantikan TUHAN mendapat kekuatan baru: mereka seumpama rajawali yang naik terbang dengan kekuatan sayapnya; mereka berlari dan tidak menjadi lesu, mereka berjalan dan tidak menjadi lelah.',
-        theme: 'Kekuatan Baru'
+        theme: 'Kekuatan Baru',
+        gold: ['menanti-nantikan TUHAN', 'rajawali'],
+        emerald: ['kekuatan baru']
     },
     {
         bookId: 'YOH', bookName: 'Yohanes', chapter: 14, verse: '1-3',
         text: 'Janganlah gelisah hatimu; percayalah kepada Allah, percayalah juga kepada-Ku. Di rumah Bapa-Ku banyak tempat tinggal... Aku pergi ke situ untuk menyediakan tempat bagimu.',
-        theme: 'Kedatangan Kristus'
+        theme: 'Kedatangan Kristus',
+        gold: ['Allah', 'kepada-Ku', 'rumah Bapa-Ku'],
+        emerald: ['Janganlah gelisah hatimu', 'menyediakan tempat bagimu']
     },
     {
         bookId: 'AMS', bookName: 'Amsal', chapter: 3, verse: '5-6',
         text: 'Percayalah kepada TUHAN dengan segenap hatimu, dan janganlah bersandar kepada pengertianmu sendiri. Akuilah Dia dalam segala lakumu, maka Ia akan meluruskan jalanmu.',
-        theme: 'Pimpinan Hidup'
+        theme: 'Pimpinan Hidup',
+        gold: ['TUHAN', 'segenap hatimu'],
+        emerald: ['meluruskan jalanmu']
     },
     {
         bookId: 'MZM', bookName: 'Mazmur', chapter: 46, verse: 2,
         text: 'Allah bagi kita tempat perlindungan dan kekuatan, sebagai penolong dalam kesesakan sangat terbukti.',
-        theme: 'Tempat Perlindungan'
+        theme: 'Tempat Perlindungan',
+        gold: ['Allah'],
+        emerald: ['tempat perlindungan dan kekuatan', 'penolong dalam kesesakan']
     },
     {
         bookId: 'ROM', bookName: 'Roma', chapter: 8, verse: 28,
         text: 'Kita tahu sekarang, bahwa Allah turut bekerja dalam segala sesuatu untuk mendatangkan kebaikan bagi mereka yang mengasihi Dia, yaitu bagi mereka yang terpanggil sesuai dengan rencana Allah.',
-        theme: 'Rencana Allah'
+        theme: 'Rencana Allah',
+        gold: ['Allah', 'rencana Allah'],
+        emerald: ['mendatangkan kebaikan', 'mengasihi Dia']
     },
     {
         bookId: 'KEL', bookName: 'Keluaran', chapter: 20, verse: '8-10',
         text: 'Ingatlah dan kuduskanlah hari Sabat: enam hari lamanya engkau akan bekerja dan melakukan segala pekerjaanmu, tetapi hari ketujuh adalah hari Sabat TUHAN, Allahmu.',
-        theme: 'Hari Sabat Kudus'
+        theme: 'Hari Sabat Kudus',
+        gold: ['kuduskanlah hari Sabat', 'TUHAN, Allahmu'],
+        emerald: ['hari ketujuh adalah hari Sabat']
     },
     {
         bookId: 'MAT', bookName: 'Matius', chapter: 11, verse: 28,
         text: 'Marilah kepada-Ku, semua yang letih lesu dan berbeban berat, Aku akan memberi kelegaan kepadamu.',
-        theme: 'Kelegaan Sejati'
+        theme: 'Kelegaan Sejati',
+        gold: ['Marilah kepada-Ku'],
+        emerald: ['Aku akan memberi kelegaan']
     },
     {
         bookId: 'YOS', bookName: 'Yosua', chapter: 1, verse: 9,
         text: 'Bukankah telah Kuperintahkan kepadamu: kuatkan dan teguhkanlah hatimu? Janganlah kecut dan tawar hati, sebab TUHAN, Allahmu, menyertai engkau, ke mana pun engkau pergi.',
-        theme: 'Keberanian & Keteguhan'
+        theme: 'Keberanian & Keteguhan',
+        gold: ['TUHAN, Allahmu, menyertai engkau'],
+        emerald: ['kuatkan dan teguhkanlah hatimu']
     },
     {
         bookId: '1KO', bookName: '1 Korintus', chapter: 10, verse: 13,
         text: 'Pencobaan-pencobaan yang kamu alami ialah pencobaan biasa... Allah setia dan karena itu Ia tidak akan membiarkan kamu dicobai melampaui kekuatanmu. Pada waktu kamu dicobai Ia akan memberikan kepadamu jalan keluar.',
-        theme: 'Kesetiaan Allah'
+        theme: 'Kesetiaan Allah',
+        gold: ['Allah setia'],
+        emerald: ['jalan keluar']
     },
     {
         bookId: 'WAH', bookName: 'Wahyu', chapter: 14, verse: '6-7',
         text: 'Takutlah akan Allah dan muliakanlah Dia, karena telah tiba saat penghakiman-Nya, dan sembahlah Dia yang telah menjadikan langit dan bumi dan laut dan semua mata air.',
-        theme: 'Pekabaran Akhir Zaman'
+        theme: 'Pekabaran Akhir Zaman',
+        gold: ['Takutlah akan Allah', 'muliakanlah Dia'],
+        emerald: ['sembahlah Dia yang telah menjadikan langit dan bumi']
     },
     {
         bookId: 'RAT', bookName: 'Ratapan', chapter: 3, verse: '22-23',
         text: 'Tak berkesudahan kasih setia TUHAN, tak habis-habisnya rahmat-Nya, selalu baru tiap pagi; besar kesetiaan-Mu!',
-        theme: 'Kasih Setia Baru Tiap Pagi'
+        theme: 'Kasih Setia Baru Tiap Pagi',
+        gold: ['kasih setia TUHAN', 'besar kesetiaan-Mu'],
+        emerald: ['selalu baru tiap pagi', 'rahmat-Nya']
     },
     {
         bookId: 'ZAP', bookName: 'Zefanya', chapter: 3, verse: 17,
         text: 'TUHAN Allahmu ada di antaramu sebagai pahlawan yang memberi kemenangan. Ia bergirang karena engkau dengan sukacita, Ia membaharui engkau dalam kasih-Nya.',
-        theme: 'Kasih yang Membaharui'
+        theme: 'Kasih yang Membaharui',
+        gold: ['TUHAN Allahmu', 'pahlawan yang memberi kemenangan'],
+        emerald: ['sukacita', 'membaharui engkau dalam kasih-Nya']
     },
     {
         bookId: 'MZM', bookName: 'Mazmur', chapter: 119, verse: 105,
         text: 'Firman-Mu itu pelita bagi kakiku dan terang bagi jalanku.',
-        theme: 'Pelita Kehidupan'
+        theme: 'Pelita Kehidupan',
+        gold: ['Firman-Mu'],
+        emerald: ['pelita bagi kakiku', 'terang bagi jalanku']
     },
     {
         bookId: 'YES', bookName: 'Yesaya', chapter: 41, verse: 10,
         text: 'Janganlah takut, sebab Aku menyertai engkau, janganlah bimbang, sebab Aku ini Allahmu; Aku akan meneguhkan, bahkan akan menolong engkau; Aku akan memegang engkau dengan tangan kanan-Ku yang membawa kemenangan.',
-        theme: 'Jangan Bimbang'
+        theme: 'Jangan Bimbang',
+        gold: ['Aku menyertai engkau', 'Aku ini Allahmu'],
+        emerald: ['Janganlah takut', 'tangan kanan-Ku yang membawa kemenangan']
     },
     {
         bookId: 'FIL', bookName: 'Filipi', chapter: 4, verse: '6-7',
         text: 'Janganlah hendaknya kamu kuatir tentang apa pun juga, tetapi nyatakanlah dalam segala hal keinginanmu kepada Allah dalam doa dan permohonan dengan ucapan syukur. Damai sejahtera Allah akan memelihara hati dan pikiranmu.',
-        theme: 'Doa & Ucapan Syukur'
+        theme: 'Doa & Ucapan Syukur',
+        gold: ['Allah', 'Damai sejahtera Allah'],
+        emerald: ['doa dan permohonan', 'ucapan syukur', 'memelihara hati dan pikiranmu']
     },
     {
         bookId: '1PT', bookName: '1 Petrus', chapter: 5, verse: 7,
         text: 'Serahkanlah segala kekuatiranmu kepada-Nya, sebab Ia yang memelihara kamu.',
-        theme: 'Kelegaan & Penyerahan'
+        theme: 'Kelegaan & Penyerahan',
+        gold: ['kepada-Nya'],
+        emerald: ['Serahkanlah segala kekuatiranmu', 'Ia yang memelihara kamu']
     },
     {
         bookId: 'IBR', bookName: 'Ibrani', chapter: 11, verse: 1,
         text: 'Iman adalah dasar dari segala sesuatu yang kita harapkan dan bukti dari segala sesuatu yang tidak kita lihat.',
-        theme: 'Hakikat Iman'
+        theme: 'Hakikat Iman',
+        gold: ['Iman', 'harapkan'],
+        emerald: ['dasar', 'bukti']
     },
     {
         bookId: 'YAK', bookName: 'Yakobus', chapter: 1, verse: 5,
         text: 'Tetapi apabila di antara kamu ada yang kekurangan hikmat, hendaklah ia memintakannya kepada Allah, yang memberikan kepada semua orang dengan murah hati, maka hal itu akan diberikan kepadanya.',
-        theme: 'Hikmat Ilahi'
+        theme: 'Hikmat Ilahi',
+        gold: ['Allah', 'murah hati'],
+        emerald: ['kekurangan hikmat', 'diberikan kepadanya']
     },
     {
         bookId: 'GAL', bookName: 'Galatia', chapter: 5, verse: '22-23',
         text: 'Tetapi buah Roh ialah: kasih, sukacita, damai sejahtera, kesabaran, kemurahan, kebaikan, kesetiaan, kelemahlembutan, penguasaan diri.',
-        theme: 'Buah Roh'
+        theme: 'Buah Roh',
+        gold: ['buah Roh'],
+        emerald: ['kasih', 'sukacita', 'damai sejahtera', 'kesabaran', 'kemurahan', 'kebaikan', 'kesetiaan', 'kelemahlembutan', 'penguasaan diri']
     },
     {
         bookId: 'MZM', bookName: 'Mazmur', chapter: 91, verse: '1-2',
         text: 'Orang yang duduk dalam lindungan Yang Mahatinggi dan bermalam dalam naungan Yang Mahakuasa akan berkata kepada TUHAN: "Tempat perlindunganku dan kubu pertahananku, Allahku, yang kupercayai."',
-        theme: 'Lindungan Yang Mahatinggi'
+        theme: 'Lindungan Yang Mahatinggi',
+        gold: ['Yang Mahatinggi', 'Yang Mahakuasa', 'TUHAN', 'Allahku'],
+        emerald: ['lindungan', 'Tempat perlindunganku dan kubu pertahananku']
     },
     {
         bookId: 'KOL', bookName: 'Kolose', chapter: 3, verse: '12-14',
         text: 'Kenakanlah belas kasihan, kemurahan, kerendahan hati, kelemahlembutan dan kesabaran... Dan di atas semuanya itu: kenakanlah kasih, sebagai pengikat yang mempersatukan dan menyempurnakan.',
-        theme: 'Kasih Persaudaraan'
+        theme: 'Kasih Persaudaraan',
+        gold: ['kenakanlah kasih', 'pengikat yang mempersatukan'],
+        emerald: ['belas kasihan', 'kemurahan', 'kerendahan hati', 'kelemahlembutan', 'kesabaran']
     },
     {
         bookId: 'MZM', bookName: 'Mazmur', chapter: 121, verse: '1-2',
         text: 'Aku melayangkan mataku ke gunung-gunung; dari manakah akan datang pertolonganku? Pertolonganku ialah dari TUHAN, yang menjadikan langit dan bumi.',
-        theme: 'Pertolongan Sejati'
+        theme: 'Pertolongan Sejati',
+        gold: ['TUHAN, yang menjadikan langit dan bumi'],
+        emerald: ['Pertolonganku ialah dari TUHAN']
     },
     {
         bookId: '1TE', bookName: '1 Tesalonika', chapter: 5, verse: '16-18',
         text: 'Bersukacitalah senantiasa. Tetaplah berdoa. Mengucap syukurlah dalam segala hal, sebab itulah yang dikehendaki Allah di dalam Kristus Yesus bagi kamu.',
-        theme: 'Sukacita & Syukur'
+        theme: 'Sukacita & Syukur',
+        gold: ['Kristus Yesus', 'dikehendaki Allah'],
+        emerald: ['Bersukacitalah senantiasa', 'Tetaplah berdoa', 'Mengucap syukurlah']
     },
     {
         bookId: 'YES', bookName: 'Yesaya', chapter: 58, verse: '13-14',
         text: 'Apabila engkau tidak menginjak-injak hukum Sabat... dan menyebutkan hari Sabat "hari kenikmatan"... maka engkau akan bersenang-senang karena TUHAN.',
-        theme: 'Kenikmatan Sabat'
+        theme: 'Kenikmatan Sabat',
+        gold: ['TUHAN', 'bersenang-senang karena TUHAN'],
+        emerald: ['hukum Sabat', 'hari kenikmatan']
     },
     {
         bookId: 'EFN', bookName: 'Efesus', chapter: 2, verse: '8-9',
         text: 'Sebab karena kasih karunia kamu diselamatkan oleh iman; itu bukan hasil usahamu, tetapi pemberian Allah, itu bukan hasil pekerjaanmu: jangan ada orang yang memegahkan diri.',
-        theme: 'Kasih Karunia'
+        theme: 'Kasih Karunia',
+        gold: ['Allah', 'pemberian Allah'],
+        emerald: ['kasih karunia', 'diselamatkan oleh iman']
     },
     {
         bookId: 'MZM', bookName: 'Mazmur', chapter: 103, verse: '1-3',
         text: 'Pujilah TUHAN, hai jiwaku! Pujilah nama-Nya yang kudus, hai segenap batinku! Pujilah TUHAN, hai jiwaku, dan janganlah lupakan segala kebaikan-Nya!',
-        theme: 'Pujian & Rasa Syukur'
+        theme: 'Pujian & Rasa Syukur',
+        gold: ['Pujilah TUHAN', 'nama-Nya yang kudus'],
+        emerald: ['janganlah lupakan segala kebaikan-Nya']
     },
     {
         bookId: 'WAH', bookName: 'Wahyu', chapter: 21, verse: 4,
         text: 'Dan Ia akan menghapus segala air mata dari mata mereka, dan maut tidak akan ada lagi; tidak akan ada lagi perkabungan, atau ratap tangis, atau dukacita, sebab segala sesuatu yang lama itu telah berlalu.',
-        theme: 'Pengharapan Kekal'
+        theme: 'Pengharapan Kekal',
+        gold: ['Ia akan menghapus segala air mata'],
+        emerald: ['maut tidak akan ada lagi']
     },
     {
         bookId: 'YOH', bookName: 'Yohanes', chapter: 3, verse: 16,
         text: 'Karena begitu besar kasih Allah akan dunia ini, sehingga Ia telah mengaruniakan Anak-Nya yang tunggal, supaya setiap orang yang percaya kepada-Nya tidak binasa, melainkan beroleh hidup yang kekal.',
-        theme: 'Kasih Terbesar'
+        theme: 'Kasih Terbesar',
+        gold: ['kasih Allah', 'Anak-Nya yang tunggal'],
+        emerald: ['percaya kepada-Nya tidak binasa', 'hidup yang kekal']
     }
 ];
 
@@ -837,6 +965,57 @@ const SabbathCountdownWidget = ({ setActiveTab }) => {
 // ============================================================
 // WIDGET 2: AYAT HARIAN & RENUNGAN INSPIRATIF
 // ============================================================
+// Helper: Highlighting keywords with warm gold and fresh emerald accents (without boxes)
+const renderHighlightedText = (text, goldWords = [], emeraldWords = []) => {
+    if (!text) return null;
+
+    const defaultGold = ['TUHAN', 'Allah', 'Kristus', 'Yesus', 'Roh Kudus', 'Bapa-Ku', 'Allahmu'];
+    const defaultEmerald = ['damai sejahtera', 'kasih karunia', 'sukacita'];
+
+    const phraseMap = {};
+    [...defaultGold, ...(goldWords || [])].forEach(w => {
+        if (w && w.trim()) phraseMap[w.trim().toLowerCase()] = { orig: w.trim(), type: 'gold' };
+    });
+    [...defaultEmerald, ...(emeraldWords || [])].forEach(w => {
+        if (w && w.trim()) phraseMap[w.trim().toLowerCase()] = { orig: w.trim(), type: 'emerald' };
+    });
+
+    const allPhrases = Object.values(phraseMap).map(x => x.orig).sort((a, b) => b.length - a.length);
+    if (allPhrases.length === 0) return text;
+
+    const escapeRegex = (s) => s.replace(/[-/\^$*+?.()|[\]{}]/g, '\$&');
+    const pattern = new RegExp(`(${allPhrases.map(escapeRegex).join('|')})`, 'gi');
+
+    const parts = text.split(pattern);
+
+    return parts.map((part, index) => {
+        const lowerPart = part.toLowerCase();
+        const match = phraseMap[lowerPart];
+        if (match) {
+            if (match.type === 'gold') {
+                return (
+                    <span
+                        key={index}
+                        className="font-black text-[#B87714] dark:text-[#FBBF24] not-italic"
+                    >
+                        {part}
+                    </span>
+                );
+            } else {
+                return (
+                    <span
+                        key={index}
+                        className="font-black text-[#266825] dark:text-[#34D399] not-italic"
+                    >
+                        {part}
+                    </span>
+                );
+            }
+        }
+        return part;
+    });
+};
+
 const DailyVerseWidget = ({ setActiveTab }) => {
     const todayIndex = React.useMemo(() => {
         const d = new Date();
@@ -865,85 +1044,113 @@ const DailyVerseWidget = ({ setActiveTab }) => {
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
     };
 
+    const handleOpenAlkitab = () => {
+        const targetPayload = {
+            bookName: verse.bookName,
+            bookId: verse.bookId,
+            chapter: verse.chapter,
+            verse: verse.verse
+        };
+        window.__alkitabDirectTarget = targetPayload;
+        try {
+            localStorage.setItem('alkitabDirectTarget', JSON.stringify(targetPayload));
+        } catch (e) {
+            console.error(e);
+        }
+        window.dispatchEvent(new CustomEvent('alkitab-direct-target', { detail: targetPayload }));
+        setActiveTab('alkitab');
+    };
+
     return (
-        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white via-[#FCFDF9] to-[#F1F5EB] dark:from-navy-900 dark:via-navy-950 dark:to-navy-900 p-6 md:p-7 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group transition-all duration-300">
+        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#FEFDFB] via-white to-[#F4F8EE] dark:from-navy-950 dark:via-navy-900 dark:to-[#081524] p-5 sm:p-7 shadow-xl shadow-amber-900/5 dark:shadow-black/40 border border-amber-200/80 dark:border-navy-700/80 flex flex-col justify-between group transition-all duration-300">
             {/* Ambient Lighting & Decorative Watermark */}
-            <div className="absolute top-0 right-0 w-44 h-44 bg-[#D19B45]/15 dark:bg-gold-500/15 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute -bottom-6 -right-3 text-[#D19B45]/10 dark:text-gold-400/10 font-serif font-black text-9xl leading-none select-none pointer-events-none">”</div>
+            <div className="absolute top-0 right-0 w-52 h-52 bg-gradient-to-br from-[#D19B45]/20 to-amber-300/5 dark:from-gold-500/15 dark:to-transparent rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute -bottom-10 -left-10 w-44 h-44 bg-emerald-500/10 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute -bottom-8 -right-4 text-[#D19B45]/10 dark:text-gold-400/10 font-serif font-black text-9xl sm:text-[11rem] leading-none select-none pointer-events-none">”</div>
 
             {/* Header */}
-            <div className="relative z-10 flex items-center justify-between gap-3 mb-3">
+            <div className="relative z-10 flex items-center justify-between gap-2.5 mb-3.5">
                 <div className="flex items-center gap-2 flex-wrap">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#D19B45]/20 to-[#4A7045]/15 text-[#9A6B1A] dark:text-gold-300 font-black text-[11px] uppercase tracking-wider border border-[#D19B45]/30 dark:border-gold-400/30 shadow-xs">
-                        <Icon name="BookOpen" className="w-3.5 h-3.5 text-[#D19B45] dark:text-gold-400" /> Ayat Hari Ini
+                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#D19B45] to-[#B37F2C] text-white font-black text-[11px] uppercase tracking-wider shadow-sm shadow-amber-900/20">
+                        <Icon name="BookOpen" className="w-3.5 h-3.5 text-white" /> Ayat Hari Ini
                     </span>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] md:text-[11px] font-bold text-[#596B4D] dark:text-gray-300 bg-[#E2E8D8]/50 dark:bg-navy-800/80 border border-[#E2E8D8] dark:border-navy-700">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-extrabold text-[#2F6126] dark:text-[#6EE7B7] bg-[#E9F6E7] dark:bg-emerald-950/70 border border-[#C2E3BC] dark:border-emerald-600/40 shadow-2xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                         {verse.theme}
                     </span>
                 </div>
                 <button
                     onClick={handleNextVerse}
                     title="Ganti Ayat Lain"
-                    className="p-1.5 px-2.5 rounded-xl bg-white/70 dark:bg-navy-800/80 hover:bg-white dark:hover:bg-navy-700 text-[#596B4D] dark:text-gray-300 transition-all text-xs flex items-center gap-1.5 font-bold border border-[#E2E8D8] dark:border-navy-700 shadow-xs active:scale-95"
+                    className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white/90 dark:bg-navy-800/90 hover:bg-amber-50 dark:hover:bg-navy-700 text-[#596B4D] dark:text-gray-300 transition-all text-xs flex items-center gap-1.5 font-bold border border-amber-200/80 dark:border-navy-700 shadow-2xs active:scale-95 cursor-pointer group"
                 >
-                    <Icon name="Refresh" className="w-3.5 h-3.5 text-[#D19B45] dark:text-gold-400" /> <span className="hidden sm:inline">Ganti Ayat</span>
+                    <Icon name="Refresh" className="w-3.5 h-3.5 text-[#D19B45] dark:text-gold-400 group-hover:rotate-180 transition-transform duration-500" />
+                    <span className="hidden sm:inline font-bold">Ganti Ayat</span>
                 </button>
             </div>
 
-            {/* Verse Content Box */}
+            {/* Verse Content Area */}
             <div className="relative z-10 my-auto py-2">
-                <div className="relative p-4 md:p-5 rounded-2xl bg-white/80 dark:bg-navy-950/70 backdrop-blur-md border border-[#E2E8D8] dark:border-navy-800 shadow-sm transition-all">
-                    {/* Decorative Quotation Mark */}
-                    <div className="text-[#D19B45] dark:text-gold-400 font-serif text-3xl md:text-4xl leading-none mb-1 opacity-75 select-none">“</div>
+                {/* Quotation Mark & Label */}
+                <div className="flex items-center justify-between mb-2">
+                    <span className="text-[#D19B45] dark:text-gold-400 font-serif text-4xl sm:text-5xl leading-none opacity-80 select-none">“</span>
+                    <span className="text-[10px] uppercase font-black tracking-widest text-amber-700/70 dark:text-gold-400/70 flex items-center gap-1">
+                        <Icon name="Heart" className="w-3 h-3 text-[#D19B45]" /> Sabda Hidup
+                    </span>
+                </div>
 
-                    <p className="text-[#1F3317] dark:text-gray-100 text-sm sm:text-base md:text-[1.05rem] leading-relaxed font-serif italic font-medium tracking-wide pl-2 border-l-2 border-[#D19B45]/50 dark:border-gold-400/50">
-                        {verse.text}
+                <div className="pl-3.5 sm:pl-4 border-l-3 border-[#D19B45] dark:border-gold-400 my-1">
+                    <p className="text-[#1A2E16] dark:text-gray-100 text-[15px] sm:text-base md:text-[1.08rem] leading-relaxed sm:leading-loose font-serif italic font-medium tracking-wide">
+                        {renderHighlightedText(verse.text, verse.gold, verse.emerald)}
                     </p>
+                </div>
 
-                    <div className="mt-4 pt-3 border-t border-[#E2E8D8]/60 dark:border-navy-800/80 flex items-center justify-between flex-wrap gap-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#4A7045]/15 to-[#D19B45]/20 dark:from-navy-800 dark:to-navy-800 border border-[#D19B45]/30 dark:border-gold-400/30 shadow-xs">
-                            <Icon name="Bookmark" className="w-3.5 h-3.5 text-[#D19B45] dark:text-gold-400" />
-                            <span className="font-black text-xs md:text-sm text-[#2C3F21] dark:text-gold-300 tracking-wider">
-                                {verse.bookName} {verse.chapter}:{verse.verse}
-                            </span>
-                        </div>
-                        <span className="text-[11px] font-semibold text-[#596B4D] dark:text-gray-400 italic">
-                            Alkitab Terjemahan Baru
+                <div className="mt-4 pt-3 border-t border-amber-200/50 dark:border-navy-700/60 flex items-center justify-between flex-wrap gap-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D19B45]/15 dark:bg-gold-500/15 border border-[#D19B45]/30 dark:border-gold-400/30">
+                        <Icon name="Bookmark" className="w-3.5 h-3.5 text-[#D19B45] dark:text-gold-400" />
+                        <span className="font-black text-xs sm:text-sm text-[#2C3F21] dark:text-gold-300 tracking-wider">
+                            {verse.bookName} {verse.chapter}:{verse.verse}
                         </span>
                     </div>
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#596B4D] dark:text-gray-400">
+                        <Icon name="Book" className="w-3 h-3 text-[#D19B45]" /> Alkitab Terjemahan Baru (TB)
+                    </span>
                 </div>
             </div>
 
-            {/* Actions */}
-            <div className="relative z-10 pt-4 mt-3 border-t border-[#E2E8D8] dark:border-navy-700/60 flex flex-wrap items-center justify-between gap-2">
+            {/* Actions (Mobile-Optimized Grid & Flex) */}
+            <div className="relative z-10 pt-4 mt-3 border-t border-amber-200/60 dark:border-navy-700/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
                 <button
-                    onClick={() => setActiveTab('alkitab')}
-                    className="bg-[#4A7045] hover:bg-[#3A5836] active:scale-95 text-white dark:bg-gold-500 dark:hover:bg-gold-600 dark:text-navy-900 text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+                    onClick={handleOpenAlkitab}
+                    className="w-full sm:w-auto bg-gradient-to-r from-[#3D6335] via-[#4A7045] to-[#598553] hover:from-[#32522B] hover:to-[#4A7045] active:scale-98 text-white dark:from-gold-500 dark:to-amber-500 dark:hover:from-gold-600 dark:hover:to-amber-600 dark:text-navy-950 text-xs sm:text-sm font-black px-4 sm:px-5 py-2.5 rounded-xl transition-all shadow-md shadow-[#4A7045]/20 dark:shadow-gold-500/20 flex items-center justify-center gap-2 cursor-pointer"
                 >
-                    <Icon name="BookOpen" className="w-3.5 h-3.5" /> Buka di Alkitab
+                    <Icon name="BookOpen" className="w-4 h-4" />
+                    <span>Buka di Alkitab</span>
+                    <Icon name="ArrowRight" className="w-3.5 h-3.5 opacity-80 -mr-0.5" />
                 </button>
-                <div className="flex items-center gap-2 ml-auto">
+                <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto">
                     <button
                         onClick={handleCopy}
-                        className="bg-white/80 dark:bg-navy-800 hover:bg-white dark:hover:bg-navy-700 active:scale-95 text-[#2C3F21] dark:text-gray-200 text-xs font-bold px-3 py-2 rounded-xl transition-all border border-[#E2E8D8] dark:border-navy-600 flex items-center gap-1.5 shadow-sm"
+                        className="bg-white/90 dark:bg-navy-800/90 hover:bg-amber-50 dark:hover:bg-navy-700 active:scale-95 text-[#2C3F21] dark:text-gray-200 text-xs font-bold px-3 py-2.5 rounded-xl transition-all border border-amber-200/80 dark:border-navy-600 flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                     >
                         {copied ? (
                             <>
                                 <Icon name="Check" className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                                <span className="text-emerald-600 dark:text-emerald-400 font-bold">Tersalin</span>
+                                <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">Tersalin!</span>
                             </>
                         ) : (
                             <>
-                                <Icon name="Share" className="w-3.5 h-3.5" />
+                                <Icon name="Share" className="w-3.5 h-3.5 text-[#596B4D] dark:text-gray-300" />
                                 <span>Salin</span>
                             </>
                         )}
                     </button>
                     <button
                         onClick={handleShareWA}
-                        className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm"
+                        className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm shadow-emerald-700/20 cursor-pointer"
                     >
-                        <i className="fa-brands fa-whatsapp text-sm"></i> <span>Kirim WA</span>
+                        <i className="fa-brands fa-whatsapp text-sm"></i>
+                        <span>Kirim WA</span>
                     </button>
                 </div>
             </div>
@@ -1093,6 +1300,9 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab }) => {
 
 const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, anthemTitle2, youtubeTitle, youtubeChannelTitle, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, perjamuanNote, perpuluhanNote, kontakGereja, carouselVideos = [], carouselEvents = [] }) => {
     const [currentSlide, setCurrentSlide] = React.useState(0);
+    const [isHeroHovered, setIsHeroHovered] = React.useState(false);
+    const heroTouchStartX = React.useRef(0);
+    const heroTouchEndX = React.useRef(0);
     const [tappedMenu, setTappedMenu] = React.useState(null);
     const videoCarouselRef = React.useRef(null);
     const [isVideoHovered, setIsVideoHovered] = React.useState(false);
@@ -1112,6 +1322,25 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
         }, 5000);
         return () => clearInterval(timer);
     }, [eventsToDisplay.length]);
+
+    const handleHeroTouchStart = (e) => {
+        heroTouchStartX.current = e.targetTouches[0].clientX;
+    };
+    const handleHeroTouchMove = (e) => {
+        heroTouchEndX.current = e.targetTouches[0].clientX;
+    };
+    const handleHeroTouchEnd = () => {
+        if (!heroTouchStartX.current || !heroTouchEndX.current) return;
+        const diff = heroTouchStartX.current - heroTouchEndX.current;
+        const totalSlides = heroImages && heroImages.length > 0 ? heroImages.length : 1;
+        if (diff > 50) {
+            setCurrentSlide(prev => (prev + 1) % totalSlides);
+        } else if (diff < -50) {
+            setCurrentSlide(prev => (prev === 0 ? totalSlides - 1 : prev - 1));
+        }
+        heroTouchStartX.current = 0;
+        heroTouchEndX.current = 0;
+    };
 
     // Helper untuk menghitung jarak scroll persis sebesar 1 kartu video
     const getCardScrollStep = () => {
@@ -1202,12 +1431,12 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     }, [displayImages.length]);
 
     React.useEffect(() => {
-        if (displayImages.length <= 1) return;
+        if (displayImages.length <= 1 || isHeroHovered) return;
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % displayImages.length);
         }, 6000);
         return () => clearInterval(timer);
-    }, [displayImages.length]);
+    }, [displayImages.length, isHeroHovered]);
 
     const isPengumumanReallyEmpty = () => {
         if (!pengumuman || !pengumuman.isi) return true;
@@ -1269,47 +1498,56 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                 <div className="pt-6 px-4 md:px-8 lg:px-[6vw] w-full mx-auto relative z-10">
 
                     {/* HERO SECTION */}
-                    <div className="relative rounded-[2rem] overflow-hidden shadow-xl border-4 border-[#E2E8D8] dark:border-navy-700 aspect-[4/5] sm:aspect-square md:aspect-[4/3] lg:aspect-[21/9] w-full bg-[#E5E9D8] dark:bg-navy-800 transition-colors duration-500">
+                    <div
+                        className="relative rounded-[2rem] overflow-hidden shadow-2xl border-4 border-[#E2E8D8] dark:border-navy-700 aspect-[4/5] sm:aspect-square md:aspect-[4/3] lg:aspect-[21/9] w-full bg-[#E5E9D8] dark:bg-navy-800 transition-colors duration-500 group select-none"
+                        onMouseEnter={() => setIsHeroHovered(true)}
+                        onMouseLeave={() => setIsHeroHovered(false)}
+                        onTouchStart={handleHeroTouchStart}
+                        onTouchMove={handleHeroTouchMove}
+                        onTouchEnd={handleHeroTouchEnd}
+                    >
                         <div
                             className="w-full h-full flex transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]"
                             style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                         >
                             {displayImages.map((img, idx) => (
-                                <img
-                                    key={idx}
-                                    src={formatImageUrl(img)}
-                                    referrerPolicy="no-referrer"
-                                    loading={idx === 0 ? "eager" : "lazy"}
-                                    decoding="async"
-                                    onError={(e) => {
-                                        const driveId = getGoogleDriveFileId(img);
-                                        if (driveId && e.target && e.target.src.includes('lh3.googleusercontent.com')) {
-                                            e.target.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`;
-                                        } else {
-                                            e.target.src = "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=2000&auto=format&fit=crop";
-                                        }
-                                    }}
-                                    alt={`Hero ${idx}`}
-                                    className="w-full h-full object-fill flex-shrink-0"
-                                />
+                                <div key={idx} className="w-full h-full flex-shrink-0 relative overflow-hidden">
+                                    <img
+                                        src={formatImageUrl(img)}
+                                        referrerPolicy="no-referrer"
+                                        loading={idx === 0 ? "eager" : "lazy"}
+                                        decoding="async"
+                                        onError={(e) => {
+                                            const driveId = getGoogleDriveFileId(img);
+                                            if (driveId && e.target && e.target.src.includes('lh3.googleusercontent.com')) {
+                                                e.target.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`;
+                                            } else {
+                                                e.target.src = "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=2000&auto=format&fit=crop";
+                                            }
+                                        }}
+                                        alt={`Hero ${idx}`}
+                                        className={`w-full h-full object-cover object-center transition-transform duration-[6500ms] ease-out ${currentSlide === idx ? 'scale-105' : 'scale-100'
+                                            }`}
+                                    />
+                                </div>
                             ))}
                         </div>
-                        {/* Dark overlay for center text readability */}
-                        <div className="absolute inset-0 bg-black/40 z-10 pointer-events-none"></div>
+
+                        {/* Multi-Stop Cinematic Scrim & Vignette */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/65 z-10 pointer-events-none"></div>
 
                         {/* Content */}
-                        {/* Content */}
-                        <div className="absolute top-[5%] md:top-[8%] lg:top-[10%] left-1/2 -translate-x-1/2 w-full max-w-[90%] md:max-w-3xl flex flex-col items-center text-center z-40 pb-6 md:pb-10 lg:pb-12 pointer-events-none">
-                            <div className="hidden md:inline-flex bg-white/20 backdrop-blur-md text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-[1rem] items-center mb-6">
-                                <Icon name="Home" className="w-4 h-4 mr-2" /> Gereja Masehi Advent Hari Ketujuh
+                        <div className="absolute top-[6%] md:top-[8%] lg:top-[11%] left-1/2 -translate-x-1/2 w-full max-w-[90%] md:max-w-3xl flex flex-col items-center text-center z-20 pb-6 md:pb-10 lg:pb-12 pointer-events-none">
+                            <div className="hidden md:inline-flex bg-black/35 backdrop-blur-md text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-full items-center mb-5 border border-white/20 shadow-md">
+                                <Icon name="Home" className="w-4 h-4 mr-2 text-[#D19B45] dark:text-gold-400" /> Gereja Masehi Advent Hari Ketujuh
                             </div>
-                            <div className="md:hidden bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold px-3 py-1.5 rounded-[0.75rem] inline-flex items-center mb-3 w-max">
-                                <Icon name="Home" className="w-3 h-3 mr-1.5" /> GMAHK Pisgah
+                            <div className="md:hidden bg-black/35 backdrop-blur-md text-white text-[10px] font-semibold px-3.5 py-1.5 rounded-full inline-flex items-center mb-3 w-max border border-white/20 shadow-md">
+                                <Icon name="Home" className="w-3.5 h-3.5 mr-1.5 text-[#D19B45] dark:text-gold-400" /> GMAHK Pisgah
                             </div>
-                            <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.15] mb-3 md:mb-6 tracking-tight">
+                            <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.15] mb-3 md:mb-5 tracking-tight drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]">
                                 Temukan Damai<br className="hidden md:block" /> Bersama Tuhan
                             </h1>
-                            <p className="text-white/90 text-xs md:text-lg mb-4 md:mb-6 leading-relaxed font-medium">
+                            <p className="text-white/95 text-xs md:text-lg mb-4 md:mb-6 leading-relaxed font-medium max-w-2xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                                 Jemaat Pisgah BISDAC, mari beribadah, melayani, dan bertumbuh dalam iman.
                             </p>
                         </div>
@@ -1321,7 +1559,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                 <button
                                     type="button"
                                     onClick={() => setCurrentSlide(prev => (prev === 0 ? displayImages.length - 1 : prev - 1))}
-                                    className="absolute top-1/2 -translate-y-1/2 left-3 sm:left-5 md:left-8 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white/20 hover:bg-white/40 active:scale-95 text-white backdrop-blur-md border border-white/30 flex items-center justify-center transition-all shadow-xl z-30 group"
+                                    className="absolute top-1/2 -translate-y-1/2 left-3 sm:left-5 md:left-8 w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-black/30 hover:bg-black/60 active:scale-90 text-white backdrop-blur-xl border border-white/25 hover:border-white/50 flex items-center justify-center transition-all duration-300 shadow-2xl z-30 group"
                                     title="Slide Sebelumnya"
                                     aria-label="Previous Slide"
                                 >
@@ -1330,17 +1568,38 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                 <button
                                     type="button"
                                     onClick={() => setCurrentSlide(prev => (prev + 1) % displayImages.length)}
-                                    className="absolute top-1/2 -translate-y-1/2 right-3 sm:right-5 md:right-8 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white/20 hover:bg-white/40 active:scale-95 text-white backdrop-blur-md border border-white/30 flex items-center justify-center transition-all shadow-xl z-30 group"
+                                    className="absolute top-1/2 -translate-y-1/2 right-3 sm:right-5 md:right-8 w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-black/30 hover:bg-black/60 active:scale-90 text-white backdrop-blur-xl border border-white/25 hover:border-white/50 flex items-center justify-center transition-all duration-300 shadow-2xl z-30 group"
                                     title="Slide Berikutnya"
                                     aria-label="Next Slide"
                                 >
                                     <Icon name="ChevronRight" className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
                                 </button>
 
-                                <div className="absolute bottom-10 md:bottom-14 lg:bottom-24 left-0 w-full flex justify-center gap-2 z-20">
+                                {/* Story-Style Progress Bar Indicators */}
+                                <div className="absolute bottom-10 md:bottom-14 lg:bottom-24 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 z-20 shadow-xl">
                                     {displayImages.map((_, idx) => (
-                                        <button key={idx} onClick={() => setCurrentSlide(idx)} className={`h-2.5 rounded-full transition-all duration-500 ${currentSlide === idx ? 'bg-[#4A7045] w-10' : 'bg-white/50 w-3 hover:bg-white'}`} />
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            onClick={() => setCurrentSlide(idx)}
+                                            className={`h-2 rounded-full transition-all duration-500 overflow-hidden relative ${currentSlide === idx
+                                                ? 'w-10 sm:w-14 bg-white/30'
+                                                : 'w-2.5 sm:w-3 bg-white/40 hover:bg-white/70'
+                                                }`}
+                                            title={`Slide ${idx + 1}`}
+                                            aria-label={`Ke Slide ${idx + 1}`}
+                                        >
+                                            {currentSlide === idx && (
+                                                <span
+                                                    key={`hero-bar-${idx}-${currentSlide}`}
+                                                    className="absolute inset-0 bg-gradient-to-r from-[#D19B45] via-gold-400 to-[#E5B558] rounded-full animate-hero-progress"
+                                                />
+                                            )}
+                                        </button>
                                     ))}
+                                    <span className="text-[10px] sm:text-xs font-black text-white/90 ml-1 select-none tabular-nums tracking-wider">
+                                        {currentSlide + 1}<span className="text-white/50 mx-0.5">/</span>{displayImages.length}
+                                    </span>
                                 </div>
                             </>
                         )}
@@ -1467,17 +1726,34 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                     </div>
 
                                     <div className="absolute top-3.5 right-3.5 flex gap-1.5 z-20">
-                                        <button onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))} className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow"><Icon name="ChevronLeft" className="w-3.5 h-3.5" /></button>
-                                        <button onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))} className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors backdrop-blur-md border border-white/30 text-white shadow"><Icon name="ChevronRight" className="w-3.5 h-3.5" /></button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))}
+                                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/40 hover:bg-black/70 active:scale-95 flex items-center justify-center transition-all backdrop-blur-md border border-white/20 text-white shadow-md"
+                                            title="Acara Sebelumnya"
+                                            aria-label="Acara Sebelumnya"
+                                        >
+                                            <Icon name="ChevronLeft" className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))}
+                                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/40 hover:bg-black/70 active:scale-95 flex items-center justify-center transition-all backdrop-blur-md border border-white/20 text-white shadow-md"
+                                            title="Acara Selanjutnya"
+                                            aria-label="Acara Selanjutnya"
+                                        >
+                                            <Icon name="ChevronRight" className="w-3.5 h-3.5" />
+                                        </button>
                                     </div>
 
-                                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-20">
+                                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 z-20 shadow-md">
                                         {eventsToDisplay.map((_, idx) => (
                                             <button
                                                 key={idx}
                                                 type="button"
                                                 onClick={() => setCurrentEventIdx(idx)}
                                                 className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-5 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
+                                                aria-label={`Ke acara ${idx + 1}`}
                                             />
                                         ))}
                                     </div>
@@ -1676,9 +1952,16 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                     onTouchStart={() => setIsVideoHovered(true)}
                                     onTouchEnd={() => { setTimeout(() => setIsVideoHovered(false), 5000); }}
                                 >
-                                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-gold-400 mb-6 transition-colors px-1 flex items-center">
-                                        <Icon name="Video" className="w-5 h-5 md:w-6 md:h-6 mr-2.5 text-[#D19B45] dark:text-gold-500" /> Galeri Video
-                                    </h3>
+                                    <div className="flex items-center justify-between mb-6 px-1">
+                                        <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-gold-400 transition-colors flex items-center">
+                                            <Icon name="Video" className="w-5 h-5 md:w-6 md:h-6 mr-2.5 text-[#D19B45] dark:text-gold-500" /> Galeri Video
+                                        </h3>
+                                        {carouselVideos.length > 1 && (
+                                            <span className="text-xs font-bold text-[#596B4D] dark:text-gold-300/80 bg-[#E2E8D8]/70 dark:bg-navy-900 px-3 py-1 rounded-full border border-[#D0DAC5] dark:border-navy-700">
+                                                {currentVideoIdx + 1} dari {carouselVideos.length} Video
+                                            </span>
+                                        )}
+                                    </div>
                                     <div
                                         ref={videoCarouselRef}
                                         onScroll={handleVideoScroll}
@@ -1692,12 +1975,13 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                                     : carouselVideos.length === 2
                                                         ? 'w-full md:w-[calc(50%-10px)]'
                                                         : 'w-full md:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)]'
-                                                    } rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 p-4 transition-all duration-300 flex flex-col shadow-sm`}
+                                                    } rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 hover:border-[#D19B45]/50 dark:hover:border-gold-500/50 p-4 transition-all duration-300 flex flex-col shadow-sm hover:shadow-xl hover:-translate-y-1.5 group/card`}
                                             >
                                                 <h4 className="text-base font-extrabold mb-3 text-[#2C3F21] dark:text-gold-400 flex items-center px-1 transition-colors truncate">
-                                                    <Icon name="Youtube" className="w-4 h-4 mr-2 shrink-0 text-[#D19B45] dark:text-gold-500" />{video.title}
+                                                    <Icon name="Video" className="w-4 h-4 mr-2 shrink-0 text-[#D19B45] dark:text-gold-500" />
+                                                    <span className="truncate">{video.title}</span>
                                                 </h4>
-                                                <div className="relative w-full overflow-hidden rounded-[1.25rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors shadow-inner" style={{ paddingTop: '56.25%' }}>
+                                                <div className="relative w-full overflow-hidden rounded-[1.25rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors shadow-inner border border-[#E2E8D8]/60 dark:border-navy-800/80" style={{ paddingTop: '56.25%' }}>
                                                     <iframe className="absolute top-0 left-0 w-full h-full" src={`${video.url}${video.url?.includes('?') ? '&' : '?'}vq=hd1080`} title={video.title} frameBorder="0" allowFullScreen></iframe>
                                                 </div>
                                             </div>
@@ -1705,22 +1989,22 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                     </div>
                                     {/* Navigation Buttons & Dots Indicator */}
                                     {carouselVideos.length > 1 && (
-                                        <div className="flex justify-center items-center gap-4 mt-4">
+                                        <div className="flex justify-center items-center gap-4 mt-5">
                                             <button
                                                 onClick={() => scrollVideoCarousel('left')}
-                                                className="w-9 h-9 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-all shadow-sm active:scale-95"
+                                                className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 hover:scale-105 active:scale-95 transition-all shadow-md"
                                                 aria-label="Video Sebelumnya"
                                             >
                                                 <Icon name="ChevronLeft" className="w-4 h-4" />
                                             </button>
 
-                                            <div className="flex items-center gap-1.5 px-1">
+                                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E9EEDF]/60 dark:bg-navy-900/80 border border-[#E2E8D8] dark:border-navy-700 shadow-inner">
                                                 {carouselVideos.map((_, idx) => (
                                                     <button
                                                         key={idx}
                                                         onClick={() => scrollToVideoIdx(idx)}
                                                         className={`h-2 rounded-full transition-all duration-300 ${idx === currentVideoIdx
-                                                            ? 'w-6 bg-[#D19B45] dark:bg-gold-500 shadow-sm'
+                                                            ? 'w-7 bg-gradient-to-r from-[#D19B45] to-gold-400 shadow-sm'
                                                             : 'w-2 bg-gray-300 dark:bg-navy-700 hover:bg-gray-400 dark:hover:bg-navy-600'
                                                             }`}
                                                         aria-label={`Ke video ${idx + 1}`}
@@ -1730,7 +2014,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                                             <button
                                                 onClick={() => scrollVideoCarousel('right')}
-                                                className="w-9 h-9 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 transition-all shadow-sm active:scale-95"
+                                                className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 hover:scale-105 active:scale-95 transition-all shadow-md"
                                                 aria-label="Video Selanjutnya"
                                             >
                                                 <Icon name="ChevronRight" className="w-4 h-4" />
@@ -7306,27 +7590,99 @@ const Alkitab = ({ setHideGlobalBack }) => {
     const [fontSize, setFontSize] = React.useState(16);
     const [selectedVerses, setSelectedVerses] = React.useState(new Set());
     const [selectedAyat, setSelectedAyat] = React.useState('');
+    const [pendingTarget, setPendingTarget] = React.useState(null);
 
-    const scrollToVerse = React.useCallback((ayatNum) => {
+    const scrollToVerse = React.useCallback((ayatNum, endAyatNum = null) => {
         if (!ayatNum) return;
         setSelectedAyat(String(ayatNum));
-        const el = document.getElementById(`ayat-${ayatNum}`);
-        if (el) {
-            const headerOffset = 145;
-            const elementPosition = el.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-            window.scrollTo({
-                top: Math.max(0, offsetPosition),
-                behavior: 'smooth'
-            });
+        const tryScroll = (attemptsLeft = 6) => {
+            const el = document.getElementById(`ayat-${ayatNum}`);
+            if (el) {
+                const headerOffset = 145;
+                const elementPosition = el.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-            el.classList.add('ring-2', 'ring-gold-500', 'bg-gold-100', 'dark:bg-gold-500/20');
-            setTimeout(() => {
-                el.classList.remove('ring-2', 'ring-gold-500', 'bg-gold-100', 'dark:bg-gold-500/20');
-            }, 3000);
-        }
+                window.scrollTo({
+                    top: Math.max(0, offsetPosition),
+                    behavior: 'smooth'
+                });
+
+                const start = parseInt(ayatNum, 10);
+                const end = endAyatNum ? parseInt(endAyatNum, 10) : start;
+                for (let v = start; v <= end; v++) {
+                    const vEl = document.getElementById(`ayat-${v}`);
+                    if (vEl) {
+                        vEl.classList.add('ring-2', 'ring-gold-500', 'bg-gold-100', 'dark:bg-gold-500/20');
+                        setTimeout(() => {
+                            vEl.classList.remove('ring-2', 'ring-gold-500', 'bg-gold-100', 'dark:bg-gold-500/20');
+                        }, 3500);
+                    }
+                }
+            } else if (attemptsLeft > 0) {
+                setTimeout(() => tryScroll(attemptsLeft - 1), 120);
+            }
+        };
+
+        tryScroll();
     }, []);
+
+    const processDirectTarget = React.useCallback((target) => {
+        if (!target || !target.bookName) return;
+        const targetBookName = target.bookName.trim().toLowerCase();
+        const matchedBook = ALKITAB_BOOKS.find(b =>
+            b.nama.toLowerCase() === targetBookName ||
+            targetBookName.startsWith(b.nama.toLowerCase()) ||
+            b.nama.toLowerCase().startsWith(targetBookName) ||
+            (target.bookId && b.singkat.toLowerCase() === String(target.bookId).trim().toLowerCase())
+        );
+        if (!matchedBook) return;
+
+        const chapterNum = parseInt(target.chapter, 10) || 1;
+        const rawVerse = String(target.verse || target.rawVerse || '1');
+        const startAyat = parseInt(rawVerse.split('-')[0], 10) || 1;
+        const endAyat = rawVerse.includes('-') ? (parseInt(rawVerse.split('-')[1], 10) || startAyat) : startAyat;
+
+        setPendingTarget({
+            bookId: matchedBook.id,
+            chapter: chapterNum,
+            startAyat,
+            endAyat
+        });
+
+        setSelectedBook(matchedBook);
+        setSelectedChapter(chapterNum);
+        setSelectedAyat(String(startAyat));
+        setSearchResults(null);
+    }, []);
+
+    React.useEffect(() => {
+        let target = window.__alkitabDirectTarget || null;
+        window.__alkitabDirectTarget = null;
+        if (!target) {
+            const directTargetStr = localStorage.getItem('alkitabDirectTarget');
+            if (directTargetStr) {
+                try {
+                    target = JSON.parse(directTargetStr);
+                    localStorage.removeItem('alkitabDirectTarget');
+                } catch (e) { }
+            }
+        }
+        if (target) {
+            processDirectTarget(target);
+        }
+
+        const handleDirectTargetEvent = (e) => {
+            if (e.detail) {
+                processDirectTarget(e.detail);
+            }
+        };
+
+        window.addEventListener('alkitab-direct-target', handleDirectTargetEvent);
+        return () => {
+            window.removeEventListener('alkitab-direct-target', handleDirectTargetEvent);
+        };
+    }, [processDirectTarget]);
 
     React.useEffect(() => {
         if (setHideGlobalBack) setHideGlobalBack(true);
@@ -7420,6 +7776,19 @@ const Alkitab = ({ setHideGlobalBack }) => {
             setSelectedVerses(new Set());
         }
     }, [selectedBook, selectedChapter, loadChapter]);
+
+    React.useEffect(() => {
+        if (!isLoadingChapter && verses.length > 0 && pendingTarget) {
+            if (selectedBook?.id === pendingTarget.bookId && selectedChapter === pendingTarget.chapter) {
+                const { startAyat, endAyat } = pendingTarget;
+                setPendingTarget(null);
+                const timer = setTimeout(() => {
+                    scrollToVerse(startAyat, endAyat);
+                }, 250);
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [verses, isLoadingChapter, pendingTarget, selectedBook, selectedChapter, scrollToVerse]);
 
     const toggleVerse = (ayatNum) => {
         const newSet = new Set(selectedVerses);
@@ -7648,7 +8017,19 @@ const Alkitab = ({ setHideGlobalBack }) => {
                                     {searchResults.map((res, i) => {
                                         const b = ALKITAB_BOOKS.find(book => book.id === res.book);
                                         return (
-                                            <div key={i} onClick={() => { setSelectedBook(b); setSelectedChapter(res.chapter); setSearchResults(null); }} className="bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700 p-4 rounded-xl shadow-sm hover:border-gold-300 dark:hover:border-gold-500 transition cursor-pointer group">
+                                            <div
+                                                key={i}
+                                                onClick={() => {
+                                                    if (b) {
+                                                        processDirectTarget({
+                                                            bookName: b.nama,
+                                                            chapter: res.chapter,
+                                                            verse: res.verse
+                                                        });
+                                                    }
+                                                }}
+                                                className="bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700 p-4 rounded-xl shadow-sm hover:border-gold-300 dark:hover:border-gold-500 transition cursor-pointer group"
+                                            >
                                                 <div className="font-black text-gold-500 text-xs mb-1.5">{b?.nama} {res.chapter}:{res.verse}</div>
                                                 <p className="text-sm md:text-base text-navy-800 dark:text-navy-100 leading-relaxed" dangerouslySetInnerHTML={{ __html: res.text.replace(/<mark>/g, '<mark className="bg-gold-200 dark:bg-gold-600/50 text-navy-900 dark:text-white rounded px-1">') }} />
                                             </div>
