@@ -357,7 +357,9 @@ const Icon = ({ name, className }) => {
         MapPin: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>,
         Map: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" /><line x1="9" x2="9" y1="3" y2="18" /><line x1="15" x2="15" y1="6" y2="21" /></svg>,
         Navigation: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="3 11 22 2 13 21 11 13 3 11" /></svg>,
-        Package: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="16.5" y1="9.4" x2="7.5" y2="4.21" /><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
+        Package: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="16.5" y1="9.4" x2="7.5" y2="4.21" /><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>,
+        Play: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="6 3 20 12 6 21 6 3" /></svg>,
+        Pause: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
     };
     return icons[name] || null;
 };
@@ -398,10 +400,31 @@ const formatDate = (dateString) => {
     return `${d}/${m}/${y}`;
 };
 
+const getYouTubeVideoId = (url) => {
+    if (!url) return null;
+    const match = url.match(/(?:embed\/|v=|vi\/|youtu\.be\/|\/v\/|watch\?v=|\&v=)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
+};
+
+const createGoogleCalendarUrl = (event) => {
+    if (!event) return '#';
+    const title = encodeURIComponent(event.title || 'Acara GMAHK Pisgah BISDAC');
+    const details = encodeURIComponent(`Acara GMAHK Pisgah BISDAC\nTanggal: ${event.dateStr || ''}\nLokasi: ${event.location || ''}\nMari beribadah & melayani bersama!`);
+    const location = encodeURIComponent(event.location || 'GMAHK Pisgah BISDAC, Batam');
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}`;
+};
+
+const shareEventToWhatsApp = (event) => {
+    if (!event) return;
+    const text = `*Acara GMAHK Pisgah BISDAC*\n\n📌 *${event.title || ''}*\n🗓️ ${event.dateStr || ''}\n📍 ${event.location || 'GMAHK Pisgah BISDAC'}\n\nMari hadir bersama dan bertumbuh dalam iman! Info selengkapnya:\n${window.location.href}`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+};
+
 const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, canGoPrev, canGoNext, title, setActiveTab, carouselEvents, handleDateSelect }) => {
     const dateInputRef = React.useRef(null);
     const [currentEventIdx, setCurrentEventIdx] = React.useState(0);
     const [isEventHovered, setIsEventHovered] = React.useState(false);
+    const [isEventPaused, setIsEventPaused] = React.useState(false);
     const eventTouchStartX = React.useRef(0);
     const eventTouchEndX = React.useRef(0);
     const eventsToDisplay = Array.isArray(carouselEvents) ? carouselEvents : [];
@@ -411,12 +434,12 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
     }, [eventsToDisplay.length]);
 
     React.useEffect(() => {
-        if (eventsToDisplay.length <= 1 || isEventHovered) return;
+        if (eventsToDisplay.length <= 1 || isEventHovered || isEventPaused) return;
         const timer = setInterval(() => {
             setCurrentEventIdx((prev) => (prev + 1) % eventsToDisplay.length);
         }, 5000);
         return () => clearInterval(timer);
-    }, [eventsToDisplay.length, isEventHovered]);
+    }, [eventsToDisplay.length, isEventHovered, isEventPaused]);
 
     const handleEventTouchStart = (e) => {
         eventTouchStartX.current = e.targetTouches[0].clientX;
@@ -443,95 +466,132 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                     <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-1">Jangan Lewatkan</h3>
                     <h2 className="text-xl md:text-2xl font-extrabold text-[#2C3F21] dark:text-white mb-4">Acara Terdekat</h2>
 
-                    {/* Modern Elevated Dark Card Carousel */}
-                    <div
-                        className="relative w-full rounded-[2rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-950 shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-800 aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group"
-                        onMouseEnter={() => setIsEventHovered(true)}
-                        onMouseLeave={() => setIsEventHovered(false)}
-                        onTouchStart={handleEventTouchStart}
-                        onTouchMove={handleEventTouchMove}
-                        onTouchEnd={handleEventTouchEnd}
-                    >
-                        {eventsToDisplay[currentEventIdx]?.imageUrl ? (
-                            <>
-                                <img
-                                    src={formatImageUrl(eventsToDisplay[currentEventIdx].imageUrl)}
-                                    alt="Event Background"
-                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                                    referrerPolicy="no-referrer"
-                                    onError={(e) => handleImageErrorFallback(e, eventsToDisplay[currentEventIdx].imageUrl)}
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/25 pointer-events-none"></div>
-                            </>
-                        ) : (
-                            <div className="absolute top-0 right-0 w-[60%] sm:w-[50%] h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
-                                <div className="absolute top-[-30%] right-[-10%] w-[100%] sm:w-[80%] pt-[100%] sm:pt-[80%] rounded-full border-[30px] sm:border-[50px] border-white"></div>
-                            </div>
-                        )}
+                    {/* Elevated Dark Card Carousel with Ambient Halo Glow */}
+                    <div className="relative w-full">
+                        {/* Dark Mode Ambient Halo Glow */}
+                        <div className="absolute -inset-1 bg-gradient-to-r from-gold-500/20 via-[#D19B45]/20 to-emerald-600/20 rounded-[2.2rem] blur-xl opacity-0 dark:opacity-75 -z-10 transition-opacity duration-700 pointer-events-none"></div>
 
-                        <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
-                            <div className="flex items-center gap-2 mb-3 flex-wrap">
-                                {eventsToDisplay[currentEventIdx]?.dateStr && (
-                                    <span className="inline-flex items-center bg-[#D19B45] text-[#2C3F21] text-xs sm:text-sm font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md">
-                                        <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5" />
-                                        {eventsToDisplay[currentEventIdx].dateStr}
+                        <div
+                            className="relative w-full rounded-[2rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-950 shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-800 aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group select-none"
+                            onMouseEnter={() => setIsEventHovered(true)}
+                            onMouseLeave={() => setIsEventHovered(false)}
+                            onTouchStart={handleEventTouchStart}
+                            onTouchMove={handleEventTouchMove}
+                            onTouchEnd={handleEventTouchEnd}
+                        >
+                            {eventsToDisplay[currentEventIdx]?.imageUrl ? (
+                                <>
+                                    <img
+                                        src={formatImageUrl(eventsToDisplay[currentEventIdx].imageUrl)}
+                                        alt="Event Background"
+                                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                                        referrerPolicy="no-referrer"
+                                        onError={(e) => handleImageErrorFallback(e, eventsToDisplay[currentEventIdx].imageUrl)}
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/25 pointer-events-none"></div>
+                                </>
+                            ) : (
+                                <div className="absolute top-0 right-0 w-[60%] sm:w-[50%] h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
+                                    <div className="absolute top-[-30%] right-[-10%] w-[100%] sm:w-[80%] pt-[100%] sm:pt-[80%] rounded-full border-[30px] sm:border-[50px] border-white"></div>
+                                </div>
+                            )}
+
+                            <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
+                                <div className="flex items-center gap-2 mb-3 flex-wrap">
+                                    {eventsToDisplay[currentEventIdx]?.dateStr && (
+                                        <span className="inline-flex items-center bg-[#D19B45] text-[#2C3F21] text-xs sm:text-sm font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md">
+                                            <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5" />
+                                            {eventsToDisplay[currentEventIdx].dateStr}
+                                        </span>
+                                    )}
+                                    <span className="inline-flex items-center bg-black/40 backdrop-blur-md text-white border border-white/20 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+                                        Acara Mendatang
                                     </span>
+                                </div>
+                                <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight text-white drop-shadow-md">
+                                    {eventsToDisplay[currentEventIdx]?.title || ''}
+                                </h3>
+                                {eventsToDisplay[currentEventIdx]?.location && (
+                                    <p className="text-xs sm:text-sm md:text-base text-gray-200 dark:text-navy-100 flex items-center font-medium opacity-95 drop-shadow">
+                                        <Icon name="MapPin" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0 text-[#D19B45] dark:text-gold-400" />
+                                        <span className="truncate">{eventsToDisplay[currentEventIdx].location}</span>
+                                    </p>
                                 )}
-                                <span className="inline-flex items-center bg-black/40 backdrop-blur-md text-white border border-white/20 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
-                                    Acara Mendatang
-                                </span>
+
+                                {/* Action Buttons: Google Calendar & WhatsApp */}
+                                <div className="flex items-center gap-2 mt-4 pt-1">
+                                    <a
+                                        href={createGoogleCalendarUrl(eventsToDisplay[currentEventIdx])}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 transition-all active:scale-95 shadow-sm"
+                                        title="Simpan Acara ke Google Calendar"
+                                    >
+                                        <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5 text-gold-300" />
+                                        + Kalender
+                                    </a>
+                                    <button
+                                        type="button"
+                                        onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
+                                        className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-[#25D366]/30 hover:bg-[#25D366]/50 backdrop-blur-md text-white border border-[#25D366]/40 transition-all active:scale-95 shadow-sm"
+                                        title="Bagikan Acara ke WhatsApp"
+                                    >
+                                        <Icon name="Share" className="w-3.5 h-3.5 mr-1.5 text-emerald-300" />
+                                        Bagikan WA
+                                    </button>
+                                </div>
                             </div>
-                            <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight text-white drop-shadow-md">
-                                {eventsToDisplay[currentEventIdx]?.title || ''}
-                            </h3>
-                            {eventsToDisplay[currentEventIdx]?.location && (
-                                <p className="text-xs sm:text-sm md:text-base text-gray-200 dark:text-navy-100 flex items-center font-medium opacity-95 drop-shadow">
-                                    <Icon name="MapPin" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0 text-[#D19B45] dark:text-gold-400" />
-                                    <span className="truncate">{eventsToDisplay[currentEventIdx].location}</span>
-                                </p>
+
+                            {/* Event Controls */}
+                            {eventsToDisplay.length > 1 && (
+                                <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-2 z-20">
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))}
+                                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-95 flex items-center justify-center transition-all backdrop-blur-md border border-white/20 text-white shadow-lg"
+                                        title="Acara Sebelumnya"
+                                        aria-label="Acara Sebelumnya"
+                                    >
+                                        <Icon name="ChevronLeft" className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))}
+                                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-95 flex items-center justify-center transition-all backdrop-blur-md border border-white/20 text-white shadow-lg"
+                                        title="Acara Selanjutnya"
+                                        aria-label="Acara Selanjutnya"
+                                    >
+                                        <Icon name="ChevronRight" className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Event Dots & Pause Button */}
+                            {eventsToDisplay.length > 1 && (
+                                <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/15 z-20 shadow-md">
+                                    {eventsToDisplay.map((_, idx) => (
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            onClick={() => setCurrentEventIdx(idx)}
+                                            className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-6 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'
+                                                }`}
+                                            aria-label={`Ke acara ${idx + 1}`}
+                                        />
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsEventPaused(prev => !prev)}
+                                        className="p-1 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors ml-1"
+                                        title={isEventPaused ? "Lanjutkan Slide" : "Jeda Slide"}
+                                        aria-label={isEventPaused ? "Lanjutkan Slide" : "Jeda Slide"}
+                                    >
+                                        <Icon name={isEventPaused ? "Play" : "Pause"} className="w-3 h-3" />
+                                    </button>
+                                </div>
                             )}
                         </div>
-
-                        {/* Event Controls */}
-                        {eventsToDisplay.length > 1 && (
-                            <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-2 z-20">
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))}
-                                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-95 flex items-center justify-center transition-all backdrop-blur-md border border-white/20 text-white shadow-lg"
-                                    title="Acara Sebelumnya"
-                                    aria-label="Acara Sebelumnya"
-                                >
-                                    <Icon name="ChevronLeft" className="w-4 h-4" />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))}
-                                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-95 flex items-center justify-center transition-all backdrop-blur-md border border-white/20 text-white shadow-lg"
-                                    title="Acara Selanjutnya"
-                                    aria-label="Acara Selanjutnya"
-                                >
-                                    <Icon name="ChevronRight" className="w-4 h-4" />
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Event Dots */}
-                        {eventsToDisplay.length > 1 && (
-                            <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/15 z-20 shadow-md">
-                                {eventsToDisplay.map((_, idx) => (
-                                    <button
-                                        key={idx}
-                                        type="button"
-                                        onClick={() => setCurrentEventIdx(idx)}
-                                        className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-6 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'
-                                            }`}
-                                        aria-label={`Ke acara ${idx + 1}`}
-                                    />
-                                ))}
-                            </div>
-                        )}
                     </div>
                 </>
             )}
@@ -1298,9 +1358,37 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab }) => {
     );
 };
 
+// ============================================================================
+// DAFTAR CAPTION TEKS UNTUK TIAP SLIDE HERO BANNER (DAPAT DIUBAH DI SINI)
+// ============================================================================
+const DEFAULT_HERO_CAPTIONS = [
+    {
+        badge: "Gereja Masehi Advent Hari Ketujuh",
+        title: "Temukan Damai Bersama Tuhan",
+        subtitle: "Jemaat Pisgah BISDAC, mari beribadah, melayani, dan bertumbuh dalam iman."
+    },
+    {
+        badge: "Ibadah & Sabat Suci",
+        title: "Bertumbuh Dalam Firman",
+        subtitle: "Bergabunglah dalam persekutuan doa, Sekolah Sabat, dan kebaktian bersama kami."
+    },
+    {
+        badge: "Komunitas Kasih",
+        title: "Satu Tubuh di Dalam Kristus",
+        subtitle: "Menebarkan kasih, sukacita, dan pengharapan bagi sesama dan keluarga."
+    },
+    {
+        badge: "Keluarga Allah",
+        title: "Melayani Dengan Sukacita",
+        subtitle: "Menjangkau jiwa dan mempersiapkan kedatangan Tuhan yang kedua kali."
+    }
+];
+
 const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, anthemTitle2, youtubeTitle, youtubeChannelTitle, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, perjamuanNote, perpuluhanNote, kontakGereja, carouselVideos = [], carouselEvents = [] }) => {
     const [currentSlide, setCurrentSlide] = React.useState(0);
     const [isHeroHovered, setIsHeroHovered] = React.useState(false);
+    const [isHeroPaused, setIsHeroPaused] = React.useState(false);
+    const [playingVideoIdx, setPlayingVideoIdx] = React.useState(null);
     const heroTouchStartX = React.useRef(0);
     const heroTouchEndX = React.useRef(0);
     const [tappedMenu, setTappedMenu] = React.useState(null);
@@ -1386,7 +1474,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
     // Auto scroll dinamis: hanya berjalan jika konten melebihi lebar layar
     React.useEffect(() => {
-        if (!carouselVideos || carouselVideos.length <= 1 || isVideoHovered) return;
+        if (!carouselVideos || carouselVideos.length <= 1 || isVideoHovered || playingVideoIdx !== null) return;
         const interval = setInterval(() => {
             if (videoCarouselRef.current) {
                 const el = videoCarouselRef.current;
@@ -1398,7 +1486,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
             }
         }, 5000);
         return () => clearInterval(interval);
-    }, [carouselVideos, isVideoHovered, currentVideoIdx]);
+    }, [carouselVideos, isVideoHovered, currentVideoIdx, playingVideoIdx]);
 
     const scrollVideoCarousel = (direction) => {
         if (!videoCarouselRef.current) return;
@@ -1431,12 +1519,12 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     }, [displayImages.length]);
 
     React.useEffect(() => {
-        if (displayImages.length <= 1 || isHeroHovered) return;
+        if (displayImages.length <= 1 || isHeroHovered || isHeroPaused) return;
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % displayImages.length);
         }, 6000);
         return () => clearInterval(timer);
-    }, [displayImages.length, isHeroHovered]);
+    }, [displayImages.length, isHeroHovered, isHeroPaused]);
 
     const isPengumumanReallyEmpty = () => {
         if (!pengumuman || !pengumuman.isi) return true;
@@ -1497,112 +1585,138 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                 <div className="pt-6 px-4 md:px-8 lg:px-[6vw] w-full mx-auto relative z-10">
 
-                    {/* HERO SECTION */}
-                    <div
-                        className="relative rounded-[2rem] overflow-hidden shadow-2xl border-4 border-[#E2E8D8] dark:border-navy-700 aspect-[4/5] sm:aspect-square md:aspect-[4/3] lg:aspect-[21/9] w-full bg-[#E5E9D8] dark:bg-navy-800 transition-colors duration-500 group select-none"
-                        onMouseEnter={() => setIsHeroHovered(true)}
-                        onMouseLeave={() => setIsHeroHovered(false)}
-                        onTouchStart={handleHeroTouchStart}
-                        onTouchMove={handleHeroTouchMove}
-                        onTouchEnd={handleHeroTouchEnd}
-                    >
+                    {/* HERO SECTION WITH AMBIENT HALO GLOW */}
+                    <div className="relative w-full">
+                        {/* Dark Mode Ambient Halo Glow */}
+                        <div className="absolute -inset-1.5 bg-gradient-to-r from-emerald-600/20 via-gold-500/20 to-emerald-600/20 rounded-[2.3rem] blur-2xl opacity-0 dark:opacity-75 -z-10 transition-opacity duration-700 pointer-events-none"></div>
+
                         <div
-                            className="w-full h-full flex transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]"
-                            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                            className="relative rounded-[2rem] overflow-hidden shadow-2xl border-4 border-[#E2E8D8] dark:border-navy-700 aspect-[4/5] sm:aspect-square md:aspect-[4/3] lg:aspect-[21/9] w-full bg-[#E5E9D8] dark:bg-navy-800 transition-colors duration-500 group select-none"
+                            onMouseEnter={() => setIsHeroHovered(true)}
+                            onMouseLeave={() => setIsHeroHovered(false)}
+                            onTouchStart={handleHeroTouchStart}
+                            onTouchMove={handleHeroTouchMove}
+                            onTouchEnd={handleHeroTouchEnd}
                         >
-                            {displayImages.map((img, idx) => (
-                                <div key={idx} className="w-full h-full flex-shrink-0 relative overflow-hidden">
-                                    <img
-                                        src={formatImageUrl(img)}
-                                        referrerPolicy="no-referrer"
-                                        loading={idx === 0 ? "eager" : "lazy"}
-                                        decoding="async"
-                                        onError={(e) => {
-                                            const driveId = getGoogleDriveFileId(img);
-                                            if (driveId && e.target && e.target.src.includes('lh3.googleusercontent.com')) {
-                                                e.target.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`;
-                                            } else {
-                                                e.target.src = "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=2000&auto=format&fit=crop";
-                                            }
-                                        }}
-                                        alt={`Hero ${idx}`}
-                                        className={`w-full h-full object-cover object-center transition-transform duration-[6500ms] ease-out ${currentSlide === idx ? 'scale-105' : 'scale-100'
-                                            }`}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Multi-Stop Cinematic Scrim & Vignette */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/65 z-10 pointer-events-none"></div>
-
-                        {/* Content */}
-                        <div className="absolute top-[6%] md:top-[8%] lg:top-[11%] left-1/2 -translate-x-1/2 w-full max-w-[90%] md:max-w-3xl flex flex-col items-center text-center z-20 pb-6 md:pb-10 lg:pb-12 pointer-events-none">
-                            <div className="hidden md:inline-flex bg-black/35 backdrop-blur-md text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-full items-center mb-5 border border-white/20 shadow-md">
-                                <Icon name="Home" className="w-4 h-4 mr-2 text-[#D19B45] dark:text-gold-400" /> Gereja Masehi Advent Hari Ketujuh
+                            <div
+                                className="w-full h-full flex transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                            >
+                                {displayImages.map((img, idx) => {
+                                    const imgSrc = typeof img === 'object' ? (img.url || img.imageUrl || '') : img;
+                                    return (
+                                        <div key={idx} className="w-full h-full flex-shrink-0 relative overflow-hidden">
+                                            <img
+                                                src={formatImageUrl(imgSrc)}
+                                                referrerPolicy="no-referrer"
+                                                loading={idx === 0 ? "eager" : "lazy"}
+                                                decoding="async"
+                                                onError={(e) => {
+                                                    const driveId = getGoogleDriveFileId(imgSrc);
+                                                    if (driveId && e.target && e.target.src.includes('lh3.googleusercontent.com')) {
+                                                        e.target.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`;
+                                                    } else {
+                                                        e.target.src = "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=2000&auto=format&fit=crop";
+                                                    }
+                                                }}
+                                                alt={`Hero ${idx}`}
+                                                className={`w-full h-full object-cover object-center transition-transform duration-[6500ms] ease-out ${currentSlide === idx ? 'scale-105' : 'scale-100'
+                                                    }`}
+                                            />
+                                        </div>
+                                    );
+                                })}
                             </div>
-                            <div className="md:hidden bg-black/35 backdrop-blur-md text-white text-[10px] font-semibold px-3.5 py-1.5 rounded-full inline-flex items-center mb-3 w-max border border-white/20 shadow-md">
-                                <Icon name="Home" className="w-3.5 h-3.5 mr-1.5 text-[#D19B45] dark:text-gold-400" /> GMAHK Pisgah
-                            </div>
-                            <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.15] mb-3 md:mb-5 tracking-tight drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]">
-                                Temukan Damai<br className="hidden md:block" /> Bersama Tuhan
-                            </h1>
-                            <p className="text-white/95 text-xs md:text-lg mb-4 md:mb-6 leading-relaxed font-medium max-w-2xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                                Jemaat Pisgah BISDAC, mari beribadah, melayani, dan bertumbuh dalam iman.
-                            </p>
-                        </div>
 
-                        {/* Carousel Controls */}
-                        {displayImages.length > 1 && (
-                            <>
-                                {/* Tombol Panah Manual Kiri & Kanan */}
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentSlide(prev => (prev === 0 ? displayImages.length - 1 : prev - 1))}
-                                    className="absolute top-1/2 -translate-y-1/2 left-3 sm:left-5 md:left-8 w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-black/30 hover:bg-black/60 active:scale-90 text-white backdrop-blur-xl border border-white/25 hover:border-white/50 flex items-center justify-center transition-all duration-300 shadow-2xl z-30 group"
-                                    title="Slide Sebelumnya"
-                                    aria-label="Previous Slide"
-                                >
-                                    <Icon name="ChevronLeft" className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:-translate-x-0.5 transition-transform" />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentSlide(prev => (prev + 1) % displayImages.length)}
-                                    className="absolute top-1/2 -translate-y-1/2 right-3 sm:right-5 md:right-8 w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-black/30 hover:bg-black/60 active:scale-90 text-white backdrop-blur-xl border border-white/25 hover:border-white/50 flex items-center justify-center transition-all duration-300 shadow-2xl z-30 group"
-                                    title="Slide Berikutnya"
-                                    aria-label="Next Slide"
-                                >
-                                    <Icon name="ChevronRight" className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
-                                </button>
+                            {/* Multi-Stop Cinematic Scrim & Vignette */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/65 z-10 pointer-events-none"></div>
 
-                                {/* Story-Style Progress Bar Indicators */}
-                                <div className="absolute bottom-10 md:bottom-14 lg:bottom-24 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 z-20 shadow-xl">
-                                    {displayImages.map((_, idx) => (
+                            {/* Dynamic Content Caption */}
+                            {(() => {
+                                const curImg = displayImages[currentSlide];
+                                const slideDefault = DEFAULT_HERO_CAPTIONS[currentSlide % DEFAULT_HERO_CAPTIONS.length] || DEFAULT_HERO_CAPTIONS[0];
+                                const sTitle = (typeof curImg === 'object' && curImg?.title) ? curImg.title : slideDefault.title;
+                                const sSubtitle = (typeof curImg === 'object' && curImg?.subtitle) ? curImg.subtitle : slideDefault.subtitle;
+                                const sBadge = (typeof curImg === 'object' && curImg?.badge) ? curImg.badge : slideDefault.badge;
+                                return (
+                                    <div key={`hero-text-${currentSlide}`} className="absolute top-[6%] md:top-[8%] lg:top-[11%] left-1/2 -translate-x-1/2 w-full max-w-[90%] md:max-w-3xl flex flex-col items-center text-center z-20 pb-6 md:pb-10 lg:pb-12 pointer-events-none transition-all duration-700 animate-fade-in">
+                                        <div className="hidden md:inline-flex bg-black/35 backdrop-blur-md text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-full items-center mb-5 border border-white/20 shadow-md">
+                                            <Icon name="Home" className="w-4 h-4 mr-2 text-[#D19B45] dark:text-gold-400" /> {sBadge}
+                                        </div>
+                                        <div className="md:hidden bg-black/35 backdrop-blur-md text-white text-[10px] font-semibold px-3.5 py-1.5 rounded-full inline-flex items-center mb-3 w-max border border-white/20 shadow-md">
+                                            <Icon name="Home" className="w-3.5 h-3.5 mr-1.5 text-[#D19B45] dark:text-gold-400" /> {sBadge}
+                                        </div>
+                                        <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.15] mb-3 md:mb-5 tracking-tight drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]">
+                                            {sTitle}
+                                        </h1>
+                                        <p className="text-white/95 text-xs md:text-lg mb-4 md:mb-6 leading-relaxed font-medium max-w-2xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                                            {sSubtitle}
+                                        </p>
+                                    </div>
+                                );
+                            })()}
+
+                            {/* Carousel Controls */}
+                            {displayImages.length > 1 && (
+                                <>
+                                    {/* Tombol Panah Manual Kiri & Kanan */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentSlide(prev => (prev === 0 ? displayImages.length - 1 : prev - 1))}
+                                        className="absolute top-1/2 -translate-y-1/2 left-3 sm:left-5 md:left-8 w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-black/30 hover:bg-black/60 active:scale-90 text-white backdrop-blur-xl border border-white/25 hover:border-white/50 flex items-center justify-center transition-all duration-300 shadow-2xl z-30 group"
+                                        title="Slide Sebelumnya"
+                                        aria-label="Previous Slide"
+                                    >
+                                        <Icon name="ChevronLeft" className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:-translate-x-0.5 transition-transform" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentSlide(prev => (prev + 1) % displayImages.length)}
+                                        className="absolute top-1/2 -translate-y-1/2 right-3 sm:right-5 md:right-8 w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-black/30 hover:bg-black/60 active:scale-90 text-white backdrop-blur-xl border border-white/25 hover:border-white/50 flex items-center justify-center transition-all duration-300 shadow-2xl z-30 group"
+                                        title="Slide Berikutnya"
+                                        aria-label="Next Slide"
+                                    >
+                                        <Icon name="ChevronRight" className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
+                                    </button>
+
+                                    {/* Story-Style Progress Bar Indicators with Pause Toggle */}
+                                    <div className="absolute bottom-10 md:bottom-14 lg:bottom-24 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 z-20 shadow-xl">
+                                        {displayImages.map((_, idx) => (
+                                            <button
+                                                key={idx}
+                                                type="button"
+                                                onClick={() => setCurrentSlide(idx)}
+                                                className={`h-2 rounded-full transition-all duration-500 overflow-hidden relative ${currentSlide === idx
+                                                    ? 'w-10 sm:w-14 bg-white/30'
+                                                    : 'w-2.5 sm:w-3 bg-white/40 hover:bg-white/70'
+                                                    }`}
+                                                title={`Slide ${idx + 1}`}
+                                                aria-label={`Ke Slide ${idx + 1}`}
+                                            >
+                                                {currentSlide === idx && (
+                                                    <span
+                                                        key={`hero-bar-${idx}-${currentSlide}`}
+                                                        className={`absolute inset-0 bg-gradient-to-r from-[#D19B45] via-gold-400 to-[#E5B558] rounded-full ${isHeroPaused ? 'w-full' : 'animate-hero-progress'}`}
+                                                    />
+                                                )}
+                                            </button>
+                                        ))}
+                                        <span className="text-[10px] sm:text-xs font-black text-white/90 ml-1 select-none tabular-nums tracking-wider">
+                                            {currentSlide + 1}<span className="text-white/50 mx-0.5">/</span>{displayImages.length}
+                                        </span>
                                         <button
-                                            key={idx}
                                             type="button"
-                                            onClick={() => setCurrentSlide(idx)}
-                                            className={`h-2 rounded-full transition-all duration-500 overflow-hidden relative ${currentSlide === idx
-                                                ? 'w-10 sm:w-14 bg-white/30'
-                                                : 'w-2.5 sm:w-3 bg-white/40 hover:bg-white/70'
-                                                }`}
-                                            title={`Slide ${idx + 1}`}
-                                            aria-label={`Ke Slide ${idx + 1}`}
+                                            onClick={() => setIsHeroPaused(prev => !prev)}
+                                            className="p-1 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors ml-1"
+                                            title={isHeroPaused ? "Lanjutkan Slide" : "Jeda Slide"}
+                                            aria-label={isHeroPaused ? "Lanjutkan Slide" : "Jeda Slide"}
                                         >
-                                            {currentSlide === idx && (
-                                                <span
-                                                    key={`hero-bar-${idx}-${currentSlide}`}
-                                                    className="absolute inset-0 bg-gradient-to-r from-[#D19B45] via-gold-400 to-[#E5B558] rounded-full animate-hero-progress"
-                                                />
-                                            )}
+                                            <Icon name={isHeroPaused ? "Play" : "Pause"} className="w-3 h-3" />
                                         </button>
-                                    ))}
-                                    <span className="text-[10px] sm:text-xs font-black text-white/90 ml-1 select-none tabular-nums tracking-wider">
-                                        {currentSlide + 1}<span className="text-white/50 mx-0.5">/</span>{displayImages.length}
-                                    </span>
-                                </div>
-                            </>
-                        )}
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
 
                     {/* OVERLAPPING QUICK ACTIONS PILL WITH SMOOTH TAB */}
@@ -1723,6 +1837,29 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                             <Icon name="MapPin" className="w-3.5 h-3.5 mr-1.5 shrink-0 text-[#D19B45]" />
                                             <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span>
                                         </p>
+
+                                        {/* Quick Actions: Google Calendar & WhatsApp */}
+                                        <div className="flex items-center gap-2 mt-3 pt-0.5">
+                                            <a
+                                                href={createGoogleCalendarUrl(eventsToDisplay[currentEventIdx])}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 transition-all active:scale-95 shadow-sm"
+                                                title="Simpan Acara ke Google Calendar"
+                                            >
+                                                <Icon name="Calendar" className="w-3 h-3 mr-1 text-gold-300" />
+                                                + Kalender
+                                            </a>
+                                            <button
+                                                type="button"
+                                                onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
+                                                className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-lg bg-[#25D366]/30 hover:bg-[#25D366]/50 backdrop-blur-md text-white border border-[#25D366]/40 transition-all active:scale-95 shadow-sm"
+                                                title="Bagikan Acara ke WhatsApp"
+                                            >
+                                                <Icon name="Share" className="w-3 h-3 mr-1 text-emerald-300" />
+                                                Bagikan WA
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div className="absolute top-3.5 right-3.5 flex gap-1.5 z-20">
@@ -1943,84 +2080,132 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                 </div>
                             )}
 
-                            {/* Video Carousel */}
+                            {/* Video Carousel with Ambient Halo Glow */}
                             {carouselVideos && carouselVideos.length > 0 && (
-                                <div
-                                    className="mb-4 relative group w-full"
-                                    onMouseEnter={() => setIsVideoHovered(true)}
-                                    onMouseLeave={() => setIsVideoHovered(false)}
-                                    onTouchStart={() => setIsVideoHovered(true)}
-                                    onTouchEnd={() => { setTimeout(() => setIsVideoHovered(false), 5000); }}
-                                >
-                                    <div className="flex items-center justify-between mb-6 px-1">
-                                        <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-gold-400 transition-colors flex items-center">
-                                            <Icon name="Video" className="w-5 h-5 md:w-6 md:h-6 mr-2.5 text-[#D19B45] dark:text-gold-500" /> Galeri Video
-                                        </h3>
+                                <div className="relative w-full">
+                                    {/* Dark Mode Ambient Halo Glow */}
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-red-600/10 via-gold-500/15 to-emerald-600/10 rounded-[2.2rem] blur-xl opacity-0 dark:opacity-75 -z-10 transition-opacity duration-700 pointer-events-none"></div>
+
+                                    <div
+                                        className="mb-4 relative group w-full"
+                                        onMouseEnter={() => setIsVideoHovered(true)}
+                                        onMouseLeave={() => setIsVideoHovered(false)}
+                                        onTouchStart={() => setIsVideoHovered(true)}
+                                        onTouchEnd={() => { setTimeout(() => setIsVideoHovered(false), 5000); }}
+                                    >
+                                        <div className="flex items-center justify-between mb-6 px-1">
+                                            <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-gold-400 transition-colors flex items-center">
+                                                <Icon name="Video" className="w-5 h-5 md:w-6 md:h-6 mr-2.5 text-[#D19B45] dark:text-gold-500" /> Galeri Video
+                                            </h3>
+                                            {carouselVideos.length > 1 && (
+                                                <span className="text-xs font-bold text-[#596B4D] dark:text-gold-300/80 bg-[#E2E8D8]/70 dark:bg-navy-900 px-3 py-1 rounded-full border border-[#D0DAC5] dark:border-navy-700">
+                                                    {currentVideoIdx + 1} dari {carouselVideos.length} Video
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div
+                                            ref={videoCarouselRef}
+                                            onScroll={handleVideoScroll}
+                                            className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-4 w-full no-scrollbar md:custom-scrollbar scroll-smooth"
+                                        >
+                                            {carouselVideos.map((video, idx) => {
+                                                const isPlaying = playingVideoIdx === idx;
+                                                const ytid = getYouTubeVideoId(video.url);
+                                                const posterUrl = ytid ? `https://img.youtube.com/vi/${ytid}/hqdefault.jpg` : null;
+
+                                                return (
+                                                    <div
+                                                        key={idx}
+                                                        className={`snap-start snap-always shrink-0 ${carouselVideos.length <= 1
+                                                            ? 'w-full'
+                                                            : carouselVideos.length === 2
+                                                                ? 'w-full md:w-[calc(50%-10px)]'
+                                                                : 'w-full md:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)]'
+                                                            } rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 hover:border-[#D19B45]/50 dark:hover:border-gold-500/50 p-4 transition-all duration-300 flex flex-col shadow-sm hover:shadow-xl hover:-translate-y-1.5 group/card`}
+                                                    >
+                                                        <h4 className="text-base font-extrabold mb-3 text-[#2C3F21] dark:text-gold-400 flex items-center px-1 transition-colors truncate">
+                                                            <Icon name="Video" className="w-4 h-4 mr-2 shrink-0 text-[#D19B45] dark:text-gold-500" />
+                                                            <span className="truncate">{video.title}</span>
+                                                        </h4>
+                                                        <div className="relative w-full overflow-hidden rounded-[1.25rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors shadow-inner border border-[#E2E8D8]/60 dark:border-navy-800/80" style={{ paddingTop: '56.25%' }}>
+                                                            {isPlaying ? (
+                                                                <iframe
+                                                                    className="absolute top-0 left-0 w-full h-full"
+                                                                    src={`${video.url}${video.url?.includes('?') ? '&' : '?'}autoplay=1&vq=hd1080`}
+                                                                    title={video.title}
+                                                                    frameBorder="0"
+                                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                    allowFullScreen
+                                                                />
+                                                            ) : (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setPlayingVideoIdx(idx)}
+                                                                    className="absolute inset-0 w-full h-full flex items-center justify-center group/play cursor-pointer focus:outline-none"
+                                                                    aria-label={`Putar ${video.title}`}
+                                                                >
+                                                                    {posterUrl ? (
+                                                                        <img
+                                                                            src={posterUrl}
+                                                                            alt={video.title}
+                                                                            loading="lazy"
+                                                                            decoding="async"
+                                                                            className="w-full h-full object-cover group-hover/play:scale-105 transition-transform duration-500"
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="w-full h-full bg-gradient-to-br from-[#2C3F21] to-[#1F2C17] dark:from-navy-950 dark:to-navy-900 flex items-center justify-center">
+                                                                            <Icon name="Video" className="w-14 h-14 text-white/20" />
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="absolute inset-0 bg-black/30 group-hover/play:bg-black/15 transition-colors"></div>
+                                                                    <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full bg-red-600/90 text-white flex items-center justify-center shadow-2xl backdrop-blur-sm group-hover/play:scale-110 group-active/play:scale-95 transition-all duration-300 border-2 border-white/50">
+                                                                        <Icon name="Play" className="w-5 h-5 md:w-6 md:h-6 ml-0.5" />
+                                                                    </div>
+                                                                    <span className="absolute bottom-2.5 left-2.5 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/20">
+                                                                        Klik untuk Putar
+                                                                    </span>
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                        {/* Navigation Buttons & Dots Indicator */}
                                         {carouselVideos.length > 1 && (
-                                            <span className="text-xs font-bold text-[#596B4D] dark:text-gold-300/80 bg-[#E2E8D8]/70 dark:bg-navy-900 px-3 py-1 rounded-full border border-[#D0DAC5] dark:border-navy-700">
-                                                {currentVideoIdx + 1} dari {carouselVideos.length} Video
-                                            </span>
+                                            <div className="flex justify-center items-center gap-4 mt-5">
+                                                <button
+                                                    onClick={() => scrollVideoCarousel('left')}
+                                                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 hover:scale-105 active:scale-95 transition-all shadow-md"
+                                                    aria-label="Video Sebelumnya"
+                                                >
+                                                    <Icon name="ChevronLeft" className="w-4 h-4" />
+                                                </button>
+
+                                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E9EEDF]/60 dark:bg-navy-900/80 border border-[#E2E8D8] dark:border-navy-700 shadow-inner">
+                                                    {carouselVideos.map((_, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={() => scrollToVideoIdx(idx)}
+                                                            className={`h-2 rounded-full transition-all duration-300 ${idx === currentVideoIdx
+                                                                ? 'w-7 bg-gradient-to-r from-[#D19B45] to-gold-400 shadow-sm'
+                                                                : 'w-2 bg-gray-300 dark:bg-navy-700 hover:bg-gray-400 dark:hover:bg-navy-600'
+                                                                }`}
+                                                            aria-label={`Ke video ${idx + 1}`}
+                                                        />
+                                                    ))}
+                                                </div>
+
+                                                <button
+                                                    onClick={() => scrollVideoCarousel('right')}
+                                                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 hover:scale-105 active:scale-95 transition-all shadow-md"
+                                                    aria-label="Video Selanjutnya"
+                                                >
+                                                    <Icon name="ChevronRight" className="w-4 h-4" />
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
-                                    <div
-                                        ref={videoCarouselRef}
-                                        onScroll={handleVideoScroll}
-                                        className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-4 w-full no-scrollbar md:custom-scrollbar scroll-smooth"
-                                    >
-                                        {carouselVideos.map((video, idx) => (
-                                            <div
-                                                key={idx}
-                                                className={`snap-start snap-always shrink-0 ${carouselVideos.length <= 1
-                                                    ? 'w-full'
-                                                    : carouselVideos.length === 2
-                                                        ? 'w-full md:w-[calc(50%-10px)]'
-                                                        : 'w-full md:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)]'
-                                                    } rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 hover:border-[#D19B45]/50 dark:hover:border-gold-500/50 p-4 transition-all duration-300 flex flex-col shadow-sm hover:shadow-xl hover:-translate-y-1.5 group/card`}
-                                            >
-                                                <h4 className="text-base font-extrabold mb-3 text-[#2C3F21] dark:text-gold-400 flex items-center px-1 transition-colors truncate">
-                                                    <Icon name="Video" className="w-4 h-4 mr-2 shrink-0 text-[#D19B45] dark:text-gold-500" />
-                                                    <span className="truncate">{video.title}</span>
-                                                </h4>
-                                                <div className="relative w-full overflow-hidden rounded-[1.25rem] bg-[#E9EEDF] dark:bg-navy-900 transition-colors shadow-inner border border-[#E2E8D8]/60 dark:border-navy-800/80" style={{ paddingTop: '56.25%' }}>
-                                                    <iframe className="absolute top-0 left-0 w-full h-full" src={`${video.url}${video.url?.includes('?') ? '&' : '?'}vq=hd1080`} title={video.title} frameBorder="0" allowFullScreen></iframe>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    {/* Navigation Buttons & Dots Indicator */}
-                                    {carouselVideos.length > 1 && (
-                                        <div className="flex justify-center items-center gap-4 mt-5">
-                                            <button
-                                                onClick={() => scrollVideoCarousel('left')}
-                                                className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 hover:scale-105 active:scale-95 transition-all shadow-md"
-                                                aria-label="Video Sebelumnya"
-                                            >
-                                                <Icon name="ChevronLeft" className="w-4 h-4" />
-                                            </button>
-
-                                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E9EEDF]/60 dark:bg-navy-900/80 border border-[#E2E8D8] dark:border-navy-700 shadow-inner">
-                                                {carouselVideos.map((_, idx) => (
-                                                    <button
-                                                        key={idx}
-                                                        onClick={() => scrollToVideoIdx(idx)}
-                                                        className={`h-2 rounded-full transition-all duration-300 ${idx === currentVideoIdx
-                                                            ? 'w-7 bg-gradient-to-r from-[#D19B45] to-gold-400 shadow-sm'
-                                                            : 'w-2 bg-gray-300 dark:bg-navy-700 hover:bg-gray-400 dark:hover:bg-navy-600'
-                                                            }`}
-                                                        aria-label={`Ke video ${idx + 1}`}
-                                                    />
-                                                ))}
-                                            </div>
-
-                                            <button
-                                                onClick={() => scrollVideoCarousel('right')}
-                                                className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-gold-400 hover:bg-[#E9EEDF] dark:hover:bg-navy-800 hover:scale-105 active:scale-95 transition-all shadow-md"
-                                                aria-label="Video Selanjutnya"
-                                            >
-                                                <Icon name="ChevronRight" className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    )}
                                 </div>
                             )}
                         </div>
@@ -6652,3471 +6837,5 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                     <label className="block text-xs font-bold text-navy-600 dark:text-gray-300 mb-1">Judul Video #{idx + 1}</label>
                                                     <input type="text" value={vid.title} onChange={(e) => { const newArr = [...editCarouselVideos]; newArr[idx].title = e.target.value; setEditCarouselVideos(newArr); }} className="w-full border-2 border-navy-100 dark:border-navy-700 dark:bg-navy-900 dark:text-gray-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: Adventist Church Anthem / Video Khotbah" required />
                                                 </div>
-                                                <div>
-                                                    <label className="block text-xs font-bold text-navy-600 dark:text-gray-300 mb-1">URL YouTube Embed</label>
-                                                    <input type="text" value={vid.url} onChange={(e) => { const newArr = [...editCarouselVideos]; newArr[idx].url = e.target.value; setEditCarouselVideos(newArr); }} className="w-full border-2 border-navy-100 dark:border-navy-700 dark:bg-navy-900 dark:text-gray-100 rounded-xl px-3 py-2 text-sm font-mono focus:border-gold-400 focus:outline-none" placeholder="Cth: https://www.youtube.com/embed/..." required />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-
-                                    <button type="button" onClick={() => setEditCarouselVideos([...editCarouselVideos, { title: "", url: "" }])} className="w-full border-2 border-dashed border-navy-200 dark:border-navy-700 text-navy-600 dark:text-gray-300 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 dark:hover:bg-navy-800 hover:text-navy-900 dark:hover:text-gold-400 transition flex justify-center items-center">
-                                        <Icon name="PlusCircle" className="w-4 h-4 mr-2" /> Tambah Video ke Galeri
-                                    </button>
-
-                                    <p className="text-[10px] text-navy-500 dark:text-gray-400 mt-2 font-bold leading-relaxed bg-navy-50 dark:bg-navy-950 p-2.5 rounded-lg border border-navy-100 dark:border-navy-800">
-                                        Video yang ditambahkan di sini akan tampil secara berurutan pada slider <strong>Galeri Video</strong> di halaman Beranda. Pastikan URL berupa link embed YouTube (<span className="text-gold-600 dark:text-gold-400">https://www.youtube.com/embed/...</span>).
-                                    </p>
-
-                                    <button type="submit" disabled={isSavingCarouselVideos} className={`w-full ${isSavingCarouselVideos ? 'bg-navy-300 dark:bg-navy-800 text-navy-500 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
-                                        {isSavingCarouselVideos ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Galeri Video'}
-                                    </button>
-                                </form>
-                            </div>
-                        )}
-
-                        {/* --- FORM LIVE YOUTUBE URL --- */}
-                        {pengaturanSubTab === 'live' && (
-                            <div className="bg-white dark:bg-navy-900 border border-navy-100/60 dark:border-navy-700 rounded-[1.5rem] p-6 shadow-sm mt-6">
-                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 dark:border-navy-800 pb-5">
-                                    <div className="w-12 h-12 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-500 shadow-inner"><Icon name="Video" className="w-6 h-6" /></div>
-                                    <div><h3 className="font-black text-navy-900 dark:text-gold-400 text-lg tracking-tight">URL Live Streaming</h3><p className="text-xs text-navy-500 dark:text-gray-400 font-bold uppercase tracking-widest mt-1">Halaman Live Ibadah Gereja</p></div>
-                                </div>
-                                <form onSubmit={handleSaveLiveUrl}>
-                                    <label className="block text-xs font-bold text-navy-700 dark:text-gray-200 mb-2 uppercase tracking-widest">Tautan Live (Embed)</label>
-                                    <textarea value={editLiveUrl} onChange={e => setEditLiveUrl(e.target.value)} required rows="3" className="w-full p-3.5 border border-navy-200 dark:border-navy-700 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 dark:bg-navy-950 text-sm font-mono font-medium dark:text-gray-100 shadow-sm leading-relaxed"></textarea>
-                                    <p className="text-[10px] text-navy-500 dark:text-gray-400 mt-2 font-bold leading-relaxed bg-navy-50 dark:bg-navy-950 p-2.5 rounded-lg border border-navy-100 dark:border-navy-800">Pastikan URL diawali dengan <br />
-                                        <span className="text-gold-600 dark:text-gold-400">https://www.youtube.com/embed/</span>...<br />
-                                        <span className="text-gold-600 dark:text-gold-400">https://www.youtube-nocookie.com/embed/</span>...<br />
-                                        <span className="text-gold-600 dark:text-gold-400">https://www.youtube.com/embed/live_stream?channel=</span>...
-                                    </p>
-                                    <button type="submit" disabled={isSavingLiveUrl} className="w-full bg-navy-900 dark:bg-gold-500 hover:bg-navy-800 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-900 font-bold py-3.5 rounded-xl transition-all mt-6 flex justify-center items-center shadow-md hover:shadow-lg">
-                                        {isSavingLiveUrl ? 'Menyimpan...' : 'Simpan URL Live'}
-                                    </button>
-                                </form>
-                            </div>
-                        )}
-
-                        {/* --- FORM Hero-Image --- */}
-                        {pengaturanSubTab === 'carousel' && (
-                            <>
-                                <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-                                    <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                        <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><Icon name="Image" className="w-6 h-6" /></div>
-                                        <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Hero Image Banner</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Gambar Carousel Homepage</p></div>
-                                    </div>
-                                    <div className="mb-5 grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        {editHeroImages.map((img, idx) => (
-                                            <div key={idx} className="relative w-full overflow-hidden rounded-xl border border-navy-100 shadow-sm aspect-video">
-                                                <img src={img} alt={`Hero Preview ${idx + 1}`} className="w-full h-full object-fill bg-navy-50" />
-                                                <div className="absolute top-0 left-0 bg-black/60 text-white px-3 py-1 rounded-br-lg text-xs font-bold shadow-sm backdrop-blur-sm">
-                                                    Slide {idx + 1} {img.startsWith('data:image') && <span className="text-gold-400 ml-1 font-black tracking-widest">(BARU)</span>}
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRemoveHeroImage(idx)}
-                                                    className="absolute top-2 right-2 bg-red-500/90 text-white p-2.5 rounded-full hover:bg-red-600 shadow-md transition-colors backdrop-blur-md"
-                                                    title="Hapus gambar ini"
-                                                >
-                                                    <Icon name="Trash" className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <form onSubmit={handleSaveHeroImage} className="space-y-4">
-                                        <div className="flex flex-col sm:flex-row gap-3 items-stretch">
-                                            <label className="flex-1 flex items-center justify-center bg-navy-50 border-2 border-dashed border-navy-200 rounded-xl py-3 px-4 cursor-pointer hover:border-gold-400 hover:bg-gold-50 transition-all group">
-                                                <Icon name="Upload" className="w-5 h-5 mr-2 text-navy-400 group-hover:text-gold-500 transition-colors" />
-                                                <span className="text-sm font-bold text-navy-500 group-hover:text-gold-600 transition-colors">Upload Baru...</span>
-                                                <input type="file" accept="image/*" className="hidden" onChange={handleHeroFileUpload} />
-                                            </label>
-                                            <button type="button" onClick={handleAddHeroUrl} className="flex-1 bg-white border border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
-                                                <Icon name="PlusCircle" className="w-4 h-4 mr-2" />
-                                                Tambah via URL
-                                            </button>
-                                        </div>
-                                        <button type="submit" disabled={isSavingHero} className={`w-full ${isSavingHero ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
-                                            {isSavingHero ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Perubahan Carousel'}
-                                        </button>
-                                    </form>
-                                </div>
-
-                                {/* --- FORM CAROUSEL EVENTS (ACARA TERDEKAT) --- */}
-                                <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm mt-6">
-                                    <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                        <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-500 shadow-inner"><Icon name="Calendar" className="w-6 h-6" /></div>
-                                        <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Acara Terdekat</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Acara pada Jadwal & Home</p></div>
-                                    </div>
-                                    <form onSubmit={handleSaveCarouselEvents} className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {editCarouselEvents.map((evt, idx) => (
-                                                <div key={idx} className="p-4 sm:p-5 border border-navy-100 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between">
-                                                    <div className="flex items-center justify-between border-b border-navy-50 pb-2.5 mb-3">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="w-6 h-6 rounded-full bg-green-50 text-green-600 flex items-center justify-center text-xs font-black">
-                                                                {idx + 1}
-                                                            </span>
-                                                            <span className="text-xs font-black text-navy-800 tracking-tight uppercase">
-                                                                Acara #{idx + 1}
-                                                            </span>
-                                                        </div>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setEditCarouselEvents(editCarouselEvents.filter((_, i) => i !== idx))}
-                                                            className="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg px-2.5 py-1 text-xs font-bold transition flex items-center gap-1"
-                                                            title="Hapus Acara ini"
-                                                        >
-                                                            <Icon name="Trash" className="w-3.5 h-3.5" /> Hapus
-                                                        </button>
-                                                    </div>
-                                                    <div className="space-y-3">
-                                                        <div>
-                                                            <label className="block text-xs font-bold text-navy-600 mb-1">Tanggal Acara</label>
-                                                            <input type="text" value={evt.dateStr} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].dateStr = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: 31 OKTOBER 2026" required />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-xs font-bold text-navy-600 mb-1">Judul Acara</label>
-                                                            <input type="text" value={evt.title} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].title = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: Perayaan Ulang Tahun Jemaat" required />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-xs font-bold text-navy-600 mb-1">Lokasi</label>
-                                                            <input type="text" value={evt.location} onChange={(e) => { const newArr = [...editCarouselEvents]; newArr[idx].location = e.target.value; setEditCarouselEvents(newArr); }} className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-sm focus:border-gold-400 focus:outline-none" placeholder="Cth: Gedung Gereja Pisgah" required />
-                                                        </div>
-                                                        <div className="pt-1">
-                                                            <label className="block text-xs font-bold text-navy-600 mb-1.5">Gambar Background Acara <span className="text-navy-400 font-normal">(Opsional)</span></label>
-
-                                                            {/* Preview Gambar jika ada */}
-                                                            {evt.imageUrl && (
-                                                                <div className="relative w-full h-32 sm:h-36 rounded-xl overflow-hidden mb-3 border border-navy-100 shadow-sm bg-navy-900 group/img">
-                                                                    <img
-                                                                        src={formatImageUrl(evt.imageUrl)}
-                                                                        alt={`Preview ${evt.title || 'Acara'}`}
-                                                                        className="w-full h-full object-cover"
-                                                                        referrerPolicy="no-referrer"
-                                                                        onError={(e) => handleImageErrorFallback(e, evt.imageUrl)}
-                                                                    />
-                                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
-                                                                    <div className="absolute bottom-2.5 left-3 text-white text-xs font-bold drop-shadow">
-                                                                        {evt.imageUrl.startsWith('data:image') ? (
-                                                                            <span className="bg-gold-500/90 text-navy-950 px-2.5 py-1 rounded-md text-[11px] font-black tracking-wide shadow">
-                                                                                BARU DIUPLOAD (Siap Simpan)
-                                                                            </span>
-                                                                        ) : (
-                                                                            <span className="bg-black/60 backdrop-blur-sm text-gray-200 px-2 py-0.5 rounded text-[11px]">
-                                                                                Gambar Aktif
-                                                                            </span>
-                                                                        )}
-                                                                    </div>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => {
-                                                                            const newArr = [...editCarouselEvents];
-                                                                            newArr[idx].imageUrl = '';
-                                                                            setEditCarouselEvents(newArr);
-                                                                        }}
-                                                                        className="absolute top-2 right-2 bg-red-600/90 hover:bg-red-700 text-white p-1.5 rounded-lg shadow-md transition-all flex items-center gap-1 text-xs font-bold backdrop-blur-sm"
-                                                                        title="Hapus gambar ini"
-                                                                    >
-                                                                        <Icon name="Trash" className="w-3.5 h-3.5" /> Hapus
-                                                                    </button>
-                                                                </div>
-                                                            )}
-
-                                                            {/* Pilihan Upload Langsung atau Input URL */}
-                                                            <div className="space-y-2">
-                                                                <label className="flex items-center justify-center bg-navy-50 border-2 border-dashed border-navy-200 rounded-xl py-2.5 px-4 cursor-pointer hover:border-gold-400 hover:bg-gold-50 transition-all group">
-                                                                    <Icon name="Upload" className="w-4 h-4 mr-2 text-navy-400 group-hover:text-gold-500 transition-colors" />
-                                                                    <span className="text-xs font-bold text-navy-600 group-hover:text-gold-600 transition-colors">
-                                                                        {evt.imageUrl ? 'Ganti Gambar (Upload dari Galeri/File)...' : 'Upload Gambar dari Galeri/File...'}
-                                                                    </span>
-                                                                    <input
-                                                                        type="file"
-                                                                        accept="image/*"
-                                                                        className="hidden"
-                                                                        onChange={(e) => handleEventFileUpload(e, idx)}
-                                                                    />
-                                                                </label>
-
-                                                                <input
-                                                                    type="text"
-                                                                    value={evt.imageUrl && evt.imageUrl.startsWith('data:image') ? '' : (evt.imageUrl || '')}
-                                                                    onChange={(e) => {
-                                                                        const newArr = [...editCarouselEvents];
-                                                                        newArr[idx].imageUrl = e.target.value;
-                                                                        setEditCarouselEvents(newArr);
-                                                                    }}
-                                                                    className="w-full border-2 border-navy-100 rounded-xl px-3 py-2 text-xs focus:border-gold-400 focus:outline-none"
-                                                                    placeholder={evt.imageUrl && evt.imageUrl.startsWith('data:image') ? 'Gambar lokal telah diupload. Atau tempel URL gambar baru di sini...' : 'Atau tempel URL Gambar / Link Google Drive (https://...)'}
-                                                                />
-                                                                <p className="text-[11px] text-navy-500 leading-normal">
-                                                                    💡 <strong>Bisa upload langsung</strong> dari HP/PC (seperti carousel), atau <strong>tempel link Google Drive</strong> (pastikan link diset publik: <em>&quot;Siapa saja yang memiliki link&quot;</em>).
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        <button type="button" onClick={() => setEditCarouselEvents([...editCarouselEvents, { dateStr: "", title: "", location: "", imageUrl: "" }])} className="w-full border-2 border-dashed border-navy-200 text-navy-600 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 hover:text-navy-900 transition flex justify-center items-center">
-                                            <Icon name="PlusCircle" className="w-4 h-4 mr-2" /> Tambah Acara
-                                        </button>
-
-                                        <button type="submit" disabled={isSavingCarouselEvents} className={`w-full ${isSavingCarouselEvents ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
-                                            {isSavingCarouselEvents ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Acara Terdekat'}
-                                        </button>
-                                    </form>
-                                </div>
-                            </>
-                        )}
-
-                        {/* --- FORM PENGUMUMAN --- */}
-                        {pengaturanSubTab === 'pengumuman' && (
-                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                    <div className="w-12 h-12 bg-gold-50 rounded-full flex items-center justify-center text-gold-600 shadow-inner"><Icon name="Megaphone" className="w-6 h-6" /></div>
-                                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Pengumuman Jemaat</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Tampil di Halaman Depan</p></div>
-                                </div>
-                                <form onSubmit={handleSavePengumuman} className="space-y-5">
-                                    <div>
-                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Judul Pengumuman</label>
-                                        <input type="text" value={editPengumuman.header} onChange={e => setEditPengumuman({ ...editPengumuman, header: e.target.value })} placeholder="Misal: Pengumuman Penting" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-4" />
-
-
-
-                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Isi Pengumuman</label>
-                                        <RichTextEditor
-                                            ref={pengumumanEditorRef}
-                                            initialValue={editPengumuman.isi}
-                                            onChange={(html) => setEditPengumuman({ ...editPengumuman, isi: html })}
-                                            placeholder="Kosongkan isi untuk menyembunyikan kotak pengumuman..."
-                                        />
-                                        <p className="text-[10px] text-navy-500 mt-2 font-bold leading-relaxed bg-navy-50 p-2.5 rounded-lg border border-navy-100 uppercase text-center">Hapus semua isi teks untuk menyembunyikan pengumuman dari layar utama.</p>
-                                    </div>
-                                    <button type="submit" disabled={isSavingPengumuman} className={`w-full ${isSavingPengumuman ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center`}>
-                                        {isSavingPengumuman ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Pengumuman'}
-                                    </button>
-                                </form>
-                            </div>
-                        )}
-
-                        {/* --- FORM LOKASI & PETA --- */}
-                        {pengaturanSubTab === 'kontak' && (
-                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm animate-fade-in">
-                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                    <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 shadow-inner"><Icon name="Map" className="w-6 h-6" /></div>
-                                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Lokasi Gereja</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Alamat dan Google Maps</p></div>
-                                </div>
-                                <form onSubmit={handleSaveKontakGereja} className="space-y-5">
-                                    <div>
-                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Alamat Lengkap</label>
-                                        <textarea value={editKontakGereja.alamat} onChange={e => setEditKontakGereja({ ...editKontakGereja, alamat: e.target.value })} required rows="3" placeholder="Jl. Raya Contoh No. 123, Kelurahan, Kecamatan..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-4"></textarea>
-
-                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Buka di Aplikasi Maps (Direct Link)</label>
-                                        <input type="url" value={editKontakGereja.mapsAppUrl || ''} onChange={e => setEditKontakGereja({ ...editKontakGereja, mapsAppUrl: e.target.value })} placeholder="https://maps.app.goo.gl/..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm mb-4" />
-
-                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Tautan Peta (Google Maps Embed / iframe)</label>
-                                        <textarea value={editKontakGereja.mapUrl} onChange={e => setEditKontakGereja({ ...editKontakGereja, mapUrl: e.target.value })} required rows="3" placeholder="https://www.google.com/maps/embed?pb=..." className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-mono shadow-sm mb-4"></textarea>
-
-                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">URL Gambar Banner Informasi (Opsional)</label>
-                                        <input type="url" value={editKontakGereja.informasiImageUrl || ''} onChange={e => setEditKontakGereja({ ...editKontakGereja, informasiImageUrl: e.target.value })} placeholder="URL Gambar Banner Informasi (Opsional)" className="w-full p-3.5 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-medium shadow-sm" />
-
-                                        <p className="text-[10px] text-navy-500 mt-2 font-medium leading-relaxed bg-navy-50 p-3 rounded-xl border border-navy-100 shadow-inner">
-                                            <b>Cara mendapatkan link Peta Embed:</b><br />1. Cari gereja Anda di Google Maps (via Browser PC).<br />2. Klik tombol <b>Bagikan (Share)</b> &gt; pilih tab <b>Sematkan Peta (Embed a map)</b>.<br />3. Salin URL/Tautan yang ada di dalam tanda kutip <span className="text-gold-600 font-mono font-bold">src="..."</span> dan tempelkan pada kolom di atas.
-                                        </p>
-                                    </div>
-                                    <button type="submit" disabled={isSavingKontak} className={`w-full ${isSavingKontak ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
-                                        {isSavingKontak ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Lokasi Peta'}
-                                    </button>
-                                </form>
-                            </div>
-                        )}
-
-                        {/* --- FORM REKENING & QRIS --- */}
-                        {pengaturanSubTab === 'rekening' && (
-                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-                                <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                    <div className="w-12 h-12 bg-navy-50 rounded-full flex items-center justify-center text-navy-900 shadow-inner shrink-0"><Icon name="CreditCard" className="w-6 h-6" /></div>
-                                    <div>
-                                        <h3 className="font-black text-navy-900 text-lg tracking-tight">Pengaturan Rekening & QRIS</h3>
-                                        <p className="text-xs text-navy-500 font-medium leading-relaxed mt-1">Ubah nomor rekening dan gambar QRIS untuk menu Persembahan.</p>
-                                    </div>
-                                </div>
-
-                                <form onSubmit={handleSaveRekening} className="space-y-6">
-                                    <div>
-                                        <div className="flex justify-between items-center mb-4">
-                                            <h4 className="font-bold text-navy-900 text-sm flex items-center"><Icon name="CreditCard" className="w-4 h-4 mr-2 text-gold-500" />Daftar Opsi Pembayaran</h4>
-                                            <button type="button" onClick={handleAddRekening} className="text-xs bg-navy-100 hover:bg-navy-200 text-navy-700 font-bold px-3 py-1.5 rounded-lg flex items-center transition"><Icon name="Plus" className="w-3.5 h-3.5 mr-1" /> Tambah Opsi</button>
-                                        </div>
-                                        {editDaftarRekening.length === 0 ? (
-                                            <div className="text-center py-4 text-xs text-navy-500 bg-navy-50/50 rounded-xl border border-navy-100">Belum ada pengaturan Rekening & QRIS.</div>
-                                        ) : (
-                                            <div className="space-y-6">
-                                                {editDaftarRekening.map((rek, idx) => (
-                                                    <div key={rek.id || idx} className="bg-navy-50/50 p-5 rounded-2xl border border-navy-200 relative group shadow-sm flex flex-col md:flex-row gap-6">
-                                                        <button type="button" onClick={() => handleRemoveRekening(rek.id)} className="absolute -top-3 -right-3 bg-red-100 text-red-600 p-2 rounded-full hover:bg-red-500 hover:text-white transition opacity-0 group-hover:opacity-100 shadow-md z-10"><Icon name="X" className="w-4 h-4" /></button>
-
-                                                        {/* QRIS Input Section */}
-                                                        <div className="w-full md:w-1/3 flex flex-col gap-3">
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                                <Icon name="Smartphone" className="w-4 h-4 text-navy-600" />
-                                                                <span className="text-xs font-bold text-navy-800">QRIS (Opsional)</span>
-                                                            </div>
-                                                            {rek.qrisUrl && (
-                                                                <img src={rek.qrisUrl} className="w-24 h-24 rounded-xl object-contain border border-navy-200 bg-white mx-auto md:mx-0 shadow-sm" onError={(e) => e.target.src = './icons/notavailable.jpg'} />
-                                                            )}
-                                                            <div>
-                                                                <label className="block text-[10px] font-bold text-navy-700 mb-1.5 uppercase tracking-widest">Link Gambar QRIS</label>
-                                                                <input type="text" value={rek.qrisUrl || ''} onChange={(e) => handleUpdateRekening(rek.id, 'qrisUrl', e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-lg focus:border-gold-500 outline-none transition-colors bg-white text-xs shadow-sm" placeholder="URL gambar QRIS..." />
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Rekening Input Section */}
-                                                        <div className="w-full md:w-2/3 space-y-4">
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                                <Icon name="CreditCard" className="w-4 h-4 text-navy-600" />
-                                                                <span className="text-xs font-bold text-navy-800">Rekening Bank</span>
-                                                            </div>
-                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                                <div>
-                                                                    <label className="block text-[10px] font-bold text-navy-700 mb-1.5 uppercase tracking-widest">Nama Bank</label>
-                                                                    <input type="text" value={rek.namaBank || ''} onChange={(e) => handleUpdateRekening(rek.id, 'namaBank', e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-lg focus:border-gold-500 outline-none transition-colors bg-white text-xs font-bold shadow-sm" placeholder="Contoh: Mandiri" required />
-                                                                </div>
-                                                                <div>
-                                                                    <label className="block text-[10px] font-bold text-navy-700 mb-1.5 uppercase tracking-widest">Link Logo Bank (Opsional)</label>
-                                                                    <input type="text" value={rek.logoUrl || ''} onChange={(e) => handleUpdateRekening(rek.id, 'logoUrl', e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-lg focus:border-gold-500 outline-none transition-colors bg-white text-xs shadow-sm" placeholder="URL gambar logo..." />
-                                                                </div>
-                                                            </div>
-                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                                <div>
-                                                                    <label className="block text-[10px] font-bold text-navy-700 mb-1.5 uppercase tracking-widest">Atas Nama</label>
-                                                                    <input type="text" value={rek.atasNama || ''} onChange={(e) => handleUpdateRekening(rek.id, 'atasNama', e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-lg focus:border-gold-500 outline-none transition-colors bg-white text-xs font-bold shadow-sm" placeholder="Contoh: GMAHK Pisgah" required />
-                                                                </div>
-                                                                <div>
-                                                                    <label className="block text-[10px] font-bold text-navy-700 mb-1.5 uppercase tracking-widest">Nomor Rekening</label>
-                                                                    <input type="text" value={rek.rekeningBank || ''} onChange={(e) => handleUpdateRekening(rek.id, 'rekeningBank', e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-lg focus:border-gold-500 outline-none transition-colors bg-white text-sm font-bold shadow-sm font-mono tracking-wider" placeholder="Contoh: 1090001711043" required />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <button type="submit" disabled={isSavingRekening} className={`w-full ${isSavingRekening ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex items-center justify-center`}>
-                                        {isSavingRekening ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan...</> : 'Simpan Pengaturan'}
-                                    </button>
-                                </form>
-                            </div>
-                        )}
-
-                        {/* --- FORM GANTI PASSWORD --- */}
-                        {pengaturanSubTab === 'password' && (
-                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm">
-                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                    <div className="w-12 h-12 bg-navy-50 rounded-full flex items-center justify-center text-navy-900 shadow-inner"><Icon name="Settings" className="w-6 h-6" /></div>
-                                    <div><h3 className="font-black text-navy-900 text-lg tracking-tight">Ganti Password Admin</h3><p className="text-xs text-navy-500 font-bold uppercase tracking-widest mt-1">Keamanan Otentikasi</p></div>
-                                </div>
-                                <form onSubmit={handleGantiPassword} className="space-y-5">
-                                    <div>
-                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Password Lama</label>
-                                        <div className="relative">
-                                            <input type={showOldPass ? "text" : "password"} value={oldPassword} onChange={e => setOldPassword(e.target.value)} required className="w-full p-3.5 pr-10 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-bold shadow-sm" />
-                                            <button type="button" onClick={() => setShowOldPass(!showOldPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-navy-400 hover:text-gold-500 transition-colors focus:outline-none"><Icon name={showOldPass ? "EyeOff" : "Eye"} className="w-5 h-5" /></button>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">Password Baru</label>
-                                        <div className="relative">
-                                            <input type={showNewPass ? "text" : "password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength="6" className="w-full p-3.5 pr-10 border border-navy-200 rounded-xl focus:border-gold-500 outline-none transition-colors bg-navy-50/50 text-sm font-bold shadow-sm" />
-                                            <button type="button" onClick={() => setShowNewPass(!showNewPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-navy-400 hover:text-gold-500 transition-colors focus:outline-none"><Icon name={showNewPass ? "EyeOff" : "Eye"} className="w-5 h-5" /></button>
-                                        </div>
-                                    </div>
-                                    <button type="submit" disabled={isChangingPass} className={`w-full ${isChangingPass ? 'bg-navy-300 text-navy-500 cursor-not-allowed' : 'bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all mt-6 flex items-center justify-center`}>
-                                        {isChangingPass ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Memproses...</> : 'Simpan Password Baru'}
-                                    </button>
-                                </form>
-                            </div>
-                        )}
-                        {/* PERJAMUAN TAB */}
-                        {pengaturanSubTab === 'perjamuan' && (
-                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm animate-fade-in">
-                                {/* Header */}
-                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                    <div className="w-12 h-12 bg-gold-50 rounded-full flex items-center justify-center text-gold-600 shadow-inner">
-                                        <Icon name="Calendar" className="w-6 h-6" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-black text-navy-900 text-lg tracking-tight">Jadwal Perjamuan Kudus</h3>
-                                        <p className="text-xs font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5">
-                                            <span className="text-navy-500">Berlangsung Tiap 3 Bulan</span>
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <form onSubmit={handleSavePerjamuanDate} className="space-y-8">
-                                    {/* Perjamuan Section */}
-                                    <div className="space-y-4">
-                                        {perjamuanDate && (
-                                            <div className="bg-gradient-to-r from-gold-50 to-white border border-gold-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-gold-100 rounded-full flex items-center justify-center shrink-0">
-                                                        <Icon name="Calendar" className="w-5 h-5 text-gold-600" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-black text-navy-400 uppercase tracking-widest mb-0.5">Jadwal Aktif</p>
-                                                        <p className="font-black text-navy-900 text-base leading-tight">{formatIndoDate(perjamuanDate)}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                        <div>
-                                            <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">
-                                                Pilih / Ubah Tanggal Perjamuan
-                                            </label>
-                                            <div className="flex gap-2">
-                                                <input
-                                                    type="date"
-                                                    value={editPerjamuanDate}
-                                                    onChange={e => setEditPerjamuanDate(e.target.value)}
-                                                    className="w-full p-3.5 border-2 border-navy-200 focus:border-gold-500 rounded-xl outline-none transition-all bg-white text-sm font-bold text-navy-900 shadow-sm"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setEditPerjamuanDate('')}
-                                                    className="bg-red-50 hover:bg-red-100 text-red-600 px-4 rounded-xl border border-red-200 font-bold text-sm transition-all shadow-sm whitespace-nowrap"
-                                                >Hapus</button>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-4">
-                                            <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">
-                                                Catatan / Pengumuman
-                                            </label>
-                                            <textarea
-                                                value={editPerjamuanNote}
-                                                onChange={e => setEditPerjamuanNote(e.target.value)}
-                                                placeholder="Contoh: Bawa alat perjamuan masing-masing..."
-                                                className="w-full p-3.5 border-2 border-navy-200 focus:border-gold-500 rounded-xl outline-none transition-all bg-white text-sm font-medium text-navy-900 shadow-sm min-h-[80px]"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Info Box */}
-                                    <div className="bg-gold-50/60 border border-gold-200/80 rounded-xl p-4 flex gap-3">
-                                        <Icon name="Info" className="w-4 h-4 text-gold-600 shrink-0 mt-0.5" />
-                                        <p className="text-[11px] text-navy-600 font-medium leading-relaxed">
-                                            Banner <b>Perjamuan Kudus</b> akan tampil otomatis di halaman utama sejak pengaturan ini disimpan hingga hari-H. Setelah tanggal lewat, banner akan hilang secara otomatis.
-                                        </p>
-                                    </div>
-
-                                    <button
-                                        type="submit"
-                                        disabled={isSavingPerjamuanDate}
-                                        className={`w-full font-bold py-3.5 rounded-xl transition-all flex justify-center items-center gap-2 shadow-md ${isSavingPerjamuanDate
-                                            ? 'bg-navy-300 text-navy-500 cursor-not-allowed'
-                                            : 'bg-navy-900 hover:bg-navy-800 text-gold-400 hover:shadow-lg'
-                                            }`}
-                                    >
-                                        {isSavingPerjamuanDate ? (
-                                            <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin"></span> Menyimpan...</>
-                                        ) : (
-                                            <><Icon name="Save" className="w-4 h-4" /> Simpan Tanggal Perjamuan</>
-                                        )}
-                                    </button>
-                                </form>
-                            </div>
-                        )}
-
-                        {/* PERPULUHAN TAB */}
-                        {pengaturanSubTab === 'perpuluhan' && (
-                            <div className="bg-white border border-navy-100/60 rounded-[1.5rem] p-6 shadow-sm animate-fade-in">
-                                {/* Header */}
-                                <div className="flex items-center space-x-4 mb-6 border-b border-navy-50 pb-5">
-                                    <div className="w-12 h-12 bg-navy-50 rounded-full flex items-center justify-center text-navy-600 shadow-inner">
-                                        <Icon name="Gift" className="w-6 h-6" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-black text-navy-900 text-lg tracking-tight">Jadwal Sabat Perpuluhan</h3>
-                                        <p className="text-xs font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5">
-                                            <span className="text-navy-500">Berlangsung Tiap Bulan</span>
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <form onSubmit={handleSavePerjamuanDate} className="space-y-8">
-                                    {/* Perpuluhan Section */}
-                                    <div className="space-y-4">
-                                        {perpuluhanDate && (
-                                            <div className="bg-gradient-to-r from-navy-50 to-white border border-navy-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-navy-100 rounded-full flex items-center justify-center shrink-0">
-                                                        <Icon name="Calendar" className="w-5 h-5 text-navy-600" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-black text-navy-400 uppercase tracking-widest mb-0.5">Jadwal Aktif</p>
-                                                        <p className="font-black text-navy-900 text-base leading-tight">{formatIndoDate(perpuluhanDate)}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                        <div>
-                                            <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">
-                                                Pilih / Ubah Tanggal Perpuluhan
-                                            </label>
-                                            <div className="flex gap-2">
-                                                <input
-                                                    type="date"
-                                                    value={editPerpuluhanDate}
-                                                    onChange={e => setEditPerpuluhanDate(e.target.value)}
-                                                    className="w-full p-3.5 border-2 border-navy-200 focus:border-gold-500 rounded-xl outline-none transition-all bg-white text-sm font-bold text-navy-900 shadow-sm"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setEditPerpuluhanDate('')}
-                                                    className="bg-red-50 hover:bg-red-100 text-red-600 px-4 rounded-xl border border-red-200 font-bold text-sm transition-all shadow-sm whitespace-nowrap"
-                                                >Hapus</button>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-4">
-                                            <label className="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-widest">
-                                                Catatan / Pengumuman
-                                            </label>
-                                            <textarea
-                                                value={editPerpuluhanNote}
-                                                onChange={e => setEditPerpuluhanNote(e.target.value)}
-                                                placeholder="Contoh: Amplop tersedia di pintu masuk..."
-                                                className="w-full p-3.5 border-2 border-navy-200 focus:border-gold-500 rounded-xl outline-none transition-all bg-white text-sm font-medium text-navy-900 shadow-sm min-h-[80px]"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Info Box */}
-                                    <div className="bg-navy-50/60 border border-navy-200/80 rounded-xl p-4 flex gap-3">
-                                        <Icon name="Info" className="w-4 h-4 text-navy-600 shrink-0 mt-0.5" />
-                                        <p className="text-[11px] text-navy-600 font-medium leading-relaxed">
-                                            Banner <b>Sabat Perpuluhan</b> akan tampil otomatis di halaman utama sejak pengaturan ini disimpan hingga hari-H. Setelah tanggal lewat, banner akan hilang secara otomatis.
-                                        </p>
-                                    </div>
-
-                                    <button
-                                        type="submit"
-                                        disabled={isSavingPerjamuanDate}
-                                        className={`w-full font-bold py-3.5 rounded-xl transition-all flex justify-center items-center gap-2 shadow-md ${isSavingPerjamuanDate
-                                            ? 'bg-navy-300 text-navy-500 cursor-not-allowed'
-                                            : 'bg-navy-900 hover:bg-navy-800 text-gold-400 hover:shadow-lg'
-                                            }`}
-                                    >
-                                        {isSavingPerjamuanDate ? (
-                                            <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin"></span> Menyimpan...</>
-                                        ) : (
-                                            <><Icon name="Save" className="w-4 h-4" /> Simpan Tanggal Perpuluhan</>
-                                        )}
-                                    </button>
-                                </form>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* BOOK TAB */}
-                {adminTab === 'buku' && (
-                    <div className="space-y-6">
-                        {/* Header & Add Button */}
-                        <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                            <div>
-                                <h2 className="text-2xl font-black text-navy-900">Kelola Buku</h2>
-                                <p className="text-sm text-navy-500 font-medium mt-1">Total: {daftarBuku.length} buku · Tambah, edit, atau hapus buku dari perpustakaan</p>
-                            </div>
-                            <button
-                                onClick={openAddBookModal}
-                                className="flex items-center gap-2 bg-navy-900 text-gold-400 px-6 py-3 rounded-xl font-bold text-sm hover:bg-navy-800 transition shrink-0"
-                            >
-                                <Icon name="Plus" className="w-4 h-4" /> Tambah Buku
-                            </button>
-                        </div>
-
-                        {/* Container Utama untuk Search dan Daftar Buku agar Kotaknya Simetris */}
-                        <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
-
-                            {/* Search Bar Admin Buku */}
-                            <div className="mb-6">
-                                <div className="relative">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-navy-400 pointer-events-none">
-                                        <Icon name="Search" className="w-4 h-4" />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Cari judul, pengarang, atau kategori..."
-                                        value={bukuSearch}
-                                        onChange={e => setBukuSearch(e.target.value)}
-                                        className="w-full pl-11 pr-10 py-3 bg-navy-50/50 border border-navy-100 rounded-xl text-sm font-semibold text-navy-900 placeholder-navy-300 outline-none focus:border-gold-500 transition-all"
-                                    />
-                                    {bukuSearch && (
-                                        <button onClick={() => setBukuSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-navy-200 text-navy-500 hover:bg-navy-300 transition flex items-center justify-center">
-                                            <Icon name="X" className="w-3.5 h-3.5" />
-                                        </button>
-                                    )}
-                                </div>
-                                {bukuSearch.length >= 2 && (
-                                    <p className="text-xs text-navy-400 font-semibold mt-2 px-1">{filteredAdminBuku.length} dari {daftarBuku.length} buku</p>
-                                )}
-                            </div>
-
-                            {/* Book Grid — Responsif dari 2 sampai 6 kolom */}
-                            <div className="max-h-[65vh] overflow-y-auto pr-2 custom-scrollbar">
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5">
-                                    {filteredAdminBuku.map(book => (
-                                        <div key={book.id} className="bg-white rounded-xl shadow-sm border border-navy-100/60 overflow-hidden hover:shadow-md transition flex flex-col">
-                                            <div className="h-36 sm:h-40 bg-gradient-to-br from-navy-100 to-navy-50 flex items-center justify-center overflow-hidden shrink-0 relative">
-                                                <img
-                                                    src={getCoverFallback(book)}
-                                                    alt={book.title}
-                                                    className="w-full h-full object-cover"
-                                                    onError={(e) => { e.target.src = getDefaultBookCover(book.category); }}
-                                                />
-                                                <DocumentBadge book={book} />
-                                            </div>
-                                            <div className="p-3 sm:p-4 flex flex-col flex-1">
-                                                <div className="mb-3 flex-1">
-                                                    <p className="font-bold text-navy-900 text-[13px] sm:text-sm line-clamp-2 leading-tight">{book.title}</p>
-                                                    <p className="text-[10px] sm:text-xs text-navy-400 mt-1 line-clamp-1">{book.author}</p>
-                                                </div>
-                                                <div className="flex items-center justify-between mb-3 shrink-0">
-                                                    <span className="text-[10px] bg-gold-100 text-gold-800 px-2 py-0.5 rounded-md font-bold uppercase tracking-wide">{book.category}</span>
-                                                </div>
-                                                <div className="flex gap-2 mt-auto shrink-0">
-                                                    <button
-                                                        onClick={() => { setEditingBook(book); setBookFormData(book); setBookFormModal(true); }}
-                                                        className="flex-1 py-1.5 sm:py-2 bg-navy-50 text-navy-700 rounded-lg text-[10px] sm:text-xs font-bold hover:bg-navy-100 transition flex items-center justify-center gap-1.5"
-                                                    >
-                                                        <Icon name="Edit" className="w-3 h-3" /> Edit
-                                                    </button>
-                                                    <button
-                                                        onClick={async () => {
-                                                            if (!confirm('Yakin ingin menghapus buku ini?')) return;
-                                                            try {
-                                                                const res = await fetch(GAS_API_URL, {
-                                                                    method: 'POST',
-                                                                    body: JSON.stringify({
-                                                                        action: 'deleteBook',
-                                                                        password: adminToken,
-                                                                        data: book.id
-                                                                    })
-                                                                });
-                                                                const data = await res.json();
-                                                                if (data.status === 'success' || data.success) {
-                                                                    alert('Buku berhasil dihapus!');
-                                                                    loadBooks();
-                                                                } else {
-                                                                    alert('Error: ' + (data.message || data.error || 'Gagal menghapus'));
-                                                                }
-                                                            } catch (err) { alert('Error: ' + err.message); }
-                                                        }}
-                                                        className="flex-1 py-1.5 sm:py-2 bg-red-50 text-red-700 rounded-lg text-[10px] sm:text-xs font-bold hover:bg-red-100 transition flex items-center justify-center gap-1.5"
-                                                    >
-                                                        <Icon name="Trash" className="w-3 h-3" /> Hapus
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {filteredAdminBuku.length === 0 && (
-                                <div className="bg-navy-50/50 rounded-xl border-2 border-dashed border-navy-200 p-10 text-center mt-4">
-                                    <Icon name="BookOpen" className="w-12 h-12 text-navy-300 mx-auto mb-3" />
-                                    {bukuSearch.length >= 2
-                                        ? <><p className="text-navy-700 font-bold mb-1">Tidak ditemukan</p><p className="text-navy-500 text-xs">Tidak ada buku cocok dengan &quot;{bukuSearch}&quot;</p></>
-                                        : <p className="text-navy-600 font-medium text-sm">Belum ada buku. Mulai tambahkan buku pertama Anda!</p>
-                                    }
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Book Form Modal */}
-                        {bookFormModal && createPortal(
-                            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-40 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 5rem)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)' }}>
-                                <div className="glass-box rounded-2xl max-w-2xl w-full max-h-full overflow-y-auto shadow-2xl">
-                                    <div className="sticky top-0 bg-white border-b border-navy-100 p-6 flex items-center justify-between">
-                                        <h3 className="text-xl font-black text-navy-900">{editingBook ? 'Edit Buku' : 'Tambah Buku Baru'}</h3>
-                                        <button onClick={() => { setBookFormModal(false); setEditingBook(null); setBookFormData({ id: '', title: '', author: '', cover: '', desc: '', category: '', pdfUrl: '' }); }}
-                                            className="w-10 h-10 rounded-full bg-navy-50 flex items-center justify-center text-navy-600 hover:bg-navy-100 transition">
-                                            <Icon name="X" className="w-5 h-5" />
-                                        </button>
-                                    </div>
-
-                                    <form onSubmit={async (e) => {
-                                        e.preventDefault();
-                                        setIsSavingBook(true);
-
-                                        if (!bookFormData.title || !bookFormData.author || !bookFormData.category) {
-                                            alert('Isi semua field yang diperlukan!');
-                                            setIsSavingBook(false);
-                                            return;
-                                        }
-
-                                        try {
-                                            const action = editingBook ? 'updateBook' : 'addBook';
-                                            const res = await fetch(GAS_API_URL, {
-                                                method: 'POST',
-                                                body: JSON.stringify({
-                                                    action: action,
-                                                    password: adminToken,
-                                                    data: bookFormData
-                                                })
-                                            });
-                                            const data = await res.json();
-                                            if (data.status === 'success' || data.success) {
-                                                alert(editingBook ? 'Buku berhasil diperbarui!' : 'Buku berhasil ditambahkan!');
-                                                setBookFormModal(false);
-                                                setEditingBook(null);
-                                                // Reload
-                                                loadBooks(); // refresh daftar;
-                                            } else {
-                                                alert('Error: ' + (data.message || data.error || 'Tidak diketahui'));
-                                            }
-                                        } catch (err) { alert('Error: ' + err.message); }
-                                        setIsSavingBook(false);
-                                    }} className="p-6 space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-bold text-navy-900 mb-1.5">Judul Buku *</label>
-                                            <input
-                                                type="text"
-                                                required
-                                                value={bookFormData.title}
-                                                onChange={(e) => setBookFormData({ ...bookFormData, title: e.target.value })}
-                                                className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium"
-                                                placeholder="Contoh: Langkah kepada Kristus"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-bold text-navy-900 mb-1.5">Pengarang *</label>
-                                            <input
-                                                type="text"
-                                                required
-                                                value={bookFormData.author}
-                                                onChange={(e) => setBookFormData({ ...bookFormData, author: e.target.value })}
-                                                className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium"
-                                                placeholder="Contoh: Ellen G. White"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-bold text-navy-900 mb-1.5">Kategori *</label>
-                                            <input
-                                                type="text"
-                                                required
-                                                value={bookFormData.category}
-                                                onChange={(e) => setBookFormData({ ...bookFormData, category: e.target.value })}
-                                                className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium"
-                                                placeholder="Contoh: EGW, Doktrin, Panduan, Lain-lain"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-bold text-navy-900 mb-1.5">Deskripsi</label>
-                                            <textarea
-                                                value={bookFormData.desc}
-                                                onChange={(e) => setBookFormData({ ...bookFormData, desc: e.target.value })}
-                                                rows="3"
-                                                className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium resize-none"
-                                                placeholder="Deskripsi singkat tentang buku ini"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-bold text-navy-900 mb-1.5">URL Sampul (Cover) - Opsional</label>
-                                            <input
-                                                type="url"
-                                                value={bookFormData.cover}
-                                                onChange={(e) => {
-                                                    let val = e.target.value;
-                                                    let match = val.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-                                                    if (match && match[1]) {
-                                                        val = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
-                                                    } else {
-                                                        match = val.match(/id=([a-zA-Z0-9_-]+)/);
-                                                        if (match && match[1] && val.includes('drive.google.com')) {
-                                                            val = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
-                                                        }
-                                                    }
-                                                    setBookFormData({ ...bookFormData, cover: val });
-                                                }}
-                                                className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium text-sm"
-                                                placeholder="Link gambar dari Google Drive (otomatis dikonversi) atau web lain"
-                                            />
-                                            <p className="text-xs text-navy-400 mt-1.5">
-                                                💡 <strong>Kosongkan</strong> untuk menggunakan gambar default sesuai kategori (EGW, Doktrin, Panduan, Renungan, Lain-lain)
-                                            </p>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-bold text-navy-900 mb-1.5">Link Dokumen (PDF / PPT / Google Drive)</label>
-                                            <input
-                                                type="url"
-                                                value={bookFormData.pdfUrl}
-                                                onChange={(e) => {
-                                                    let val = e.target.value;
-                                                    let match = val.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-                                                    if (match && match[1]) {
-                                                        val = `https://drive.google.com/file/d/${match[1]}/preview`;
-                                                    } else {
-                                                        match = val.match(/id=([a-zA-Z0-9_-]+)/);
-                                                        if (match && match[1] && val.includes('drive.google.com')) {
-                                                            val = `https://drive.google.com/file/d/${match[1]}/preview`;
-                                                        } else {
-                                                            let docsMatch = val.match(/(docs\.google\.com\/(?:presentation|document|spreadsheets)\/d\/[a-zA-Z0-9_-]+)/);
-                                                            if (docsMatch && docsMatch[1]) {
-                                                                if (docsMatch[1].includes('presentation')) {
-                                                                    val = `https://${docsMatch[1]}/embed?start=false&loop=false&delayms=3000`;
-                                                                } else {
-                                                                    val = `https://${docsMatch[1]}/preview`;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    setBookFormData({ ...bookFormData, pdfUrl: val });
-                                                }}
-                                                className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium text-sm"
-                                                placeholder="Link dokumen dari Google Drive (otomatis dikonversi)"
-                                            />
-                                            <p className="text-xs text-navy-400 mt-1.5">💡 Mendukung <strong>PDF</strong> maupun presentasi <strong>PPT/Slide</strong>. Cukup <i>paste</i> link (URL) apa saja dari Google Drive Anda ke sini.</p>
-                                        </div>
-
-                                        <div className="flex gap-3 pt-6">
-                                            <button type="button" onClick={() => { setBookFormModal(false); setEditingBook(null); setBookFormData({ id: '', title: '', author: '', cover: '', desc: '', category: '', pdfUrl: '' }); }}
-                                                className="flex-1 py-2.5 bg-navy-100 text-navy-700 rounded-lg font-bold hover:bg-navy-200 transition"> Batal
-                                            </button>
-                                            <button type="submit" disabled={isSavingBook} className="flex-1 py-2.5 bg-navy-900 text-gold-400 rounded-lg font-bold hover:bg-navy-800 transition disabled:opacity-50">
-                                                {isSavingBook ? 'Menyimpan...' : 'Simpan Buku'}
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                            , document.body)}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-};
-
-// --- COMPONENT: ALKITAB ---
-const ALKITAB_BOOKS = [
-    { id: 1, nama: 'Kejadian', singkat: 'Kej', pasal: 50, testamen: 'PL' },
-    { id: 2, nama: 'Keluaran', singkat: 'Kel', pasal: 40, testamen: 'PL' },
-    { id: 3, nama: 'Imamat', singkat: 'Im', pasal: 27, testamen: 'PL' },
-    { id: 4, nama: 'Bilangan', singkat: 'Bil', pasal: 36, testamen: 'PL' },
-    { id: 5, nama: 'Ulangan', singkat: 'Ul', pasal: 34, testamen: 'PL' },
-    { id: 6, nama: 'Yosua', singkat: 'Yos', pasal: 24, testamen: 'PL' },
-    { id: 7, nama: 'Hakim-hakim', singkat: 'Hak', pasal: 21, testamen: 'PL' },
-    { id: 8, nama: 'Rut', singkat: 'Rut', pasal: 4, testamen: 'PL' },
-    { id: 9, nama: '1 Samuel', singkat: '1Sam', pasal: 31, testamen: 'PL' },
-    { id: 10, nama: '2 Samuel', singkat: '2Sam', pasal: 24, testamen: 'PL' },
-    { id: 11, nama: '1 Raja-raja', singkat: '1Raj', pasal: 22, testamen: 'PL' },
-    { id: 12, nama: '2 Raja-raja', singkat: '2Raj', pasal: 25, testamen: 'PL' },
-    { id: 13, nama: '1 Tawarikh', singkat: '1Taw', pasal: 29, testamen: 'PL' },
-    { id: 14, nama: '2 Tawarikh', singkat: '2Taw', pasal: 36, testamen: 'PL' },
-    { id: 15, nama: 'Ezra', singkat: 'Ezr', pasal: 10, testamen: 'PL' },
-    { id: 16, nama: 'Nehemia', singkat: 'Neh', pasal: 13, testamen: 'PL' },
-    { id: 17, nama: 'Ester', singkat: 'Est', pasal: 10, testamen: 'PL' },
-    { id: 18, nama: 'Ayub', singkat: 'Ayb', pasal: 42, testamen: 'PL' },
-    { id: 19, nama: 'Mazmur', singkat: 'Mzm', pasal: 150, testamen: 'PL' },
-    { id: 20, nama: 'Amsal', singkat: 'Ams', pasal: 31, testamen: 'PL' },
-    { id: 21, nama: 'Pengkhotbah', singkat: 'Pkh', pasal: 12, testamen: 'PL' },
-    { id: 22, nama: 'Kidung Agung', singkat: 'Kid', pasal: 8, testamen: 'PL' },
-    { id: 23, nama: 'Yesaya', singkat: 'Yes', pasal: 66, testamen: 'PL' },
-    { id: 24, nama: 'Yeremia', singkat: 'Yer', pasal: 52, testamen: 'PL' },
-    { id: 25, nama: 'Ratapan', singkat: 'Rat', pasal: 5, testamen: 'PL' },
-    { id: 26, nama: 'Yehezkiel', singkat: 'Yeh', pasal: 48, testamen: 'PL' },
-    { id: 27, nama: 'Daniel', singkat: 'Dan', pasal: 12, testamen: 'PL' },
-    { id: 28, nama: 'Hosea', singkat: 'Hos', pasal: 14, testamen: 'PL' },
-    { id: 29, nama: 'Yoel', singkat: 'Yoe', pasal: 3, testamen: 'PL' },
-    { id: 30, nama: 'Amos', singkat: 'Am', pasal: 9, testamen: 'PL' },
-    { id: 31, nama: 'Obaja', singkat: 'Ob', pasal: 1, testamen: 'PL' },
-    { id: 32, nama: 'Yunus', singkat: 'Yun', pasal: 4, testamen: 'PL' },
-    { id: 33, nama: 'Mikha', singkat: 'Mi', pasal: 7, testamen: 'PL' },
-    { id: 34, nama: 'Nahum', singkat: 'Nah', pasal: 3, testamen: 'PL' },
-    { id: 35, nama: 'Habakuk', singkat: 'Hab', pasal: 3, testamen: 'PL' },
-    { id: 36, nama: 'Zefanya', singkat: 'Zef', pasal: 3, testamen: 'PL' },
-    { id: 37, nama: 'Hagai', singkat: 'Hag', pasal: 2, testamen: 'PL' },
-    { id: 38, nama: 'Zakharia', singkat: 'Za', pasal: 14, testamen: 'PL' },
-    { id: 39, nama: 'Maleakhi', singkat: 'Mal', pasal: 4, testamen: 'PL' },
-    { id: 40, nama: 'Matius', singkat: 'Mat', pasal: 28, testamen: 'PB' },
-    { id: 41, nama: 'Markus', singkat: 'Mrk', pasal: 16, testamen: 'PB' },
-    { id: 42, nama: 'Lukas', singkat: 'Luk', pasal: 24, testamen: 'PB' },
-    { id: 43, nama: 'Yohanes', singkat: 'Yoh', pasal: 21, testamen: 'PB' },
-    { id: 44, nama: 'Kisah Para Rasul', singkat: 'Kis', pasal: 28, testamen: 'PB' },
-    { id: 45, nama: 'Roma', singkat: 'Rom', pasal: 16, testamen: 'PB' },
-    { id: 46, nama: '1 Korintus', singkat: '1Kor', pasal: 16, testamen: 'PB' },
-    { id: 47, nama: '2 Korintus', singkat: '2Kor', pasal: 13, testamen: 'PB' },
-    { id: 48, nama: 'Galatia', singkat: 'Gal', pasal: 6, testamen: 'PB' },
-    { id: 49, nama: 'Efesus', singkat: 'Ef', pasal: 6, testamen: 'PB' },
-    { id: 50, nama: 'Filipi', singkat: 'Flp', pasal: 4, testamen: 'PB' },
-    { id: 51, nama: 'Kolose', singkat: 'Kol', pasal: 4, testamen: 'PB' },
-    { id: 52, nama: '1 Tesalonika', singkat: '1Tes', pasal: 5, testamen: 'PB' },
-    { id: 53, nama: '2 Tesalonika', singkat: '2Tes', pasal: 3, testamen: 'PB' },
-    { id: 54, nama: '1 Timotius', singkat: '1Tim', pasal: 6, testamen: 'PB' },
-    { id: 55, nama: '2 Timotius', singkat: '2Tim', pasal: 4, testamen: 'PB' },
-    { id: 56, nama: 'Titus', singkat: 'Tit', pasal: 3, testamen: 'PB' },
-    { id: 57, nama: 'Filemon', singkat: 'Flm', pasal: 1, testamen: 'PB' },
-    { id: 58, nama: 'Ibrani', singkat: 'Ibr', pasal: 13, testamen: 'PB' },
-    { id: 59, nama: 'Yakobus', singkat: 'Yak', pasal: 5, testamen: 'PB' },
-    { id: 60, nama: '1 Petrus', singkat: '1Pet', pasal: 5, testamen: 'PB' },
-    { id: 61, nama: '2 Petrus', singkat: '2Pet', pasal: 3, testamen: 'PB' },
-    { id: 62, nama: '1 Yohanes', singkat: '1Yoh', pasal: 5, testamen: 'PB' },
-    { id: 63, nama: '2 Yohanes', singkat: '2Yoh', pasal: 1, testamen: 'PB' },
-    { id: 64, nama: '3 Yohanes', singkat: '3Yoh', pasal: 1, testamen: 'PB' },
-    { id: 65, nama: 'Yudas', singkat: 'Yud', pasal: 1, testamen: 'PB' },
-    { id: 66, nama: 'Wahyu', singkat: 'Why', pasal: 22, testamen: 'PB' },
-];
-
-const Alkitab = ({ setHideGlobalBack }) => {
-    const [selectedBook, setSelectedBook] = React.useState(null);
-    const [selectedChapter, setSelectedChapter] = React.useState(null);
-    const [verses, setVerses] = React.useState([]);
-    const [isLoadingChapter, setIsLoadingChapter] = React.useState(false);
-    const [fetchError, setFetchError] = React.useState(null);
-    const [searchQuery, setSearchQuery] = React.useState('');
-    const [searchResults, setSearchResults] = React.useState(null);
-    const [isSearching, setIsSearching] = React.useState(false);
-    const [fontSize, setFontSize] = React.useState(16);
-    const [selectedVerses, setSelectedVerses] = React.useState(new Set());
-    const [selectedAyat, setSelectedAyat] = React.useState('');
-    const [pendingTarget, setPendingTarget] = React.useState(null);
-
-    const scrollToVerse = React.useCallback((ayatNum, endAyatNum = null) => {
-        if (!ayatNum) return;
-        setSelectedAyat(String(ayatNum));
-
-        const tryScroll = (attemptsLeft = 6) => {
-            const el = document.getElementById(`ayat-${ayatNum}`);
-            if (el) {
-                const headerOffset = 145;
-                const elementPosition = el.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-                window.scrollTo({
-                    top: Math.max(0, offsetPosition),
-                    behavior: 'smooth'
-                });
-
-                const start = parseInt(ayatNum, 10);
-                const end = endAyatNum ? parseInt(endAyatNum, 10) : start;
-                for (let v = start; v <= end; v++) {
-                    const vEl = document.getElementById(`ayat-${v}`);
-                    if (vEl) {
-                        vEl.classList.add('ring-2', 'ring-gold-500', 'bg-gold-100', 'dark:bg-gold-500/20');
-                        setTimeout(() => {
-                            vEl.classList.remove('ring-2', 'ring-gold-500', 'bg-gold-100', 'dark:bg-gold-500/20');
-                        }, 3500);
-                    }
-                }
-            } else if (attemptsLeft > 0) {
-                setTimeout(() => tryScroll(attemptsLeft - 1), 120);
-            }
-        };
-
-        tryScroll();
-    }, []);
-
-    const processDirectTarget = React.useCallback((target) => {
-        if (!target || !target.bookName) return;
-        const targetBookName = target.bookName.trim().toLowerCase();
-        const matchedBook = ALKITAB_BOOKS.find(b =>
-            b.nama.toLowerCase() === targetBookName ||
-            targetBookName.startsWith(b.nama.toLowerCase()) ||
-            b.nama.toLowerCase().startsWith(targetBookName) ||
-            (target.bookId && b.singkat.toLowerCase() === String(target.bookId).trim().toLowerCase())
-        );
-        if (!matchedBook) return;
-
-        const chapterNum = parseInt(target.chapter, 10) || 1;
-        const rawVerse = String(target.verse || target.rawVerse || '1');
-        const startAyat = parseInt(rawVerse.split('-')[0], 10) || 1;
-        const endAyat = rawVerse.includes('-') ? (parseInt(rawVerse.split('-')[1], 10) || startAyat) : startAyat;
-
-        setPendingTarget({
-            bookId: matchedBook.id,
-            chapter: chapterNum,
-            startAyat,
-            endAyat
-        });
-
-        setSelectedBook(matchedBook);
-        setSelectedChapter(chapterNum);
-        setSelectedAyat(String(startAyat));
-        setSearchResults(null);
-    }, []);
-
-    React.useEffect(() => {
-        let target = window.__alkitabDirectTarget || null;
-        window.__alkitabDirectTarget = null;
-        if (!target) {
-            const directTargetStr = localStorage.getItem('alkitabDirectTarget');
-            if (directTargetStr) {
-                try {
-                    target = JSON.parse(directTargetStr);
-                    localStorage.removeItem('alkitabDirectTarget');
-                } catch (e) { }
-            }
-        }
-        if (target) {
-            processDirectTarget(target);
-        }
-
-        const handleDirectTargetEvent = (e) => {
-            if (e.detail) {
-                processDirectTarget(e.detail);
-            }
-        };
-
-        window.addEventListener('alkitab-direct-target', handleDirectTargetEvent);
-        return () => {
-            window.removeEventListener('alkitab-direct-target', handleDirectTargetEvent);
-        };
-    }, [processDirectTarget]);
-
-    React.useEffect(() => {
-        if (setHideGlobalBack) setHideGlobalBack(true);
-        return () => { if (setHideGlobalBack) setHideGlobalBack(false); };
-    }, [setHideGlobalBack]);
-
-    const pl = ALKITAB_BOOKS.filter(b => b.testamen === 'PL');
-    const pb = ALKITAB_BOOKS.filter(b => b.testamen === 'PB');
-
-    const loadChapter = React.useCallback(async (bookId, chapter) => {
-        setIsLoadingChapter(true);
-        setFetchError(null);
-        setVerses([]);
-        setSelectedAyat('');
-        try {
-            // Load the entire book from our local static API cache
-            const res = await fetch(import.meta.env.BASE_URL + `alkitab/${bookId}.json`);
-            if (!res.ok) throw new Error('Data kitab belum tersedia');
-            const bookData = await res.json();
-            const chapterData = bookData[chapter];
-            if (!chapterData) throw new Error('Pasal tidak ditemukan');
-
-            // Deduplicate verses (Sabda API sometimes prepends duplicate verse fragments)
-            const dedupedVerses = [];
-            const seenVerses = new Set();
-            const seenTitles = new Set();
-            for (let i = chapterData.length - 1; i >= 0; i--) {
-                const v = chapterData[i];
-                if (v.type === 'title') {
-                    if (!seenTitles.has(v.teks)) {
-                        seenTitles.add(v.teks);
-                        dedupedVerses.push(v);
-                    }
-                } else {
-                    if (!seenVerses.has(v.ayat)) {
-                        seenVerses.add(v.ayat);
-                        dedupedVerses.push(v);
-                    }
-                }
-            }
-            dedupedVerses.reverse();
-
-            setVerses(dedupedVerses);
-            setSelectedVerses(new Set());
-            setSelectedAyat('');
-        } catch (err) {
-            setFetchError('Kitab ini belum tersimpan di memori offline. Sambungkan internet sekali agar otomatis tersimpan.');
-        }
-        setIsLoadingChapter(false);
-    }, []);
-
-    const doSearch = React.useCallback(async (query) => {
-        setIsSearching(true);
-        try {
-            const res = await fetch(`https://bolls.life/search/TB/?search=${encodeURIComponent(query)}&match_case=false&match_whole=false`);
-            const data = await res.json();
-            const lowerQuery = query.trim().toLowerCase();
-            const filteredData = data.filter(item => {
-                const cleanText = item.text.replace(/<[^>]+>/g, '').toLowerCase();
-                return cleanText.includes(lowerQuery);
-            });
-            setSearchResults(filteredData);
-        } catch (err) {
-            console.error(err);
-            setSearchResults([]);
-        }
-        setIsSearching(false);
-    }, []);
-
-    const handleSearch = async (e) => {
-        e.preventDefault();
-        if (!searchQuery.trim()) {
-            setSearchResults(null);
-            return;
-        }
-        doSearch(searchQuery);
-    };
-
-    React.useEffect(() => {
-        const initialSearch = localStorage.getItem('alkitabInitialSearch');
-        if (initialSearch) {
-            setSearchQuery(initialSearch);
-            localStorage.removeItem('alkitabInitialSearch');
-            doSearch(initialSearch);
-        }
-    }, [doSearch]);
-
-    React.useEffect(() => {
-        if (selectedBook && selectedChapter) {
-            loadChapter(selectedBook.id, selectedChapter);
-            setSelectedVerses(new Set());
-        }
-    }, [selectedBook, selectedChapter, loadChapter]);
-
-    React.useEffect(() => {
-        if (!isLoadingChapter && verses.length > 0 && pendingTarget) {
-            if (selectedBook?.id === pendingTarget.bookId && selectedChapter === pendingTarget.chapter) {
-                const { startAyat, endAyat } = pendingTarget;
-                setPendingTarget(null);
-                const timer = setTimeout(() => {
-                    scrollToVerse(startAyat, endAyat);
-                }, 250);
-                return () => clearTimeout(timer);
-            }
-        }
-    }, [verses, isLoadingChapter, pendingTarget, selectedBook, selectedChapter, scrollToVerse]);
-
-    const toggleVerse = (ayatNum) => {
-        const newSet = new Set(selectedVerses);
-        if (newSet.has(ayatNum)) {
-            newSet.delete(ayatNum);
-        } else {
-            newSet.add(ayatNum);
-        }
-        setSelectedVerses(newSet);
-    };
-
-    const handleShareVerses = () => {
-        if (selectedVerses.size === 0) return;
-        const sortedSelected = Array.from(selectedVerses).sort((a, b) => a - b);
-        let textParts = [];
-        for (const ayat of sortedSelected) {
-            const v = verses.find(x => x.ayat === ayat);
-            if (v) textParts.push(`[${ayat}] ${v.teks}`);
-        }
-
-        let ranges = [];
-        let start = sortedSelected[0];
-        let end = start;
-        for (let i = 1; i < sortedSelected.length; i++) {
-            if (sortedSelected[i] === end + 1) {
-                end = sortedSelected[i];
-            } else {
-                ranges.push(start === end ? `${start}` : `${start}-${end}`);
-                start = sortedSelected[i];
-                end = start;
-            }
-        }
-        ranges.push(start === end ? `${start}` : `${start}-${end}`);
-        const ayatString = ranges.join(', ');
-
-        const appUrl = window.location.origin + window.location.pathname;
-        const shareText = `${selectedBook.nama} ${selectedChapter}:${ayatString}\n\n${textParts.join('\n')}\n\nBaca selengkapnya di: ${appUrl}`;
-
-        const fallbackCopy = (text) => {
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('Ayat berhasil disalin ke clipboard!');
-                }).catch(err => console.error('Copy failed', err));
-            } else {
-                const textArea = document.createElement("textarea");
-                textArea.value = text;
-                textArea.style.position = "fixed";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    alert('Ayat berhasil disalin ke clipboard!');
-                } catch (err) { }
-                textArea.remove();
-            }
-        };
-
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        if (navigator.share && isMobile) {
-            navigator.share({ text: shareText }).catch(() => fallbackCopy(shareText));
-        } else {
-            fallbackCopy(shareText);
-        }
-        setSelectedVerses(new Set());
-    };
-
-    const prevChapterInfo = React.useMemo(() => {
-        if (!selectedBook || !selectedChapter) return null;
-        if (selectedChapter > 1) {
-            return { book: selectedBook, chapter: selectedChapter - 1 };
-        }
-        const bookIndex = ALKITAB_BOOKS.findIndex(b => b.id === selectedBook.id);
-        if (bookIndex > 0) {
-            const prevBook = ALKITAB_BOOKS[bookIndex - 1];
-            return { book: prevBook, chapter: prevBook.pasal };
-        }
-        return null;
-    }, [selectedBook, selectedChapter]);
-
-    const nextChapterInfo = React.useMemo(() => {
-        if (!selectedBook || !selectedChapter) return null;
-        if (selectedChapter < selectedBook.pasal) {
-            return { book: selectedBook, chapter: selectedChapter + 1 };
-        }
-        const bookIndex = ALKITAB_BOOKS.findIndex(b => b.id === selectedBook.id);
-        if (bookIndex < ALKITAB_BOOKS.length - 1) {
-            const nextBook = ALKITAB_BOOKS[bookIndex + 1];
-            return { book: nextBook, chapter: 1 };
-        }
-        return null;
-    }, [selectedBook, selectedChapter]);
-
-    const filterBooks = (books) => books.filter(b => b.nama.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    const renderBookList = (books, title) => {
-        const filtered = filterBooks(books);
-        if (filtered.length === 0) return null;
-        return (
-            <div className="mb-6">
-                <h3 className="text-sm font-black text-gold-600 uppercase tracking-widest mb-3 px-2">{title}</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {filtered.map((b) => (
-                        <button
-                            key={b.id}
-                            onClick={() => { setSelectedBook(b); setSelectedChapter(null); setVerses([]); }}
-                            className="bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700 p-3 rounded-xl hover:bg-gold-50 dark:hover:bg-navy-700 hover:border-gold-200 transition-colors text-left shadow-sm"
-                        >
-                            <span className="font-bold text-navy-900 dark:text-navy-100 text-sm">{b.nama}</span>
-                            <span className="block text-xs text-navy-400 mt-0.5">{b.pasal} pasal</span>
-                        </button>
-                    ))}
-                </div>
-            </div>
-        );
-    };
-
-    const renderDropdowns = () => (
-        <div className="flex-1 w-full flex flex-row items-center gap-1.5 sm:gap-2 bg-white dark:bg-navy-900 px-2 sm:px-3 py-1.5 rounded-2xl shadow-sm border border-navy-100 dark:border-navy-800">
-            {/* KITAB */}
-            <div className="flex-[1.4] min-w-[75px] sm:min-w-[110px]">
-                <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Kitab</label>
-                <select
-                    value={selectedBook?.id || ''}
-                    onChange={(e) => {
-                        const newBook = ALKITAB_BOOKS.find(b => b.id === parseInt(e.target.value));
-                        setSelectedBook(newBook);
-                        setSelectedChapter(1);
-                        setSelectedAyat('');
-                    }}
-                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer truncate"
-                >
-                    <option value="" disabled>Pilih Kitab...</option>
-                    {ALKITAB_BOOKS.map(b => (
-                        <option key={b.id} value={b.id}>{b.nama}</option>
-                    ))}
-                </select>
-            </div>
-
-            {/* PASAL */}
-            <div className="flex-1 min-w-[50px] sm:min-w-[65px]">
-                <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Pasal</label>
-                <select
-                    value={selectedChapter || ''}
-                    onChange={(e) => {
-                        setSelectedChapter(parseInt(e.target.value));
-                        setSelectedAyat('');
-                    }}
-                    disabled={!selectedBook}
-                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <option value="" disabled>--</option>
-                    {selectedBook && Array.from({ length: selectedBook.pasal }, (_, i) => i + 1).map(ch => (
-                        <option key={ch} value={ch}>{ch}</option>
-                    ))}
-                </select>
-            </div>
-
-            {/* AYAT */}
-            <div className="flex-1 min-w-[50px] sm:min-w-[65px]">
-                <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Ayat</label>
-                <select
-                    value={selectedAyat || ''}
-                    onChange={(e) => {
-                        const val = e.target.value;
-                        if (val) scrollToVerse(val);
-                    }}
-                    disabled={!selectedChapter || verses.length === 0}
-                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <option value="">--</option>
-                    {verses.filter(v => v.type === 'content').map(v => (
-                        <option key={`opt-${v.ayat}`} value={v.ayat}>{v.ayat}</option>
-                    ))}
-                </select>
-            </div>
-        </div>
-    );
-
-    if (!selectedBook) {
-        return (
-            <div className="animate-fade-in pb-10">
-                <div className="sticky top-14 md:top-16 z-40 bg-white/95 dark:bg-[#0b1a30]/95 backdrop-blur-md pt-2 pb-3 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex flex-col gap-2.5 shadow-sm transition-all">
-                    <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
-                        <button
-                            onClick={() => window.history.back()}
-                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group"
-                            title="Kembali"
-                        >
-                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-                        </button>
-                        <div className="flex-1 min-w-0">
-                            {renderDropdowns()}
-                        </div>
-                    </div>
-                    <form onSubmit={handleSearch} className="relative flex items-center">
-                        <Icon name="Search" className="absolute left-4 w-5 h-5 text-navy-400" />
-                        <input
-                            type="text"
-                            placeholder="Cari Kitab atau ketik kata untuk cari ayat..."
-                            value={searchQuery}
-                            onChange={(e) => {
-                                setSearchQuery(e.target.value);
-                                if (e.target.value === '') setSearchResults(null);
-                            }}
-                            className="w-full bg-white dark:bg-navy-900 border-2 border-navy-100 dark:border-navy-700 rounded-xl py-3 pl-12 pr-28 text-sm font-bold focus:outline-none focus:border-gold-400 dark:focus:border-gold-500 transition-colors text-navy-900 dark:text-white"
-                        />
-                        {searchQuery.trim() && (
-                            <button type="submit" disabled={isSearching} className="absolute right-2 bg-gold-400 hover:bg-gold-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors disabled:opacity-50">
-                                {isSearching ? 'Mencari...' : 'Cari Ayat'}
-                            </button>
-                        )}
-                    </form>
-                </div>
-                <div className="mt-6">
-                    {searchResults ? (
-                        <div>
-                            <div className="flex justify-between items-end mb-4 px-2">
-                                <h3 className="text-sm font-black text-gold-600 uppercase tracking-widest">Hasil Pencarian Ayat</h3>
-                                <button onClick={() => { setSearchResults(null); setSearchQuery(''); }} className="text-xs font-bold text-navy-400 hover:text-navy-600 dark:hover:text-white transition">Tutup</button>
-                            </div>
-                            {searchResults.length === 0 ? (
-                                <p className="text-center text-navy-400 py-10 font-semibold">Tidak ada ayat yang cocok dengan kata "{searchQuery}".</p>
-                            ) : (
-                                <div className="space-y-3">
-                                    {searchResults.map((res, i) => {
-                                        const b = ALKITAB_BOOKS.find(book => book.id === res.book);
-                                        return (
-                                            <div
-                                                key={i}
-                                                onClick={() => {
-                                                    if (b) {
-                                                        processDirectTarget({
-                                                            bookName: b.nama,
-                                                            chapter: res.chapter,
-                                                            verse: res.verse
-                                                        });
-                                                    }
-                                                }}
-                                                className="bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700 p-4 rounded-xl shadow-sm hover:border-gold-300 dark:hover:border-gold-500 transition cursor-pointer group"
-                                            >
-                                                <div className="font-black text-gold-500 text-xs mb-1.5">{b?.nama} {res.chapter}:{res.verse}</div>
-                                                <p className="text-sm md:text-base text-navy-800 dark:text-navy-100 leading-relaxed" dangerouslySetInnerHTML={{ __html: res.text.replace(/<mark>/g, '<mark className="bg-gold-200 dark:bg-gold-600/50 text-navy-900 dark:text-white rounded px-1">') }} />
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <>
-                            <div className="flex flex-wrap items-center justify-between gap-3 mb-6 px-2 mt-2">
-                                <h2 className="text-xl md:text-2xl font-black text-navy-900 dark:text-white flex items-center">
-                                    <Icon name="Book" className="w-6 h-6 mr-2 text-gold-500" />
-                                    Alkitab TB
-                                </h2>
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-[11px] font-bold tracking-wide">
-                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    66 Kitab Siap Offline
-                                </span>
-                            </div>
-                            {renderBookList(pl, 'Perjanjian Lama')}
-                            {renderBookList(pb, 'Perjanjian Baru')}
-                            {filterBooks([...pl, ...pb]).length === 0 && (
-                                <p className="text-center text-navy-400 py-10 font-semibold">Kitab tidak ditemukan. Tekan "Cari Ayat" untuk mencari isi ayat.</p>
-                            )}
-                        </>
-                    )}
-                </div>
-            </div>
-        );
-    }
-
-    if (selectedBook && !selectedChapter) {
-        const chapters = Array.from({ length: selectedBook.pasal }, (_, i) => i + 1);
-        return (
-            <div className="animate-fade-in pb-10">
-                <div className="sticky top-14 md:top-16 z-40 bg-white/95 dark:bg-[#0b1a30]/95 backdrop-blur-md pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 shadow-sm transition-all">
-                    <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
-                        <button
-                            onClick={() => setSelectedBook(null)}
-                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group"
-                            title="Kembali ke Daftar Kitab"
-                        >
-                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-                        </button>
-                        <div className="flex-1 min-w-0">
-                            {renderDropdowns()}
-                        </div>
-                        <button
-                            onClick={() => { setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all shrink-0 active:scale-95 group"
-                            title="Daftar Kitab (Home)"
-                        >
-                            <Icon name="Home" className="w-5 h-5 group-hover:scale-105 transition-transform" />
-                        </button>
-                    </div>
-                </div>
-                <div className="mt-6">
-                    <h3 className="text-sm font-black text-gold-600 uppercase tracking-widest mb-3 px-2">Pilih Pasal</h3>
-                    <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
-                        {chapters.map((ch) => (
-                            <button key={ch} onClick={() => setSelectedChapter(ch)}
-                                className="bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700 p-3 rounded-xl hover:bg-gold-50 dark:hover:bg-navy-700 hover:border-gold-200 transition-colors text-center shadow-sm font-bold text-navy-900 dark:text-navy-100">
-                                {ch}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (selectedBook && selectedChapter) {
-        return (
-            <div className="animate-fade-in pb-10">
-                {/* Sticky Header: Tombol Panah (Kiri), Kotak Kitab (Tengah), Tombol Home (Kanan) */}
-                <div className="sticky top-14 md:top-16 z-40 bg-white/95 dark:bg-[#0b1a30]/95 backdrop-blur-md pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 shadow-sm transition-all">
-                    <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
-                        {/* Tombol Panah (Kembali) di sebelah kiri */}
-                        <button
-                            onClick={() => { setSelectedChapter(null); setSelectedVerses(new Set()); setSelectedAyat(''); }}
-                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group"
-                            title="Kembali ke Pilih Pasal"
-                        >
-                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-                        </button>
-
-                        {/* Kotak Kitab (Dropdowns: Kitab, Pasal, Ayat) di tengah */}
-                        <div className="flex-1 min-w-0">
-                            {renderDropdowns()}
-                        </div>
-
-                        {/* Tombol Home di sebelah kanan */}
-                        <button
-                            onClick={() => { setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all shrink-0 active:scale-95 group"
-                            title="Daftar Kitab (Home)"
-                        >
-                            <Icon name="Home" className="w-5 h-5 group-hover:scale-105 transition-transform" />
-                        </button>
-                    </div>
-                </div>
-
-                {/* Navigation and Font Size Slider */}
-                <div className="flex items-stretch gap-2 mt-4 h-14 md:h-12 w-full">
-                    {prevChapterInfo ? (
-                        <button onClick={() => { setSelectedBook(prevChapterInfo.book); setSelectedChapter(prevChapterInfo.chapter); setVerses([]); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex-1 flex flex-col items-start justify-center px-3 md:px-4 py-1.5 bg-white dark:bg-navy-800 rounded-xl border border-navy-100/80 dark:border-navy-700 shadow-sm hover:shadow hover:border-gold-300 dark:hover:border-gold-500/50 transition-all group min-w-0 overflow-hidden">
-                            <span className="text-[9px] md:text-[10px] text-navy-400 dark:text-navy-400 font-black uppercase tracking-widest flex items-center gap-1 w-full"><Icon name="ChevronLeft" className="w-3 h-3 shrink-0 group-hover:-translate-x-0.5 transition-transform" /> <span className="truncate">Sebelumnya</span></span>
-                            <span className="font-bold text-navy-800 dark:text-navy-100 text-[11px] md:text-sm pl-4 truncate w-full text-left">{prevChapterInfo.book.nama} {prevChapterInfo.chapter}</span>
-                        </button>
-                    ) : <div className="flex-1"></div>}
-
-                    <div className="flex-[1.2] md:flex-[2] flex items-center justify-between md:justify-center gap-1 bg-navy-50 dark:bg-navy-800/50 rounded-xl px-1.5 md:px-2 py-1.5 h-full border border-transparent dark:border-navy-800 shrink-0">
-                        <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="w-10 md:w-12 h-full flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-navy-700 text-navy-500 dark:text-navy-300 shadow-sm transition-colors active:scale-95" title="Perkecil Teks">
-                            <Icon name="Minus" className="w-4 h-4 md:w-5 md:h-5" />
-                        </button>
-                        <div className="flex flex-col items-center justify-center px-2 min-w-[3rem]">
-                            <span className="text-[10px] md:text-xs font-bold text-navy-600 dark:text-navy-300 leading-none">Aa</span>
-                            <span className="text-[9px] md:text-[10px] text-navy-400 font-bold tracking-tighter leading-none mt-1">{fontSize}px</span>
-                        </div>
-                        <button onClick={() => setFontSize(Math.min(28, fontSize + 2))} className="w-10 md:w-12 h-full flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-navy-700 text-navy-500 dark:text-navy-300 shadow-sm transition-colors active:scale-95" title="Perbesar Teks">
-                            <Icon name="Plus" className="w-4 h-4 md:w-5 md:h-5" />
-                        </button>
-                    </div>
-
-                    {nextChapterInfo ? (
-                        <button onClick={() => { setSelectedBook(nextChapterInfo.book); setSelectedChapter(nextChapterInfo.chapter); setVerses([]); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex-1 flex flex-col items-end justify-center px-3 md:px-4 py-1.5 bg-white dark:bg-navy-800 rounded-xl border border-navy-100/80 dark:border-navy-700 shadow-sm hover:shadow hover:border-gold-300 dark:hover:border-gold-500/50 transition-all group min-w-0 overflow-hidden">
-                            <span className="text-[9px] md:text-[10px] text-navy-400 dark:text-navy-400 font-black uppercase tracking-widest flex items-center justify-end gap-1 w-full"><span className="truncate">Berikutnya</span> <Icon name="ChevronRight" className="w-3 h-3 shrink-0 group-hover:translate-x-0.5 transition-transform" /></span>
-                            <span className="font-bold text-navy-800 dark:text-navy-100 text-[11px] md:text-sm pr-4 truncate w-full text-right">{nextChapterInfo.book.nama} {nextChapterInfo.chapter}</span>
-                        </button>
-                    ) : <div className="flex-1"></div>}
-                </div>
-                <div className="mt-6 bg-white dark:bg-navy-900 p-5 md:p-8 rounded-[1.5rem] shadow-sm border border-navy-100 dark:border-navy-800 min-h-[200px]">
-                    {isLoadingChapter && (
-                        <div className="flex flex-col items-center justify-center py-16">
-                            <div className="w-10 h-10 border-4 border-navy-100 border-t-[#D19B45] rounded-full animate-spin mb-3"></div>
-                            <p className="text-navy-500 font-bold uppercase tracking-widest text-xs animate-pulse">Memuat pasal...</p>
-                        </div>
-                    )}
-                    {fetchError && !isLoadingChapter && (
-                        <div className="text-center py-10">
-                            <p className="text-red-500 font-bold mb-3">{fetchError}</p>
-                            <button onClick={() => loadChapter(selectedBook.id, selectedChapter)} className="px-5 py-2 bg-navy-900 text-gold-400 rounded-xl font-bold text-sm hover:bg-navy-800 transition">Coba Lagi</button>
-                        </div>
-                    )}
-                    {!isLoadingChapter && !fetchError && verses.length > 0 && (
-                        <>
-                            <div className="mb-8 border-b border-navy-100 dark:border-navy-800 pb-6">
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="text-[10px] font-black text-gold-600 uppercase tracking-widest">{selectedBook.testamen === 'PL' ? 'PERJANJIAN LAMA' : 'PERJANJIAN BARU'} • TERJEMAHAN BARU</span>
-                                </div>
-                                <div className="flex justify-between items-end">
-                                    <h2 className="text-3xl font-black text-navy-900 dark:text-white tracking-tight">{selectedBook.nama} {selectedChapter}</h2>
-                                    <span className="bg-navy-100 dark:bg-navy-800 text-navy-600 dark:text-navy-300 text-xs font-bold px-3 py-1.5 rounded-full">{verses.filter(v => v.type === 'content').length} ayat</span>
-                                </div>
-                            </div>
-                            <div className="space-y-4">
-                                {verses.map((a, index) => {
-                                    if (a.type === 'title') {
-                                        return (
-                                            <h3 key={`title-${index}`} className="text-lg md:text-xl font-bold text-navy-900 dark:text-white mt-10 mb-5 border-l-4 border-gold-500 pl-3">
-                                                {a.teks}
-                                            </h3>
-                                        );
-                                    }
-                                    return (
-                                        <div
-                                            key={a.ayat}
-                                            id={`ayat-${a.ayat}`}
-                                            style={{ scrollMarginTop: '160px' }}
-                                            onClick={() => toggleVerse(a.ayat)}
-                                            className={`flex gap-4 items-start group transition-all duration-300 rounded-[1.25rem] p-3 md:p-4 -mx-3 md:-mx-4 cursor-pointer select-none ${selectedVerses.has(a.ayat) ? 'bg-gold-50 dark:bg-gold-500/10 shadow-sm border border-gold-200 dark:border-gold-500/30' : 'hover:bg-navy-50/70 dark:hover:bg-navy-800/60 border border-transparent'}`}
-                                        >
-                                            <span className={`font-bold rounded-full flex items-center justify-center shrink-0 transition-colors shadow-sm ${selectedVerses.has(a.ayat) ? 'bg-[#D19B45] text-white' : 'text-navy-500 bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700'}`} style={{ fontSize: Math.max(10, fontSize - 6) + 'px', width: '2.5em', height: '2.5em', marginTop: '0.25em' }}>{a.ayat}</span>
-                                            <p className="text-navy-800 dark:text-navy-100 leading-relaxed transition-all" style={{ fontSize: fontSize + 'px' }}>{a.teks}</p>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Navigasi Bawah: Sebelumnya, Ke Atas, Berikutnya */}
-                            <div className="mt-10 pt-6 border-t border-navy-100 dark:border-navy-800 flex items-center justify-between gap-2 sm:gap-4 select-none">
-                                {prevChapterInfo ? (
-                                    <button
-                                        onClick={() => {
-                                            setSelectedBook(prevChapterInfo.book);
-                                            setSelectedChapter(prevChapterInfo.chapter);
-                                            setVerses([]);
-                                            setSelectedAyat('');
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        }}
-                                        className="flex-1 flex items-center justify-start gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl bg-navy-50 hover:bg-gold-500 hover:text-navy-950 dark:bg-navy-800 dark:hover:bg-gold-500 dark:hover:text-navy-950 text-navy-700 dark:text-navy-200 border border-navy-100/80 dark:border-navy-700 transition-all cursor-pointer group shadow-sm active:scale-95 min-w-0"
-                                        title={`Pasal Sebelumnya: ${prevChapterInfo.book.nama} ${prevChapterInfo.chapter}`}
-                                    >
-                                        <Icon name="ChevronLeft" className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 group-hover:-translate-x-0.5 transition-transform" />
-                                        <div className="flex flex-col text-left truncate min-w-0">
-                                            <span className="text-[9px] uppercase font-black text-navy-400 dark:text-navy-400 group-hover:text-navy-900 tracking-wider">Sebelumnya</span>
-                                            <span className="text-xs sm:text-sm font-black truncate">{prevChapterInfo.book.nama} {prevChapterInfo.chapter}</span>
-                                        </div>
-                                    </button>
-                                ) : (
-                                    <div className="flex-1" />
-                                )}
-
-                                <button
-                                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                                    className="flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-gold-500/15 hover:bg-gold-500 text-gold-600 dark:text-gold-400 hover:text-navy-950 dark:hover:text-navy-950 border border-gold-500/30 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0 group"
-                                    title="Kembali ke Bagian Atas"
-                                >
-                                    <Icon name="ArrowUp" className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 group-hover:-translate-y-0.5 transition-transform" />
-                                    <span className="text-xs sm:text-sm font-black whitespace-nowrap">Ke Atas</span>
-                                </button>
-
-                                {nextChapterInfo ? (
-                                    <button
-                                        onClick={() => {
-                                            setSelectedBook(nextChapterInfo.book);
-                                            setSelectedChapter(nextChapterInfo.chapter);
-                                            setVerses([]);
-                                            setSelectedAyat('');
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        }}
-                                        className="flex-1 flex items-center justify-end gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl bg-navy-50 hover:bg-gold-500 hover:text-navy-950 dark:bg-navy-800 dark:hover:bg-gold-500 dark:hover:text-navy-950 text-navy-700 dark:text-navy-200 border border-navy-100/80 dark:border-navy-700 transition-all cursor-pointer group shadow-sm active:scale-95 min-w-0"
-                                        title={`Pasal Berikutnya: ${nextChapterInfo.book.nama} ${nextChapterInfo.chapter}`}
-                                    >
-                                        <div className="flex flex-col text-right truncate min-w-0">
-                                            <span className="text-[9px] uppercase font-black text-navy-400 dark:text-navy-400 group-hover:text-navy-900 tracking-wider">Berikutnya</span>
-                                            <span className="text-xs sm:text-sm font-black truncate">{nextChapterInfo.book.nama} {nextChapterInfo.chapter}</span>
-                                        </div>
-                                        <Icon name="ChevronRight" className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 group-hover:translate-x-0.5 transition-transform" />
-                                    </button>
-                                ) : (
-                                    <div className="flex-1" />
-                                )}
-                            </div>
-                        </>
-                    )}
-                    {!isLoadingChapter && !fetchError && verses.length === 0 && (
-                        <p className="text-center text-navy-400 py-10 font-semibold text-sm">Tidak ada data ayat.</p>
-                    )}
-
-                    {/* Share Selected Verses FAB */}
-                    {selectedVerses.size > 0 && (
-                        <div className="fixed bottom-6 left-0 right-0 z-[60] flex justify-center px-4 pointer-events-none animate-slide-up">
-                            <button onClick={handleShareVerses} className="pointer-events-auto bg-[#4A7045] hover:bg-[#3A5836] text-white px-6 py-3.5 rounded-full font-bold shadow-[0_8px_30px_rgba(74,112,69,0.4)] flex items-center gap-3 transition-transform hover:scale-105 group border border-white/20">
-                                <Icon name="Share" className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                <span>Bagikan {selectedVerses.size} Ayat</span>
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </div>
-        );
-    }
-
-    return null;
-};
-
-// --- COMPONENT: SEARCH ---
-const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = [], subTab = 'numpad', setSubTab = () => { } }) => {
-    const [songNo, setSongNo] = React.useState('');
-    const [selectedSong, setSelectedSong] = React.useState(null);
-    const [indexTab, setIndexTab] = React.useState('number'); // number, alphabet
-    const [searchQuery, setSearchQuery] = React.useState('');
-    const [db, setDb] = React.useState([]);
-    const [isLoading, setIsLoading] = React.useState(false);
-    const [copied, setCopied] = React.useState(false);
-
-    // Load lyrics from public/lagu_sion.json if not passed from parent
-    React.useEffect(() => {
-        if (laguSionDb && laguSionDb.length > 0) {
-            setDb(laguSionDb);
-        } else {
-            setIsLoading(true);
-            fetch('./lagu_sion.json')
-                .then(r => r.json())
-                .then(data => {
-                    setDb(data);
-                    setIsLoading(false);
-                })
-                .catch(err => {
-                    console.error("Error loading Lagu Sion inside component:", err);
-                    setIsLoading(false);
-                });
-        }
-    }, [laguSionDb]);
-
-    // Handle initial song from global search
-    React.useEffect(() => {
-        if (initialSong) {
-            setSelectedSong(initialSong);
-            setSubTab('lyrics');
-            clearInitialSong();
-        }
-    }, [initialSong, clearInitialSong]);
-
-    // Numpad Key Press
-    const handleKeyPress = (val) => {
-        if (val === 'clear') {
-            setSongNo('');
-        } else if (val === 'backspace') {
-            setSongNo(prev => prev.slice(0, -1));
-        } else {
-            // Max 3 digits
-            if (songNo.length < 3) {
-                setSongNo(prev => prev + val);
-            }
-        }
-    };
-
-    // Go to lyrics
-    const handleGo = () => {
-        if (!songNo) return;
-        const num = parseInt(songNo, 10);
-        const song = db.find(s => s.number === num);
-        if (song) {
-            setSelectedSong(song);
-            setSubTab('lyrics');
-            setSongNo('');
-        } else {
-            alert(`Lagu nomor ${songNo} tidak ditemukan. Silakan masukkan nomor antara 1 dan 525.`);
-        }
-    };
-
-    // Navigate to Prev/Next song
-    const handlePrevNext = (direction) => {
-        if (!selectedSong) return;
-        let nextNum = selectedSong.number + direction;
-        if (nextNum < 1) nextNum = 525;
-        if (nextNum > 525) nextNum = 1;
-        const nextSong = db.find(s => s.number === nextNum);
-        if (nextSong) {
-            setSelectedSong(nextSong);
-        }
-    };
-
-    // Share song
-    const handleShare = () => {
-        if (!selectedSong) return;
-
-        let lyricsLines = [];
-        let chorusRef = null;
-        const verses = selectedSong.verses || [];
-        for (let i = 0; i < verses.length; i++) {
-            const v = verses[i];
-            lyricsLines.push(`[${v.label}]\n${v.lines.join('\n')}`);
-            if (v.type === 'chorus') chorusRef = v;
-            if ((v.type === 'verse' || v.type === 'bait') && chorusRef) {
-                const nextV = verses[i + 1];
-                if (!nextV || nextV.type !== 'chorus') {
-                    lyricsLines.push(`[${chorusRef.label}]\n${chorusRef.lines.join('\n')}`);
-                }
-            }
-        }
-
-        const lyricsText = lyricsLines.join('\n\n');
-        const appUrl = window.location.origin + window.location.pathname;
-        const shareText = `Lagu Sion No. ${selectedSong.number} - ${selectedSong.title}\nKey/Time: ${selectedSong.keyTime}\n\n${lyricsText}\n\nNyanyikan di: ${appUrl}`;
-
-        const fallbackCopy = (text) => {
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => {
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                }).catch(err => console.error('Copy failed', err));
-            } else {
-                const textArea = document.createElement("textarea");
-                textArea.value = text;
-                textArea.style.position = "fixed";
-                textArea.style.left = "-999999px";
-                textArea.style.top = "-999999px";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                } catch (err) {
-                    console.error('Fallback copy failed', err);
-                }
-                textArea.remove();
-            }
-        };
-
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-        if (navigator.share && isMobile) {
-            navigator.share({
-                title: `Lagu Sion No. ${selectedSong.number} - ${selectedSong.title}`,
-                text: shareText,
-            }).catch(err => {
-                console.log('Error sharing:', err);
-                fallbackCopy(shareText);
-            });
-        } else {
-            fallbackCopy(shareText);
-        }
-    };
-
-    // Sorted index list
-    const indexedSongs = React.useMemo(() => {
-        let list = [...db];
-
-        if (searchQuery.trim() !== '') {
-            const q = searchQuery.toLowerCase();
-            list = list.filter(song => {
-                if (String(song.number) === q) return true;
-                if (song.title.toLowerCase().includes(q)) return true;
-                if (song.verses && song.verses.some(v => v.lines && v.lines.some(line => line.toLowerCase().includes(q)))) return true;
-                return false;
-            });
-        }
-
-        if (indexTab === 'alphabet') {
-            list.sort((a, b) => a.title.localeCompare(b.title));
-        } else {
-            list.sort((a, b) => a.number - b.number);
-        }
-        return list;
-    }, [db, indexTab, searchQuery]);
-
-    return (
-        <div className={`animate-fade-in relative z-10 ${subTab === 'numpad' ? 'pb-2' : 'pb-32'}`}>
-            {isLoading && (
-                <div className="fixed inset-0 bg-white/80 flex flex-col items-center justify-center z-50">
-                    <div className="w-10 h-10 border-4 border-gold-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-                    <p className="text-xs font-bold text-navy-500 tracking-wider uppercase">Memuat Database Lagu...</p>
-                </div>
-            )}
-
-            {/* Desktop SubTab Navigation Bar */}
-            <div className="hidden md:flex items-center justify-center mt-1 mb-6">
-                <div className="bg-white dark:bg-navy-800/90 backdrop-blur-md p-1.5 rounded-2xl border border-navy-100 dark:border-navy-700 shadow-sm flex items-center gap-2">
-                    <button
-                        onClick={() => setSubTab('numpad')}
-                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${subTab === 'numpad'
-                            ? 'bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white shadow-md'
-                            : 'text-navy-600 dark:text-navy-300 hover:text-navy-950 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-700/50'
-                            }`}
-                    >
-                        <Icon name="Grid" className="w-4 h-4" />
-                        <span>Numpad</span>
-                    </button>
-                    <button
-                        onClick={() => {
-                            if (selectedSong) setSubTab('lyrics');
-                        }}
-                        disabled={!selectedSong}
-                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${!selectedSong
-                            ? 'opacity-40 cursor-not-allowed text-navy-400'
-                            : subTab === 'lyrics'
-                                ? 'bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white shadow-md'
-                                : 'text-navy-600 dark:text-navy-300 hover:text-navy-950 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-700/50'
-                            }`}
-                        title={!selectedSong ? 'Pilih lagu terlebih dahulu' : 'Lihat lirik lagu'}
-                    >
-                        <Icon name="BookOpen" className="w-4 h-4" />
-                        <span>Lirik Lagu</span>
-                    </button>
-                    <button
-                        onClick={() => setSubTab('index')}
-                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${subTab === 'index'
-                            ? 'bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white shadow-md'
-                            : 'text-navy-600 dark:text-navy-300 hover:text-navy-950 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-700/50'
-                            }`}
-                    >
-                        <Icon name="List" className="w-4 h-4" />
-                        <span>Daftar Lagu</span>
-                    </button>
-                </div>
-            </div>
-
-            {/* Shared Search Box for Numpad and Index */}
-            {(subTab === 'numpad' || subTab === 'index') && (
-                <div className="max-w-xl mx-auto mt-2 mb-4 px-4">
-                    <div className="flex items-center justify-between gap-2 mb-2 px-1">
-                        <span className="text-xs font-black text-navy-800 dark:text-navy-100 uppercase tracking-wider flex items-center gap-1.5">
-                            <Icon name="Music" className="w-4 h-4 text-gold-500" />
-                            Lagu Sion
-                        </span>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-[10px] font-extrabold tracking-wide">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            525 Lagu Siap Offline
-                        </span>
-                    </div>
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <Icon name="Search" className="h-5 w-5 text-navy-400" />
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="Cari judul, nomor, atau lirik lagu..."
-                            value={searchQuery}
-                            onChange={(e) => {
-                                setSearchQuery(e.target.value);
-                                if (e.target.value.trim() !== '' && subTab === 'numpad') {
-                                    setSubTab('index');
-                                }
-                            }}
-                            className="block w-full pl-11 pr-10 py-3.5 bg-white border border-navy-100/80 rounded-2xl text-navy-900 placeholder-navy-300 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all shadow-sm"
-                        />
-                        {searchQuery && (
-                            <button
-                                onClick={() => setSearchQuery('')}
-                                className="absolute inset-y-0 right-0 pr-4 flex items-center text-navy-400 hover:text-navy-600 outline-none"
-                            >
-                                <Icon name="X" className="h-5 w-5" />
-                            </button>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {/* Subtab: Numpad */}
-            {subTab === 'numpad' && (
-                <div className="flex flex-col px-4 mt-2">
-                    <div className="max-w-md w-full mx-auto bg-white dark:bg-navy-800 rounded-[2rem] overflow-hidden shadow-2xl border border-navy-100 dark:border-navy-700 flex flex-col transition-colors">
-                        {/* Song Number display */}
-                        <div className="bg-gradient-to-r from-[#D19B45] to-[#B8863B] dark:from-gold-600 dark:to-gold-500 text-white text-5xl font-black tracking-widest py-5 md:py-8 text-center shrink-0 shadow-inner">
-                            {songNo || '---'}
-                        </div>
-
-                        {/* Numpad Keypad Grid */}
-                        <div className="grid grid-cols-3 bg-transparent divide-x divide-y divide-navy-100 dark:divide-navy-700 border-t border-b border-navy-100 dark:border-navy-700 text-navy-900 dark:text-white shrink-0 select-none">
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                                <button key={num} onClick={() => handleKeyPress(num)} className="py-3 md:py-6 text-3xl font-bold hover:bg-navy-50 dark:hover:bg-navy-700/50 active:bg-navy-100 dark:active:bg-navy-600 transition-colors cursor-pointer outline-none">
-                                    {num}
-                                </button>
-                            ))}
-                            <button onClick={() => handleKeyPress('clear')} className="py-3 md:py-6 text-sm font-bold uppercase tracking-wider text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/40 transition-colors cursor-pointer outline-none">
-                                Clear
-                            </button>
-                            <button onClick={() => handleKeyPress(0)} className="py-3 md:py-6 text-3xl font-bold hover:bg-navy-50 dark:hover:bg-navy-700/50 active:bg-navy-100 dark:active:bg-navy-600 transition-colors cursor-pointer outline-none">
-                                0
-                            </button>
-                            <button onClick={() => handleKeyPress('backspace')} className="py-3 md:py-6 flex items-center justify-center hover:bg-navy-50 dark:hover:bg-navy-700/50 active:bg-navy-100 dark:active:bg-navy-600 transition-colors cursor-pointer outline-none text-navy-600 dark:text-navy-300">
-                                <Icon name="Backspace" className="w-7 h-7" />
-                            </button>
-                        </div>
-
-                        {/* Go Button */}
-                        <button onClick={handleGo} className="w-full bg-[#4A7045] hover:bg-[#3A5836] dark:bg-navy-900 dark:hover:bg-navy-950 text-white py-4 md:py-6 font-black text-xl tracking-widest uppercase transition-colors shrink-0 cursor-pointer outline-none shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
-                            Go
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Subtab: Lyrics */}
-            {subTab === 'lyrics' && (
-                <div className="space-y-4 max-w-xl mx-auto">
-                    {selectedSong ? (
-                        <>
-                            {/* Navy Song navigation header */}
-                            <div className="bg-navy-900 text-white px-4 sm:px-5 py-3 rounded-2xl flex items-center justify-between shadow-md">
-                                <div className="flex items-center gap-2 sm:gap-3">
-                                    <button
-                                        onClick={() => setSubTab('numpad')}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-gold-500 hover:text-navy-950 text-gold-400 active:scale-95 transition-all text-xs font-bold cursor-pointer group"
-                                        title="Kembali ke Numpad (Pilih Lagu)"
-                                    >
-                                        <Icon name="ArrowLeft" className="w-4 h-4 stroke-[2.5] group-hover:-translate-x-0.5 transition-transform" />
-                                        <span>Numpad</span>
-                                    </button>
-                                    <span className="font-black text-base sm:text-lg text-gold-400 truncate">
-                                        Lagu Sion No. {selectedSong.number}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-1 shrink-0">
-                                    <button
-                                        onClick={() => handlePrevNext(-1)}
-                                        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 active:bg-white/20 transition-colors text-white"
-                                        title="Lagu Sebelumnya"
-                                    >
-                                        <Icon name="ChevronLeft" className="w-5 h-5 stroke-2" />
-                                    </button>
-                                    <button
-                                        onClick={() => handlePrevNext(1)}
-                                        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 active:bg-white/20 transition-colors text-white"
-                                        title="Lagu Berikutnya"
-                                    >
-                                        <Icon name="ChevronRight" className="w-5 h-5 stroke-2" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Gold Song Title block */}
-                            <div className="bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white px-5 py-4 rounded-2xl flex items-center justify-between shadow-md">
-                                <div className="flex-1 min-w-0 pr-4">
-                                    <h2 className="font-black text-xl leading-tight truncate">{selectedSong.title}</h2>
-                                    <p className="text-xs text-amber-100/90 font-medium mt-0.5 truncate">
-                                        {selectedSong.keyTime} {selectedSong.artist ? `| ${selectedSong.artist}` : ''}
-                                    </p>
-                                </div>
-                                <button onClick={handleShare} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 active:bg-white/35 transition-colors relative shrink-0">
-                                    <Icon name="Share" className="w-5 h-5" />
-                                    {copied && (
-                                        <span className="absolute -top-9 right-0 bg-navy-900 text-white text-[10px] px-2 py-1 rounded shadow-md whitespace-nowrap animate-fade-in">
-                                            Disalin!
-                                        </span>
-                                    )}
-                                </button>
-                            </div>
-
-                            {/* Lyrics sheet card */}
-                            <div className="bg-white rounded-3xl border border-navy-100/50 p-6 md:p-8 shadow-sm space-y-6 select-text">
-                                {(() => {
-                                    let result = [];
-                                    let chorusRef = null;
-                                    const verses = selectedSong.verses || [];
-
-                                    for (let i = 0; i < verses.length; i++) {
-                                        const v = verses[i];
-                                        result.push(v);
-                                        if (v.type === 'chorus') chorusRef = v;
-
-                                        if ((v.type === 'verse' || v.type === 'bait') && chorusRef) {
-                                            const nextV = verses[i + 1];
-                                            if (!nextV || nextV.type !== 'chorus') {
-                                                result.push({ ...chorusRef, isAuto: true });
-                                            }
-                                        }
-                                    }
-
-                                    return result.map((verse, idx) => {
-                                        const isCh = verse.type === 'chorus';
-                                        return (
-                                            <div key={idx} className={`space-y-2 ${isCh ? 'pl-4 border-l-4 border-[#D19B45] bg-[#D19B45]/10 py-2 pr-2 rounded-r-lg' : ''} ${verse.isAuto ? 'opacity-90' : ''}`}>
-                                                <div className={`text-xs font-black uppercase tracking-wider ${isCh ? 'text-[#D19B45]' : 'text-navy-400'}`}>
-                                                    {verse.label} {verse.isAuto && <span className="text-[10px] ml-1 opacity-60 normal-case font-normal">(otomatis)</span>}
-                                                </div>
-                                                <div className={`text-base md:text-lg leading-relaxed font-medium ${isCh ? 'italic text-navy-800' : 'text-navy-900'}`}>
-                                                    {verse.lines.map((line, lIdx) => (
-                                                        <p key={lIdx} className="mb-1">{line}</p>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        );
-                                    });
-                                })()}
-                            </div>
-
-                            {/* Action Buttons below lyrics */}
-                            <div className="flex items-center justify-center gap-3 pt-2">
-                                <button
-                                    onClick={() => setSubTab('numpad')}
-                                    className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white dark:bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-navy-800 dark:text-navy-100 font-bold text-xs uppercase tracking-wider transition-all border border-navy-100 dark:border-navy-700 shadow-sm cursor-pointer active:scale-95 group"
-                                >
-                                    <Icon name="Grid" className="w-4 h-4 text-gold-500 group-hover:text-navy-950" />
-                                    <span>Kembali ke Numpad</span>
-                                </button>
-                                <button
-                                    onClick={() => setSubTab('index')}
-                                    className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white dark:bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-navy-800 dark:text-navy-100 font-bold text-xs uppercase tracking-wider transition-all border border-navy-100 dark:border-navy-700 shadow-sm cursor-pointer active:scale-95 group"
-                                >
-                                    <Icon name="List" className="w-4 h-4 text-gold-500 group-hover:text-navy-950" />
-                                    <span>Daftar Lagu</span>
-                                </button>
-                            </div>
-                        </>
-                    ) : (
-                        <div className="bg-white rounded-3xl border border-navy-100/50 p-10 shadow-sm flex flex-col items-center justify-center text-center opacity-70">
-                            <Icon name="BookOpen" className="w-14 h-14 text-navy-300 mb-4 animate-pulse" />
-                            <h3 className="font-black text-navy-800 uppercase tracking-widest text-sm mb-2">Belum ada lirik aktif</h3>
-                            <p className="text-xs text-navy-500 max-w-xs leading-relaxed">Ketik nomor lagu di Numpad atau cari judul/lirik di kotak pencarian di atas.</p>
-                            <button onClick={() => setSubTab('numpad')} className="mt-5 px-6 py-3 bg-gradient-to-r from-[#D19B45] to-[#B8863B] hover:from-[#c58f3c] hover:to-[#a97831] text-white text-xs font-black rounded-full uppercase tracking-widest shadow-lg shadow-gold-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
-                                Buka Numpad
-                            </button>
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {/* Subtab: Index (Daftar) */}
-            {subTab === 'index' && (
-                <div className="max-w-xl mx-auto space-y-4 px-4">
-                    <div className="bg-white rounded-2xl border border-navy-100/50 px-4 py-3 flex items-center justify-between shadow-sm">
-                        <button
-                            onClick={() => setSubTab('numpad')}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-navy-50 hover:bg-gold-500 hover:text-navy-950 text-navy-700 dark:text-navy-200 dark:bg-navy-800 font-bold text-xs transition-all cursor-pointer group"
-                            title="Kembali ke Numpad"
-                        >
-                            <Icon name="ArrowLeft" className="w-4 h-4 stroke-[2.5] group-hover:-translate-x-0.5 transition-transform" />
-                            <span>Numpad</span>
-                        </button>
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-black text-navy-400 uppercase tracking-wide hidden sm:inline">Urutkan:</span>
-                            <div className="flex bg-navy-100/60 p-0.5 rounded-lg">
-                                <button onClick={() => setIndexTab('number')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${indexTab === 'number' ? 'bg-white text-navy-900 shadow-sm' : 'text-navy-500 hover:text-navy-700'}`}>
-                                    Nomor
-                                </button>
-                                <button onClick={() => setIndexTab('alphabet')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${indexTab === 'alphabet' ? 'bg-white text-navy-900 shadow-sm' : 'text-navy-500 hover:text-navy-700'}`}>
-                                    Abjad
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-3xl border border-navy-100/50 overflow-hidden shadow-sm">
-                        {indexedSongs.map((song, idx) => (
-                            <button key={song.number} onClick={() => {
-                                setSelectedSong(song);
-                                setSubTab('lyrics');
-                            }} className={`w-full flex items-center p-4 text-left hover:bg-gold-50/50 transition-colors ${idx !== indexedSongs.length - 1 ? 'border-b border-navy-50' : ''}`}>
-                                <div className="w-10 h-10 rounded-xl bg-navy-50 flex items-center justify-center text-navy-600 mr-4 shrink-0 font-black text-sm">
-                                    {song.number}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="font-bold text-navy-800 truncate">{song.title}</div>
-                                    <div className="text-xs text-navy-500 truncate">{song.keyTime} {song.artist ? `| ${song.artist}` : ''}</div>
-                                </div>
-                                <Icon name="ChevronRight" className="w-4 h-4 text-navy-300 ml-2" />
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-        </div>
-    );
-};
-
-
-const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, dataPejabat, pengumuman, daftarBuku, setInitialBook, laguSionDb = [], setLaguSionInitialSong }) => {
-    const [query, setQuery] = React.useState('');
-
-    // Fungsi untuk membersihkan HTML
-    const stripHtml = (html) => {
-        if (!html) return '';
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        return doc.body.textContent || "";
-    };
-
-    // Hasil pencarian
-    const searchResults = React.useMemo(() => {
-        if (query.length < 2) return { warta: [], pejabat: [], jadwal: [], buku: [], pengumuman: false, laporan: [] };
-        const q = query.toLowerCase();
-        const results = {
-            warta: [],
-            pejabat: [],
-            jadwal: [],
-            buku: [],
-            pengumuman: false,
-            laporan: [],
-            laguSion: []
-        };
-
-        // 1. Warta: cari di judul dan isi
-        if (daftarWarta && daftarWarta.length) {
-            results.warta = daftarWarta.filter(w =>
-                w.judul.toLowerCase().includes(q) ||
-                stripHtml(w.isi).toLowerCase().includes(q)
-            ).slice(0, 20); // batasi 20
-        }
-
-        // 2. Pejabat: cari nama, jabatan
-        if (dataPejabat && dataPejabat.length) {
-            results.pejabat = dataPejabat.filter(p =>
-                p.nama.toLowerCase().includes(q) ||
-                p.jabatan.toLowerCase().includes(q)
-            ).slice(0, 20);
-        }
-
-        // 3. Buku: cari judul, pengarang, deskripsi
-        if (daftarBuku && daftarBuku.length) {
-            results.buku = daftarBuku.filter(b =>
-                (b.title && b.title.toLowerCase().includes(q)) ||
-                (b.author && b.author.toLowerCase().includes(q)) ||
-                (b.desc && b.desc.toLowerCase().includes(q))
-            ).sort((a, b) => (a.title || '').localeCompare(b.title || '')).slice(0, 20);
-        }
-
-        // 4. Jadwal petugas (seperti sebelumnya)
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const allDates = [...new Set([...Object.keys(jadwalDB), rabuYMD, sabatYMD])].sort();
-        allDates.forEach(dateStr => {
-            const dObj = new Date(dateStr + "T00:00:00");
-            if (dObj >= today) {
-                const jData = jadwalDB[dateStr];
-                const isRabu = dObj.getDay() === 3;
-                let found = [];
-                if (isRabu && jData?.petugas) {
-                    found = jData.petugas.filter(p => p.nama && p.nama.toLowerCase().includes(q));
-                } else if (!isRabu && jData) {
-                    const cats = ['sekolahSabat', 'khotbah', 'diakon', 'musik', 'perjamuan'];
-                    cats.forEach(cat => {
-                        if (jData[cat]) {
-                            jData[cat].forEach(p => {
-                                if (p.nama && p.nama.toLowerCase().includes(q)) found.push({ ...p, cat });
-                            });
-                        }
-                    });
-                }
-                if (found.length) {
-                    results.jadwal.push({ date: dateStr, isRabu, items: found });
-                }
-            }
-        });
-
-        // 5. Pengumuman
-        if (pengumuman && pengumuman.isi) {
-            const cleanPeng = stripHtml(pengumuman.isi);
-            if (cleanPeng.toLowerCase().includes(q) || (pengumuman.header && pengumuman.header.toLowerCase().includes(q))) {
-                results.pengumuman = true;
-            }
-        }
-
-        // 6. Laporan Keuangan — tampilkan tombol redirect ke laporan.html
-        // Deteksi jika user mengetik angka (no kuitansi), kode unit, atau kata kunci laporan
-        const isLaporanQuery = /\d{3,}/.test(q) ||
-            ['kuitansi', 'laporan', 'uang', 'transaksi', 'inc-', 'exp-', 'pem', 'rec'].some(kw => q.includes(kw));
-        if (isLaporanQuery) {
-            results.laporan = [{ redirectQuery: query.trim() }];
-        }
-
-
-        // 7. Lagu Sion
-        if (laguSionDb && laguSionDb.length > 0) {
-            laguSionDb.forEach(song => {
-                const numStr = song.number.toString();
-                const matchesNum = numStr === q;
-                const matchesTitle = song.title.toLowerCase().includes(q);
-                let matchesLyrics = false;
-                let matchedLine = '';
-                for (const verse of song.verses) {
-                    for (const line of verse.lines) {
-                        if (line.toLowerCase().includes(q)) {
-                            matchesLyrics = true;
-                            matchedLine = line;
-                            break;
-                        }
-                    }
-                    if (matchesLyrics) break;
-                }
-                if (matchesNum || matchesTitle || matchesLyrics) {
-                    results.laguSion.push({ song, matchedLine: matchesLyrics ? matchedLine : null });
-                }
-            });
-            results.laguSion = results.laguSion.slice(0, 15);
-        }
-
-        // 8. Alkitab
-        results.alkitab = [{ redirectQuery: query.trim() }];
-
-        return results;
-    }, [query, daftarWarta, dataPejabat, jadwalDB, daftarBuku, pengumuman, rabuYMD, sabatYMD, laguSionDb]);
-
-    // Filter menu seperti sebelumnya
-    const filteredMenus = tabs.filter(t => t.id !== 'admin_dashboard' && t.id !== 'search' && t.label.toLowerCase().includes(query.toLowerCase()));
-
-    return (
-        <div className="space-y-6 animate-fade-in pb-10">
-            <div className="relative mb-6">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-navy-400">
-                    <Icon name="Search" className="w-5 h-5" />
-                </div>
-                <input
-                    type="text"
-                    autoFocus
-                    placeholder="Cari Menu, Warta, Nama Petugas, Buku, Pengumuman..."
-                    className="w-full pl-12 pr-4 py-4 bg-white border border-navy-100/80 rounded-2xl text-base font-bold text-navy-900 placeholder-navy-300 outline-none focus:border-gold-500 shadow-sm transition-all"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                />
-            </div>
-
-            {query.length >= 2 ? (
-                <div className="space-y-6">
-                    {/* Hasil Menu */}
-                    {filteredMenus.length > 0 && (
-                        <div>
-                            <h3 className="text-xs font-black text-navy-500 uppercase tracking-widest mb-3 px-2">Menu</h3>
-                            <div className="glass-box rounded-2xl border border-navy-100/60 overflow-hidden shadow-sm">
-                                {filteredMenus.map((m, i) => (
-                                    <button key={m.id} onClick={() => setActiveTab(m.id)} className="w-full flex items-center p-4 text-left hover:bg-gold-50/50 transition-colors border-b border-navy-50 last:border-0">
-                                        <div className="w-10 h-10 rounded-xl bg-navy-50 flex items-center justify-center text-navy-600 mr-4">
-                                            <Icon name={m.icon} className="w-5 h-5" />
-                                        </div>
-                                        <div className="flex-1 font-bold text-navy-800">{m.label}</div>
-                                        <Icon name="ChevronRight" className="w-4 h-4 text-navy-300" />
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Hasil Warta */}
-
-                    {/* Hasil Alkitab */}
-                    {searchResults.alkitab && searchResults.alkitab.length > 0 && (
-                        <div>
-                            <h3 className="text-xs font-black text-navy-500 uppercase tracking-widest mb-3 px-2">Alkitab</h3>
-                            <div className="glass-box rounded-2xl border border-navy-100/60 overflow-hidden shadow-sm">
-                                <button onClick={() => {
-                                    window.localStorage.setItem('alkitabInitialSearch', query.trim());
-                                    setActiveTab('alkitab');
-                                }} className="w-full flex items-center p-4 text-left hover:bg-gold-50/50 transition-colors">
-                                    <div className="w-10 h-10 rounded-xl bg-navy-50 flex items-center justify-center text-navy-600 mr-4">
-                                        <Icon name="Book" className="w-5 h-5 text-gold-500" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="font-bold text-navy-900 text-sm md:text-base truncate">Cari "{query}" di Alkitab</div>
-                                    </div>
-                                    <Icon name="ArrowRight" className="w-4 h-4 text-navy-300" />
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Hasil Lagu Sion */}
-                    {searchResults.laguSion && searchResults.laguSion.length > 0 && (
-                        <div>
-                            <h3 className="text-xs font-black text-gold-600 uppercase tracking-widest mb-3 px-2">Lagu Sion</h3>
-                            <div className="bg-white rounded-2xl border border-navy-100/60 overflow-hidden shadow-sm">
-                                {searchResults.laguSion.map((item, idx) => (
-                                    <button key={idx} onClick={() => {
-                                        if (setLaguSionInitialSong) setLaguSionInitialSong(item.song);
-                                        setActiveTab('lagu_sion');
-                                    }} className={`w-full flex items-center p-4 text-left hover:bg-gold-50/50 transition-colors ${idx !== searchResults.laguSion.length - 1 ? 'border-b border-navy-50' : ''}`}>
-                                        <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 mr-4 shrink-0 font-bold text-sm">
-                                            {item.song.number}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="font-bold text-navy-800 truncate">{item.song.title}</div>
-                                            <div className="text-xs text-navy-500 truncate">
-                                                {item.matchedLine ? `"... ${item.matchedLine} ..."` : `Key: ${item.song.keyTime} | Composer: ${item.song.artist || 'Anonim'}`}
-                                            </div>
-                                        </div>
-                                        <Icon name="ChevronRight" className="w-4 h-4 text-navy-300 ml-2" />
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {searchResults.warta.length > 0 && (
-                        <div>
-                            <h3 className="text-xs font-black text-gold-600 uppercase tracking-widest mb-3 px-2">Warta</h3>
-                            <div className="space-y-3">
-                                {searchResults.warta.map(w => (
-                                    <div key={w.rowIndex} onClick={() => { setActiveTab('warta'); window.selectedWartaDetail = w; }} className="glass-box rounded-2xl border border-navy-100/60 p-4 cursor-pointer hover:border-gold-300 transition">
-                                        <div className="font-bold text-navy-900">{w.judul}</div>
-                                        <div className="text-xs text-navy-500 mt-1">{w.tanggal}</div>
-                                        <div className="text-sm text-navy-600 mt-2 line-clamp-2">{stripHtml(w.isi)}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Hasil Pejabat */}
-                    {searchResults.pejabat.length > 0 && (
-                        <div>
-                            <h3 className="text-xs font-black text-green-600 uppercase tracking-widest mb-3 px-2">Pejabat / Pelayan</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {searchResults.pejabat.map(p => (
-                                    <div key={p.id} className="glass-box rounded-2xl border border-navy-100/60 p-3 flex items-center gap-3">
-                                        <img src={p.img} className="w-12 h-12 rounded-full object-cover" alt="" />
-                                        <div>
-                                            <div className="font-bold text-navy-900">{p.nama}</div>
-                                            <div className="text-xs text-navy-500">{p.jabatan}</div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Hasil Buku */}
-                    {searchResults.buku.length > 0 && (
-                        <div>
-                            <h3 className="text-xs font-black text-purple-600 uppercase tracking-widest mb-3 px-2">Buku <span className="text-navy-300 font-semibold normal-case tracking-normal">— klik untuk membaca langsung</span></h3>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                {searchResults.buku.map(b => (
-                                    <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className="bg-white rounded-xl border border-navy-100/60 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group">
-                                        <div className="h-28 overflow-hidden relative">
-                                            <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-navy-900/70 to-transparent" />
-                                            <DocumentBadge book={b} className="absolute top-1.5 left-1.5" />
-                                            <span className="absolute top-1.5 right-1.5 bg-gold-500/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">{b.category}</span>
-                                        </div>
-                                        <div className="p-2.5">
-                                            <div className="font-bold text-xs text-navy-900 line-clamp-2 leading-tight">{b.title}</div>
-                                            <div className="text-[10px] text-navy-400 mt-0.5 font-semibold">{b.author}</div>
-                                            <div className="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-purple-600">
-                                                <Icon name="BookOpen" className="w-3 h-3" /> Buka & Baca
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Hasil Jadwal Petugas */}
-                    {searchResults.jadwal.length > 0 && (
-                        <div>
-                            <h3 className="text-xs font-black text-blue-600 uppercase tracking-widest mb-3 px-2">Jadwal Petugas</h3>
-                            {searchResults.jadwal.map(j => (
-                                <div key={j.date} onClick={() => setActiveTab('jadwal')} className="glass-box rounded-2xl border border-navy-100/60 p-4 mb-3 cursor-pointer hover:border-gold-300">
-                                    <div className="font-bold text-navy-800">{formatIndoDate(j.date)}</div>
-                                    <div className="text-xs uppercase">{j.isRabu ? 'RABU' : 'SABAT'}</div>
-                                    <div className="mt-2 space-y-1">
-                                        {j.items.map((item, idx) => (
-                                            <div key={idx} className="text-sm flex justify-between">
-                                                <span className="text-navy-500">{item.tugas}</span>
-                                                <span className="font-bold text-navy-900">{item.nama}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Hasil Laporan Keuangan — Redirect ke Cek Transaksi di laporan.html */}
-                    {searchResults.laporan && searchResults.laporan.length > 0 && (
-                        <div>
-                            <h3 className="text-xs font-black text-emerald-600 dark:text-gold-500 uppercase tracking-widest mb-3 px-2">Laporan Keuangan</h3>
-                            <div
-                                onClick={() => window.location.href = `./laporan.html?search=${encodeURIComponent(searchResults.laporan[0].redirectQuery)}`}
-                                className="glass-box rounded-2xl border border-emerald-100/60 dark:border-navy-700 p-5 cursor-pointer hover:shadow-lg hover:border-emerald-300 dark:hover:border-gold-500 transition-all"
-                            >
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-navy-800 flex items-center justify-center">
-                                        <Icon name="Search" className="w-5 h-5 text-emerald-600 dark:text-gold-400" />
-                                    </div>
-                                    <div>
-                                        <div className="font-bold text-navy-900 dark:text-gold-400">Cari "{searchResults.laporan[0].redirectQuery}" di Laporan Keuangan</div>
-                                        <div className="text-xs text-navy-500 dark:text-navy-300 mt-0.5">Buka halaman Cek Transaksi untuk verifikasi kuitansi & unit</div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-center gap-2 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-navy-800 dark:text-gold-400 dark:hover:bg-navy-700 rounded-xl transition text-sm font-bold">
-                                    <Icon name="ExternalLink" className="w-4 h-4" /> Buka Cek Transaksi
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Hasil Pengumuman */}
-                    {searchResults.pengumuman && (
-                        <div>
-                            <h3 className="text-xs font-black text-amber-600 uppercase tracking-widest mb-3 px-2">Pengumuman</h3>
-                            <div onClick={() => setActiveTab('home')} className="glass-box rounded-2xl border border-gold-200 p-4 cursor-pointer hover:shadow-md">
-                                <div className="font-bold text-navy-900">{pengumuman.header || "Pengumuman"}</div>
-                                <div className="text-sm text-navy-600 mt-1 line-clamp-3">{stripHtml(pengumuman.isi)}</div>
-                            </div>
-                        </div>
-                    )}
-
-                    {filteredMenus.length === 0 && searchResults.warta.length === 0 && searchResults.pejabat.length === 0 && searchResults.jadwal.length === 0 && searchResults.buku.length === 0 && !searchResults.pengumuman && (!searchResults.laporan || searchResults.laporan.length === 0) && (
-                        <div className="text-center p-6 border border-dashed border-navy-200 rounded-2xl">
-                            <p className="text-sm text-navy-500 font-medium">Tidak ada hasil untuk <span className="font-bold text-navy-900">"{query}"</span></p>
-                        </div>
-                    )}
-                </div>
-            ) : (
-                <div className="text-center pt-10 pb-6 opacity-60">
-                    <Icon name="Search" className="w-12 h-12 mx-auto text-navy-300 mb-3" />
-                    <p className="text-sm font-medium text-navy-500">Ketik minimal 2 karakter untuk mencari menu, warta, pejabat, buku, pengumuman, atau jadwal petugas.</p>
-                </div>
-            )}
-        </div>
-    );
-};
-
-const App = () => {
-    const [isAppLoading, setIsAppLoading] = React.useState(true);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-    const [mobileNavPopup, setMobileNavPopup] = React.useState(null); // 'belajar' | 'ibadah' | null
-    const [selectedWartaDetail, setSelectedWartaDetail] = React.useState(null);
-
-    // --- THEME STATE ---
-    const [isDarkMode, setIsDarkMode] = React.useState(() => {
-        const saved = localStorage.getItem('theme');
-        // Ubah nilai default dari true menjadi false agar base-nya adalah mode terang
-        return saved ? saved === 'dark' : false;
-    });
-
-    React.useEffect(() => {
-        if (isDarkMode) {
-            document.documentElement.classList.add('dark');
-            document.documentElement.style.backgroundColor = '#0b1a30';
-            document.body.style.backgroundColor = '#0b1a30';
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            document.documentElement.style.backgroundColor = '#f9fafb';
-            document.body.style.backgroundColor = '#f9fafb';
-            localStorage.setItem('theme', 'light');
-        }
-    }, [isDarkMode]);
-
-    // --- HISTORY API (TOMBOL BACK ANDROID: LOGIKA "UP") ---
-    const getInitialTab = () => {
-        const hash = window.location.hash.replace('#', '');
-        return hash || 'home';
-    };
-    const [activeTab, setRawActiveTab] = React.useState(getInitialTab());
-
-    const [laguSionDb, setLaguSionDb] = React.useState([]);
-    const [laguSionInitialSong, setLaguSionInitialSong] = React.useState(null);
-    const [laguSionSubTab, setLaguSionSubTab] = React.useState('numpad');
-
-    React.useEffect(() => {
-        fetch('./lagu_sion.json')
-            .then(r => r.json())
-            .then(data => setLaguSionDb(data))
-            .catch(err => console.error("Error loading Lagu Sion DB:", err));
-    }, []);
-
-
-    const setActiveTab = React.useCallback((tabId) => {
-        setRawActiveTab(tabId);
-        setMobileNavPopup(null);
-        if (tabId !== 'warta') setSelectedWartaDetail(null);
-        // Mengganti hash di URL tanpa menambah tumpukan riwayat (history stack tetap stabil)
-        window.history.replaceState(window.history.state, '', `#${tabId}`);
-    }, []);
-
-    React.useEffect(() => {
-        setMobileNavPopup(null);
-    }, [activeTab]);
-
-    React.useEffect(() => {
-        // State 'root': titik akhir sebelum keluar aplikasi
-        window.history.replaceState({ isAppRoot: true }, '', window.location.href);
-        // State 'dummy': state aktif kita. Saat tombol back ditekan, state 'dummy' akan di-pop.
-        window.history.pushState({ dummy: true }, '', window.location.href);
-
-        const handlePopState = (event) => {
-            setMobileNavPopup(null);
-            setRawActiveTab((currentTab) => {
-                // Jika kembali ke state root (pengguna menekan back Android)
-                if (event.state && event.state.isAppRoot) {
-                    if (currentTab === 'home') {
-                        // Di home: biarkan berada di state root. Back sekali lagi akan menutup aplikasi.
-                        return 'home';
-                    } else {
-                        // Logika "UP": Tentukan parent tab (kembali ke atas)
-                        let nextTab = 'home';
-                        if (currentTab.startsWith('belajar_')) {
-                            nextTab = 'belajar';
-                        } else if (currentTab === 'member_baru' || currentTab === 'pindah_masuk' || currentTab === 'form_acms') {
-                            nextTab = 'keanggotaan';
-                        } else {
-                            nextTab = 'home';
-                        }
-
-                        // Dorong kembali state 'dummy' untuk menangkap pencetan back berikutnya
-                        window.history.pushState({ dummy: true }, '', `#${nextTab}`);
-                        return nextTab;
-                    }
-                } else {
-                    // Fallback jika maju secara manual
-                    const hash = window.location.hash.replace('#', '');
-                    return hash || 'home';
-                }
-            });
-        };
-        window.addEventListener('popstate', handlePopState);
-        return () => window.removeEventListener('popstate', handlePopState);
-    }, []);
-    // -----------------------------------------
-    const [hideGlobalBack, setHideGlobalBack] = React.useState(false);
-    const [isScrollingDown, setIsScrollingDown] = React.useState(false);
-    const [showScrollTop, setShowScrollTop] = React.useState(false);
-
-    React.useEffect(() => {
-        let lastScrollY = window.scrollY;
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-            if (currentScrollY > lastScrollY && currentScrollY > 50) {
-                setIsScrollingDown(true);
-            } else if (currentScrollY < lastScrollY) {
-                setIsScrollingDown(false);
-            }
-            setShowScrollTop(currentScrollY > 350);
-            lastScrollY = currentScrollY;
-        };
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    const [jadwalDB, setJadwalDB] = React.useState({});
-    const [dataPejabat, setDataPejabat] = React.useState(initialDataPejabat);
-    const [kategoriPejabat, setKategoriPejabat] = React.useState(["Gembala", "Officers", "Departemen & Pelayanan", "Lainnya"]);
-    const [youtubeUrl, setYoutubeUrl] = React.useState(""); // untuk video terbaru
-    const [anthemUrl, setAnthemUrl] = React.useState(""); // untuk Adventist Church Anthem
-    const [anthemUrl2, setAnthemUrl2] = React.useState(""); // untuk video tambahan
-    const [anthemTitle, setAnthemTitle] = React.useState("");
-    const [anthemTitle2, setAnthemTitle2] = React.useState("");
-    const [youtubeTitle, setYoutubeTitle] = React.useState("");
-    const [youtubeChannelTitle, setYoutubeChannelTitle] = React.useState("");
-    const [liveUrl, setLiveUrl] = React.useState("https://www.youtube.com/embed/live_stream?channel=UCaTPS74NOHACRYU0zInVZ4g");
-    const [heroImages, setHeroImages] = React.useState(["./carousel/hero-default.png"]);
-    const [carouselEvents, setCarouselEvents] = React.useState([]);
-    const [carouselVideos, setCarouselVideos] = React.useState([]);
-    const [perjamuanDate, setPerjamuanDate] = React.useState('');
-    const [perpuluhanDate, setPerpuluhanDate] = React.useState('');
-    const [perjamuanNote, setPerjamuanNote] = React.useState('');
-    const [perpuluhanNote, setPerpuluhanNote] = React.useState('');
-    const [daftarRekening, setDaftarRekening] = React.useState([{ id: 1, namaBank: 'Mandiri', rekeningBank: '1090001711043', atasNama: 'GMAHK PISGAH BISDAC', qrisUrl: '' }]);
-
-    // Default State Kontak Gereja & Peta
-    const defaultKontak = {
-        alamat: "GMAHK PISGAH BISDAC\nAlamat gereja Anda belum diatur. Silahkan atur melalui Admin Dashboard.",
-        mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15956.123281231682!2d104.032646!3d1.127814!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31d98921bf232f1f%3A0xc3b832b8429b9f9!2sGMAHK%20Pisgah%20Bisdac!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid",
-        informasiImageUrl: ""
-    };
-    const [kontakGereja, setKontakGereja] = React.useState(defaultKontak);
-
-    // Pengumuman default State
-    const [pengumuman, setPengumuman] = React.useState({ header: "Pengumuman Jemaat", isi: "", kolom: "1", marginBawah: "mb-6 md:mb-8" });
-
-    // Warta default State
-    const [daftarWarta, setDaftarWarta] = React.useState([]);
-    const [daftarBuku, setDaftarBuku] = React.useState([]);
-    const [initialBook, setInitialBook] = React.useState(null);
-
-    // Laporan Keuangan default State
-    // daftarLaporan dihapus — pencarian kini redirect langsung ke laporan.html
-
-    // Fungsi refresh warta
-    const refreshWarta = async () => {
-        if (!GAS_API_URL) return; // Mencegah fetch jika URL kosong
-        try {
-            const res = await fetch(`${GAS_API_URL}?action=getData`);
-            const data = await res.json();
-            if (data.daftarWarta) {
-                console.log("Warta diterima:", data.daftarWarta);
-                setDaftarWarta(data.daftarWarta);
-            }
-        } catch (err) {
-            console.error("Gagal refresh warta", err);
-        }
-    };
-
-    // Token Admin (berisi password valid setelah login)
-    const [adminToken, setAdminToken] = React.useState('');
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    let nextRabu = new Date(today);
-    nextRabu.setDate(today.getDate() + ((3 - today.getDay() + 7) % 7));
-    const rabuYMD = toYMD(nextRabu);
-
-    let nextSabat = new Date(today);
-    nextSabat.setDate(today.getDate() + ((6 - today.getDay() + 7) % 7));
-    const sabatYMD = toYMD(nextSabat);
-
-    const perjamuanYMD = perjamuanDate ? (perjamuanDate.includes('T') ? toYMD(new Date(perjamuanDate)) : perjamuanDate) : '';
-    const showPerjamuan = (() => {
-        if (!perjamuanYMD) return false;
-        // Parse manual agar menggunakan local midnight, bukan UTC midnight
-        const parts = perjamuanYMD.split('-');
-        const perjamuanObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-        if (isNaN(perjamuanObj.getTime())) return false;
-        // Tampilkan banner selama tanggal perjamuan belum lewat
-        // (muncul sejak sekarang hingga hari-H perjamuan)
-        return today <= perjamuanObj;
-    })();
-
-    const perpuluhanYMD = perpuluhanDate ? (perpuluhanDate.includes('T') ? toYMD(new Date(perpuluhanDate)) : perpuluhanDate) : '';
-    const showPerpuluhan = (() => {
-        if (!perpuluhanYMD) return false;
-        const parts = perpuluhanYMD.split('-');
-        const perpuluhanObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-        if (isNaN(perpuluhanObj.getTime())) return false;
-        return today <= perpuluhanObj;
-    })();
-
-    // Fungsi Sinkronisasi Data Jadwal agar selalu sesuai urutan template awal
-    const mergeJadwalData = React.useCallback((saved, initial) => {
-        if (!saved) return initial;
-        const merged = { ...initial, ...saved };
-        const arrayKeys = ['petugas', 'sekolahSabat', 'khotbah', 'diakon', 'musik', 'perjamuan'];
-        arrayKeys.forEach(key => {
-            if (initial[key]) {
-                merged[key] = initial[key].map(baseItem => {
-                    const match = (saved[key] || []).find(s => s.tugas === baseItem.tugas);
-                    return match ? { ...match } : { ...baseItem };
-                });
-            }
-        });
-        if (initial.susunan) {
-            merged.susunan = { ...initial.susunan, ...(saved.susunan || {}) };
-        }
-        return merged;
-    }, []);
-    const activeRabu = mergeJadwalData(jadwalDB[rabuYMD], initialJadwalRabu);
-    const activeSabat = mergeJadwalData(jadwalDB[sabatYMD], initialJadwalSabat);
-    const activePerjamuan = mergeJadwalData(jadwalDB[perjamuanYMD], initialJadwalSabat).perjamuan;
-
-    // --- LOGIKA KHUSUS HALAMAN JADWAL (HARI-H LOMPAT KE MINGGU DEPAN) ---
-    let displayRabuYMD = rabuYMD;
-    if (today.getDay() === 3) {
-        let nextW = new Date(today); nextW.setDate(today.getDate() + 7);
-        displayRabuYMD = toYMD(nextW);
-    }
-
-    let displaySabatYMD = sabatYMD;
-    if (today.getDay() === 6) {
-        let nextS = new Date(today); nextS.setDate(today.getDate() + 7);
-        displaySabatYMD = toYMD(nextS);
-    }
-
-    const jadwalKhususRabu = mergeJadwalData(jadwalDB[displayRabuYMD], initialJadwalRabu);
-    const jadwalKhususSabat = mergeJadwalData(jadwalDB[displaySabatYMD], initialJadwalSabat);
-    // ----------------------------------------------------------------------
-    const [syncTrigger, setSyncTrigger] = React.useState(0);
-    const [isSyncing, setIsSyncing] = React.useState(false);
-    const [showSyncNotif, setShowSyncNotif] = React.useState(false);
-    const [isOnline, setIsOnline] = React.useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
-
-    React.useEffect(() => {
-        const handleOnline = () => setIsOnline(true);
-        const handleOffline = () => setIsOnline(false);
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-        };
-    }, []);
-
-    // MENGAMBIL DATA DARI REST API GOOGLE APPS SCRIPT DENGAN CACHING
-    React.useEffect(() => {
-        const fetchData = async () => {
-            if (!GAS_API_URL) {
-                console.warn("GAS_API_URL belum diisi. Menggunakan data default sementara.");
-                setIsAppLoading(false);
-                return;
-            }
-
-            if (syncTrigger > 0) setIsSyncing(true);
-
-            let hasCache = false;
-            if (syncTrigger === 0) {
-                const cachedDataStr = localStorage.getItem('pisgah_data_cache');
-                if (cachedDataStr) {
-                    try {
-                        const cached = JSON.parse(cachedDataStr);
-                        if (cached.dataPejabat) setDataPejabat(cached.dataPejabat);
-                        if (cached.jadwalDB) setJadwalDB(cached.jadwalDB);
-                        if (cached.youtubeUrl) setYoutubeUrl(cached.youtubeUrl);
-                        if (cached.anthemUrl !== undefined) setAnthemUrl(cached.anthemUrl || '');
-                        if (cached.anthemUrl2 !== undefined) setAnthemUrl2(cached.anthemUrl2 || '');
-                        if (cached.liveUrl) setLiveUrl(cached.liveUrl);
-                        if (cached.perjamuanDate) setPerjamuanDate(cached.perjamuanDate);
-                        if (cached.perpuluhanDate) setPerpuluhanDate(cached.perpuluhanDate);
-                        if (cached.perjamuanNote) setPerjamuanNote(cached.perjamuanNote);
-                        if (cached.perpuluhanNote) setPerpuluhanNote(cached.perpuluhanNote);
-                        if (cached.daftarRekening) {
-                            try { setDaftarRekening(JSON.parse(cached.daftarRekening)); } catch (e) { }
-                        }
-
-                        if (cached.kategoriPejabat) setKategoriPejabat(cached.kategoriPejabat);
-                        if (cached.heroImages) setHeroImages(cached.heroImages);
-                        if (cached.carouselEvents) { try { setCarouselEvents(JSON.parse(cached.carouselEvents)); } catch (e) { } }
-                        if (cached.carouselVideos) { try { setCarouselVideos(JSON.parse(cached.carouselVideos)); } catch (e) { } }
-                        if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
-                        if (cached.daftarBuku) setDaftarBuku(cached.daftarBuku);
-                        if (cached.pengumumanObj) setPengumuman(cached.pengumumanObj);
-                        if (cached.kontakGerejaObj) setKontakGereja(cached.kontakGerejaObj);
-                        setIsAppLoading(false);
-                        hasCache = true;
-                    } catch (e) { console.warn("Gagal membaca cache"); }
-                }
-            } else {
-                hasCache = true;
-            }
-
-            try {
-                const res = await fetch(`${GAS_API_URL}?action=getData`);
-                const data = await res.json();
-
-                let newHeroImages = ["./carousel/hero-default.png"];
-                let newPengumumanObj = { header: "Pengumuman Jemaat", isi: "" };
-                let newKontakGerejaObj = defaultKontak;
-
-                if (data.dataPejabat) setDataPejabat(data.dataPejabat);
-                if (data.jadwalDB) setJadwalDB(data.jadwalDB);
-                if (data.youtubeUrl) setYoutubeUrl(data.youtubeUrl);
-                if (data.anthemUrl !== undefined) setAnthemUrl(data.anthemUrl || '');
-                if (data.anthemUrl2 !== undefined) setAnthemUrl2(data.anthemUrl2 || '');
-                if (data.anthemTitle !== undefined) setAnthemTitle(data.anthemTitle || 'Adventist Church Anthem');
-                if (data.anthemTitle2 !== undefined) setAnthemTitle2(data.anthemTitle2 || 'Video Tambahan');
-                if (data.youtubeTitle !== undefined) setYoutubeTitle(data.youtubeTitle || 'Video Penting');
-                if (data.youtubeChannelTitle !== undefined) setYoutubeChannelTitle(data.youtubeChannelTitle || 'Youtube Channel');
-                if (data.liveUrl) setLiveUrl(data.liveUrl);
-                if (data.perjamuanDate !== undefined) setPerjamuanDate(data.perjamuanDate || '');
-                if (data.perpuluhanDate !== undefined) setPerpuluhanDate(data.perpuluhanDate || '');
-                if (data.perjamuanNote !== undefined) setPerjamuanNote(data.perjamuanNote || '');
-                if (data.perpuluhanNote !== undefined) setPerpuluhanNote(data.perpuluhanNote || '');
-                if (data.daftarRekening) {
-                    try {
-                        const parsed = JSON.parse(data.daftarRekening);
-                        setDaftarRekening(Array.isArray(parsed) ? parsed : []);
-                    } catch (e) { console.error(e); }
-                } else if (data.legacyRekeningBank) {
-                    setDaftarRekening([{ id: 1, namaBank: data.legacyNamaBank, rekeningBank: data.legacyRekeningBank, atasNama: data.legacyAtasNama }]);
-                }
-
-
-                if (data.kategoriPejabat) setKategoriPejabat(data.kategoriPejabat);
-
-                if (data.kontakGereja) {
-                    try {
-                        const parsedKontak = JSON.parse(data.kontakGereja);
-                        if (parsedKontak && typeof parsedKontak === 'object') {
-                            newKontakGerejaObj = parsedKontak;
-                            setKontakGereja(newKontakGerejaObj);
-                        }
-                    } catch (e) { }
-                }
-
-                if (data.heroImageUrl) {
-                    try {
-                        const parsed = JSON.parse(data.heroImageUrl);
-                        if (Array.isArray(parsed)) newHeroImages = parsed;
-                        else newHeroImages = [data.heroImageUrl];
-                    } catch (e) { newHeroImages = [data.heroImageUrl]; }
-                    setHeroImages(newHeroImages);
-                }
-
-                if (data.carouselEvents !== undefined) {
-                    try {
-                        const parsed = data.carouselEvents ? JSON.parse(data.carouselEvents) : [];
-                        setCarouselEvents(Array.isArray(parsed) ? parsed : []);
-                    } catch (e) { setCarouselEvents([]); }
-                }
-
-                if (data.carouselVideos !== undefined) {
-                    try {
-                        let parsedVideos = [];
-                        if (data.carouselVideos) {
-                            parsedVideos = JSON.parse(data.carouselVideos);
-                        } else {
-                            // Fallback to existing videos if empty
-                            const fallback = [];
-                            if (data.youtubeUrl) fallback.push({ title: data.youtubeTitle || "Video Penting", url: data.youtubeUrl });
-                            if (data.liveUrl) fallback.push({ title: "Live Streaming", url: data.liveUrl });
-                            if (data.anthemUrl) fallback.push({ title: data.anthemTitle || "Adventist Church Anthem", url: data.anthemUrl });
-                            if (data.anthemUrl2) fallback.push({ title: data.anthemTitle2 || "Video Tambahan", url: data.anthemUrl2 });
-                            parsedVideos = fallback;
-                        }
-                        setCarouselVideos(parsedVideos);
-                    } catch (e) { }
-                }
-
-                if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
-
-                let fetchedBuku = [];
-                // Ambil data buku (public)
-                try {
-                    const bukuRes = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'getBooks' })
-                    });
-                    const bukuData = await bukuRes.json();
-
-                    // Menyamakan standar pengecekan dengan panel admin
-                    if (bukuData.status === 'success' && bukuData.data) {
-                        fetchedBuku = bukuData.data;
-                    } else if (bukuData.data && bukuData.data.status === 'success') {
-                        fetchedBuku = bukuData.data.data || [];
-                    } else if (bukuData.success && bukuData.data) {
-                        fetchedBuku = bukuData.data;
-                    } else {
-                        console.warn('Gagal memuat buku:', bukuData.message);
-                    }
-                    if (fetchedBuku.length > 0) setDaftarBuku(fetchedBuku);
-                } catch (e) {
-                    console.error('Error fetching books:', e);
-                }
-
-
-                if (data.pengumuman !== undefined) {
-                    try {
-                        const parsed = JSON.parse(data.pengumuman);
-                        if (parsed && typeof parsed === 'object') {
-                            newPengumumanObj = {
-                                header: parsed.header || "Pengumuman Jemaat",
-                                isi: decodeHTML(parsed.isi || ""),
-                                kolom: parsed.kolom || "1",
-                                marginBawah: parsed.marginBawah || "mb-6 md:mb-8"
-                            };
-                        } else {
-                            newPengumumanObj = { header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman), kolom: "1", marginBawah: "mb-6 md:mb-8" };
-                        }
-                    } catch (e) {
-                        newPengumumanObj = { header: "Pengumuman Jemaat", isi: decodeHTML(data.pengumuman), kolom: "1", marginBawah: "mb-6 md:mb-8" };
-                    }
-                    setPengumuman(newPengumumanObj);
-                }
-
-                localStorage.setItem('pisgah_data_cache', JSON.stringify({
-                    dataPejabat: data.dataPejabat,
-                    jadwalDB: data.jadwalDB,
-                    youtubeUrl: data.youtubeUrl,
-                    anthemUrl: data.anthemUrl || '',
-                    anthemUrl2: data.anthemUrl2 || '',
-                    liveUrl: data.liveUrl, // Tambahan: Simpan Live URL ke cache
-                    perjamuanDate: data.perjamuanDate, // Tambahan: Simpan Tanggal Perjamuan ke cache
-                    perpuluhanDate: data.perpuluhanDate,
-                    daftarRekening: data.daftarRekening !== undefined ? data.daftarRekening : JSON.stringify(daftarRekening),
-                    kategoriPejabat: data.kategoriPejabat,
-                    heroImages: newHeroImages,
-                    carouselEvents: data.carouselEvents,
-                    carouselVideos: data.carouselVideos,
-                    daftarWarta: data.daftarWarta,
-                    daftarBuku: fetchedBuku.length > 0 ? fetchedBuku : daftarBuku, // Simpan ke cache
-                    pengumumanObj: newPengumumanObj,
-                    kontakGerejaObj: newKontakGerejaObj,
-                    _cachedAt: Date.now()
-                }));
-
-                if (!hasCache) setIsAppLoading(false);
-                if (syncTrigger > 0) {
-                    setIsSyncing(false);
-                    setTimeout(() => setShowSyncNotif(false), 3000);
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                if (!hasCache) setIsAppLoading(false);
-                if (syncTrigger > 0) {
-                    setIsSyncing(false);
-                    setTimeout(() => setShowSyncNotif(false), 3000);
-                }
-            }
-        };
-
-        fetchData();
-    }, [syncTrigger]);
-
-    // FIX TYPO: Memperbaiki penulisan state yang sebelumnya kurang kurung siku
-    const [isAdminLoggedIn, setIsAdminLoggedIn] = React.useState(false);
-    const [showLoginModal, setShowLoginModal] = React.useState(false);
-    const [showIosPrompt, setShowIosPrompt] = React.useState(false);
-    const [showManualInstall, setShowManualInstall] = React.useState(false);
-
-    React.useEffect(() => {
-        window.installPWA = () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
-                    } else {
-                        console.log('User dismissed the install prompt');
-                    }
-                    deferredPrompt = null;
-                });
-            } else {
-                setShowManualInstall(true);
-            }
-        };
-    }, []);
-
-    React.useEffect(() => {
-        const handler = () => setShowIosPrompt(true);
-        window.addEventListener('showIosInstallPrompt', handler);
-        return () => window.removeEventListener('showIosInstallPrompt', handler);
-    }, []);
-
-    const tabs = [
-        { id: 'home', label: 'Home', icon: 'Home' },
-        { id: 'belajar', label: 'Belajar', icon: 'BookOpen' },
-        { id: 'warta', label: 'Warta', icon: 'Warta' },
-        { id: 'live', label: 'Live', icon: 'Video' },
-        { id: 'jadwal', label: 'Jadwal', icon: 'Calendar' },
-        { id: 'persembahan', label: 'Persembahan', icon: 'Rupiah' },
-        { id: 'hubungi', label: 'Kontak', icon: 'Phone' }
-    ];
-
-    const handleAdminClick = () => { if (isAdminLoggedIn) { setActiveTab('admin_dashboard'); } else { setShowLoginModal(true); } };
-    const handleLogout = () => { setIsAdminLoggedIn(false); setAdminToken(''); setActiveTab('home'); };
-
-    const renderContent = () => {
-        switch (activeTab) {
-            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
-            case 'belajar': return <Belajar setActiveTab={setActiveTab} />;
-            case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
-            case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
-            case 'belajar_egw': return <DetailEGW setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
-            case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} initialBook={initialBook} onBookOpened={() => setInitialBook(null)} setHideGlobalBack={setHideGlobalBack} />;
-            case 'warta': return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta} selectedWarta={selectedWartaDetail} setSelectedWarta={setSelectedWartaDetail} setHideGlobalBack={setHideGlobalBack} />;
-            case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} liveUrl={liveUrl} />;
-            case 'jadwal': return <Jadwal jadwalDB={jadwalDB} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} perjamuanNote={perjamuanNote} setActiveTab={setActiveTab} carouselEvents={carouselEvents} />;
-            case 'persembahan': return <Persembahan dataPejabat={dataPejabat} daftarRekening={daftarRekening} />;
-            case 'keanggotaan': return <Keanggotaan setActiveTab={setActiveTab} />;
-            case 'member_baru': return <MemberBaru setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
-            case 'pindah_masuk': return <PindahMasuk setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
-            case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
-            case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
-            case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} carouselVideos={carouselVideos} setCarouselVideos={setCarouselVideos} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
-            case 'alkitab': return <Alkitab setHideGlobalBack={setHideGlobalBack} />;
-            case 'lagu_sion': return <LaguSion setActiveTab={setActiveTab} subTab={laguSionSubTab} setSubTab={setLaguSionSubTab} initialSong={laguSionInitialSong} clearInitialSong={() => setLaguSionInitialSong(null)} laguSionDb={laguSionDb} />;
-            case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} />;
-            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
-        }
-    };
-
-    // UI Rendering
-    // Menghapus blocking loading page (menggunakan optimistic UI/default rendering)
-    // agar bisa interaktif di bawah 1 detik! Mencegah "stuck di loading page".
-
-    return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#0b1a30] text-navy-900 dark:text-gray-100 flex flex-col transition-colors duration-300">
-            {isAppLoading && <LoadingScreen />}
-            <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} onSuccess={(token) => { setAdminToken(token); setIsAdminLoggedIn(true); setShowLoginModal(false); setActiveTab('admin_dashboard'); }} />
-            <IosInstallModal isOpen={showIosPrompt} onClose={() => setShowIosPrompt(false)} />
-            <ManualInstallModal isOpen={showManualInstall} onClose={() => setShowManualInstall(false)} />
-
-
-
-            {/* HEADER UTAMA (Responsif untuk Mobile & Desktop) */}
-            <header className="bg-white/80 dark:bg-navy-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 dark:border-navy-800 shadow-sm transition-colors duration-300">
-                <div className="w-full mx-auto flex items-center justify-between px-4 lg:px-[6vw] py-3 gap-3">
-                    <div className="flex items-center gap-2 md:gap-3 flex-1 justify-start">
-                        <div className="flex flex-col items-start shrink-0 cursor-pointer" onClick={() => setActiveTab('home')}>
-                            {/* Baris 1: Logo + Nama Gereja */}
-                            <div className="flex items-center">
-                                <img src="./icons/PisgahColor.png" className="w-8 h-8 md:w-8 md:h-8 object-contain opacity-100 mr-1.5" alt="Logo" />
-                                <p className="block md:hidden lg:block text-xl md:text-2xl font-bold text-navy-700 dark:text-white tracking-tight">PISGAH<span className="text-gold-500">BISDAC</span></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-end items-center gap-2 shrink-0">
-                        {/* Navigasi Desktop (Disembunyikan di Mobile) - Kontak & Persembahan dihilangkan */}
-                        <div className="hidden md:flex items-center gap-1 mr-2 bg-navy-50/30 dark:bg-navy-800/40 p-1 rounded-2xl border border-navy-50 dark:border-navy-700">
-                            {tabs.filter(t => !['persembahan', 'hubungi'].includes(t.id)).map(tab => {
-                                const isActive = activeTab.startsWith(tab.id);
-                                return (
-                                    <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all text-sm font-bold ${isActive ? 'bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-sm border border-navy-100/50 dark:border-navy-700' : 'text-navy-500 dark:text-navy-300 hover:text-navy-700 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-800/50'}`}>
-                                        <Icon name={tab.icon} className={`w-4 h-4 ${isActive ? 'text-gold-500' : ''}`} />
-                                        <span>{tab.label}</span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        {/* Toggle Theme Button */}
-                        <button
-                            onClick={() => setIsDarkMode(!isDarkMode)}
-                            className="w-10 h-10 text-navy-600 dark:text-gold-400 hover:text-gold-500 dark:hover:text-gold-300 hover:scale-110 transition-all flex items-center justify-center shrink-0"
-                            title={isDarkMode ? "Ganti ke Mode Terang" : "Ganti ke Mode Gelap"}
-                        >
-                            <Icon name={isDarkMode ? "Sun" : "Moon"} className="w-5 h-5" />
-                        </button>
-
-                        {activeTab !== 'search' && (
-                            <button onClick={() => setActiveTab('search')} className="w-10 h-10 text-navy-600 hover:text-gold-500 hover:scale-110 transition-all flex items-center justify-center shrink-0" title="Pencarian">
-                                <Icon name="Search" className="w-5 h-5" />
-                            </button>
-                        )}
-
-                        {isAdminLoggedIn ? (
-                            <button onClick={() => setActiveTab('admin_dashboard')} className="w-10 h-10 text-navy-600 hover:text-gold-500 hover:scale-110 transition-all flex items-center justify-center shrink-0" title="Dashboard Admin"><Icon name="Settings" className="w-5 h-5" /></button>
-                        ) : (
-                            <button onClick={handleAdminClick} className="w-10 h-10 text-navy-600 hover:text-gold-500 hover:scale-110 transition-all flex items-center justify-center shrink-0" title="Login Admin"><Icon name="LogIn" className="w-5 h-5" /></button>
-                        )}
-                    </div>
-                </div>
-            </header>
-
-            {/* Notifikasi Mode Offline */}
-            {!isOnline && (
-                <div className="fixed top-[70px] left-1/2 transform -translate-x-1/2 z-[45] bg-amber-900/90 dark:bg-amber-950/95 backdrop-blur-md border border-amber-500/50 text-amber-100 px-5 py-2.5 rounded-full shadow-2xl text-xs md:text-sm font-bold flex items-center gap-2.5 animate-fade-in w-max max-w-[92vw]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
-                    <span className="truncate">Mode Offline Aktif — Lagu Sion & Alkitab tetap dapat dibaca lancar</span>
-                </div>
-            )}
-
-            {/* Notifikasi Sinkronisasi */}
-            {showSyncNotif && (
-                <div className="fixed top-[70px] left-1/2 transform -translate-x-1/2 z-[40] bg-navy-900/90 backdrop-blur-md border border-navy-700 text-white px-5 py-2.5 rounded-full shadow-xl text-xs md:text-sm font-bold flex items-center gap-2 animate-fade-in w-max max-w-[90vw]">
-                    {isSyncing ? (
-                        <>
-                            <Icon name="RefreshCw" className="w-4 h-4 animate-spin text-gold-400 shrink-0" />
-                            <span className="truncate">Menyinkronkan data dengan server...</span>
-                        </>
-                    ) : (
-                        <>
-                            <span className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(34,197,94,0.5)]"><Icon name="Check" className="w-3 h-3 text-white" /></span>
-                            <span className="truncate">Data telah diperbarui!</span>
-                        </>
-                    )}
-                </div>
-            )}
-
-            <main className={`flex-1 w-full mx-auto p-4 md:px-8 lg:px-4 ${(activeTab === 'lagu_sion' && laguSionSubTab === 'numpad') ? 'pb-20 md:pb-6' : 'pb-32 md:pb-12'}`}>
-                {activeTab !== 'home' && activeTab !== 'lagu_sion' && !hideGlobalBack && (
-                    <div className="sticky top-16 md:top-[4.5rem] z-[35] -mx-4 md:-mx-8 lg:-mx-4 px-4 md:px-8 lg:px-4 py-3 mb-6 bg-white/80 backdrop-blur-md border-b border-navy-50 shadow-sm transition-all">
-                        <button
-                            onClick={() => window.history.back()}
-                            className="flex items-center justify-center px-5 py-2.5 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group w-max"
-                        >
-                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                            <span>Kembali</span>
-                        </button>
-                    </div>
-                )}
-                {renderContent()}
-            </main>
-
-            {activeTab === 'lagu_sion' && (
-                <nav className="bottom-bar mx-auto max-w-lg transition-all duration-300" style={{ zIndex: 50 }}>
-                    <div className="relative flex justify-around items-center w-full">
-                        {(() => {
-                            const lsTabs = [
-                                { id: 'home', label: 'Home', icon: 'Home' },
-                                { id: 'numpad', label: 'Numpad', icon: 'Grid' },
-                                { id: 'lyrics', label: 'Lirik', icon: 'BookOpen' },
-                                { id: 'index', label: 'Daftar', icon: 'List' }
-                            ];
-                            const activeIndex = lsTabs.findIndex(tab => tab.id === (laguSionSubTab || 'numpad'));
-                            return (
-                                <>
-                                    {activeIndex !== -1 && (
-                                        <div
-                                            className="absolute inset-y-0 left-0 transition-transform duration-350 ease-[cubic-bezier(0.34,1.5,0.64,1)] pointer-events-none z-0 will-change-transform"
-                                            style={{ width: `${100 / lsTabs.length}%`, transform: `translateX(${activeIndex * 100}%)` }}
-                                        >
-                                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-1 rounded-b-full bg-gradient-to-r from-gold-400 via-gold-300 to-gold-400 shadow-[0_2px_10px_rgba(232,177,53,0.5)]" />
-                                            <div className="mx-1 my-1.5 h-[calc(100%-12px)] rounded-2xl bg-gradient-to-b from-gold-400/25 via-gold-400/10 to-transparent border border-gold-400/30 shadow-sm" />
-                                        </div>
-                                    )}
-                                    {lsTabs.map((tab) => {
-                                        const isActive = tab.id === laguSionSubTab;
-                                        return (
-                                            <button
-                                                key={tab.id}
-                                                onClick={() => {
-                                                    if (tab.id === 'home') setActiveTab('home');
-                                                    else setLaguSionSubTab(tab.id);
-                                                }}
-                                                className={`relative z-10 flex flex-col items-center justify-center w-full py-3.5 transition-all duration-300 ${isActive ? 'text-gold-400 scale-105' : 'text-navy-400 hover:text-navy-300'}`}
-                                            >
-                                                <Icon name={tab.icon} className={`w-5 h-5 mb-1 transition-all duration-300 ${isActive ? 'drop-shadow-[0_0_8px_rgba(232,177,53,0.5)]' : ''}`} />
-                                                <span className={`text-[9px] uppercase tracking-widest transition-all duration-300 ${isActive ? 'font-black opacity-100 drop-shadow-md' : 'font-bold opacity-70'}`}>
-                                                    {tab.label}
-                                                </span>
-                                            </button>
-                                        );
-                                    })}
-                                </>
-                            );
-                        })()}
-                    </div>
-                </nav>
-            )}
-
-
-            {/* Backdrop Blur untuk Popup Navigasi Mobile */}
-            {mobileNavPopup && (
-                <div
-                    className="fixed inset-0 z-[50] bg-black/40 backdrop-blur-sm md:hidden transition-opacity duration-300"
-                    onClick={() => setMobileNavPopup(null)}
-                />
-            )}
-
-            {/* Popup Card Navigasi Mobile (Belajar & Ibadah) */}
-            {mobileNavPopup && (
-                <div
-                    className="fixed z-[55] left-1/2 popup-slide-up md:hidden pointer-events-auto"
-                    style={{
-                        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 102px)',
-                        width: 'calc(100% - 32px)',
-                        maxWidth: '480px'
-                    }}
-                >
-                    <div className="bg-white/95 dark:bg-[#161b26]/95 backdrop-blur-2xl border border-slate-200/95 dark:border-white/10 rounded-[28px] p-2.5 sm:p-3 shadow-[0_10px_30px_-4px_rgba(15,23,42,0.12),0_4px_12px_-2px_rgba(15,23,42,0.08)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.5)]">
-                        {mobileNavPopup === 'belajar' && (
-                            <div className="flex items-center justify-around">
-                                {[
-                                    {
-                                        id: 'sekolah_sabat',
-                                        label: 'Sekolah Sabat',
-                                        icon: 'BookOpen',
-                                        onClick: () => {
-                                            setMobileNavPopup(null);
-                                            window.open('https://sabbath-school.adventech.io/in', '_blank');
-                                        }
-                                    },
-                                    {
-                                        id: 'alkitab',
-                                        label: 'Alkitab',
-                                        icon: 'Cross',
-                                        onClick: () => {
-                                            setMobileNavPopup(null);
-                                            setActiveTab('alkitab');
-                                        }
-                                    },
-                                    {
-                                        id: '28_doktrin',
-                                        label: '28 Doktrin',
-                                        icon: 'ListOrdered',
-                                        onClick: () => {
-                                            setMobileNavPopup(null);
-                                            setActiveTab('belajar_28dasar');
-                                        }
-                                    },
-                                    {
-                                        id: 'other',
-                                        label: 'other',
-                                        icon: 'Grid',
-                                        onClick: () => {
-                                            setMobileNavPopup(null);
-                                            setActiveTab('belajar');
-                                        }
-                                    }
-                                ].map((item) => (
-                                    <button
-                                        key={item.id}
-                                        onClick={item.onClick}
-                                        className="flex flex-col items-center justify-center flex-1 py-1.5 px-1 text-slate-800 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 active:scale-95 transition-all group cursor-pointer"
-                                    >
-                                        <div className="w-6 h-6 flex items-center justify-center mb-1 text-slate-800 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                                            <Icon name={item.icon} className="w-5 h-5 stroke-[2.2]" />
-                                        </div>
-                                        <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 text-center leading-tight">
-                                            {item.label}
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-
-                        {mobileNavPopup === 'ibadah' && (
-                            <div className="flex items-center justify-around">
-                                {[
-                                    {
-                                        id: 'jadwal',
-                                        label: 'Jadwal',
-                                        icon: 'Calendar',
-                                        onClick: () => {
-                                            setMobileNavPopup(null);
-                                            setActiveTab('jadwal');
-                                        }
-                                    },
-                                    {
-                                        id: 'kertas_acara',
-                                        label: 'Kertas Acara',
-                                        icon: 'FileText',
-                                        onClick: () => {
-                                            setMobileNavPopup(null);
-                                            setActiveTab('susunan_ibadah');
-                                        }
-                                    },
-                                    {
-                                        id: 'warta',
-                                        label: 'Warta',
-                                        icon: 'Warta',
-                                        onClick: () => {
-                                            setMobileNavPopup(null);
-                                            setActiveTab('warta');
-                                        }
-                                    },
-                                    {
-                                        id: 'lagu_sion',
-                                        label: 'Lagu Sion',
-                                        icon: 'Music',
-                                        onClick: () => {
-                                            setMobileNavPopup(null);
-                                            setActiveTab('lagu_sion');
-                                        }
-                                    }
-                                ].map((item) => (
-                                    <button
-                                        key={item.id}
-                                        onClick={item.onClick}
-                                        className="flex flex-col items-center justify-center flex-1 py-1.5 px-1 text-slate-800 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 active:scale-95 transition-all group cursor-pointer"
-                                    >
-                                        <div className="w-6 h-6 flex items-center justify-center mb-1 text-slate-800 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                                            <Icon name={item.icon} className="w-5 h-5 stroke-[2.2]" />
-                                        </div>
-                                        <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 text-center leading-tight">
-                                            {item.label}
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {/* Navigasi Mobile Utama (Bentuk & Ukuran Sama Persis Seperti Popup) */}
-            {activeTab !== 'lagu_sion' && (
-                <nav
-                    className="fixed z-[52] left-1/2 -translate-x-1/2 md:hidden pointer-events-auto"
-                    style={{
-                        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
-                        width: 'calc(100% - 32px)',
-                        maxWidth: '480px'
-                    }}
-                >
-                    <div className="bg-white/95 dark:bg-[#161b26]/95 backdrop-blur-2xl border border-slate-200/95 dark:border-white/10 rounded-[28px] p-2.5 sm:p-3 shadow-[0_10px_30px_-4px_rgba(15,23,42,0.12),0_4px_12px_-2px_rgba(15,23,42,0.08)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.5)]">
-                        <div className="flex items-center justify-around">
-                            {[
-                                { id: 'belajar', label: 'Belajar', icon: 'BookOpen', isPopup: true },
-                                { id: 'ibadah', label: 'Ibadah', icon: 'FileText', isPopup: true },
-                                { id: 'home', label: 'Home', icon: 'Home' },
-                                { id: 'persembahan', label: 'Persembahan', icon: 'Rupiah' },
-                                { id: 'hubungi', label: 'Hubungi', icon: 'Phone' }
-                            ].map(item => {
-                                let isActive = false;
-                                if (item.id === 'belajar') {
-                                    isActive = mobileNavPopup === 'belajar' || (!mobileNavPopup && (activeTab.startsWith('belajar') || activeTab === 'alkitab'));
-                                } else if (item.id === 'ibadah') {
-                                    isActive = mobileNavPopup === 'ibadah' || (!mobileNavPopup && (activeTab === 'jadwal' || activeTab === 'susunan_ibadah' || activeTab === 'live' || activeTab === 'warta'));
-                                } else if (item.id === 'home') {
-                                    isActive = !mobileNavPopup && (activeTab === 'home' || activeTab === '' || !activeTab);
-                                } else if (item.id === 'persembahan') {
-                                    isActive = !mobileNavPopup && activeTab === 'persembahan';
-                                } else if (item.id === 'hubungi') {
-                                    isActive = !mobileNavPopup && activeTab === 'hubungi';
-                                }
-
-                                const handleClick = () => {
-                                    if (item.id === 'belajar') {
-                                        setMobileNavPopup(prev => prev === 'belajar' ? null : 'belajar');
-                                    } else if (item.id === 'ibadah') {
-                                        setMobileNavPopup(prev => prev === 'ibadah' ? null : 'ibadah');
-                                    } else {
-                                        setMobileNavPopup(null);
-                                        setActiveTab(item.id);
-                                    }
-                                };
-
-                                return (
-                                    <button
-                                        key={item.id}
-                                        onClick={handleClick}
-                                        className={`flex flex-col items-center justify-center flex-1 py-1 px-0.5 transition-all group cursor-pointer ${isActive
-                                            ? 'text-amber-600 dark:text-amber-400 font-bold'
-                                            : 'text-slate-800 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400'
-                                            }`}
-                                    >
-                                        <div className={`w-6 h-6 flex items-center justify-center mb-1 transition-all ${isActive
-                                            ? 'scale-110 text-amber-600 dark:text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]'
-                                            : 'text-slate-800 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 group-hover:scale-105'
-                                            }`}>
-                                            <Icon name={item.icon} className="w-5 h-5 stroke-[2.2]" />
-                                        </div>
-                                        <span className={`text-[10px] sm:text-[11px] font-bold text-center leading-tight transition-colors ${isActive
-                                            ? 'text-amber-600 dark:text-amber-400'
-                                            : 'text-slate-800 dark:text-slate-200'
-                                            }`}>
-                                            {item.label}
-                                        </span>
-                                        {isActive && (
-                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.8)] mt-1 animate-pulse" />
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </nav>
-            )}
-
-            {/* Floating Action Button (Hubungi / WA & Sinkronisasi) - Dipercantik dengan Glassmorphism & Diangkat agar Tidak Menyentuh Menu */}
-            {activeTab !== 'admin_dashboard' && activeTab !== 'hubungi' && activeTab !== 'lagu_sion' && !mobileNavPopup && (
-                <>
-                    {/* Floating Sync Button */}
-                    <button
-                        onClick={() => {
-                            if (!isSyncing) {
-                                setSyncTrigger(prev => prev + 1);
-                                setShowSyncNotif(true);
-                            }
-                        }}
-                        className="fixed left-4 md:left-6 z-[45] w-11 h-11 md:w-12 md:h-12 bg-white/85 dark:bg-[#161b26]/85 hover:bg-white/95 dark:hover:bg-[#161b26]/95 backdrop-blur-2xl border border-slate-200/90 dark:border-white/15 rounded-full transition-all duration-300 flex items-center justify-center cursor-pointer shadow-[0_10px_30px_-4px_rgba(15,23,42,0.15),0_4px_12px_-2px_rgba(15,23,42,0.1)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.6)] group active:scale-95"
-                        style={{
-                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
-                            transform: isScrollingDown ? 'translateY(120px)' : '',
-                            opacity: isScrollingDown ? 0 : 1,
-                            pointerEvents: isScrollingDown ? 'none' : 'auto'
-                        }}
-                        title="Sinkronisasi Data"
-                    >
-                        {isSyncing ? (
-                            <i className="fa-solid fa-rotate fa-spin text-amber-500 text-lg"></i>
-                        ) : (
-                            <div className="relative flex items-center justify-center w-full h-full">
-                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.9)]"></span>
-                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
-                            </div>
-                        )}
-                    </button>
-
-                    {/* Floating WhatsApp Button */}
-                    <button
-                        onClick={() => setActiveTab('hubungi')}
-                        className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 bg-white/85 dark:bg-[#161b26]/85 hover:bg-white/95 dark:hover:bg-[#161b26]/95 backdrop-blur-2xl border border-slate-200/90 dark:border-white/15 rounded-full transition-all duration-300 flex items-center justify-center cursor-pointer shadow-[0_10px_30px_-4px_rgba(15,23,42,0.15),0_4px_12px_-2px_rgba(15,23,42,0.1)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.6)] group active:scale-95"
-                        style={{
-                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
-                            transform: isScrollingDown ? 'translateY(120px)' : '',
-                            opacity: isScrollingDown ? 0 : 1,
-                            pointerEvents: isScrollingDown ? 'none' : 'auto'
-                        }}
-                        title="Hubungi Kami"
-                    >
-                        <i className="fa-brands fa-whatsapp text-[#25D366] text-2xl transition-transform group-hover:scale-110 drop-shadow-[0_0_8px_rgba(37,211,102,0.4)]"></i>
-                    </button>
-
-                    {/* Floating Scroll-to-Top Button */}
-                    {showScrollTop && (
-                        <button
-                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                            className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 bg-white/85 dark:bg-[#161b26]/85 hover:bg-[#4A7045] hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-900 text-[#4A7045] dark:text-gold-400 backdrop-blur-2xl border border-slate-200/90 dark:border-white/15 rounded-full transition-all duration-300 flex items-center justify-center cursor-pointer shadow-[0_10px_30px_-4px_rgba(15,23,42,0.15),0_4px_12px_-2px_rgba(15,23,42,0.1)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.6)] group active:scale-95"
-                            style={{
-                                bottom: 'calc(env(safe-area-inset-bottom, 0px) + 154px)'
-                            }}
-                            title="Kembali ke Atas"
-                            aria-label="Kembali ke Atas"
-                        >
-                            <Icon name="ArrowUp" className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
-                        </button>
-                    )}
-                </>
-            )}
-        </div>
-    );
-}
-
-
-class ErrorBoundary extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { hasError: false, error: null, errorInfo: null };
-    }
-    static getDerivedStateFromError(error) {
-        return { hasError: true };
-    }
-    componentDidCatch(error, errorInfo) {
-        this.setState({ error: error, errorInfo: errorInfo });
-        console.error("Caught by ErrorBoundary:", error, errorInfo);
-    }
-    render() {
-        if (this.state.hasError) {
-            return (
-                <div style={{ padding: 20, color: 'red', background: 'white' }}>
-                    <h2>Something went wrong.</h2>
-                    <details style={{ whiteSpace: 'pre-wrap' }}>
-                        {this.state.error && this.state.error.toString()}
-                        <br />
-                        {this.state.errorInfo && this.state.errorInfo.componentStack}
-                    </details>
-                </div>
-            );
-        }
-        return this.props.children;
-    }
-}
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<ErrorBoundary><App /></ErrorBoundary>);
-
-// Service Worker Registration
-if ('serviceWorker' in navigator) {
-    let refreshing = false;
-    // Listen saat ada service worker baru yang mengambil kendali, force reload page otomatis
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-            refreshing = true;
-            window.location.reload();
-        }
-    });
-
-    window.addEventListener('load', async () => {
-        try {
-            const registration = await navigator.serviceWorker.register('./sw.js');
-            console.log('ServiceWorker registered:', registration);
-        } catch (err) {
-            console.log('ServiceWorker registration failed: ', err);
-        }
-    });
-}
-
-
-export default function EmptyApp() { return null; }
+                     
+... [truncated for diff preview]
