@@ -698,6 +698,10 @@ function applyConfig() {
 }
 
 async function saveAppTextFromInputs() {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.settings?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin mengubah pengaturan web.', 'error');
+  }
   const name = document.getElementById('settingAppName').value;
   const subtitle = document.getElementById('settingAppSubtitle').value;
   systemConfig['app_name'] = name;
@@ -719,27 +723,134 @@ function hasRole(user, targetRole) {
 }
 
 let selectedRoleTab = 'Admin';
-const allRoles = ['Admin', 'Ketua Jemaat', 'Pendeta', 'Bendahara', 'Diakon', 'Viewer', 'Daerah', 'Publik'];
+const allRoles = ['Admin', 'Ketua Jemaat', 'Pendeta', 'Bendahara', 'Diakon', 'Operator', 'Viewer', 'Daerah', 'Publik'];
 const allMenus = [
-  { id: 'dashboard', label: 'Dashboard Utama' },
-  { id: 'pemasukan', label: 'Pemasukan' },
-  { id: 'pengeluaran', label: 'Pengeluaran' },
-  { id: 'pindahbuku', label: 'Pindah Buku (Mutasi)' },
-  { id: 'laporan', label: 'Laporan Keuangan' },
-  { id: 'riwayat', label: 'Riwayat (Histori)' },
-  { id: 'masterData', label: 'Kategori, Departemen & Unit' },
-  { id: 'users', label: 'Manajemen User' },
-  { id: 'akun', label: 'Pengaturan Akun (Sandi)' },
-  { id: 'settings', label: 'Pengaturan Web' },
-  { id: 'series', label: 'Pengaturan No. Series' },
-  { id: 'logs', label: 'Audit Log' },
-  { id: 'inventaris', label: 'Manajemen Inventaris / Aset' }
+  {
+    id: 'dashboard',
+    label: 'Dashboard Utama',
+    desc: 'Layar ringkasan saldo, KPI kas, dan grafik keuangan',
+    actions: [
+      { key: 'view', label: 'View (Lihat Dashboard)' }
+    ]
+  },
+  {
+    id: 'pemasukan',
+    label: 'Pemasukan Kas',
+    desc: 'Formulir pencatatan kas masuk / persembahan / perpuluhan',
+    actions: [
+      { key: 'view', label: 'View (Buka Form)' },
+      { key: 'edit', label: 'Input / Simpan Transaksi' }
+    ]
+  },
+  {
+    id: 'pengeluaran',
+    label: 'Pengeluaran Kas',
+    desc: 'Formulir pengajuan dan pencatatan kas keluar',
+    actions: [
+      { key: 'view', label: 'View (Buka Form)' },
+      { key: 'edit', label: 'Input / Simpan Transaksi' }
+    ]
+  },
+  {
+    id: 'pindahbuku',
+    label: 'Pindah Buku (Mutasi Kas)',
+    desc: 'Mutasi saldo kas antar pos/bank dan penarikan',
+    actions: [
+      { key: 'view', label: 'View (Buka Menu)' },
+      { key: 'edit', label: 'Input / Simpan Mutasi' },
+      { key: 'del', label: 'Hapus Data Mutasi' }
+    ]
+  },
+  {
+    id: 'laporan',
+    label: 'Laporan Keuangan',
+    desc: 'Rekap keuangan, buletin sabat, persepuluhan & cetak PDF',
+    actions: [
+      { key: 'view', label: 'View (Lihat & Pratinjau Cetak)' }
+    ]
+  },
+  {
+    id: 'riwayat',
+    label: 'Riwayat Transaksi (Histori)',
+    desc: 'Tabel riwayat kas, filter pencarian, dan persetujuan',
+    actions: [
+      { key: 'view', label: 'View (Lihat Riwayat Transaksi)' },
+      { key: 'edit', label: 'Ubah Data Transaksi' },
+      { key: 'del', label: 'Hapus Data Transaksi' },
+      { key: 'approve', label: 'Approve / Validasi Kas Keluar' }
+    ]
+  },
+  {
+    id: 'masterData',
+    label: 'Master Data (Kategori, Dept, Unit)',
+    desc: 'Kelola kategori masukan, bidang pelayanan, dan unit / sektor jemaat',
+    actions: [
+      { key: 'view', label: 'View (Lihat Master Data)' },
+      { key: 'edit', label: 'Tambah / Ubah Data' },
+      { key: 'del', label: 'Hapus Data' }
+    ]
+  },
+  {
+    id: 'users',
+    label: 'Manajemen Pengguna (User)',
+    desc: 'Kelola akun staf, hak role, dan pengikatan unit',
+    actions: [
+      { key: 'view', label: 'View (Lihat Daftar User)' },
+      { key: 'edit', label: 'Tambah / Ubah User' },
+      { key: 'del', label: 'Hapus User' }
+    ]
+  },
+  {
+    id: 'akun',
+    label: 'Pengaturan Akun (Sandi)',
+    desc: 'Profil staf dan perubahan kata sandi pribadi',
+    actions: [
+      { key: 'view', label: 'View (Buka Menu Akun)' },
+      { key: 'edit', label: 'Ubah Kata Sandi Pribadi' }
+    ]
+  },
+  {
+    id: 'settings',
+    label: 'Pengaturan Web',
+    desc: 'Ubah nama aplikasi, subtitle, dan logo gereja',
+    actions: [
+      { key: 'view', label: 'View (Buka Pengaturan Web)' },
+      { key: 'edit', label: 'Ubah & Simpan Pengaturan' }
+    ]
+  },
+  {
+    id: 'series',
+    label: 'Pengaturan No. Series',
+    desc: 'Atur nomor seri bukti kas masuk, keluar, dan mutasi',
+    actions: [
+      { key: 'view', label: 'View (Buka Pengaturan Series)' },
+      { key: 'edit', label: 'Ubah & Simpan No. Series' }
+    ]
+  },
+  {
+    id: 'logs',
+    label: 'Audit Log Sistem',
+    desc: 'Jejak log aktivitas pengguna (Read-only demi integritas audit)',
+    actions: [
+      { key: 'view', label: 'View (Lihat Audit Log)' }
+    ]
+  },
+  {
+    id: 'inventaris',
+    label: 'Manajemen Inventaris / Aset',
+    desc: 'Tautan ke modul pencatatan inventaris dan aset gereja',
+    actions: [
+      { key: 'view', label: 'Akses Menu Inventaris' }
+    ]
+  }
 ];
 
 function getDefaultRolePerms(role) {
   const defs = {
     Admin: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true, approve: true }, masterData: { view: true, edit: true, del: true }, users: { view: true, edit: true, del: true }, akun: { view: true, edit: true, del: true }, settings: { view: true, edit: true, del: true }, series: { view: true, edit: true, del: true }, logs: { view: true, edit: true, del: true }, inventaris: { view: true, edit: true, del: true } }, isAnonymous: false },
     Bendahara: { menus: { dashboard: { view: true, edit: true, del: true }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: true, edit: true, del: true }, laporan: { view: true, edit: true, del: true }, riwayat: { view: true, edit: true, del: true, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, series: { view: true, edit: true, del: true }, logs: { view: false, edit: false, del: false }, inventaris: { view: true, edit: true, del: true } }, isAnonymous: false },
+    Diakon: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: true, edit: false, del: false } }, isAnonymous: false },
+    Operator: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: true, edit: true, del: true }, pengeluaran: { view: true, edit: true, del: true }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: true, del: true, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: false, edit: false, del: false } }, isAnonymous: false },
     Viewer: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: true, edit: false, del: false } }, isAnonymous: false },
     Daerah: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: true, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: true, edit: true, del: true }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: true, edit: false, del: false } }, isAnonymous: false },
     Publik: { menus: { dashboard: { view: true, edit: false, del: false }, pemasukan: { view: false, edit: false, del: false }, pengeluaran: { view: false, edit: false, del: false }, pindahbuku: { view: false, edit: false, del: false }, laporan: { view: false, edit: false, del: false }, riwayat: { view: true, edit: false, del: false, approve: false }, masterData: { view: false, edit: false, del: false }, users: { view: false, edit: false, del: false }, akun: { view: false, edit: false, del: false }, settings: { view: false, edit: false, del: false }, logs: { view: false, edit: false, del: false }, inventaris: { view: false, edit: false, del: false } }, isAnonymous: true },
@@ -809,30 +920,33 @@ function renderRoles() {
 
   html += `<div class="grid-2" style="gap:16px; margin-top:8px;">`;
   allMenus.forEach(menu => {
-    let mPerm = perms.menus[menu.id] || { view: false, edit: false, del: false };
+    let mPerm = perms.menus[menu.id] || { view: false, edit: false, del: false, approve: false };
     if (selectedRoleTab === 'Admin') { mPerm = { view: true, edit: true, del: true, approve: true }; }
     const disabled = selectedRoleTab === 'Admin' ? 'disabled' : '';
+    const isViewChecked = !!mPerm.view;
+
     html += `
-          <div style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius); padding:16px;">
-            <div style="font-weight:700; color:var(--text); margin-bottom:12px; border-bottom:1px solid var(--glass-border); padding-bottom:8px;">${menu.label}</div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-              <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
-                <span style="color:var(--text2); font-size:14px;">View (Lihat)</span>
-                <input type="checkbox" ${disabled} ${mPerm.view ? 'checked' : ''} onchange="updateRolePerm('${selectedRoleTab}', '${menu.id}', 'view', this.checked)">
-              </label>
-              <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
-                <span style="color:var(--text2); font-size:14px;">Edit / Add</span>
-                <input type="checkbox" ${disabled} ${mPerm.edit ? 'checked' : ''} onchange="updateRolePerm('${selectedRoleTab}', '${menu.id}', 'edit', this.checked)">
-              </label>
-              <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
-                <span style="color:var(--text2); font-size:14px;">Delete (Hapus)</span>
-                <input type="checkbox" ${disabled} ${mPerm.del ? 'checked' : ''} onchange="updateRolePerm('${selectedRoleTab}', '${menu.id}', 'del', this.checked)">
-              </label>
-              ${menu.id === 'riwayat' ? `
-              <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer; margin-top:4px; padding-top:8px; border-top:1px dashed var(--glass-border);">
-                <span style="color:var(--text2); font-size:14px; font-weight:600;">Approve / Validasi</span>
-                <input type="checkbox" ${disabled} ${mPerm.approve ? 'checked' : ''} onchange="updateRolePerm('${selectedRoleTab}', '${menu.id}', 'approve', this.checked)">
-              </label>` : ''}
+          <div style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius); padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:4px;">
+                <div style="font-weight:700; color:var(--text); font-size:14.5px;">${menu.label}</div>
+                ${menu.actions.length === 1 ? '<span class="badge badge-gray" style="font-size:10px; padding:1px 6px;">Read-Only</span>' : ''}
+              </div>
+              <div style="font-size:12px; color:var(--text3); margin-bottom:12px; line-height:1.3;">${menu.desc || ''}</div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px; border-top:1px solid var(--glass-border); padding-top:10px;">
+              ${menu.actions.map(act => {
+                const isChecked = !!mPerm[act.key];
+                const isActionDisabled = disabled || (act.key !== 'view' && !isViewChecked);
+                const isSpecial = act.key === 'approve';
+                return `
+                  <label style="display:flex; align-items:center; justify-content:space-between; cursor:${isActionDisabled ? 'default' : 'pointer'}; opacity:${isActionDisabled && selectedRoleTab !== 'Admin' ? '0.45' : '1'}; ${isSpecial ? 'margin-top:4px; padding-top:6px; border-top:1px dashed var(--glass-border);' : ''}">
+                    <span style="color:${isSpecial ? 'var(--accent-green)' : 'var(--text2)'}; font-size:13.5px; ${isSpecial ? 'font-weight:600;' : ''}">${act.label}</span>
+                    <input type="checkbox" ${isActionDisabled ? 'disabled' : ''} ${isChecked ? 'checked' : ''} onchange="updateRolePerm('${selectedRoleTab}', '${menu.id}', '${act.key}', this.checked)">
+                  </label>
+                `;
+              }).join('')}
             </div>
           </div>
         `;
@@ -859,18 +973,17 @@ function updateRolePerm(role, menuId, permType, checked) {
   if (!systemConfig.rolePermissions[role].menus[menuId]) systemConfig.rolePermissions[role].menus[menuId] = { view: false, edit: false, del: false, approve: false };
   systemConfig.rolePermissions[role].menus[menuId][permType] = checked;
 
-  localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig)); // AUTO-SAVE to local storage immediately
-
   if (checked && (permType === 'edit' || permType === 'del' || permType === 'approve')) {
     systemConfig.rolePermissions[role].menus[menuId].view = true;
-    renderRoles();
   }
   if (!checked && permType === 'view') {
     systemConfig.rolePermissions[role].menus[menuId].edit = false;
     systemConfig.rolePermissions[role].menus[menuId].del = false;
     systemConfig.rolePermissions[role].menus[menuId].approve = false;
-    renderRoles();
   }
+
+  localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig)); // AUTO-SAVE to local storage immediately
+  renderRoles();
 }
 
 async function saveRolePermissions() {
@@ -1873,12 +1986,17 @@ function applyRoleAccess() {
   document.getElementById('navMasterUnit').style.display = mMaster.view ? '' : 'none';
   if (document.getElementById('masterNavLabel')) document.getElementById('masterNavLabel').style.display = mMaster.view ? '' : 'none';
 
+  const btnAddIncType = document.getElementById('btnAddIncType'); if (btnAddIncType) btnAddIncType.style.display = mMaster.edit ? 'inline-flex' : 'none';
+  const btnAddDept = document.getElementById('btnAddDept'); if (btnAddDept) btnAddDept.style.display = mMaster.edit ? 'inline-flex' : 'none';
+  const btnAddUnit = document.getElementById('btnAddUnit'); if (btnAddUnit) btnAddUnit.style.display = mMaster.edit ? 'inline-flex' : 'none';
+
   const mUsers = perms.menus.users || { view: false, edit: false, del: false };
   document.getElementById('navUsers').style.display = mUsers.view ? '' : 'none';
+  const btnAddUser = document.getElementById('btnAddUser'); if (btnAddUser) btnAddUser.style.display = mUsers.edit ? 'inline-flex' : 'none';
 
   const mSettings = perms.menus.settings || { view: false, edit: false, del: false };
   document.getElementById('navSettings').style.display = mSettings.view ? '' : 'none';
-  document.getElementById('navRoles').style.display = mSettings.view ? '' : 'none';
+  document.getElementById('navRoles').style.display = hasRole(currentUser, 'Admin') ? '' : 'none';
 
   const mAkun = perms.menus.akun || { view: false, edit: false, del: false };
   document.getElementById('navAkun').style.display = mAkun.view ? '' : 'none';
@@ -1895,9 +2013,9 @@ function applyRoleAccess() {
   const sensorContainer = document.getElementById('reportSensorContainer');
   if (sensorContainer) sensorContainer.style.display = perms.menus.laporan?.view ? 'flex' : 'none';
 
-  // Auto-enable Unit Filter for Operators
+  // Auto-enable Unit Filter for Operators or Diakons with bound units
   const userUnits = getUserUnits();
-  if (currentUser && hasRole(currentUser, 'Operator') && userUnits.length > 0) {
+  if (currentUser && (hasRole(currentUser, 'Operator') || hasRole(currentUser, 'Diakon')) && userUnits.length > 0) {
     myUnitFilterActive = true;
     const btnToggle = document.getElementById('btnToggleMyUnit');
     if (btnToggle) {
@@ -2206,6 +2324,32 @@ function calculateExtendedBalances() {
   cachedSaldo.tanganBangun = tanganBangun;
 }
 
+function isTxFullyApproved(tx) {
+  if (!tx || !tx.approved_by) return false;
+  const app = String(tx.approved_by);
+  return app.includes('Admin') || (app.includes('Ketua Jemaat') && app.includes('Pendeta'));
+}
+
+function hasUserApprovedTx(tx, user) {
+  if (!tx || !user) return false;
+  if (isTxFullyApproved(tx)) return true;
+  const app = String(tx.approved_by || '');
+  if (hasRole(user, 'Admin') && app.includes('Admin')) return true;
+  if (hasRole(user, 'Ketua Jemaat') && app.includes('Ketua Jemaat')) return true;
+  if (hasRole(user, 'Pendeta') && app.includes('Pendeta')) return true;
+  return false;
+}
+
+function isTxPendingForUser(tx, user) {
+  if (!tx || !user) return false;
+  if (isTxFullyApproved(tx)) return false;
+  const app = String(tx.approved_by || '');
+  if (hasRole(user, 'Admin') && !app.includes('Admin')) return true;
+  if (hasRole(user, 'Ketua Jemaat') && !app.includes('Ketua Jemaat')) return true;
+  if (hasRole(user, 'Pendeta') && !app.includes('Pendeta')) return true;
+  return false;
+}
+
 function updateGlobalApprovalBadge() {
   const navItem = document.getElementById('navRiwayat');
   const topBadge = document.getElementById('globalApprovalBadge');
@@ -2216,11 +2360,11 @@ function updateGlobalApprovalBadge() {
   const rolePerms = currentUser ? getRolePerms(currentUser?.role || '') : null;
   const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
   const isApprover = currentUser && (canApprove || isAdmin);
-  const roleNeeded = currentUser ? currentUser.role : '';
+  const isBendahara = currentUser && hasRole(currentUser, 'Bendahara');
   const dashAlert = document.getElementById('dashApprovalAlert');
   const dashDesc = document.getElementById('approvalAlertDesc');
 
-  if (!isApprover && !hasRole(currentUser, 'Bendahara')) {
+  if (!isApprover && !isBendahara) {
     if (navItem) navItem.classList.remove('has-notification');
     if (topBadge) topBadge.style.display = 'none';
     if (topBtn) topBtn.style.display = 'none';
@@ -2236,9 +2380,13 @@ function updateGlobalApprovalBadge() {
     const deleteId = x.transaction_id || x.receipt_no || '';
     if (!deleteId) return;
     if (x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank') return;
-    const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
-    if (isFullyApproved) return;
-    if (!x.approved_by || !x.approved_by.includes(roleNeeded)) pendingCount += 1;
+    if (isTxFullyApproved(x)) return;
+
+    if (isApprover) {
+      if (isTxPendingForUser(x, currentUser)) pendingCount += 1;
+    } else if (isBendahara) {
+      pendingCount += 1;
+    }
   });
 
   if (pendingCount > 0) {
@@ -2249,7 +2397,13 @@ function updateGlobalApprovalBadge() {
     }
     if (dashAlert) {
       dashAlert.style.display = 'block';
-      if (dashDesc) dashDesc.textContent = `Terdapat ${pendingCount} transaksi pengeluaran kas yang membutuhkan disposisi / persetujuan Anda.`;
+      if (dashDesc) {
+        if (isApprover) {
+          dashDesc.textContent = `Terdapat ${pendingCount} transaksi pengeluaran kas yang membutuhkan disposisi / persetujuan Anda.`;
+        } else {
+          dashDesc.textContent = `Terdapat ${pendingCount} transaksi pengeluaran kas yang sedang menunggu persetujuan Ketua Jemaat / Pendeta.`;
+        }
+      }
     }
   } else {
     if (navItem) navItem.classList.remove('has-notification');
@@ -2937,7 +3091,7 @@ function renderDashboard() {
 
   let combined = [...filteredInc.map(x => ({ ...x, kind: 'income', style: 'amount-pos', sign: '+', badge: 'badge-green', label: 'In' })), ...filteredExp.map(x => ({ ...x, kind: 'expense', style: 'amount-neg', sign: '-', badge: 'badge-red', label: 'Out' }))];
   const uUnitsDash = getUserUnits();
-  if (currentUser && hasRole(currentUser, 'Operator') && uUnitsDash.length > 0) {
+  if (currentUser && (hasRole(currentUser, 'Operator') || hasRole(currentUser, 'Diakon')) && uUnitsDash.length > 0) {
     combined = combined.filter(x => {
       const txUnitLower = String(x.unit_name || '').toLowerCase().trim();
       return uUnitsDash.some(u => String(u).toLowerCase().trim() === txUnitLower);
@@ -4948,8 +5102,8 @@ function renderHistory() {
 
     let desktopHtml = paginatedList.map(x => {
       const isMutasi = x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank';
-      const txCanEdit = canEdit || (isMutasi && mPindahBuku.edit);
-      const txCanDel = canDel || (isMutasi && mPindahBuku.del);
+      const txCanEdit = isMutasi ? (mPindahBuku.edit || isAdmin) : canEdit;
+      const txCanDel = isMutasi ? (mPindahBuku.del || isAdmin) : canDel;
 
       const txUnitLower = String(x.unit_name || '').toLowerCase().trim();
       const belongsToUserUnits = userUnits.some(u => String(u).toLowerCase().trim() === txUnitLower);
@@ -5009,8 +5163,7 @@ function renderHistory() {
 
       let approveBtn = '';
       if (isApprover && deleteId && !isMutasi) {
-        const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
-        if (isFullyApproved || (x.approved_by && x.approved_by.includes(roleNeeded))) {
+        if (hasUserApprovedTx(x, currentUser)) {
           approveBtn = `<button class="btn-icon-only" style="color:var(--text4); cursor:default;" title="Sudah Di-Approve" disabled>${safeIcon('check', 'lucide-sm')}</button>`;
         } else {
           approveBtn = `<button class="btn-icon-only" style="color:var(--accent-green);" title="Approve" onclick="approveTx('${x.type}', '${deleteId}')">${safeIcon('check', 'lucide-sm')}</button>`;
@@ -5047,8 +5200,8 @@ function renderHistory() {
 
     let mobileHtml = '<div class="dash-detail-list" style="display:flex; flex-direction:column;">' + paginatedList.map(x => {
       const isMutasi = x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank';
-      const txCanEdit = canEdit || (isMutasi && mPindahBuku.edit);
-      const txCanDel = canDel || (isMutasi && mPindahBuku.del);
+      const txCanEdit = isMutasi ? (mPindahBuku.edit || isAdmin) : canEdit;
+      const txCanDel = isMutasi ? (mPindahBuku.del || isAdmin) : canDel;
 
       const txUnitLower = String(x.unit_name || '').toLowerCase().trim();
       const belongsToUserUnits = userUnits.some(u => String(u).toLowerCase().trim() === txUnitLower);
@@ -5115,8 +5268,7 @@ function renderHistory() {
 
       let approveBtn = '';
       if (isApprover && deleteId && !isMutasi) {
-        const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
-        if (isFullyApproved || (x.approved_by && x.approved_by.includes(roleNeeded))) {
+        if (hasUserApprovedTx(x, currentUser)) {
           approveBtn = `<button class="btn" style="padding:4px 8px; font-size:9px; background:var(--badge-gray-bg); color:var(--text4); border:1px solid var(--glass-border); cursor:default;display:inline-flex;align-items:center;gap:4px;" disabled>${safeIcon('check', 'lucide-sm')} Approved</button>`;
         } else {
           approveBtn = `<button class="btn" style="padding:4px 8px; font-size:9px; background:rgba(16,185,129,0.1); color:var(--accent-green); border:1px solid rgba(16,185,129,0.2);display:inline-flex;align-items:center;gap:4px;" onclick="approveTx('${x.type}', '${deleteId}')">${safeIcon('check', 'lucide-sm')} Approve</button>`;
@@ -6147,6 +6299,10 @@ async function approveBulkTx() {
 }
 
 function openIncTypeModal(isEdit = false) {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.masterData?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin menambah / mengubah kategori.', 'error');
+  }
   if (!isEdit) {
     cancelEditIncType();
   }
@@ -6167,6 +6323,10 @@ function closeIncTypeModal() {
 }
 
 function editIncType(name, pd, pj, pb) {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.masterData?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin mengubah kategori.', 'error');
+  }
   editingIncType = name;
   const title = document.getElementById('incTypeFormTitle');
   if (title) title.textContent = 'Ubah Kategori Masukan';
@@ -6196,6 +6356,10 @@ function cancelEditIncType() {
 }
 
 async function saveIncTypeForm() {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.masterData?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin menambah / mengubah kategori.', 'error');
+  }
   const name = document.getElementById('newIncTypeName').value.trim();
   const pd = parseFloat(document.getElementById('newIncTypePctDaerah').value) || 0;
   const pj = parseFloat(document.getElementById('newIncTypePctJemaat').value) || 0;
@@ -6240,6 +6404,11 @@ function renderMasterIncTypes() {
   const types = masterData?.incomeTypes || [];
   const resv = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah', 'Persembahan Khusus'];
 
+  const perms = getRolePerms(currentUser?.role || '');
+  const mMaster = perms.menus.masterData || { view: false, edit: false, del: false };
+  const canEdit = mMaster.edit || hasRole(currentUser, 'Admin');
+  const canDel = mMaster.del || hasRole(currentUser, 'Admin');
+
   if (types.length === 0) {
     listEl.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text3);">Belum ada kategori masukan. Klik tombol "+ Tambah Kategori" untuk menambahkan.</div>';
   } else {
@@ -6265,12 +6434,12 @@ function renderMasterIncTypes() {
               </div>
             </div>
           </div>
-          <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; margin-left:12px;">
-            ${isSystem ? '' : `
-              <button class="btn-icon-only" title="Ubah Kategori" onclick="editIncType('${escapedName}', ${x.pct_daerah}, ${x.pct_jemaat}, ${x.pct_bangun})">${safeIcon('edit')}</button>
-              <button class="btn-icon-only" style="color:var(--red-pop);" title="Hapus Kategori" onclick="deleteIncType('${escapedName}')">${safeIcon('trash')}</button>
-            `}
-          </div>
+          ${(!isSystem && (canEdit || canDel)) ? `
+            <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; margin-left:12px;">
+              ${canEdit ? `<button class="btn-icon-only" title="Ubah Kategori" onclick="editIncType('${escapedName}', ${x.pct_daerah}, ${x.pct_jemaat}, ${x.pct_bangun})">${safeIcon('edit')}</button>` : ''}
+              ${canDel ? `<button class="btn-icon-only" style="color:var(--red-pop);" title="Hapus Kategori" onclick="deleteIncType('${escapedName}')">${safeIcon('trash')}</button>` : ''}
+            </div>
+          ` : ''}
         </div>
       `;
     }).join('');
@@ -6281,6 +6450,10 @@ function renderMasterIncTypes() {
 }
 
 async function deleteIncType(name) {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.masterData?.del && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin menghapus kategori.', 'error');
+  }
   if (await showCustomConfirm('Hapus Kategori', `Yakin ingin menghapus kategori ${name}?`)) {
     try {
       await apiPost('deleteIncomeType', { name });
@@ -6297,6 +6470,10 @@ async function deleteIncType(name) {
 let editingDept = null;
 
 function openDeptModal(isEdit = false) {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.masterData?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin menambah / mengubah departemen.', 'error');
+  }
   if (!isEdit) {
     cancelEditDept();
   }
@@ -6327,6 +6504,10 @@ function cancelEditDept() {
 }
 
 async function saveDeptForm() {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.masterData?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin menambah / mengubah departemen.', 'error');
+  }
   const name = document.getElementById('deptName').value.trim();
   if (!name) { notify('Isi Nama Bidang / Departemen!', 'error'); return; }
   const btn = document.getElementById('deptSaveBtn');
@@ -6349,6 +6530,10 @@ async function saveDeptForm() {
 }
 
 function editDept(id, name) {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.masterData?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin mengubah departemen.', 'error');
+  }
   editingDept = id;
   const title = document.getElementById('deptFormTitle');
   if (title) title.textContent = 'Ubah Departemen';
@@ -6362,6 +6547,11 @@ function renderMasterDepts() {
   const listEl = document.getElementById('deptList');
   if (!listEl) return;
   const depts = masterData?.departments || [];
+
+  const perms = getRolePerms(currentUser?.role || '');
+  const mMaster = perms.menus.masterData || { view: false, edit: false, del: false };
+  const canEdit = mMaster.edit || hasRole(currentUser, 'Admin');
+  const canDel = mMaster.del || hasRole(currentUser, 'Admin');
 
   if (depts.length === 0) {
     listEl.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text3);">Belum ada departemen terdaftar. Klik tombol "+ Tambah Departemen" untuk menambahkan.</div>';
@@ -6383,10 +6573,12 @@ function renderMasterDepts() {
               </div>
             </div>
           </div>
-          <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; margin-left:12px;">
-            <button class="btn-icon-only" title="Ubah Departemen" onclick="editDept('${escapedId}', '${escapedName}')">${safeIcon('edit')}</button>
-            <button class="btn-icon-only" style="color:var(--red-pop);" title="Hapus Departemen" onclick="deleteDept('${escapedId}')">${safeIcon('trash')}</button>
-          </div>
+          ${(canEdit || canDel) ? `
+            <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; margin-left:12px;">
+              ${canEdit ? `<button class="btn-icon-only" title="Ubah Departemen" onclick="editDept('${escapedId}', '${escapedName}')">${safeIcon('edit')}</button>` : ''}
+              ${canDel ? `<button class="btn-icon-only" style="color:var(--red-pop);" title="Hapus Departemen" onclick="deleteDept('${escapedId}')">${safeIcon('trash')}</button>` : ''}
+            </div>
+          ` : ''}
         </div>
       `;
     }).join('');
@@ -6397,6 +6589,10 @@ function renderMasterDepts() {
 }
 
 async function deleteDept(id) {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.masterData?.del && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin menghapus departemen.', 'error');
+  }
   if (await showCustomConfirm('Hapus Departemen', 'Yakin ingin menghapus departemen ini?')) {
     try {
       await apiPost('deleteDepartment', { id, name: id });
@@ -6411,6 +6607,10 @@ async function deleteDept(id) {
 }
 
 function openUnitModal(isEdit = false) {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.masterData?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin menambah / mengubah unit.', 'error');
+  }
   if (!isEdit) {
     cancelEditUnit();
   }
@@ -6433,6 +6633,10 @@ function closeUnitModal() {
 }
 
 function editUnit(name, note, jumlah, id) {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.masterData?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin mengubah unit.', 'error');
+  }
   editingUnit = name;
   editingUnitId = id || null;
   const title = document.getElementById('unitFormTitle');
@@ -6464,6 +6668,10 @@ function cancelEditUnit() {
 }
 
 async function saveUnitForm() {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.masterData?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin menambah / mengubah unit.', 'error');
+  }
   const nameInput = document.getElementById('unitName');
   const noteInput = document.getElementById('unitNote');
   const jumlahInput = document.getElementById('unitJumlah');
@@ -6505,6 +6713,11 @@ function renderMasterUnits() {
   const listEl = document.getElementById('unitList');
   if (!listEl) return;
 
+  const perms = getRolePerms(currentUser?.role || '');
+  const mMaster = perms.menus.masterData || { view: false, edit: false, del: false };
+  const canEdit = mMaster.edit || hasRole(currentUser, 'Admin');
+  const canDel = mMaster.del || hasRole(currentUser, 'Admin');
+
   if (units.length === 0) {
     listEl.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text3);">Belum ada unit terdaftar. Klik tombol "+ Tambah Unit" untuk menambahkan.</div>';
   } else {
@@ -6531,10 +6744,12 @@ function renderMasterUnits() {
               </div>
             </div>
           </div>
-          <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; margin-left:12px;">
-            <button class="btn-icon-only" title="Ubah Unit" onclick="editUnit('${escapedName}', '${escapedNote}', ${jumlahAnggota}, '${escapedId}')">${safeIcon('edit')}</button>
-            <button class="btn-icon-only" style="color:var(--red-pop);" title="Hapus Unit" onclick="deleteUnit('${escapedName}', '${escapedId}')">${safeIcon('trash')}</button>
-          </div>
+          ${(canEdit || canDel) ? `
+            <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; margin-left:12px;">
+              ${canEdit ? `<button class="btn-icon-only" title="Ubah Unit" onclick="editUnit('${escapedName}', '${escapedNote}', ${jumlahAnggota}, '${escapedId}')">${safeIcon('edit')}</button>` : ''}
+              ${canDel ? `<button class="btn-icon-only" style="color:var(--red-pop);" title="Hapus Unit" onclick="deleteUnit('${escapedName}', '${escapedId}')">${safeIcon('trash')}</button>` : ''}
+            </div>
+          ` : ''}
         </div>
       `;
     }).join('');
@@ -6548,6 +6763,10 @@ function renderMasterUnits() {
   }
 }
 async function deleteUnit(name, id) {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.masterData?.del && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin menghapus unit.', 'error');
+  }
   if (await showCustomConfirm('Hapus Unit', `Yakin ingin menghapus unit ${name}?`)) {
     try {
       await apiPost('deleteUnit', { name, id });
@@ -6613,6 +6832,10 @@ function getUserInitials(name) {
 }
 
 function openUserModal(isEdit = false) {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.users?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin menambah / mengubah user.', 'error');
+  }
   if (!isEdit) {
     cancelEditUser();
   }
@@ -6635,6 +6858,10 @@ function closeUserModal() {
 }
 
 function editUser(username, nama, role, password = null) {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.users?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin mengubah user.', 'error');
+  }
   editingUser = username;
   const title = document.getElementById('userFormTitle');
   if (title) title.textContent = 'Ubah Akun';
@@ -6706,6 +6933,10 @@ function cancelEditUser() {
 }
 
 async function saveUserForm() {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.users?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin menambah / mengubah user.', 'error');
+  }
   const username = document.getElementById('userName').value.trim();
   const nama = document.getElementById('userFullName').value.trim();
   const password = document.getElementById('userPassword').value;
@@ -6763,6 +6994,23 @@ function handleUserSort(sortKey) {
 function handleUserSearch(query) {
   currentUsersQuery = (query || '').toLowerCase().trim();
   renderUserCards();
+}
+
+function toggleUserCardPw(el, uname) {
+  const textSpan = el.querySelector('.pw-text');
+  const eyeSpan = el.querySelector('.pw-eye');
+  if (!textSpan) return;
+  const isRevealed = textSpan.getAttribute('data-revealed') === 'true';
+  if (isRevealed) {
+    textSpan.textContent = '••••••••';
+    textSpan.setAttribute('data-revealed', 'false');
+    if (eyeSpan) eyeSpan.textContent = '👁️';
+  } else {
+    const userObj = cachedUsersList.find(u => u.username === uname);
+    textSpan.textContent = (userObj && userObj.password) ? userObj.password : '(tidak ada sandi)';
+    textSpan.setAttribute('data-revealed', 'true');
+    if (eyeSpan) eyeSpan.textContent = '🔒';
+  }
 }
 
 function renderUserCards() {
@@ -6824,12 +7072,16 @@ function renderUserCards() {
     return;
   }
 
+  const perms = getRolePerms(currentUser?.role || '');
+  const mUsers = perms.menus.users || { view: false, edit: false, del: false };
+  const canEdit = mUsers.edit || hasRole(currentUser, 'Admin');
+  const canDel = mUsers.del || hasRole(currentUser, 'Admin');
+
   listEl.innerHTML = list.map(x => {
     const uUnit = getUserUnits(x.username);
     const escapedUname = (x.username || '').replace(/'/g, "\\'");
     const escapedNama = (x.nama || '').replace(/'/g, "\\'");
     const escapedRole = (x.role || '').replace(/'/g, "\\'");
-    const escapedPw = (x.password || '').replace(/'/g, "\\'");
     const initials = getUserInitials(x.nama || x.username);
 
     return `
@@ -6843,9 +7095,10 @@ function renderUserCards() {
             </div>
             
             <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:6px;">
-              <span class="user-pw-chip" title="Password Akun">
+              <span class="user-pw-chip" title="Klik untuk lihat/sembunyikan kata sandi" style="cursor:pointer; user-select:none;" onclick="toggleUserCardPw(this, '${escapedUname}')">
                 <span style="font-size:11px; opacity:0.7;">🔑</span>
-                <span style="font-family:monospace; font-size:11.5px;">${x.password || '***'}</span>
+                <span class="pw-text" data-revealed="false" style="font-family:monospace; font-size:11.5px; letter-spacing:1px;">••••••••</span>
+                <span class="pw-eye" style="font-size:10px; opacity:0.6; margin-left:2px;">👁️</span>
               </span>
             </div>
 
@@ -6867,10 +7120,12 @@ function renderUserCards() {
           </div>
         </div>
 
-        <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; margin-left:10px;">
-          <button class="btn-icon-only" title="Ubah User" onclick="editUser('${escapedUname}', '${escapedNama}', '${escapedRole}', '${escapedPw}')">${safeIcon('edit')}</button>
-          ${x.username === 'admin' ? '' : `<button class="btn-icon-only" style="color:var(--red-pop);" title="Hapus User" onclick="deleteUser('${escapedUname}')">${safeIcon('trash')}</button>`}
-        </div>
+        ${(canEdit || (canDel && x.username !== 'admin')) ? `
+          <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; margin-left:10px;">
+            ${canEdit ? `<button class="btn-icon-only" title="Ubah User" onclick="editUser('${escapedUname}', '${escapedNama}', '${escapedRole}')">${safeIcon('edit')}</button>` : ''}
+            ${(canDel && x.username !== 'admin') ? `<button class="btn-icon-only" style="color:var(--red-pop);" title="Hapus User" onclick="deleteUser('${escapedUname}')">${safeIcon('trash')}</button>` : ''}
+          </div>
+        ` : ''}
       </div>
     `;
   }).join('');
@@ -6887,6 +7142,10 @@ async function renderUsers() {
 }
 
 async function deleteUser(username) {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.users?.del && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin menghapus user.', 'error');
+  }
   if (await showCustomConfirm('Hapus User', `Yakin ingin menghapus user @${username}?`)) {
     try {
       await apiPost('deleteRecord', { type: 'users', transaction_id: username });
@@ -6958,7 +7217,45 @@ function updateBottomNavIndicator() {
 }
 window.addEventListener('resize', updateBottomNavIndicator);
 
+const PAGE_PERMISSION_MAP = {
+  dashboard: 'dashboard',
+  pemasukan: 'pemasukan',
+  pengeluaran: 'pengeluaran',
+  pindahbuku: 'pindahbuku',
+  laporan: 'laporan',
+  riwayat: 'riwayat',
+  masterIncType: 'masterData',
+  masterDept: 'masterData',
+  masterUnit: 'masterData',
+  users: 'users',
+  settings: 'settings',
+  roles: 'settings',
+  series: 'series',
+  logs: 'logs',
+  inventaris: 'inventaris',
+  akun: 'akun'
+};
+
 function showPage(pageId) {
+  if (currentUser) {
+    if (pageId === 'roles') {
+      if (!hasRole(currentUser, 'Admin')) {
+        notify('Hanya Admin yang berhak mengakses pengaturan Hak Akses.', 'error');
+        showPage('dashboard');
+        return;
+      }
+    }
+    const perms = getRolePerms(currentUser?.role || '');
+    const requiredMenu = PAGE_PERMISSION_MAP[pageId];
+    if (requiredMenu && perms && perms.menus && perms.menus[requiredMenu] && perms.menus[requiredMenu].view === false) {
+      notify('Anda tidak memiliki hak akses untuk membuka menu ini.', 'error');
+      if (pageId !== 'dashboard') {
+        showPage('dashboard');
+      }
+      return;
+    }
+  }
+
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById('page-' + pageId); if (target) target.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -7429,6 +7726,7 @@ window.renderDashboard = renderDashboard;
 window.setDashboardChartMode = setDashboardChartMode;
 window.updateDashboardChart = updateDashboardChart;
 window.editUser = editUser;
+window.toggleUserCardPw = toggleUserCardPw;
 window.getCatBadge = getCatBadge;
 window.doPrintCombined = doPrintCombined;
 window.changePhoto = changePhoto;
@@ -8258,6 +8556,10 @@ async function loadSeriesConfig() {
 }
 
 async function saveSeriesConfig() {
+  const perms = getRolePerms(currentUser?.role || '');
+  if (!perms.menus.series?.edit && !hasRole(currentUser, 'Admin')) {
+    return notify('Anda tidak memiliki izin mengubah pengaturan No. Series.', 'error');
+  }
   const month = document.getElementById('seriesMonth').value;
   const year = document.getElementById('seriesYear').value;
   const key = `${year}-${month.padStart(2, '0')}`;

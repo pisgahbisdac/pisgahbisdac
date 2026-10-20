@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.css" rel="stylesheet">
 
-  <script type="module" crossorigin src="/assets/laporan-l6r4Y4VJ.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-DYh0Hb7-.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/laporan-ldx9_8sw.css">
   <link rel="stylesheet" crossorigin href="/assets/index-C64D17vV.css">
@@ -1120,8 +1120,10 @@
                 <span class="icon-placeholder" data-icon="trendUp" data-size="lucide-md"></span>
               </div>
               <div>
-                <h2 style="font-size:18px; font-weight:700; margin:0 0 4px 0; color:var(--text);">Master Kategori Masukan</h2>
-                <p style="margin:0; font-size:13px; color:var(--text3);">Daftar jenis persembahan dan pengaturan persentase alokasi kas</p>
+                <h2 style="font-size:18px; font-weight:700; margin:0 0 4px 0; color:var(--text);">Master Kategori
+                  Masukan</h2>
+                <p style="margin:0; font-size:13px; color:var(--text3);">Daftar jenis persembahan dan pengaturan
+                  persentase alokasi kas</p>
               </div>
             </div>
 
@@ -1134,7 +1136,7 @@
                 <div style="font-size:18px; font-weight:700; color:var(--primary);" id="summaryTotalIncTypes">0</div>
               </div>
 
-              <button class="btn btn-primary" onclick="openIncTypeModal()"
+              <button class="btn btn-primary" id="btnAddIncType" onclick="openIncTypeModal()"
                 style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-weight:600; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25); cursor:pointer;">
                 <span class="icon-placeholder" data-icon="plus" data-size="lucide-sm"></span>
                 <span>Tambah Kategori</span>
@@ -1164,8 +1166,10 @@
                 <span class="icon-placeholder" data-icon="building" data-size="lucide-md"></span>
               </div>
               <div>
-                <h2 style="font-size:18px; font-weight:700; margin:0 0 4px 0; color:var(--text);">Master Bidang &amp; Departemen</h2>
-                <p style="margin:0; font-size:13px; color:var(--text3);">Daftar bidang pelayanan gereja untuk tujuan pengeluaran kas</p>
+                <h2 style="font-size:18px; font-weight:700; margin:0 0 4px 0; color:var(--text);">Master Bidang &amp;
+                  Departemen</h2>
+                <p style="margin:0; font-size:13px; color:var(--text3);">Daftar bidang pelayanan gereja untuk tujuan
+                  pengeluaran kas</p>
               </div>
             </div>
 
@@ -1178,7 +1182,7 @@
                 <div style="font-size:18px; font-weight:700; color:var(--primary);" id="summaryTotalDepts">0</div>
               </div>
 
-              <button class="btn btn-primary" onclick="openDeptModal()"
+              <button class="btn btn-primary" id="btnAddDept" onclick="openDeptModal()"
                 style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-weight:600; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.25); cursor:pointer;">
                 <span class="icon-placeholder" data-icon="plus" data-size="lucide-sm"></span>
                 <span>Tambah Departemen</span>
@@ -1234,7 +1238,7 @@
                 </div>
               </div>
 
-              <button class="btn btn-primary" onclick="openUnitModal()"
+              <button class="btn btn-primary" id="btnAddUnit" onclick="openUnitModal()"
                 style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-weight:600; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25); cursor:pointer;">
                 <span class="icon-placeholder" data-icon="plus" data-size="lucide-sm"></span>
                 <span>Tambah Unit</span>
@@ -1279,7 +1283,7 @@
                 <div style="font-size:18px; font-weight:700; color:var(--primary);" id="summaryTotalUsers">0</div>
               </div>
 
-              <button class="btn btn-primary" onclick="openUserModal()"
+              <button class="btn btn-primary" id="btnAddUser" onclick="openUserModal()"
                 style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-weight:600; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25); cursor:pointer;">
                 <span class="icon-placeholder" data-icon="plus" data-size="lucide-sm"></span>
                 <span>Tambah User</span>
@@ -2528,7 +2532,8 @@
             <span class="icon-placeholder" data-icon="trendUp" data-size="lucide-sm"></span>
           </div>
           <div>
-            <div class="modal-title" id="incTypeFormTitle" style="font-size:16px; font-weight:700;">Tambah Kategori Masukan</div>
+            <div class="modal-title" id="incTypeFormTitle" style="font-size:16px; font-weight:700;">Tambah Kategori
+              Masukan</div>
             <div style="font-size:12px; color:var(--text3);">Atur nama kategori dan proporsi alokasi dana</div>
           </div>
         </div>
@@ -2547,21 +2552,28 @@
           <input class="form-input" id="newIncTypeName" type="text" placeholder="Contoh: Persembahan Ucapan Syukur"
             onkeydown="if(event.key==='Enter') saveIncTypeForm()">
         </div>
-        <div style="padding:16px; background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius);">
-          <label class="form-label" style="color:var(--text); font-weight:600; margin-bottom:12px; display:block;">Proporsi Alokasi (%)</label>
+        <div
+          style="padding:16px; background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius);">
+          <label class="form-label"
+            style="color:var(--text); font-weight:600; margin-bottom:12px; display:block;">Proporsi Alokasi (%)</label>
           <div class="form-row keep-row" style="margin-bottom:12px;">
-            <div class="form-group" style="flex:1;"><label class="form-label" style="font-size:12px">Daerah (%)</label><input
-                class="form-input" id="newIncTypePctDaerah" type="number" placeholder="0" min="0" max="100" value="0"></div>
-            <div class="form-group" style="flex:1;"><label class="form-label" style="font-size:12px">Jemaat (%)</label><input
-                class="form-input" id="newIncTypePctJemaat" type="number" placeholder="0" min="0" max="100" value="100"></div>
+            <div class="form-group" style="flex:1;"><label class="form-label" style="font-size:12px">Daerah
+                (%)</label><input class="form-input" id="newIncTypePctDaerah" type="number" placeholder="0" min="0"
+                max="100" value="0"></div>
+            <div class="form-group" style="flex:1;"><label class="form-label" style="font-size:12px">Jemaat
+                (%)</label><input class="form-input" id="newIncTypePctJemaat" type="number" placeholder="0" min="0"
+                max="100" value="100"></div>
           </div>
           <div class="form-group"><label class="form-label" style="font-size:12px">Pembangunan (%)</label><input
-              class="form-input" id="newIncTypePctBangun" type="number" placeholder="0" min="0" max="100" value="0"></div>
+              class="form-input" id="newIncTypePctBangun" type="number" placeholder="0" min="0" max="100" value="0">
+          </div>
         </div>
       </div>
-      <div style="display:flex; gap:12px; justify-content:flex-end; padding:16px 24px; border-top:1px solid var(--glass-border); background:rgba(0,0,0,0.08);">
+      <div
+        style="display:flex; gap:12px; justify-content:flex-end; padding:16px 24px; border-top:1px solid var(--glass-border); background:rgba(0,0,0,0.08);">
         <button class="btn btn-ghost" type="button" id="incTypeCancelBtn" onclick="closeIncTypeModal()">Batal</button>
-        <button class="btn btn-primary" id="incTypeSaveBtn" type="button" onclick="saveIncTypeForm()" style="min-width:110px;">Simpan</button>
+        <button class="btn btn-primary" id="incTypeSaveBtn" type="button" onclick="saveIncTypeForm()"
+          style="min-width:110px;">Simpan</button>
       </div>
     </div>
   </div>
@@ -2591,15 +2603,17 @@
       </div>
       <div class="modal-body" style="display:flex; flex-direction:column; gap:16px; padding:20px 24px;">
         <div class="form-group">
-          <label class="form-label" style="font-weight:600; margin-bottom:6px; display:block;">Nama Bidang / Departemen <span
-              style="color:var(--red-pop);">*</span></label>
+          <label class="form-label" style="font-weight:600; margin-bottom:6px; display:block;">Nama Bidang / Departemen
+            <span style="color:var(--red-pop);">*</span></label>
           <input class="form-input" id="deptName" type="text" placeholder="Contoh: Diakon / Diakones"
             onkeydown="if(event.key==='Enter') saveDeptForm()">
         </div>
       </div>
-      <div style="display:flex; gap:12px; justify-content:flex-end; padding:16px 24px; border-top:1px solid var(--glass-border); background:rgba(0,0,0,0.08);">
+      <div
+        style="display:flex; gap:12px; justify-content:flex-end; padding:16px 24px; border-top:1px solid var(--glass-border); background:rgba(0,0,0,0.08);">
         <button class="btn btn-ghost" type="button" id="deptCancelBtn" onclick="closeDeptModal()">Batal</button>
-        <button class="btn btn-primary" id="deptSaveBtn" type="button" onclick="saveDeptForm()" style="min-width:110px;">Simpan</button>
+        <button class="btn btn-primary" id="deptSaveBtn" type="button" onclick="saveDeptForm()"
+          style="min-width:110px;">Simpan</button>
       </div>
     </div>
   </div>
@@ -2710,6 +2724,8 @@
                 value="Bendahara"> Bendahara</label>
             <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
                 value="Diakon"> Diakon</label>
+            <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                value="Operator"> Operator</label>
             <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
                 value="Viewer"> Viewer</label>
             <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"

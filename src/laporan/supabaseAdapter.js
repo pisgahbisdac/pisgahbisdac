@@ -144,6 +144,7 @@ export async function supabasePost(action, payload = {}) {
     const userRoles = role ? role.split(',').map(r => r.trim()) : [];
     const isAdmin = userRoles.includes('Admin') || userRoles.includes('Ketua Jemaat') || userRoles.includes('Pendeta');
     const isBendaharaOrAdmin = userRoles.includes('Bendahara') || isAdmin;
+    const canInputTx = isBendaharaOrAdmin || userRoles.includes('Operator');
 
     switch (action) {
       case 'login': {
@@ -156,7 +157,7 @@ export async function supabasePost(action, payload = {}) {
       }
 
       case 'saveIncome': {
-        if (!isBendaharaOrAdmin) return { success: false, message: 'Akses ditolak.' };
+        if (!canInputTx) return { success: false, message: 'Akses ditolak.' };
         const { data: types } = await supabase.from('income_types').select('*').eq('name', payload.income_type).single();
         let alloc_daerah = 0, alloc_jemaat = 0, alloc_bangun = 0;
         if (types) {
@@ -198,7 +199,7 @@ export async function supabasePost(action, payload = {}) {
       }
 
       case 'saveExpense': {
-        if (!isBendaharaOrAdmin) return { success: false, message: 'Akses ditolak.' };
+        if (!canInputTx) return { success: false, message: 'Akses ditolak.' };
         const year = parseInt(payload.date.split('-')[0]);
         const month = parseInt(payload.date.split('-')[1]);
         const nextNum = await getNextSeqNum('expense', 'EXP', year, month);
@@ -229,8 +230,14 @@ export async function supabasePost(action, payload = {}) {
       }
 
       case 'deleteRecord': {
-        if (!isAdmin) return { success: false, message: 'Hanya Admin.' };
         const table = payload.type === 'income' ? 'income' : (payload.type === 'expense' ? 'expense' : 'users');
+        if (table === 'users') {
+          if (!userRoles.includes('Admin')) return { success: false, message: 'Hanya Admin yang dapat menghapus user.' };
+        } else {
+          if (!isBendaharaOrAdmin && !userRoles.includes('Operator')) {
+            return { success: false, message: 'Akses ditolak. Anda tidak memiliki izin menghapus transaksi.' };
+          }
+        }
         const col = table === 'users' ? 'username' : 'transaction_id';
         const targetId = payload.id || payload.transaction_id;
         const { error } = await supabase.from(table).delete().eq(col, targetId);
@@ -240,7 +247,7 @@ export async function supabasePost(action, payload = {}) {
       }
 
       case 'editRecord': {
-        if (!isBendaharaOrAdmin) return { success: false, message: 'Hanya Admin atau Bendahara.' };
+        if (!isBendaharaOrAdmin && !userRoles.includes('Operator')) return { success: false, message: 'Hanya Admin atau Bendahara.' };
         const table = payload.type === 'income' ? 'income' : 'expense';
 
         let updateData = {};

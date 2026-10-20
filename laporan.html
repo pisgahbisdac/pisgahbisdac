@@ -1135,7 +1135,7 @@
                 <div style="font-size:18px; font-weight:700; color:var(--primary);" id="summaryTotalIncTypes">0</div>
               </div>
 
-              <button class="btn btn-primary" onclick="openIncTypeModal()"
+              <button class="btn btn-primary" id="btnAddIncType" onclick="openIncTypeModal()"
                 style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-weight:600; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25); cursor:pointer;">
                 <span class="icon-placeholder" data-icon="plus" data-size="lucide-sm"></span>
                 <span>Tambah Kategori</span>
@@ -1181,7 +1181,7 @@
                 <div style="font-size:18px; font-weight:700; color:var(--primary);" id="summaryTotalDepts">0</div>
               </div>
 
-              <button class="btn btn-primary" onclick="openDeptModal()"
+              <button class="btn btn-primary" id="btnAddDept" onclick="openDeptModal()"
                 style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-weight:600; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.25); cursor:pointer;">
                 <span class="icon-placeholder" data-icon="plus" data-size="lucide-sm"></span>
                 <span>Tambah Departemen</span>
@@ -1237,7 +1237,7 @@
                 </div>
               </div>
 
-              <button class="btn btn-primary" onclick="openUnitModal()"
+              <button class="btn btn-primary" id="btnAddUnit" onclick="openUnitModal()"
                 style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-weight:600; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25); cursor:pointer;">
                 <span class="icon-placeholder" data-icon="plus" data-size="lucide-sm"></span>
                 <span>Tambah Unit</span>
@@ -1282,7 +1282,7 @@
                 <div style="font-size:18px; font-weight:700; color:var(--primary);" id="summaryTotalUsers">0</div>
               </div>
 
-              <button class="btn btn-primary" onclick="openUserModal()"
+              <button class="btn btn-primary" id="btnAddUser" onclick="openUserModal()"
                 style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-weight:600; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25); cursor:pointer;">
                 <span class="icon-placeholder" data-icon="plus" data-size="lucide-sm"></span>
                 <span>Tambah User</span>
@@ -2723,6 +2723,8 @@
                 value="Bendahara"> Bendahara</label>
             <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
                 value="Diakon"> Diakon</label>
+            <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                value="Operator"> Operator</label>
             <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
                 value="Viewer"> Viewer</label>
             <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
