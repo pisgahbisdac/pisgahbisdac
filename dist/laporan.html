@@ -16,10 +16,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.css" rel="stylesheet">
 
-  <script type="module" crossorigin src="/assets/laporan-t5ps06X8.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-l6r4Y4VJ.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/laporan-ldx9_8sw.css">
-  <link rel="stylesheet" crossorigin href="/assets/index-ttnVAiNF.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-C64D17vV.css">
 </head>
 
 <body class="page-laporan">
@@ -171,35 +171,42 @@
       <div class="sidebar-logo">
         <div class="logo-badge">
           <div class="logo-icon"
-            style="width: 40px; height: 40px; background: transparent; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            style="width: 36px; height: 36px; background: transparent; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
             <img class="app-logo-sidebar-img" src="" alt="Logo"
-              style="display:none; width: 40px; height: 40px; object-fit: contain;">
+              style="display:none; width: 36px; height: 36px; object-fit: contain;">
             <img class="app-logo-sidebar-default" src="./icons/PisgahColor.png" alt="Logo Default"
-              style="width: 40px; height: 40px; object-fit: contain;">
+              style="width: 36px; height: 36px; object-fit: contain;">
           </div>
           <div class="sidebar-brand-text"
-            style="display: flex; flex-direction: column; justify-content: center; min-width: 160px;">
+            style="display: flex; flex-direction: column; justify-content: center; min-width: 140px;">
             <div class="app-name-display"
-              style="font-size: 16px; font-weight: 800; color: var(--text); letter-spacing: 0.5px; line-height: 1.2; white-space: normal; word-break: break-word;">
+              style="font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: 0.5px; line-height: 1.2; white-space: normal; word-break: break-word;">
               PISGAH BISDAC</div>
             <div class="app-subtitle-display"
               style="font-size: 9px; color: var(--text-muted, var(--text3)); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; white-space: normal; line-height: 1.3;">
               Gereja Masehi Advent</div>
           </div>
         </div>
+        <button id="btnPinSidebar" class="btn-pin-sidebar" onclick="toggleSidebarPin()" title="Kunci / Lepas Sidebar">
+          <svg class="lucide lucide-sm icon-pin" viewBox="0 0 24 24" width="15" height="15" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="17" x2="12" y2="22"></line>
+            <path
+              d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z">
+            </path>
+          </svg>
+        </button>
       </div>
-      <div class="sidebar-user" style="display: flex; flex-direction: column; gap: 16px; align-items: stretch;">
-        <div style="display: flex; align-items: center; gap: 12px; overflow: hidden;">
+      <div class="sidebar-user">
+        <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; width: 100%; height: 36px;">
           <div class="user-avatar" id="userAvatar">U</div>
-          <div style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+          <div class="sidebar-text" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; flex: 1;">
             <div class="user-name" id="userNameDisplay">Nama User</div>
             <div class="user-role" id="userRoleDisplay">Role</div>
           </div>
         </div>
-        <button id="btnLogout" class="btn btn-logout" onclick="doLogout()"
-          style="width: 100%; justify-content: center; color: var(--red-pop); border: 1px solid rgba(220, 38, 38, 0.2); background: rgba(220, 38, 38, 0.05); padding: 10px; border-radius: var(--radius-lg); font-weight: 600; font-size: 14px;">
-          <svg id="btnLogoutIcon" class="lucide lucide-md" viewBox="0 0 24 24"
-            style="width: 18px; height: 18px; margin-right: 8px;">
+        <button id="btnLogout" class="btn btn-logout" onclick="doLogout()">
+          <svg id="btnLogoutIcon" class="lucide lucide-md" viewBox="0 0 24 24">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
@@ -213,89 +220,109 @@
         <div class="nav-item active" onclick="showPage('dashboard')" id="navDashboard">
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="home" data-size="lucide-md"></span>
-          </span> Dashboard
+          </span>
+          <span class="sidebar-text">Dashboard</span>
         </div>
         <div class="nav-item" onclick="showPage('pemasukan')" id="navPemasukan">
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="trendUp" data-size="lucide-md"></span>
-          </span> Masukan Kas
+          </span>
+          <span class="sidebar-text">Masukan Kas</span>
         </div>
         <div class="nav-item" onclick="showPage('pengeluaran')" id="navPengeluaran">
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="trendDown" data-size="lucide-md"></span>
-          </span> Pengeluaran
+          </span>
+          <span class="sidebar-text">Pengeluaran</span>
         </div>
         <div class="nav-item" onclick="showPage('pindahbuku')" id="navPindahBuku">
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="refresh" data-size="lucide-md"></span>
-          </span> Pindah Buku (Mutasi)
+          </span>
+          <span class="sidebar-text">Pindah Buku (Mutasi)</span>
         </div>
 
         <div class="nav-section-title">Laporan & Warta</div>
         <div class="nav-item" onclick="showPage('laporan')" id="navLaporan">
           <span class="nav-icon">
-            <span class="icon-placeholder" data-icon="log" data-size="lucide-md"></span>
-          </span> Laporan Bulanan
+            <span class="icon-placeholder" data-icon="barChart" data-size="lucide-md"></span>
+          </span>
+          <span class="sidebar-text">Laporan Bulanan</span>
         </div>
         <div class="nav-item" onclick="openSabbathBulletinModal()" id="navBuletinSabat">
           <span class="nav-icon">
-            <span class="icon-placeholder" data-icon="filetext" data-size="lucide-md"></span>
-          </span> Buletin Sabat
+            <span class="icon-placeholder" data-icon="bookOpen" data-size="lucide-md"></span>
+          </span>
+          <span class="sidebar-text"
+            style="flex: 1; display: inline-flex; align-items: center; justify-content: space-between;">
+            <span>Buletin Sabat</span>
+            <span class="nav-badge-warta">WARTA</span>
+          </span>
         </div>
         <div class="nav-item" onclick="showPage('riwayat')" id="navRiwayat">
           <span class="nav-icon">
-            <span class="icon-placeholder" id="navRiwayatIcon" data-icon="info" data-size="lucide-md"
+            <span class="icon-placeholder" id="navRiwayatIcon" data-icon="history" data-size="lucide-md"
               style="transition: color 0.3s;"></span>
-          </span> Histori Jurnal
+          </span>
+          <span class="sidebar-text">Histori Jurnal</span>
         </div>
 
         <div class="nav-section-title" id="masterNavLabel">Master Data</div>
         <div class="nav-item" onclick="showPage('masterIncType')" id="navMasterIncType">
           <span class="nav-icon">
-            <span class="icon-placeholder" data-icon="plus" data-size="lucide-md"></span>
-          </span> Kategori Masukan
+            <span class="icon-placeholder" data-icon="layers" data-size="lucide-md"></span>
+          </span>
+          <span class="sidebar-text">Kategori Masukan</span>
         </div>
         <div class="nav-item" onclick="showPage('masterDept')" id="navMasterDept">
           <span class="nav-icon">
-            <span class="icon-placeholder" data-icon="hammer" data-size="lucide-md"></span>
-          </span> Departemen
+            <span class="icon-placeholder" data-icon="briefcase" data-size="lucide-md"></span>
+          </span>
+          <span class="sidebar-text">Departemen</span>
         </div>
         <div class="nav-item" onclick="showPage('masterUnit')" id="navMasterUnit">
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="users" data-size="lucide-md"></span>
-          </span> Unit Pemberi
+          </span>
+          <span class="sidebar-text">Unit Pemberi</span>
         </div>
 
         <div class="nav-section-title" id="adminNavLabel">Sistem & Keamanan</div>
         <div class="nav-item" onclick="showPage('users')" id="navUsers">
           <span class="nav-icon">
-            <span class="icon-placeholder" data-icon="shield" data-size="lucide-md"></span>
-          </span> Manajemen User
+            <span class="icon-placeholder" data-icon="shieldCheck" data-size="lucide-md"></span>
+          </span>
+          <span class="sidebar-text">Manajemen User</span>
         </div>
         <div class="nav-item" onclick="showPage('roles')" id="navRoles">
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="key" data-size="lucide-md"></span>
-          </span> Hak Akses Menu
+          </span>
+          <span class="sidebar-text">Hak Akses Menu</span>
         </div>
         <div class="nav-item" onclick="showPage('akun')" id="navAkun">
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="user" data-size="lucide-md"></span>
-          </span> Pengaturan Akun
+          </span>
+          <span class="sidebar-text">Pengaturan Akun</span>
         </div>
         <div class="nav-item" onclick="showPage('settings')" id="navSettings">
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="settings" data-size="lucide-md"></span>
-          </span> Pengaturan Web
+          </span>
+          <span class="sidebar-text">Pengaturan Web</span>
         </div>
         <div class="nav-item" onclick="showPage('series')" id="navSeries">
           <span class="nav-icon">
-            <span class="icon-placeholder" data-icon="settings" data-size="lucide-md"></span>
-          </span> No. Series
+            <span class="icon-placeholder" data-icon="hash" data-size="lucide-md"></span>
+          </span>
+          <span class="sidebar-text">No. Series</span>
         </div>
         <div class="nav-item" onclick="showPage('logs')" id="navLogs">
           <span class="nav-icon">
-            <span class="icon-placeholder" data-icon="mappin" data-size="lucide-md"></span>
-          </span> Audit Log
+            <span class="icon-placeholder" data-icon="fileSearch" data-size="lucide-md"></span>
+          </span>
+          <span class="sidebar-text">Audit Log</span>
         </div>
       </nav>
       <!-- Sidebar footer removed -->
@@ -319,7 +346,7 @@
       </div>
       <div class="bottom-nav-item" onclick="showPage('laporan')" id="botLaporan" data-target="laporan">
         <span class="bottom-nav-icon">
-          <span class="icon-placeholder" data-icon="log" data-size="lucide-md"></span>
+          <span class="icon-placeholder" data-icon="barChart" data-size="lucide-md"></span>
         </span><span>Laporan</span>
       </div>
       <div class="bottom-nav-item" id="botSidebarMenu" onclick="openSidebar()">
@@ -874,7 +901,7 @@
               <div class="form-group">
                 <label class="form-label">Nomor Bukti Setor</label>
                 <div style="display: flex; gap: 8px;">
-                  <input class="form-input" id="mutReceipt" type="text" placeholder="MUT-XXXX">
+                  <input class="form-input" id="mutReceipt" type="text" placeholder="Contoh: PB-261001">
                   <button type="button" class="btn" style="padding: 0 12px; background:#3b82f6; color:white;"
                     onclick="autoGenerateReceipt('PB')" title="Generate Auto">Auto</button>
                 </div>
@@ -1082,150 +1109,219 @@
         </div>
       </div>
 
-      <!-- PAGE: MASTER KATEGORI -->
+      <!-- PAGE: MASTER KATEGORI MASUKAN -->
       <div class="page" id="page-masterIncType">
-        <div class="grid-2">
-          <div class="card">
-            <div class="form-section-title" id="incTypeFormTitle">Kategori Masukan Baru</div>
-            <div class="form-group"><label class="form-label">Nama Kategori</label><input class="form-input"
-                id="newIncTypeName" type="text" placeholder="Contoh: Persembahan Ucapan Syukur"></div>
-            <div
-              style="padding:16px; background:var(--input-bg); border:1px solid var(--glass-border); margin-bottom:20px;">
-              <label class="form-label" style="color:var(--text); margin-bottom:12px;">Proporsi Alokasi (%)</label>
-              <div class="form-row keep-row" style="margin-bottom:12px;">
-                <div class="form-group"><label class="form-label" style="font-size:12px">Daerah (%)</label><input
-                    class="form-input" id="newIncTypePctDaerah" type="number" placeholder="0" min="0" max="100"
-                    value="0"></div>
-                <div class="form-group"><label class="form-label" style="font-size:12px">Jemaat (%)</label><input
-                    class="form-input" id="newIncTypePctJemaat" type="number" placeholder="0" min="0" max="100"
-                    value="100"></div>
+        <!-- Action & Summary Header -->
+        <div class="card" style="margin-bottom: 20px; padding: 20px 24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <div
+                style="width:44px; height:44px; border-radius:12px; background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.25); display:flex; align-items:center; justify-content:center; color:#3b82f6; flex-shrink:0;">
+                <span class="icon-placeholder" data-icon="trendUp" data-size="lucide-md"></span>
               </div>
-              <div class="form-group"><label class="form-label" style="font-size:12px">Pembangunan (%)</label><input
-                  class="form-input" id="newIncTypePctBangun" type="number" placeholder="0" min="0" max="100" value="0">
+              <div>
+                <h2 style="font-size:18px; font-weight:700; margin:0 0 4px 0; color:var(--text);">Master Kategori Masukan</h2>
+                <p style="margin:0; font-size:13px; color:var(--text3);">Daftar jenis persembahan dan pengaturan persentase alokasi kas</p>
               </div>
             </div>
-            <div style="display:flex; gap:12px;">
-              <button class="btn btn-primary" id="incTypeSaveBtn" onclick="saveIncTypeForm()"
-                style="flex:1">Simpan</button>
-              <button class="btn btn-ghost" id="incTypeCancelBtn" onclick="cancelEditIncType()"
-                style="display:none">Batal</button>
+
+            <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+              <div
+                style="padding:8px 16px; background:var(--input-bg); border:1px solid var(--glass-border); border-radius:10px; text-align:center;">
+                <div
+                  style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text3); font-weight:600;">
+                  Total Kategori</div>
+                <div style="font-size:18px; font-weight:700; color:var(--primary);" id="summaryTotalIncTypes">0</div>
+              </div>
+
+              <button class="btn btn-primary" onclick="openIncTypeModal()"
+                style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-weight:600; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25); cursor:pointer;">
+                <span class="icon-placeholder" data-icon="plus" data-size="lucide-sm"></span>
+                <span>Tambah Kategori</span>
+              </button>
             </div>
           </div>
-          <div class="card">
-            <div class="form-section-title">Daftar Kategori Aktif</div>
-            <div id="incTypeList"></div>
+        </div>
+
+        <!-- Category List Card (2 Columns Grid) -->
+        <div class="card" style="padding: 24px;">
+          <div
+            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--glass-border);">
+            <div class="form-section-title" style="margin-bottom:0;">Daftar Kategori Aktif</div>
           </div>
+          <div id="incTypeList" class="unit-grid-2col"></div>
         </div>
       </div>
 
+      <!-- PAGE: MASTER DEPARTEMEN -->
       <div class="page" id="page-masterDept">
-        <div class="grid-2">
-          <div class="card">
-            <div class="form-section-title">Tambah Departemen</div>
-            <div class="form-group"><label class="form-label">Nama Bidang/Departemen</label><input class="form-input"
-                id="deptName" type="text" onkeydown="if(event.key==='Enter') saveDeptForm()"></div>
-            <div style="display:flex; gap:12px;">
-              <button class="btn btn-primary" id="deptSaveBtn" onclick="saveDeptForm()" style="flex:1">Simpan</button>
-              <button class="btn btn-ghost" id="deptCancelBtn" onclick="cancelEditDept()"
-                style="display:none">Batal</button>
+        <!-- Action & Summary Header -->
+        <div class="card" style="margin-bottom: 20px; padding: 20px 24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <div
+                style="width:44px; height:44px; border-radius:12px; background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.25); display:flex; align-items:center; justify-content:center; color:#a855f7; flex-shrink:0;">
+                <span class="icon-placeholder" data-icon="building" data-size="lucide-md"></span>
+              </div>
+              <div>
+                <h2 style="font-size:18px; font-weight:700; margin:0 0 4px 0; color:var(--text);">Master Bidang &amp; Departemen</h2>
+                <p style="margin:0; font-size:13px; color:var(--text3);">Daftar bidang pelayanan gereja untuk tujuan pengeluaran kas</p>
+              </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+              <div
+                style="padding:8px 16px; background:var(--input-bg); border:1px solid var(--glass-border); border-radius:10px; text-align:center;">
+                <div
+                  style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text3); font-weight:600;">
+                  Total Departemen</div>
+                <div style="font-size:18px; font-weight:700; color:var(--primary);" id="summaryTotalDepts">0</div>
+              </div>
+
+              <button class="btn btn-primary" onclick="openDeptModal()"
+                style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-weight:600; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.25); cursor:pointer;">
+                <span class="icon-placeholder" data-icon="plus" data-size="lucide-sm"></span>
+                <span>Tambah Departemen</span>
+              </button>
             </div>
           </div>
-          <div class="card">
-            <div class="form-section-title">Daftar Aktif</div>
-            <div id="deptList"></div>
+        </div>
+
+        <!-- Dept List Card (2 Columns Grid) -->
+        <div class="card" style="padding: 24px;">
+          <div
+            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--glass-border);">
+            <div class="form-section-title" style="margin-bottom:0;">Daftar Departemen Aktif</div>
           </div>
+          <div id="deptList" class="unit-grid-2col"></div>
         </div>
       </div>
 
       <div class="page" id="page-masterUnit">
-        <div class="grid-2">
-          <div class="card">
-            <div class="form-section-title" id="unitFormTitle">Tambah Unit/Sektor</div>
-            <div class="form-group"><label class="form-label">Nama Unit</label><input class="form-input" id="unitName"
-                type="text"></div>
-            <div class="form-group"><label class="form-label">Jumlah Anggota</label><input class="form-input"
-                id="unitJumlah" type="number" placeholder="0"></div>
-            <div class="form-group"><label class="form-label">Keterangan</label><input class="form-input" id="unitNote"
-                type="text"></div>
-            <div style="display:flex; gap:12px;">
-              <button class="btn btn-primary" id="unitSaveBtn" onclick="saveUnitForm()" style="flex:1">Simpan</button>
-              <button class="btn btn-ghost" id="unitCancelBtn" onclick="cancelEditUnit()"
-                style="display:none">Batal</button>
+        <!-- Action & Summary Header -->
+        <div class="card" style="margin-bottom: 20px; padding: 20px 24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <div
+                style="width:44px; height:44px; border-radius:12px; background:rgba(212,175,55,0.12); border:1px solid rgba(212,175,55,0.25); display:flex; align-items:center; justify-content:center; color:var(--primary); flex-shrink:0;">
+                <span class="icon-placeholder" data-icon="users" data-size="lucide-md"></span>
+              </div>
+              <div>
+                <h2 style="font-size:18px; font-weight:700; margin:0 0 4px 0; color:var(--text);">Master Unit &amp;
+                  Sektor</h2>
+                <p style="margin:0; font-size:13px; color:var(--text3);">Daftar unit jemaat / sektor pemberi persembahan
+                  dan perpuluhan</p>
+              </div>
             </div>
-            <div id="unitSummaryBox"
-              style="margin-top: 20px; padding: 15px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 8px;">
-              <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 5px;">Total Unit Terdaftar: <strong
-                  id="summaryTotalUnits" style="color: var(--text-main);">0</strong></div>
-              <div style="font-size: 14px; color: var(--text-muted);">Total Anggota/Keluarga Pemberi: <strong
-                  id="summaryTotalAnggota" style="color: var(--text-main);">0</strong> Jiwa</div>
+
+            <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+              <div id="unitSummaryBox" style="display:flex; gap:12px; align-items:center;">
+                <div
+                  style="padding:8px 16px; background:var(--input-bg); border:1px solid var(--glass-border); border-radius:10px; text-align:center;">
+                  <div
+                    style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text3); font-weight:600;">
+                    Total Unit</div>
+                  <div style="font-size:18px; font-weight:700; color:var(--primary);" id="summaryTotalUnits">0</div>
+                </div>
+                <div
+                  style="padding:8px 16px; background:var(--input-bg); border:1px solid var(--glass-border); border-radius:10px; text-align:center;">
+                  <div
+                    style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text3); font-weight:600;">
+                    Total Anggota</div>
+                  <div style="font-size:18px; font-weight:700; color:var(--text);"><span
+                      id="summaryTotalAnggota">0</span> <span
+                      style="font-size:12px; font-weight:normal; color:var(--text3);">Jiwa</span></div>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" onclick="openUnitModal()"
+                style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-weight:600; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25); cursor:pointer;">
+                <span class="icon-placeholder" data-icon="plus" data-size="lucide-sm"></span>
+                <span>Tambah Unit</span>
+              </button>
             </div>
           </div>
-          <div class="card">
-            <div class="form-section-title">Daftar Unit Aktif</div>
-            <div id="unitList"></div>
+        </div>
+
+        <!-- Unit List Card (2 Columns Grid) -->
+        <div class="card" style="padding: 24px;">
+          <div
+            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--glass-border);">
+            <div class="form-section-title" style="margin-bottom:0;">Daftar Unit Aktif</div>
           </div>
+          <div id="unitList" class="unit-grid-2col"></div>
         </div>
       </div>
 
       <div class="page" id="page-users">
-        <div class="grid-2">
-          <div class="card">
-            <div class="form-section-title" id="userFormTitle">Tambah User Baru</div>
-            <div class="form-group"><label class="form-label">Username</label><input class="form-input" id="userName"
-                type="text"></div>
-            <div class="form-group"><label class="form-label">Nama Lengkap</label><input class="form-input"
-                id="userFullName" type="text"></div>
-            <div class="form-group">
-              <label class="form-label">Role Akses (Bisa pilih lebih dari satu)</label>
-              <div id="userRoleContainer"
-                style="max-height: 200px; overflow-y: auto; border: 1px solid var(--glass-border); padding: 12px; border-radius: var(--radius); background: var(--input-bg); display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
-                    value="Admin"> Admin</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
-                    value="Ketua Jemaat"> Ketua Jemaat</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
-                    value="Pendeta"> Pendeta</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
-                    value="Bendahara"> Bendahara</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
-                    value="Diakon"> Diakon</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
-                    value="Viewer"> Viewer</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
-                    value="Daerah"> Daerah</label>
-                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
-                    value="Publik"> Publik</label>
+        <!-- Action & Summary Header -->
+        <div class="card" style="margin-bottom: 20px; padding: 20px 24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <div
+                style="width:44px; height:44px; border-radius:12px; background:rgba(212,175,55,0.12); border:1px solid rgba(212,175,55,0.25); display:flex; align-items:center; justify-content:center; color:var(--primary); flex-shrink:0;">
+                <span class="icon-placeholder" data-icon="user" data-size="lucide-md"></span>
+              </div>
+              <div>
+                <h2 style="font-size:18px; font-weight:700; margin:0 0 4px 0; color:var(--text);">Manajemen Pengguna
+                </h2>
+                <p style="margin:0; font-size:13px; color:var(--text3);">Daftar pengguna sistem, hak akses, dan unit
+                  binding</p>
               </div>
             </div>
-            <div class="form-group">
-              <label>Binding Unit Khusus</label>
-              <div id="userUnitContainer"
-                style="max-height: 300px; overflow-y: auto; border: 1px solid var(--glass-border); padding: 12px; border-radius: var(--radius); background: var(--input-bg); display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                <!-- Populated dynamically -->
+
+            <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+              <div
+                style="padding:8px 16px; background:var(--input-bg); border:1px solid var(--glass-border); border-radius:10px; text-align:center;">
+                <div
+                  style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text3); font-weight:600;">
+                  Total Pengguna</div>
+                <div style="font-size:18px; font-weight:700; color:var(--primary);" id="summaryTotalUsers">0</div>
               </div>
-              <div class="form-text">Centang unit yang ingin dihubungkan. User hanya dapat melihat kas unit terpilih.
-              </div>
+
+              <button class="btn btn-primary" onclick="openUserModal()"
+                style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-weight:600; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25); cursor:pointer;">
+                <span class="icon-placeholder" data-icon="plus" data-size="lucide-sm"></span>
+                <span>Tambah User</span>
+              </button>
             </div>
-            <div class="form-group">
-              <label class="form-label">Kata Sandi</label>
-              <div class="password-box">
-                <input class="form-input" id="userPassword" type="password" placeholder="Kata Sandi">
-                <span class="eye-btn eye-icon" onclick="togglePassword('userPassword', this)">
-                  <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
+          </div>
+        </div>
+
+        <!-- User List Card with Search & Sort Toolbar -->
+        <div class="card" style="padding: 24px;">
+          <div
+            style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--glass-border);">
+            <div class="form-section-title" style="margin-bottom:0;">Daftar Pengguna Aktif</div>
+
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <!-- Search box -->
+              <div style="position:relative; min-width:210px;">
+                <input type="text" id="userSearchInput" class="form-input" placeholder="Cari nama / username..."
+                  oninput="handleUserSearch(this.value)" style="padding-left:34px; height:38px; font-size:13px;">
+                <span
+                  style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text3); pointer-events:none; display:flex; align-items:center;">
+                  <span class="icon-placeholder" data-icon="search" data-size="lucide-sm"></span>
                 </span>
               </div>
-              <div class="password-strength" id="userPassStrength"></div>
-            </div>
-            <div style="display:flex; gap:12px; margin-top:10px">
-              <button class="btn btn-primary" id="saveUserBtn" onclick="saveUserForm()" style="flex:1">Simpan</button>
-              <button class="btn btn-ghost" id="cancelEditUserBtn" onclick="cancelEditUser()"
-                style="display:none">Batal</button>
+
+              <!-- Sort dropdown -->
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:13px; font-weight:600; color:var(--text3); white-space:nowrap;">Urutkan:</span>
+                <select id="userSortSelect" class="form-select" onchange="handleUserSort(this.value)"
+                  style="height:38px; font-size:13px; padding:6px 28px 6px 12px; min-width:160px;">
+                  <option value="name_asc" selected>Nama (A &rarr; Z)</option>
+                  <option value="name_desc">Nama (Z &rarr; A)</option>
+                  <option value="user_asc">Username (A &rarr; Z)</option>
+                  <option value="user_desc">Username (Z &rarr; A)</option>
+                  <option value="role_asc">Role / Hak Akses</option>
+                  <option value="units_desc">Unit Binding Terbanyak</option>
+                </select>
+              </div>
             </div>
           </div>
-          <div class="card no-padding">
-            <div class="form-section-title" style="margin: 24px 24px 16px;">Pengguna Sistem</div>
-            <div id="userList" style="display:flex; flex-direction:column;"></div>
-          </div>
+
+          <div id="userList" class="user-grid-2col"></div>
         </div>
       </div>
 
@@ -1665,29 +1761,47 @@
       </div>
 
       <div class="page" id="page-series">
-        <div class="card" style="max-width:800px; margin:0 auto; padding: 24px;">
-          <div class="card-header">
-            <div class="card-title" style="display:flex; align-items:center; gap:8px;">
-              <span style="color:var(--primary)">
-                <span class="icon-placeholder" data-icon="settings" data-size="lucide-md"></span>
-              </span>
-              No. Series Kuitansi
-              <button id="btnEditSeries" class="badge badge-gray"
-                style="margin-left:auto; cursor:pointer; background:transparent; border:1px solid var(--glass-border); padding:6px 12px; font-family:inherit; color:var(--text3); border-radius:8px; display:flex; gap:6px; align-items:center;"
-                onclick="toggleEditMode('seriesFieldset', 'btnEditSeries')">
-                <span class="icon-placeholder" data-icon="lock" data-size="lucide-md"></span> Mode Edit
-              </button>
+        <div class="card" style="max-width:1160px; margin:0 auto; padding: 24px;">
+          <!-- Card Header -->
+          <div class="card-header" style="margin-bottom: 20px;">
+            <div
+              style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; width:100%;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div
+                  style="width:42px; height:42px; border-radius:12px; background:rgba(212,175,55,0.12); border:1px solid rgba(212,175,55,0.25); display:flex; align-items:center; justify-content:center; color:var(--primary); flex-shrink:0;">
+                  <span class="icon-placeholder" data-icon="hash" data-size="lucide-md"></span>
+                </div>
+                <div>
+                  <h2 style="font-size:18px; font-weight:700; margin:0 0 4px 0; color:var(--text);">No. Series &amp;
+                    Histori Kuitansi</h2>
+                  <p style="margin:0; font-size:13px; color:var(--text3);">Pantau pemakaian nomor seri kuitansi yang
+                    keluar setiap bulan dan kelola rentang nomor otomatis.</p>
+                </div>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:12px;">
+                <button id="btnEditSeries" class="badge badge-gray"
+                  style="display:none; cursor:pointer; background:transparent; border:1px solid var(--glass-border); padding:8px 14px; font-family:inherit; color:var(--text3); border-radius:8px; gap:6px; align-items:center;"
+                  onclick="toggleEditMode('seriesFieldset', 'btnEditSeries')">
+                  <span class="icon-placeholder" data-icon="lock" data-size="lucide-md"></span> Mode Edit
+                </button>
+              </div>
             </div>
           </div>
-          <p style="font-size:13px; color:var(--text3); margin-top:-4px; margin-bottom:24px; line-height:1.5;">
-            Pengaturan ini berguna agar saat Admin/Bendahara membuat Kuitansi, nomor serinya akan berlanjut secara
-            otomatis sesuai format per bulan yang diatur di bawah ini.
-          </p>
 
-          <div style="display: flex; gap: 16px; margin-bottom: 24px;">
-            <div class="form-group" style="flex:1;">
-              <label class="form-label">Bulan</label>
-              <select id="seriesMonth" class="form-input" onchange="loadSeriesConfig()">
+          <!-- Filter Periode Bulan & Tahun -->
+          <div
+            style="display: flex; gap: 16px; margin-bottom: 20px; background: var(--input-bg); padding: 16px 20px; border-radius: var(--radius-lg); border: 1px solid var(--glass-border); align-items: center; flex-wrap: wrap;">
+            <div
+              style="display:flex; align-items:center; gap:8px; font-weight:600; font-size:14px; color:var(--text); min-width:140px;">
+              <span class="icon-placeholder" data-icon="clock" data-size="lucide-sm"></span>
+              <span>Pilih Periode:</span>
+            </div>
+            <div class="form-group" style="flex:1; min-width:160px; margin-bottom:0;">
+              <label class="form-label"
+                style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; color:var(--text3); font-weight:600; display:block;">Bulan</label>
+              <select id="seriesMonth" class="form-select" onchange="loadSeriesConfig()"
+                style="height:44px; min-height:44px; padding:6px 36px 6px 14px; font-size:14px; line-height:30px; box-sizing:border-box; cursor:pointer;">
                 <option value="1">Januari</option>
                 <option value="2">Februari</option>
                 <option value="3">Maret</option>
@@ -1702,9 +1816,11 @@
                 <option value="12">Desember</option>
               </select>
             </div>
-            <div class="form-group" style="flex:1;">
-              <label class="form-label">Tahun</label>
-              <select id="seriesYear" class="form-input" onchange="loadSeriesConfig()">
+            <div class="form-group" style="flex:1; min-width:130px; margin-bottom:0;">
+              <label class="form-label"
+                style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; color:var(--text3); font-weight:600; display:block;">Tahun</label>
+              <select id="seriesYear" class="form-select" onchange="loadSeriesConfig()"
+                style="height:44px; min-height:44px; padding:6px 36px 6px 14px; font-size:14px; line-height:30px; box-sizing:border-box; cursor:pointer;">
                 <option value="2024">2024</option>
                 <option value="2025">2025</option>
                 <option value="2026">2026</option>
@@ -1714,98 +1830,235 @@
             </div>
           </div>
 
-          <fieldset id="seriesFieldset" disabled style="border:none; padding:0; margin:0; min-width:0;">
-            <div id="seriesFormContainer" style="display:flex; flex-direction:column; gap:16px;">
-              <!-- Pemasukan -->
-              <div
-                style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
-                <div style="font-weight:700; margin-bottom:12px;">1. Pemasukan (Format: Angka Saja)</div>
-                <div style="display:flex; gap:16px;">
-                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
-                      type="number" id="series_Pemasukan_start" class="form-input" placeholder="Contoh: 10600"></div>
-                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
-                      type="number" id="series_Pemasukan_end" class="form-input" placeholder="Contoh: 10899"></div>
-                </div>
-                <div id="series_Pemasukan_last"
-                  style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">
-                  No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
-              </div>
-              <!-- Pemasukan Pembangunan -->
-              <div
-                style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
-                <div style="font-weight:700; margin-bottom:12px;">2. Pemasukan Pembangunan (Prefix: PEMB-)</div>
-                <div style="display:flex; gap:16px;">
-                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
-                      type="number" id="series_PemasukanPembangunan_start" class="form-input"></div>
-                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
-                      type="number" id="series_PemasukanPembangunan_end" class="form-input"></div>
-                </div>
-                <div id="series_PemasukanPembangunan_last"
-                  style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">
-                  No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
-              </div>
-              <!-- Pengeluaran Kas Jemaat -->
-              <div
-                style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
-                <div style="font-weight:700; margin-bottom:12px;">3. Pengeluaran Kas Jemaat (Prefix: COST-)</div>
-                <div style="display:flex; gap:16px;">
-                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
-                      type="number" id="series_PengeluaranJemaat_start" class="form-input"></div>
-                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
-                      type="number" id="series_PengeluaranJemaat_end" class="form-input"></div>
-                </div>
-                <div id="series_PengeluaranJemaat_last"
-                  style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">
-                  No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
-              </div>
-              <!-- Pengeluaran Daerah -->
-              <div
-                style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
-                <div style="font-weight:700; margin-bottom:12px;">4. Pengeluaran Daerah (Prefix: MBR-)</div>
-                <div style="display:flex; gap:16px;">
-                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
-                      type="number" id="series_PengeluaranDaerah_start" class="form-input"></div>
-                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
-                      type="number" id="series_PengeluaranDaerah_end" class="form-input"></div>
-                </div>
-                <div id="series_PengeluaranDaerah_last"
-                  style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">
-                  No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
-              </div>
-              <!-- Pengeluaran Pembangunan -->
-              <div
-                style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
-                <div style="font-weight:700; margin-bottom:12px;">5. Pengeluaran Pembangunan (Prefix: CP-)</div>
-                <div style="display:flex; gap:16px;">
-                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
-                      type="number" id="series_PengeluaranPembangunan_start" class="form-input"></div>
-                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
-                      type="number" id="series_PengeluaranPembangunan_end" class="form-input"></div>
-                </div>
-                <div id="series_PengeluaranPembangunan_last"
-                  style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">
-                  No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
-              </div>
-              <!-- Mutasi / Pindah Buku -->
-              <div
-                style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
-                <div style="font-weight:700; margin-bottom:12px;">6. Mutasi / Pindah Buku (Prefix: PB-)</div>
-                <div style="display:flex; gap:16px;">
-                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
-                      type="number" id="series_Mutasi_start" class="form-input"></div>
-                  <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
-                      type="number" id="series_Mutasi_end" class="form-input"></div>
-                </div>
-                <div id="series_Mutasi_last"
-                  style="color:var(--text3); font-size:12px; margin-top:12px; padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; display:inline-block;">
-                  No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong></div>
-              </div>
+          <!-- Navigation Tabs -->
+          <div class="report-tabs"
+            style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px;">
+            <button class="btn tab-btn active" id="tabSeriesHistoryBtn" onclick="switchSeriesTab('history')"
+              style="flex:1; font-weight:600; border:none; background:transparent; padding:10px 16px;">
+              <span class="icon-placeholder" data-icon="history" data-size="lucide-sm"></span>
+              <span style="margin-left:6px;">Histori No. Seri Keluar</span>
+            </button>
+            <button class="btn tab-btn" id="tabSeriesConfigBtn" onclick="switchSeriesTab('config')"
+              style="flex:1; font-weight:600; border:none; background:transparent; padding:10px 16px;">
+              <span class="icon-placeholder" data-icon="settings" data-size="lucide-sm"></span>
+              <span style="margin-left:6px;">Pengaturan Rentang Seri</span>
+            </button>
+          </div>
+
+          <!-- TAB 1: HISTORI NO. SERI KELUAR -->
+          <div id="seriesHistoryView">
+            <!-- 6 Categories Summary Grid -->
+            <div id="seriesSummaryCards" class="series-summary-grid" style="margin-bottom: 24px;">
+              <!-- Populated dynamically via JS -->
             </div>
 
-            <div style="display: flex; justify-content: flex-end; margin-top: 32px;">
-              <button id="btnSaveSeries" class="btn btn-primary" onclick="saveSeriesConfig()">Simpan No. Series</button>
+            <!-- Detailed Table Card -->
+            <div
+              style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+              <div
+                style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--glass-border);">
+                <div>
+                  <div class="form-section-title" style="margin-bottom:2px;">Daftar Kuitansi Keluar Pada Bulan Terpilih
+                  </div>
+                  <div style="font-size:12px; color:var(--text3);" id="seriesHistorySubtitle">Memuat riwayat kuitansi...
+                  </div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                  <!-- Search input -->
+                  <div style="position:relative; min-width:210px;">
+                    <input type="text" id="seriesHistorySearch" class="form-input"
+                      placeholder="Cari nomor seri / nama..." oninput="handleSeriesHistorySearch(this.value)"
+                      style="padding-left:34px; height:40px; font-size:13.5px; box-sizing:border-box;">
+                    <span
+                      style="position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--text3); pointer-events:none; display:flex; align-items:center;">
+                      <span class="icon-placeholder" data-icon="search" data-size="lucide-xs"></span>
+                    </span>
+                  </div>
+
+                  <!-- Category filter -->
+                  <select id="seriesHistoryFilterCat" class="form-select"
+                    onchange="handleSeriesHistoryFilter(this.value)"
+                    style="height:40px; padding:6px 36px 6px 12px; font-size:13.5px; min-width:190px; box-sizing:border-box; cursor:pointer;">
+                    <option value="all" selected>Semua Kategori</option>
+                    <option value="Pemasukan">1. Pemasukan Kas Jemaat</option>
+                    <option value="PemasukanPembangunan">2. Pemasukan Pembangunan (PEMB-)</option>
+                    <option value="PengeluaranJemaat">3. Pengeluaran Kas Jemaat (COST-)</option>
+                    <option value="PengeluaranDaerah">4. Pengeluaran Daerah (MBR-)</option>
+                    <option value="PengeluaranPembangunan">5. Pengeluaran Pembangunan (CP-)</option>
+                    <option value="Mutasi">6. Mutasi / Pindah Buku (PB-)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Table Container -->
+              <div style="overflow-x:auto;">
+                <table class="report-table" style="width:100%; border-collapse:collapse;">
+                  <thead>
+                    <tr>
+                      <th style="width:140px; text-align:left;">No. Seri</th>
+                      <th style="width:110px; text-align:left;">Tanggal</th>
+                      <th style="width:180px; text-align:left;">Kategori Seri</th>
+                      <th style="text-align:left;">Pemberi / Uraian Transaksi</th>
+                      <th style="width:150px; text-align:right;">Nominal (Rp)</th>
+                      <th style="width:80px; text-align:center;">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="seriesHistoryTableBody">
+                    <tr>
+                      <td colspan="6" style="text-align:center; padding:24px; color:var(--text3);">Memuat data
+                        histori...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </fieldset>
+          </div>
+
+          <!-- TAB 2: PENGATURAN RENTANG SERI -->
+          <div id="seriesConfigView" style="display:none;">
+            <p style="font-size:13px; color:var(--text3); margin-top:0; margin-bottom:20px; line-height:1.5;">
+              Pengaturan ini berguna agar saat Admin/Bendahara membuat Kuitansi, nomor serinya akan berlanjut secara
+              otomatis sesuai format per bulan yang diatur di bawah ini.
+            </p>
+
+            <fieldset id="seriesFieldset" disabled style="border:none; padding:0; margin:0; min-width:0;">
+              <div id="seriesFormContainer" style="display:flex; flex-direction:column; gap:16px;">
+                <!-- 1. Pemasukan -->
+                <div
+                  style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+                  <div
+                    style="font-weight:700; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
+                    <span>1. Pemasukan Kas Jemaat (Format: Angka Saja)</span>
+                    <span class="badge badge-blue" style="font-size:11px;">Kuitansi Kas Jemaat</span>
+                  </div>
+                  <div style="display:flex; gap:16px;">
+                    <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
+                        type="number" id="series_Pemasukan_start" class="form-input" placeholder="Contoh: 10600"></div>
+                    <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
+                        type="number" id="series_Pemasukan_end" class="form-input" placeholder="Contoh: 10899"></div>
+                  </div>
+                  <div id="series_Pemasukan_last"
+                    style="color:var(--text3); font-size:12px; margin-top:12px; padding:8px 12px; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:8px; display:block;">
+                    No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong>
+                  </div>
+                </div>
+
+                <!-- 2. Pemasukan Pembangunan -->
+                <div
+                  style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+                  <div
+                    style="font-weight:700; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
+                    <span>2. Pemasukan Pembangunan (Prefix: PEMB-)</span>
+                    <span class="badge badge-gold" style="font-size:11px;">Kuitansi Pembangunan</span>
+                  </div>
+                  <div style="display:flex; gap:16px;">
+                    <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
+                        type="number" id="series_PemasukanPembangunan_start" class="form-input" placeholder="Contoh: 1">
+                    </div>
+                    <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
+                        type="number" id="series_PemasukanPembangunan_end" class="form-input" placeholder="Contoh: 200">
+                    </div>
+                  </div>
+                  <div id="series_PemasukanPembangunan_last"
+                    style="color:var(--text3); font-size:12px; margin-top:12px; padding:8px 12px; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:8px; display:block;">
+                    No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong>
+                  </div>
+                </div>
+
+                <!-- 3. Pengeluaran Kas Jemaat -->
+                <div
+                  style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+                  <div
+                    style="font-weight:700; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
+                    <span>3. Pengeluaran Kas Jemaat (Prefix: COST-)</span>
+                    <span class="badge badge-red" style="font-size:11px;">Kas Jemaat</span>
+                  </div>
+                  <div style="display:flex; gap:16px;">
+                    <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
+                        type="number" id="series_PengeluaranJemaat_start" class="form-input" placeholder="Contoh: 1">
+                    </div>
+                    <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
+                        type="number" id="series_PengeluaranJemaat_end" class="form-input" placeholder="Contoh: 100">
+                    </div>
+                  </div>
+                  <div id="series_PengeluaranJemaat_last"
+                    style="color:var(--text3); font-size:12px; margin-top:12px; padding:8px 12px; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:8px; display:block;">
+                    No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong>
+                  </div>
+                </div>
+
+                <!-- 4. Pengeluaran Daerah -->
+                <div
+                  style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+                  <div
+                    style="font-weight:700; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
+                    <span>4. Pengeluaran Daerah (Prefix: MBR-)</span>
+                    <span class="badge badge-purple" style="font-size:11px;">Daerah</span>
+                  </div>
+                  <div style="display:flex; gap:16px;">
+                    <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
+                        type="number" id="series_PengeluaranDaerah_start" class="form-input" placeholder="Contoh: 1">
+                    </div>
+                    <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
+                        type="number" id="series_PengeluaranDaerah_end" class="form-input" placeholder="Contoh: 50">
+                    </div>
+                  </div>
+                  <div id="series_PengeluaranDaerah_last"
+                    style="color:var(--text3); font-size:12px; margin-top:12px; padding:8px 12px; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:8px; display:block;">
+                    No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong>
+                  </div>
+                </div>
+
+                <!-- 5. Pengeluaran Pembangunan -->
+                <div
+                  style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+                  <div
+                    style="font-weight:700; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
+                    <span>5. Pengeluaran Pembangunan (Prefix: CP-)</span>
+                    <span class="badge badge-cyan" style="font-size:11px;">Pembangunan</span>
+                  </div>
+                  <div style="display:flex; gap:16px;">
+                    <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
+                        type="number" id="series_PengeluaranPembangunan_start" class="form-input"
+                        placeholder="Contoh: 1"></div>
+                    <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
+                        type="number" id="series_PengeluaranPembangunan_end" class="form-input"
+                        placeholder="Contoh: 50"></div>
+                  </div>
+                  <div id="series_PengeluaranPembangunan_last"
+                    style="color:var(--text3); font-size:12px; margin-top:12px; padding:8px 12px; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:8px; display:block;">
+                    No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong>
+                  </div>
+                </div>
+
+                <!-- 6. Mutasi / Pindah Buku -->
+                <div
+                  style="background:var(--input-bg); border:1px solid var(--glass-border); padding:16px; border-radius:var(--radius);">
+                  <div
+                    style="font-weight:700; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
+                    <span>6. Mutasi / Pindah Buku (Format: PB-YYMMxx, Contoh: PB-261001)</span>
+                    <span class="badge badge-teal" style="font-size:11px;">Pindah Buku</span>
+                  </div>
+                  <div style="display:flex; gap:16px;">
+                    <div class="form-group" style="flex:1;"><label style="font-size:12px;">Mulai</label><input
+                        type="number" id="series_Mutasi_start" class="form-input" placeholder="Contoh: 1"></div>
+                    <div class="form-group" style="flex:1;"><label style="font-size:12px;">Sampai</label><input
+                        type="number" id="series_Mutasi_end" class="form-input" placeholder="Contoh: 20"></div>
+                  </div>
+                  <div id="series_Mutasi_last"
+                    style="color:var(--text3); font-size:12px; margin-top:12px; padding:8px 12px; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:8px; display:block;">
+                    No. Terakhir Terpakai: <strong style="color:var(--text2)">-</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; margin-top: 32px;">
+                <button id="btnSaveSeries" class="btn btn-primary" onclick="saveSeriesConfig()">Simpan No.
+                  Series</button>
+              </div>
+            </fieldset>
+          </div>
         </div>
       </div>
 
@@ -2260,6 +2513,240 @@
 
       <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
         <button class="btn btn-outline" onclick="hideLedgerModal()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: KATEGORI MASUKAN FORM (TAMBAH / UBAH) -->
+  <div class="modal-overlay" id="incTypeModal" style="display:none; z-index:1150;"
+    onclick="if(event.target===this) closeIncTypeModal()">
+    <div class="modal-content slide-up" style="max-width:500px; width:100%; margin:16px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div
+            style="width:34px; height:34px; border-radius:8px; background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.3); display:flex; align-items:center; justify-content:center; color:#3b82f6;">
+            <span class="icon-placeholder" data-icon="trendUp" data-size="lucide-sm"></span>
+          </div>
+          <div>
+            <div class="modal-title" id="incTypeFormTitle" style="font-size:16px; font-weight:700;">Tambah Kategori Masukan</div>
+            <div style="font-size:12px; color:var(--text3);">Atur nama kategori dan proporsi alokasi dana</div>
+          </div>
+        </div>
+        <button class="btn-icon-only" onclick="closeIncTypeModal()" title="Tutup">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:16px; padding:20px 24px;">
+        <div class="form-group">
+          <label class="form-label" style="font-weight:600; margin-bottom:6px; display:block;">Nama Kategori <span
+              style="color:var(--red-pop);">*</span></label>
+          <input class="form-input" id="newIncTypeName" type="text" placeholder="Contoh: Persembahan Ucapan Syukur"
+            onkeydown="if(event.key==='Enter') saveIncTypeForm()">
+        </div>
+        <div style="padding:16px; background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius);">
+          <label class="form-label" style="color:var(--text); font-weight:600; margin-bottom:12px; display:block;">Proporsi Alokasi (%)</label>
+          <div class="form-row keep-row" style="margin-bottom:12px;">
+            <div class="form-group" style="flex:1;"><label class="form-label" style="font-size:12px">Daerah (%)</label><input
+                class="form-input" id="newIncTypePctDaerah" type="number" placeholder="0" min="0" max="100" value="0"></div>
+            <div class="form-group" style="flex:1;"><label class="form-label" style="font-size:12px">Jemaat (%)</label><input
+                class="form-input" id="newIncTypePctJemaat" type="number" placeholder="0" min="0" max="100" value="100"></div>
+          </div>
+          <div class="form-group"><label class="form-label" style="font-size:12px">Pembangunan (%)</label><input
+              class="form-input" id="newIncTypePctBangun" type="number" placeholder="0" min="0" max="100" value="0"></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:12px; justify-content:flex-end; padding:16px 24px; border-top:1px solid var(--glass-border); background:rgba(0,0,0,0.08);">
+        <button class="btn btn-ghost" type="button" id="incTypeCancelBtn" onclick="closeIncTypeModal()">Batal</button>
+        <button class="btn btn-primary" id="incTypeSaveBtn" type="button" onclick="saveIncTypeForm()" style="min-width:110px;">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DEPARTEMEN FORM (TAMBAH / UBAH) -->
+  <div class="modal-overlay" id="deptModal" style="display:none; z-index:1150;"
+    onclick="if(event.target===this) closeDeptModal()">
+    <div class="modal-content slide-up" style="max-width:480px; width:100%; margin:16px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div
+            style="width:34px; height:34px; border-radius:8px; background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; color:#a855f7;">
+            <span class="icon-placeholder" data-icon="building" data-size="lucide-sm"></span>
+          </div>
+          <div>
+            <div class="modal-title" id="deptFormTitle" style="font-size:16px; font-weight:700;">Tambah Departemen</div>
+            <div style="font-size:12px; color:var(--text3);">Bidang atau departemen pelayanan gereja</div>
+          </div>
+        </div>
+        <button class="btn-icon-only" onclick="closeDeptModal()" title="Tutup">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:16px; padding:20px 24px;">
+        <div class="form-group">
+          <label class="form-label" style="font-weight:600; margin-bottom:6px; display:block;">Nama Bidang / Departemen <span
+              style="color:var(--red-pop);">*</span></label>
+          <input class="form-input" id="deptName" type="text" placeholder="Contoh: Diakon / Diakones"
+            onkeydown="if(event.key==='Enter') saveDeptForm()">
+        </div>
+      </div>
+      <div style="display:flex; gap:12px; justify-content:flex-end; padding:16px 24px; border-top:1px solid var(--glass-border); background:rgba(0,0,0,0.08);">
+        <button class="btn btn-ghost" type="button" id="deptCancelBtn" onclick="closeDeptModal()">Batal</button>
+        <button class="btn btn-primary" id="deptSaveBtn" type="button" onclick="saveDeptForm()" style="min-width:110px;">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: UNIT FORM (TAMBAH / UBAH) -->
+  <div class="modal-overlay" id="unitModal" style="display:none; z-index:1150;"
+    onclick="if(event.target===this) closeUnitModal()">
+    <div class="modal-content slide-up" style="max-width:480px; width:100%; margin:16px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div
+            style="width:34px; height:34px; border-radius:8px; background:rgba(212,175,55,0.12); border:1px solid rgba(212,175,55,0.3); display:flex; align-items:center; justify-content:center; color:var(--primary);">
+            <span class="icon-placeholder" data-icon="users" data-size="lucide-sm"></span>
+          </div>
+          <div>
+            <div class="modal-title" id="unitFormTitle" style="font-size:16px; font-weight:700;">Tambah Unit / Sektor
+            </div>
+            <div style="font-size:12px; color:var(--text3);">Informasi data unit pemberi jemaat</div>
+          </div>
+        </div>
+        <button class="btn-icon-only" onclick="closeUnitModal()" title="Tutup">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:16px; padding:20px 24px;">
+        <div class="form-group">
+          <label class="form-label" style="font-weight:600; margin-bottom:6px; display:block;">Nama Unit <span
+              style="color:var(--red-pop);">*</span></label>
+          <input class="form-input" id="unitName" type="text" placeholder="Contoh: Unit 1 / Sektor Sion"
+            onkeydown="if(event.key==='Enter') saveUnitForm()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="font-weight:600; margin-bottom:6px; display:block;">Jumlah Anggota
+            (Jiwa)</label>
+          <input class="form-input" id="unitJumlah" type="number" min="0" placeholder="0"
+            onkeydown="if(event.key==='Enter') saveUnitForm()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="font-weight:600; margin-bottom:6px; display:block;">Keterangan</label>
+          <input class="form-input" id="unitNote" type="text" placeholder="Catatan tambahan / koordinator (opsional)"
+            onkeydown="if(event.key==='Enter') saveUnitForm()">
+        </div>
+      </div>
+      <div
+        style="display:flex; gap:12px; justify-content:flex-end; padding:16px 24px; border-top:1px solid var(--glass-border); background:rgba(0,0,0,0.08);">
+        <button class="btn btn-ghost" type="button" id="unitCancelBtn" onclick="closeUnitModal()">Batal</button>
+        <button class="btn btn-primary" id="unitSaveBtn" type="button" onclick="saveUnitForm()"
+          style="min-width:110px;">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: USER FORM (TAMBAH / UBAH) -->
+  <div class="modal-overlay" id="userModal" style="display:none; z-index:1150;"
+    onclick="if(event.target===this) closeUserModal()">
+    <div class="modal-content slide-up"
+      style="max-width:540px; width:100%; margin:16px; max-height:90vh; display:flex; flex-direction:column;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div
+            style="width:36px; height:36px; border-radius:10px; background:rgba(212,175,55,0.12); border:1px solid rgba(212,175,55,0.3); display:flex; align-items:center; justify-content:center; color:var(--primary);">
+            <span class="icon-placeholder" data-icon="user" data-size="lucide-sm"></span>
+          </div>
+          <div>
+            <div class="modal-title" id="userFormTitle" style="font-size:16px; font-weight:700;">Tambah User Baru</div>
+            <div style="font-size:12px; color:var(--text3);">Konfigurasi akun dan hak akses pengguna</div>
+          </div>
+        </div>
+        <button class="btn-icon-only" onclick="closeUserModal()" title="Tutup">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body"
+        style="overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:16px; flex:1;">
+        <div class="form-group">
+          <label class="form-label" style="font-weight:600; margin-bottom:6px; display:block;">Username <span
+              style="color:var(--red-pop);">*</span></label>
+          <input class="form-input" id="userName" type="text" placeholder="Contoh: bendahara1">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" style="font-weight:600; margin-bottom:6px; display:block;">Nama Lengkap <span
+              style="color:var(--red-pop);">*</span></label>
+          <input class="form-input" id="userFullName" type="text" placeholder="Contoh: Yohanes Siregar">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" style="font-weight:600; margin-bottom:6px; display:block;">Role Akses (Bisa pilih
+            lebih dari satu) <span style="color:var(--red-pop);">*</span></label>
+          <div id="userRoleContainer"
+            style="max-height: 160px; overflow-y: auto; border: 1px solid var(--glass-border); padding: 12px; border-radius: var(--radius); background: var(--input-bg); display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                value="Admin"> Admin</label>
+            <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                value="Ketua Jemaat"> Ketua Jemaat</label>
+            <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                value="Pendeta"> Pendeta</label>
+            <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                value="Bendahara"> Bendahara</label>
+            <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                value="Diakon"> Diakon</label>
+            <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                value="Viewer"> Viewer</label>
+            <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                value="Daerah"> Daerah</label>
+            <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="userRoleChk"
+                value="Publik"> Publik</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" style="font-weight:600; margin-bottom:4px; display:block;">Binding Unit
+            Khusus</label>
+          <div class="form-text" style="margin-bottom:8px; font-size:12px; color:var(--text3);">Centang unit yang ingin
+            dihubungkan. User hanya dapat melihat kas unit terpilih.</div>
+          <div id="userUnitContainer"
+            style="max-height: 160px; overflow-y: auto; border: 1px solid var(--glass-border); padding: 12px; border-radius: var(--radius); background: var(--input-bg); display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" style="font-weight:600; margin-bottom:6px; display:block;">Kata Sandi</label>
+          <div class="password-box">
+            <input class="form-input" id="userPassword" type="password" placeholder="Kata Sandi">
+            <span class="eye-btn eye-icon" onclick="togglePassword('userPassword', this)">
+              <span class="icon-placeholder" data-icon="eye" data-size="lucide-md"></span>
+            </span>
+          </div>
+          <div class="password-strength" id="userPassStrength"></div>
+        </div>
+      </div>
+
+      <div
+        style="display:flex; gap:12px; justify-content:flex-end; padding:16px 24px; border-top:1px solid var(--glass-border); background:rgba(0,0,0,0.08);">
+        <button class="btn btn-ghost" type="button" id="cancelEditUserBtn" onclick="closeUserModal()">Batal</button>
+        <button class="btn btn-primary" id="saveUserBtn" type="button" onclick="saveUserForm()"
+          style="min-width:110px;">Simpan</button>
       </div>
     </div>
   </div>

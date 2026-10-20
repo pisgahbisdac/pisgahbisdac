@@ -310,27 +310,109 @@ export async function supabasePost(action, payload = {}) {
       }
 
       case 'saveDepartment': {
-        const { error } = await supabase.from('departments').insert([{ id: 'DEP-' + Date.now(), name: payload.name }]);
-        if (error) throw error;
-        return { success: true, message: 'Departemen disimpan.' };
+        if (payload.id) {
+          let { data, error } = await supabase.from('departments').update({ name: payload.name }).eq('id', payload.id).select();
+          if (error || !data || data.length === 0) {
+            const res = await supabase.from('departments').update({ name: payload.name }).eq('name', payload.id).select();
+            if (res.error) throw res.error;
+          }
+          return { success: true, message: 'Departemen berhasil diperbarui.' };
+        } else {
+          const { error } = await supabase.from('departments').insert([{ id: 'DEP-' + Date.now(), name: payload.name, active: true }]);
+          if (error) throw error;
+          return { success: true, message: 'Departemen berhasil disimpan.' };
+        }
       }
 
       case 'deleteDepartment': {
-        const { error } = await supabase.from('departments').delete().eq('name', payload.name);
-        if (error) throw error;
+        let { error } = await supabase.from('departments').delete().eq('id', payload.id || payload.name);
+        if (error) {
+          await supabase.from('departments').delete().eq('name', payload.name || payload.id);
+        }
         return { success: true, message: 'Departemen dihapus.' };
       }
 
       case 'saveUnit': {
-        const { error } = await supabase.from('units').insert([{ id: 'UNT-' + Date.now(), name: payload.name, note: payload.note, jumlah_anggota: payload.jumlah_anggota }]);
-        if (error) throw error;
-        return { success: true, message: 'Unit disimpan.' };
+        if (payload.isUpdate && (payload.id || payload.oldName)) {
+          let updated = false;
+
+          // 1. Try updating by id first if provided
+          if (payload.id) {
+            const { data, error } = await supabase
+              .from('units')
+              .update({
+                name: payload.name,
+                note: payload.note || '',
+                jumlah_anggota: payload.jumlah_anggota || 0
+              })
+              .eq('id', payload.id)
+              .select();
+            if (!error && data && data.length > 0) {
+              updated = true;
+            }
+          }
+
+          // 2. If not updated by id, update by oldName
+          if (!updated && payload.oldName) {
+            const { data, error } = await supabase
+              .from('units')
+              .update({
+                name: payload.name,
+                note: payload.note || '',
+                jumlah_anggota: payload.jumlah_anggota || 0
+              })
+              .eq('name', payload.oldName)
+              .select();
+            if (error) throw error;
+            if (data && data.length > 0) {
+              updated = true;
+            }
+          }
+
+          // 3. Fallback: If neither matched (e.g. record had no id and name mismatch), upsert
+          if (!updated) {
+            const { error } = await supabase.from('units').upsert([{
+              name: payload.name,
+              note: payload.note || '',
+              jumlah_anggota: payload.jumlah_anggota || 0,
+              active: true
+            }], { onConflict: 'name' });
+            if (error) throw error;
+          }
+
+          // 4. Cascade name update to income transactions if the name was changed
+          if (payload.oldName && payload.oldName !== payload.name) {
+            await supabase
+              .from('income')
+              .update({ unit_pemberi: payload.name })
+              .eq('unit_pemberi', payload.oldName);
+          }
+
+          return { success: true, message: 'Unit berhasil diperbarui.' };
+        } else {
+          // New unit insert
+          const { error } = await supabase.from('units').insert([{
+            id: payload.id || ('UNT-' + Date.now()),
+            name: payload.name,
+            note: payload.note || '',
+            jumlah_anggota: payload.jumlah_anggota || 0,
+            active: true
+          }]);
+          if (error) throw error;
+          return { success: true, message: 'Unit berhasil disimpan.' };
+        }
       }
 
       case 'deleteUnit': {
-        const { error } = await supabase.from('units').delete().eq('name', payload.name);
-        if (error) throw error;
-        return { success: true, message: 'Unit dihapus.' };
+        let query = supabase.from('units');
+        if (payload.id) {
+          const { error } = await query.delete().eq('id', payload.id);
+          if (error) throw error;
+        } else {
+          const { error } = await query.delete().eq('name', payload.name);
+          if (error) throw error;
+        }
+        return { success: true, message: 'Unit berhasil dihapus.' };
       }
 
       case 'saveIncomeType': {

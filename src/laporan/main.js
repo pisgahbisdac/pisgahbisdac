@@ -30,8 +30,10 @@ const svgStore = {
   edit: '<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>',
   trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>',
   building: '<rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="2"/><line x1="15" y1="22" x2="15" y2="2"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/>',
+  briefcase: '<rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
   users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
   shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  shieldCheck: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
   church: '<path d="M18 22V10l-6-6-6 6v12"/><path d="M12 4v4"/><path d="M10 6h4"/><path d="M14 22v-4a2 2 0 0 0-4 0v4"/>',
   mappin: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
   hammer: '<path d="M14 14l6 6"/><path d="M15 13l-4-4 2-2 4 4-2 2z"/><path d="M11 9L6.5 4.5a2.12 2.12 0 0 0-3 0L2 6a2.12 2.12 0 0 0 0 3l4.5 4.5"/>',
@@ -40,26 +42,32 @@ const svgStore = {
   check: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
   hourglass: '<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
   clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
   alert: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
   info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
   bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
   home: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
   key: '<path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/>',
-  log: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>',
   plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
-  log: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+  activity: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+  barChart: '<line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>',
+  bookOpen: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+  layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  hash: '<line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/>',
+  fileSearch: '<path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v3"/><polyline points="14 2 14 8 20 8"/><circle cx="5" cy="14" r="3"/><path d="m7.2 16.2 2.3 2.3"/>',
   save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
-  plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
   refresh: '<path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>',
-  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
   eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
   eyeOff: '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/>',
   image: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
   filetext: '<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>',
+  fileText: '<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>',
   printer: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/>',
   user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
-  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  lockOpen: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>'
 };
 
 function getIcon(name, sizeClass = 'lucide-sm') {
@@ -1498,7 +1506,7 @@ async function loadPembangunanData() {
     pembangunanDataCache = JSON.parse(text);
   } catch (e) { throw e; }
 }
-let editingUser = null; let editingUnit = null; let editingIncType = null;
+let editingUser = null; let editingUnit = null; let editingUnitId = null; let editingIncType = null;
 
 function getCatBadge(catName, isExpense) { if (!catName) return 'badge-gray'; let seedString = catName + (isExpense ? "_OUT" : "_IN"); let hash1 = 0, hash2 = 0; for (let i = 0; i < seedString.length; i++) { hash1 = (hash1 << 5) - hash1 + seedString.charCodeAt(i); hash2 = seedString.charCodeAt(i) + ((hash2 << 5) - hash2); } let finalHue = Math.abs(hash1) % 360; let finalSat = 65 + (Math.abs(hash2) % 30); let lShift = (Math.abs(hash1 ^ hash2) % 24) - 12; return `badge-dynamic" style="--bh: ${finalHue}; --bs: ${finalSat}%; --bl-off: ${lShift}%;`; }
 function isPrivateCategory(category) { if (!category) return false; const cat = category.toLowerCase(); return ['perpuluhan', 'persepuluhan', 'khusus jemaat', 'khusus daerah', 'terpadu', 'pembangunan'].some(c => cat.includes(c)); }
@@ -6138,66 +6146,420 @@ async function approveBulkTx() {
   await handleManualSync();
 }
 
+function openIncTypeModal(isEdit = false) {
+  if (!isEdit) {
+    cancelEditIncType();
+  }
+  const modal = document.getElementById('incTypeModal');
+  if (modal) {
+    modal.style.display = 'flex';
+  }
+  setTimeout(() => {
+    const input = document.getElementById('newIncTypeName');
+    if (input) input.focus();
+  }, 100);
+}
+
+function closeIncTypeModal() {
+  const modal = document.getElementById('incTypeModal');
+  if (modal) modal.style.display = 'none';
+  cancelEditIncType();
+}
+
 function editIncType(name, pd, pj, pb) {
-  editingIncType = name; document.getElementById('incTypeFormTitle').textContent = 'Ubah Kategori';
-  document.getElementById('newIncTypeName').value = name; document.getElementById('newIncTypePctDaerah').value = pd; document.getElementById('newIncTypePctJemaat').value = pj; document.getElementById('newIncTypePctBangun').value = pb;
-  document.getElementById('incTypeSaveBtn').innerHTML = 'Update'; document.getElementById('incTypeCancelBtn').style.display = 'inline-flex';
+  editingIncType = name;
+  const title = document.getElementById('incTypeFormTitle');
+  if (title) title.textContent = 'Ubah Kategori Masukan';
+  document.getElementById('newIncTypeName').value = name;
+  document.getElementById('newIncTypePctDaerah').value = pd;
+  document.getElementById('newIncTypePctJemaat').value = pj;
+  document.getElementById('newIncTypePctBangun').value = pb;
+  const saveBtn = document.getElementById('incTypeSaveBtn');
+  if (saveBtn) saveBtn.textContent = 'Update';
+  openIncTypeModal(true);
 }
+
 function cancelEditIncType() {
-  editingIncType = null; document.getElementById('incTypeFormTitle').textContent = 'Kategori Baru';
-  document.getElementById('newIncTypeName').value = ''; document.getElementById('newIncTypePctDaerah').value = '0'; document.getElementById('newIncTypePctJemaat').value = '100'; document.getElementById('newIncTypePctBangun').value = '0';
-  document.getElementById('incTypeSaveBtn').innerHTML = 'Simpan'; document.getElementById('incTypeCancelBtn').style.display = 'none';
+  editingIncType = null;
+  const title = document.getElementById('incTypeFormTitle');
+  if (title) title.textContent = 'Tambah Kategori Masukan';
+  const nameInput = document.getElementById('newIncTypeName');
+  if (nameInput) nameInput.value = '';
+  const dInput = document.getElementById('newIncTypePctDaerah');
+  if (dInput) dInput.value = '0';
+  const jInput = document.getElementById('newIncTypePctJemaat');
+  if (jInput) jInput.value = '100';
+  const bInput = document.getElementById('newIncTypePctBangun');
+  if (bInput) bInput.value = '0';
+  const saveBtn = document.getElementById('incTypeSaveBtn');
+  if (saveBtn) saveBtn.textContent = 'Simpan';
 }
+
 async function saveIncTypeForm() {
-  const name = document.getElementById('newIncTypeName').value.trim(); const pd = parseFloat(document.getElementById('newIncTypePctDaerah').value) || 0; const pj = parseFloat(document.getElementById('newIncTypePctJemaat').value) || 0; const pb = parseFloat(document.getElementById('newIncTypePctBangun').value) || 0;
-  if (!name) { notify('Isi Nama!', 'error'); return; }
-  const btn = document.getElementById('incTypeSaveBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
-  try { await apiPostWithFallback('saveIncomeType', { name, pct_daerah: pd, pct_jemaat: pj, pct_bangun: pb, oldName: editingIncType, isUpdate: !!editingIncType }); notify('Berhasil', 'success'); cancelEditIncType(); await loadMasterData(); renderMasterIncTypes(); initForms(); }
-  catch (e) { notify(e.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = 'Simpan'; }
+  const name = document.getElementById('newIncTypeName').value.trim();
+  const pd = parseFloat(document.getElementById('newIncTypePctDaerah').value) || 0;
+  const pj = parseFloat(document.getElementById('newIncTypePctJemaat').value) || 0;
+  const pb = parseFloat(document.getElementById('newIncTypePctBangun').value) || 0;
+  if (!name) { notify('Isi Nama Kategori!', 'error'); return; }
+
+  const totalPct = pd + pj + pb;
+  if (Math.round(totalPct) !== 100) {
+    notify(`Total alokasi harus 100% (saat ini ${totalPct}%)`, 'error');
+    return;
+  }
+
+  const btn = document.getElementById('incTypeSaveBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...'; }
+  try {
+    await apiPostWithFallback('saveIncomeType', {
+      name,
+      pct_daerah: pd,
+      pct_jemaat: pj,
+      pct_bangun: pb,
+      oldName: editingIncType,
+      isUpdate: !!editingIncType
+    });
+    notify(editingIncType ? 'Kategori berhasil diperbarui' : 'Kategori berhasil disimpan', 'success');
+    closeIncTypeModal();
+    await loadMasterData();
+    renderMasterIncTypes();
+    initForms();
+  } catch (e) {
+    notify(e.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = editingIncType ? 'Update' : 'Simpan';
+    }
+  }
 }
+
 function renderMasterIncTypes() {
+  const listEl = document.getElementById('incTypeList');
+  if (!listEl) return;
+  const types = masterData?.incomeTypes || [];
   const resv = ['Perpuluhan', 'Terpadu', 'Khusus Jemaat', 'Khusus Daerah', 'Persembahan Khusus'];
-  document.getElementById('incTypeList').innerHTML = (masterData?.incomeTypes || []).map(x => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--glass-border)"><div><span class="badge ${getCatBadge(x.name, false)}" style="margin-bottom:4px;">${x.name}</span><br><small style="color:var(--text3)">D:${x.pct_daerah}% J:${x.pct_jemaat}% B:${x.pct_bangun}%</small></div><div style="display:flex; gap:6px;">${resv.includes(x.name) ? '<span style="font-size:10px; color:var(--text4)">Sistem</span>' : `<button class="btn-icon-only" onclick="editIncType('${x.name.replace(/'/g, "\\'")}', ${x.pct_daerah}, ${x.pct_jemaat}, ${x.pct_bangun})">${safeIcon('edit')}</button><button class="btn-icon-only" style="color:var(--red-pop);" onclick="deleteIncType('${x.name.replace(/'/g, "\\'")}')">${safeIcon('trash')}</button>`}</div></div>`).join('') || '<div class="empty-state">No Data</div>';
+
+  if (types.length === 0) {
+    listEl.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text3);">Belum ada kategori masukan. Klik tombol "+ Tambah Kategori" untuk menambahkan.</div>';
+  } else {
+    listEl.innerHTML = types.map((x, i) => {
+      const escapedName = (x.name || '').replace(/'/g, "\\'");
+      const isSystem = resv.includes(x.name);
+
+      return `
+        <div class="unit-item-card">
+          <div style="display:flex; align-items:center; gap:12px; min-width:0; flex:1;">
+            <div class="unit-number-badge">${i + 1}</div>
+            <div style="min-width:0; flex:1;">
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
+                <span class="badge ${getCatBadge(x.name, false)}" style="font-weight:700; font-size:13px; padding:3px 8px;">
+                  ${x.name || '-'}
+                </span>
+                ${isSystem ? '<span class="badge badge-gray" style="font-size:10px; padding:2px 6px;">Sistem</span>' : ''}
+              </div>
+              <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:11.5px; color:var(--text3);">
+                <span style="background:rgba(59,130,246,0.1); color:#3b82f6; padding:1px 6px; border-radius:4px; font-weight:600;">D: ${x.pct_daerah}%</span>
+                <span style="background:rgba(16,185,129,0.1); color:#10b981; padding:1px 6px; border-radius:4px; font-weight:600;">J: ${x.pct_jemaat}%</span>
+                <span style="background:rgba(245,158,11,0.1); color:#f59e0b; padding:1px 6px; border-radius:4px; font-weight:600;">B: ${x.pct_bangun}%</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; margin-left:12px;">
+            ${isSystem ? '' : `
+              <button class="btn-icon-only" title="Ubah Kategori" onclick="editIncType('${escapedName}', ${x.pct_daerah}, ${x.pct_jemaat}, ${x.pct_bangun})">${safeIcon('edit')}</button>
+              <button class="btn-icon-only" style="color:var(--red-pop);" title="Hapus Kategori" onclick="deleteIncType('${escapedName}')">${safeIcon('trash')}</button>
+            `}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  const elTotal = document.getElementById('summaryTotalIncTypes');
+  if (elTotal) elTotal.textContent = types.length;
 }
-async function deleteIncType(name) { if (await showCustomConfirm('Hapus', `Hapus ${name}?`)) { try { await apiPost('deleteIncomeType', { name }); notify('Terhapus', 'success'); await loadMasterData(); renderMasterIncTypes(); initForms(); } catch (e) { notify(e.message, 'error'); } } }
+
+async function deleteIncType(name) {
+  if (await showCustomConfirm('Hapus Kategori', `Yakin ingin menghapus kategori ${name}?`)) {
+    try {
+      await apiPost('deleteIncomeType', { name });
+      notify('Kategori terhapus', 'success');
+      await loadMasterData();
+      renderMasterIncTypes();
+      initForms();
+    } catch (e) {
+      notify(e.message, 'error');
+    }
+  }
+}
 
 let editingDept = null;
-function cancelEditDept() { editingDept = null; document.getElementById('deptName').value = ''; document.getElementById('deptSaveBtn').textContent = 'Simpan'; document.getElementById('deptCancelBtn').style.display = 'none'; }
-async function saveDeptForm() {
-  const name = document.getElementById('deptName').value.trim(); if (!name) { notify('Isi Nama Bidang!', 'error'); return; }
-  const btn = document.getElementById('deptSaveBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
-  try { await apiPost('saveDepartment', { id: editingDept, name }); notify('Berhasil', 'success'); cancelEditDept(); await loadMasterData(); renderMasterDepts(); initForms(); }
-  catch (e) { notify(e.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = 'Simpan'; }
-}
-function renderMasterDepts() { document.getElementById('deptList').innerHTML = (masterData?.departments || []).map(x => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--glass-border)"><span>${x.name}</span><button class="btn-icon-only" style="color:var(--red-pop);" onclick="deleteDept('${x.id || x.name}')">${safeIcon('trash')}</button></div>`).join('') || '<div class="empty-state">No Data</div>'; }
-async function deleteDept(id) { if (await showCustomConfirm('Hapus', 'Yakin?')) { try { await apiPost('deleteDepartment', { id, name: id }); notify('Terhapus', 'success'); await loadMasterData(); renderMasterDepts(); initForms(); } catch (e) { notify(e.message, 'error'); } } }
 
-function editUnit(name, note, jumlah) {
-  editingUnit = name; document.getElementById('unitFormTitle').textContent = 'Ubah Unit';
-  document.getElementById('unitName').value = name; document.getElementById('unitNote').value = note || ''; document.getElementById('unitJumlah').value = jumlah || 0;
-  document.getElementById('unitSaveBtn').textContent = 'Update'; document.getElementById('unitCancelBtn').style.display = 'inline-flex';
+function openDeptModal(isEdit = false) {
+  if (!isEdit) {
+    cancelEditDept();
+  }
+  const modal = document.getElementById('deptModal');
+  if (modal) {
+    modal.style.display = 'flex';
+  }
+  setTimeout(() => {
+    const input = document.getElementById('deptName');
+    if (input) input.focus();
+  }, 100);
 }
+
+function closeDeptModal() {
+  const modal = document.getElementById('deptModal');
+  if (modal) modal.style.display = 'none';
+  cancelEditDept();
+}
+
+function cancelEditDept() {
+  editingDept = null;
+  const title = document.getElementById('deptFormTitle');
+  if (title) title.textContent = 'Tambah Departemen';
+  const nameInput = document.getElementById('deptName');
+  if (nameInput) nameInput.value = '';
+  const saveBtn = document.getElementById('deptSaveBtn');
+  if (saveBtn) saveBtn.textContent = 'Simpan';
+}
+
+async function saveDeptForm() {
+  const name = document.getElementById('deptName').value.trim();
+  if (!name) { notify('Isi Nama Bidang / Departemen!', 'error'); return; }
+  const btn = document.getElementById('deptSaveBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...'; }
+  try {
+    await apiPost('saveDepartment', { id: editingDept, name });
+    notify(editingDept ? 'Departemen berhasil diperbarui' : 'Departemen berhasil disimpan', 'success');
+    closeDeptModal();
+    await loadMasterData();
+    renderMasterDepts();
+    initForms();
+  } catch (e) {
+    notify(e.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = editingDept ? 'Update' : 'Simpan';
+    }
+  }
+}
+
+function editDept(id, name) {
+  editingDept = id;
+  const title = document.getElementById('deptFormTitle');
+  if (title) title.textContent = 'Ubah Departemen';
+  document.getElementById('deptName').value = name;
+  const saveBtn = document.getElementById('deptSaveBtn');
+  if (saveBtn) saveBtn.textContent = 'Update';
+  openDeptModal(true);
+}
+
+function renderMasterDepts() {
+  const listEl = document.getElementById('deptList');
+  if (!listEl) return;
+  const depts = masterData?.departments || [];
+
+  if (depts.length === 0) {
+    listEl.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text3);">Belum ada departemen terdaftar. Klik tombol "+ Tambah Departemen" untuk menambahkan.</div>';
+  } else {
+    listEl.innerHTML = depts.map((x, i) => {
+      const escapedName = (x.name || '').replace(/'/g, "\\'");
+      const escapedId = (x.id || x.name || '').replace(/'/g, "\\'");
+
+      return `
+        <div class="unit-item-card">
+          <div style="display:flex; align-items:center; gap:12px; min-width:0; flex:1;">
+            <div class="unit-number-badge">${i + 1}</div>
+            <div style="min-width:0; flex:1;">
+              <div style="font-weight:600; font-size:14.5px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(x.name || '')}">
+                ${x.name || '-'}
+              </div>
+              <div style="margin-top:4px;">
+                <span style="font-size:11.5px; color:var(--text3);">Departemen Pelayanan</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; margin-left:12px;">
+            <button class="btn-icon-only" title="Ubah Departemen" onclick="editDept('${escapedId}', '${escapedName}')">${safeIcon('edit')}</button>
+            <button class="btn-icon-only" style="color:var(--red-pop);" title="Hapus Departemen" onclick="deleteDept('${escapedId}')">${safeIcon('trash')}</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  const elTotal = document.getElementById('summaryTotalDepts');
+  if (elTotal) elTotal.textContent = depts.length;
+}
+
+async function deleteDept(id) {
+  if (await showCustomConfirm('Hapus Departemen', 'Yakin ingin menghapus departemen ini?')) {
+    try {
+      await apiPost('deleteDepartment', { id, name: id });
+      notify('Departemen terhapus', 'success');
+      await loadMasterData();
+      renderMasterDepts();
+      initForms();
+    } catch (e) {
+      notify(e.message, 'error');
+    }
+  }
+}
+
+function openUnitModal(isEdit = false) {
+  if (!isEdit) {
+    cancelEditUnit();
+  }
+  const modal = document.getElementById('unitModal');
+  if (modal) {
+    modal.style.display = 'flex';
+  }
+  setTimeout(() => {
+    const input = document.getElementById('unitName');
+    if (input) input.focus();
+  }, 50);
+}
+
+function closeUnitModal() {
+  const modal = document.getElementById('unitModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+  cancelEditUnit();
+}
+
+function editUnit(name, note, jumlah, id) {
+  editingUnit = name;
+  editingUnitId = id || null;
+  const title = document.getElementById('unitFormTitle');
+  if (title) title.textContent = 'Ubah Unit / Sektor';
+  const nameEl = document.getElementById('unitName');
+  if (nameEl) nameEl.value = name;
+  const noteEl = document.getElementById('unitNote');
+  if (noteEl) noteEl.value = note || '';
+  const jumlahEl = document.getElementById('unitJumlah');
+  if (jumlahEl) jumlahEl.value = jumlah || 0;
+  const saveBtn = document.getElementById('unitSaveBtn');
+  if (saveBtn) saveBtn.textContent = 'Update';
+  openUnitModal(true);
+}
+
 function cancelEditUnit() {
-  editingUnit = null; document.getElementById('unitFormTitle').textContent = 'Tambah Unit';
-  document.getElementById('unitName').value = ''; document.getElementById('unitNote').value = ''; document.getElementById('unitJumlah').value = '';
-  document.getElementById('unitSaveBtn').textContent = 'Simpan'; document.getElementById('unitCancelBtn').style.display = 'none';
+  editingUnit = null;
+  editingUnitId = null;
+  const title = document.getElementById('unitFormTitle');
+  if (title) title.textContent = 'Tambah Unit / Sektor';
+  const nameEl = document.getElementById('unitName');
+  if (nameEl) nameEl.value = '';
+  const noteEl = document.getElementById('unitNote');
+  if (noteEl) noteEl.value = '';
+  const jumlahEl = document.getElementById('unitJumlah');
+  if (jumlahEl) jumlahEl.value = '';
+  const saveBtn = document.getElementById('unitSaveBtn');
+  if (saveBtn) saveBtn.textContent = 'Simpan';
 }
+
 async function saveUnitForm() {
-  const name = document.getElementById('unitName').value.trim(); const note = document.getElementById('unitNote').value.trim(); const jumlah = parseInt(document.getElementById('unitJumlah').value) || 0; if (!name) { notify('Lengkapi ID & Nama!', 'error'); return; }
-  const btn = document.getElementById('unitSaveBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
-  try { await apiPost('saveUnit', { name, note, jumlah_anggota: jumlah, oldName: editingUnit, isUpdate: !!editingUnit }); notify('Berhasil', 'success'); cancelEditUnit(); await loadMasterData(); renderMasterUnits(); initForms(); }
-  catch (e) { notify(e.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = 'Simpan'; }
+  const nameInput = document.getElementById('unitName');
+  const noteInput = document.getElementById('unitNote');
+  const jumlahInput = document.getElementById('unitJumlah');
+  const name = nameInput ? nameInput.value.trim() : '';
+  const note = noteInput ? noteInput.value.trim() : '';
+  const jumlah = parseInt(jumlahInput ? jumlahInput.value : 0) || 0;
+  if (!name) { notify('Lengkapi Nama Unit!', 'error'); return; }
+  const btn = document.getElementById('unitSaveBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
+  }
+  try {
+    await apiPost('saveUnit', {
+      id: editingUnitId,
+      name,
+      note,
+      jumlah_anggota: jumlah,
+      oldName: editingUnit,
+      isUpdate: !!editingUnit
+    });
+    notify(editingUnit ? 'Unit berhasil diperbarui' : 'Unit berhasil disimpan', 'success');
+    closeUnitModal();
+    await loadMasterData();
+    renderMasterUnits();
+    initForms();
+  } catch (e) {
+    notify(e.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = editingUnit ? 'Update' : 'Simpan';
+    }
+  }
 }
+
 function renderMasterUnits() {
-  document.getElementById('unitList').innerHTML = (masterData?.units || []).map((x, i) => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--glass-border)"><div style="display: flex; gap: 10px;"><div>${i + 1}.</div><div><strong>${x.name}</strong>${x.jumlah_anggota ? `<br><small style="color:var(--text3)">${x.jumlah_anggota} Jiwa</small>` : ''}</div></div><div style="display:flex; gap:6px;"><button class="btn-icon-only" onclick="editUnit('${x.name.replace(/'/g, "\\'")}', '${(x.note || '').replace(/'/g, "\\'")}', ${x.jumlah_anggota || 0})">${safeIcon('edit')}</button><button class="btn-icon-only" style="color:var(--red-pop);" onclick="deleteUnit('${x.name.replace(/'/g, "\\'")}')">${safeIcon('trash')}</button></div></div>`).join('') || '<div class="empty-state">No Data</div>';
+  const units = masterData?.units || [];
+  const listEl = document.getElementById('unitList');
+  if (!listEl) return;
+
+  if (units.length === 0) {
+    listEl.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text3);">Belum ada unit terdaftar. Klik tombol "+ Tambah Unit" untuk menambahkan.</div>';
+  } else {
+    listEl.innerHTML = units.map((x, i) => {
+      const escapedName = (x.name || '').replace(/'/g, "\\'");
+      const escapedNote = (x.note || '').replace(/'/g, "\\'");
+      const escapedId = (x.id || '').replace(/'/g, "\\'");
+      const jumlahAnggota = parseInt(x.jumlah_anggota) || 0;
+
+      return `
+        <div class="unit-item-card">
+          <div style="display:flex; align-items:center; gap:12px; min-width:0; flex:1;">
+            <div class="unit-number-badge">${i + 1}</div>
+            <div style="min-width:0; flex:1;">
+              <div style="font-weight:600; font-size:14.5px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(x.name || '')}">
+                ${x.name || '-'}
+              </div>
+              <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:4px;">
+                <span class="unit-jiwa-badge">
+                  ${safeIcon('users', 'lucide-xs')}
+                  <span>${jumlahAnggota} Jiwa</span>
+                </span>
+                ${x.note ? `<span class="unit-note-text" title="${(x.note || '')}">${x.note}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; margin-left:12px;">
+            <button class="btn-icon-only" title="Ubah Unit" onclick="editUnit('${escapedName}', '${escapedNote}', ${jumlahAnggota}, '${escapedId}')">${safeIcon('edit')}</button>
+            <button class="btn-icon-only" style="color:var(--red-pop);" title="Hapus Unit" onclick="deleteUnit('${escapedName}', '${escapedId}')">${safeIcon('trash')}</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
   const elUnits = document.getElementById('summaryTotalUnits');
   const elAnggota = document.getElementById('summaryTotalAnggota');
   if (elUnits && elAnggota) {
-    elUnits.textContent = (masterData?.units || []).length;
-    elAnggota.textContent = (masterData?.units || []).reduce((acc, u) => acc + (parseInt(u.jumlah_anggota) || 0), 0);
+    elUnits.textContent = units.length;
+    elAnggota.textContent = units.reduce((acc, u) => acc + (parseInt(u.jumlah_anggota) || 0), 0);
   }
 }
-async function deleteUnit(name) { if (await showCustomConfirm('Hapus', `Yakin?`)) { try { await apiPost('deleteUnit', { name }); notify('Terhapus', 'success'); await loadMasterData(); renderMasterUnits(); initForms(); } catch (e) { notify(e.message, 'error'); } } }
+async function deleteUnit(name, id) {
+  if (await showCustomConfirm('Hapus Unit', `Yakin ingin menghapus unit ${name}?`)) {
+    try {
+      await apiPost('deleteUnit', { name, id });
+      notify('Unit terhapus', 'success');
+      await loadMasterData();
+      renderMasterUnits();
+      initForms();
+    } catch (e) {
+      notify(e.message, 'error');
+    }
+  }
+}
 async function updateMyAccount() {
   const newUsername = document.getElementById('myNewUsername').value.trim();
   const p1 = document.getElementById('myNewPassword').value;
@@ -6238,36 +6600,132 @@ async function updateMyAccount() {
 }
 
 /* ======== USER MANAGEMENT ======== */
-function editUser(username, nama, role) {
-  editingUser = username; document.getElementById('userFormTitle').textContent = 'Ubah Akun';
-  document.getElementById('userName').value = username; document.getElementById('userName').disabled = true;
-  document.getElementById('userFullName').value = nama; document.getElementById('userPassword').value = '';
-  const rolesArray = (role || '').split(',').map(r => r.trim());
-  document.querySelectorAll('input[name="userRoleChk"]').forEach(chk => { chk.checked = rolesArray.includes(chk.value); });
-  const boundUnits = getUserUnits(username);
-  document.querySelectorAll('.userUnitCheck').forEach(chk => { chk.checked = boundUnits.includes(chk.value); });
-  document.getElementById('saveUserBtn').innerHTML = 'Update'; document.getElementById('cancelEditUserBtn').style.display = 'inline-flex';
+let cachedUsersList = [];
+let currentUsersSort = 'name_asc';
+let currentUsersQuery = '';
+let originalUserPassword = '';
+
+function getUserInitials(name) {
+  if (!name) return 'U';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.substring(0, 2).toUpperCase();
 }
+
+function openUserModal(isEdit = false) {
+  if (!isEdit) {
+    cancelEditUser();
+  }
+  const modal = document.getElementById('userModal');
+  if (modal) {
+    modal.style.display = 'flex';
+  }
+  setTimeout(() => {
+    const input = document.getElementById(isEdit ? 'userFullName' : 'userName');
+    if (input) input.focus();
+  }, 50);
+}
+
+function closeUserModal() {
+  const modal = document.getElementById('userModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+  cancelEditUser();
+}
+
+function editUser(username, nama, role, password = null) {
+  editingUser = username;
+  const title = document.getElementById('userFormTitle');
+  if (title) title.textContent = 'Ubah Akun';
+  const unameInput = document.getElementById('userName');
+  if (unameInput) {
+    unameInput.value = username;
+    unameInput.disabled = true;
+  }
+  const nameInput = document.getElementById('userFullName');
+  if (nameInput) nameInput.value = nama;
+
+  let currentPw = password;
+  if (!currentPw) {
+    const userObj = cachedUsersList.find(u => u.username === username);
+    if (userObj) currentPw = userObj.password;
+  }
+  originalUserPassword = currentPw || '';
+
+  const pwInput = document.getElementById('userPassword');
+  if (pwInput) {
+    pwInput.value = currentPw || '';
+    pwInput.dispatchEvent(new Event('input'));
+  }
+
+  const rolesArray = (role || '').split(',').map(r => r.trim());
+  document.querySelectorAll('input[name="userRoleChk"]').forEach(chk => {
+    chk.checked = rolesArray.includes(chk.value);
+  });
+
+  const boundUnits = getUserUnits(username);
+  document.querySelectorAll('.userUnitCheck').forEach(chk => {
+    chk.checked = boundUnits.includes(chk.value);
+  });
+
+  const saveBtn = document.getElementById('saveUserBtn');
+  if (saveBtn) saveBtn.innerHTML = 'Update';
+  const cancelBtn = document.getElementById('cancelEditUserBtn');
+  if (cancelBtn) cancelBtn.style.display = 'inline-flex';
+
+  openUserModal(true);
+}
+
 function cancelEditUser() {
-  editingUser = null; document.getElementById('userFormTitle').textContent = 'Tambah User';
-  document.getElementById('userName').value = ''; document.getElementById('userName').disabled = false;
-  document.getElementById('userFullName').value = ''; document.getElementById('userPassword').value = '';
+  editingUser = null;
+  originalUserPassword = '';
+  const title = document.getElementById('userFormTitle');
+  if (title) title.textContent = 'Tambah User';
+  const unameInput = document.getElementById('userName');
+  if (unameInput) {
+    unameInput.value = '';
+    unameInput.disabled = false;
+  }
+  const nameInput = document.getElementById('userFullName');
+  if (nameInput) nameInput.value = '';
+  const pwInput = document.getElementById('userPassword');
+  if (pwInput) {
+    pwInput.value = '';
+    pwInput.dispatchEvent(new Event('input'));
+  }
+
   document.querySelectorAll('input[name="userRoleChk"]').forEach(chk => chk.checked = false);
   const viewChk = document.querySelector('input[name="userRoleChk"][value="Viewer"]');
   if (viewChk) viewChk.checked = true;
+
   document.querySelectorAll('.userUnitCheck').forEach(chk => chk.checked = false);
-  document.getElementById('saveUserBtn').innerHTML = 'Simpan'; document.getElementById('cancelEditUserBtn').style.display = 'none';
+
+  const saveBtn = document.getElementById('saveUserBtn');
+  if (saveBtn) saveBtn.innerHTML = 'Simpan';
 }
+
 async function saveUserForm() {
-  const username = document.getElementById('userName').value.trim(); const nama = document.getElementById('userFullName').value.trim(); const password = document.getElementById('userPassword').value;
+  const username = document.getElementById('userName').value.trim();
+  const nama = document.getElementById('userFullName').value.trim();
+  const password = document.getElementById('userPassword').value;
   const roleChecks = document.querySelectorAll('input[name="userRoleChk"]:checked');
   const role = Array.from(roleChecks).map(chk => chk.value).join(', ');
   const unitChecks = document.querySelectorAll('.userUnitCheck:checked');
   const unitsArray = Array.from(unitChecks).map(chk => chk.value);
+
   if (!username || !role) { notify('Lengkapi data wajib!', 'error'); return; }
-  if (password) { const pwErr = validatePassword(password); if (pwErr) { notify('Sandi tidak valid: ' + pwErr, 'error'); return; } }
+  if (password && (!editingUser || password !== originalUserPassword)) {
+    const pwErr = validatePassword(password);
+    if (pwErr) { notify('Sandi tidak valid: ' + pwErr, 'error'); return; }
+  }
   if (!editingUser && !password) { notify('Password wajib diisi untuk user baru!', 'error'); return; }
-  const btn = document.getElementById('saveUserBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
+
+  const btn = document.getElementById('saveUserBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span> Proses...';
+  }
   try {
     await apiPost('saveUser', { username, nama, role, password, isUpdate: !!editingUser });
 
@@ -6284,35 +6742,161 @@ async function saveUserForm() {
     }
     await apiPostWithFallback('saveConfig', { key: 'userUnits', value: JSON.stringify(systemConfig.userUnits) });
 
-    notify('Berhasil', 'success'); cancelEditUser(); renderUsers();
+    notify('Berhasil', 'success');
+    closeUserModal();
+    renderUsers();
+  } catch (e) {
+    notify(e.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = editingUser ? 'Update' : 'Simpan';
+    }
   }
-  catch (e) { notify(e.message, 'error'); } finally { btn.disabled = false; btn.innerHTML = editingUser ? 'Update' : 'Simpan'; }
 }
+
+function handleUserSort(sortKey) {
+  currentUsersSort = sortKey;
+  renderUserCards();
+}
+
+function handleUserSearch(query) {
+  currentUsersQuery = (query || '').toLowerCase().trim();
+  renderUserCards();
+}
+
+function renderUserCards() {
+  const listEl = document.getElementById('userList');
+  if (!listEl) return;
+
+  let list = [...cachedUsersList];
+
+  // Filter
+  if (currentUsersQuery) {
+    list = list.filter(u =>
+      (u.nama || '').toLowerCase().includes(currentUsersQuery) ||
+      (u.username || '').toLowerCase().includes(currentUsersQuery) ||
+      (u.role || '').toLowerCase().includes(currentUsersQuery)
+    );
+  }
+
+  // Sort
+  list.sort((a, b) => {
+    switch (currentUsersSort) {
+      case 'name_desc':
+        return (b.nama || '').localeCompare(a.nama || '');
+      case 'user_asc':
+        return (a.username || '').localeCompare(b.username || '');
+      case 'user_desc':
+        return (b.username || '').localeCompare(a.username || '');
+      case 'role_asc': {
+        const rolePriority = (rStr) => {
+          const r = (rStr || '').toLowerCase();
+          if (r.includes('admin')) return 1;
+          if (r.includes('bendahara')) return 2;
+          if (r.includes('ketua')) return 3;
+          if (r.includes('pendeta')) return 4;
+          if (r.includes('diakon')) return 5;
+          if (r.includes('viewer')) return 6;
+          return 7;
+        };
+        const diff = rolePriority(a.role) - rolePriority(b.role);
+        return diff !== 0 ? diff : (a.nama || '').localeCompare(b.nama || '');
+      }
+      case 'units_desc': {
+        const uA = getUserUnits(a.username).length;
+        const uB = getUserUnits(b.username).length;
+        return uB - uA || (a.nama || '').localeCompare(b.nama || '');
+      }
+      case 'name_asc':
+      default:
+        return (a.nama || '').localeCompare(b.nama || '');
+    }
+  });
+
+  const summaryEl = document.getElementById('summaryTotalUsers');
+  if (summaryEl) {
+    summaryEl.textContent = cachedUsersList.length;
+  }
+
+  if (list.length === 0) {
+    listEl.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text3);">Tidak ada pengguna yang cocok.</div>';
+    return;
+  }
+
+  listEl.innerHTML = list.map(x => {
+    const uUnit = getUserUnits(x.username);
+    const escapedUname = (x.username || '').replace(/'/g, "\\'");
+    const escapedNama = (x.nama || '').replace(/'/g, "\\'");
+    const escapedRole = (x.role || '').replace(/'/g, "\\'");
+    const escapedPw = (x.password || '').replace(/'/g, "\\'");
+    const initials = getUserInitials(x.nama || x.username);
+
+    return `
+      <div class="user-item-card">
+        <div style="display:flex; align-items:flex-start; gap:14px; min-width:0; flex:1;">
+          <div class="user-avatar-badge">${initials}</div>
+          <div style="min-width:0; flex:1;">
+            <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;">
+              <span style="font-weight:700; font-size:15px; color:var(--text); line-height:1.2;">${x.nama || '-'}</span>
+              <span class="user-username-tag">@${x.username}</span>
+            </div>
+            
+            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:6px;">
+              <span class="user-pw-chip" title="Password Akun">
+                <span style="font-size:11px; opacity:0.7;">🔑</span>
+                <span style="font-family:monospace; font-size:11.5px;">${x.password || '***'}</span>
+              </span>
+            </div>
+
+            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:5px; margin-top:8px;">
+              ${(x.role || '').split(',').filter(Boolean).map(r => {
+      const rt = r.trim();
+      let badgeClass = 'badge-gray';
+      if (rt === 'Admin') badgeClass = 'badge-blue';
+      else if (rt === 'Bendahara') badgeClass = 'badge-green';
+      else if (rt === 'Ketua Jemaat' || rt === 'Pendeta') badgeClass = 'badge-purple';
+      return `<span class="badge ${badgeClass}" style="font-size:10.5px; padding:2px 7px;">${rt}</span>`;
+    }).join('')}
+              ${uUnit.map(u => `
+                <span class="badge badge-gold" style="font-size:10.5px; padding:2px 7px; display:inline-flex; align-items:center; gap:3px;" title="Terikat Unit: ${u}">
+                  ${safeIcon('users', 'lucide-xs')} ${u}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; margin-left:10px;">
+          <button class="btn-icon-only" title="Ubah User" onclick="editUser('${escapedUname}', '${escapedNama}', '${escapedRole}', '${escapedPw}')">${safeIcon('edit')}</button>
+          ${x.username === 'admin' ? '' : `<button class="btn-icon-only" style="color:var(--red-pop);" title="Hapus User" onclick="deleteUser('${escapedUname}')">${safeIcon('trash')}</button>`}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 async function renderUsers() {
   try {
     const res = await apiGet('getUsers');
-    document.getElementById('userList').innerHTML = (res.data || []).map(x => {
-      const uUnit = getUserUnits(x.username);
-      return `
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; padding:16px 20px; border-bottom:1px solid var(--glass-border)">
-          <div style="display:flex; flex-direction:column; gap:6px; flex:1; min-width:200px;">
-            <div style="font-weight:700; font-size:15px; color:var(--text); line-height:1.2;">${x.nama}</div>
-            <div style="font-size:12px; color:var(--text3); display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:2px;">
-              <span style="font-family:monospace; color:var(--text2); background:var(--badge-gray-bg); padding:2px 6px; border-radius:4px; word-break:break-all;">@${x.username}</span>
-              <span style="font-family:monospace; color:var(--text); background:var(--glass-bg); border:1px solid var(--glass-border); padding:2px 6px; border-radius:4px; word-break:break-all;" title="Password Saat Ini">🔑 ${x.password || '***'}</span>
-              ${(x.role || '').split(',').map(r => `<span class="badge ${r.trim() === 'Admin' ? 'badge-blue' : (r.trim() === 'Bendahara' ? 'badge-green' : 'badge-gray')}" style="font-size:10px;">${r.trim()}</span>`).join(' ')}
-              ${uUnit.map(u => `<span class="badge badge-gold" style="font-size:10px;" title="Terikat dengan Unit">${u}</span>`).join(' ')}
-            </div>
-          </div>
-          <div style="display:flex; gap:8px;">
-            <button class="btn-icon-only" style="background:var(--input-bg); border:1px solid var(--glass-border);" onclick="editUser('${x.username}', '${x.nama}', '${x.role}')">${safeIcon('edit')}</button>
-            ${x.username === 'admin' ? '' : `<button class="btn-icon-only" style="background:var(--input-bg); border:1px solid var(--glass-border); color:var(--red-pop);" onclick="deleteUser('${x.username}')">${safeIcon('trash')}</button>`}
-          </div>
-        </div>`;
-    }).join('') || '<div class="empty-state">No Data</div>';
-  } catch (e) { }
+    cachedUsersList = res.data || [];
+    renderUserCards();
+  } catch (e) {
+    notify('Gagal memuat pengguna: ' + e.message, 'error');
+  }
 }
-async function deleteUser(username) { if (await showCustomConfirm('Hapus', `Yakin?`)) { try { await apiPost('deleteRecord', { type: 'users', transaction_id: username }); notify('Terhapus', 'success'); renderUsers(); } catch (e) { notify(e.message, 'error'); } } }
+
+async function deleteUser(username) {
+  if (await showCustomConfirm('Hapus User', `Yakin ingin menghapus user @${username}?`)) {
+    try {
+      await apiPost('deleteRecord', { type: 'users', transaction_id: username });
+      notify('Terhapus', 'success');
+      renderUsers();
+    } catch (e) {
+      notify(e.message, 'error');
+    }
+  }
+}
 
 const LOG_ACTION_LABELS = {
   'LOGIN': { label: 'Login', color: 'badge-blue' },
@@ -6736,7 +7320,29 @@ function generatePembangunanReportHtml(data, isExcel = false) {
 function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
 function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
 
+function toggleSidebarPin() {
+  const isPinned = document.body.classList.toggle('sidebar-pinned');
+  localStorage.setItem('pisgah_sidebar_pinned', isPinned ? 'true' : 'false');
+  updatePinButtonState();
+}
+
+function updatePinButtonState() {
+  const btn = document.getElementById('btnPinSidebar');
+  if (!btn) return;
+  const isPinned = document.body.classList.contains('sidebar-pinned');
+  btn.classList.toggle('active', isPinned);
+  btn.title = isPinned ? 'Lepas Kunci Sidebar (Mode Mini)' : 'Kunci Sidebar (Tetap Terbuka)';
+}
+window.toggleSidebarPin = toggleSidebarPin;
+window.updatePinButtonState = updatePinButtonState;
+
 window.onload = async () => {
+  try {
+    if (localStorage.getItem('pisgah_sidebar_pinned') === 'true' && window.innerWidth > 1100) {
+      document.body.classList.add('sidebar-pinned');
+    }
+  } catch (e) { }
+  updatePinButtonState();
   const urlParams = new URLSearchParams(window.location.search);
   const printId = urlParams.get('print');
   const searchQuery = urlParams.get('search');
@@ -7141,9 +7747,26 @@ window.calculateExtendedBalances = calculateExtendedBalances;
 window.loadSystemConfig = loadSystemConfig;
 window.deleteUnit = deleteUnit;
 window.editUnit = editUnit;
+window.openUnitModal = openUnitModal;
+window.closeUnitModal = closeUnitModal;
+window.openIncTypeModal = openIncTypeModal;
+window.closeIncTypeModal = closeIncTypeModal;
+window.editIncType = editIncType;
+window.saveIncTypeForm = saveIncTypeForm;
+window.deleteIncType = deleteIncType;
+window.openDeptModal = openDeptModal;
+window.closeDeptModal = closeDeptModal;
+window.editDept = editDept;
+window.saveDeptForm = saveDeptForm;
+window.deleteDept = deleteDept;
 window.approveTx = approveTx;
 window.checkMonthClosed = checkMonthClosed;
 window.cancelEditUser = cancelEditUser;
+window.openUserModal = openUserModal;
+window.closeUserModal = closeUserModal;
+window.handleUserSort = handleUserSort;
+window.handleUserSearch = handleUserSearch;
+window.deleteUser = deleteUser;
 window.loadMasterData = loadMasterData;
 window.getCurrentUser = getCurrentUser;
 window.renderMutasiList = renderMutasiList;
@@ -7187,7 +7810,432 @@ window.toggleEditMode = function (containerId, btnId) {
 };
 
 // --- No. Series Config & Auto Generate ---
-function loadSeriesConfig() {
+let currentSeriesTab = 'history';
+let currentSeriesFilterCat = 'all';
+let currentSeriesSearch = '';
+let cachedSeriesHistoryData = [];
+
+const SERIES_CATEGORY_META = [
+  { id: 'Pemasukan', name: '1. Pemasukan Kas Jemaat', prefix: '', badge: 'badge-blue', icon: 'trendUp' },
+  { id: 'PemasukanPembangunan', name: '2. Pemasukan Pembangunan', prefix: 'PEMB-', badge: 'badge-gold', icon: 'hammer' },
+  { id: 'PengeluaranJemaat', name: '3. Pengeluaran Kas Jemaat', prefix: 'COST-', badge: 'badge-red', icon: 'trendDown' },
+  { id: 'PengeluaranDaerah', name: '4. Pengeluaran Daerah', prefix: 'MBR-', badge: 'badge-purple', icon: 'building' },
+  { id: 'PengeluaranPembangunan', name: '5. Pengeluaran Pembangunan', prefix: 'CP-', badge: 'badge-cyan', icon: 'church' },
+  { id: 'Mutasi', name: '6. Mutasi / Pindah Buku', prefix: 'PB-', badge: 'badge-teal', icon: 'refresh' },
+];
+
+function switchSeriesTab(tabName) {
+  currentSeriesTab = tabName;
+  const historyView = document.getElementById('seriesHistoryView');
+  const configView = document.getElementById('seriesConfigView');
+  const btnHistory = document.getElementById('tabSeriesHistoryBtn');
+  const btnConfig = document.getElementById('tabSeriesConfigBtn');
+  const btnEdit = document.getElementById('btnEditSeries');
+
+  if (tabName === 'history') {
+    if (historyView) historyView.style.display = 'block';
+    if (configView) configView.style.display = 'none';
+    if (btnHistory) btnHistory.classList.add('active');
+    if (btnConfig) btnConfig.classList.remove('active');
+    if (btnEdit) btnEdit.style.display = 'none';
+    renderSeriesHistory();
+  } else {
+    if (historyView) historyView.style.display = 'none';
+    if (configView) configView.style.display = 'block';
+    if (btnHistory) btnHistory.classList.remove('active');
+    if (btnConfig) btnConfig.classList.add('active');
+    if (btnEdit) btnEdit.style.display = 'inline-flex';
+  }
+}
+
+function handleSeriesCardClick(catId) {
+  if (currentSeriesFilterCat === catId) {
+    currentSeriesFilterCat = 'all';
+  } else {
+    currentSeriesFilterCat = catId;
+  }
+  const select = document.getElementById('seriesHistoryFilterCat');
+  if (select) select.value = currentSeriesFilterCat;
+  handleSeriesHistoryFilter(currentSeriesFilterCat);
+}
+
+function handleSeriesHistoryFilter(cat) {
+  currentSeriesFilterCat = cat;
+  document.querySelectorAll('.series-stat-card').forEach(card => {
+    if (card.dataset.cat === cat) card.classList.add('active');
+    else card.classList.remove('active');
+  });
+  renderSeriesHistoryTable();
+}
+
+function handleSeriesHistorySearch(val) {
+  currentSeriesSearch = (val || '').toLowerCase().trim();
+  renderSeriesHistoryTable();
+}
+
+function isTxInPeriod(tx, yearInt, monthInt) {
+  if (tx.year && tx.month) {
+    if (parseInt(tx.year) === yearInt && parseInt(tx.month) === monthInt) return true;
+  }
+  const dateStr = String(tx.date || '').trim();
+  if (!dateStr) return false;
+  const target1 = `${yearInt}-${String(monthInt).padStart(2, '0')}`;
+  const target2 = `${yearInt}-${monthInt}`;
+  if (dateStr.startsWith(target1) || dateStr.startsWith(target2)) return true;
+  const d = new Date(dateStr);
+  if (!isNaN(d.getTime())) {
+    if (d.getFullYear() === yearInt && (d.getMonth() + 1) === monthInt) return true;
+  }
+  return false;
+}
+
+function detectSeriesCat(tx, isInc) {
+  const rNo = String(tx.receipt_no || '').trim().toUpperCase();
+  const dept = String(tx.department || '').toLowerCase().trim();
+  const incType = String(tx.income_type || '').toLowerCase().trim();
+  const srcBal = String(tx.source_balance || '').toLowerCase().trim();
+
+  // 1. Mutasi / Pindah Buku (prefix PB- or PB, or dept mutasi / setor bank / pindah buku)
+  if (
+    rNo.startsWith('PB-') ||
+    rNo.startsWith('PB') ||
+    dept === 'mutasi kas / setor bank' ||
+    dept.includes('mutasi') ||
+    dept.includes('setor bank') ||
+    dept.includes('pindah buku')
+  ) {
+    return 'Mutasi';
+  }
+
+  // 2. Pemasukan
+  if (isInc) {
+    if (rNo.startsWith('PEMB-') || rNo.startsWith('PEMB') || incType.includes('pembangunan')) {
+      return 'PemasukanPembangunan';
+    }
+    return 'Pemasukan';
+  }
+
+  // 3. Pengeluaran
+  if (rNo.startsWith('CP-') || rNo.startsWith('CP') || srcBal.includes('pembangunan')) {
+    return 'PengeluaranPembangunan';
+  }
+  if (rNo.startsWith('MBR-') || rNo.startsWith('MBR') || srcBal.includes('daerah')) {
+    return 'PengeluaranDaerah';
+  }
+  return 'PengeluaranJemaat';
+}
+
+async function renderSeriesHistory() {
+  const monthSelect = document.getElementById('seriesMonth');
+  const yearSelect = document.getElementById('seriesYear');
+  if (!monthSelect || !yearSelect) return;
+
+  const month = monthSelect.value;
+  const year = yearSelect.value;
+  const yearInt = parseInt(year);
+  const monthInt = parseInt(month);
+  const key = `${year}-${month.padStart(2, '0')}`;
+  const yy = String(yearInt).slice(-2);
+  const mm = String(monthInt).padStart(2, '0');
+  const monthNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  const periodLabel = `${monthNames[monthInt] || month} ${year}`;
+
+  const formatCatNum = (cId, n) => {
+    if (n === null || n === undefined) return '';
+    if (cId === 'Mutasi') {
+      return `PB-${yy}${mm}${String(n).padStart(2, '0')}`;
+    }
+    const m = SERIES_CATEGORY_META.find(x => x.id === cId);
+    return `${m ? m.prefix : ''}${n}`;
+  };
+
+  const subtitleEl = document.getElementById('seriesHistorySubtitle');
+  if (subtitleEl) subtitleEl.textContent = `Periode: ${periodLabel}`;
+
+  if ((!window.cachedIncome || window.cachedIncome.length === 0) && (!window.cachedExpense || window.cachedExpense.length === 0)) {
+    if (typeof loadAllTransactions === 'function') {
+      await loadAllTransactions();
+    }
+  }
+
+  const allInc = window.cachedIncome || [];
+  const allExp = window.cachedExpense || [];
+
+  const receiptMap = {};
+
+  const processTx = (tx, isInc) => {
+    if (!isTxInPeriod(tx, yearInt, monthInt)) return;
+    const rNo = String(tx.receipt_no || '').trim();
+    if (!rNo || rNo === '-' || rNo === 'SALDO_AWAL') return;
+
+    const catId = detectSeriesCat(tx, isInc);
+
+    if (!receiptMap[rNo]) {
+      receiptMap[rNo] = {
+        receipt_no: rNo,
+        catId: catId,
+        date: tx.date,
+        type: isInc ? 'income' : (catId === 'Mutasi' ? 'mutasi' : 'expense'),
+        name: isInc ? (tx.nama || tx.nama_pemberi || tx.name || 'Jemaat') : (tx.description || tx.uraian || tx.note || tx.department || (catId === 'Mutasi' ? 'Setoran Kas ke Bank' : 'Pengeluaran Kas')),
+        amount: 0,
+        itemsCount: 0,
+        rawTx: tx
+      };
+    } else {
+      if (catId === 'Mutasi') {
+        receiptMap[rNo].catId = 'Mutasi';
+        receiptMap[rNo].type = 'mutasi';
+      }
+    }
+    receiptMap[rNo].amount += parseFloat(tx.amount || 0);
+    receiptMap[rNo].itemsCount += 1;
+  };
+
+  allInc.forEach(tx => processTx(tx, true));
+  allExp.forEach(tx => processTx(tx, false));
+
+  const allReceipts = Object.values(receiptMap);
+
+  if (typeof systemConfig.receipt_series === 'string') {
+    try { systemConfig.receipt_series = JSON.parse(systemConfig.receipt_series); } catch (e) { systemConfig.receipt_series = {}; }
+  }
+  const seriesCfg = (systemConfig.receipt_series && systemConfig.receipt_series[key]) || {};
+
+  const catStats = {};
+  SERIES_CATEGORY_META.forEach(meta => {
+    const catId = meta.id;
+    const prefix = meta.prefix;
+    const cfg = seriesCfg[catId] || {};
+    const catReceipts = allReceipts.filter(r => r.catId === catId);
+
+    const numList = [];
+    catReceipts.forEach(r => {
+      let rStr = String(r.receipt_no || '').trim().toUpperCase();
+      let num = -1;
+
+      if (catId === 'Mutasi') {
+        const targetPrefix = `PB-${yy}${mm}`;
+        if (rStr.startsWith(targetPrefix)) {
+          const part = rStr.substring(targetPrefix.length).replace(/\D/g, '');
+          if (part) num = parseInt(part);
+        } else if (rStr.startsWith('PB-') || rStr.startsWith('PB')) {
+          const digits = rStr.replace(/\D/g, '');
+          if (digits.length >= 6 && digits.startsWith(`${yy}${mm}`)) {
+            num = parseInt(digits.substring(4));
+          } else if (digits.length > 0 && digits.length <= 4) {
+            num = parseInt(digits);
+          }
+        }
+      } else if (!prefix) {
+        const digits = rStr.replace(/\D/g, '');
+        if (digits) num = parseInt(digits);
+      } else {
+        const uPrefix = prefix.toUpperCase();
+        if (rStr.startsWith(uPrefix)) {
+          const part = rStr.substring(uPrefix.length).trim();
+          const digits = part.replace(/\D/g, '');
+          if (digits) num = parseInt(digits);
+        } else {
+          const digits = rStr.replace(/^[A-Z\s\-_/]+/, '').replace(/\D/g, '');
+          if (digits) num = parseInt(digits);
+        }
+      }
+      if (num !== -1) {
+        r._num = num;
+        if (!numList.includes(num)) numList.push(num);
+      } else {
+        r._num = 0;
+      }
+    });
+
+    numList.sort((a, b) => a - b);
+    const minNum = numList.length > 0 ? numList[0] : null;
+    const maxNum = numList.length > 0 ? numList[numList.length - 1] : null;
+
+    const usedSet = new Set(numList);
+    const gaps = [];
+    if (minNum !== null && maxNum !== null) {
+      for (let n = minNum; n <= maxNum; n++) {
+        if (!usedSet.has(n)) {
+          gaps.push(n);
+        }
+      }
+    }
+
+    catStats[catId] = {
+      meta,
+      cfg,
+      receipts: catReceipts,
+      numList,
+      minNum,
+      maxNum,
+      gaps,
+      totalCount: catReceipts.length,
+      distinctCount: numList.length,
+      totalAmount: catReceipts.reduce((acc, r) => acc + r.amount, 0)
+    };
+
+    const lastEl = document.getElementById(`series_${catId}_last`);
+    if (lastEl) {
+      if (numList.length === 0) {
+        lastEl.innerHTML = `No. Terpakai Bulan Ini: <strong style="color:var(--text3)">Belum ada</strong>`;
+      } else {
+        const usedStr = numList.map(n => formatCatNum(catId, n)).join(', ');
+        const gapInfo = gaps.length > 0 ? `<div style="color:var(--red-pop); font-size:11.5px; margin-top:4px; font-weight:600;">⚠️ Ada ${gaps.length} nomor terlewat: ${gaps.map(g => formatCatNum(catId, g)).join(', ')}</div>` : '';
+        lastEl.innerHTML = `
+          <div>No. Terpakai Bulan Ini: <strong style="color:var(--primary); font-weight:700;">${formatCatNum(catId, minNum)}</strong> s/d <strong style="color:var(--primary); font-weight:700;">${formatCatNum(catId, maxNum)}</strong> (${numList.length} nomor)</div>
+          <div style="color:var(--text3); font-size:11px; margin-top:4px; max-height:45px; overflow-y:auto; word-break:break-all;">${usedStr}</div>
+          ${gapInfo}
+        `;
+      }
+    }
+  });
+
+  cachedSeriesHistoryData = allReceipts;
+
+  // Render Summary Cards
+  const cardsContainer = document.getElementById('seriesSummaryCards');
+  if (cardsContainer) {
+    cardsContainer.innerHTML = SERIES_CATEGORY_META.map(meta => {
+      const stat = catStats[meta.id];
+      const prefix = meta.prefix;
+      const isActive = currentSeriesFilterCat === meta.id;
+
+      let rangeLabel = 'Belum diatur';
+      if (stat.cfg.start || stat.cfg.end) {
+        let s = stat.cfg.start || 1;
+        let e = stat.cfg.end || '...';
+        if (meta.id === 'Mutasi') {
+          if (typeof s === 'number' && s >= 10000) s = s % 100;
+          if (typeof e === 'number' && e >= 10000) e = e % 100;
+          rangeLabel = `${formatCatNum('Mutasi', s)} &rarr; ${e === '...' ? '...' : formatCatNum('Mutasi', e)}`;
+        } else {
+          rangeLabel = `${prefix}${s} &rarr; ${prefix}${e}`;
+        }
+      }
+
+      let issuedLabel = 'Belum ada kuitansi keluar';
+      if (stat.numList.length > 0) {
+        issuedLabel = `${formatCatNum(meta.id, stat.minNum)} &rarr; ${formatCatNum(meta.id, stat.maxNum)} (${stat.numList.length} No)`;
+      }
+
+      let statusBadge = `<span class="badge badge-gray" style="font-size:11px;">Belum Ada</span>`;
+      if (stat.numList.length > 0) {
+        if (stat.gaps.length === 0) {
+          statusBadge = `<span class="badge badge-green" style="font-size:11px;">✓ Urut Lengkap (${stat.numList.length})</span>`;
+        } else {
+          statusBadge = `<span class="badge badge-amber" style="font-size:11px;" title="Terlewat: ${stat.gaps.map(g => formatCatNum(meta.id, g)).join(', ')}">⚠️ Loncat ${stat.gaps.length} No</span>`;
+        }
+      }
+
+      return `
+        <div class="series-stat-card ${isActive ? 'active' : ''}" data-cat="${meta.id}" onclick="handleSeriesCardClick('${meta.id}')">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+              <span class="badge ${meta.badge}" style="font-size:11px; padding:3px 8px;">
+                ${meta.name}
+              </span>
+              ${statusBadge}
+            </div>
+
+            <div style="font-size:18px; font-weight:800; color:var(--text); margin-bottom:4px;">
+              ${stat.numList.length} <span style="font-size:13px; font-weight:normal; color:var(--text3);">Kuitansi Terbit</span>
+            </div>
+
+            <div style="font-size:12px; color:var(--text2); display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+              <span style="color:var(--text3);">No. Keluar:</span>
+              <strong style="color:var(--primary); font-family:monospace;">${issuedLabel}</strong>
+            </div>
+
+            <div style="font-size:11.5px; color:var(--text3);">
+              Rentang Diatur: <span style="font-family:monospace; color:var(--text2);">${rangeLabel}</span>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--glass-border); padding-top:10px; margin-top:12px; font-size:11.5px;">
+            <span style="color:var(--text3);">Total Nominal:</span>
+            <strong style="color:var(--text); font-size:12.5px;">Rp ${fmt(stat.totalAmount)}</strong>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  renderSeriesHistoryTable();
+}
+
+function renderSeriesHistoryTable() {
+  const tbody = document.getElementById('seriesHistoryTableBody');
+  if (!tbody) return;
+
+  let list = [...cachedSeriesHistoryData];
+
+  if (currentSeriesFilterCat && currentSeriesFilterCat !== 'all') {
+    list = list.filter(r => r.catId === currentSeriesFilterCat);
+  }
+
+  if (currentSeriesSearch) {
+    list = list.filter(r =>
+      r.receipt_no.toLowerCase().includes(currentSeriesSearch) ||
+      (r.name || '').toLowerCase().includes(currentSeriesSearch) ||
+      (r.date || '').toLowerCase().includes(currentSeriesSearch)
+    );
+  }
+
+  list.sort((a, b) => {
+    if (a.catId !== b.catId) return a.catId.localeCompare(b.catId);
+    return (a._num || 0) - (b._num || 0);
+  });
+
+  if (list.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center; padding:36px; color:var(--text3);">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+            <span style="font-size:24px;">🧾</span>
+            <div style="font-weight:600; font-size:14px; color:var(--text);">Tidak ada transaksi nomor seri kuitansi</div>
+            <div style="font-size:12px; color:var(--text3);">Belum ada kuitansi yang keluar dengan kriteria yang dipilih pada periode ini.</div>
+          </div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = list.map(r => {
+    const meta = SERIES_CATEGORY_META.find(m => m.id === r.catId) || { name: r.catId, badge: 'badge-gray' };
+    const dateFormatted = fmtDate(r.date);
+    const deleteId = r.rawTx ? (r.rawTx.transaction_id || r.rawTx.receipt_no || r.receipt_no) : r.receipt_no;
+    const collectivePill = r.itemsCount > 1 ? `<span class="badge badge-gray" style="font-size:10px; margin-left:6px;">Kolektif (${r.itemsCount} item)</span>` : '';
+
+    return `
+      <tr>
+        <td style="white-space:nowrap;">
+          <span style="font-family:monospace; font-size:13px; font-weight:700; color:var(--primary); background:var(--badge-gray-bg); border:1px solid var(--glass-border); padding:3px 8px; border-radius:6px;">
+            ${r.receipt_no}
+          </span>
+        </td>
+        <td style="white-space:nowrap; font-size:12.5px; color:var(--text2);">${dateFormatted}</td>
+        <td>
+          <span class="badge ${meta.badge}" style="font-size:11px; padding:2px 7px;">${meta.name}</span>
+        </td>
+        <td>
+          <div style="font-weight:600; font-size:13px; color:var(--text);">${r.name || '-'} ${collectivePill}</div>
+        </td>
+        <td style="text-align:right; font-weight:700; font-size:13px; color:var(--text); white-space:nowrap;">
+          Rp ${fmt(r.amount)}
+        </td>
+        <td style="text-align:center; white-space:nowrap;">
+          <button class="btn-icon-only" style="background:var(--input-bg); border:1px solid var(--glass-border);" title="Cetak / Lihat Kuitansi" onclick="printTransaction('${r.type}', '${deleteId}')">
+            ${safeIcon('printer', 'lucide-sm')}
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function loadSeriesConfig() {
   const month = document.getElementById('seriesMonth').value;
   const year = document.getElementById('seriesYear').value;
   const key = `${year}-${month.padStart(2, '0')}`;
@@ -7199,76 +8247,14 @@ function loadSeriesConfig() {
   const config = systemConfig.receipt_series[key] || {};
 
   const cats = ['Pemasukan', 'PemasukanPembangunan', 'PengeluaranJemaat', 'PengeluaranDaerah', 'PengeluaranPembangunan', 'Mutasi'];
-  const prefixes = {
-    'Pemasukan': '',
-    'PemasukanPembangunan': 'PEMB-',
-    'PengeluaranJemaat': 'COST-',
-    'PengeluaranDaerah': 'MBR-',
-    'PengeluaranPembangunan': 'CP-',
-    'Mutasi': 'PB-'
-  };
-
   cats.forEach(cat => {
-    document.getElementById(`series_${cat}_start`).value = config[cat] ? config[cat].start : '';
-    document.getElementById(`series_${cat}_end`).value = config[cat] ? config[cat].end : '';
-
-    // Calculate last used number
-    let maxNum = -1;
-    let usedNums = [];
-    let allTx = [];
-    if (cat.startsWith('Pemasukan')) allTx = window.cachedIncome || [];
-    else if (cat.startsWith('Pengeluaran') || cat === 'Mutasi') allTx = window.cachedExpense || [];
-
-    let prefix = prefixes[cat] || '';
-    let startNum = config[cat] && config[cat].start ? parseInt(config[cat].start) : -1;
-    let endNum = config[cat] && config[cat].end ? parseInt(config[cat].end) : null;
-
-    allTx.forEach(tx => {
-      if (!tx.date || !tx.date.startsWith(key)) return;
-      let matchCat = false;
-      if (cat === 'PemasukanPembangunan' && tx.income_type === 'Pembangunan') matchCat = true;
-      else if (cat === 'Pemasukan' && tx.income_type !== 'Pembangunan' && tx.income_type !== 'Saldo Awal Sistem') matchCat = true;
-      else if (cat === 'PengeluaranJemaat' && tx.source_balance === 'Kas Jemaat' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
-      else if (cat === 'PengeluaranDaerah' && tx.source_balance === 'Daerah' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
-      else if (cat === 'PengeluaranPembangunan' && tx.source_balance === 'Pembangunan' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
-      else if (cat === 'Mutasi' && tx.department === 'Mutasi Kas / Setor Bank') matchCat = true;
-
-      if (matchCat && tx.receipt_no) {
-        let rNumStr = String(tx.receipt_no).trim();
-        if (prefix === '') {
-          if (/^\d+$/.test(rNumStr)) {
-            let num = parseInt(rNumStr);
-            if (num >= startNum && (endNum ? num <= endNum : true)) {
-              if (num > maxNum) maxNum = num;
-              if (!usedNums.includes(num)) usedNums.push(num);
-            }
-          }
-        } else {
-          if (rNumStr.startsWith(prefix)) {
-            let numPart = rNumStr.substring(prefix.length);
-            if (/^\d+$/.test(numPart)) {
-              let num = parseInt(numPart);
-              if (num >= startNum && (endNum ? num <= endNum : true)) {
-                if (num > maxNum) maxNum = num;
-                if (!usedNums.includes(num)) usedNums.push(num);
-              }
-            }
-          }
-        }
-      }
-    });
-
-    let lastEl = document.getElementById(`series_${cat}_last`);
-    if (lastEl) {
-      if (usedNums.length === 0) {
-        lastEl.innerHTML = `No. Terpakai:<br><strong style="color:var(--text2)">Belum ada</strong>`;
-      } else {
-        usedNums.sort((a, b) => a - b);
-        let usedStr = usedNums.map(n => prefix + n).join(', ');
-        lastEl.innerHTML = `No. Terpakai:<br><div style="color:var(--text2); word-break: break-word; max-height: 80px; overflow-y: auto;"><strong>${usedStr}</strong></div>`;
-      }
-    }
+    const sEl = document.getElementById(`series_${cat}_start`);
+    const eEl = document.getElementById(`series_${cat}_end`);
+    if (sEl) sEl.value = config[cat] ? config[cat].start : '';
+    if (eEl) eEl.value = config[cat] ? config[cat].end : '';
   });
+
+  await renderSeriesHistory();
 }
 
 async function saveSeriesConfig() {
@@ -7316,7 +8302,13 @@ async function saveSeriesConfig() {
 function getNextReceiptNumber(dateStr, typeCat, prefix) {
   if (!dateStr) return { err: 'Pilih tanggal terlebih dahulu' };
   const d = new Date(dateStr);
-  const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  if (isNaN(d.getTime())) return { err: 'Pilih tanggal yang valid' };
+  const yearInt = d.getFullYear();
+  const monthInt = d.getMonth() + 1;
+  const key = `${yearInt}-${String(monthInt).padStart(2, '0')}`;
+  const yy = String(yearInt).slice(-2);
+  const mm = String(monthInt).padStart(2, '0');
+
   if (typeof systemConfig.receipt_series === 'string') {
     try { systemConfig.receipt_series = JSON.parse(systemConfig.receipt_series); } catch (e) { systemConfig.receipt_series = {}; }
   }
@@ -7324,39 +8316,58 @@ function getNextReceiptNumber(dateStr, typeCat, prefix) {
     return { err: `No. Series untuk ${typeCat} bulan ${key} belum diatur!` };
   }
   const config = systemConfig.receipt_series[key][typeCat];
-  if (!config.start) return { err: `Nomor Mulai untuk ${typeCat} bulan ${key} belum diatur!` };
+  if (!config.start && config.start !== 0) return { err: `Nomor Mulai untuk ${typeCat} bulan ${key} belum diatur!` };
+
+  let startNum = parseInt(config.start);
+  let endNum = config.end ? parseInt(config.end) : null;
+  if (typeCat === 'Mutasi') {
+    if (startNum >= 10000) startNum = startNum % 100;
+    if (endNum && endNum >= 10000) endNum = endNum % 100;
+  }
 
   let allTx = [];
   if (typeCat.startsWith('Pemasukan')) allTx = window.cachedIncome || [];
-  else if (typeCat.startsWith('Pengeluaran') || typeCat === 'Mutasi') allTx = window.cachedExpense || [];
+  else if (typeCat === 'Mutasi') allTx = [...(window.cachedExpense || []), ...(window.cachedIncome || [])];
+  else if (typeCat.startsWith('Pengeluaran')) allTx = window.cachedExpense || [];
 
   let maxNum = -1;
 
   allTx.forEach(tx => {
-    if (!tx.date || !tx.date.startsWith(key)) return;
+    if (!isTxInPeriod(tx, yearInt, monthInt)) return;
 
-    let matchCat = false;
-    const isBgnInc = (tx.income_type || '').toLowerCase().includes('pembangunan');
-    if (typeCat === 'PemasukanPembangunan' && isBgnInc) matchCat = true;
-    else if (typeCat === 'Pemasukan' && !isBgnInc && tx.income_type !== 'Saldo Awal Sistem') matchCat = true;
-    else if (typeCat === 'PengeluaranJemaat' && tx.source_balance === 'Kas Jemaat' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
-    else if (typeCat === 'PengeluaranDaerah' && tx.source_balance === 'Daerah' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
-    else if (typeCat === 'PengeluaranPembangunan' && tx.source_balance === 'Pembangunan' && tx.department !== 'Mutasi Kas / Setor Bank') matchCat = true;
-    else if (typeCat === 'Mutasi' && tx.department === 'Mutasi Kas / Setor Bank') matchCat = true;
+    const isInc = typeCat.startsWith('Pemasukan') || (typeCat === 'Mutasi' && window.cachedIncome && window.cachedIncome.includes(tx));
+    const detected = detectSeriesCat(tx, isInc);
+    if (detected !== typeCat) return;
 
-    if (matchCat && tx.receipt_no) {
-      let rNumStr = String(tx.receipt_no).trim();
-      let startNum = parseInt(config.start);
-      let endNum = config.end ? parseInt(config.end) : null;
+    if (tx.receipt_no) {
+      let rNumStr = String(tx.receipt_no).trim().toUpperCase();
 
-      if (prefix === '') {
+      if (typeCat === 'Mutasi') {
+        const targetPrefix = `PB-${yy}${mm}`;
+        let seq = -1;
+        if (rNumStr.startsWith(targetPrefix)) {
+          const part = rNumStr.substring(targetPrefix.length).replace(/\D/g, '');
+          if (part) seq = parseInt(part);
+        } else if (rNumStr.startsWith('PB-') || rNumStr.startsWith('PB')) {
+          const digits = rNumStr.replace(/\D/g, '');
+          if (digits.length >= 6 && digits.startsWith(`${yy}${mm}`)) {
+            seq = parseInt(digits.substring(4));
+          } else if (digits.length > 0 && digits.length <= 4) {
+            seq = parseInt(digits);
+          }
+        }
+        if (seq !== -1) {
+          if (seq > maxNum) maxNum = seq;
+        }
+      } else if (!prefix) {
         if (/^\d+$/.test(rNumStr)) {
           let num = parseInt(rNumStr);
           if (num > maxNum && num >= startNum && (endNum ? num <= endNum : true)) maxNum = num;
         }
       } else {
-        if (rNumStr.startsWith(prefix)) {
-          let numPart = rNumStr.substring(prefix.length);
+        const uPrefix = prefix.toUpperCase();
+        if (rNumStr.startsWith(uPrefix)) {
+          let numPart = rNumStr.substring(uPrefix.length);
           if (/^\d+$/.test(numPart)) {
             let num = parseInt(numPart);
             if (num > maxNum && num >= startNum && (endNum ? num <= endNum : true)) maxNum = num;
@@ -7366,10 +8377,14 @@ function getNextReceiptNumber(dateStr, typeCat, prefix) {
     }
   });
 
-  let nextNum = maxNum === -1 ? config.start : maxNum + 1;
-  let endNum = config.end ? parseInt(config.end) : null;
-  if (endNum && parseInt(nextNum) > endNum) {
-    return { err: `Nomor seri untuk ${typeCat} bulan ${key} sudah habis (melewati ${config.end}). Silakan perbarui pengaturan No. Series.` };
+  let nextNum = maxNum === -1 ? startNum : maxNum + 1;
+  if (endNum && nextNum > endNum) {
+    const limitLabel = typeCat === 'Mutasi' ? `PB-${yy}${mm}${String(endNum).padStart(2, '0')}` : (config.end || endNum);
+    return { err: `Nomor seri untuk ${typeCat} bulan ${key} sudah habis (melewati ${limitLabel}). Silakan perbarui pengaturan No. Series.` };
+  }
+
+  if (typeCat === 'Mutasi') {
+    return { val: `PB-${yy}${mm}${String(nextNum).padStart(2, '0')}` };
   }
 
   let nextNumStr = String(nextNum);
@@ -7413,6 +8428,11 @@ window.autoGenerateReceipt = function (formType) {
 };
 window.loadSeriesConfig = loadSeriesConfig;
 window.saveSeriesConfig = saveSeriesConfig;
+window.switchSeriesTab = switchSeriesTab;
+window.handleSeriesHistoryFilter = handleSeriesHistoryFilter;
+window.handleSeriesHistorySearch = handleSeriesHistorySearch;
+window.handleSeriesCardClick = handleSeriesCardClick;
+window.renderSeriesHistory = renderSeriesHistory;
 
 document.addEventListener('DOMContentLoaded', () => {
   // Wrap text nodes in sidebar nav items and logout btn to hide them smoothly
@@ -7973,6 +8993,10 @@ function openSabbathBulletinModal() {
   const yearInput = document.getElementById('bulletinYearInput');
   const modeSelect = document.getElementById('bulletinModeSelect');
   if (!modal) return;
+
+  if (window.innerWidth <= 1100 && typeof closeSidebar === 'function') {
+    closeSidebar();
+  }
 
   if (select) {
     const sabbaths = getRecentSabbaths(8);
