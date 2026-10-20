@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.css" rel="stylesheet">
 
-  <script type="module" crossorigin src="/assets/laporan-Bz1c5nfJ.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-OxEmfZ_2.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/laporan-ldx9_8sw.css">
   <link rel="stylesheet" crossorigin href="/assets/index-BHgbSQXl.css">
@@ -1623,30 +1623,57 @@
 
         <div class="card" style="max-width:1400px; margin:24px auto 0;">
           <div class="form-section-title">Pengaturan Format Kuitansi</div>
-          <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Atur teks header kuitansi (3 Baris) dan
-            nama kota pada kuitansi pencetakan.</p>
+          <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">Atur logo, teks header kuitansi (3 Baris),
+            dan nama kota pada kuitansi pencetakan.</p>
           <div class="grid-2">
-            <div class="form-group">
-              <label class="form-label">Header Baris 1</label>
-              <input class="form-input" id="headerKuitansi1Input" type="text"
-                placeholder="Misal: Gereja Masehi Advent Hari Ketujuh"
-                onchange="saveSignatureText('header_kuitansi_1', this.value)">
+            <div
+              style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 24px;">
+              <div style="font-weight:700; font-size:15px; color:var(--text); margin-bottom:20px; text-align:center;">
+                Logo Kuitansi</div>
+              <div style="display:flex; flex-direction:column; align-items:center; gap:20px;">
+                <div
+                  style="width:210px; height:210px; display:flex; align-items:center; justify-content:center; background: rgba(255,255,255,0.06); border: 1px dashed var(--glass-border); border-radius: var(--radius-md); padding: 6px;">
+                  <img id="preview-logo-kuitansi" src="" class="app-logo-kuitansi-img"
+                    style="display:none; width:100%; height:100%; object-fit:contain;">
+                  <img class="app-logo-kuitansi-default" src="./icons/PisgahColor.png"
+                    style="width:170px; height:170px; object-fit:contain;">
+                </div>
+                <div style="display:flex; gap:8px; width:100%;">
+                  <label for="logoKuitansiUpload" class="btn btn-primary"
+                    style="flex:1; justify-content:center; cursor:pointer;">
+                    <span class="icon-placeholder" data-icon="image" data-size="lucide-sm"></span> Pilih Gambar
+                  </label>
+                  <button class="btn btn-ghost" style="justify-content:center; color:var(--red-pop);"
+                    onclick="resetLogo('logo_kuitansi')">Hapus Logo</button>
+                </div>
+                <input type="file" id="logoKuitansiUpload" accept="image/*" style="display:none;"
+                  onchange="handleLogoUpload(event, 'logo_kuitansi')">
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Header Baris 2</label>
-              <input class="form-input" id="headerKuitansi2Input" type="text"
-                placeholder="Misal: Daerah Sumatera Kawasan Tengah"
-                onchange="saveSignatureText('header_kuitansi_2', this.value)">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Header Baris 3</label>
-              <input class="form-input" id="headerKuitansi3Input" type="text" placeholder="Misal: Jemaat Pisgah"
-                onchange="saveSignatureText('header_kuitansi_3', this.value)">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Kota (Sisi Tanggal)</label>
-              <input class="form-input" id="kotaKuitansiInput" type="text" placeholder="Misal: Manado"
-                onchange="saveSignatureText('kota_kuitansi', this.value)">
+
+            <div>
+              <div class="form-group">
+                <label class="form-label">Header Baris 1</label>
+                <input class="form-input" id="headerKuitansi1Input" type="text"
+                  placeholder="Misal: Gereja Masehi Advent Hari Ketujuh"
+                  onchange="saveSignatureText('header_kuitansi_1', this.value)">
+              </div>
+              <div class="form-group" style="margin-top: 12px;">
+                <label class="form-label">Header Baris 2</label>
+                <input class="form-input" id="headerKuitansi2Input" type="text"
+                  placeholder="Misal: Daerah Sumatera Kawasan Tengah"
+                  onchange="saveSignatureText('header_kuitansi_2', this.value)">
+              </div>
+              <div class="form-group" style="margin-top: 12px;">
+                <label class="form-label">Header Baris 3</label>
+                <input class="form-input" id="headerKuitansi3Input" type="text" placeholder="Misal: Jemaat Pisgah"
+                  onchange="saveSignatureText('header_kuitansi_3', this.value)">
+              </div>
+              <div class="form-group" style="margin-top: 12px;">
+                <label class="form-label">Kota (Sisi Tanggal)</label>
+                <input class="form-input" id="kotaKuitansiInput" type="text" placeholder="Misal: Manado"
+                  onchange="saveSignatureText('kota_kuitansi', this.value)">
+              </div>
             </div>
           </div>
         </div>
@@ -1760,23 +1787,18 @@
 
             <!-- Stempel Jemaat -->
             <div
-              style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:12px;">
+              style="background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; display:flex; flex-direction:column; align-items:center; gap:16px;">
               <div style="font-weight:700; font-size:15px; color:var(--text); width:100%; text-align:center;">Stempel
                 Jemaat</div>
-              <div style="width:100%; display:flex; flex-direction:column; gap:6px;">
-                <input type="text" class="form-input" id="sigNameStempel" placeholder="(Abaikan ini)" disabled
-                  style="text-align:center; font-weight:600; opacity:0; pointer-events:none;">
-                <input type="text" class="form-input" id="sigTitleStempel" placeholder="(Abaikan ini)" disabled
-                  style="text-align:center; font-size:13px; opacity:0; pointer-events:none;">
-              </div>
               <div
-                style="width:200px; height:100px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden; margin-top:4px;">
+                style="width:200px; height:200px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--glass-border); border-radius: 8px; background: white; overflow: hidden;">
                 <img id="preview-sig-stempel" src=""
                   style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
                 <span id="text-sig-stempel" style="color: var(--text4); font-size: 12px;">Belum ada Stempel</span>
               </div>
               <label for="sigStempelUpload" class="btn btn-outline"
-                style="width:100%; justify-content:center; font-size:13px; padding:8px;">Unggah Stempel</label>
+                style="width:100%; justify-content:center; font-size:13px; padding:8px; cursor:pointer;">Unggah
+                Stempel</label>
               <input type="file" id="sigStempelUpload" accept="image/*" style="display:none;"
                 onchange="handleSignatureUpload(this, 'preview-sig-stempel', 'text-sig-stempel', 'sig_stempel')">
             </div>
