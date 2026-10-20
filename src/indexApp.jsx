@@ -359,7 +359,9 @@ const Icon = ({ name, className }) => {
         Navigation: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="3 11 22 2 13 21 11 13 3 11" /></svg>,
         Package: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="16.5" y1="9.4" x2="7.5" y2="4.21" /><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>,
         Play: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="6 3 20 12 6 21 6 3" /></svg>,
-        Pause: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
+        Pause: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>,
+        Folder: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" /></svg>,
+        Heart: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>
     };
     return icons[name] || null;
 };
@@ -1182,7 +1184,7 @@ const renderHighlightedText = (text, goldWords = [], emeraldWords = []) => {
                 return (
                     <span
                         key={index}
-                        className="font-black text-[#B87714] dark:text-[#FBBF24] not-italic"
+                        className="font-black text-[#B87714] dark:text-[#FBBF24]"
                     >
                         {part}
                     </span>
@@ -1191,7 +1193,7 @@ const renderHighlightedText = (text, goldWords = [], emeraldWords = []) => {
                 return (
                     <span
                         key={index}
-                        className="font-black text-[#266825] dark:text-[#34D399] not-italic"
+                        className="font-black text-[#266825] dark:text-[#34D399]"
                     >
                         {part}
                     </span>
@@ -1285,8 +1287,8 @@ const DailyVerseWidget = ({ setActiveTab }) => {
                     </span>
                 </div>
 
-                <div className="pl-3.5 sm:pl-4 border-l-3 border-[#D19B45] dark:border-gold-400 my-1">
-                    <p className="text-[#1A2E16] dark:text-gray-100 text-[15px] sm:text-base md:text-[1.08rem] leading-relaxed sm:leading-loose font-serif italic font-medium tracking-wide">
+                <div className="pl-3.5 sm:pl-4 border-l-3 border-[#D19B45] dark:border-gold-400 my-1.5">
+                    <p className="text-[#1A2E16] dark:text-gray-100 text-[15px] sm:text-base md:text-[1.08rem] leading-relaxed sm:leading-loose font-semibold tracking-normal">
                         {renderHighlightedText(verse.text, verse.gold, verse.emerald)}
                     </p>
                 </div>
@@ -1507,6 +1509,36 @@ const DEFAULT_HERO_CAPTIONS = [
         badge: "Keluarga Allah",
         title: "Melayani Dengan Sukacita",
         subtitle: "Menjangkau jiwa dan mempersiapkan kedatangan Tuhan yang kedua kali."
+    },
+    {
+        badge: "Pendidikan & Kaum Muda",
+        title: "Generasi Beriman & Berpengharapan",
+        subtitle: "Membimbing anak-anak dan pemuda bertumbuh teguh dalam kebenaran Firman Tuhan."
+    },
+    {
+        badge: "Doa & Pengharapan",
+        title: "Kekuatan di Dalam Doa",
+        subtitle: "Bawalah segala pergumulan hidup ke hadirat Tuhan yang penuh kasih dan kuasa."
+    },
+    {
+        badge: "Pelayanan Kesehatan",
+        title: "Hidup Sehat & Berkat Jasmani",
+        subtitle: "Menjaga bait suci Allah dengan gaya hidup sehat dan seimbang jasmani rohani."
+    },
+    {
+        badge: "Misi & Penginjilan",
+        title: "Membawa Terang ke Tengah Dunia",
+        subtitle: "Menyampaikan Kabar Baik keselamatan kepada sesama dengan penuh ketulusan."
+    },
+    {
+        badge: "Pujian & Penyembahan",
+        title: "Memuliakan Nama Sang Pencipta",
+        subtitle: "Mengangkat puji-pujian dengan segenap hati dan jiwa bagi kemuliaan-Nya."
+    },
+    {
+        badge: "Pengharapan Mulia",
+        title: "Menyambut Kedatangan Kristus",
+        subtitle: "Maranatha! Bersiaplah dengan setia menantikan kedatangan Sang Raja Damai."
     }
 ];
 
@@ -2254,9 +2286,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                                         key={idx}
                                                         className={`snap-start snap-always shrink-0 ${carouselVideos.length <= 1
                                                             ? 'w-full'
-                                                            : carouselVideos.length === 2
-                                                                ? 'w-full md:w-[calc(50%-10px)]'
-                                                                : 'w-full md:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)]'
+                                                            : 'w-full sm:w-[calc(50%-10px)] md:w-[calc(50%-10px)]'
                                                             } rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 hover:border-[#D19B45]/50 dark:hover:border-gold-500/50 p-4 transition-all duration-300 flex flex-col shadow-sm hover:shadow-xl hover:-translate-y-1.5 group/card`}
                                                     >
                                                         <h4 className="text-base font-extrabold mb-3 text-[#2C3F21] dark:text-gold-400 flex items-center px-1 transition-colors truncate">
@@ -3897,6 +3927,113 @@ const LoginModal = ({ isOpen, onClose, onSuccess }) => {
 };
 
 // ========== KOMPONEN GALERI PUBLIK (untuk jemaat) ==========
+// Helper untuk mengurai tanggal dari nama folder agar bisa diurutkan secara kronologis
+const parseFolderDate = (name) => {
+    if (!name) return 0;
+    const lower = name.toLowerCase().trim();
+    const monthMap = {
+        jan: 0, januari: 0, january: 0,
+        feb: 1, februari: 1, february: 1,
+        mar: 2, maret: 2, march: 2,
+        apr: 3, april: 3,
+        mei: 4, may: 4,
+        jun: 5, juni: 5, june: 5,
+        jul: 6, juli: 6, july: 6,
+        agu: 7, ags: 7, agust: 7, agustus: 7, aug: 7, august: 7,
+        sep: 8, sept: 8, september: 8,
+        okt: 9, oct: 9, oktober: 9, october: 9,
+        nov: 10, november: 10,
+        des: 11, dec: 11, desember: 11, december: 11
+    };
+
+    // Pola 1: "20 June 2026", "Sabat. 25 april 2026", "Sabat. 18april26", "Sabat, 25 Jul 2026", "6 Juni 2026"
+    const pattern1 = /(\d{1,2})[\s\.\-_,]*([a-zA-Z]+)[\s\.\-_,]*(\d{2,4})/;
+    const m1 = lower.match(pattern1);
+    if (m1) {
+        const day = parseInt(m1[1], 10);
+        const monthKey = m1[2].substring(0, 3);
+        let year = parseInt(m1[3], 10);
+        if (year < 100) year += 2000;
+        const month = monthMap[m1[2]] !== undefined ? monthMap[m1[2]] : (monthMap[monthKey] !== undefined ? monthMap[monthKey] : 0);
+        return new Date(year, month, day).getTime();
+    }
+
+    // Pola 2: "KKR April 2026", "Mei 2026", "April 26"
+    const pattern2 = /([a-zA-Z]+)[\s\.\-_,]*(\d{2,4})/;
+    const m2 = lower.match(pattern2);
+    if (m2 && (monthMap[m2[1]] !== undefined || monthMap[m2[1].substring(0, 3)] !== undefined)) {
+        const month = monthMap[m2[1]] !== undefined ? monthMap[m2[1]] : monthMap[m2[1].substring(0, 3)];
+        let year = parseInt(m2[2], 10);
+        if (year < 100) year += 2000;
+        return new Date(year, month, 1).getTime();
+    }
+
+    // Pola 3: Tahun saja "Youth Camp 2026"
+    const pattern3 = /(\d{4})/;
+    const m3 = lower.match(pattern3);
+    if (m3) {
+        const year = parseInt(m3[1], 10);
+        return new Date(year, 0, 1).getTime();
+    }
+
+    return 0;
+};
+
+// Helper kategori & styling kartu album
+const getFolderCategoryInfo = (name) => {
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('sabat')) {
+        return {
+            category: 'sabat',
+            label: 'Ibadah Sabat',
+            badgeBg: 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/70 dark:text-amber-300',
+            cardBg: 'from-amber-600 via-amber-700 to-navy-900',
+            icon: 'Church'
+        };
+    }
+    if (lower.includes('youth') || lower.includes('pemuda') || lower.includes('anak') || lower.includes('pathfinder') || lower.includes('camp') || lower.includes('adventurer')) {
+        return {
+            category: 'youth',
+            label: 'Pemuda & Anak',
+            badgeBg: 'bg-indigo-100 text-indigo-900 border-indigo-300 dark:bg-indigo-950/70 dark:text-indigo-300',
+            cardBg: 'from-blue-600 via-indigo-700 to-navy-900',
+            icon: 'Users'
+        };
+    }
+    if (lower.includes('sosial') || lower.includes('baksos') || lower.includes('panti') || lower.includes('donor') || lower.includes('masyarakat')) {
+        return {
+            category: 'sosial',
+            label: 'Bakti Sosial',
+            badgeBg: 'bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950/70 dark:text-rose-300',
+            cardBg: 'from-rose-600 via-rose-700 to-navy-900',
+            icon: 'Heart'
+        };
+    }
+    if (lower.includes('kkr') || lower.includes('seminar') || lower.includes('kesehatan') || lower.includes('holistic') || lower.includes('kebangunan') || lower.includes('retreat') || lower.includes('revival') || lower.includes('konser')) {
+        return {
+            category: 'event',
+            label: 'Acara Khusus',
+            badgeBg: 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/70 dark:text-emerald-300',
+            cardBg: 'from-emerald-600 via-teal-700 to-navy-900',
+            icon: 'Calendar'
+        };
+    }
+    return {
+        category: 'umum',
+        label: 'Dokumentasi',
+        badgeBg: 'bg-gold-100 text-navy-900 border-gold-300 dark:bg-gold-950/70 dark:text-gold-300',
+        cardBg: 'from-navy-800 via-navy-900 to-gold-700',
+        icon: 'Image'
+    };
+};
+
+const formatFolderDateLabel = (timestamp) => {
+    if (!timestamp || timestamp <= 0) return '';
+    const d = new Date(timestamp);
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+};
+
 const GaleriPublik = () => {
     const [folders, setFolders] = React.useState([]);
     const [selectedFolderId, setSelectedFolderId] = React.useState('');
@@ -3904,7 +4041,26 @@ const GaleriPublik = () => {
     const [loadingFolders, setLoadingFolders] = React.useState(false);
     const [loadingMedia, setLoadingMedia] = React.useState(false);
     const [error, setError] = React.useState('');
-    const [selectedImage, setSelectedImage] = React.useState(null); // Lightbox Modal
+
+    // Level 1: Search, Filter, Sort
+    const [searchQuery, setSearchQuery] = React.useState('');
+    const [categoryFilter, setCategoryFilter] = React.useState('all'); // 'all', 'sabat', 'event', 'youth'
+    const [sortOrder, setSortOrder] = React.useState('latest'); // 'latest' | 'az'
+
+    // Level 2: Sub-filter & Viewers
+    const [mediaFilter, setMediaFilter] = React.useState('all'); // 'all', 'image', 'video'
+    const [lightboxIndex, setLightboxIndex] = React.useState(null);
+    const [selectedVideo, setSelectedVideo] = React.useState(null);
+
+    // Cache cover album
+    const [folderCovers, setFolderCovers] = React.useState(() => {
+        try {
+            const cached = localStorage.getItem('pisgah_gallery_covers');
+            return cached ? JSON.parse(cached) : {};
+        } catch {
+            return {};
+        }
+    });
 
     const loadFolders = async () => {
         setLoadingFolders(true);
@@ -3917,9 +4073,6 @@ const GaleriPublik = () => {
             const data = await res.json();
             if (data.success) {
                 setFolders(data.folders || []);
-                if (data.folders?.length > 0 && !selectedFolderId) {
-                    setSelectedFolderId(data.folders[0].id);
-                }
             } else {
                 setError('Gagal memuat folder: ' + data.message);
             }
@@ -3941,6 +4094,15 @@ const GaleriPublik = () => {
             const data = await res.json();
             if (data.success) {
                 setMedia(data.media || []);
+                // Simpan cover pertama ke cache jika belum ada
+                const firstImg = (data.media || []).find(m => m.type !== 'video');
+                if (firstImg && firstImg.url) {
+                    setFolderCovers(prev => {
+                        const updated = { ...prev, [folderId]: firstImg.url };
+                        try { localStorage.setItem('pisgah_gallery_covers', JSON.stringify(updated)); } catch (e) { }
+                        return updated;
+                    });
+                }
             } else {
                 setError('Gagal memuat media: ' + data.message);
             }
@@ -3951,76 +4113,618 @@ const GaleriPublik = () => {
     };
 
     React.useEffect(() => { loadFolders(); }, []);
-    React.useEffect(() => { if (selectedFolderId) loadMedia(selectedFolderId); }, [selectedFolderId]);
+    React.useEffect(() => {
+        if (selectedFolderId) {
+            loadMedia(selectedFolderId);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [selectedFolderId]);
 
-    if (loadingFolders) return <div className="text-center py-8 text-navy-500 font-medium animate-pulse">Memuat album galeri...</div>;
-    if (error) return <div className="text-center py-8 text-red-500 font-bold">{error}</div>;
-    if (folders.length === 0) return <div className="text-center py-8 text-navy-500 font-medium">Belum ada album galeri yang tersedia.</div>;
+    // Olah data folder dengan tanggal & kategori
+    const processedFolders = React.useMemo(() => {
+        return folders.map(f => {
+            const parsedDate = parseFolderDate(f.name);
+            const catInfo = getFolderCategoryInfo(f.name);
+            const dateLabel = formatFolderDateLabel(parsedDate);
+            return {
+                ...f,
+                parsedDate,
+                catInfo,
+                dateLabel
+            };
+        });
+    }, [folders]);
+
+    // Filter & sort folders untuk Level 1
+    const filteredFolders = React.useMemo(() => {
+        let result = [...processedFolders];
+
+        if (categoryFilter !== 'all') {
+            result = result.filter(f => f.catInfo.category === categoryFilter);
+        }
+
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase().trim();
+            result = result.filter(f =>
+                f.name.toLowerCase().includes(q) ||
+                f.dateLabel.toLowerCase().includes(q) ||
+                f.catInfo.label.toLowerCase().includes(q)
+            );
+        }
+
+        if (sortOrder === 'latest') {
+            result.sort((a, b) => {
+                if (b.parsedDate !== a.parsedDate) return b.parsedDate - a.parsedDate;
+                return a.name.localeCompare(b.name);
+            });
+        } else {
+            result.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        return result;
+    }, [processedFolders, categoryFilter, searchQuery, sortOrder]);
+
+    // Active folder saat di Level 2
+    const activeFolder = React.useMemo(() => {
+        return processedFolders.find(f => f.id === selectedFolderId) || null;
+    }, [processedFolders, selectedFolderId]);
+
+    // Media terfilter untuk Level 2
+    const filteredMedia = React.useMemo(() => {
+        if (mediaFilter === 'image') return media.filter(m => m.type !== 'video');
+        if (mediaFilter === 'video') return media.filter(m => m.type === 'video');
+        return media;
+    }, [media, mediaFilter]);
+
+    const imagesOnly = React.useMemo(() => {
+        return filteredMedia.filter(m => m.type !== 'video');
+    }, [filteredMedia]);
+
+    // Keyboard navigation untuk Lightbox Foto
+    React.useEffect(() => {
+        if (lightboxIndex === null) return;
+        const handleKeyDown = (e) => {
+            if (e.key === 'ArrowRight') {
+                setLightboxIndex(prev => (prev < imagesOnly.length - 1 ? prev + 1 : 0));
+            } else if (e.key === 'ArrowLeft') {
+                setLightboxIndex(prev => (prev > 0 ? prev - 1 : imagesOnly.length - 1));
+            } else if (e.key === 'Escape') {
+                setLightboxIndex(null);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [lightboxIndex, imagesOnly.length]);
+
+    if (loadingFolders) {
+        return (
+            <div className="text-center py-16">
+                <div className="w-10 h-10 border-4 border-navy-100 border-t-gold-500 rounded-full animate-spin mx-auto mb-3"></div>
+                <p className="text-navy-600 dark:text-navy-300 font-bold text-sm">Memuat daftar album galeri...</p>
+                <p className="text-navy-400 text-xs mt-1">Menghubungkan ke arsip dokumentasi jemaat</p>
+            </div>
+        );
+    }
+
+    if (error && !selectedFolderId) {
+        return (
+            <div className="text-center py-12 bg-red-50 dark:bg-red-950/30 rounded-2xl border border-red-200 p-6">
+                <Icon name="Info" className="w-10 h-10 mx-auto text-red-500 mb-2" />
+                <p className="text-red-600 dark:text-red-400 font-bold">{error}</p>
+                <button
+                    onClick={loadFolders}
+                    className="mt-4 px-4 py-2 bg-navy-900 text-gold-400 text-xs font-bold rounded-xl"
+                >
+                    Coba Lagi
+                </button>
+            </div>
+        );
+    }
+
+    if (folders.length === 0) {
+        return (
+            <div className="text-center py-16 bg-navy-50/50 dark:bg-navy-900/30 rounded-2xl border border-dashed border-navy-200 p-6">
+                <Icon name="Folder" className="w-12 h-12 mx-auto text-navy-300 mb-3" />
+                <h4 className="text-base font-bold text-navy-800 dark:text-navy-200">Belum ada album galeri</h4>
+                <p className="text-xs text-navy-500 mt-1">Dokumentasi kegiatan akan segera diperbarui oleh pengurus.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
 
-            {/* Modal Lightbox Gambar */}
-            {selectedImage && (
-                <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 p-4 animate-fade-in" onClick={() => setSelectedImage(null)}>
-                    <button className="absolute top-4 right-4 text-white hover:text-gold-400 bg-black/50 rounded-full w-10 h-10 flex items-center justify-center transition-colors">
-                        <Icon name="X" className="w-6 h-6" />
-                    </button>
-                    <img src={formatImageUrl(selectedImage)} className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" alt="Preview" onClick={(e) => e.stopPropagation()} />
+            {/* ========== MODAL LIGHTBOX FOTO INTERAKTIF ========== */}
+            {lightboxIndex !== null && imagesOnly[lightboxIndex] && (
+                <div
+                    className="fixed inset-0 z-[110] flex items-center justify-center bg-black/95 p-4 select-none backdrop-blur-md animate-fade-in"
+                    onClick={() => setLightboxIndex(null)}
+                >
+                    {/* Top Bar Lightbox */}
+                    <div
+                        className="absolute top-4 inset-x-4 flex items-center justify-between z-20 pointer-events-auto"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="flex items-center gap-2">
+                            <span className="bg-navy-900/80 border border-navy-700/80 px-3 py-1.5 rounded-full text-xs font-bold text-gold-400 shadow-md">
+                                {lightboxIndex + 1} / {imagesOnly.length}
+                            </span>
+                            <span className="text-xs text-navy-200 hidden sm:inline max-w-xs md:max-w-md truncate">
+                                {imagesOnly[lightboxIndex].title}
+                            </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <a
+                                href={imagesOnly[lightboxIndex].url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                download
+                                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/15 hover:bg-gold-500 hover:text-navy-950 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                                title="Unduh foto resolusi penuh"
+                            >
+                                <Icon name="Download" className="w-4 h-4" />
+                                <span className="hidden sm:inline">Unduh</span>
+                            </a>
+                            <button
+                                onClick={() => setLightboxIndex(null)}
+                                className="text-white hover:text-gold-400 bg-white/15 hover:bg-white/25 rounded-xl w-9 h-9 flex items-center justify-center transition"
+                                title="Tutup (Esc)"
+                            >
+                                <Icon name="X" className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Tombol Panah Kiri (Prev) */}
+                    {imagesOnly.length > 1 && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setLightboxIndex(prev => (prev > 0 ? prev - 1 : imagesOnly.length - 1));
+                            }}
+                            className="absolute left-3 md:left-6 text-white hover:text-gold-400 bg-black/40 hover:bg-black/70 border border-white/10 rounded-full w-11 h-11 flex items-center justify-center transition-all z-20"
+                            title="Foto Sebelumnya"
+                        >
+                            <Icon name="ChevronLeft" className="w-6 h-6" />
+                        </button>
+                    )}
+
+                    {/* Gambar Lightbox */}
+                    <div className="relative max-w-full max-h-[82vh] flex items-center justify-center" onClick={e => e.stopPropagation()}>
+                        <img
+                            src={formatImageUrl(imagesOnly[lightboxIndex].url)}
+                            className="max-w-full max-h-[82vh] object-contain rounded-2xl shadow-2xl transition-all duration-300"
+                            alt={imagesOnly[lightboxIndex].title || 'Foto Galeri'}
+                        />
+                    </div>
+
+                    {/* Tombol Panah Kanan (Next) */}
+                    {imagesOnly.length > 1 && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setLightboxIndex(prev => (prev < imagesOnly.length - 1 ? prev + 1 : 0));
+                            }}
+                            className="absolute right-3 md:right-6 text-white hover:text-gold-400 bg-black/40 hover:bg-black/70 border border-white/10 rounded-full w-11 h-11 flex items-center justify-center transition-all z-20"
+                            title="Foto Selanjutnya"
+                        >
+                            <Icon name="ChevronRight" className="w-6 h-6" />
+                        </button>
+                    )}
                 </div>
             )}
 
-            <div className="flex flex-wrap gap-2 justify-center border-b border-navy-100 pb-5">
-                {folders.map(f => (
-                    <button
-                        key={f.id}
-                        onClick={() => setSelectedFolderId(f.id)}
-                        className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm ${selectedFolderId === f.id ? 'bg-navy-900 text-gold-400 scale-105' : 'bg-white text-navy-600 border border-navy-200 hover:bg-navy-50'
-                            }`}
+            {/* ========== MODAL POP-UP VIDEO PLAYER ========== */}
+            {selectedVideo && (
+                <div
+                    className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 p-4 select-none backdrop-blur-md animate-fade-in"
+                    onClick={() => setSelectedVideo(null)}
+                >
+                    <div
+                        className="w-full max-w-3xl bg-navy-900 rounded-2xl overflow-hidden shadow-2xl border border-navy-700 animate-scale-up"
+                        onClick={e => e.stopPropagation()}
                     >
-                        📁 {f.name}
-                    </button>
-                ))}
-            </div>
+                        <div className="flex items-center justify-between px-5 py-3.5 border-b border-navy-800 bg-navy-950">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-gold-400 animate-pulse"></div>
+                                <h4 className="text-sm font-bold text-white truncate max-w-md">
+                                    {selectedVideo.title || 'Video Dokumentasi'}
+                                </h4>
+                            </div>
+                            <button
+                                onClick={() => setSelectedVideo(null)}
+                                className="text-navy-400 hover:text-white rounded-lg p-1 transition"
+                            >
+                                <Icon name="X" className="w-5 h-5" />
+                            </button>
+                        </div>
 
-            {loadingMedia ? (
-                <div className="text-center py-10">
-                    <div className="w-10 h-10 border-4 border-navy-100 border-t-gold-500 rounded-full animate-spin mx-auto mb-3"></div>
-                    <p className="text-navy-500 font-medium">Memuat foto & video...</p>
+                        <div className="relative aspect-video w-full bg-black flex items-center justify-center">
+                            <iframe
+                                src={`https://drive.google.com/file/d/${selectedVideo.id}/preview`}
+                                className="w-full h-full border-0"
+                                allow="autoplay; encrypted-media; fullscreen"
+                                allowFullScreen
+                                title={selectedVideo.title}
+                            />
+                        </div>
+
+                        <div className="p-4 bg-navy-950 flex flex-wrap items-center justify-between gap-3 border-t border-navy-800">
+                            <span className="text-xs text-navy-300">
+                                Jika video lambat atau tidak berputar, buka langsung di Google Drive:
+                            </span>
+                            <a
+                                href={selectedVideo.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1.5 px-4 py-2 bg-gold-500 hover:bg-gold-400 text-navy-950 rounded-xl font-bold text-xs transition shadow-sm"
+                            >
+                                Buka di Google Drive <Icon name="ExternalLink" className="w-3.5 h-3.5 ml-1" />
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            ) : media.length === 0 ? (
-                <div className="text-center py-10 bg-navy-50 rounded-2xl border border-dashed border-navy-200">
-                    <Icon name="Image" className="w-12 h-12 mx-auto text-navy-300 mb-2" />
-                    <p className="text-navy-500 font-medium">Belum ada foto/video di album ini.</p>
-                </div>
-            ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {media.map(item => (
-                        <div key={item.id} className="glass-box rounded-[1.25rem] shadow-sm border border-navy-100/60 overflow-hidden group cursor-pointer hover:shadow-md transition-all">
-                            {item.type === 'video' ? (
-                                <a href={item.url} target="_blank" rel="noopener noreferrer" className="block relative w-full aspect-square bg-navy-900 overflow-hidden">
-                                    <img src={formatImageUrl(item.thumbnailUrl || item.url)} alt={item.title} className="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-500" />
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="bg-gold-500/90 text-navy-900 rounded-full p-3 shadow-lg transform group-hover:scale-110 transition-transform">
-                                            <Icon name="Video" className="w-6 h-6 ml-1" />
-                                        </div>
-                                    </div>
-                                </a>
-                            ) : (
-                                <div className="relative w-full aspect-square bg-navy-50 overflow-hidden" onClick={() => setSelectedImage(item.url)}>
-                                    <img
-                                        src={formatImageUrl(item.url)}
-                                        alt={item.title}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                        referrerPolicy="no-referrer"
-                                    />
-                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                        <Icon name="Eye" className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    </div>
-                                </div>
+            )}
+
+            {/* ========== LEVEL 1: KOLEKSI ALBUM KEGIATAN ========== */}
+            {!selectedFolderId && (
+                <div className="space-y-6 animate-fade-in">
+                    {/* Header Galeri & Banner */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-navy-900 via-navy-800 to-navy-950 p-6 rounded-2xl text-white shadow-lg border border-navy-700/50">
+                        <div>
+                            <div className="flex items-center gap-2 text-gold-400 text-xs font-bold uppercase tracking-wider mb-1">
+                                <Icon name="Folder" className="w-4 h-4" /> Koleksi Dokumentasi Jemaat
+                            </div>
+                            <h3 className="text-xl md:text-2xl font-black text-white">
+                                Pilih Album Kegiatan
+                            </h3>
+                            <p className="text-xs md:text-sm text-navy-200 mt-1">
+                                Temukan kenangan momen foto & video ibadah Sabat serta seluruh kegiatan gereja.
+                            </p>
+                        </div>
+
+                        {/* Quick Stat Badge */}
+                        <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-white/10 self-start md:self-auto">
+                            <Icon name="Image" className="w-5 h-5 text-gold-400" />
+                            <div>
+                                <div className="text-[10px] uppercase tracking-wider text-navy-200">Total Album</div>
+                                <div className="text-base md:text-lg font-black text-white leading-none">{folders.length} Folder</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Filter Bar: Pencarian, Kategori, Urutan */}
+                    <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between bg-white dark:bg-navy-900/60 p-3 rounded-2xl border border-navy-100 dark:border-navy-800 shadow-sm">
+                        {/* Kolom Pencarian */}
+                        <div className="relative flex-1">
+                            <Icon name="Search" className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-navy-400" />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={e => setSearchQuery(e.target.value)}
+                                placeholder="Cari album (contoh: Sabat, KKR, Youth, Mei)..."
+                                className="w-full pl-10 pr-9 py-2.5 bg-navy-50/70 dark:bg-navy-800/60 border border-navy-200 dark:border-navy-700 rounded-xl text-xs md:text-sm font-medium text-navy-800 dark:text-navy-100 placeholder:text-navy-400 focus:outline-none focus:ring-2 focus:ring-gold-400"
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-navy-400 hover:text-navy-700 dark:hover:text-white"
+                                >
+                                    <Icon name="X" className="w-4 h-4" />
+                                </button>
                             )}
                         </div>
-                    ))}
+
+                        {/* Filter Kategori */}
+                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+                            {[
+                                { id: 'all', label: 'Semua' },
+                                { id: 'sabat', label: 'Ibadah Sabat' },
+                                { id: 'event', label: 'Acara Khusus' },
+                                { id: 'youth', label: 'Pemuda & Anak' },
+                                { id: 'sosial', label: 'Bakti Sosial' },
+                            ].map(cat => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => setCategoryFilter(cat.id)}
+                                    className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${categoryFilter === cat.id
+                                        ? 'bg-navy-900 text-gold-400 shadow-sm'
+                                        : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300 hover:bg-navy-100 dark:hover:bg-navy-700'
+                                        }`}
+                                >
+                                    {cat.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Tombol Urutan */}
+                        <button
+                            onClick={() => setSortOrder(prev => (prev === 'latest' ? 'az' : 'latest'))}
+                            className="flex items-center justify-center gap-1.5 px-3 py-2 bg-navy-50 dark:bg-navy-800 text-navy-700 dark:text-navy-200 hover:bg-navy-100 dark:hover:bg-navy-700 rounded-xl text-xs font-bold transition border border-navy-200/50 dark:border-navy-700 shrink-0"
+                            title="Ganti Urutan"
+                        >
+                            <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-500" />
+                            <span>{sortOrder === 'latest' ? 'Terbaru' : 'Nama A-Z'}</span>
+                        </button>
+                    </div>
+
+                    {/* Grid Kartu Album */}
+                    {filteredFolders.length === 0 ? (
+                        <div className="text-center py-16 bg-navy-50/50 dark:bg-navy-900/30 rounded-2xl border border-dashed border-navy-200 dark:border-navy-800 p-6">
+                            <Icon name="Folder" className="w-12 h-12 mx-auto text-navy-300 dark:text-navy-600 mb-3" />
+                            <h4 className="text-base font-bold text-navy-800 dark:text-navy-200">Tidak ada album ditemukan</h4>
+                            <p className="text-xs text-navy-500 mt-1 max-w-sm mx-auto">
+                                {searchQuery ? `Tidak ada album yang sesuai dengan "${searchQuery}". Coba kata kunci lain.` : 'Belum ada album di kategori ini.'}
+                            </p>
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
+                                    className="mt-4 px-4 py-2 bg-navy-900 text-gold-400 text-xs font-bold rounded-xl"
+                                >
+                                    Reset Pencarian
+                                </button>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                            {filteredFolders.map(folder => {
+                                const cover = folder.coverUrl || folderCovers[folder.id];
+                                return (
+                                    <div
+                                        key={folder.id}
+                                        onClick={() => setSelectedFolderId(folder.id)}
+                                        className="group bg-white dark:bg-navy-900 rounded-2xl overflow-hidden border border-navy-100 dark:border-navy-800 shadow-sm hover:shadow-xl hover:border-gold-300 dark:hover:border-gold-500/50 transition-all duration-300 cursor-pointer flex flex-col transform hover:-translate-y-1"
+                                    >
+                                        {/* Sampul / Cover Kartu */}
+                                        <div className="relative aspect-[16/10] w-full overflow-hidden bg-navy-950">
+                                            {cover ? (
+                                                <>
+                                                    <img
+                                                        src={formatImageUrl(cover)}
+                                                        alt={folder.name}
+                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                        referrerPolicy="no-referrer"
+                                                        loading="lazy"
+                                                    />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                                                </>
+                                            ) : (
+                                                <div className={`w-full h-full bg-gradient-to-br ${folder.catInfo.cardBg} flex flex-col items-center justify-center p-6 text-center relative overflow-hidden group-hover:scale-105 transition-transform duration-500`}>
+                                                    <div className="absolute -right-6 -bottom-6 w-28 h-28 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
+                                                    <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-2 border border-white/15 text-gold-300 shadow-lg">
+                                                        <Icon name={folder.catInfo.icon || 'Folder'} className="w-7 h-7" />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Badge Kategori */}
+                                            <div className="absolute top-3 left-3">
+                                                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg backdrop-blur-md border shadow-sm ${folder.catInfo.badgeBg}`}>
+                                                    {folder.catInfo.label}
+                                                </span>
+                                            </div>
+
+                                            {/* Tanggal di Pojok Bawah Sampul */}
+                                            {folder.dateLabel && (
+                                                <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-md text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-white/10">
+                                                    <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-400" />
+                                                    <span>{folder.dateLabel}</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Konten Judul & Aksi */}
+                                        <div className="p-4 flex-1 flex flex-col justify-between">
+                                            <div>
+                                                <h4 className="font-bold text-navy-900 dark:text-white text-sm md:text-base line-clamp-2 leading-snug group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">
+                                                    {folder.name}
+                                                </h4>
+                                                {!folder.dateLabel && (
+                                                    <p className="text-[11px] text-navy-400 mt-1">Dokumentasi Acara</p>
+                                                )}
+                                            </div>
+
+                                            <div className="mt-4 pt-3 border-t border-navy-50 dark:border-navy-800 flex items-center justify-between text-xs font-bold text-gold-600 dark:text-gold-400">
+                                                <span className="flex items-center gap-1.5 text-navy-500 dark:text-navy-400 text-[11px] font-medium">
+                                                    <Icon name="Folder" className="w-3.5 h-3.5" /> Buka Album
+                                                </span>
+                                                <span className="flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                                                    Lihat Foto <Icon name="ArrowRight" className="w-3.5 h-3.5" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* ========== LEVEL 2: ISI ALBUM KEGIATAN ========== */}
+            {selectedFolderId && (
+                <div className="space-y-6 animate-fade-in">
+                    {/* Header Navigasi Album */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-navy-900 p-4 md:p-5 rounded-2xl border border-navy-100 dark:border-navy-800 shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => {
+                                    setSelectedFolderId('');
+                                    setMedia([]);
+                                    setMediaFilter('all');
+                                }}
+                                className="flex items-center gap-2 px-4 py-2.5 bg-navy-100 hover:bg-navy-200 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-800 dark:text-white rounded-xl text-xs md:text-sm font-bold transition shadow-sm group"
+                            >
+                                <Icon name="ArrowLeft" className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                                <span>Daftar Album</span>
+                            </button>
+
+                            <div className="h-6 w-px bg-navy-200 dark:bg-navy-700 hidden sm:block"></div>
+
+                            <div>
+                                <h3 className="text-base md:text-lg font-black text-navy-900 dark:text-white line-clamp-1">
+                                    {activeFolder ? activeFolder.name : 'Album Kegiatan'}
+                                </h3>
+                                <div className="flex items-center gap-2 text-xs text-navy-500 dark:text-navy-400 mt-0.5">
+                                    {activeFolder?.dateLabel && (
+                                        <span className="flex items-center gap-1">
+                                            <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-500" />
+                                            {activeFolder.dateLabel}
+                                        </span>
+                                    )}
+                                    <span>•</span>
+                                    <span>{loadingMedia ? 'Memuat media...' : `${media.length} media`}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Dropdown Pindah Album Cepat */}
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs font-bold text-navy-500 hidden lg:inline">Pindah Album:</label>
+                            <select
+                                value={selectedFolderId}
+                                onChange={(e) => setSelectedFolderId(e.target.value)}
+                                className="w-full md:w-auto px-3 py-2 bg-navy-50 dark:bg-navy-800 border border-navy-200 dark:border-navy-700 rounded-xl text-xs font-bold text-navy-800 dark:text-navy-100 focus:outline-none focus:ring-2 focus:ring-gold-400 cursor-pointer"
+                            >
+                                {filteredFolders.map(f => (
+                                    <option key={f.id} value={f.id}>
+                                        📁 {f.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Sub-filter Bar (Semua | Foto | Video) */}
+                    {!loadingMedia && media.length > 0 && (
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-navy-100 dark:border-navy-800 pb-3">
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setMediaFilter('all')}
+                                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${mediaFilter === 'all'
+                                        ? 'bg-navy-900 text-gold-400 shadow-sm'
+                                        : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300 hover:bg-navy-100 dark:hover:bg-navy-700'
+                                        }`}
+                                >
+                                    Semua ({media.length})
+                                </button>
+                                <button
+                                    onClick={() => setMediaFilter('image')}
+                                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${mediaFilter === 'image'
+                                        ? 'bg-navy-900 text-gold-400 shadow-sm'
+                                        : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300 hover:bg-navy-100 dark:hover:bg-navy-700'
+                                        }`}
+                                >
+                                    Foto ({media.filter(m => m.type !== 'video').length})
+                                </button>
+                                <button
+                                    onClick={() => setMediaFilter('video')}
+                                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${mediaFilter === 'video'
+                                        ? 'bg-navy-900 text-gold-400 shadow-sm'
+                                        : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300 hover:bg-navy-100 dark:hover:bg-navy-700'
+                                        }`}
+                                >
+                                    Video ({media.filter(m => m.type === 'video').length})
+                                </button>
+                            </div>
+
+                            <span className="text-xs text-navy-400 hidden sm:inline">
+                                Klik foto untuk perbesar & unduh • Klik video untuk menonton
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Konten Grid Media */}
+                    {loadingMedia ? (
+                        <div className="text-center py-16 bg-white dark:bg-navy-900 rounded-2xl border border-navy-100 dark:border-navy-800">
+                            <div className="w-10 h-10 border-4 border-navy-100 border-t-gold-500 rounded-full animate-spin mx-auto mb-3"></div>
+                            <p className="text-navy-600 dark:text-navy-300 font-bold text-sm">Memuat foto & video...</p>
+                            <p className="text-navy-400 text-xs mt-1">Mengambil dokumentasi dari Google Drive</p>
+                        </div>
+                    ) : filteredMedia.length === 0 ? (
+                        <div className="text-center py-16 bg-navy-50/50 dark:bg-navy-900/30 rounded-2xl border border-dashed border-navy-200 dark:border-navy-800 p-6">
+                            <Icon name="Image" className="w-12 h-12 mx-auto text-navy-300 dark:text-navy-600 mb-3" />
+                            <h4 className="text-base font-bold text-navy-800 dark:text-navy-200">
+                                {mediaFilter === 'all' ? 'Belum ada foto/video di album ini.' : `Tidak ada ${mediaFilter === 'video' ? 'video' : 'foto'} di album ini.`}
+                            </h4>
+                            {mediaFilter !== 'all' && (
+                                <button
+                                    onClick={() => setMediaFilter('all')}
+                                    className="mt-3 px-4 py-2 bg-navy-900 text-gold-400 text-xs font-bold rounded-xl"
+                                >
+                                    Tampilkan Semua Media
+                                </button>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            {filteredMedia.map(item => {
+                                const isVideo = item.type === 'video';
+                                return (
+                                    <div
+                                        key={item.id}
+                                        className="bg-white dark:bg-navy-900 rounded-2xl shadow-sm border border-navy-100 dark:border-navy-800 overflow-hidden group cursor-pointer hover:shadow-lg transition-all relative flex flex-col"
+                                    >
+                                        {isVideo ? (
+                                            <div
+                                                onClick={() => setSelectedVideo(item)}
+                                                className="relative w-full aspect-square bg-navy-950 overflow-hidden group"
+                                            >
+                                                <img
+                                                    src={formatImageUrl(item.thumbnailUrl || item.url)}
+                                                    alt={item.title}
+                                                    className="w-full h-full object-cover opacity-75 group-hover:scale-105 transition-transform duration-500"
+                                                    loading="lazy"
+                                                />
+                                                {/* Badge Video */}
+                                                <div className="absolute top-2.5 left-2.5 bg-black/70 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 border border-white/10">
+                                                    <Icon name="Video" className="w-3 h-3 text-gold-400" />
+                                                    VIDEO
+                                                </div>
+                                                {/* Play Button Overlay */}
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <div className="bg-gold-500 text-navy-950 rounded-full p-3.5 shadow-xl transform group-hover:scale-110 transition-transform">
+                                                        <Icon name="Play" className="w-6 h-6 ml-0.5" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div
+                                                className="relative w-full aspect-square bg-navy-50 dark:bg-navy-950 overflow-hidden"
+                                                onClick={() => {
+                                                    const idx = imagesOnly.findIndex(img => img.id === item.id);
+                                                    if (idx !== -1) setLightboxIndex(idx);
+                                                }}
+                                            >
+                                                <img
+                                                    src={formatImageUrl(item.url)}
+                                                    alt={item.title}
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    referrerPolicy="no-referrer"
+                                                    loading="lazy"
+                                                />
+                                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                                                    <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:scale-110 duration-200">
+                                                        <Icon name="Eye" className="w-5 h-5" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Judul File */}
+                                        {item.title && (
+                                            <div className="p-2.5 bg-white dark:bg-navy-900 border-t border-navy-50 dark:border-navy-800">
+                                                <p className="text-[11px] font-medium text-navy-700 dark:text-navy-300 truncate" title={item.title}>
+                                                    {item.title}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             )}
         </div>
@@ -4449,17 +5153,21 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         setEditPerpuluhanDate(perpuluhanDate);
         setEditPerjamuanNote(perjamuanNote);
         setEditPerpuluhanNote(perpuluhanNote);
-        if (heroImages && Array.isArray(heroImages) && heroImages.length > 0) {
-            setEditHeroImages(heroImages);
-        } else {
-            try {
-                const saved = localStorage.getItem('pisgah_hero_slides');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    if (Array.isArray(parsed) && parsed.length > 0) setEditHeroImages(parsed);
+        setEditHeroImages(prev => {
+            if (!prev || prev.length === 0) {
+                if (heroImages && Array.isArray(heroImages) && heroImages.length > 0) {
+                    return heroImages;
                 }
-            } catch (e) { }
-        }
+                try {
+                    const saved = localStorage.getItem('pisgah_hero_slides');
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                    }
+                } catch (e) { }
+            }
+            return prev;
+        });
     }, [youtubeUrl, youtubeTitle, youtubeChannelTitle, anthemUrl, anthemUrl2, anthemTitle, anthemTitle2, liveUrl, perjamuanDate, perpuluhanDate, perjamuanNote, perpuluhanNote, daftarRekening, heroImages]);
 
     // State Hero Image Array (Carousel)
@@ -4685,10 +5393,59 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const [imagePreview, setImagePreview] = useState('');
     const [showNewFolderModal, setShowNewFolderModal] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
+    const [newFolderCategory, setNewFolderCategory] = useState('sabat');
+    const [newFolderDate, setNewFolderDate] = useState(() => {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    });
+    const [newFolderTopic, setNewFolderTopic] = useState('');
+    const [isManualFolderName, setIsManualFolderName] = useState(false);
+    const [adminFolderSearch, setAdminFolderSearch] = useState('');
     const [isCreatingFolder, setIsCreatingFolder] = useState(false);
     const [mediaList, setMediaList] = useState([]);   // Ganti imageList -> mediaList
     const [isLoadingImages, setIsLoadingImages] = useState(false);
     const [showAllFolders, setShowAllFolders] = useState(false);
+
+    // Otomatis susun nama folder standar berdasarkan Kategori, Tanggal & Topik
+    React.useEffect(() => {
+        if (!showNewFolderModal || isManualFolderName) return;
+
+        let prefix = 'Sabat';
+        if (newFolderCategory === 'sabat') prefix = 'Sabat';
+        else if (newFolderCategory === 'youth') prefix = 'Youth';
+        else if (newFolderCategory === 'event') prefix = 'Acara Khusus';
+        else if (newFolderCategory === 'sosial') prefix = 'Bakti Sosial';
+        else prefix = '';
+
+        let dateStr = '';
+        if (newFolderDate) {
+            const parts = newFolderDate.split('-');
+            if (parts.length === 3) {
+                const day = parseInt(parts[2], 10);
+                const monthIdx = parseInt(parts[1], 10) - 1;
+                const year = parts[0];
+                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                dateStr = `${day} ${months[monthIdx] || ''} ${year}`;
+            }
+        }
+
+        const cleanTopic = (newFolderTopic || '').trim();
+        if (newFolderCategory === 'manual') {
+            setNewFolderName(cleanTopic);
+            return;
+        }
+
+        if (prefix && dateStr) {
+            setNewFolderName(cleanTopic ? `${prefix} ${dateStr} - ${cleanTopic}` : `${prefix} ${dateStr}`);
+        } else if (prefix) {
+            setNewFolderName(cleanTopic ? `${prefix} - ${cleanTopic}` : prefix);
+        } else {
+            setNewFolderName(cleanTopic ? `${cleanTopic} ${dateStr}`.trim() : dateStr);
+        }
+    }, [newFolderCategory, newFolderDate, newFolderTopic, showNewFolderModal, isManualFolderName]);
 
     // Fungsi menghitung total ukuran dalam MB
     const getTotalSizeMB = (files) => {
@@ -5900,18 +6657,19 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         setIsSavingKontak(false);
     };
 
-    // SIMPAN HERO IMAGE URL & CAPTION DINAMIS
+    // SIMPAN HERO IMAGE URL & CAPTION DINAMIS (MAKSIMAL 10 SLIDE)
     const handleSaveHeroImage = async (e) => {
         e.preventDefault();
         if (editHeroImages.length === 0) return alert("Pilih setidaknya 1 gambar hero!");
+        if (editHeroImages.length > 10) {
+            alert("Maksimal carousel adalah 10 slide. Sistem akan membatasi dan menyimpan 10 slide pertama.");
+        }
         setIsSavingHero(true);
         try {
-            // Upload Base64 image via uploadImageToDrive jika ada, agar langsung menjadi URL Drive
-            const updatedSlides = [...editHeroImages];
-            for (let i = 0; i < updatedSlides.length; i++) {
-                const raw = updatedSlides[i];
+            // Batasi maksimal 10 slide carousel dan upload Base64 ke Drive jika ada
+            const updatedSlides = editHeroImages.slice(0, 10).map((raw, i) => {
                 const fallback = DEFAULT_HERO_CAPTIONS[i % DEFAULT_HERO_CAPTIONS.length] || DEFAULT_HERO_CAPTIONS[0];
-                const item = typeof raw === 'object' && raw !== null
+                return typeof raw === 'object' && raw !== null
                     ? {
                         url: raw.url || raw.imageUrl || '',
                         badge: raw.badge !== undefined ? raw.badge : fallback.badge,
@@ -5925,7 +6683,10 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                         title: fallback.title,
                         subtitle: fallback.subtitle
                     };
+            });
 
+            for (let i = 0; i < updatedSlides.length; i++) {
+                const item = updatedSlides[i];
                 if (item.url && item.url.startsWith('data:image')) {
                     try {
                         const upRes = await fetch(GAS_API_URL, {
@@ -5956,7 +6717,26 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             const result = await res.json();
             if (result.success) {
                 alert("Hero Banner & Caption berhasil disimpan!");
-                const finalSlides = result.updatedUrls || updatedSlides;
+                const finalSlides = (result.updatedUrls && Array.isArray(result.updatedUrls) && result.updatedUrls.length > 0)
+                    ? result.updatedUrls.map((u, idx) => {
+                        const orig = updatedSlides[idx] || {};
+                        const fallback = DEFAULT_HERO_CAPTIONS[idx % DEFAULT_HERO_CAPTIONS.length] || DEFAULT_HERO_CAPTIONS[0];
+                        if (typeof u === 'object' && u !== null) {
+                            return {
+                                ...fallback,
+                                ...orig,
+                                ...u,
+                                url: u.url || u.imageUrl || orig.url || ''
+                            };
+                        }
+                        return {
+                            url: u || orig.url || '',
+                            badge: orig.badge !== undefined ? orig.badge : fallback.badge,
+                            title: orig.title !== undefined ? orig.title : fallback.title,
+                            subtitle: orig.subtitle !== undefined ? orig.subtitle : fallback.subtitle
+                        };
+                    })
+                    : updatedSlides;
                 setHeroImages(finalSlides);
                 setEditHeroImages(finalSlides);
                 try {
@@ -6118,16 +6898,25 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     };
 
     const handleAddHeroUrl = () => {
+        if (editHeroImages.length >= 10) {
+            return alert("Maksimal carousel adalah 10 slide gambar! Silakan hapus slide yang tidak digunakan terlebih dahulu.");
+        }
         const url = prompt("Masukkan URL gambar baru (https://...):");
         if (url && url.trim()) {
-            const idx = editHeroImages.length;
-            const fallback = DEFAULT_HERO_CAPTIONS[idx % DEFAULT_HERO_CAPTIONS.length] || DEFAULT_HERO_CAPTIONS[0];
-            setEditHeroImages([...editHeroImages, {
-                url: url.trim(),
-                badge: fallback.badge,
-                title: fallback.title,
-                subtitle: fallback.subtitle
-            }]);
+            setEditHeroImages(prev => {
+                if (prev.length >= 10) {
+                    alert("Maksimal carousel adalah 10 slide gambar!");
+                    return prev;
+                }
+                const idx = prev.length;
+                const fallback = DEFAULT_HERO_CAPTIONS[idx % DEFAULT_HERO_CAPTIONS.length] || DEFAULT_HERO_CAPTIONS[0];
+                return [...prev, {
+                    url: url.trim(),
+                    badge: fallback.badge,
+                    title: fallback.title,
+                    subtitle: fallback.subtitle
+                }];
+            });
         }
     };
 
@@ -6140,6 +6929,11 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     };
 
     const handleHeroFileUpload = (e) => {
+        if (editHeroImages.length >= 10) {
+            alert("Maksimal carousel adalah 10 slide gambar! Silakan hapus slide yang tidak digunakan terlebih dahulu.");
+            e.target.value = '';
+            return;
+        }
         const file = e.target.files && e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
@@ -6159,14 +6953,20 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 ctx.drawImage(img, 0, 0, width, height);
                 const dataUrl = canvas.toDataURL('image/webp', 0.6);
 
-                const idx = editHeroImages.length;
-                const fallback = DEFAULT_HERO_CAPTIONS[idx % DEFAULT_HERO_CAPTIONS.length] || DEFAULT_HERO_CAPTIONS[0];
-                setEditHeroImages([...editHeroImages, {
-                    url: dataUrl,
-                    badge: fallback.badge,
-                    title: fallback.title,
-                    subtitle: fallback.subtitle
-                }]);
+                setEditHeroImages(prev => {
+                    if (prev.length >= 10) {
+                        alert("Maksimal carousel adalah 10 slide gambar!");
+                        return prev;
+                    }
+                    const idx = prev.length;
+                    const fallback = DEFAULT_HERO_CAPTIONS[idx % DEFAULT_HERO_CAPTIONS.length] || DEFAULT_HERO_CAPTIONS[0];
+                    return [...prev, {
+                        url: dataUrl,
+                        badge: fallback.badge,
+                        title: fallback.title,
+                        subtitle: fallback.subtitle
+                    }];
+                });
             };
         };
         e.target.value = '';
@@ -6739,35 +7539,66 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                         <div className="text-xs text-center py-8">Belum ada folder. Buat folder pertama.</div>
                                     ) : (
                                         <>
-                                            {/* Urutkan folder berdasarkan nama (descending) -> terbaru di atas */}
+                                            {/* Pencarian Folder untuk Admin */}
+                                            <div className="mb-4">
+                                                <div className="relative">
+                                                    <Icon name="Search" className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-navy-400" />
+                                                    <input
+                                                        type="text"
+                                                        value={adminFolderSearch}
+                                                        onChange={e => setAdminFolderSearch(e.target.value)}
+                                                        placeholder="Cari folder (misal: Sabat, April, Youth, KKR)..."
+                                                        className="w-full pl-8 pr-8 py-2 bg-navy-50 border border-navy-200 rounded-xl text-xs font-medium text-navy-800 placeholder:text-navy-400 focus:outline-none focus:ring-2 focus:ring-gold-400"
+                                                    />
+                                                    {adminFolderSearch && (
+                                                        <button onClick={() => setAdminFolderSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-navy-400 hover:text-navy-700">
+                                                            <Icon name="X" className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Urutkan folder secara kronologis (terbaru di atas) */}
                                             {(() => {
-                                                const sortedFolders = [...folderList].sort((a, b) => b.name.localeCompare(a.name));
-                                                const displayedFolders = showAllFolders ? sortedFolders : sortedFolders.slice(0, 6);
+                                                const sortedFolders = [...folderList].sort((a, b) => {
+                                                    const da = parseFolderDate(a.name);
+                                                    const db = parseFolderDate(b.name);
+                                                    if (db !== da) return db - da;
+                                                    return b.name.localeCompare(a.name);
+                                                });
+                                                const filtered = adminFolderSearch.trim()
+                                                    ? sortedFolders.filter(f => f.name.toLowerCase().includes(adminFolderSearch.toLowerCase().trim()))
+                                                    : sortedFolders;
+                                                const displayedFolders = showAllFolders || adminFolderSearch.trim() ? filtered : filtered.slice(0, 8);
                                                 return (
-                                                    <div className="flex flex-wrap gap-3 justify-center">
-                                                        {displayedFolders.map(folder => (
-                                                            <button
-                                                                key={folder.id}
-                                                                onClick={() => setSelectedFolder(folder.id)}
-                                                                className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 ${selectedFolder === folder.id
-                                                                    ? 'bg-navy-900 text-gold-400'
-                                                                    : 'bg-navy-50 text-navy-700 hover:bg-navy-100'
-                                                                    }`}
-                                                            >
-                                                                📁 {folder.name}
-                                                            </button>
-                                                        ))}
+                                                    <div className="flex flex-wrap gap-2.5 justify-center">
+                                                        {displayedFolders.length === 0 ? (
+                                                            <p className="text-xs text-navy-400 py-3">Tidak ada folder yang cocok dengan pencarian.</p>
+                                                        ) : (
+                                                            displayedFolders.map(folder => (
+                                                                <button
+                                                                    key={folder.id}
+                                                                    onClick={() => setSelectedFolder(folder.id)}
+                                                                    className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${selectedFolder === folder.id
+                                                                        ? 'bg-navy-900 text-gold-400 shadow-sm scale-105'
+                                                                        : 'bg-navy-50 text-navy-700 hover:bg-navy-100 border border-navy-100'
+                                                                        }`}
+                                                                >
+                                                                    📁 {folder.name}
+                                                                </button>
+                                                            ))
+                                                        )}
                                                     </div>
                                                 );
                                             })()}
                                             {/* Tombol tampilkan semua / sedikit */}
-                                            {folderList.length > 6 && (
+                                            {!adminFolderSearch.trim() && folderList.length > 8 && (
                                                 <div className="mt-4 text-center">
                                                     <button
                                                         onClick={() => setShowAllFolders(!showAllFolders)}
-                                                        className="text-xs w-full bg-navy-900 text-gold-400 py-3 rounded-lg font-bold"
+                                                        className="text-xs w-full bg-navy-900 text-gold-400 py-2.5 rounded-xl font-bold transition hover:bg-navy-800"
                                                     >
-                                                        {showAllFolders ? 'Tampilkan Sedikit' : `Tampilkan Semua (${folderList.length} folder)`}
+                                                        {showAllFolders ? 'Tampilkan Lebih Sedikit' : `Tampilkan Semua (${folderList.length} Folder)`}
                                                     </button>
                                                 </div>
                                             )}
@@ -6976,17 +7807,160 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                         )}
 
                         {showNewFolderModal && (
-                            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                                <div className="glass-box rounded-2xl p-6 max-w-md w-full">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h3 className="text-xl font-bold">Buat Folder Baru</h3>
-                                        <button onClick={() => setShowNewFolderModal(false)} className="text-gray-500">&times;</button>
+                            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/65 backdrop-blur-sm p-4 animate-fade-in">
+                                <div className="glass-box rounded-3xl p-6 max-w-lg w-full bg-white border border-navy-100 shadow-2xl">
+                                    {/* Header Modal */}
+                                    <div className="flex justify-between items-center mb-5 pb-3 border-b border-navy-100">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-9 h-9 rounded-xl bg-gold-100 text-gold-600 flex items-center justify-center">
+                                                <Icon name="Folder" className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-base font-black text-navy-900">Buat Folder Album Baru</h3>
+                                                <p className="text-[11px] text-navy-500">Folder akan otomatis dibuat di Google Drive & dikelompokkan ke Galeri</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setShowNewFolderModal(false)}
+                                            className="w-8 h-8 rounded-lg flex items-center justify-center text-navy-400 hover:text-navy-700 hover:bg-navy-50 transition text-lg"
+                                        >
+                                            &times;
+                                        </button>
                                     </div>
-                                    <input type="text" value={newFolderName} onChange={e => setNewFolderName(e.target.value)} className="w-full p-3 border rounded-lg mb-4" placeholder="Nama folder" />
-                                    <div className="flex justify-end gap-3">
-                                        <button onClick={() => setShowNewFolderModal(false)} className="px-4 py-2 bg-gray-200 rounded-lg">Batal</button>
-                                        <button onClick={handleCreateFolder} disabled={isCreatingFolder} className="px-4 py-2 bg-navy-900 text-gold-400 rounded-lg">
-                                            {isCreatingFolder ? "Membuat..." : "Buat"}
+
+                                    <div className="space-y-4">
+                                        {/* 1. Pilihan Kategori */}
+                                        <div>
+                                            <label className="block text-xs font-bold text-navy-700 mb-1.5">
+                                                1. Pilih Kategori Galeri:
+                                            </label>
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                {[
+                                                    { id: 'sabat', label: 'Ibadah Sabat', icon: 'Church', badge: 'border-amber-400 text-amber-800 bg-amber-50' },
+                                                    { id: 'youth', label: 'Pemuda & Anak', icon: 'Users', badge: 'border-indigo-400 text-indigo-800 bg-indigo-50' },
+                                                    { id: 'event', label: 'Acara Khusus', icon: 'Calendar', badge: 'border-emerald-400 text-emerald-800 bg-emerald-50' },
+                                                    { id: 'sosial', label: 'Bakti Sosial', icon: 'Heart', badge: 'border-rose-400 text-rose-800 bg-rose-50' },
+                                                    { id: 'manual', label: 'Lainnya / Manual', icon: 'Edit', badge: 'border-navy-300 text-navy-800 bg-navy-50' },
+                                                ].map(cat => (
+                                                    <button
+                                                        key={cat.id}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setNewFolderCategory(cat.id);
+                                                            if (cat.id === 'manual') setIsManualFolderName(true);
+                                                        }}
+                                                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all text-left flex items-center gap-1.5 ${newFolderCategory === cat.id
+                                                                ? 'ring-2 ring-gold-400 shadow-sm ' + cat.badge
+                                                                : 'border-navy-200 text-navy-600 hover:bg-navy-50'
+                                                            }`}
+                                                    >
+                                                        <Icon name={cat.icon} className="w-3.5 h-3.5 shrink-0 text-gold-500" />
+                                                        <span className="truncate">{cat.label}</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* 2. Tanggal Kegiatan */}
+                                        {newFolderCategory !== 'manual' && (
+                                            <div>
+                                                <label className="block text-xs font-bold text-navy-700 mb-1">
+                                                    2. Tanggal Pelaksanaan Kegiatan:
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    value={newFolderDate}
+                                                    onChange={e => {
+                                                        setIsManualFolderName(false);
+                                                        setNewFolderDate(e.target.value);
+                                                    }}
+                                                    className="w-full p-2.5 bg-navy-50 border border-navy-200 rounded-xl text-xs font-semibold text-navy-800 focus:outline-none focus:ring-2 focus:ring-gold-400"
+                                                />
+                                            </div>
+                                        )}
+
+                                        {/* 3. Tema / Topik Acara */}
+                                        <div>
+                                            <label className="block text-xs font-bold text-navy-700 mb-1">
+                                                3. {newFolderCategory === 'sabat' ? 'Judul Khotbah / Tema Sabat (Opsional):' : 'Nama Acara / Keterangan:'}
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={newFolderTopic}
+                                                onChange={e => {
+                                                    setIsManualFolderName(false);
+                                                    setNewFolderTopic(e.target.value);
+                                                }}
+                                                placeholder={
+                                                    newFolderCategory === 'sabat'
+                                                        ? 'Contoh: Firman Hingga Kekekalan'
+                                                        : newFolderCategory === 'youth'
+                                                            ? 'Contoh: Youth Camp Cibubur'
+                                                            : newFolderCategory === 'event'
+                                                                ? 'Contoh: KKR Kebangunan Rohani'
+                                                                : newFolderCategory === 'sosial'
+                                                                    ? 'Contoh: Kunjungan Panti Jompo'
+                                                                    : 'Ketik nama folder lengkap...'
+                                                }
+                                                className="w-full p-2.5 bg-navy-50 border border-navy-200 rounded-xl text-xs font-semibold text-navy-800 placeholder:text-navy-400 focus:outline-none focus:ring-2 focus:ring-gold-400"
+                                            />
+                                        </div>
+
+                                        {/* 4. Pratinjau Nama Folder Akhir */}
+                                        <div className="bg-navy-50 p-3.5 rounded-xl border border-navy-200/80">
+                                            <div className="flex justify-between items-center mb-1.5">
+                                                <span className="text-[11px] font-bold text-navy-700 flex items-center gap-1">
+                                                    <Icon name="Folder" className="w-3.5 h-3.5 text-gold-500" /> Hasil Nama Folder di Google Drive:
+                                                </span>
+                                                {!isManualFolderName && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsManualFolderName(true)}
+                                                        className="text-[10px] text-gold-600 font-bold hover:underline"
+                                                    >
+                                                        Edit Manual
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <input
+                                                type="text"
+                                                value={newFolderName}
+                                                onChange={e => {
+                                                    setIsManualFolderName(true);
+                                                    setNewFolderName(e.target.value);
+                                                }}
+                                                className="w-full p-2 bg-white border border-gold-300 rounded-lg text-xs font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-400"
+                                            />
+                                            <p className="text-[10px] text-navy-500 mt-1.5">
+                                                💡 Format ini otomatis dikenali oleh filter kategori & urutan tanggal di Galeri Jemaat.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex justify-end gap-2.5 mt-5 pt-3 border-t border-navy-100">
+                                        <button
+                                            onClick={() => setShowNewFolderModal(false)}
+                                            className="px-4 py-2 bg-navy-50 hover:bg-navy-100 text-navy-700 rounded-xl text-xs font-bold transition"
+                                        >
+                                            Batal
+                                        </button>
+                                        <button
+                                            onClick={handleCreateFolder}
+                                            disabled={isCreatingFolder || !newFolderName.trim()}
+                                            className="px-5 py-2 bg-navy-900 hover:bg-navy-800 text-gold-400 rounded-xl text-xs font-bold transition shadow-sm disabled:opacity-50 flex items-center gap-2"
+                                        >
+                                            {isCreatingFolder ? (
+                                                <>
+                                                    <div className="w-3.5 h-3.5 border-2 border-gold-400 border-t-transparent rounded-full animate-spin"></div>
+                                                    <span>Membuat Folder...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Icon name="PlusCircle" className="w-4 h-4" />
+                                                    <span>Buat Folder</span>
+                                                </>
+                                            )}
                                         </button>
                                     </div>
                                 </div>
@@ -7330,8 +8304,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                 <p className="text-xs text-navy-500 dark:text-gray-400 font-bold uppercase tracking-widest mt-1">Kelola Gambar & Teks Tiap Slide Homepage</p>
                                             </div>
                                         </div>
-                                        <span className="text-xs font-bold px-3 py-1 bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-gold-300 rounded-full border border-navy-100 dark:border-navy-700 w-max">
-                                            {editHeroImages.length} Slide Aktif
+                                        <span className={`text-xs font-bold px-3 py-1 rounded-full border w-max ${editHeroImages.length >= 10 ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800' : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-gold-300 border-navy-100 dark:border-navy-700'}`}>
+                                            {editHeroImages.length} / 10 Slide Aktif
                                         </span>
                                     </div>
 
@@ -7497,17 +8471,25 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
                                     {/* Action Buttons: Tambah & Simpan */}
                                     <form onSubmit={handleSaveHeroImage} className="space-y-4 pt-2 border-t border-navy-50 dark:border-navy-800">
-                                        <div className="flex flex-col sm:flex-row gap-3 items-stretch">
-                                            <label className="flex-1 flex items-center justify-center bg-navy-50 dark:bg-navy-800 border-2 border-dashed border-navy-200 dark:border-navy-700 rounded-xl py-3 px-4 cursor-pointer hover:border-gold-400 hover:bg-gold-50 dark:hover:bg-navy-700 transition-all group">
-                                                <Icon name="Upload" className="w-5 h-5 mr-2 text-navy-400 group-hover:text-gold-500 transition-colors" />
-                                                <span className="text-sm font-bold text-navy-600 dark:text-gray-200 group-hover:text-gold-600 transition-colors">+ Upload Slide Baru</span>
-                                                <input type="file" accept="image/*" className="hidden" onChange={handleHeroFileUpload} />
-                                            </label>
-                                            <button type="button" onClick={handleAddHeroUrl} className="flex-1 bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-navy-600 dark:text-gray-200 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 dark:hover:bg-navy-800 transition flex justify-center items-center">
-                                                <Icon name="PlusCircle" className="w-4 h-4 mr-2" />
-                                                + Tambah Slide via URL
-                                            </button>
-                                        </div>
+                                        {editHeroImages.length >= 10 ? (
+                                            <div className="p-3.5 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60 rounded-xl text-center">
+                                                <p className="text-xs font-bold text-amber-800 dark:text-amber-300">
+                                                    Batas maksimal 10 slide carousel telah tercapai. Hapus slide yang tidak digunakan jika ingin menambahkan slide baru.
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+                                                <label className="flex-1 flex items-center justify-center bg-navy-50 dark:bg-navy-800 border-2 border-dashed border-navy-200 dark:border-navy-700 rounded-xl py-3 px-4 cursor-pointer hover:border-gold-400 hover:bg-gold-50 dark:hover:bg-navy-700 transition-all group">
+                                                    <Icon name="Upload" className="w-5 h-5 mr-2 text-navy-400 group-hover:text-gold-500 transition-colors" />
+                                                    <span className="text-sm font-bold text-navy-600 dark:text-gray-200 group-hover:text-gold-600 transition-colors">+ Upload Slide Baru ({editHeroImages.length}/10)</span>
+                                                    <input type="file" accept="image/*" className="hidden" onChange={handleHeroFileUpload} />
+                                                </label>
+                                                <button type="button" onClick={handleAddHeroUrl} className="flex-1 bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-navy-600 dark:text-gray-200 font-bold py-3 px-4 rounded-xl hover:bg-navy-50 dark:hover:bg-navy-800 transition flex justify-center items-center">
+                                                    <Icon name="PlusCircle" className="w-4 h-4 mr-2" />
+                                                    + Tambah Slide via URL
+                                                </button>
+                                            </div>
+                                        )}
                                         <button type="submit" disabled={isSavingHero} className={`w-full ${isSavingHero ? 'bg-navy-300 dark:bg-navy-700 text-navy-500 dark:text-gray-400 cursor-not-allowed' : 'bg-navy-900 dark:bg-gold-500 hover:bg-navy-800 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950 shadow-md hover:shadow-lg'} font-bold py-3.5 rounded-xl transition-all flex justify-center items-center mt-6`}>
                                             {isSavingHero ? <><span className="w-4 h-4 border-2 border-navy-500 border-t-white rounded-full animate-spin mr-2"></span> Menyimpan Slide & Caption...</> : 'Simpan Perubahan Banner & Caption'}
                                         </button>
@@ -9998,6 +10980,7 @@ const App = () => {
     const [anthemTitle2, setAnthemTitle2] = React.useState("");
     const [youtubeTitle, setYoutubeTitle] = React.useState("");
     const [youtubeChannelTitle, setYoutubeChannelTitle] = React.useState("");
+    const [liveUrl, setLiveUrl] = React.useState("https://www.youtube.com/embed/live_stream?channel=UCaTPS74NOHACRYU0zInVZ4g");
     const [heroImages, setHeroImages] = React.useState(() => {
         try {
             const savedSlidesStr = localStorage.getItem('pisgah_hero_slides');
@@ -10015,6 +10998,7 @@ const App = () => {
         } catch (e) { }
         return ["./carousel/hero-default.png"];
     });
+    const [carouselEvents, setCarouselEvents] = React.useState([]);
     const [carouselVideos, setCarouselVideos] = React.useState([]);
     const [perjamuanDate, setPerjamuanDate] = React.useState('');
     const [perpuluhanDate, setPerpuluhanDate] = React.useState('');

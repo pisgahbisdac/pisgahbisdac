@@ -613,8 +613,23 @@ function getPublicFolders() {
   try {
     const parent = DriveApp.getFolderById(FOLDER_GALERI_ID);
     const subFolders = parent.getFolders();
-    while (subFolders.hasNext()) { const f = subFolders.next(); folders.push({ id: f.getId(), name: f.getName() }); }
-    folders.sort((a, b) => a.name.localeCompare(b.name)); return jsonResponse({ success: true, folders: folders });
+    while (subFolders.hasNext()) {
+      const f = subFolders.next();
+      let coverUrl = '';
+      try {
+        const files = f.getFiles();
+        while (files.hasNext()) {
+          const file = files.next();
+          const mime = file.getMimeType();
+          if (mime.startsWith('image/')) {
+            coverUrl = "https://drive.google.com/uc?export=view&id=" + file.getId();
+            break;
+          }
+        }
+      } catch (err) {}
+      folders.push({ id: f.getId(), name: f.getName(), coverUrl: coverUrl });
+    }
+    return jsonResponse({ success: true, folders: folders });
   } catch (e) { return jsonResponse({ success: false, message: e.toString() }); }
 }
 
@@ -709,6 +724,7 @@ function saveHeroImages(payloadData) {
   try {
     let images = typeof payloadData === 'string' ? JSON.parse(payloadData) : payloadData;
     if (!Array.isArray(images)) images = [images];
+    images = images.slice(0, 10); // Batasi maksimal 10 slide carousel
 
     let updatedImages = [];
     let targetFolderId = getOrCreateNestedFolder("Hero_Images");

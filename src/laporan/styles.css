@@ -56,19 +56,23 @@
       min-height: 100vh;
       width: 100%;
       background: url('/church_finance_bg.png') center/cover no-repeat;
+      background-size: cover;
       position: relative;
+      background-attachment: fixed;
     }
 
     .login-split::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: var(--bg-glass);
+      background: radial-gradient(circle at 20% 30%, rgba(15, 23, 42, 0.78) 0%, rgba(8, 15, 30, 0.92) 100%);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       z-index: 0;
     }
 
     [data-theme="dark"] .login-split::before {
-      background: linear-gradient(135deg, rgba(11, 26, 48, 0.8) 0%, rgba(11, 26, 48, 0.3) 100%);
+      background: radial-gradient(circle at 20% 30%, rgba(15, 23, 42, 0.82) 0%, rgba(6, 11, 25, 0.95) 100%);
     }
 
     .login-image-side {
@@ -76,16 +80,94 @@
       position: relative;
       display: none;
       z-index: 1;
+      padding: 60px 48px;
     }
 
     .login-image-content {
-      position: absolute;
-      top: 10%;
-      left: 10%;
-      right: 10%;
+      position: relative;
+      max-width: 600px;
+      margin: auto 0;
       color: white;
       z-index: 2;
-      animation: fadeSlideUp 1s ease-out;
+      animation: fadeSlideUp 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .login-brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      color: #ffd166;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.15);
+    }
+
+    .login-hero-title {
+      font-size: clamp(32px, 3.8vw, 50px);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 18px;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .text-champagne-gold {
+      background: linear-gradient(135deg, #ffe699 0%, #ffd166 50%, #d4af37 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .login-hero-desc {
+      font-size: 15px;
+      color: rgba(226, 232, 240, 0.88);
+      line-height: 1.7;
+      max-width: 520px;
+      margin-bottom: 32px;
+      font-weight: 400;
+    }
+
+    .login-feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    .login-feature-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      backdrop-filter: blur(12px);
+      font-size: 13px;
+      font-weight: 600;
+      color: #f1f5f9;
+      transition: all 0.3s ease;
+    }
+
+    .login-feature-pill:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(212, 175, 55, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .login-security-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: rgba(148, 163, 184, 0.85);
+      font-weight: 500;
     }
 
     .login-form-side {
@@ -93,14 +175,56 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 32px 20px;
       z-index: 1;
-      background: var(--bg-glass);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border-left: 1px solid var(--glass-border);
-      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
-      animation: slideInRight 0.8s ease-out;
+      animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .login-glass-card {
+      width: 100%;
+      max-width: 440px;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 28px;
+      padding: 36px 32px;
+      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+    }
+
+    [data-theme="light"] .login-glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      border-color: rgba(226, 232, 240, 0.8);
+      box-shadow: 0 30px 60px -15px rgba(15, 23, 42, 0.15);
+    }
+
+    [data-theme="light"] .login-glass-card .app-name-display {
+      color: #0f172a !important;
+    }
+
+    [data-theme="light"] .login-glass-card .form-label {
+      color: #334155 !important;
+    }
+
+    [data-theme="light"] .login-glass-card .form-input {
+      background: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+
+    [data-theme="light"] .login-glass-card #loginStatus {
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    [data-theme="light"] .login-glass-card #statusText {
+      color: #334155 !important;
+    }
+
+    [data-theme="light"] .login-glass-card .btn-ghost {
+      background: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+      color: #b45309 !important;
     }
 
     @keyframes fadeSlideUp {
@@ -129,7 +253,8 @@
 
     @media (min-width: 900px) {
       .login-image-side {
-        display: block;
+        display: flex;
+        align-items: center;
       }
     }
 

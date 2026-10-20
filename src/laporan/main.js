@@ -56,6 +56,7 @@ const svgStore = {
   eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
   eyeOff: '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/>',
   image: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
+  filetext: '<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>',
   printer: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/>',
   user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
   upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'
@@ -628,6 +629,36 @@ function applyConfig() {
   const inRK = document.getElementById('komitmenRealisasiInput');
   if (inRK) inRK.value = systemConfig.komitmen_realisasi ? fmt(systemConfig.komitmen_realisasi) : '';
 
+  // Background & Teks Sambutan Halaman Login / Loading
+  const loginPage = document.getElementById('loginPage');
+  if (loginPage) {
+    if (systemConfig.login_bg && systemConfig.login_bg.trim() !== '') {
+      loginPage.style.backgroundImage = `url("${systemConfig.login_bg}")`;
+    } else {
+      loginPage.style.backgroundImage = `url('/church_finance_bg.png')`;
+    }
+  }
+  const previewLoginBg = document.getElementById('preview-login-bg');
+  if (previewLoginBg) {
+    previewLoginBg.src = systemConfig.login_bg || '/church_finance_bg.png';
+  }
+
+  const heroTitle = document.getElementById('loginHeroTitle');
+  if (heroTitle) {
+    heroTitle.innerHTML = systemConfig.login_title
+      ? systemConfig.login_title.replace(/\n/g, '<br>')
+      : 'Pengelolaan Transparan,<br><span class="text-champagne-gold">Pelayanan Maksimal.</span>';
+  }
+  const inputLoginTitle = document.getElementById('settingLoginTitle');
+  if (inputLoginTitle) inputLoginTitle.value = systemConfig.login_title || '';
+
+  const heroSubtitle = document.getElementById('loginHeroSubtitle');
+  if (heroSubtitle) {
+    heroSubtitle.textContent = systemConfig.login_subtitle || 'Sistem informasi keuangan terintegrasi jemaat untuk pencatatan kas, pelaporan kuitansi digital, dan transparansi perbendaharaan yang akuntabel.';
+  }
+  const inputLoginSub = document.getElementById('settingLoginSubtitle');
+  if (inputLoginSub) inputLoginSub.value = systemConfig.login_subtitle || '';
+
   const sigKeys = ['sig_bendahara', 'sig_bangun', 'sig_ketua', 'sig_pendeta', 'sig_stempel'];
   sigKeys.forEach(k => {
     const imgEl = document.getElementById('preview-' + k.replace('_', '-'));
@@ -866,6 +897,78 @@ function handleLogoUpload(event, keyType) {
     img.src = e.target.result;
   }
   reader.readAsDataURL(file);
+}
+
+function handleLoginBgUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  notify('Memproses gambar background...', 'info');
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const img = new Image();
+    img.onload = async function () {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const MAX_W = 1920;
+      let w = img.width, h = img.height;
+      if (w > MAX_W) {
+        h = Math.round((h * MAX_W) / w);
+        w = MAX_W;
+      }
+      canvas.width = w;
+      canvas.height = h;
+      ctx.drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+      systemConfig.login_bg = dataUrl;
+      localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
+      applyConfig();
+
+      try {
+        const res = await apiPostWithFallback('saveConfig', { key: 'login_bg', value: dataUrl });
+        if (res.success) notify('Background halaman login berhasil diperbarui!', 'success');
+        else throw new Error(res.message);
+      } catch (err) {
+        notify('Gagal menyimpan background: ' + err.message, 'error');
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function resetLoginBg() {
+  const isConfirm = await showCustomConfirm('Reset Background', 'Kembalikan gambar background login ke default?');
+  if (!isConfirm) return;
+  systemConfig.login_bg = '';
+  localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
+  applyConfig();
+  try {
+    await apiPostWithFallback('saveConfig', { key: 'login_bg', value: '' });
+    notify('Background direset ke default.', 'success');
+  } catch (err) {
+    notify('Gagal reset: ' + err.message, 'error');
+  }
+}
+
+async function saveLoginHeroText() {
+  const title = (document.getElementById('settingLoginTitle')?.value || '').trim();
+  const subtitle = (document.getElementById('settingLoginSubtitle')?.value || '').trim();
+
+  systemConfig.login_title = title;
+  systemConfig.login_subtitle = subtitle;
+  localStorage.setItem('BISDAC_config', JSON.stringify(systemConfig));
+  applyConfig();
+
+  try {
+    await Promise.all([
+      apiPostWithFallback('saveConfig', { key: 'login_title', value: title }),
+      apiPostWithFallback('saveConfig', { key: 'login_subtitle', value: subtitle })
+    ]);
+    notify('Teks sambutan halaman login berhasil disimpan!', 'success');
+  } catch (err) {
+    notify('Gagal menyimpan teks: ' + err.message, 'error');
+  }
 }
 
 function handleSignatureUpload(inputEl, previewId, textId, keyType) {
@@ -6739,6 +6842,9 @@ window.updateIncomeAlloc = updateIncomeAlloc;
 window.safeIcon = safeIcon;
 window.editIncType = editIncType;
 window.handleLogoUpload = handleLogoUpload;
+window.handleLoginBgUpload = handleLoginBgUpload;
+window.resetLoginBg = resetLoginBg;
+window.saveLoginHeroText = saveLoginHeroText;
 window.updateRoleAnon = updateRoleAnon;
 window.handleReceiptPhoto = handleReceiptPhoto;
 window.saveDeptForm = saveDeptForm;
