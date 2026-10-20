@@ -201,7 +201,7 @@ export function generateReceiptHTML(type, mainTx, customItems = null) {
           <div style="position: relative; z-index: 1; color: #000;">
           <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #222; padding-bottom: 8px; margin-bottom: 8px;">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <img src="${GMAHK_LOGO_BASE64}" style="width: 65px; height: 65px; object-fit: contain;">
+              <img src="${systemConfig.logo_kuitansi || GMAHK_LOGO_BASE64}" style="width: 65px; height: 65px; object-fit: contain;">
               <div>
                 <h2 style="margin: 0; font-size: 13px; font-weight: 800; text-transform: uppercase;">${systemConfig.header_kuitansi_1 || 'Gereja Masehi Advent Hari Ketujuh'}</h2>
                 <h3 style="margin: 2px 0 0 0; font-size: 12px; font-weight: 700; color:#333;">${systemConfig.header_kuitansi_2 || 'Daerah Sumatera Kawasan Tengah'}</h3>

@@ -173,25 +173,47 @@ export async function renderSeriesHistory() {
 
     const catId = detectSeriesCat(tx, isInc);
 
-    if (!receiptMap[rNo]) {
-      receiptMap[rNo] = {
+    if (catId === 'Mutasi') {
+      // Mutasi / Pindah Buku: satu nomor bukti PB mewakili satu transaksi pemindahan kas ke bank.
+      // Jangan pernah menjumlahkan kedua sisinya (masuk & keluar) menjadi 2x lipat atau dianggap kolektif!
+      if (!receiptMap[rNo]) {
+        let displayName = tx.nama_pemberi || tx.nama_penerima || tx.description || tx.uraian || tx.note || tx.department || 'Setoran Kas ke Bank';
+        receiptMap[rNo] = {
+          receipt_no: rNo,
+          catId: 'Mutasi',
+          date: tx.date,
+          type: 'mutasi',
+          name: displayName,
+          amount: parseFloat(tx.amount || 0),
+          itemsCount: 1,
+          rawTx: tx
+        };
+      } else {
+        // Jika sudah ada dari salah satu sisi (misal tercatat di income lalu ketemu di expense),
+        // gunakan data expense yang memiliki source_balance dan note lebih lengkap tanpa menambah amount / itemsCount
+        if (!isInc && tx.source_balance) {
+          receiptMap[rNo].rawTx = tx;
+        }
+      }
+      return;
+    }
+
+    const mapKey = (isInc ? 'INC_' : 'EXP_') + rNo;
+
+    if (!receiptMap[mapKey]) {
+      receiptMap[mapKey] = {
         receipt_no: rNo,
         catId: catId,
         date: tx.date,
-        type: isInc ? 'income' : (catId === 'Mutasi' ? 'mutasi' : 'expense'),
-        name: isInc ? (tx.nama || tx.nama_pemberi || tx.name || 'Jemaat') : (tx.description || tx.uraian || tx.note || tx.department || (catId === 'Mutasi' ? 'Setoran Kas ke Bank' : 'Pengeluaran Kas')),
+        type: isInc ? 'income' : 'expense',
+        name: isInc ? (tx.nama || tx.nama_pemberi || tx.name || 'Jemaat') : (tx.description || tx.uraian || tx.note || tx.department || 'Pengeluaran Kas'),
         amount: 0,
         itemsCount: 0,
         rawTx: tx
       };
-    } else {
-      if (catId === 'Mutasi') {
-        receiptMap[rNo].catId = 'Mutasi';
-        receiptMap[rNo].type = 'mutasi';
-      }
     }
-    receiptMap[rNo].amount += parseFloat(tx.amount || 0);
-    receiptMap[rNo].itemsCount += 1;
+    receiptMap[mapKey].amount += parseFloat(tx.amount || 0);
+    receiptMap[mapKey].itemsCount += 1;
   };
 
   allInc.forEach(tx => processTx(tx, true));

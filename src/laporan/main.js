@@ -702,6 +702,9 @@ function applyConfig() {
   const sidebarLogoEls = document.querySelectorAll('.app-logo-sidebar-img'); const sidebarDefaultEls = document.querySelectorAll('.app-logo-sidebar-default');
   if (systemConfig.logo_sidebar && systemConfig.logo_sidebar.trim() !== '') { sidebarLogoEls.forEach(el => { el.src = systemConfig.logo_sidebar; el.style.display = 'block'; }); sidebarDefaultEls.forEach(el => { el.style.display = 'none'; }); }
   else { sidebarLogoEls.forEach(el => { el.style.display = 'none'; el.src = ''; }); sidebarDefaultEls.forEach(el => { el.style.display = 'block'; }); }
+  const kuitansiLogoEls = document.querySelectorAll('.app-logo-kuitansi-img'); const kuitansiDefaultEls = document.querySelectorAll('.app-logo-kuitansi-default');
+  if (systemConfig.logo_kuitansi && systemConfig.logo_kuitansi.trim() !== '') { kuitansiLogoEls.forEach(el => { el.src = systemConfig.logo_kuitansi; el.style.display = 'block'; }); kuitansiDefaultEls.forEach(el => { el.style.display = 'none'; }); }
+  else { kuitansiLogoEls.forEach(el => { el.style.display = 'none'; el.src = ''; }); kuitansiDefaultEls.forEach(el => { el.src = GMAHK_LOGO_BASE64; el.style.display = 'block'; }); }
 
   const appName = systemConfig.app_name || 'PISGAH BISDAC';
   const appSubtitle = systemConfig.app_subtitle || 'Gereja Masehi Advent';
@@ -1105,7 +1108,7 @@ function handleLogoUpload(event, keyType) {
     const img = new Image();
     img.onload = async function () {
       const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
-      const MAX = 150; let w = img.width, h = img.height;
+      const MAX = (keyType === 'logo_kuitansi' ? 250 : 150); let w = img.width, h = img.height;
       if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } }
       canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h);
       const dataUrl = canvas.toDataURL('image/png', 0.8);
@@ -1115,6 +1118,7 @@ function handleLogoUpload(event, keyType) {
     img.src = e.target.result;
   }
   reader.readAsDataURL(file);
+  event.target.value = '';
 }
 
 function handleLoginBgUpload(event) {
@@ -2629,18 +2633,31 @@ function groupTransactions(arr) {
   const map = {};
   arr.forEach(x => {
     if (x.receipt_no && x.receipt_no !== '-' && x.receipt_no !== 'SALDO_AWAL') {
-      if (!map[x.receipt_no]) {
-        map[x.receipt_no] = { ...x, amount: 0, _items: [] };
-        grouped.push(map[x.receipt_no]);
+      const isMutasi = (x.department === 'Mutasi Kas / Setor Bank' || x.income_type === 'Mutasi Kas / Setor Bank' || String(x.receipt_no).startsWith('PB-') || String(x.receipt_no).startsWith('PB'));
+      if (isMutasi) {
+        // Mutasi / Pindah Buku: Jangan pernah gabungkan sisi masuk dan keluar menjadi double / 2x lipat!
+        if (!map[x.receipt_no]) {
+          map[x.receipt_no] = { ...x, amount: parseFloat(x.amount || 0), _isMutasi: true };
+          grouped.push(map[x.receipt_no]);
+        }
+        return;
       }
-      map[x.receipt_no].amount += parseFloat(x.amount);
-      map[x.receipt_no]._items.push(x.income_type || x.department || 'Item');
+
+      const txType = (x.type === 'income' || x.income_type) ? 'in' : 'out';
+      const key = txType + '_' + x.receipt_no;
+
+      if (!map[key]) {
+        map[key] = { ...x, amount: 0, _items: [] };
+        grouped.push(map[key]);
+      }
+      map[key].amount += parseFloat(x.amount || 0);
+      map[key]._items.push(x.income_type || x.department || 'Item');
     } else {
       grouped.push(x);
     }
   });
   grouped.forEach(x => {
-    if (x._items && x._items.length > 1) {
+    if (!x._isMutasi && x._items && x._items.length > 1) {
       const lbl = `Kolektif (${x._items.length} item)`;
       if (x.type === 'income' || x.kind === 'income' || x.isInc || x.income_type) x.income_type = lbl;
       if (x.type === 'expense' || x.kind === 'expense' || x.department) x.department = lbl;
