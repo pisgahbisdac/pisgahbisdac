@@ -208,8 +208,8 @@
       </div>
       <nav class="sidebar-nav">
 
-        <div class="nav-section-title">Menu Utama</div>
-        <div class="nav-item active" onclick="showPage('dashboard')">
+        <div class="nav-section-title">Operasional</div>
+        <div class="nav-item active" onclick="showPage('dashboard')" id="navDashboard">
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="home" data-size="lucide-md"></span>
           </span> Dashboard
@@ -229,11 +229,17 @@
             <span class="icon-placeholder" data-icon="refresh" data-size="lucide-md"></span>
           </span> Pindah Buku (Mutasi)
         </div>
-        <div class="nav-section-title">Laporan Keuangan</div>
+
+        <div class="nav-section-title">Laporan & Warta</div>
         <div class="nav-item" onclick="showPage('laporan')" id="navLaporan">
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="log" data-size="lucide-md"></span>
           </span> Laporan Bulanan
+        </div>
+        <div class="nav-item" onclick="openSabbathBulletinModal()" id="navBuletinSabat">
+          <span class="nav-icon">
+            <span class="icon-placeholder" data-icon="filetext" data-size="lucide-md"></span>
+          </span> Buletin Sabat
         </div>
         <div class="nav-item" onclick="showPage('riwayat')" id="navRiwayat">
           <span class="nav-icon">
@@ -241,7 +247,8 @@
               style="transition: color 0.3s;"></span>
           </span> Histori Jurnal
         </div>
-        <div class="nav-section-title" id="adminNavLabel">Administrasi</div>
+
+        <div class="nav-section-title" id="masterNavLabel">Master Data</div>
         <div class="nav-item" onclick="showPage('masterIncType')" id="navMasterIncType">
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="plus" data-size="lucide-md"></span>
@@ -257,10 +264,17 @@
             <span class="icon-placeholder" data-icon="users" data-size="lucide-md"></span>
           </span> Unit Pemberi
         </div>
+
+        <div class="nav-section-title" id="adminNavLabel">Sistem & Keamanan</div>
         <div class="nav-item" onclick="showPage('users')" id="navUsers">
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="shield" data-size="lucide-md"></span>
           </span> Manajemen User
+        </div>
+        <div class="nav-item" onclick="showPage('roles')" id="navRoles">
+          <span class="nav-icon">
+            <span class="icon-placeholder" data-icon="key" data-size="lucide-md"></span>
+          </span> Hak Akses Menu
         </div>
         <div class="nav-item" onclick="showPage('akun')" id="navAkun">
           <span class="nav-icon">
@@ -271,12 +285,6 @@
           <span class="nav-icon">
             <span class="icon-placeholder" data-icon="settings" data-size="lucide-md"></span>
           </span> Pengaturan Web
-        </div>
-
-        <div class="nav-item" onclick="showPage('roles')" id="navRoles">
-          <span class="nav-icon">
-            <span class="icon-placeholder" data-icon="key" data-size="lucide-md"></span>
-          </span> Hak Akses Menu
         </div>
         <div class="nav-item" onclick="showPage('series')" id="navSeries">
           <span class="nav-icon">
@@ -369,48 +377,95 @@
 
       <!-- PAGE: DASHBOARD -->
       <div class="page active" id="page-dashboard">
-        <div class="card" id="dashSearchCard">
-          <div class="card-header">
-            <div>
-              <div class="card-title" style="display: flex; align-items: center; gap: 8px;">
-                <svg class="lucide lucide-md" style="color:var(--primary)" viewBox="0 0 24 24">
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg> Cek Transaksi
+        <!-- WELCOME HERO CARD & QUICK ACTIONS -->
+        <div class="welcome-hero-card" id="dashWelcomeCard">
+          <div class="welcome-hero-content">
+            <div class="welcome-hero-left">
+              <div class="welcome-user-meta">
+                <span class="user-role-badge" id="dashUserRoleBadge">Pengguna</span>
+                <span class="welcome-date-pill" id="dashTodayDate">Memuat tanggal...</span>
               </div>
-              <div class="card-subtitle">Verifikasi status setoran/pengeluaran via No. Kuitansi.</div>
+              <h2 class="welcome-greeting-title" id="dashGreetingTitle">
+                Selamat Datang, <span id="dashGreetingName">User</span>!
+              </h2>
+              <p class="welcome-greeting-subtitle">
+                Sistem Informasi Keuangan Terpadu GMAHK Pisgah &bull; Transparan & Akuntabel
+              </p>
+            </div>
+            <div class="welcome-hero-right">
+              <div class="welcome-sync-box">
+                <span class="sync-status-dot online"></span>
+                <div>
+                  <div class="sync-status-title">Dual-Cloud Sync Aktif</div>
+                  <div class="sync-status-desc" id="dashSyncDesc">Supabase &amp; Google Apps Script Realtime</div>
+                </div>
+              </div>
             </div>
           </div>
-          <div style="display: flex; gap: 12px; align-items: center;">
-            <input class="form-input" id="searchReceiptInput" type="text" placeholder="INC-1234..."
-              onkeydown="if(event.key==='Enter') searchByReceipt()">
-            <button class="btn btn-primary" onclick="searchByReceipt()"
-              style="white-space: nowrap; padding: 12px 24px;">Cari</button>
+
+          <!-- QUICK ACTIONS GRID -->
+          <div class="quick-actions-bar" id="dashQuickActions">
+            <button type="button" class="quick-action-btn qa-income" onclick="showPage('pemasukan')" id="qaBtnIncome">
+              <div class="qa-icon-wrap">
+                <span class="icon-placeholder" data-icon="trendUp" data-size="lucide-md"></span>
+              </div>
+              <div class="qa-text-wrap">
+                <span class="qa-title">+ Kas Masuk</span>
+                <span class="qa-desc">Input Penerimaan</span>
+              </div>
+            </button>
+            <button type="button" class="quick-action-btn qa-expense" onclick="showPage('pengeluaran')"
+              id="qaBtnExpense">
+              <div class="qa-icon-wrap">
+                <span class="icon-placeholder" data-icon="trendDown" data-size="lucide-md"></span>
+              </div>
+              <div class="qa-text-wrap">
+                <span class="qa-title">- Kas Keluar</span>
+                <span class="qa-desc">Catat Pengeluaran</span>
+              </div>
+            </button>
+            <button type="button" class="quick-action-btn qa-transfer" onclick="showPage('pindahbuku')"
+              id="qaBtnTransfer">
+              <div class="qa-icon-wrap">
+                <span class="icon-placeholder" data-icon="refresh" data-size="lucide-md"></span>
+              </div>
+              <div class="qa-text-wrap">
+                <span class="qa-title">Pindah Kas</span>
+                <span class="qa-desc">Mutasi Kas / Bank</span>
+              </div>
+            </button>
+            <button type="button" class="quick-action-btn qa-bulletin" onclick="openSabbathBulletinModal()"
+              id="qaBtnBulletin">
+              <div class="qa-icon-wrap">
+                <span class="icon-placeholder" data-icon="filetext" data-size="lucide-md"></span>
+              </div>
+              <div class="qa-text-wrap">
+                <span class="qa-title">Buletin Sabat</span>
+                <span class="qa-desc">Warta Sabat Jemaat</span>
+              </div>
+            </button>
           </div>
-          <div id="receiptSearchResult" style="margin-top: 20px; display: none;"></div>
         </div>
 
-        <!-- PROYEK GEREJA BANNER -->
-        <div class="card proyek-banner">
-          <div class="proyek-banner-badge" style="margin-bottom: 12px;">
-            <svg viewBox="0 0 24 24"
-              style="width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg> PROYEK GEREJA
+        <!-- PENDING APPROVAL ALERT BANNER -->
+        <div class="card approval-alert-card" id="dashApprovalAlert" style="display:none; margin-bottom: 22px;">
+          <div class="approval-alert-inner">
+            <div class="approval-alert-icon-box">
+              <span class="icon-placeholder" data-icon="bell" data-size="lucide-md"></span>
+            </div>
+            <div class="approval-alert-text">
+              <h4 class="approval-alert-title" id="approvalAlertTitle">Transaksi Menunggu Persetujuan</h4>
+              <p class="approval-alert-desc" id="approvalAlertDesc">Terdapat pengajuan kas keluar yang membutuhkan
+                disposisi / verifikasi Anda.</p>
+            </div>
+            <button type="button" class="btn btn-warning approval-alert-action-btn" onclick="navigateToApprovals()">
+              Tinjau Transaksi &rarr;
+            </button>
           </div>
-          <h2>Bersama Membangun Rumah Tuhan</h2>
-          <p class="desc">
-            Setiap doa, dukungan, dan persembahan pembangunan Anda adalah fondasi utama dalam mewujudkan tempat ibadah
-            yang lebih nyaman bagi jemaat dan saksi kebaikan Tuhan bagi lingkungan sekitar.
-          </p>
-          <p class="action">Mari ambil bagian dalam penatalayanan ini!</p>
-          <button class="proyek-banner-btn" onclick="window.location.href='https://pisgahbisdac.app/pembangunan.html'">
-            KLIK UNTUK MELIHAT PROGRES PEMBANGUNAN &rsaquo;
-          </button>
         </div>
 
-        <div class="card" id="dashUnitToggleContainer" style="display:none; text-align:center; padding:16px;">
+        <div class="card" id="dashUnitToggleContainer"
+          style="display:none; text-align:center; padding:16px; margin-bottom: 22px;">
           <div style="font-size:16px; font-weight:700; margin-bottom:12px;">Akses Cepat Unit</div>
           <button class="btn btn-ghost" onclick="goToMyUnitHistory()"
             style="border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; justify-content:center; padding: 12px;">Lihat
@@ -418,7 +473,7 @@
         </div>
 
         <div class="filter-bar">
-          <span class="filter-label">Filter:</span>
+          <span class="filter-label">Filter Periode:</span>
           <select class="select-sm" id="dashMonth" onchange="renderDashboard()">
             <option value="0">Semua Bulan</option>
             <option value="1">Januari</option>
@@ -441,41 +496,101 @@
 
         <div class="stats-grid" id="statsGrid"></div>
 
-        <!-- KARTU GRAFIK KEUANGAN TAHUNAN -->
-        <div class="card" id="dashChartCard" style="margin-bottom:24px; width: 100%;">
-          <div class="card-header"
-            style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px;">
-            <div>
-              <div class="card-title" style="display:flex; align-items:center; gap:8px;">
-                <svg class="lucide lucide-md" style="color:var(--primary)" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="18" y1="20" x2="18" y2="10"></line>
-                  <line x1="12" y1="20" x2="12" y2="4"></line>
-                  <line x1="6" y1="20" x2="6" y2="14"></line>
-                </svg>
-                <span>Tren Penerimaan & Pengeluaran</span>
+        <!-- DUAL CHARTS GRID: TREN KEUANGAN & DONUT ALOKASI DEPARTEMEN -->
+        <div class="dash-charts-grid" id="dashChartsGrid" style="margin-bottom:24px;">
+          <!-- KARTU GRAFIK KEUANGAN TAHUNAN -->
+          <div class="card" id="dashChartCard" style="margin-bottom:0; width: 100%;">
+            <div class="card-header"
+              style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px;">
+              <div>
+                <div class="card-title" style="display:flex; align-items:center; gap:8px;">
+                  <span class="icon-placeholder" data-icon="trendUp" data-size="lucide-md"
+                    style="color:var(--primary)"></span>
+                  <span>Tren Penerimaan & Pengeluaran</span>
+                </div>
+                <div class="card-subtitle" id="dashChartSubtitle">Grafik per bulan selama setahun</div>
               </div>
-              <div class="card-subtitle" id="dashChartSubtitle">Grafik per bulan selama setahun</div>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="filter-label" style="font-size:12px; margin:0;">Filter:</span>
+                <select class="select-sm" id="dashChartCategoryFilter" onchange="updateDashboardChart()"
+                  style="min-width:160px; max-width:240px; text-overflow:ellipsis;">
+                  <option value="all">Semua (Pemasukan & Pengeluaran)</option>
+                </select>
+                <div style="display:flex; border:1px solid var(--glass-border); border-radius:6px; overflow:hidden;">
+                  <button type="button" id="btnChartModeBar" class="chart-toggle-btn active"
+                    onclick="setDashboardChartMode('bar')" title="Tampilan Batang">Batang</button>
+                  <button type="button" id="btnChartModeLine" class="chart-toggle-btn"
+                    onclick="setDashboardChartMode('line')" title="Tampilan Garis">Garis</button>
+                </div>
+              </div>
             </div>
-            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-              <span class="filter-label" style="font-size:12px; margin:0;">Filter:</span>
-              <select class="select-sm" id="dashChartCategoryFilter" onchange="updateDashboardChart()"
-                style="min-width:170px; max-width:260px; text-overflow:ellipsis;">
-                <option value="all">Semua (Total Pemasukan & Pengeluaran)</option>
-              </select>
-              <div style="display:flex; border:1px solid var(--glass-border); border-radius:6px; overflow:hidden;">
-                <button type="button" id="btnChartModeBar" class="chart-toggle-btn active"
-                  onclick="setDashboardChartMode('bar')" title="Tampilan Batang">Batang</button>
-                <button type="button" id="btnChartModeLine" class="chart-toggle-btn"
-                  onclick="setDashboardChartMode('line')" title="Tampilan Garis">Garis</button>
-              </div>
+            <div style="position:relative; width:100%; height:320px;">
+              <canvas id="dashFinanceChart"></canvas>
+            </div>
+            <div id="dashChartSummary"
+              style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:12px; margin-top:16px; padding-top:12px; border-top:1px solid var(--glass-border); font-size:12px;">
             </div>
           </div>
-          <div style="position:relative; width:100%; height:320px;">
-            <canvas id="dashFinanceChart"></canvas>
+
+          <!-- KARTU GRAFIK DONUT ALOKASI PENGELUARAN DEPARTEMEN -->
+          <div class="card" id="dashDeptDonutCard"
+            style="margin-bottom:0; width: 100%; display:flex; flex-direction:column;">
+            <div class="card-header">
+              <div>
+                <div class="card-title" style="display:flex; align-items:center; gap:8px;">
+                  <span class="icon-placeholder" data-icon="hammer" data-size="lucide-md" style="color:#ffd166"></span>
+                  <span>Alokasi Departemen</span>
+                </div>
+                <div class="card-subtitle" id="dashDeptDonutSubtitle">Proporsi pengeluaran periode ini</div>
+              </div>
+            </div>
+            <div
+              style="position:relative; flex:1; min-height:260px; display:flex; align-items:center; justify-content:center;">
+              <canvas id="dashDeptDonutChart"></canvas>
+            </div>
+            <div id="dashDeptDonutLegend"
+              style="margin-top:14px; padding-top:10px; border-top:1px solid var(--glass-border); font-size:12px; max-height:110px; overflow-y:auto;">
+            </div>
           </div>
-          <div id="dashChartSummary"
-            style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:12px; margin-top:16px; padding-top:12px; border-top:1px solid var(--glass-border); font-size:12px;">
+        </div>
+
+        <!-- DASH UTILITY GRID: CEK TRANSAKSI & PROYEK GEREJA -->
+        <div class="dash-utility-grid" style="margin-bottom:24px;">
+          <div class="card" id="dashSearchCard" style="margin-bottom:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title" style="display: flex; align-items: center; gap: 8px;">
+                  <span class="icon-placeholder" data-icon="shield" data-size="lucide-md"
+                    style="color:var(--primary)"></span>
+                  <span>Cek Transaksi Kuitansi</span>
+                </div>
+                <div class="card-subtitle">Verifikasi status setoran/pengeluaran via No. Kuitansi.</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+              <input class="form-input" id="searchReceiptInput" type="text"
+                placeholder="Ketik No. Kuitansi (INC-1234...)" onkeydown="if(event.key==='Enter') searchByReceipt()">
+              <button class="btn btn-primary" onclick="searchByReceipt()"
+                style="white-space: nowrap; padding: 12px 20px;">Cari</button>
+            </div>
+            <div id="receiptSearchResult" style="margin-top: 20px; display: none;"></div>
+          </div>
+
+          <!-- PROYEK GEREJA BANNER -->
+          <div class="card proyek-banner" style="margin-bottom:0;">
+            <div class="proyek-banner-badge" style="margin-bottom: 12px;">
+              <span class="icon-placeholder" data-icon="home" data-size="lucide-xs"></span>
+              <span>PROYEK GEREJA</span>
+            </div>
+            <h2>Bersama Membangun Rumah Tuhan</h2>
+            <p class="desc">
+              Setiap doa, dukungan, dan persembahan pembangunan Anda adalah fondasi utama dalam mewujudkan tempat ibadah
+              yang lebih nyaman bagi jemaat dan saksi kebaikan Tuhan.
+            </p>
+            <button class="proyek-banner-btn"
+              onclick="window.location.href='https://pisgahbisdac.app/pembangunan.html'">
+              LIHAT PROGRES PEMBANGUNAN &rsaquo;
+            </button>
           </div>
         </div>
 
@@ -2144,6 +2259,127 @@
 
       <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
         <button class="btn btn-outline" onclick="hideLedgerModal()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL BULETIN KEUANGAN SABAT -->
+  <div class="modal-overlay" id="sabbathBulletinModal" style="display:none; z-index:1150;">
+    <div class="modal-content slide-up"
+      style="max-width: 820px; max-height: 92vh; display: flex; flex-direction: column; padding: 24px; border-radius: 20px;">
+      <div class="modal-header"
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div
+            style="width: 36px; height: 36px; border-radius: 10px; background: rgba(212, 175, 55, 0.12); border: 1px solid rgba(212, 175, 55, 0.3); display: flex; align-items: center; justify-content: center; color: #ffd166;">
+            <span class="icon-placeholder" data-icon="filetext" data-size="lucide-md"></span>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: var(--text);">Warta &amp; Buletin Keuangan
+              Sabat</h3>
+            <p style="margin: 2px 0 0; font-size: 12px; color: var(--text3);">Rekapitulasi keuangan mingguan siap cetak
+              untuk warta jemaat Sabat</p>
+          </div>
+        </div>
+        <button class="btn-icon-only" onclick="closeSabbathBulletinModal()" title="Tutup">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Controls & Actions -->
+      <div
+        style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; background: var(--surface2, rgba(255,255,255,0.04)); padding: 12px 16px; border-radius: 14px; border: 1px solid var(--glass-border);">
+        <!-- Baris 1: Filter Periode & Mode -->
+        <div style="display: flex; align-items: center; justify-content: flex-start; gap: 12px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 12.5px; font-weight: 700; color: var(--text2); white-space: nowrap;">Mode:</span>
+            <select id="bulletinModeSelect" class="select-sm"
+              style="min-width: 195px; height: 38px; padding: 6px 36px 6px 12px; font-size: 13px; line-height: normal; border-radius: 8px; font-weight: 600; box-sizing: border-box;"
+              onchange="handleBulletinModeChange()">
+              <option value="kombinasi" selected>Sabat Ini + Akumulasi Bulan</option>
+              <option value="sabat">Per Hari Sabat Saja</option>
+              <option value="bulan">Per Bulan Penuh</option>
+            </select>
+          </div>
+
+          <div id="bulletinSabbathContainer" style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 12.5px; font-weight: 600; color: var(--text2); white-space: nowrap;">Pilih
+              Sabat:</span>
+            <select id="bulletinSabbathSelect" class="select-sm"
+              style="min-width: 220px; height: 38px; padding: 6px 36px 6px 12px; font-size: 13px; line-height: normal; border-radius: 8px; font-weight: 600; box-sizing: border-box;"
+              onchange="renderSabbathBulletinPreview()">
+              <!-- Populated dynamically with recent Sabbaths -->
+            </select>
+          </div>
+
+          <div id="bulletinMonthContainer" style="display: none; align-items: center; gap: 6px;">
+            <span style="font-size: 12.5px; font-weight: 600; color: var(--text2); white-space: nowrap;">Pilih
+              Bulan:</span>
+            <select id="bulletinMonthSelect" class="select-sm"
+              style="min-width: 135px; height: 38px; padding: 6px 36px 6px 12px; font-size: 13px; line-height: normal; border-radius: 8px; font-weight: 600; box-sizing: border-box;"
+              onchange="renderSabbathBulletinPreview()">
+              <option value="1">Januari</option>
+              <option value="2">Februari</option>
+              <option value="3">Maret</option>
+              <option value="4">April</option>
+              <option value="5">Mei</option>
+              <option value="6">Juni</option>
+              <option value="7">Juli</option>
+              <option value="8">Agustus</option>
+              <option value="9">September</option>
+              <option value="10">Oktober</option>
+              <option value="11">November</option>
+              <option value="12">Desember</option>
+            </select>
+            <input type="number" class="select-sm" id="bulletinYearInput" value="2026" min="2000" max="2100"
+              style="width: 90px; height: 38px; padding: 6px 8px; font-size: 13px; line-height: normal; border-radius: 8px; text-align: center; font-weight: 700; box-sizing: border-box;"
+              onchange="renderSabbathBulletinPreview()">
+          </div>
+        </div>
+
+        <!-- Baris 2: Opsi Tanda Tangan & Tombol Aksi Simetris -->
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px dashed var(--glass-border); padding-top: 10px; flex-wrap: wrap;">
+          <label
+            style="display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: var(--text); cursor: pointer; background: rgba(255,255,255,0.06); padding: 0 14px; border-radius: 8px; border: 1px solid var(--glass-border); user-select: none; height: 38px; box-sizing: border-box;"
+            title="Tampilkan/sembunyikan tanda tangan digital & stempel resmi">
+            <input type="checkbox" id="bulletinIncludeSignatures" checked onchange="renderSabbathBulletinPreview()"
+              style="cursor: pointer; width: 16px; height: 16px; accent-color: #10b981;">
+            <span>Tanda Tangan &amp; Stempel</span>
+          </label>
+
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="button" class="btn btn-ghost" onclick="copySabbathBulletinWhatsApp()"
+              style="height: 38px; padding: 0 16px; border: 1.5px solid #10b981; color: #10b981; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: 8px; white-space: nowrap; box-sizing: border-box; transition: all 0.2s ease;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <span>Salin WhatsApp</span>
+            </button>
+            <button type="button" class="btn btn-primary" onclick="printSabbathBulletin()"
+              style="height: 38px; padding: 0 18px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: 8px; white-space: nowrap; box-sizing: border-box; transition: all 0.2s ease; background: #059669; border-color: #059669; color: #ffffff;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                <path d="M6 9V2h12v7" />
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                <rect width="12" height="8" x="6" y="14" />
+              </svg>
+              <span>Cetak Buletin (PDF)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bulletin Sheet Preview Container -->
+      <div style="flex: 1; overflow-y: auto; padding: 4px; border-radius: 12px;">
+        <div id="bulletinPaperPreview" class="sabbath-bulletin-sheet">
+          <!-- Populated dynamically by renderSabbathBulletinPreview() -->
+          <div style="text-align:center; padding: 40px; color: var(--text3);">Memuat data warta Sabat...</div>
+        </div>
       </div>
     </div>
   </div>

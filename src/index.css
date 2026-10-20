@@ -1089,6 +1089,11 @@ a {
   vertical-align: middle;
 }
 
+.lucide-xs {
+  width: 14px;
+  height: 14px;
+}
+
 .lucide-sm {
   width: 16px;
   height: 16px;
@@ -1475,13 +1480,16 @@ a {
 }
 
 .select-sm {
-  padding: 10px 36px 10px 16px;
+  padding: 6px 36px 6px 12px;
+  height: 38px;
+  line-height: normal;
+  box-sizing: border-box;
   border-radius: var(--radius);
   background-color: var(--input-bg);
   border: 1px solid var(--input-border);
   color: var(--text);
   outline: none;
-  font-size: 14px;
+  font-size: 13.5px;
   cursor: pointer;
   transition: 0.2s;
   -webkit-appearance: none;
