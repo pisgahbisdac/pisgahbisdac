@@ -3802,6 +3802,14 @@ tr:hover td {
   border-left: 4px solid var(--green-pop);
 }
 
+.notification.warning {
+  border-left: 4px solid var(--yellow, #f59e0b);
+}
+
+.notification.info {
+  border-left: 4px solid var(--accent, #3b82f6);
+}
+
 .notification.error {
   border-left: 4px solid var(--red-pop);
 }

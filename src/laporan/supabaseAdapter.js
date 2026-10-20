@@ -87,7 +87,7 @@ export async function supabaseGet(action, params = {}) {
       }
 
       case 'getLogs': {
-        const { data, error } = await supabase.from('logs').select('*').order('timestamp', { ascending: false }).limit(50);
+        const { data, error } = await supabase.from('logs').select('*').order('timestamp', { ascending: false }).limit(200);
         if (error) throw error;
         return { success: true, data: data || [] };
       }
@@ -158,6 +158,12 @@ export async function supabasePost(action, payload = {}) {
 
       case 'saveIncome': {
         if (!canInputTx) return { success: false, message: 'Akses ditolak.' };
+        if (payload.receipt_no) {
+          const { data: existingReceipt } = await supabase.from('income').select('transaction_id').eq('receipt_no', payload.receipt_no).limit(1);
+          if (existingReceipt && existingReceipt.length > 0) {
+            return { success: false, message: `Nomor bukti "${payload.receipt_no}" sudah pernah digunakan pada data Pemasukan.` };
+          }
+        }
         const { data: types } = await supabase.from('income_types').select('*').eq('name', payload.income_type).single();
         let alloc_daerah = 0, alloc_jemaat = 0, alloc_bangun = 0;
         if (types) {
@@ -200,6 +206,12 @@ export async function supabasePost(action, payload = {}) {
 
       case 'saveExpense': {
         if (!canInputTx) return { success: false, message: 'Akses ditolak.' };
+        if (payload.receipt_no) {
+          const { data: existingReceipt } = await supabase.from('expense').select('transaction_id').eq('receipt_no', payload.receipt_no).limit(1);
+          if (existingReceipt && existingReceipt.length > 0) {
+            return { success: false, message: `Nomor bukti "${payload.receipt_no}" sudah pernah digunakan pada data Pengeluaran.` };
+          }
+        }
         const year = parseInt(payload.date.split('-')[0]);
         const month = parseInt(payload.date.split('-')[1]);
         const nextNum = await getNextSeqNum('expense', 'EXP', year, month);
@@ -249,6 +261,14 @@ export async function supabasePost(action, payload = {}) {
       case 'editRecord': {
         if (!isBendaharaOrAdmin && !userRoles.includes('Operator')) return { success: false, message: 'Hanya Admin atau Bendahara.' };
         const table = payload.type === 'income' ? 'income' : 'expense';
+        const targetId = payload.id || payload.transaction_id;
+
+        if (payload.receipt_no && targetId) {
+          const { data: existingReceipt } = await supabase.from(table).select('transaction_id').eq('receipt_no', payload.receipt_no).neq('transaction_id', targetId).limit(1);
+          if (existingReceipt && existingReceipt.length > 0) {
+            return { success: false, message: `Nomor bukti "${payload.receipt_no}" sudah digunakan oleh transaksi lain.` };
+          }
+        }
 
         let updateData = {};
         if (table === 'income') {
@@ -297,7 +317,6 @@ export async function supabasePost(action, payload = {}) {
           if (payload.photo3 !== undefined && !payload.receipt_photo_base64_3) updateData.receipt_photo_3 = payload.photo3;
         }
 
-        const targetId = payload.id || payload.transaction_id;
         const { error } = await supabase.from(table).update(updateData).eq('transaction_id', targetId);
         if (error) throw error;
         writeLog(username, 'EDIT_' + table.toUpperCase(), `Edit ID: ${targetId} | Rp ${Number(updateData.amount || 0).toLocaleString('id-ID')} | No. Bukti: ${updateData.receipt_no || '-'}`);
@@ -323,10 +342,12 @@ export async function supabasePost(action, payload = {}) {
             const res = await supabase.from('departments').update({ name: payload.name }).eq('name', payload.id).select();
             if (res.error) throw res.error;
           }
+          writeLog(username, 'EDIT_DEPT', `Ubah departemen: ${payload.name}`);
           return { success: true, message: 'Departemen berhasil diperbarui.' };
         } else {
           const { error } = await supabase.from('departments').insert([{ id: 'DEP-' + Date.now(), name: payload.name, active: true }]);
           if (error) throw error;
+          writeLog(username, 'INSERT_DEPT', `Tambah departemen: ${payload.name}`);
           return { success: true, message: 'Departemen berhasil disimpan.' };
         }
       }
@@ -336,6 +357,7 @@ export async function supabasePost(action, payload = {}) {
         if (error) {
           await supabase.from('departments').delete().eq('name', payload.name || payload.id);
         }
+        writeLog(username, 'DELETE_DEPT', `Hapus departemen: ${payload.name || payload.id}`);
         return { success: true, message: 'Departemen dihapus.' };
       }
 
@@ -395,6 +417,7 @@ export async function supabasePost(action, payload = {}) {
               .eq('unit_pemberi', payload.oldName);
           }
 
+          writeLog(username, 'EDIT_UNIT', `Ubah unit: ${payload.name} (${payload.jumlah_anggota || 0} jiwa)`);
           return { success: true, message: 'Unit berhasil diperbarui.' };
         } else {
           // New unit insert
@@ -406,6 +429,7 @@ export async function supabasePost(action, payload = {}) {
             active: true
           }]);
           if (error) throw error;
+          writeLog(username, 'INSERT_UNIT', `Tambah unit: ${payload.name} (${payload.jumlah_anggota || 0} jiwa)`);
           return { success: true, message: 'Unit berhasil disimpan.' };
         }
       }
@@ -419,6 +443,7 @@ export async function supabasePost(action, payload = {}) {
           const { error } = await query.delete().eq('name', payload.name);
           if (error) throw error;
         }
+        writeLog(username, 'DELETE_UNIT', `Hapus unit: ${payload.name || payload.id}`);
         return { success: true, message: 'Unit berhasil dihapus.' };
       }
 
@@ -427,16 +452,19 @@ export async function supabasePost(action, payload = {}) {
           await supabase.from('income_types').update({
             name: payload.name, pct_daerah: payload.pct_daerah, pct_jemaat: payload.pct_jemaat, pct_bangun: payload.pct_bangun
           }).eq('name', payload.oldName);
+          writeLog(username, 'EDIT_INCOME_TYPE', `Ubah kategori: ${payload.name}`);
         } else {
           await supabase.from('income_types').insert([{
             id: 'TYP-' + Date.now(), name: payload.name, pct_daerah: payload.pct_daerah, pct_jemaat: payload.pct_jemaat, pct_bangun: payload.pct_bangun
           }]);
+          writeLog(username, 'INSERT_INCOME_TYPE', `Tambah kategori: ${payload.name} (D:${payload.pct_daerah}% J:${payload.pct_jemaat}% B:${payload.pct_bangun}%)`);
         }
         return { success: true, message: 'Jenis pemasukan disimpan.' };
       }
 
       case 'deleteIncomeType': {
         await supabase.from('income_types').delete().eq('name', payload.name);
+        writeLog(username, 'DELETE_INCOME_TYPE', `Hapus kategori: ${payload.name}`);
         return { success: true, message: 'Jenis pemasukan dihapus.' };
       }
 

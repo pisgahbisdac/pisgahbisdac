@@ -16,10 +16,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.min.css" rel="stylesheet">
 
-  <script type="module" crossorigin src="/assets/laporan-DYh0Hb7-.js"></script>
+  <script type="module" crossorigin src="/assets/laporan-Dgihuq6a.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="stylesheet" crossorigin href="/assets/laporan-ldx9_8sw.css">
-  <link rel="stylesheet" crossorigin href="/assets/index-C64D17vV.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-BHgbSQXl.css">
 </head>
 
 <body class="page-laporan">
@@ -1003,16 +1003,6 @@
           style="margin-top: -8px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 16px; padding: 14px; background: var(--input-bg); border-radius: var(--radius-lg); border: 1px dashed var(--glass-border); max-width: 100%; box-sizing: border-box;">
 
           <div style="display: flex; align-items: center; gap: 10px;">
-            <input type="checkbox" id="sensorPemasukan" onchange="applyReportSensor()"
-              style="width: 20px; height: 20px; accent-color: var(--gold); cursor: pointer; flex-shrink: 0;">
-            <label for="sensorPemasukan"
-              style="color: var(--text); font-size: 14px; cursor: pointer; user-select: none; font-weight: 500;">
-              Sensor Nama
-            </label>
-          </div>
-
-          <div
-            style="display: flex; align-items: center; gap: 10px; padding-left: 16px; border-left: 1px solid var(--glass-border);">
             <input type="checkbox" id="sensorUnit" onchange="applyReportSensor()"
               style="width: 20px; height: 20px; accent-color: var(--gold); cursor: pointer; flex-shrink: 0;">
             <label for="sensorUnit"
@@ -1598,6 +1588,36 @@
                 </button>
               </div>
             </div>
+
+            <div
+              style="background:var(--input-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                <div style="max-width:650px;">
+                  <div style="font-weight:700; color:var(--text); font-size:15px; margin-bottom:4px;">Cadangan & Arsip
+                    Data (.json)</div>
+                  <div style="color:var(--text-muted, var(--text3)); font-size:13px; line-height:1.5;">
+                    Simpan seluruh data keuangan (pemasukan, pengeluaran, saldo kas, master data, pengaturan sistem,
+                    akun pengguna, dan riwayat audit) ke dalam satu file arsip cadangan komputer offline, atau
+                    verifikasi integritas file backup yang sudah ada.
+                  </div>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                  <button id="btnDownloadBackup" class="btn btn-primary" onclick="downloadFullBackup()"
+                    style="background:#3b82f6; border-color:#3b82f6; gap:8px;">
+                    <span class="icon-placeholder" data-icon="download" data-size="lucide-sm"></span>
+                    <span>Unduh Cadangan Lengkap</span>
+                  </button>
+                  <label class="btn btn-outline"
+                    style="cursor:pointer; display:inline-flex; align-items:center; gap:8px; margin:0;"
+                    title="Buka dan verifikasi integritas berkas backup JSON">
+                    <span class="icon-placeholder" data-icon="fileSearch" data-size="lucide-sm"></span>
+                    <span>Validasi Berkas Cadangan</span>
+                    <input type="file" id="backupFileInput" accept=".json,application/json" style="display:none;"
+                      onchange="validateBackupFile(event)">
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2089,9 +2109,46 @@
 
       <div class="page" id="page-logs">
         <div class="card no-padding">
-          <div class="card-header" style="padding: 24px 24px 0;">
-            <div class="card-title">Aktivitas Sistem</div><button class="btn btn-ghost"
-              onclick="renderLogs()">Segarkan</button>
+          <div class="card-header"
+            style="padding: 24px 24px 16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+              <div class="card-title" style="margin-bottom:4px;">Audit Log & Aktivitas Sistem</div>
+              <div style="font-size:12px; color:var(--text3);">Catatan jejak aktivitas pengguna dan perubahan data
+                sistem</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <input type="text" id="logSearchInput" class="form-input" placeholder="Cari log / user / detail..."
+                style="width:200px; font-size:12.5px; padding:6px 12px;" oninput="handleLogSearch(this.value)">
+              <select id="logActionFilter" class="form-select" style="font-size:12.5px; padding:6px 12px; width:160px;"
+                onchange="handleLogActionFilter(this.value)">
+                <option value="all">Semua Aksi</option>
+                <option value="LOGIN">Login</option>
+                <option value="INSERT_INCOME">Tambah Pemasukan</option>
+                <option value="INSERT_EXPENSE">Tambah Pengeluaran</option>
+                <option value="EDIT_INCOME">Edit Pemasukan</option>
+                <option value="EDIT_EXPENSE">Edit Pengeluaran</option>
+                <option value="DELETE_INCOME">Hapus Pemasukan</option>
+                <option value="DELETE_EXPENSE">Hapus Pengeluaran</option>
+                <option value="APPROVE">Setujui Transaksi</option>
+                <option value="SAVE_BULK_INCOME">Setoran Kolektif</option>
+                <option value="UPDATE_USER">Kelola Pengguna</option>
+                <option value="UPDATE_CONFIG">Ubah Pengaturan</option>
+                <option value="SET_BALANCE">Saldo Awal</option>
+                <option value="INSERT_DEPT">Tambah Dept</option>
+                <option value="EDIT_DEPT">Edit Dept</option>
+                <option value="DELETE_DEPT">Hapus Dept</option>
+                <option value="INSERT_UNIT">Tambah Unit</option>
+                <option value="EDIT_UNIT">Edit Unit</option>
+                <option value="DELETE_UNIT">Hapus Unit</option>
+                <option value="INSERT_INCOME_TYPE">Tambah Kategori</option>
+                <option value="EDIT_INCOME_TYPE">Edit Kategori</option>
+                <option value="DELETE_INCOME_TYPE">Hapus Kategori</option>
+              </select>
+              <button class="btn btn-ghost" onclick="renderLogs()" title="Muat ulang data log"
+                style="padding:6px 12px; font-size:12.5px;">Segarkan</button>
+              <button class="btn btn-outline" onclick="exportLogsToCSV()" title="Unduh CSV log aktivitas"
+                style="padding:6px 12px; font-size:12.5px;">Ekspor CSV</button>
+            </div>
           </div>
           <div class="table-wrap scrollable" style="border:none;">
             <table class="table-log">
@@ -2884,6 +2941,39 @@
           <!-- Populated dynamically by renderSabbathBulletinPreview() -->
           <div style="text-align:center; padding: 40px; color: var(--text3);">Memuat data warta Sabat...</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PRATINJAU / VALIDASI CADANGAN DATA -->
+  <div class="modal-overlay" id="modalBackupPreview" style="display:none; z-index:1200;"
+    onclick="if(event.target===this) closeBackupPreviewModal()">
+    <div class="modal-content slide-up" style="max-width:620px; width:100%; margin:16px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div
+            style="width:36px; height:36px; border-radius:8px; background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.3); display:flex; align-items:center; justify-content:center; color:#3b82f6;">
+            <span class="icon-placeholder" data-icon="fileSearch" data-size="lucide-sm"></span>
+          </div>
+          <div>
+            <div class="modal-title" style="font-size:16px; font-weight:700;">Validasi Berkas Cadangan (.JSON)</div>
+            <div style="font-size:12px; color:var(--text3);">Hasil analisis kelayakan dan integritas data</div>
+          </div>
+        </div>
+        <button class="btn-icon-only" onclick="closeBackupPreviewModal()" title="Tutup">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" style="padding:20px 24px; max-height:75vh; overflow-y:auto;" id="backupPreviewBody">
+        <!-- Rendered dynamically by validateBackupFile() -->
+      </div>
+      <div
+        style="display:flex; gap:12px; justify-content:flex-end; padding:16px 24px; border-top:1px solid var(--glass-border); background:rgba(0,0,0,0.08);">
+        <button class="btn btn-ghost" type="button" onclick="closeBackupPreviewModal()">Tutup</button>
       </div>
     </div>
   </div>
