@@ -361,7 +361,7 @@ Gagal: ${l}`)}async function To(){const t=window.cachedIncome||[],e=window.cache
           <span class="qa-desc">Progres Pembangunan</span>
         </div>
       </button>
-      <button type="button" class="quick-action-btn qa-expense" onclick="window.location.href='index.html'">
+      <button type="button" class="quick-action-btn qa-expense" onclick="window.location.href='./'">
         <div class="qa-icon-wrap" style="background:rgba(239,68,68,0.15); color:#ef4444;">
           <svg class="lucide lucide-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
         </div>

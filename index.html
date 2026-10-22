@@ -26,6 +26,7 @@
             background-color: #0b1a30 !important;
             color-scheme: dark;
         }
+
         html.dark body {
             background-color: #0b1a30 !important;
         }
@@ -40,6 +41,15 @@
             document.documentElement.classList.remove('dark');
             document.documentElement.style.backgroundColor = '#f9fafb';
         }
+
+        // Hapus index.html dari URL bar secara instan jika pengguna mengakses langsung
+        try {
+            if (window.location.pathname.endsWith('/index.html')) {
+                var cleanPath = window.location.pathname.replace(/\/index\.html$/, '') || '/';
+                var cleanUrl = window.location.origin + cleanPath + window.location.search + window.location.hash;
+                window.history.replaceState(null, '', cleanUrl);
+            }
+        } catch (e) { }
     </script>
 
 
@@ -51,7 +61,8 @@
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
 </head>
 
-<body class="bg-gray-50 dark:bg-[#0b1a30] text-navy-900 dark:text-gray-100 font-sans antialiased overflow-x-clip transition-colors duration-300">
+<body
+    class="bg-gray-50 dark:bg-[#0b1a30] text-navy-900 dark:text-gray-100 font-sans antialiased overflow-x-clip transition-colors duration-300">
     <div id="root">
         <!-- Preloader: Ditampilkan saat React & Babel sedang diproses, mencegah blank screen lambat -->
         <div class="preloader-bg"

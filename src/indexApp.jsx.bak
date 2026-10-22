@@ -763,6 +763,39 @@ const VideoThumbnail = ({ video, ytid }) => {
     );
 };
 
+export const getCleanBaseUrl = () => {
+    if (typeof window !== 'undefined' && window.location.origin) {
+        return `${window.location.origin}/`;
+    }
+    return 'https://pisgahbisdac.app/';
+};
+
+export const getCleanShareUrl = (tab = 'home', params = {}) => {
+    const origin = (typeof window !== 'undefined' && window.location.origin) ? window.location.origin : 'https://pisgahbisdac.app';
+    if (!tab || tab === 'home') {
+        return `${origin}/`;
+    }
+    const query = new URLSearchParams();
+    query.set('tab', tab);
+    if (params && typeof params === 'object') {
+        Object.entries(params).forEach(([key, val]) => {
+            if (val !== undefined && val !== null && val !== '') {
+                query.set(key, String(val));
+            }
+        });
+    }
+    return `${origin}/?${query.toString()}`;
+};
+
+export const getWartaShareUrl = (warta) => {
+    if (!warta) return getCleanShareUrl('warta');
+    const id = warta.rowIndex !== undefined && warta.rowIndex !== null ? warta.rowIndex : warta.id;
+    if (id !== undefined && id !== null && id !== '') {
+        return getCleanShareUrl('warta', { id });
+    }
+    return getCleanShareUrl('warta');
+};
+
 const createGoogleCalendarUrl = (event) => {
     if (!event) return '#';
     const title = encodeURIComponent(event.title || 'Acara GMAHK Pisgah BISDAC');
@@ -773,7 +806,8 @@ const createGoogleCalendarUrl = (event) => {
 
 const shareEventToWhatsApp = (event) => {
     if (!event) return;
-    const text = `*Acara GMAHK Pisgah BISDAC*\n\n📌 *${event.title || ''}*\n🗓️ ${event.dateStr || ''}\n📍 ${event.location || 'GMAHK Pisgah BISDAC'}\n\nMari hadir bersama dan bertumbuh dalam iman! Info selengkapnya:\n${window.location.href}`;
+    const eventUrl = getCleanShareUrl('jadwal');
+    const text = `*Acara GMAHK Pisgah BISDAC*\n\n📌 *${event.title || ''}*\n🗓️ ${event.dateStr || ''}\n📍 ${event.location || 'GMAHK Pisgah BISDAC'}\n\nMari hadir bersama dan bertumbuh dalam iman! Info selengkapnya:\n${eventUrl}`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
 };
 
@@ -1450,7 +1484,8 @@ const DailyVerseWidget = ({ setActiveTab }) => {
     };
 
     const handleCopy = () => {
-        const shareText = `📖 *Ayat Alkitab Hari Ini*\n\n"${verse.text}"\n\n📌 *${verse.bookName} ${verse.chapter}:${verse.verse}*\nTema: ${verse.theme}\n\n🕊️ _GMAHK Pisgah BISDAC_\n${window.location.origin}`;
+        const verseUrl = getCleanShareUrl('belajar_alkitab');
+        const shareText = `📖 *Ayat Alkitab Hari Ini*\n\n"${verse.text}"\n\n📌 *${verse.bookName} ${verse.chapter}:${verse.verse}*\nTema: ${verse.theme}\n\n🕊️ _GMAHK Pisgah BISDAC_\n${verseUrl}`;
         navigator.clipboard.writeText(shareText).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
@@ -1458,7 +1493,8 @@ const DailyVerseWidget = ({ setActiveTab }) => {
     };
 
     const handleShareWA = () => {
-        const shareText = `📖 *Ayat Alkitab Hari Ini*\n\n"${verse.text}"\n\n📌 *${verse.bookName} ${verse.chapter}:${verse.verse}*\nTema: ${verse.theme}\n\n🕊️ _GMAHK Pisgah BISDAC_\n${window.location.origin}`;
+        const verseUrl = getCleanShareUrl('belajar_alkitab');
+        const shareText = `📖 *Ayat Alkitab Hari Ini*\n\n"${verse.text}"\n\n📌 *${verse.bookName} ${verse.chapter}:${verse.verse}*\nTema: ${verse.theme}\n\n🕊️ _GMAHK Pisgah BISDAC_\n${verseUrl}`;
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
     };
 
@@ -3345,7 +3381,8 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
             text += `\n*Khotbah / Umum (${formatTime(activeJadwal.khotbahTime)})*\n`;
             activeJadwal.khotbah.forEach(p => { if (p.tugas && p.nama) text += `${p.tugas}: ${p.nama}\n`; });
         }
-        text += `\nMohon kehadiran tepat waktu. Tuhan memberkati.\n\nLihat selengkapnya di: ${window.location.href}`;
+        const jadwalUrl = getCleanShareUrl('jadwal');
+        text += `\nMohon kehadiran tepat waktu. Tuhan memberkati.\n\nLihat selengkapnya di: ${jadwalUrl}`;
 
         if (navigator.share) {
             navigator.share({ text: text }).catch(err => console.log('Share failed:', err));
@@ -3382,7 +3419,7 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
             desc += `\nKhotbah / Umum (${activeJadwal.khotbahTime}):\n`;
             activeJadwal.khotbah.forEach(p => { if (p.tugas && p.nama) desc += `• ${p.tugas}: ${p.nama}\n`; });
         }
-        desc += `\nPortal: ${window.location.origin}`;
+        desc += `\nPortal: ${getCleanBaseUrl()}`;
 
         const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${ymdClean}T${startH}/${ymdClean}T${endH}&details=${encodeURIComponent(desc)}&location=${encodeURIComponent(location)}`;
         window.open(gCalUrl, '_blank');
@@ -5302,7 +5339,8 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
     const handleCopyQuote = () => {
         if (!selectedWarta) return;
         const plainText = stripHtml(selectedWarta.isi || '').slice(0, 260);
-        const textMsg = `📰 *WARTA JEMAAT PISGAH BISDAC*\n*${selectedWarta.judul}*\n📅 ${formatIndoDate(selectedWarta.tanggal)} | ✍️ ${selectedWarta.penulis || 'Redaksi'}\n\n"${plainText}..."\n\n🔗 *Baca selengkapnya di portal resmi:*\n${window.location.origin}`;
+        const wartaUrl = getWartaShareUrl(selectedWarta);
+        const textMsg = `📰 *WARTA JEMAAT PISGAH BISDAC*\n*${selectedWarta.judul}*\n📅 ${formatIndoDate(selectedWarta.tanggal)} | ✍️ ${selectedWarta.penulis || 'Redaksi'}\n\n"${plainText}..."\n\n🔗 *Baca selengkapnya di portal resmi:*\n${wartaUrl}`;
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(textMsg).then(() => {
                 setCopiedQuote(true);
@@ -5369,7 +5407,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
 
     // Fungsi Berbagi Cerdas (Native Web Share dengan Fallback WhatsApp)
     const handleSmartShare = async (title, customText) => {
-        const shareUrl = window.location.href;
+        const shareUrl = getWartaShareUrl(selectedWarta);
         const shareTitle = title || 'Warta Jemaat PISGAH BISDAC';
         const textMsg = customText || `*${shareTitle}*\n\nBaca warta selengkapnya di Portal Berita Jemaat PISGAH BISDAC:\n${shareUrl}`;
 
@@ -5389,13 +5427,15 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
     };
 
     const handleShareWA = (title) => {
-        const shareText = `*${title}*\n\nBaca warta selengkapnya di Portal Berita Jemaat PISGAH BISDAC:\n${window.location.href}`;
+        const shareUrl = getWartaShareUrl(selectedWarta);
+        const shareText = `*${title}*\n\nBaca warta selengkapnya di Portal Berita Jemaat PISGAH BISDAC:\n${shareUrl}`;
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
     };
 
     const handleCopyLink = () => {
         try {
-            navigator.clipboard.writeText(window.location.href);
+            const shareUrl = getWartaShareUrl(selectedWarta);
+            navigator.clipboard.writeText(shareUrl);
             setCopiedLink(true);
             setTimeout(() => setCopiedLink(false), 2500);
         } catch (e) { }
@@ -12701,7 +12741,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
         ranges.push(start === end ? `${start}` : `${start}-${end}`);
         const ayatString = ranges.join(', ');
 
-        const appUrl = window.location.origin + window.location.pathname;
+        const appUrl = getCleanShareUrl('belajar_alkitab');
         const shareText = `${selectedBook.nama} ${selectedChapter}:${ayatString}\n\n${textParts.join('\n')}\n\nBaca selengkapnya di: ${appUrl}`;
 
         const fallbackCopy = (text) => {
@@ -13263,7 +13303,7 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
         }
 
         const lyricsText = lyricsLines.join('\n\n');
-        const appUrl = window.location.origin + window.location.pathname;
+        const appUrl = getCleanShareUrl('lagu_sion', { song: selectedSong.number });
         const shareText = `Lagu Sion No. ${selectedSong.number} - ${selectedSong.title}\nKey/Time: ${selectedSong.keyTime}\n\n${lyricsText}\n\nNyanyikan di: ${appUrl}`;
 
         const fallbackCopy = (text) => {
@@ -14005,10 +14045,26 @@ const App = () => {
         }
     }, [isDarkMode]);
 
-    // --- HISTORY API (TOMBOL BACK ANDROID: LOGIKA "UP") ---
+    // --- URL & ROUTING MANAGEMENT ---
+    // Bersihkan /index.html dari URL bar secara instan tanpa reload jika diakses langsung
+    if (typeof window !== 'undefined' && window.location.pathname.endsWith('/index.html')) {
+        const cleanPath = window.location.pathname.replace(/\/index\.html$/, '') || '/';
+        const cleanUrl = window.location.origin + cleanPath + window.location.search + window.location.hash;
+        window.history.replaceState(window.history.state, '', cleanUrl);
+    }
+
     const getInitialTab = () => {
-        const hash = window.location.hash.replace('#', '');
-        return hash || 'home';
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const tabParam = params.get('tab');
+            if (tabParam) return tabParam;
+            if (params.get('warta') || params.get('id')) return 'warta';
+            if (params.get('song') || params.get('lagu')) return 'lagu_sion';
+            if (params.get('book')) return 'belajar_perpustakaan';
+            const hash = window.location.hash.replace('#', '').split('?')[0];
+            if (hash) return hash;
+        } catch (e) { }
+        return 'home';
     };
     const [activeTab, setRawActiveTab] = React.useState(getInitialTab());
 
@@ -14023,15 +14079,48 @@ const App = () => {
             .catch(err => console.error("Error loading Lagu Sion DB:", err));
     }, []);
 
+    // Otomatis buka lagu jika terdapat parameter ?song= atau ?lagu= di URL
+    React.useEffect(() => {
+        if (!laguSionDb || laguSionDb.length === 0) return;
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const songNo = params.get('song') || params.get('lagu');
+            if (songNo) {
+                const found = laguSionDb.find(s => String(s.number) === String(songNo));
+                if (found) {
+                    setLaguSionInitialSong(found);
+                    setLaguSionSubTab('lyrics');
+                    setRawActiveTab('lagu_sion');
+                }
+            }
+        } catch (e) { }
+    }, [laguSionDb]);
 
     const setActiveTab = React.useCallback((tabId) => {
         setRawActiveTab(tabId);
         setMobileNavPopup(null);
         if (tabId !== 'warta') setSelectedWartaDetail(null);
-        // Mengganti hash di URL tanpa menambah tumpukan riwayat (history stack tetap stabil)
-        window.history.replaceState(window.history.state, '', `#${tabId}`);
+        // Buat URL bersih tanpa index.html
+        const origin = window.location.origin;
+        const newUrl = (tabId === 'home') ? `${origin}/` : `${origin}/?tab=${tabId}`;
+        window.history.replaceState(window.history.state, '', newUrl);
         scrollToTop();
     }, []);
+
+    // Sinkronkan URL saat artikel warta dibuka atau ditutup
+    React.useEffect(() => {
+        if (activeTab === 'warta') {
+            const origin = window.location.origin;
+            if (selectedWartaDetail) {
+                const id = selectedWartaDetail.rowIndex !== undefined ? selectedWartaDetail.rowIndex : selectedWartaDetail.id;
+                const newUrl = `${origin}/?tab=warta&id=${id}`;
+                window.history.replaceState(window.history.state, '', newUrl);
+            } else {
+                const newUrl = `${origin}/?tab=warta`;
+                window.history.replaceState(window.history.state, '', newUrl);
+            }
+        }
+    }, [selectedWartaDetail, activeTab]);
 
     React.useEffect(() => {
         setMobileNavPopup(null);
@@ -14047,10 +14136,14 @@ const App = () => {
     }, [laguSionSubTab]);
 
     React.useEffect(() => {
+        const cleanOrigin = window.location.origin;
+        const currentPath = window.location.pathname.replace(/\/index\.html$/, '') || '/';
+        const currentUrl = cleanOrigin + currentPath + window.location.search + window.location.hash;
+
         // State 'root': titik akhir sebelum keluar aplikasi
-        window.history.replaceState({ isAppRoot: true }, '', window.location.href);
+        window.history.replaceState({ isAppRoot: true }, '', currentUrl);
         // State 'dummy': state aktif kita. Saat tombol back ditekan, state 'dummy' akan di-pop.
-        window.history.pushState({ dummy: true }, '', window.location.href);
+        window.history.pushState({ dummy: true }, '', currentUrl);
 
         const handlePopState = (event) => {
             setMobileNavPopup(null);
@@ -14073,13 +14166,16 @@ const App = () => {
                         }
 
                         // Dorong kembali state 'dummy' untuk menangkap pencetan back berikutnya
-                        window.history.pushState({ dummy: true }, '', `#${nextTab}`);
+                        const targetUrl = nextTab === 'home' ? `${window.location.origin}/` : `${window.location.origin}/?tab=${nextTab}`;
+                        window.history.pushState({ dummy: true }, '', targetUrl);
                         return nextTab;
                     }
                 } else {
                     // Fallback jika maju secara manual
-                    const hash = window.location.hash.replace('#', '');
-                    return hash || 'home';
+                    const params = new URLSearchParams(window.location.search);
+                    const tabParam = params.get('tab');
+                    const hash = window.location.hash.replace('#', '').split('?')[0];
+                    return tabParam || hash || 'home';
                 }
             });
         };
@@ -14165,6 +14261,38 @@ const App = () => {
     });
     const [daftarBuku, setDaftarBuku] = React.useState([]);
     const [initialBook, setInitialBook] = React.useState(null);
+
+    // Otomatis buka warta jika terdapat parameter ?warta= atau ?id= di URL
+    React.useEffect(() => {
+        if (!daftarWarta || daftarWarta.length === 0) return;
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const targetId = params.get('id') || params.get('warta');
+            if (targetId) {
+                const found = daftarWarta.find(w => String(w.rowIndex) === String(targetId) || String(w.id) === String(targetId));
+                if (found) {
+                    setSelectedWartaDetail(found);
+                    setRawActiveTab('warta');
+                }
+            }
+        } catch (e) { }
+    }, [daftarWarta]);
+
+    // Otomatis buka buku jika terdapat parameter ?book= di URL
+    React.useEffect(() => {
+        if (!daftarBuku || daftarBuku.length === 0) return;
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const bookId = params.get('book');
+            if (bookId) {
+                const found = daftarBuku.find(b => String(b.id) === String(bookId));
+                if (found) {
+                    setInitialBook(found);
+                    setRawActiveTab('belajar_perpustakaan');
+                }
+            }
+        } catch (e) { }
+    }, [daftarBuku]);
 
     // Laporan Keuangan default State
     // daftarLaporan dihapus — pencarian kini redirect langsung ke laporan.html
