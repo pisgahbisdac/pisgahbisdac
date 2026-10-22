@@ -722,7 +722,7 @@ const VideoThumbnail = ({ video, ytid }) => {
                 decoding="async"
                 onError={handleImgError}
                 onLoad={handleImgLoad}
-                className="absolute inset-0 w-full h-full object-cover group-hover/play:scale-105 transition-transform duration-500"
+                className="absolute inset-0 w-full h-full object-cover group-hover/card:scale-105 group-hover/play:scale-105 transition-transform duration-700 ease-out"
             />
         );
     }
@@ -731,7 +731,7 @@ const VideoThumbnail = ({ video, ytid }) => {
         return (
             <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#1c2d1b] via-[#111f10] to-[#0a1209] flex flex-col items-center justify-center p-6 text-center select-none overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-red-600/20 via-transparent to-transparent"></div>
-                <img src="./icons/PisgahColor.png" alt="Logo" className="w-12 h-12 md:w-14 md:h-14 object-contain mb-2 drop-shadow-md opacity-90 group-hover/play:scale-110 transition-transform duration-500" />
+                <img src="./icons/PisgahColor.png" alt="Logo" className="w-12 h-12 md:w-14 md:h-14 object-contain mb-2 drop-shadow-md opacity-90 group-hover/card:scale-110 group-hover/play:scale-110 transition-transform duration-700" />
                 <span className="text-white font-extrabold text-xs md:text-sm tracking-wide drop-shadow">GMAHK PISGAH BISDAC</span>
                 <span className="text-red-400 font-bold text-[10px] md:text-xs uppercase tracking-widest mt-1 flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
@@ -745,7 +745,7 @@ const VideoThumbnail = ({ video, ytid }) => {
         return (
             <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#1e293b] via-[#0f172a] to-[#020617] flex flex-col items-center justify-center p-6 text-center select-none overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/15 via-transparent to-transparent"></div>
-                <img src="./icons/PisgahColor.png" alt="Logo" className="w-12 h-12 md:w-14 md:h-14 object-contain mb-2 drop-shadow-md opacity-90 group-hover/play:scale-110 transition-transform duration-500" />
+                <img src="./icons/PisgahColor.png" alt="Logo" className="w-12 h-12 md:w-14 md:h-14 object-contain mb-2 drop-shadow-md opacity-90 group-hover/card:scale-110 group-hover/play:scale-110 transition-transform duration-700" />
                 <span className="text-white font-extrabold text-xs md:text-sm tracking-wide drop-shadow">GMAHK PISGAH BISDAC</span>
                 <span className="text-amber-400 font-bold text-[10px] md:text-xs uppercase tracking-widest mt-1 flex items-center gap-1.5">
                     <Icon name="List" className="w-3.5 h-3.5 text-amber-400" />
@@ -757,7 +757,7 @@ const VideoThumbnail = ({ video, ytid }) => {
 
     return (
         <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#2C3F21] to-[#141d0f] dark:from-navy-950 dark:to-navy-900 flex flex-col items-center justify-center p-4 select-none">
-            <Icon name="Video" className="w-12 h-12 text-white/30 mb-2 group-hover/play:scale-110 transition-transform duration-500" />
+            <Icon name="Video" className="w-12 h-12 text-white/30 mb-2 group-hover/card:scale-110 group-hover/play:scale-110 transition-transform duration-700" />
             <span className="text-white/80 font-bold text-xs text-center line-clamp-1 max-w-[80%]">{video.title}</span>
         </div>
     );
@@ -2484,9 +2484,9 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
                                         {[...daftarBuku].reverse().slice(0, 4).map((b, i) => (
-                                            <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className={`rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 overflow-hidden cursor-pointer hover:-translate-y-1 transition-all duration-300 group flex-col ${i === 3 ? 'flex md:hidden lg:flex' : 'flex'} shadow-sm hover:shadow-md`}>
+                                            <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className={`rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 overflow-hidden cursor-pointer hover:border-[#4A7045] dark:hover:border-gold-500 transition-all duration-300 group flex-col ${i === 3 ? 'flex md:hidden lg:flex' : 'flex'} shadow-sm hover:shadow-md`}>
                                                 <div className="h-40 md:h-52 overflow-hidden relative m-2 rounded-[1.25rem]">
-                                                    <img src={getCoverFallback(b)} loading="lazy" decoding="async" alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
+                                                    <img src={getCoverFallback(b)} loading="lazy" decoding="async" alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
                                                     <DocumentBadge book={b} className="absolute top-2 left-2" />
                                                     <span className="absolute top-2 right-2 bg-white/90 dark:bg-navy-900/90 backdrop-blur-md text-[#2C3F21] dark:text-gold-400 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm transition-colors">{b.category}</span>
                                                 </div>
@@ -2528,7 +2528,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                         <div
                                             ref={videoCarouselRef}
                                             onScroll={handleVideoScroll}
-                                            className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-4 w-full no-scrollbar md:custom-scrollbar scroll-smooth"
+                                            className="flex overflow-x-auto snap-x snap-mandatory gap-5 pt-2 pb-4 w-full no-scrollbar md:custom-scrollbar scroll-smooth"
                                         >
                                             {carouselVideos.map((video, idx) => {
                                                 const isPlaying = playingVideoIdx === idx;
@@ -2543,7 +2543,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                                         className={`snap-start snap-always shrink-0 ${carouselVideos.length <= 1
                                                             ? 'w-full'
                                                             : 'w-full sm:w-[calc(50%-10px)] md:w-[calc(50%-10px)]'
-                                                            } rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 hover:border-[#D19B45]/50 dark:hover:border-gold-500/50 p-4 transition-all duration-300 flex flex-col shadow-sm hover:shadow-xl hover:-translate-y-1.5 group/card`}
+                                                            } rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 hover:border-[#D19B45]/50 dark:hover:border-gold-500/50 p-4 transition-all duration-300 flex flex-col shadow-sm hover:shadow-md group/card`}
                                                     >
                                                         <h4 className="text-base font-extrabold mb-3 text-[#2C3F21] dark:text-gold-400 flex items-center px-1 transition-colors truncate">
                                                             <Icon name="Video" className="w-4 h-4 mr-2 shrink-0 text-[#D19B45] dark:text-gold-500" />
@@ -2569,7 +2569,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                                                     <VideoThumbnail video={video} ytid={ytid} />
 
                                                                     {/* Dark Vignette Overlay */}
-                                                                    <div className="absolute inset-0 bg-black/25 group-hover/play:bg-black/10 transition-colors pointer-events-none" />
+                                                                    <div className="absolute inset-0 bg-black/25 group-hover/card:bg-black/10 group-hover/play:bg-black/10 transition-colors pointer-events-none" />
 
                                                                     {/* Top Badges */}
                                                                     <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none">
@@ -2599,7 +2599,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                                                                     {/* Perfectly Centered Play Button */}
                                                                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                                                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-red-600/90 group-hover/play:bg-red-600 text-white flex items-center justify-center shadow-2xl backdrop-blur-sm group-hover/play:scale-115 group-active/play:scale-95 transition-all duration-300 border-2 border-white/60">
+                                                                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-red-600/90 group-hover/card:bg-red-600 group-hover/play:bg-red-600 text-white flex items-center justify-center shadow-2xl backdrop-blur-sm group-hover/card:scale-110 group-hover/play:scale-115 group-active/play:scale-95 transition-all duration-300 border-2 border-white/60">
                                                                             <Icon name="Play" className="w-5 h-5 md:w-6 md:h-6 ml-0.5" />
                                                                         </div>
                                                                     </div>
@@ -2866,7 +2866,7 @@ const Belajar = ({ setActiveTab }) => {
             {/* DAFTAR KARTU */}
             <div className="flex flex-wrap justify-center gap-6">
                 {items.map((item) => (
-                    <div key={item.id} className="w-full sm:w-80 md:w-72 lg:w-64 glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div key={item.id} className="w-full sm:w-80 md:w-72 lg:w-64 glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden flex flex-col group hover:border-gold-400 dark:hover:border-gold-500 hover:shadow-md transition-all duration-300">
                         <div className="h-[13rem] overflow-hidden relative">
                             <img src={item.img} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                             <div className="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/20 to-transparent"></div>
@@ -3194,7 +3194,7 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                         {filteredBooks.map(book => (
                             <div
                                 key={book.id}
-                                className="w-full glass-box rounded-2xl shadow-sm border border-navy-100/60 overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                                className="w-full glass-box rounded-2xl shadow-sm border border-navy-100/60 dark:border-navy-700/60 overflow-hidden flex flex-col group hover:border-gold-400 dark:hover:border-gold-500 hover:shadow-md transition-all duration-300 cursor-pointer"
                                 onClick={() => setSelectedBook(book)}
                             >
                                 <div className="h-[10rem] overflow-hidden relative">
@@ -3202,7 +3202,7 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                                         src={getCoverFallback(book)}
                                         alt={book.title}
                                         loading="lazy"
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                                         onError={(e) => { e.target.src = getDefaultBookCover(book.category); }}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
@@ -13886,9 +13886,9 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                             <h3 className="text-xs font-black text-purple-600 uppercase tracking-widest mb-3 px-2">Buku <span className="text-navy-300 font-semibold normal-case tracking-normal">— klik untuk membaca langsung</span></h3>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                                 {searchResults.buku.map(b => (
-                                    <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className="bg-white rounded-xl border border-navy-100/60 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group">
+                                    <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className="bg-white rounded-xl border border-navy-100/60 hover:border-purple-300 overflow-hidden cursor-pointer hover:shadow-md transition-all group">
                                         <div className="h-28 overflow-hidden relative">
-                                            <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
+                                            <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
                                             <div className="absolute inset-0 bg-gradient-to-t from-navy-900/70 to-transparent" />
                                             <DocumentBadge book={b} className="absolute top-1.5 left-1.5" />
                                             <span className="absolute top-1.5 right-1.5 bg-gold-500/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">{b.category}</span>
