@@ -1944,13 +1944,20 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                 <div className="w-11 h-11 md:w-14 md:h-14 rounded-[1rem] bg-white dark:bg-navy-700 group-hover:bg-[#4A7045] dark:group-hover:bg-gold-500 flex items-center justify-center transition-all duration-300 shadow-sm border border-[#E2E8D8] dark:border-navy-600 group-hover:border-[#4A7045] dark:group-hover:border-gold-500 group-active:scale-95">
                     <Icon name={item.icon} className="w-5 h-5 md:w-6 md:h-6 text-[#4A7045] dark:text-gold-400 group-hover:text-white dark:group-hover:text-navy-900 transition-colors duration-300" />
                 </div>
-                <div className="w-full flex justify-center mt-1.5 px-0.5">
-                    <span className="font-bold text-[8.5px] sm:text-[9.5px] md:text-[10px] lg:text-[12px] text-[#2C3F21] dark:text-navy-100 leading-tight text-center break-words line-clamp-2">{item.label}</span>
+                <div className="w-full flex justify-center mt-1.5 overflow-visible">
+                    <span className="font-bold text-[8.5px] sm:text-[9.5px] md:text-[9px] lg:text-[11px] xl:text-[11.5px] text-[#2C3F21] dark:text-navy-100 leading-tight text-center break-normal hyphens-none whitespace-normal">
+                        {item.label.split(' ').map((word, wIdx, arr) => (
+                            <React.Fragment key={wIdx}>
+                                <span className="whitespace-nowrap inline-block">{word}</span>
+                                {wIdx < arr.length - 1 && ' '}
+                            </React.Fragment>
+                        ))}
+                    </span>
                 </div>
             </>
         );
 
-        const className = "group flex flex-col items-center justify-start p-1 sm:p-1.5 md:p-2 rounded-2xl hover:bg-[#F4F7EF] dark:hover:bg-navy-800 transition-all duration-300 cursor-pointer w-[22%] sm:w-[15%] md:w-auto md:flex-1 min-w-0";
+        const className = "group flex flex-col items-center justify-start p-1 sm:p-1 md:px-0.5 lg:px-1 py-1.5 md:py-2 rounded-2xl hover:bg-[#F4F7EF] dark:hover:bg-navy-800 transition-all duration-300 cursor-pointer w-[22%] sm:w-[15%] md:w-auto md:flex-1 min-w-0 overflow-visible";
 
         if (item.isSameTab) return <a key={item.id} href={item.link} onClick={(e) => handleMenuClick(e, item)} className={className}>{content}</a>;
         if (item.isExternal) return <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" onClick={(e) => handleMenuClick(e, item)} className={className}>{content}</a>;
@@ -2118,7 +2125,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                     </div>
 
                     {/* OVERLAPPING QUICK ACTIONS PILL WITH SMOOTH TAB */}
-                    <div className="relative z-30 -mt-6 md:-mt-10 lg:-mt-16 mx-auto w-[95%] md:w-[96%] lg:w-full lg:max-w-[1100px] flex flex-col items-center">
+                    <div className="relative z-30 -mt-6 md:-mt-10 lg:-mt-16 mx-auto w-[96%] md:w-[98%] lg:w-full lg:max-w-[1180px] xl:max-w-[1240px] flex flex-col items-center">
 
                         {/* The Floating Button */}
                         <div className="absolute -top-[1.25rem] md:-top-[1.5rem] left-1/2 -translate-x-1/2 z-40">
@@ -2128,7 +2135,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         </div>
 
                         {/* Main Pill */}
-                        <div className="relative w-full bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-3 md:p-5 pt-7 md:pt-10 shadow-xl border-4 border-white dark:border-navy-700 flex flex-wrap md:flex-nowrap items-start justify-center md:justify-evenly gap-y-3 sm:gap-y-4 md:gap-0 transition-colors duration-500 z-10">
+                        <div className="relative w-full bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-3 md:px-2 md:py-4 lg:px-4 lg:py-5 pt-7 md:pt-9 lg:pt-10 shadow-xl border-4 border-white dark:border-navy-700 flex flex-wrap md:flex-nowrap items-start justify-center md:justify-between gap-y-3 sm:gap-y-4 md:gap-0 transition-colors duration-500 z-10 overflow-visible">
                             {featureItems.map(item => renderFeatureItem(item))}
                         </div>
                     </div>
