@@ -35,27 +35,96 @@ window.installPWA = async () => {
 
 const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwQJWQ2hKXQMdnFqVYr8Tan_9BIKQLtZyM_Wil6y19mRrgiQhEb1KB0hwOvJsPThcIX/exec'; // PASTIKAN UNTUK MENGISI KEMBALI URL GAS ANDA DI SINI
 
-// Default cover buku berdasarkan kategori
+// Generator Sampul Buku Digital Elegan (SVG Data URI - 100% Offline & Tidak Pernah Rusak)
+const getSvgBookCover = (title = 'Buku Rohani', category = 'Buku') => {
+    const rawTitle = (title || 'Buku Rohani').trim();
+    const safeTitle = rawTitle
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+    const cat = (category || 'Pustaka').toUpperCase().trim();
+
+    // Palet warna mewah berdasarkan kategori buku
+    let c1 = '#0f172a', c2 = '#1e293b', accent = '#fbbf24';
+    const cLower = (category || '').toLowerCase();
+    if (cLower.includes('egw') || cLower.includes('ellen')) {
+        c1 = '#2e1065'; c2 = '#3b0764'; accent = '#fcd34d'; // Ungu Rohani EGW
+    } else if (cLower.includes('doktrin') || cLower.includes('dasar')) {
+        c1 = '#064e3b'; c2 = '#065f46'; accent = '#6ee7b7'; // Hijau Doktrin
+    } else if (cLower.includes('renungan') || cLower.includes('doa')) {
+        c1 = '#78350f'; c2 = '#92400e'; accent = '#fde68a'; // Amber Hangat Renungan
+    } else if (cLower.includes('kesehatan') || cLower.includes('hidup')) {
+        c1 = '#14532d'; c2 = '#166534'; accent = '#86efac'; // Hijau Kesehatan
+    } else if (cLower.includes('misi') || cLower.includes('pemuda')) {
+        c1 = '#0c4a6e'; c2 = '#075985'; accent = '#7dd3fc'; // Biru Misi
+    } else if (cLower.includes('panduan') || cLower.includes('pedoman')) {
+        c1 = '#1e1b4b'; c2 = '#312e81'; accent = '#a5b4fc'; // Indigo Panduan
+    }
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 560" width="100%" height="100%">
+        <defs>
+            <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="${c1}" />
+                <stop offset="100%" stop-color="${c2}" />
+            </linearGradient>
+            <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#B47F24" />
+                <stop offset="50%" stop-color="#FCD34D" />
+                <stop offset="100%" stop-color="#D97706" />
+            </linearGradient>
+        </defs>
+        <rect width="400" height="560" fill="url(#bg)" />
+        <rect x="0" y="0" width="28" height="560" fill="#000000" opacity="0.3" />
+        <line x1="28" y1="0" x2="28" y2="560" stroke="#ffffff" stroke-width="1" opacity="0.12" />
+        <rect x="22" y="22" width="356" height="516" rx="14" fill="none" stroke="url(#gold)" stroke-width="2.5" opacity="0.75" />
+        <rect x="30" y="30" width="340" height="500" rx="10" fill="none" stroke="${accent}" stroke-width="1" opacity="0.35" stroke-dasharray="8,5" />
+        <rect x="50" y="55" width="300" height="28" rx="14" fill="${accent}" opacity="0.18" />
+        <text x="200" y="74" fill="${accent}" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="900" letter-spacing="3" text-anchor="middle">${cat}</text>
+        <circle cx="200" cy="180" r="46" fill="#ffffff" opacity="0.05" />
+        <circle cx="200" cy="180" r="38" fill="none" stroke="url(#gold)" stroke-width="2" opacity="0.85" />
+        <path d="M182 170 C188 166, 196 166, 200 172 C204 166, 212 166, 218 170 L218 194 C212 190, 204 190, 200 195 C196 190, 188 190, 182 194 Z" fill="url(#gold)" opacity="0.95" />
+        <foreignObject x="45" y="248" width="310" height="190">
+            <div xmlns="http://www.w3.org/1999/xhtml" style="color:#ffffff; font-family:system-ui, -apple-system, sans-serif; font-size:21px; font-weight:800; line-height:1.35; text-align:center; text-shadow:0 2px 4px rgba(0,0,0,0.6); display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden;">
+                ${safeTitle}
+            </div>
+        </foreignObject>
+        <line x1="110" y1="465" x2="290" y2="465" stroke="url(#gold)" stroke-width="1.5" opacity="0.6" />
+        <text x="200" y="495" fill="#e2e8f0" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" font-weight="800" letter-spacing="2.5" text-anchor="middle" opacity="0.85">GMAHK PISGAH BISDAC</text>
+        <text x="200" y="515" fill="${accent}" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="700" letter-spacing="1.5" text-anchor="middle" opacity="0.7">PUSTAKA DIGITAL</text>
+    </svg>`;
+
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+};
+
+// Default cover buku berkualitas tinggi berdasarkan kategori (pengganti domain lama yang sudah mati)
+const BOOK_CATEGORY_DEFAULTS = {
+    'egw': 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1000&auto=format&fit=crop',
+    'ellen': 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1000&auto=format&fit=crop',
+    'doktrin': 'https://images.unsplash.com/photo-1447069387593-a5de0862481e?q=80&w=1000&auto=format&fit=crop',
+    'dasar': 'https://images.unsplash.com/photo-1447069387593-a5de0862481e?q=80&w=1000&auto=format&fit=crop',
+    'panduan': 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1000&auto=format&fit=crop',
+    'pedoman': 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1000&auto=format&fit=crop',
+    'renungan': 'https://images.unsplash.com/photo-1507692049790-de58290a4334?q=80&w=1000&auto=format&fit=crop',
+    'doa': 'https://images.unsplash.com/photo-1507692049790-de58290a4334?q=80&w=1000&auto=format&fit=crop',
+    'alkitab': 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?q=80&w=1000&auto=format&fit=crop',
+    'kesehatan': 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=1000&auto=format&fit=crop',
+    'hidup': 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=1000&auto=format&fit=crop',
+    'misi': 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=1000&auto=format&fit=crop',
+    'pemuda': 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=1000&auto=format&fit=crop',
+    'sejarah': 'https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=1000&auto=format&fit=crop',
+    'umum': 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1000&auto=format&fit=crop'
+};
+
 const getDefaultBookCover = (category) => {
     const cat = (category || '').toLowerCase().trim();
-    const defaults = {
-        'egw': 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg',
-        'doktrin': 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjc1L2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9mcEUxNzQ5NDcxNDI3NTExLmpwZw/w:1920,q:75/hope-images/67054013a60919c92d92c959/fpE1749471427511.jpg',
-        'panduan': 'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg',
-        'renungan': 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg',
-        'alkitab': 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg',
-        'kesehatan': 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjc1L2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9mcEUxNzQ5NDcxNDI3NTExLmpwZw/w:1920,q:75/hope-images/67054013a60919c92d92c959/fpE1749471427511.jpg',
-        'misi': 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg',
-        'sejarah': 'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg',
-    };
-    // Exact match
-    if (defaults[cat]) return defaults[cat];
-    // Partial match
-    for (const [key, url] of Object.entries(defaults)) {
-        if (cat.includes(key) || key.includes(cat)) return url;
+    if (!cat) return BOOK_CATEGORY_DEFAULTS['umum'];
+    if (BOOK_CATEGORY_DEFAULTS[cat]) return BOOK_CATEGORY_DEFAULTS[cat];
+    for (const [key, url] of Object.entries(BOOK_CATEGORY_DEFAULTS)) {
+        if (key && (cat.includes(key) || key.includes(cat))) return url;
     }
-    // Default umum
-    return 'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg';
+    return BOOK_CATEGORY_DEFAULTS['umum'];
 };
 
 const parseGambarUrls = (gambarUrl) => {
@@ -269,19 +338,36 @@ const scrollToTop = () => {
 
 const getGoogleDriveFileId = (url) => {
     if (!url || typeof url !== 'string') return null;
-    const match = url.match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=[^&]+&)?id=|thumbnail\?id=)|docs\.google\.com\/(?:presentation|document|spreadsheets)\/d\/|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]{20,})/);
-    return match ? match[1] : null;
+    const trimmed = url.trim();
+    if (!trimmed) return null;
+
+    // Jika input langsung berupa Google Drive ID murni (25-45 karakter alfanumerik)
+    if (/^[a-zA-Z0-9_-]{25,45}$/.test(trimmed)) return trimmed;
+
+    // Format drive.google.com, docs.google.com, lh3.googleusercontent.com
+    const match = trimmed.match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=[^&]+&)?id=|thumbnail\?id=)|docs\.google\.com\/(?:presentation|document|spreadsheets)\/d\/|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]{20,})/);
+    if (match) return match[1];
+
+    // Format query param id= di mana saja
+    const idParamMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]{20,})/);
+    if (idParamMatch) return idParamMatch[1];
+
+    // Format /d/ID di mana saja
+    const dMatch = trimmed.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+    if (dMatch) return dMatch[1];
+
+    return null;
 };
 
 const handleImageErrorFallback = (e, originalUrl) => {
     const driveId = getGoogleDriveFileId(originalUrl || (e.target && e.target.src));
     if (driveId && e.target) {
-        if (e.target.src.includes('lh3.googleusercontent.com')) {
-            e.target.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`;
-            return;
-        }
         if (e.target.src.includes('drive.google.com/thumbnail')) {
             e.target.src = `https://lh3.googleusercontent.com/d/${driveId}`;
+            return;
+        }
+        if (e.target.src.includes('lh3.googleusercontent.com')) {
+            e.target.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w800`;
             return;
         }
     }
@@ -291,10 +377,11 @@ const formatImageUrl = (url) => {
     if (!url) return '';
     const trimmed = typeof url === 'string' ? url.trim() : '';
     if (!trimmed) return '';
+    if (trimmed.includes('hopesoftware.org')) return '';
 
     const driveId = getGoogleDriveFileId(trimmed);
     if (driveId) {
-        return `https://lh3.googleusercontent.com/d/${driveId}=w1200`;
+        return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
     }
 
     // Mengembalikan string Base64 murni jika kehilangan awalan data:image/ saat dikirim
@@ -307,19 +394,58 @@ const formatImageUrl = (url) => {
     return trimmed;
 };
 
-
 const getCoverFallback = (b) => {
-    if (b.cover && b.cover.trim() !== '') {
-        const fmt = formatImageUrl(b.cover);
-        return fmt || b.cover;
+    if (!b) return getDefaultBookCover('Umum');
+
+    // 1. PRIORITAS UTAMA: Ambil langsung dari halaman awal buku (file PDF/dokumen di Google Drive)
+    // Sesuai permintaan: sampul buku diambil dari halaman awal buku (contoh: https://drive.google.com/thumbnail?id=...&sz=w1000)
+    const pdfDriveId = getGoogleDriveFileId(b.pdfUrl || b.fileUrl || b.url || b.link || b.driveUrl);
+    if (pdfDriveId) {
+        return `https://drive.google.com/thumbnail?id=${pdfDriveId}&sz=w1000`;
     }
-    if (b.pdfUrl && b.pdfUrl.trim() !== '') {
-        const thumb = formatImageUrl(b.pdfUrl);
-        if (thumb && thumb.includes('thumbnail?id=')) {
-            return thumb.replace('sz=w2000', 'sz=w800');
+
+    // 2. Cek jika b.cover diisi link/ID Google Drive
+    if (b.cover && typeof b.cover === 'string' && b.cover.trim() !== '') {
+        const coverDriveId = getGoogleDriveFileId(b.cover);
+        if (coverDriveId) {
+            return `https://drive.google.com/thumbnail?id=${coverDriveId}&sz=w1000`;
+        }
+        const fmt = formatImageUrl(b.cover);
+        if (fmt && !fmt.includes('hopesoftware.org')) {
+            return fmt;
         }
     }
+
+    // 3. Cek jika b.id sendiri adalah file ID Google Drive
+    const idDriveId = getGoogleDriveFileId(b.id);
+    if (idDriveId) {
+        return `https://drive.google.com/thumbnail?id=${idDriveId}&sz=w1000`;
+    }
+
+    // 4. JIKA TIDAK ADA HALAMAN SAMPUL / KOSONG / TIDAK ADA LINK: Gunakan default sesuai kategori
     return getDefaultBookCover(b.category);
+};
+
+const handleBookCoverError = (e, book) => {
+    if (!e || !e.target) return;
+
+    // 1. Jika URL thumbnail drive.google.com gagal (misal 403/privat), coba mirror lh3.googleusercontent.com
+    const driveId = getGoogleDriveFileId(book?.pdfUrl || book?.fileUrl || book?.url || book?.link || book?.cover || (e.target && e.target.src));
+    if (driveId && e.target.src && e.target.src.includes('drive.google.com/thumbnail') && !e.target.src.includes('lh3.googleusercontent.com')) {
+        e.target.src = `https://lh3.googleusercontent.com/d/${driveId}`;
+        return;
+    }
+
+    // 2. Jika tidak ada halaman sampul / link kosong / gagal dari Google Drive: gunakan default sesuai kategori
+    const defaultCover = getDefaultBookCover(book?.category);
+    if (defaultCover && e.target.src !== defaultCover) {
+        e.target.src = defaultCover;
+        return;
+    }
+
+    // 3. Fallback terakhir jika offline / default tidak dapat dimuat: sampul SVG digital
+    e.target.onerror = null;
+    e.target.src = getSvgBookCover(book?.title, book?.category);
 };
 
 const DocumentBadge = ({ book, className = "absolute top-2 left-2" }) => {
@@ -562,6 +688,9 @@ const Icon = ({ name, className }) => {
         ExternalLink: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>,
         Bookmark: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" /></svg>,
         Volume2: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" /></svg>,
+        Volume1: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /></svg>,
+        SkipBack: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="19 20 9 12 19 4 19 20" /><line x1="5" y1="19" x2="5" y2="5" /></svg>,
+        SkipForward: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 4 15 12 5 20 5 4" /><line x1="19" y1="5" x2="19" y2="19" /></svg>,
         Square: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="3" rx="2" /></svg>,
         CalendarPlus: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 2v4" /><path d="M16 2v4" /><rect width="18" height="18" x="3" y="4" rx="2" /><path d="M3 10h18" /><path d="M10 16h4" /><path d="M12 14v4" /></svg>
     };
@@ -1477,8 +1606,40 @@ const DailyVerseWidget = ({ setActiveTab }) => {
 
     const [verseIdx, setVerseIdx] = React.useState(todayIndex);
     const [copied, setCopied] = React.useState(false);
+    const [audioPlaying, setAudioPlaying] = React.useState(false);
 
     const verse = DAILY_VERSES[verseIdx] || DAILY_VERSES[0];
+
+    React.useEffect(() => {
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        setAudioPlaying(false);
+    }, [verseIdx]);
+
+    const handleToggleAudio = () => {
+        if (!('speechSynthesis' in window)) {
+            alert("Browser Anda belum mendukung fitur audio (Speech Synthesis).");
+            return;
+        }
+        if (audioPlaying) {
+            window.speechSynthesis.cancel();
+            setAudioPlaying(false);
+        } else {
+            window.speechSynthesis.cancel();
+            const textToSpeak = `${verse.bookName} pasal ${verse.chapter} ayat ${verse.verse}. ${verse.text}`;
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.95;
+            const voices = window.speechSynthesis.getVoices();
+            const idVoice = voices.find(v => v.lang === 'id-ID' || v.lang.startsWith('id'));
+            if (idVoice) utterance.voice = idVoice;
+            utterance.onend = () => setAudioPlaying(false);
+            utterance.onerror = () => setAudioPlaying(false);
+            window.speechSynthesis.speak(utterance);
+            setAudioPlaying(true);
+        }
+    };
 
     const handleNextVerse = () => {
         setVerseIdx(prev => (prev + 1) % DAILY_VERSES.length);
@@ -1591,7 +1752,15 @@ const DailyVerseWidget = ({ setActiveTab }) => {
                     <span>Buka di Alkitab</span>
                     <Icon name="ArrowRight" className="w-3.5 h-3.5 opacity-80 -mr-0.5" />
                 </button>
-                <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto">
+                <div className="grid grid-cols-3 sm:flex sm:items-center gap-2 w-full sm:w-auto">
+                    <button
+                        onClick={handleToggleAudio}
+                        className={`bg-white/90 dark:bg-navy-800/90 hover:bg-amber-50 dark:hover:bg-navy-700 active:scale-95 text-xs font-bold px-3 py-2.5 rounded-xl transition-all border flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer ${audioPlaying ? 'border-gold-500 text-gold-600 dark:text-gold-400 bg-gold-50/50 animate-pulse' : 'border-amber-200/80 dark:border-navy-600 text-[#2C3F21] dark:text-gray-200'}`}
+                        title="Dengarkan Suara Ayat Ini"
+                    >
+                        <Icon name={audioPlaying ? "Square" : "Volume2"} className={`w-3.5 h-3.5 ${audioPlaying ? 'text-red-500' : 'text-[#D19B45] dark:text-gold-400'}`} />
+                        <span>{audioPlaying ? 'Stop' : 'Audio'}</span>
+                    </button>
                     <button
                         onClick={handleCopy}
                         className="bg-white/90 dark:bg-navy-800/90 hover:bg-amber-50 dark:hover:bg-navy-700 active:scale-95 text-[#2C3F21] dark:text-gray-200 text-xs font-bold px-3 py-2.5 rounded-xl transition-all border border-amber-200/80 dark:border-navy-600 flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
@@ -2535,7 +2704,15 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                         {[...daftarBuku].reverse().slice(0, 4).map((b, i) => (
                                             <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className={`rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 overflow-hidden cursor-pointer hover:border-[#4A7045] dark:hover:border-gold-500 transition-all duration-300 group flex-col ${i === 3 ? 'flex md:hidden lg:flex' : 'flex'} shadow-sm hover:shadow-md`}>
                                                 <div className="h-40 md:h-52 overflow-hidden relative m-2 rounded-[1.25rem]">
-                                                    <img src={getCoverFallback(b)} loading="lazy" decoding="async" alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
+                                                    <img
+                                                        src={getCoverFallback(b)}
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                        referrerPolicy="no-referrer"
+                                                        alt={b.title}
+                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                                                        onError={e => handleBookCoverError(e, b)}
+                                                    />
                                                     <DocumentBadge book={b} className="absolute top-2 left-2" />
                                                     <span className="absolute top-2 right-2 bg-white/90 dark:bg-navy-900/90 backdrop-blur-md text-[#2C3F21] dark:text-gold-400 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm transition-colors">{b.category}</span>
                                                 </div>
@@ -2892,10 +3069,10 @@ const Belajar = ({ setActiveTab }) => {
     const items = [
         { id: 'sekolah_sabat', title: 'Sekolah Sabat', desc: 'Akses pelajaran harian Sekolah Sabat secara online untuk pedalaman rohani Anda.', img: 'https://images.spr.so/cdn-cgi/imagedelivery/j42No7y-dcokJuNgXeA0ig/ecfa0085-8c09-46ef-97df-6be05cd44019/1000129545/w=800,quality=80,fit=scale-down', color: 'blue', isExternal: true, link: 'https://sabbath-school.adventech.io/in' },
         { id: 'belajar', title: 'Belajar Online', desc: 'Pembelajaran tanpa batas, lebih banyak kemungkinan untuk mengenal-Nya, Bertemulah dengan-Nya kapan dan dimana saja', img: 'https://suaranubuatan.id/wp-content/uploads/2021/09/book-4126481_1920.jpg', color: 'purple', isExternal: true, link: 'https://suaranubuatan.id/' },
-        { id: 'alkitab', title: 'Alkitab', desc: 'Alkitab adalah firman Allah yang diilhamkan, satu-satunya aturan iman dan praktik.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg', color: 'orange' },
-        { id: '28dasar', title: '28 Dasar Kepercayaan', desc: 'Gereja Advent memegang keyakinan dasar tertentu sebagai ajaran Kitab Suci.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjc1L2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9mcEUxNzQ5NDcxNDI3NTExLmpwZw/w:1920,q:75/hope-images/67054013a60919c92d92c959/fpE1749471427511.jpg', color: 'green' },
-        { id: 'perpustakaan', title: 'Buku-Buku', desc: 'Baca, Download Buku dan bervagai bahan untuk khotbah dan pemahaman lainnya.', img: 'https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg', color: 'purple' },
-        { id: 'egw', title: 'Ellen G. White', desc: 'Mengenal tulisan-tulisan yang diilhami untuk menuntun gereja pada akhir zaman.', img: 'https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg', color: 'purple' }
+        { id: 'alkitab', title: 'Alkitab', desc: 'Alkitab adalah firman Allah yang diilhamkan, satu-satunya aturan iman dan praktik.', img: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?q=80&w=1200&auto=format&fit=crop', color: 'orange' },
+        { id: '28dasar', title: '28 Dasar Kepercayaan', desc: 'Gereja Advent memegang keyakinan dasar tertentu sebagai ajaran Kitab Suci.', img: 'https://images.unsplash.com/photo-1447069387593-a5de0862481e?q=80&w=1200&auto=format&fit=crop', color: 'green' },
+        { id: 'perpustakaan', title: 'Buku-Buku', desc: 'Baca, Download Buku dan bervagai bahan untuk khotbah dan pemahaman lainnya.', img: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop', color: 'purple' },
+        { id: 'egw', title: 'Ellen G. White', desc: 'Mengenal tulisan-tulisan yang diilhami untuk menuntun gereja pada akhir zaman.', img: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1200&auto=format&fit=crop', color: 'purple' }
     ];
 
     return (
@@ -2977,7 +3154,7 @@ const DetailAlkitab = ({ setActiveTab, dataPejabat }) => (
     <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
         <div className="prose max-w-none">
             <h1 className="text-[2rem] font-extrabold text-navy-900 mb-6 border-b pb-4 border-navy-50">Doktrin Alkitab</h1>
-            <img src="https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9DZnExNzQ5MTg3MDg1NjE3LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/Cfq1749187085617.jpg" loading="lazy" alt="Bible Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
+            <img src="https://images.unsplash.com/photo-1504052434569-70ad5836ab65?q=80&w=1200&auto=format&fit=crop" loading="lazy" alt="Bible Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
             <p className="text-lg text-navy-800 font-medium italic mb-6 leading-relaxed">"Segala tulisan yang diilhamkan Allah memang bermanfaat untuk mengajar, untuk menyatakan kesalahan, untuk memperbaiki kelakuan dan untuk mendidik orang dalam kebenaran." (2 Timotius 3:16)</p>
             <div className="space-y-4 text-navy-600 font-medium">
                 <p>Kitab Suci, yang terdiri dari Perjanjian Lama dan Perjanjian Baru, adalah Firman Allah yang tertulis, diberikan melalui ilham ilahi. Penulis yang diilhami berbicara dan menulis saat mereka digerakkan oleh Roh Kudus.</p>
@@ -3007,7 +3184,7 @@ const Detail28Dasar = ({ setActiveTab, dataPejabat }) => {
         <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
             <div className="prose max-w-none">
                 <h1 className="text-[2rem] font-extrabold text-navy-900 mb-6 border-b pb-4 border-navy-50">28 Dasar Kepercayaan</h1>
-                <img src="https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjc1L2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9mcEUxNzQ5NDcxNDI3NTExLmpwZw/w:1920,q:75/hope-images/67054013a60919c92d92c959/fpE1749471427511.jpg" loading="lazy" alt="28 Doctrine Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
+                <img src="https://images.unsplash.com/photo-1447069387593-a5de0862481e?q=80&w=1200&auto=format&fit=crop" loading="lazy" alt="28 Doctrine Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
                 <p className="mb-8 text-navy-600 font-medium text-lg leading-relaxed">Gereja Masehi Advent Hari Ketujuh menerima Alkitab sebagai satu-satunya kredo mereka dan memegang keyakinan dasar tertentu sebagai ajaran Kitab Suci.</p>
                 <div className="space-y-4 not-prose">
                     {doktrinData.map((section, idx) => (
@@ -3048,7 +3225,7 @@ const DetailEGW = ({ setActiveTab, dataPejabat }) => (
     <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-6 md:p-8 animate-fade-in relative z-10">
         <div className="prose max-w-none">
             <h1 className="text-[2rem] font-extrabold text-navy-900 mb-6 border-b pb-4 border-navy-50">Karunia Nubuat: Ellen G. White</h1>
-            <img src="https://images.hopesoftware.org/resize/L3c6MTkyMCxxOjgwL2hvcGUtaW1hZ2VzLzY3MDU0MDEzYTYwOTE5YzkyZDkyYzk1OS9ISVMxNzQ3NzM1NjEyMzE5LmpwZw/w:1920,q:80/hope-images/67054013a60919c92d92c959/HIS1747735612319.jpg" loading="lazy" alt="EGW Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
+            <img src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1200&auto=format&fit=crop" loading="lazy" alt="EGW Detail" className="w-full h-[18rem] object-cover rounded-[1.25rem] mb-8 shadow-sm" />
             <div className="space-y-4 text-navy-600 font-medium">
                 <p>Salah satu karunia Roh Kudus adalah nubuat. Karunia ini adalah tanda pengenal gereja yang sisa dan itu diwujudkan dalam pelayanan Ellen G. White.</p>
                 <h3 className="text-navy-900 font-bold text-xl pt-2">Peran dalam Gereja</h3>
@@ -3186,7 +3363,7 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
         <div className="animate-fade-in space-y-6 glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
             {/* Header */}
             <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden">
-                <img src="https://images.hopesoftware.org/resize/L3dfMTkyMF9fcV84MC9ob3BlLWltYWdlcy82MWRlZDc4YTk0YTg4Zjc2MzEwMjAzNDEvQVhNMTY0Mzk2NzU0MjczOS5qcGc/w_1920__q_80/hope-images/61ded78a94a88f7631020341/AXM1643967542739.jpg" loading="lazy" alt="Buku" className="w-full h-[14rem] object-cover" />
+                <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop" loading="lazy" alt="Buku" className="w-full h-[14rem] object-cover" />
                 <div className="p-6">
                     <h1 className="text-[1.75rem] font-extrabold text-navy-900 mb-2">Perpustakaan Buku</h1>
                     <p className="text-navy-500 font-medium text-sm leading-relaxed">Baca dan unduh buku-buku rohani langsung di sini. Pilih buku untuk membacanya.</p>
@@ -3251,8 +3428,10 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                                         src={getCoverFallback(book)}
                                         alt={book.title}
                                         loading="lazy"
+                                        decoding="async"
+                                        referrerPolicy="no-referrer"
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                                        onError={(e) => { e.target.src = getDefaultBookCover(book.category); }}
+                                        onError={(e) => handleBookCoverError(e, book)}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
                                     <DocumentBadge book={book} />
@@ -5310,7 +5489,11 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
     };
 
     // --- FITUR SUARA WARTA (TEXT-TO-SPEECH BAHASA INDONESIA) ---
+    const WARTA_TTS_SPEEDS = [0.5, 1, 1.5, 2];
     const [ttsState, setTtsState] = React.useState('idle'); // 'idle' | 'playing' | 'paused'
+    const [ttsRate, setTtsRate] = React.useState(1);
+    const ttsRateRef = React.useRef(1);
+    ttsRateRef.current = ttsRate;
 
     React.useEffect(() => {
         if (window.speechSynthesis) {
@@ -5318,6 +5501,25 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
         }
         setTtsState('idle');
     }, [selectedWarta]);
+
+    const startWartaSpeech = (rate = ttsRateRef.current) => {
+        if (!selectedWarta) return;
+        window.speechSynthesis.cancel();
+        const plainText = `${selectedWarta.judul}. Warta dari ${selectedWarta.penulis || 'Redaksi Warta Jemaat'}. ${stripHtml(selectedWarta.isi || '')}`;
+        const utterance = new SpeechSynthesisUtterance(plainText);
+        utterance.lang = 'id-ID';
+        utterance.rate = rate;
+
+        const voices = window.speechSynthesis.getVoices();
+        const idVoice = voices.find(v => v.lang === 'id-ID' || v.lang.startsWith('id'));
+        if (idVoice) utterance.voice = idVoice;
+
+        utterance.onend = () => setTtsState('idle');
+        utterance.onerror = () => setTtsState('idle');
+
+        window.speechSynthesis.speak(utterance);
+        setTtsState('playing');
+    };
 
     const handleToggleTTS = () => {
         if (!('speechSynthesis' in window)) {
@@ -5331,22 +5533,20 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
             window.speechSynthesis.resume();
             setTtsState('playing');
         } else {
-            window.speechSynthesis.cancel();
-            const plainText = `${selectedWarta.judul}. Warta dari ${selectedWarta.penulis || 'Redaksi Warta Jemaat'}. ${stripHtml(selectedWarta.isi || '')}`;
-            const utterance = new SpeechSynthesisUtterance(plainText);
-            utterance.lang = 'id-ID';
-            utterance.rate = 0.95;
-
-            const voices = window.speechSynthesis.getVoices();
-            const idVoice = voices.find(v => v.lang === 'id-ID' || v.lang.startsWith('id'));
-            if (idVoice) utterance.voice = idVoice;
-
-            utterance.onend = () => setTtsState('idle');
-            utterance.onerror = () => setTtsState('idle');
-
-            window.speechSynthesis.speak(utterance);
-            setTtsState('playing');
+            startWartaSpeech(ttsRateRef.current);
         }
+    };
+
+    const handleToggleTtsRate = () => {
+        setTtsRate(prev => {
+            const curIdx = WARTA_TTS_SPEEDS.indexOf(prev);
+            const next = WARTA_TTS_SPEEDS[(curIdx + 1) % WARTA_TTS_SPEEDS.length];
+            ttsRateRef.current = next;
+            if (ttsState === 'playing') {
+                startWartaSpeech(next);
+            }
+            return next;
+        });
     };
 
     const handleStopTTS = () => {
@@ -5436,12 +5636,24 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
         return gridArticles.slice(start, end);
     }, [gridArticles, currentPage]);
 
-    // Bersihkan HTML artikel warta di level komponen: paksa eager loading & auto decoding untuk gambar sisipan agar tidak blank/hilang saat scroll di mobile
+    // Bersihkan HTML artikel warta di level komponen: paksa eager loading & auto decoding untuk semua gambar sisipan agar tidak blank/hilang saat scroll di mobile
     const cleanedArticleHtml = React.useMemo(() => {
         if (!selectedWarta?.isi) return '';
         return selectedWarta.isi
-            .replace(/\sloading=["']lazy["']/gi, ' loading="eager"')
-            .replace(/\sdecoding=["']async["']/gi, ' decoding="auto"');
+            .replace(/<img\b([^>]*)>/gi, (match, attrs) => {
+                let newAttrs = attrs;
+                if (!/loading=/i.test(newAttrs)) {
+                    newAttrs += ' loading="eager"';
+                } else {
+                    newAttrs = newAttrs.replace(/loading=["'][^"']*["']/gi, 'loading="eager"');
+                }
+                if (!/decoding=/i.test(newAttrs)) {
+                    newAttrs += ' decoding="auto"';
+                } else {
+                    newAttrs = newAttrs.replace(/decoding=["'][^"']*["']/gi, 'decoding="auto"');
+                }
+                return `<img${newAttrs}>`;
+            });
     }, [selectedWarta?.isi]);
 
     const goToPage = (page) => {
@@ -5527,10 +5739,10 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
 
         return (
             <div className="space-y-6 animate-fade-in pb-16 max-w-5xl mx-auto">
-                {/* Top Action Bar & Breadcrumbs */}
-                <div className="liquid-glass-box p-3 sm:p-3.5 rounded-2xl flex flex-wrap items-center justify-between gap-3 sticky top-16 md:top-[4.5rem] z-40 transition-all overflow-hidden relative warta-no-print print:hidden no-print">
+                {/* Top Action Bar & Breadcrumbs (Sleek, Compact, Single-Row di Mobile & Desktop) */}
+                <div className="liquid-glass-box px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl flex items-center justify-between gap-2 sticky top-16 md:top-[4.5rem] z-40 transition-all relative warta-no-print print:hidden no-print shadow-sm">
                     {/* Reading Progress Indicator */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-navy-100/70 dark:bg-navy-800/80">
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-navy-100/70 dark:bg-navy-800/80 rounded-b-2xl overflow-hidden pointer-events-none">
                         <div
                             ref={readingProgressBarRef}
                             className="h-full bg-gradient-to-r from-gold-500 via-amber-400 to-gold-300 transition-[width] duration-75 ease-out"
@@ -5538,38 +5750,50 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                         />
                     </div>
 
-                    <div className="flex items-center gap-2 min-w-0">
+                    {/* Sisi Kiri: Tombol Kembali & Breadcrumb */}
+                    <div className="flex items-center gap-2 min-w-0 shrink-0">
                         <button
                             onClick={() => setSelectedWarta(null)}
-                            className="bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-800 dark:text-gold-300 border border-navy-200/80 dark:border-navy-700/80 hover:border-gold-500/50 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs hover:shadow flex items-center shrink-0 active:scale-95 group"
+                            className="bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-800 dark:text-gold-300 border border-navy-200/80 dark:border-navy-700/80 hover:border-gold-500/50 px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs flex items-center shrink-0 active:scale-95 group"
                         >
-                            <Icon name="ArrowLeft" className="w-4 h-4 mr-1.5 group-hover:-translate-x-0.5 transition-transform" /> Semua Warta
+                            <Icon name="ArrowLeft" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-1.5 group-hover:-translate-x-0.5 transition-transform" />
+                            <span className="hidden xs:inline">Semua Warta</span>
+                            <span className="xs:hidden">Kembali</span>
                         </button>
-                        <div className="hidden md:flex items-center text-xs text-navy-400 dark:text-navy-500 truncate">
+                        <div className="hidden lg:flex items-center text-xs text-navy-400 dark:text-navy-500 truncate">
                             <span className="cursor-pointer hover:underline" onClick={() => setSelectedWarta(null)}>Warta</span>
                             <span className="mx-1.5">/</span>
                             <span className="font-semibold text-navy-600 dark:text-gold-400/80">{info.category}</span>
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 ml-auto">
+                    {/* Sisi Kanan: Action Buttons Baris Tunggal Rapi (Tidak Melipat ke Baris Baru) */}
+                    <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto hide-scrollbar py-0.5 ml-auto shrink-0">
                         {/* Tombol Suara (Text-to-Speech) */}
                         <div className="flex items-center gap-1">
                             <button
                                 onClick={handleToggleTTS}
-                                className={`px-2.5 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5 text-xs font-bold ${ttsState === 'playing' ? 'bg-gold-500 text-white animate-pulse' : (ttsState === 'paused' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300')}`}
+                                className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl transition shadow-2xs flex items-center gap-1 text-xs font-bold ${ttsState === 'playing' ? 'bg-gold-500 text-white animate-pulse' : (ttsState === 'paused' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300')}`}
                                 title={ttsState === 'playing' ? "Jeda Pembacaan Warta" : (ttsState === 'paused' ? "Lanjutkan Pembacaan Warta" : "Dengarkan Warta (Suara Bahasa Indonesia)")}
                             >
-                                <Icon name={ttsState === 'playing' ? "Pause" : "Volume2"} className={`w-4 h-4 ${ttsState === 'playing' ? 'text-white' : 'text-gold-500'}`} />
-                                <span className="hidden sm:inline">{ttsState === 'playing' ? 'Jeda' : (ttsState === 'paused' ? 'Lanjut' : 'Dengarkan')}</span>
+                                <Icon name={ttsState === 'playing' ? "Pause" : "Volume2"} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${ttsState === 'playing' ? 'text-white' : 'text-gold-500'}`} />
+                                <span className="hidden md:inline">{ttsState === 'playing' ? 'Jeda' : (ttsState === 'paused' ? 'Lanjut' : 'Dengarkan')}</span>
+                            </button>
+                            {/* Tombol Kecepatan Suara Warta */}
+                            <button
+                                onClick={handleToggleTtsRate}
+                                className="px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-xl bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300 font-black text-[11px] sm:text-xs transition shadow-2xs"
+                                title="Ubah Kecepatan Suara Warta (0.5x, 1x, 1.5x, 2x)"
+                            >
+                                {ttsRate}x
                             </button>
                             {ttsState !== 'idle' && (
                                 <button
                                     onClick={handleStopTTS}
-                                    className="p-2 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 transition shadow-sm"
+                                    className="p-1.5 sm:p-2 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 transition shadow-2xs"
                                     title="Hentikan Pembacaan"
                                 >
-                                    <Icon name="Square" className="w-3.5 h-3.5" />
+                                    <Icon name="Square" className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                 </button>
                             )}
                         </div>
@@ -5577,69 +5801,68 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                         {/* Tombol Simpan Warta (Bookmark) */}
                         <button
                             onClick={() => toggleBookmark(selectedWarta.rowIndex)}
-                            className={`p-2 rounded-xl transition shadow-sm flex items-center gap-1 text-xs font-bold ${bookmarkedIds.includes(selectedWarta.rowIndex) ? 'bg-amber-500 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
+                            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl transition shadow-2xs flex items-center gap-1 text-xs font-bold ${bookmarkedIds.includes(selectedWarta.rowIndex) ? 'bg-amber-500 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
                             title={bookmarkedIds.includes(selectedWarta.rowIndex) ? "Hapus dari Warta Tersimpan" : "Simpan Warta untuk Dibaca Nanti"}
                         >
-                            <Icon name="Bookmark" className={`w-4 h-4 ${bookmarkedIds.includes(selectedWarta.rowIndex) ? 'fill-current' : ''}`} />
-                            <span className="hidden md:inline">{bookmarkedIds.includes(selectedWarta.rowIndex) ? 'Tersimpan' : 'Simpan'}</span>
+                            <Icon name="Bookmark" className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${bookmarkedIds.includes(selectedWarta.rowIndex) ? 'fill-current' : ''}`} />
+                            <span className="hidden lg:inline">{bookmarkedIds.includes(selectedWarta.rowIndex) ? 'Tersimpan' : 'Simpan'}</span>
                         </button>
 
-                        {/* Tombol Salin Format WA */}
+                        {/* Tombol Salin Format WA (Di Desktop / Tablet) */}
                         <button
                             onClick={handleCopyQuote}
-                            className={`p-2 rounded-xl transition shadow-sm flex items-center gap-1 text-xs font-bold ${copiedQuote ? 'bg-emerald-600 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
+                            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl transition shadow-2xs items-center gap-1 text-xs font-bold hidden sm:flex ${copiedQuote ? 'bg-emerald-600 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
                             title="Salin Teks Format WhatsApp untuk Status / Grup"
                         >
-                            <Icon name="MessageCircle" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                            <span className="hidden md:inline">{copiedQuote ? 'Tersalin' : 'Format WA'}</span>
+                            <Icon name="MessageCircle" className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
+                            <span className="hidden lg:inline">{copiedQuote ? 'Tersalin' : 'Format WA'}</span>
                         </button>
 
                         {/* Pengatur Ukuran Huruf (A- / A+) */}
-                        <div className="flex items-center bg-navy-50 dark:bg-navy-800/80 rounded-xl p-1 border border-navy-200/50 dark:border-navy-700/50 text-xs" title="Ukuran Teks Berita">
+                        <div className="flex items-center bg-navy-50 dark:bg-navy-800/80 rounded-xl p-0.5 sm:p-1 border border-navy-200/50 dark:border-navy-700/50 text-[11px] sm:text-xs" title="Ukuran Teks Berita">
                             <button
                                 onClick={() => setFontSizeLevel(p => Math.max(0, p - 1))}
                                 disabled={fontSizeLevel === 0}
-                                className={`px-2 py-1 rounded-lg font-bold transition ${fontSizeLevel === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300'}`}
+                                className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg font-bold transition ${fontSizeLevel === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300'}`}
                             >
                                 A-
                             </button>
-                            <span className="px-1 text-[10px] text-navy-400 font-bold uppercase tracking-wider">Teks</span>
                             <button
                                 onClick={() => setFontSizeLevel(p => Math.min(2, p + 1))}
                                 disabled={fontSizeLevel === 2}
-                                className={`px-2 py-1 rounded-lg font-bold transition ${fontSizeLevel === 2 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300'}`}
+                                className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg font-bold transition ${fontSizeLevel === 2 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300'}`}
                             >
                                 A+
                             </button>
                         </div>
 
-                        {/* Tombol Cetak */}
+                        {/* Tombol Cetak (Tablet & Desktop) */}
                         <button
                             onClick={() => window.print()}
-                            className="p-2 bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300 rounded-xl transition shadow-sm"
+                            className="p-1.5 sm:p-2 bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300 rounded-xl transition shadow-2xs hidden md:flex items-center"
                             title="Cetak Berita (Format Buletin Resmi)"
                         >
-                            <Icon name="Printer" className="w-4 h-4" />
+                            <Icon name="Printer" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </button>
 
-                        {/* Tombol Salin Link */}
+                        {/* Tombol Salin Link (Tablet & Desktop) */}
                         <button
                             onClick={handleCopyLink}
-                            className={`p-2 rounded-xl transition shadow-sm flex items-center gap-1 text-xs font-bold ${copiedLink ? 'bg-emerald-600 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
+                            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl transition shadow-2xs items-center gap-1 text-xs font-bold hidden sm:flex ${copiedLink ? 'bg-emerald-600 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
                             title="Salin Tautan"
                         >
-                            {copiedLink ? <Icon name="CheckCircle" className="w-4 h-4 text-white" /> : <Icon name="Copy" className="w-4 h-4" />}
-                            {copiedLink && <span className="hidden sm:inline text-[11px]">Tersalin</span>}
+                            {copiedLink ? <Icon name="CheckCircle" className="w-3.5 h-3.5 text-white" /> : <Icon name="Copy" className="w-3.5 h-3.5" />}
+                            {copiedLink && <span className="hidden lg:inline text-[11px]">Tersalin</span>}
                         </button>
 
                         {/* Tombol Share Cerdas (Native Web Share / WA) */}
                         <button
                             onClick={() => handleSmartShare(info.cleanTitle)}
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 sm:gap-1.5 shadow-2xs shrink-0 active:scale-95"
                             title="Bagikan Warta"
                         >
-                            <Icon name="Share2" className="w-4 h-4" />
-                            <span className="hidden sm:inline">Bagikan</span>
+                            <Icon name="Share2" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            <span className="hidden xs:inline">Bagikan</span>
                         </button>
                     </div>
                 </div>
@@ -12271,8 +12494,11 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                 <img
                                                     src={getCoverFallback(book)}
                                                     alt={book.title}
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                    referrerPolicy="no-referrer"
                                                     className="w-full h-full object-cover"
-                                                    onError={(e) => { e.target.src = getDefaultBookCover(book.category); }}
+                                                    onError={(e) => handleBookCoverError(e, book)}
                                                 />
                                                 <DocumentBadge book={book} />
                                             </div>
@@ -12445,10 +12671,10 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                     setBookFormData({ ...bookFormData, cover: val });
                                                 }}
                                                 className="w-full px-4 py-2.5 border border-navy-200 rounded-lg focus:outline-none focus:border-gold-500 font-medium text-sm"
-                                                placeholder="Link gambar dari Google Drive (otomatis dikonversi) atau web lain"
+                                                placeholder="Kosongkan agar otomatis diambil dari halaman awal dokumen PDF buku"
                                             />
                                             <p className="text-xs text-navy-400 mt-1.5">
-                                                💡 <strong>Kosongkan</strong> untuk menggunakan gambar default sesuai kategori (EGW, Doktrin, Panduan, Renungan, Lain-lain)
+                                                💡 <strong>Kosongkan</strong> untuk otomatis mengambil gambar sampul dari halaman awal buku (PDF Google Drive).
                                             </p>
                                         </div>
 
@@ -12459,23 +12685,16 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                 value={bookFormData.pdfUrl}
                                                 onChange={(e) => {
                                                     let val = e.target.value;
-                                                    let match = val.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-                                                    if (match && match[1]) {
-                                                        val = `https://drive.google.com/file/d/${match[1]}/preview`;
-                                                    } else {
-                                                        match = val.match(/id=([a-zA-Z0-9_-]+)/);
-                                                        if (match && match[1] && val.includes('drive.google.com')) {
-                                                            val = `https://drive.google.com/file/d/${match[1]}/preview`;
-                                                        } else {
-                                                            let docsMatch = val.match(/(docs\.google\.com\/(?:presentation|document|spreadsheets)\/d\/[a-zA-Z0-9_-]+)/);
-                                                            if (docsMatch && docsMatch[1]) {
-                                                                if (docsMatch[1].includes('presentation')) {
-                                                                    val = `https://${docsMatch[1]}/embed?start=false&loop=false&delayms=3000`;
-                                                                } else {
-                                                                    val = `https://${docsMatch[1]}/preview`;
-                                                                }
-                                                            }
+                                                    let driveId = getGoogleDriveFileId(val);
+                                                    if (driveId) {
+                                                        let newPdfUrl = `https://drive.google.com/file/d/${driveId}/preview`;
+                                                        // Jika cover masih kosong, otomatis isi dengan thumbnail halaman awal dokumen buku!
+                                                        let newCover = bookFormData.cover;
+                                                        if (!newCover || newCover.trim() === '' || newCover.includes('thumbnail?id=')) {
+                                                            newCover = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
                                                         }
+                                                        setBookFormData({ ...bookFormData, pdfUrl: newPdfUrl, cover: newCover });
+                                                        return;
                                                     }
                                                     setBookFormData({ ...bookFormData, pdfUrl: val });
                                                 }}
@@ -12587,6 +12806,256 @@ const Alkitab = ({ setHideGlobalBack }) => {
     const [selectedVerses, setSelectedVerses] = React.useState(new Set());
     const [selectedAyat, setSelectedAyat] = React.useState('');
     const [pendingTarget, setPendingTarget] = React.useState(null);
+
+    // --- FITUR AUDIO ALKITAB (TEXT-TO-SPEECH BAHASA INDONESIA) ---
+    const ALKITAB_TTS_SPEEDS = [0.5, 1, 1.5, 2];
+    const [ttsState, setTtsState] = React.useState('idle'); // 'idle' | 'playing' | 'paused'
+    const [activePlayingAyat, setActivePlayingAyat] = React.useState(null);
+    const [ttsRate, setTtsRate] = React.useState(1);
+
+    const ttsStateRef = React.useRef('idle');
+    ttsStateRef.current = ttsState;
+
+    const ttsRateRef = React.useRef(1);
+    ttsRateRef.current = ttsRate;
+
+    const playlistRef = React.useRef([]);
+    const currentIndexRef = React.useRef(0);
+    const isStoppedRef = React.useRef(false);
+
+    const findIndonesianVoice = () => {
+        if (!('speechSynthesis' in window)) return null;
+        const voices = window.speechSynthesis.getVoices() || [];
+        return (
+            voices.find(v => v.lang === 'id-ID' || v.lang === 'id_ID' || v.lang.toLowerCase().startsWith('id')) ||
+            voices.find(v => v.name && v.name.toLowerCase().includes('indonesia')) ||
+            null
+        );
+    };
+
+    const stopAudio = React.useCallback(() => {
+        isStoppedRef.current = true;
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        setTtsState('idle');
+        setActivePlayingAyat(null);
+    }, []);
+
+    // Hentikan suara otomatis saat ganti kitab atau pasal
+    React.useEffect(() => {
+        stopAudio();
+    }, [selectedBook, selectedChapter, stopAudio]);
+
+    // Bersihkan audio saat komponen di-unmount
+    React.useEffect(() => {
+        return () => {
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+        };
+    }, []);
+
+    const speakPlaylistItem = React.useCallback((index) => {
+        if (isStoppedRef.current) return;
+        const playlist = playlistRef.current;
+        if (!playlist || index < 0 || index >= playlist.length) {
+            setTtsState('idle');
+            setActivePlayingAyat(null);
+            return;
+        }
+
+        currentIndexRef.current = index;
+        const currentItem = playlist[index];
+        setActivePlayingAyat(currentItem.ayat || null);
+
+        if (currentItem.ayat) {
+            const el = document.getElementById(`ayat-${currentItem.ayat}`);
+            if (el) {
+                const headerOffset = 180;
+                const elementPosition = el.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({
+                    top: Math.max(0, offsetPosition),
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+
+        const utterance = new SpeechSynthesisUtterance(currentItem.text);
+        utterance.lang = 'id-ID';
+        utterance.rate = ttsRateRef.current;
+
+        const voice = findIndonesianVoice();
+        if (voice) utterance.voice = voice;
+
+        utterance.onend = () => {
+            if (isStoppedRef.current) return;
+            setTimeout(() => {
+                if (!isStoppedRef.current && ttsStateRef.current === 'playing') {
+                    speakPlaylistItem(index + 1);
+                }
+            }, 260);
+        };
+
+        utterance.onerror = (e) => {
+            if (e.error === 'interrupted' || e.error === 'canceled') return;
+            console.warn('Alkitab TTS error:', e);
+            if (!isStoppedRef.current && ttsStateRef.current === 'playing') {
+                speakPlaylistItem(index + 1);
+            }
+        };
+
+        window.speechSynthesis.speak(utterance);
+        setTtsState('playing');
+    }, []);
+
+    const handlePlayChapter = (startFromAyat = 1) => {
+        if (!('speechSynthesis' in window)) {
+            alert("Browser Anda belum mendukung fitur audio suara Alkitab (Speech Synthesis).");
+            return;
+        }
+        if (!selectedBook || !selectedChapter || verses.length === 0) return;
+
+        isStoppedRef.current = false;
+        const items = [];
+
+        items.push({
+            ayat: null,
+            text: `Kitab ${selectedBook.nama}, pasal ${selectedChapter}.`
+        });
+
+        for (const v of verses) {
+            if (v.type === 'title') {
+                items.push({
+                    ayat: null,
+                    text: `${v.teks}.`
+                });
+            } else if (v.type === 'content') {
+                items.push({
+                    ayat: v.ayat,
+                    text: `Ayat ${v.ayat}. ${v.teks}`
+                });
+            }
+        }
+
+        playlistRef.current = items;
+
+        let startIndex = 0;
+        if (startFromAyat && startFromAyat > 1) {
+            const foundIdx = items.findIndex(it => it.ayat === parseInt(startFromAyat, 10));
+            if (foundIdx !== -1) startIndex = foundIdx;
+        }
+
+        setTtsState('playing');
+        speakPlaylistItem(startIndex);
+    };
+
+    const handlePlaySelectedVerses = () => {
+        if (!('speechSynthesis' in window)) {
+            alert("Browser Anda belum mendukung fitur audio suara Alkitab (Speech Synthesis).");
+            return;
+        }
+        if (selectedVerses.size === 0 || !selectedBook) return;
+
+        isStoppedRef.current = false;
+        const sortedAyats = Array.from(selectedVerses).sort((a, b) => a - b);
+        const items = [];
+
+        items.push({
+            ayat: null,
+            text: `Kitab ${selectedBook.nama}, pasal ${selectedChapter}. Membaca ${sortedAyats.length} ayat.`
+        });
+
+        for (const aNum of sortedAyats) {
+            const v = verses.find(x => x.ayat === aNum);
+            if (v) {
+                items.push({
+                    ayat: aNum,
+                    text: `Ayat ${aNum}. ${v.teks}`
+                });
+            }
+        }
+
+        playlistRef.current = items;
+        setTtsState('playing');
+        speakPlaylistItem(0);
+    };
+
+    const handlePlaySingleVerse = (verseObj) => {
+        if (!('speechSynthesis' in window)) {
+            alert("Browser Anda belum mendukung fitur audio suara Alkitab (Speech Synthesis).");
+            return;
+        }
+        if (!selectedBook || !selectedChapter) return;
+
+        isStoppedRef.current = false;
+        const items = [
+            {
+                ayat: verseObj.ayat,
+                text: `${selectedBook.nama} pasal ${selectedChapter} ayat ${verseObj.ayat}. ${verseObj.teks}`
+            }
+        ];
+
+        playlistRef.current = items;
+        setTtsState('playing');
+        speakPlaylistItem(0);
+    };
+
+    const handleToggleChapterTTS = () => {
+        if (!('speechSynthesis' in window)) {
+            alert("Browser Anda belum mendukung fitur audio suara Alkitab (Speech Synthesis).");
+            return;
+        }
+
+        if (ttsState === 'playing') {
+            window.speechSynthesis.pause();
+            setTtsState('paused');
+        } else if (ttsState === 'paused') {
+            if (window.speechSynthesis.paused) {
+                window.speechSynthesis.resume();
+            } else {
+                speakPlaylistItem(currentIndexRef.current);
+            }
+            setTtsState('playing');
+        } else {
+            const startAyat = selectedAyat ? parseInt(selectedAyat, 10) : 1;
+            handlePlayChapter(startAyat);
+        }
+    };
+
+    const handleNextAudioVerse = () => {
+        if (currentIndexRef.current + 1 < playlistRef.current.length) {
+            speakPlaylistItem(currentIndexRef.current + 1);
+        } else {
+            stopAudio();
+        }
+    };
+
+    const handlePrevAudioVerse = () => {
+        if (currentIndexRef.current > 0) {
+            speakPlaylistItem(currentIndexRef.current - 1);
+        }
+    };
+
+    const handleToggleTtsRate = () => {
+        setTtsRate(prev => {
+            const curIdx = ALKITAB_TTS_SPEEDS.indexOf(prev);
+            const next = ALKITAB_TTS_SPEEDS[(curIdx + 1) % ALKITAB_TTS_SPEEDS.length];
+
+            ttsRateRef.current = next;
+            if (ttsStateRef.current === 'playing') {
+                speakPlaylistItem(currentIndexRef.current);
+            }
+            return next;
+        });
+    };
+
+    const handleStopTTS = stopAudio;
 
     const scrollToVerse = React.useCallback((ayatNum, endAyatNum = null) => {
         if (!ayatNum) return;
@@ -13131,7 +13600,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
 
     if (selectedBook && selectedChapter) {
         return (
-            <div className="animate-fade-in pb-10">
+            <div className="animate-fade-in pb-36 sm:pb-40 md:pb-24">
                 {/* Sticky Header: Tombol Panah (Kiri), Kotak Kitab (Tengah), Tombol Home (Kanan) */}
                 <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 transition-all">
                     <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
@@ -13204,13 +13673,43 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     )}
                     {!isLoadingChapter && !fetchError && verses.length > 0 && (
                         <>
-                            <div className="mb-8 border-b border-navy-100 dark:border-navy-800 pb-6">
+                            <div className="mb-6 sm:mb-8 border-b border-navy-100 dark:border-navy-800 pb-5 sm:pb-6">
                                 <div className="flex justify-between items-center mb-1">
                                     <span className="text-[10px] font-black text-gold-600 uppercase tracking-widest">{selectedBook.testamen === 'PL' ? 'PERJANJIAN LAMA' : 'PERJANJIAN BARU'} • TERJEMAHAN BARU</span>
                                 </div>
-                                <div className="flex justify-between items-end">
-                                    <h2 className="text-3xl font-black text-navy-900 dark:text-white tracking-tight">{selectedBook.nama} {selectedChapter}</h2>
-                                    <span className="bg-navy-100 dark:bg-navy-800 text-navy-600 dark:text-navy-300 text-xs font-bold px-3 py-1.5 rounded-full">{verses.filter(v => v.type === 'content').length} ayat</span>
+                                <div className="flex flex-wrap items-center justify-between gap-3">
+                                    <h2 className="text-2xl sm:text-3xl font-black text-navy-900 dark:text-white tracking-tight">{selectedBook.nama} {selectedChapter}</h2>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        {/* Tombol Audio Alkitab */}
+                                        <button
+                                            onClick={handleToggleChapterTTS}
+                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-2xs cursor-pointer ${ttsState === 'playing'
+                                                ? 'bg-gold-500 text-white shadow-md shadow-gold-500/30 animate-pulse'
+                                                : ttsState === 'paused'
+                                                    ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-300 dark:border-amber-700'
+                                                    : 'bg-gold-50 hover:bg-gold-100 dark:bg-gold-500/10 dark:hover:bg-gold-500/20 text-gold-700 dark:text-gold-300 border border-gold-300/60 dark:border-gold-500/30'
+                                                }`}
+                                            title={ttsState === 'playing' ? "Jeda Pembacaan Audio" : ttsState === 'paused' ? "Lanjutkan Pembacaan Audio" : "Dengarkan Pasal Ini (Suara Bahasa Indonesia)"}
+                                        >
+                                            <Icon name={ttsState === 'playing' ? "Pause" : "Volume2"} className={`w-4 h-4 ${ttsState === 'playing' ? 'text-white' : 'text-gold-600 dark:text-gold-400'}`} />
+                                            <span>{ttsState === 'playing' ? 'Jeda' : ttsState === 'paused' ? 'Lanjut' : 'Dengarkan Audio'}</span>
+                                        </button>
+
+                                        {ttsState !== 'idle' && (
+                                            <button
+                                                onClick={handleStopTTS}
+                                                className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 font-bold text-xs transition-colors shadow-2xs cursor-pointer flex items-center gap-1"
+                                                title="Hentikan Pembacaan"
+                                            >
+                                                <Icon name="Square" className="w-3.5 h-3.5" />
+                                                <span className="hidden sm:inline">Berhenti</span>
+                                            </button>
+                                        )}
+
+                                        <span className="bg-navy-100 dark:bg-navy-800 text-navy-600 dark:text-navy-300 text-xs font-bold px-3 py-1.5 rounded-full">
+                                            {verses.filter(v => v.type === 'content').length} ayat
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <div className="space-y-4">
@@ -13222,16 +13721,58 @@ const Alkitab = ({ setHideGlobalBack }) => {
                                             </h3>
                                         );
                                     }
+                                    const isSelected = selectedVerses.has(a.ayat);
+                                    const isPlayingThis = activePlayingAyat === a.ayat;
                                     return (
                                         <div
                                             key={a.ayat}
                                             id={`ayat-${a.ayat}`}
                                             style={{ scrollMarginTop: '160px' }}
                                             onClick={() => toggleVerse(a.ayat)}
-                                            className={`flex gap-4 items-start group transition-all duration-300 rounded-[1.25rem] p-3 md:p-4 -mx-3 md:-mx-4 cursor-pointer select-none ${selectedVerses.has(a.ayat) ? 'bg-gold-50 dark:bg-gold-500/10 shadow-sm border border-gold-200 dark:border-gold-500/30' : 'hover:bg-navy-50/70 dark:hover:bg-navy-800/60 border border-transparent'}`}
+                                            className={`flex gap-3 sm:gap-4 items-start group transition-all duration-300 rounded-[1.25rem] p-3 md:p-4 -mx-3 md:-mx-4 cursor-pointer select-none ${isSelected
+                                                ? 'bg-gold-50 dark:bg-gold-500/10 shadow-sm border border-gold-200 dark:border-gold-500/30'
+                                                : isPlayingThis
+                                                    ? 'bg-gold-100/80 dark:bg-gold-500/20 shadow-md border-2 border-gold-400 dark:border-gold-500 ring-2 ring-gold-400/30'
+                                                    : 'hover:bg-navy-50/70 dark:hover:bg-navy-800/60 border border-transparent'
+                                                }`}
                                         >
-                                            <span className={`font-bold rounded-full flex items-center justify-center shrink-0 transition-colors shadow-sm ${selectedVerses.has(a.ayat) ? 'bg-[#D19B45] text-white' : 'text-navy-500 bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700'}`} style={{ fontSize: Math.max(10, fontSize - 6) + 'px', width: '2.5em', height: '2.5em', marginTop: '0.25em' }}>{a.ayat}</span>
-                                            <p className="text-navy-800 dark:text-navy-100 leading-relaxed transition-all" style={{ fontSize: fontSize + 'px' }}>{a.teks}</p>
+                                            <span
+                                                className={`font-bold rounded-full flex items-center justify-center shrink-0 transition-colors shadow-sm ${isSelected
+                                                    ? 'bg-[#D19B45] text-white'
+                                                    : isPlayingThis
+                                                        ? 'bg-gold-500 text-white animate-pulse'
+                                                        : 'text-navy-500 bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700'
+                                                    }`}
+                                                style={{ fontSize: Math.max(10, fontSize - 6) + 'px', width: '2.5em', height: '2.5em', marginTop: '0.25em' }}
+                                            >
+                                                {isPlayingThis ? (
+                                                    <Icon name="Volume2" className="w-3.5 h-3.5" />
+                                                ) : (
+                                                    a.ayat
+                                                )}
+                                            </span>
+                                            <p className="text-navy-800 dark:text-navy-100 leading-relaxed transition-all flex-1" style={{ fontSize: fontSize + 'px' }}>
+                                                {a.teks}
+                                            </p>
+
+                                            {/* Tombol Dengarkan Ayat Ini Cepat */}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (isPlayingThis && ttsState === 'playing') {
+                                                        handleToggleChapterTTS();
+                                                    } else {
+                                                        handlePlaySingleVerse(a);
+                                                    }
+                                                }}
+                                                className={`p-1.5 rounded-lg transition-opacity shrink-0 ${isPlayingThis
+                                                    ? 'opacity-100 text-gold-500'
+                                                    : 'opacity-0 group-hover:opacity-100 focus:opacity-100 text-navy-400 hover:text-gold-600 dark:hover:text-gold-400'
+                                                    }`}
+                                                title={`Dengarkan Ayat ${a.ayat}`}
+                                            >
+                                                <Icon name={isPlayingThis && ttsState === 'playing' ? "Volume2" : "Volume1"} className="w-4 h-4" />
+                                            </button>
                                         </div>
                                     );
                                 })}
@@ -13298,13 +13839,108 @@ const Alkitab = ({ setHideGlobalBack }) => {
                         <p className="text-center text-navy-400 py-10 font-semibold text-sm">Tidak ada data ayat.</p>
                     )}
 
-                    {/* Share Selected Verses FAB */}
-                    {selectedVerses.size > 0 && (
-                        <div className="fixed bottom-6 left-0 right-0 z-[60] flex justify-center px-4 pointer-events-none animate-slide-up">
-                            <button onClick={handleShareVerses} className="pointer-events-auto bg-[#4A7045] hover:bg-[#3A5836] text-white px-6 py-3.5 rounded-full font-bold shadow-[0_8px_30px_rgba(74,112,69,0.4)] flex items-center gap-3 transition-transform hover:scale-105 group border border-white/20">
-                                <Icon name="Share" className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                <span>Bagikan {selectedVerses.size} Ayat</span>
-                            </button>
+                    {/* Toolbar Pemutar Audio Mengambang (Floating Audio Player) */}
+                    {ttsState !== 'idle' && (
+                        <div className="fixed floating-alkitab-bar left-0 right-0 z-[48] flex justify-center px-3 sm:px-4 pointer-events-none animate-slide-up">
+                            <div className="pointer-events-auto bg-navy-950/95 dark:bg-navy-900/95 backdrop-blur-md text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl sm:rounded-full shadow-2xl border border-gold-500/40 flex items-center gap-2 sm:gap-4 max-w-lg w-full justify-between">
+                                {/* Info Ayat Aktif */}
+                                <div
+                                    onClick={() => activePlayingAyat && scrollToVerse(activePlayingAyat)}
+                                    className="flex items-center gap-2 min-w-0 cursor-pointer group"
+                                    title="Klik untuk menuju posisi ayat"
+                                >
+                                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gold-500/20 flex items-center justify-center shrink-0 border border-gold-500/40">
+                                        <Icon name="Volume2" className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold-400 ${ttsState === 'playing' ? 'animate-pulse' : ''}`} />
+                                    </div>
+                                    <div className="truncate max-w-[130px] sm:max-w-[220px]">
+                                        <div className="text-[9px] sm:text-[10px] uppercase font-black tracking-wider text-gold-400 truncate">
+                                            {ttsState === 'playing' ? 'Sedang Membaca' : 'Audio Dijeda'}
+                                        </div>
+                                        <div className="text-[11px] sm:text-xs font-bold text-white group-hover:text-gold-300 transition-colors truncate">
+                                            {selectedBook.nama} {selectedChapter}{activePlayingAyat ? ` : Ayat ${activePlayingAyat}` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Controls */}
+                                <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                                    {/* Prev Verse */}
+                                    <button
+                                        onClick={handlePrevAudioVerse}
+                                        className="p-1.5 sm:p-2 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition cursor-pointer"
+                                        title="Ayat Sebelumnya"
+                                    >
+                                        <Icon name="SkipBack" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                    </button>
+
+                                    {/* Play / Pause */}
+                                    <button
+                                        onClick={handleToggleChapterTTS}
+                                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gold-500 hover:bg-gold-400 active:scale-95 text-navy-950 flex items-center justify-center font-black transition shadow-md cursor-pointer"
+                                        title={ttsState === 'playing' ? "Jeda" : "Lanjutkan"}
+                                    >
+                                        <Icon name={ttsState === 'playing' ? "Pause" : "Play"} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />
+                                    </button>
+
+                                    {/* Next Verse */}
+                                    <button
+                                        onClick={handleNextAudioVerse}
+                                        className="p-1.5 sm:p-2 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition cursor-pointer"
+                                        title="Ayat Berikutnya"
+                                    >
+                                        <Icon name="SkipForward" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                    </button>
+
+                                    {/* Speed Toggle */}
+                                    <button
+                                        onClick={handleToggleTtsRate}
+                                        className="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[9px] sm:text-xs font-black text-gold-300 transition cursor-pointer"
+                                        title="Ubah Kecepatan Suara (0.5x, 1x, 1.5x, 2x)"
+                                    >
+                                        {ttsRate}x
+                                    </button>
+
+                                    {/* Stop */}
+                                    <button
+                                        onClick={handleStopTTS}
+                                        className="p-1.5 sm:p-2 rounded-full hover:bg-red-500/20 text-red-400 hover:text-red-300 transition cursor-pointer ml-0.5"
+                                        title="Hentikan Pembacaan"
+                                    >
+                                        <Icon name="Square" className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Bar Aksi Ayat Terpilih (Dengarkan & Bagikan) */}
+                    {selectedVerses.size > 0 && ttsState === 'idle' && (
+                        <div className="fixed floating-alkitab-bar left-0 right-0 z-[48] flex justify-center px-3 sm:px-4 pointer-events-none animate-slide-up">
+                            <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 bg-navy-950/95 dark:bg-navy-900/95 backdrop-blur-md p-1.5 sm:p-2 rounded-full shadow-2xl border border-navy-700/80">
+                                <button
+                                    onClick={handlePlaySelectedVerses}
+                                    className="bg-gold-500 hover:bg-gold-400 text-navy-950 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full font-black text-xs sm:text-sm shadow-md flex items-center gap-1.5 sm:gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+                                    title={`Dengarkan ${selectedVerses.size} Ayat Terpilih`}
+                                >
+                                    <Icon name="Volume2" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                    <span>Dengarkan ({selectedVerses.size})</span>
+                                </button>
+                                <button
+                                    onClick={handleShareVerses}
+                                    className="bg-[#4A7045] hover:bg-[#3A5836] text-white px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold text-xs sm:text-sm shadow-md flex items-center gap-1.5 sm:gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+                                    title={`Bagikan ${selectedVerses.size} Ayat`}
+                                >
+                                    <Icon name="Share" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                    <span>Bagikan ({selectedVerses.size})</span>
+                                </button>
+                                <button
+                                    onClick={() => setSelectedVerses(new Set())}
+                                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center transition cursor-pointer text-xs ml-0.5"
+                                    title="Batal Memilih"
+                                >
+                                    ✕
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -14038,7 +14674,15 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                                 {searchResults.buku.map(b => (
                                     <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className="bg-white rounded-xl border border-navy-100/60 hover:border-purple-300 overflow-hidden cursor-pointer hover:shadow-md transition-all group">
                                         <div className="h-28 overflow-hidden relative">
-                                            <img src={getCoverFallback(b)} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" onError={e => { e.target.src = getDefaultBookCover(b.category); }} />
+                                            <img
+                                                src={getCoverFallback(b)}
+                                                alt={b.title}
+                                                loading="lazy"
+                                                decoding="async"
+                                                referrerPolicy="no-referrer"
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                                                onError={e => handleBookCoverError(e, b)}
+                                            />
                                             <div className="absolute inset-0 bg-gradient-to-t from-navy-900/70 to-transparent" />
                                             <DocumentBadge book={b} className="absolute top-1.5 left-1.5" />
                                             <span className="absolute top-1.5 right-1.5 bg-gold-500/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">{b.category}</span>
@@ -14123,6 +14767,97 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                     <Icon name="Search" className="w-12 h-12 mx-auto text-navy-300 mb-3" />
                     <p className="text-sm font-medium text-navy-500">Ketik minimal 2 karakter untuk mencari menu, warta, pejabat, buku, pengumuman, atau jadwal petugas.</p>
                 </div>
+            )}
+        </div>
+    );
+};
+
+// Floating Quick Action Buttons (Sinkronisasi, Hubungi WA, Scroll ke Atas)
+// Mengisolasi event listener scroll agar root App tidak re-render saat pengguna scroll layar
+const FloatingQuickActions = ({ isSyncing, setSyncTrigger, setShowSyncNotif, setActiveTab }) => {
+    const [isScrollingDown, setIsScrollingDown] = React.useState(false);
+    const [showScrollTop, setShowScrollTop] = React.useState(false);
+
+    React.useEffect(() => {
+        let lastScrollY = window.scrollY;
+        let ticking = false;
+        const handleScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const currentScrollY = window.scrollY;
+                    if (currentScrollY > lastScrollY && currentScrollY > 60) {
+                        setIsScrollingDown(true);
+                    } else if (currentScrollY < lastScrollY) {
+                        setIsScrollingDown(false);
+                    }
+                    setShowScrollTop(currentScrollY > 350);
+                    lastScrollY = currentScrollY;
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    return (
+        <div className="print:hidden no-print">
+            {/* Floating Sync Button */}
+            <button
+                onClick={() => {
+                    if (!isSyncing) {
+                        setSyncTrigger(prev => prev + 1);
+                        setShowSyncNotif(true);
+                    }
+                }}
+                className="fixed left-4 md:left-6 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb flex items-center justify-center cursor-pointer group active:scale-95 transition-all duration-300"
+                style={{
+                    bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
+                    transform: isScrollingDown ? 'translateY(120px)' : '',
+                    opacity: isScrollingDown ? 0 : 1,
+                    pointerEvents: isScrollingDown ? 'none' : 'auto'
+                }}
+                title="Sinkronisasi Data"
+            >
+                {isSyncing ? (
+                    <i className="fa-solid fa-rotate fa-spin text-amber-500 text-lg"></i>
+                ) : (
+                    <div className="relative flex items-center justify-center w-full h-full">
+                        <span className="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.9)]"></span>
+                        <span className="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
+                    </div>
+                )}
+            </button>
+
+            {/* Floating WhatsApp Button */}
+            <button
+                onClick={() => setActiveTab('hubungi')}
+                className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb flex items-center justify-center cursor-pointer group active:scale-95 transition-all duration-300"
+                style={{
+                    bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
+                    transform: isScrollingDown ? 'translateY(120px)' : '',
+                    opacity: isScrollingDown ? 0 : 1,
+                    pointerEvents: isScrollingDown ? 'none' : 'auto'
+                }}
+                title="Hubungi Kami"
+            >
+                <i className="fa-brands fa-whatsapp text-[#25D366] text-2xl transition-transform group-hover:scale-110 drop-shadow-[0_0_8px_rgba(37,211,102,0.4)]"></i>
+            </button>
+
+            {/* Floating Scroll-to-Top Button */}
+            {showScrollTop && (
+                <button
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb text-[#4A7045] dark:text-gold-400 hover:text-[#2C3F21] dark:hover:text-gold-300 flex items-center justify-center cursor-pointer group active:scale-95 transition-all duration-300"
+                    style={{
+                        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 154px)'
+                    }}
+                    title="Kembali ke Atas"
+                    aria-label="Kembali ke Atas"
+                >
+                    <Icon name="ArrowUp" className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
+                </button>
             )}
         </div>
     );
@@ -14301,24 +15036,6 @@ const App = () => {
     }, []);
     // -----------------------------------------
     const [hideGlobalBack, setHideGlobalBack] = React.useState(false);
-    const [isScrollingDown, setIsScrollingDown] = React.useState(false);
-    const [showScrollTop, setShowScrollTop] = React.useState(false);
-
-    React.useEffect(() => {
-        let lastScrollY = window.scrollY;
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-            if (currentScrollY > lastScrollY && currentScrollY > 50) {
-                setIsScrollingDown(true);
-            } else if (currentScrollY < lastScrollY) {
-                setIsScrollingDown(false);
-            }
-            setShowScrollTop(currentScrollY > 350);
-            lastScrollY = currentScrollY;
-        };
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
 
     const [jadwalDB, setJadwalDB] = React.useState({});
     const [dataPejabat, setDataPejabat] = React.useState(initialDataPejabat);
@@ -15214,66 +15931,14 @@ const App = () => {
                 </nav>
             )}
 
-            {/* Floating Action Button (Hubungi / WA & Sinkronisasi) - Dipercantik dengan Glassmorphism & Diangkat agar Tidak Menyentuh Menu */}
+            {/* Floating Action Button (Hubungi / WA & Sinkronisasi) */}
             {activeTab !== 'admin_dashboard' && activeTab !== 'hubungi' && activeTab !== 'lagu_sion' && !mobileNavPopup && (
-                <div className="print:hidden no-print">
-                    {/* Floating Sync Button */}
-                    <button
-                        onClick={() => {
-                            if (!isSyncing) {
-                                setSyncTrigger(prev => prev + 1);
-                                setShowSyncNotif(true);
-                            }
-                        }}
-                        className="fixed left-4 md:left-6 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb flex items-center justify-center cursor-pointer group active:scale-95"
-                        style={{
-                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
-                            transform: isScrollingDown ? 'translateY(120px)' : '',
-                            opacity: isScrollingDown ? 0 : 1,
-                            pointerEvents: isScrollingDown ? 'none' : 'auto'
-                        }}
-                        title="Sinkronisasi Data"
-                    >
-                        {isSyncing ? (
-                            <i className="fa-solid fa-rotate fa-spin text-amber-500 text-lg"></i>
-                        ) : (
-                            <div className="relative flex items-center justify-center w-full h-full">
-                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.9)]"></span>
-                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
-                            </div>
-                        )}
-                    </button>
-
-                    {/* Floating WhatsApp Button */}
-                    <button
-                        onClick={() => setActiveTab('hubungi')}
-                        className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb flex items-center justify-center cursor-pointer group active:scale-95"
-                        style={{
-                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
-                            transform: isScrollingDown ? 'translateY(120px)' : '',
-                            opacity: isScrollingDown ? 0 : 1,
-                            pointerEvents: isScrollingDown ? 'none' : 'auto'
-                        }}
-                        title="Hubungi Kami"
-                    >
-                        <i className="fa-brands fa-whatsapp text-[#25D366] text-2xl transition-transform group-hover:scale-110 drop-shadow-[0_0_8px_rgba(37,211,102,0.4)]"></i>
-                    </button>
-
-                    {/* Floating Scroll-to-Top Button */}
-                    {showScrollTop && (
-                        <button
-                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                            className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb text-[#4A7045] dark:text-gold-400 hover:text-[#2C3F21] dark:hover:text-gold-300 flex items-center justify-center cursor-pointer group active:scale-95"
-                            style={{
-                                bottom: 'calc(env(safe-area-inset-bottom, 0px) + 154px)'
-                            }}
-                            title="Kembali ke Atas"
-                            aria-label="Kembali ke Atas"
-                        >
-                            <Icon name="ArrowUp" className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
-                        </button>
-                    )}
-                </div>
+                <FloatingQuickActions
+                    isSyncing={isSyncing}
+                    setSyncTrigger={setSyncTrigger}
+                    setShowSyncNotif={setShowSyncNotif}
+                    setActiveTab={setActiveTab}
+                />
             )}
         </div>
     );
