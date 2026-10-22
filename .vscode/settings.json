@@ -1,3 +1,4 @@
 {
-    "mobile-preview.url": "http://localhost:5173/index.html"
+    "mobile-preview.url": "http://localhost:5173/index.html",
+    "css.lint.unknownAtRules": "ignore"
 }

@@ -263,9 +263,21 @@ function getDaftarWarta() {
     let rawImageStr = data[i][3] || '';
     let processedImages = rawImageStr.toString().split('|||').map(u => makeSafeImageUrl(u.trim())).filter(u => u).join('|||');
 
+    let formattedDate = '';
+    if (data[i][0]) {
+      try {
+        let d = new Date(data[i][0]);
+        if (!isNaN(d.getTime())) {
+          formattedDate = Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm");
+        }
+      } catch (e) {
+        formattedDate = String(data[i][0]);
+      }
+    }
+
     wartaList.push({
       rowIndex: i + 1,
-      tanggal: data[i][0] ? Utilities.formatDate(new Date(data[i][0]), Session.getScriptTimeZone(), "yyyy-MM-dd") : '',
+      tanggal: formattedDate,
       judul: data[i][1] || '',
       isi: data[i][2] || '',
       gambarUrl: processedImages,
@@ -300,13 +312,26 @@ function getOrCreateNestedFolder(folderName) {
 function saveWarta(payload) {
   let sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
   let finalGambarUrl = processMultipleImages(payload.gambarUrl, payload.judul);
-  sheet.appendRow([new Date(), payload.judul, payload.isi, finalGambarUrl, payload.penulis]);
+  let publishDate = new Date();
+  if (payload.tanggal) {
+    let customDate = new Date(payload.tanggal);
+    if (!isNaN(customDate.getTime())) {
+      publishDate = customDate;
+    }
+  }
+  sheet.appendRow([publishDate, payload.judul, payload.isi, finalGambarUrl, payload.penulis]);
   return jsonResponse({ success: true });
 }
 
 function updateWarta(payload) {
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_WARTA);
   let finalGambarUrl = processMultipleImages(payload.gambarUrl, payload.judul);
+  if (payload.tanggal) {
+    let customDate = new Date(payload.tanggal);
+    if (!isNaN(customDate.getTime())) {
+      sheet.getRange(payload.rowIndex, 1).setValue(customDate);
+    }
+  }
   sheet.getRange(payload.rowIndex, 2).setValue(payload.judul);
   sheet.getRange(payload.rowIndex, 3).setValue(payload.isi);
   sheet.getRange(payload.rowIndex, 4).setValue(finalGambarUrl);
@@ -713,6 +738,11 @@ function uploadFileToDrive(base64Data, fileName, customFolderId) {
 function uploadImageToDrive(folderId, title, base64Data) {
   try {
     let ext = ".jpg";
+    if (base64Data && (base64Data.includes('image/png') || base64Data.startsWith('iVBORw'))) {
+      ext = ".png";
+    } else if (base64Data && (base64Data.includes('image/webp') || base64Data.startsWith('UklG'))) {
+      ext = ".webp";
+    }
     const directUrl = uploadFileToDrive(base64Data, title + ext, folderId);
     return jsonResponse({ success: true, url: directUrl });
   } catch (e) {

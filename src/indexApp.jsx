@@ -74,10 +74,186 @@ const truncateText = (text, maxLength) => {
     return text.substring(0, maxLength) + '...';
 };
 
+const WARTA_CATEGORIES = [
+    'Warta Sabat',
+    'Berita Jemaat',
+    'Pengumuman',
+    'Kegiatan & Acara',
+    'Pemuda & Remaja',
+    'Renungan'
+];
+
+const parseWartaInfo = (warta) => {
+    if (!warta) {
+        return {
+            category: 'Berita Jemaat',
+            cleanTitle: '',
+            readingTime: '1 mnt baca',
+            categoryStyle: {
+                bg: 'bg-gold-50 dark:bg-navy-900',
+                text: 'text-gold-700 dark:text-gold-300',
+                border: 'border-gold-300 dark:border-gold-700/60',
+                badge: 'bg-gold-500 text-white dark:bg-gold-500 dark:text-navy-950',
+                dot: 'bg-gold-500'
+            },
+            wordCount: 0,
+            excerpt: ''
+        };
+    }
+
+    let rawTitle = (warta.judul || '').trim();
+    let category = 'Berita Jemaat';
+    let cleanTitle = rawTitle;
+
+    // Cek apakah ada format kategori dalam kurung siku: [Kategori] Judul
+    const bracketMatch = rawTitle.match(/^\[(.*?)\]\s*(.*)$/);
+    if (bracketMatch) {
+        category = bracketMatch[1].trim();
+        cleanTitle = bracketMatch[2].trim() || rawTitle;
+    } else {
+        // Deteksi kategori otomatis berdasarkan kata kunci judul dan isi
+        const haystack = (rawTitle + ' ' + (warta.isi || '')).toLowerCase();
+        if (haystack.includes('warta sabat') || haystack.includes('kebaktian') || haystack.includes('khotbah') || haystack.includes('jadwal sabat') || haystack.includes('petugas sabat')) {
+            category = 'Warta Sabat';
+        } else if (haystack.includes('pengumuman') || haystack.includes('perhatian') || haystack.includes('diberitahukan')) {
+            category = 'Pengumuman';
+        } else if (haystack.includes('pemuda') || haystack.includes('adventist youth') || haystack.includes('pathfinder') || haystack.includes('ay')) {
+            category = 'Pemuda & Remaja';
+        } else if (haystack.includes('baksos') || haystack.includes('seminar') || haystack.includes('kegiatan') || haystack.includes('acara') || haystack.includes('pelayanan') || haystack.includes('bazaar')) {
+            category = 'Kegiatan & Acara';
+        } else if (haystack.includes('renungan') || haystack.includes('ayat') || haystack.includes('firman') || haystack.includes('doa') || haystack.includes('inspirasi')) {
+            category = 'Renungan';
+        }
+    }
+
+    const plain = stripHtml(warta.isi || '');
+    const words = plain.trim().split(/\s+/).filter(Boolean).length;
+    const readingTime = `${Math.max(1, Math.ceil(words / 180))} mnt baca`;
+
+    // Palet warna per kategori layaknya majalah / portal berita
+    const styles = {
+        'Warta Sabat': {
+            bg: 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/60',
+            badge: 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-navy-950',
+            dot: 'bg-emerald-500'
+        },
+        'Pengumuman': {
+            bg: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60',
+            badge: 'bg-amber-600 text-white dark:bg-amber-500 dark:text-navy-950',
+            dot: 'bg-amber-500'
+        },
+        'Kegiatan & Acara': {
+            bg: 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/60',
+            badge: 'bg-blue-600 text-white dark:bg-blue-500 dark:text-navy-950',
+            dot: 'bg-blue-500'
+        },
+        'Pemuda & Remaja': {
+            bg: 'bg-purple-50 text-purple-800 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800/60',
+            badge: 'bg-purple-600 text-white dark:bg-purple-500 dark:text-navy-950',
+            dot: 'bg-purple-500'
+        },
+        'Renungan': {
+            bg: 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60',
+            badge: 'bg-rose-600 text-white dark:bg-rose-500 dark:text-navy-950',
+            dot: 'bg-rose-500'
+        },
+        'Berita Jemaat': {
+            bg: 'bg-gold-50 text-gold-900 border-gold-200 dark:bg-navy-900 dark:text-gold-300 dark:border-gold-500/40',
+            badge: 'bg-gold-500 text-white dark:bg-gold-500 dark:text-navy-950',
+            dot: 'bg-gold-500'
+        }
+    };
+
+    const categoryStyle = styles[category] || styles['Berita Jemaat'];
+
+    return {
+        category,
+        cleanTitle,
+        readingTime,
+        categoryStyle,
+        wordCount: words,
+        excerpt: truncateText(plain, 140)
+    };
+};
+
 const decodeHTML = (html) => {
     var txt = document.createElement("textarea");
     txt.innerHTML = html;
     return txt.value;
+};
+
+// Fungsi kompresi gambar otomatis sebelum diupload (Mencegah Limit Size Apps Script & Menjaga Transparansi PNG/WebP)
+const compressImage = (file, maxWidth = 1200) => {
+    return new Promise((resolve, reject) => {
+        if (!file) return resolve('');
+
+        const mimeType = (file.type || '').toLowerCase();
+        const fileName = (file.name || '').toLowerCase();
+        const isPng = mimeType === 'image/png' || fileName.endsWith('.png');
+        const isWebp = mimeType === 'image/webp' || fileName.endsWith('.webp');
+        const isGif = mimeType === 'image/gif' || fileName.endsWith('.gif');
+        const isSvg = mimeType === 'image/svg+xml' || fileName.endsWith('.svg');
+
+        // Jika berkas SVG, langsung gunakan DataURL tanpa rasterisasi agar tetap vektor transparan
+        if (isSvg) {
+            const svgReader = new FileReader();
+            svgReader.onload = (e) => resolve(e.target.result);
+            svgReader.onerror = () => reject(new Error('Gagal membaca berkas SVG.'));
+            svgReader.readAsDataURL(file);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Gagal membaca berkas gambar.'));
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onerror = () => reject(new Error('Format berkas gambar tidak valid.'));
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+                if (width > maxWidth) {
+                    height = Math.round(height * (maxWidth / width));
+                    width = maxWidth;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+
+                // Bersihkan canvas agar transparan bersih sebelum menggambar
+                ctx.clearRect(0, 0, width, height);
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Deteksi apakah gambar memiliki pixel transparan (alpha channel < 250)
+                let hasTransparency = false;
+                if (isPng || isWebp || isGif) {
+                    try {
+                        const imgData = ctx.getImageData(0, 0, width, height).data;
+                        const step = Math.max(1, Math.floor(imgData.length / 4000)) * 4;
+                        for (let i = 3; i < imgData.length; i += step) {
+                            if (imgData[i] < 250) {
+                                hasTransparency = true;
+                                break;
+                            }
+                        }
+                    } catch (e) {
+                        hasTransparency = isPng || isWebp || isGif;
+                    }
+                }
+
+                // JIKA GAMBAR TRANSPARAN:
+                // Gunakan format PNG agar transparansi tetap 100% terjaga dan tidak berubah menjadi hitam/putih!
+                if (hasTransparency) {
+                    resolve(canvas.toDataURL('image/png'));
+                } else {
+                    // Jika tidak transparan (foto biasa), kompres sebagai JPEG untuk menghemat ukuran memori
+                    resolve(canvas.toDataURL('image/jpeg', 0.65));
+                }
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
 };
 
 const getGoogleDriveFileId = (url) => {
@@ -361,7 +537,22 @@ const Icon = ({ name, className }) => {
         Play: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="6 3 20 12 6 21 6 3" /></svg>,
         Pause: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>,
         Folder: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" /></svg>,
-        Heart: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>
+        Heart: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>,
+        Clock: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>,
+        Share2: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>,
+        Copy: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>,
+        Tag: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" /><circle cx="7" cy="7" r=".5" fill="currentColor" /></svg>,
+        Printer: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><rect width="12" height="8" x="6" y="14" /></svg>,
+        Sparkles: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /></svg>,
+        ZoomIn: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>,
+        CheckCircle: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>,
+        WifiOff: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="1" y1="1" x2="23" y2="23" /><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" /><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" /><path d="M10.71 5.05A16 16 0 0 1 22.58 9" /><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" /><path d="M8.53 16.11a6 6 0 0 1 6.95 0" /><line x1="12" y1="20" x2="12.01" y2="20" /></svg>,
+        RefreshCw: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" /><path d="M16 16h5v5" /></svg>,
+        ExternalLink: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>,
+        Bookmark: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" /></svg>,
+        Volume2: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" /></svg>,
+        Square: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="3" rx="2" /></svg>,
+        CalendarPlus: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 2v4" /><path d="M16 2v4" /><rect width="18" height="18" x="3" y="4" rx="2" /><path d="M3 10h18" /><path d="M10 16h4" /><path d="M12 14v4" /></svg>
     };
     return icons[name] || null;
 };
@@ -400,6 +591,33 @@ const formatDate = (dateString) => {
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const y = date.getFullYear();
     return `${d}/${m}/${y}`;
+};
+
+const formatIndoDateTime = (dateString) => {
+    if (!dateString) return '';
+    const ds = String(dateString).includes('T') ? dateString : String(dateString).replace(' ', 'T');
+    const d = new Date(ds);
+    if (isNaN(d.getTime())) return dateString;
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+    const pad = n => n < 10 ? '0' + n : n;
+    const hasTime = String(dateString).includes(':') || String(dateString).includes('T');
+    if (hasTime) {
+        return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} pk ${pad(d.getHours())}:${pad(d.getMinutes())} WIB`;
+    }
+    return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+};
+
+const isWartaPublished = (tanggalStr) => {
+    if (!tanggalStr) return true;
+    try {
+        const ds = String(tanggalStr).includes('T') ? tanggalStr : String(tanggalStr).replace(' ', 'T');
+        const pubDate = new Date(ds);
+        if (isNaN(pubDate.getTime())) return true;
+        return pubDate.getTime() <= Date.now();
+    } catch (e) {
+        return true;
+    }
 };
 
 const getYouTubeVideoId = (url) => {
@@ -1669,7 +1887,9 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     const displayImages = heroImages && heroImages.length > 0 ? heroImages : ["./icons/PisgahColor.png"];
 
     const sortedWartaHome = React.useMemo(() => {
-        return [...(daftarWarta || [])].sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+        return [...(daftarWarta || [])]
+            .filter(w => isWartaPublished(w.tanggal))
+            .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
     }, [daftarWarta]);
 
     React.useEffect(() => {
@@ -3103,6 +3323,35 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
         }
     };
 
+    const handleAddToGoogleCalendar = () => {
+        if (!selectedDate) return;
+        const eventTitle = `${title} - GMAHK Jemaat Pisgah Batam`;
+        const location = 'Gereja Masehi Advent Hari Ketujuh Jemaat Pisgah, Batam';
+        const ymdClean = selectedDate.replace(/-/g, '');
+
+        let startH = '090000';
+        let endH = '123000';
+        if (isRabu) {
+            startH = '193000';
+            endH = '210000';
+        }
+
+        let desc = `Jadwal Pelayanan ${title}\nTanggal: ${formatIndoDate(selectedDate)}\nWaktu: ${activeJadwal.time}\n\n`;
+        if (isRabu) {
+            desc += `Petugas Pelayanan:\n`;
+            activeJadwal.petugas.forEach(p => { if (p.tugas && p.nama) desc += `• ${p.tugas}: ${p.nama}\n`; });
+        } else {
+            desc += `Sekolah Sabat (${activeJadwal.sekolahSabatTime}):\n`;
+            activeJadwal.sekolahSabat.forEach(p => { if (p.tugas && p.nama) desc += `• ${p.tugas}: ${p.nama}\n`; });
+            desc += `\nKhotbah / Umum (${activeJadwal.khotbahTime}):\n`;
+            activeJadwal.khotbah.forEach(p => { if (p.tugas && p.nama) desc += `• ${p.tugas}: ${p.nama}\n`; });
+        }
+        desc += `\nPortal: ${window.location.origin}`;
+
+        const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${ymdClean}T${startH}/${ymdClean}T${endH}&details=${encodeURIComponent(desc)}&location=${encodeURIComponent(location)}`;
+        window.open(gCalUrl, '_blank');
+    };
+
     return (
         <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
             <AcaraTerdekat allDates={allDates} selectedDate={selectedDate} handlePrev={handlePrev} handleNext={handleNext} canGoPrev={canGoPrev} canGoNext={canGoNext} title={title} setActiveTab={setActiveTab} carouselEvents={carouselEvents} handleDateSelect={(d) => setJadwalSelectedDate(d)} />
@@ -3165,9 +3414,12 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
                                 <p className="text-sm font-semibold text-navy-400 dark:text-gray-400 mt-0.5">{formatIndoDate(selectedDate)}</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 mt-3 md:mt-0">
+                        <div className="flex flex-wrap items-center gap-2.5 mt-3 md:mt-0">
                             <button onClick={handleShare} className="flex items-center text-xs font-bold text-white bg-[#4A7045] dark:bg-gold-600 hover:bg-[#3A5836] dark:hover:bg-gold-700 px-4 py-2 rounded-full uppercase tracking-widest shadow-sm transition-colors">
                                 <Icon name="Share" className="w-4 h-4 mr-2" /> Bagikan
+                            </button>
+                            <button onClick={handleAddToGoogleCalendar} className="flex items-center text-xs font-bold text-navy-800 dark:text-gold-300 bg-navy-50 hover:bg-navy-100 dark:bg-navy-700 dark:hover:bg-navy-600 px-4 py-2 rounded-full uppercase tracking-wider border border-navy-200/60 dark:border-navy-600 shadow-sm transition-colors" title="Tambahkan ke Google Calendar">
+                                <Icon name="CalendarPlus" className="w-4 h-4 mr-1.5 text-gold-500" /> + Kalender
                             </button>
                             <span className="text-xs font-bold text-navy-800 dark:text-navy-200 bg-gold-50 dark:bg-navy-700 px-4 py-2 rounded-full border border-gold-200 dark:border-gold-800 uppercase tracking-widest shadow-sm">
                                 {isRabu ? activeJadwal.time : `Waktu: ${activeJadwal.time}`}
@@ -4045,6 +4297,7 @@ const GaleriPublik = () => {
     // Level 1: Search, Filter, Sort
     const [searchQuery, setSearchQuery] = React.useState('');
     const [categoryFilter, setCategoryFilter] = React.useState('all'); // 'all', 'sabat', 'event', 'youth'
+    const [yearFilter, setYearFilter] = React.useState('all'); // 'all' atau tahun spesifik
     const [sortOrder, setSortOrder] = React.useState('latest'); // 'latest' | 'az'
 
     // Level 2: Sub-filter & Viewers
@@ -4135,12 +4388,40 @@ const GaleriPublik = () => {
         });
     }, [folders]);
 
+    // Kumpulan tahun unik yang tersedia dari album kegiatan
+    const availableYears = React.useMemo(() => {
+        const years = new Set();
+        processedFolders.forEach(f => {
+            if (f.parsedDate) {
+                const yr = new Date(f.parsedDate).getFullYear();
+                if (yr && yr >= 2000 && yr <= 2099) years.add(String(yr));
+            } else {
+                const match = f.name.match(/\b(20\d{2})\b/);
+                if (match) years.add(match[1]);
+            }
+        });
+        return Array.from(years).sort((a, b) => b.localeCompare(a));
+    }, [processedFolders]);
+
     // Filter & sort folders untuk Level 1
     const filteredFolders = React.useMemo(() => {
         let result = [...processedFolders];
 
         if (categoryFilter !== 'all') {
             result = result.filter(f => f.catInfo.category === categoryFilter);
+        }
+
+        if (yearFilter !== 'all') {
+            result = result.filter(f => {
+                let yr = '';
+                if (f.parsedDate) {
+                    yr = String(new Date(f.parsedDate).getFullYear());
+                } else {
+                    const match = f.name.match(/\b(20\d{2})\b/);
+                    if (match) yr = match[1];
+                }
+                return yr === yearFilter;
+            });
         }
 
         if (searchQuery.trim()) {
@@ -4162,7 +4443,7 @@ const GaleriPublik = () => {
         }
 
         return result;
-    }, [processedFolders, categoryFilter, searchQuery, sortOrder]);
+    }, [processedFolders, categoryFilter, yearFilter, searchQuery, sortOrder]);
 
     // Active folder saat di Level 2
     const activeFolder = React.useMemo(() => {
@@ -4195,6 +4476,17 @@ const GaleriPublik = () => {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [lightboxIndex, imagesOnly.length]);
+
+    // Lock scroll body saat modal lightbox / video player aktif agar tetap stabil di tengah layar
+    React.useEffect(() => {
+        if (lightboxIndex !== null || selectedVideo !== null) {
+            const originalOverflow = document.body.style.overflow;
+            document.body.style.overflow = 'hidden';
+            return () => {
+                document.body.style.overflow = originalOverflow;
+            };
+        }
+    }, [lightboxIndex, selectedVideo]);
 
     if (loadingFolders) {
         return (
@@ -4234,10 +4526,10 @@ const GaleriPublik = () => {
     return (
         <div className="space-y-6">
 
-            {/* ========== MODAL LIGHTBOX FOTO INTERAKTIF ========== */}
-            {lightboxIndex !== null && imagesOnly[lightboxIndex] && (
+            {/* ========== MODAL LIGHTBOX FOTO INTERAKTIF (Dimount ke document.body agar 100% di Tengah Layar) ========== */}
+            {lightboxIndex !== null && imagesOnly[lightboxIndex] && createPortal(
                 <div
-                    className="fixed inset-0 z-[110] flex items-center justify-center bg-black/95 p-4 select-none backdrop-blur-md animate-fade-in"
+                    className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/95 p-4 select-none backdrop-blur-md animate-fade-in"
                     onClick={() => setLightboxIndex(null)}
                 >
                     {/* Top Bar Lightbox */}
@@ -4255,6 +4547,34 @@ const GaleriPublik = () => {
                         </div>
 
                         <div className="flex items-center gap-2">
+                            {/* Tombol Bagikan Foto */}
+                            <button
+                                onClick={async () => {
+                                    const currentImg = imagesOnly[lightboxIndex];
+                                    const photoUrl = formatImageUrl(currentImg.url);
+                                    const shareTitle = currentImg.title || 'Foto Dokumentasi Jemaat Pisgah BISDAC';
+                                    const shareText = `*${shareTitle}*\nDokumentasi GMAHK Jemaat Pisgah BISDAC:\n${photoUrl}`;
+
+                                    if (navigator.share && navigator.canShare) {
+                                        try {
+                                            await navigator.share({
+                                                title: shareTitle,
+                                                text: shareText,
+                                                url: photoUrl
+                                            });
+                                            return;
+                                        } catch (e) {
+                                            if (e.name === 'AbortError') return;
+                                        }
+                                    }
+                                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+                                }}
+                                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                                title="Bagikan foto ke WhatsApp / Media Sosial"
+                            >
+                                <Icon name="Share2" className="w-4 h-4" />
+                                <span className="hidden sm:inline">Bagi Foto</span>
+                            </button>
                             <a
                                 href={imagesOnly[lightboxIndex].url}
                                 target="_blank"
@@ -4312,13 +4632,14 @@ const GaleriPublik = () => {
                             <Icon name="ChevronRight" className="w-6 h-6" />
                         </button>
                     )}
-                </div>
+                </div>,
+                document.body
             )}
 
-            {/* ========== MODAL POP-UP VIDEO PLAYER ========== */}
-            {selectedVideo && (
+            {/* ========== MODAL POP-UP VIDEO PLAYER (Dimount ke document.body) ========== */}
+            {selectedVideo && createPortal(
                 <div
-                    className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 p-4 select-none backdrop-blur-md animate-fade-in"
+                    className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 p-4 select-none backdrop-blur-md animate-fade-in"
                     onClick={() => setSelectedVideo(null)}
                 >
                     <div
@@ -4364,7 +4685,8 @@ const GaleriPublik = () => {
                             </a>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {/* ========== LEVEL 1: KOLEKSI ALBUM KEGIATAN ========== */}
@@ -4394,59 +4716,96 @@ const GaleriPublik = () => {
                         </div>
                     </div>
 
-                    {/* Filter Bar: Pencarian, Kategori, Urutan */}
-                    <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between bg-white dark:bg-navy-900/60 p-3 rounded-2xl border border-navy-100 dark:border-navy-800 shadow-sm">
-                        {/* Kolom Pencarian */}
-                        <div className="relative flex-1">
-                            <Icon name="Search" className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-navy-400" />
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                                placeholder="Cari album (contoh: Sabat, KKR, Youth, Mei)..."
-                                className="w-full pl-10 pr-9 py-2.5 bg-navy-50/70 dark:bg-navy-800/60 border border-navy-200 dark:border-navy-700 rounded-xl text-xs md:text-sm font-medium text-navy-800 dark:text-navy-100 placeholder:text-navy-400 focus:outline-none focus:ring-2 focus:ring-gold-400"
-                            />
-                            {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-navy-400 hover:text-navy-700 dark:hover:text-white"
-                                >
-                                    <Icon name="X" className="w-4 h-4" />
-                                </button>
-                            )}
+                    {/* Filter Bar: Pencarian, Kategori, Tahun, Urutan */}
+                    <div className="bg-white dark:bg-navy-900/60 p-3 rounded-2xl border border-navy-100 dark:border-navy-800 shadow-sm space-y-2.5">
+                        <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+                            {/* Kolom Pencarian */}
+                            <div className="relative flex-1">
+                                <Icon name="Search" className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-navy-400" />
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    placeholder="Cari album (contoh: Sabat, KKR, Youth, Mei)..."
+                                    className="w-full pl-10 pr-9 py-2.5 bg-navy-50/70 dark:bg-navy-800/60 border border-navy-200 dark:border-navy-700 rounded-xl text-xs md:text-sm font-medium text-navy-800 dark:text-navy-100 placeholder:text-navy-400 focus:outline-none focus:ring-2 focus:ring-gold-400"
+                                />
+                                {searchQuery && (
+                                    <button
+                                        onClick={() => setSearchQuery('')}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-navy-400 hover:text-navy-700 dark:hover:text-white"
+                                    >
+                                        <Icon name="X" className="w-4 h-4" />
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Filter Kategori */}
+                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+                                {[
+                                    { id: 'all', label: 'Semua' },
+                                    { id: 'sabat', label: 'Ibadah Sabat' },
+                                    { id: 'event', label: 'Acara Khusus' },
+                                    { id: 'youth', label: 'Pemuda & Anak' },
+                                    { id: 'sosial', label: 'Bakti Sosial' },
+                                ].map(cat => (
+                                    <button
+                                        key={cat.id}
+                                        onClick={() => setCategoryFilter(cat.id)}
+                                        className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${categoryFilter === cat.id
+                                            ? 'bg-navy-900 text-gold-400 shadow-sm'
+                                            : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300 hover:bg-navy-100 dark:hover:bg-navy-700'
+                                            }`}
+                                    >
+                                        {cat.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Tombol Urutan */}
+                            <button
+                                onClick={() => setSortOrder(prev => (prev === 'latest' ? 'az' : 'latest'))}
+                                className="flex items-center justify-center gap-1.5 px-3 py-2 bg-navy-50 dark:bg-navy-800 text-navy-700 dark:text-navy-200 hover:bg-navy-100 dark:hover:bg-navy-700 rounded-xl text-xs font-bold transition border border-navy-200/50 dark:border-navy-700 shrink-0"
+                                title="Ganti Urutan"
+                            >
+                                <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-500" />
+                                <span>{sortOrder === 'latest' ? 'Terbaru' : 'Nama A-Z'}</span>
+                            </button>
                         </div>
 
-                        {/* Filter Kategori */}
-                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-                            {[
-                                { id: 'all', label: 'Semua' },
-                                { id: 'sabat', label: 'Ibadah Sabat' },
-                                { id: 'event', label: 'Acara Khusus' },
-                                { id: 'youth', label: 'Pemuda & Anak' },
-                                { id: 'sosial', label: 'Bakti Sosial' },
-                            ].map(cat => (
+                        {/* Filter Tahun Album */}
+                        {availableYears.length > 0 && (
+                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none border-t border-navy-100 dark:border-navy-800/80 pt-2.5">
+                                <span className="text-[11px] font-bold text-navy-400 dark:text-navy-500 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+                                    <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-500" /> Tahun:
+                                </span>
                                 <button
-                                    key={cat.id}
-                                    onClick={() => setCategoryFilter(cat.id)}
-                                    className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${categoryFilter === cat.id
-                                        ? 'bg-navy-900 text-gold-400 shadow-sm'
-                                        : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300 hover:bg-navy-100 dark:hover:bg-navy-700'
-                                        }`}
+                                    onClick={() => setYearFilter('all')}
+                                    className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${yearFilter === 'all'
+                                        ? 'bg-gold-500 text-navy-950 shadow-xs'
+                                        : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300 hover:bg-navy-100 dark:hover:bg-navy-700'}`}
                                 >
-                                    {cat.label}
+                                    Semua ({processedFolders.length})
                                 </button>
-                            ))}
-                        </div>
-
-                        {/* Tombol Urutan */}
-                        <button
-                            onClick={() => setSortOrder(prev => (prev === 'latest' ? 'az' : 'latest'))}
-                            className="flex items-center justify-center gap-1.5 px-3 py-2 bg-navy-50 dark:bg-navy-800 text-navy-700 dark:text-navy-200 hover:bg-navy-100 dark:hover:bg-navy-700 rounded-xl text-xs font-bold transition border border-navy-200/50 dark:border-navy-700 shrink-0"
-                            title="Ganti Urutan"
-                        >
-                            <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-500" />
-                            <span>{sortOrder === 'latest' ? 'Terbaru' : 'Nama A-Z'}</span>
-                        </button>
+                                {availableYears.map(yr => {
+                                    const count = processedFolders.filter(f => {
+                                        if (f.parsedDate) return String(new Date(f.parsedDate).getFullYear()) === yr;
+                                        const m = f.name.match(/\b(20\d{2})\b/);
+                                        return m && m[1] === yr;
+                                    }).length;
+                                    return (
+                                        <button
+                                            key={yr}
+                                            onClick={() => setYearFilter(yr)}
+                                            className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${yearFilter === yr
+                                                ? 'bg-gold-500 text-navy-950 shadow-xs'
+                                                : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300 hover:bg-navy-100 dark:hover:bg-navy-700'}`}
+                                        >
+                                            {yr} {count > 0 && <span className="opacity-75 text-[10px]">({count})</span>}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
 
                     {/* Grid Kartu Album */}
@@ -4730,53 +5089,243 @@ const GaleriPublik = () => {
         </div>
     );
 };
-// ========== WARTA PAGE DENGAN THUMBNAIL & MODAL (6 per halaman) ==========
+// --- PENCARIAN & HIGHLIGHT KATA KUNCI WARTA ---
+const highlightSearchText = (text, query) => {
+    if (!text || !query || !query.trim()) return text;
+    const trimmed = query.trim();
+    const escaped = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+    const parts = String(text).split(regex);
+    if (parts.length <= 1) return text;
+    return parts.map((part, i) =>
+        regex.test(part) ? (
+            <mark key={i} className="bg-amber-200 dark:bg-amber-800/80 text-navy-950 dark:text-amber-100 px-0.5 rounded font-bold">
+                {part}
+            </mark>
+        ) : part
+    );
+};
+
+// ========== WARTA PAGE PORTAL BERITA PROFESIONAL ==========
 const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta, setHideGlobalBack }) => {
     const [showGallery, setShowGallery] = React.useState(false);
     const [currentPage, setCurrentPage] = React.useState(1);
+    const [selectedCategory, setSelectedCategory] = React.useState('Semua');
+    const [searchQuery, setSearchQuery] = React.useState('');
+    const [fontSizeLevel, setFontSizeLevel] = React.useState(0); // 0: normal, 1: large, 2: extra-large
+    const [lightboxIndex, setLightboxIndex] = React.useState(null);
+    const [copiedLink, setCopiedLink] = React.useState(false);
+    const [modalSlide, setModalSlide] = React.useState(0);
+    const [imageErrors, setImageErrors] = React.useState({});
+    const [readingProgress, setReadingProgress] = React.useState(0);
+
+    // Kesiapan Offline (PWA & Sanctuary Network)
+    const [isOffline, setIsOffline] = React.useState(!navigator.onLine);
+    React.useEffect(() => {
+        const handleOnline = () => setIsOffline(false);
+        const handleOffline = () => setIsOffline(true);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+
+    // Fallback cache warta lokal jika offline / sinyal lemah di dalam gereja
+    const effectiveWarta = React.useMemo(() => {
+        let list = [];
+        if (daftarWarta && daftarWarta.length > 0) {
+            try {
+                localStorage.setItem('PISGAH_OFFLINE_WARTA_CACHE', JSON.stringify(daftarWarta));
+            } catch (e) { }
+            list = daftarWarta;
+        } else {
+            try {
+                const cached = localStorage.getItem('PISGAH_OFFLINE_WARTA_CACHE');
+                if (cached) list = JSON.parse(cached);
+            } catch (e) { }
+        }
+        // Jemaat publik hanya melihat warta yang jadwal tayangnya sudah tiba
+        return (list || []).filter(w => isWartaPublished(w.tanggal));
+    }, [daftarWarta]);
+
+    const ITEMS_PER_PAGE = 8;
 
     React.useEffect(() => {
         if (setHideGlobalBack) setHideGlobalBack(!!selectedWarta || showGallery);
-        return () => { if (setHideGlobalBack) setHideGlobalBack(false); }
+        return () => { if (setHideGlobalBack) setHideGlobalBack(false); };
     }, [selectedWarta, showGallery, setHideGlobalBack]);
 
-    // State untuk fitur Modal (Pop-up Detail Warta)
-    const [modalSlide, setModalSlide] = React.useState(0);
-    const [imageErrors, setImageErrors] = React.useState({});
-
-    const ITEMS_PER_PAGE = 12;
-
-    // Reset ke halaman 1 setiap kali daftarWarta berubah
+    // Reset halaman saat filter berubah
     React.useEffect(() => {
         setCurrentPage(1);
-    }, [daftarWarta]);
+    }, [effectiveWarta, selectedCategory, searchQuery]);
 
-    // Reset slide carousel & scroll ke atas ketika membuka warta baru
+    // Reset slide & scroll ke atas saat membuka berita
     React.useEffect(() => {
         setModalSlide(0);
+        setLightboxIndex(null);
         if (selectedWarta) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+    }, [selectedWarta]);
+
+    // Reading Progress Listener saat membaca warta
+    React.useEffect(() => {
+        if (!selectedWarta) {
+            setReadingProgress(0);
+            return;
+        }
+        const updateProgress = () => {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            if (scrollHeight > 0) {
+                const pct = Math.min(100, Math.max(0, (scrollTop / scrollHeight) * 100));
+                setReadingProgress(pct);
+            } else {
+                setReadingProgress(0);
+            }
+        };
+        window.addEventListener('scroll', updateProgress, { passive: true });
+        updateProgress();
+        return () => window.removeEventListener('scroll', updateProgress);
     }, [selectedWarta]);
 
     const handleImageError = (key) => {
         setImageErrors(prev => ({ ...prev, [key]: true }));
     };
 
-    // Urutkan warta dari terbaru ke terlama
+    // --- FITUR BOOKMARK WARTA (OFFLINE READ LATER) ---
+    const [bookmarkedIds, setBookmarkedIds] = React.useState(() => {
+        try {
+            const saved = localStorage.getItem('PISGAH_SAVED_WARTA');
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            return [];
+        }
+    });
+
+    const toggleBookmark = (rowIndex) => {
+        setBookmarkedIds(prev => {
+            const next = prev.includes(rowIndex) ? prev.filter(id => id !== rowIndex) : [...prev, rowIndex];
+            try {
+                localStorage.setItem('PISGAH_SAVED_WARTA', JSON.stringify(next));
+            } catch (e) { }
+            return next;
+        });
+    };
+
+    // --- FITUR SUARA WARTA (TEXT-TO-SPEECH BAHASA INDONESIA) ---
+    const [ttsState, setTtsState] = React.useState('idle'); // 'idle' | 'playing' | 'paused'
+
+    React.useEffect(() => {
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        setTtsState('idle');
+    }, [selectedWarta]);
+
+    const handleToggleTTS = () => {
+        if (!('speechSynthesis' in window)) {
+            alert("Browser Anda belum mendukung fitur pembaca suara warta (Speech Synthesis).");
+            return;
+        }
+        if (ttsState === 'playing') {
+            window.speechSynthesis.pause();
+            setTtsState('paused');
+        } else if (ttsState === 'paused') {
+            window.speechSynthesis.resume();
+            setTtsState('playing');
+        } else {
+            window.speechSynthesis.cancel();
+            const plainText = `${selectedWarta.judul}. Warta dari ${selectedWarta.penulis || 'Redaksi Warta Jemaat'}. ${stripHtml(selectedWarta.isi || '')}`;
+            const utterance = new SpeechSynthesisUtterance(plainText);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.95;
+
+            const voices = window.speechSynthesis.getVoices();
+            const idVoice = voices.find(v => v.lang === 'id-ID' || v.lang.startsWith('id'));
+            if (idVoice) utterance.voice = idVoice;
+
+            utterance.onend = () => setTtsState('idle');
+            utterance.onerror = () => setTtsState('idle');
+
+            window.speechSynthesis.speak(utterance);
+            setTtsState('playing');
+        }
+    };
+
+    const handleStopTTS = () => {
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        setTtsState('idle');
+    };
+
+    // --- FITUR SALIN FORMAT WHATSAPP CEPAT ---
+    const [copiedQuote, setCopiedQuote] = React.useState(false);
+    const handleCopyQuote = () => {
+        if (!selectedWarta) return;
+        const plainText = stripHtml(selectedWarta.isi || '').slice(0, 260);
+        const textMsg = `📰 *WARTA JEMAAT PISGAH BISDAC*\n*${selectedWarta.judul}*\n📅 ${formatIndoDate(selectedWarta.tanggal)} | ✍️ ${selectedWarta.penulis || 'Redaksi'}\n\n"${plainText}..."\n\n🔗 *Baca selengkapnya di portal resmi:*\n${window.location.origin}`;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textMsg).then(() => {
+                setCopiedQuote(true);
+                setTimeout(() => setCopiedQuote(false), 2500);
+            });
+        } else {
+            window.prompt("Salin teks warta berikut:", textMsg);
+        }
+    };
+
+    // Urutkan warta dari tanggal terbaru ke terlama
     const sortedWarta = React.useMemo(() => {
-        return [...daftarWarta].sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-    }, [daftarWarta]);
+        return [...(effectiveWarta || [])].sort((a, b) => new Date(b.tanggal || 0) - new Date(a.tanggal || 0));
+    }, [effectiveWarta]);
 
-    // Hitung total halaman
-    const totalPages = Math.ceil(sortedWarta.length / ITEMS_PER_PAGE);
+    // Filter berdasarkan kategori & kata kunci pencarian
+    const filteredWarta = React.useMemo(() => {
+        return sortedWarta.filter(w => {
+            if (selectedCategory === 'Tersimpan') {
+                if (!bookmarkedIds.includes(w.rowIndex)) return false;
+            } else if (selectedCategory !== 'Semua') {
+                const info = parseWartaInfo(w);
+                if (info.category.toLowerCase() !== selectedCategory.toLowerCase()) return false;
+            }
 
-    // Ambil warta untuk halaman saat ini
+            if (!searchQuery.trim()) return true;
+            const q = searchQuery.toLowerCase();
+            const inTitle = (w.judul || '').toLowerCase().includes(q);
+            const inBody = (stripHtml(w.isi || '')).toLowerCase().includes(q);
+            const inAuthor = (w.penulis || '').toLowerCase().includes(q);
+            return inTitle || inBody || inAuthor;
+        });
+    }, [sortedWarta, selectedCategory, searchQuery, bookmarkedIds]);
+
+    // Hitung total berita per kategori untuk badge tab
+    const categoryCounts = React.useMemo(() => {
+        const counts = { 'Semua': sortedWarta.length, 'Tersimpan': bookmarkedIds.length };
+        WARTA_CATEGORIES.forEach(cat => { counts[cat] = 0; });
+        sortedWarta.forEach(w => {
+            const info = parseWartaInfo(w);
+            counts[info.category] = (counts[info.category] || 0) + 1;
+        });
+        return counts;
+    }, [sortedWarta, bookmarkedIds]);
+
+    // Artikel Utama (Featured Hero): Tampilkan di tab "Semua" tanpa pencarian di halaman 1
+    const isShowingFeatured = (selectedCategory === 'Semua') && !searchQuery.trim() && (currentPage === 1) && (filteredWarta.length > 0);
+    const featuredWarta = isShowingFeatured ? filteredWarta[0] : null;
+    const gridArticles = isShowingFeatured ? filteredWarta.slice(1) : filteredWarta;
+
+    // Pagination
+    const totalPages = Math.ceil(gridArticles.length / ITEMS_PER_PAGE);
     const paginatedWarta = React.useMemo(() => {
         const start = (currentPage - 1) * ITEMS_PER_PAGE;
         const end = start + ITEMS_PER_PAGE;
-        return sortedWarta.slice(start, end);
-    }, [sortedWarta, currentPage]);
+        return gridArticles.slice(start, end);
+    }, [gridArticles, currentPage]);
 
     const goToPage = (page) => {
         if (page < 1 || page > totalPages) return;
@@ -4784,226 +5333,898 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    // Fungsi Berbagi Cerdas (Native Web Share dengan Fallback WhatsApp)
+    const handleSmartShare = async (title, customText) => {
+        const shareUrl = window.location.href;
+        const shareTitle = title || 'Warta Jemaat PISGAH BISDAC';
+        const textMsg = customText || `*${shareTitle}*\n\nBaca warta selengkapnya di Portal Berita Jemaat PISGAH BISDAC:\n${shareUrl}`;
+
+        if (navigator.share && navigator.canShare) {
+            try {
+                await navigator.share({
+                    title: shareTitle,
+                    text: textMsg,
+                    url: shareUrl
+                });
+                return;
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+            }
+        }
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
+    };
+
+    const handleShareWA = (title) => {
+        const shareText = `*${title}*\n\nBaca warta selengkapnya di Portal Berita Jemaat PISGAH BISDAC:\n${window.location.href}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+    };
+
+    const handleCopyLink = () => {
+        try {
+            navigator.clipboard.writeText(window.location.href);
+            setCopiedLink(true);
+            setTimeout(() => setCopiedLink(false), 2500);
+        } catch (e) { }
+    };
+
+    // Halaman Galeri Dokumentasi Terpisah
     if (showGallery) {
         return (
             <div className="space-y-6 animate-fade-in">
-                <div className="flex justify-between items-center bg-white p-4 rounded-[1.5rem] shadow-sm border border-navy-100">
-                    <h2 className="text-xl font-bold text-navy-800 ml-2">Galeri Jemaat</h2>
-                    <button onClick={() => setShowGallery(false)} className="bg-navy-50 hover:bg-navy-100 text-navy-600 px-4 py-2 rounded-xl font-bold transition flex items-center">
-                        <Icon name="ArrowLeft" className="w-4 h-4 mr-2" /> Kembali
+                <div className="flex justify-between items-center bg-white dark:bg-navy-900 p-4 rounded-[1.5rem] shadow-sm border border-navy-100 dark:border-navy-800">
+                    <div className="flex items-center gap-3 ml-2">
+                        <div className="w-10 h-10 rounded-xl bg-gold-500/10 text-gold-500 flex items-center justify-center">
+                            <Icon name="Image" className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-bold text-navy-900 dark:text-gold-400">Galeri Dokumentasi Jemaat</h2>
+                            <p className="text-xs text-navy-500 dark:text-navy-400">Arsip foto momen pelayanan dan kegiatan</p>
+                        </div>
+                    </div>
+                    <button onClick={() => setShowGallery(false)} className="bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300 px-4 py-2 rounded-xl font-bold transition flex items-center shadow-sm">
+                        <Icon name="ArrowLeft" className="w-4 h-4 mr-2" /> Kembali ke Warta
                     </button>
                 </div>
-                <div className="glass-box rounded-[1.5rem] p-6 shadow-sm border border-navy-100/60">
+                <div className="glass-box rounded-[1.5rem] p-6 shadow-sm border border-navy-100/60 dark:border-navy-800">
                     <GaleriPublik />
                 </div>
             </div>
         );
     }
 
-    // TAMPILAN FULL LAYAR UNTUK DETAIL WARTA
+    // ==============================================================
+    // TAMPILAN HALAMAN DETAIL BACA BERITA (NEWS ARTICLE READER VIEW)
+    // ==============================================================
     if (selectedWarta) {
+        const info = parseWartaInfo(selectedWarta);
         const rawUrls = parseGambarUrls(selectedWarta.gambarUrl);
         const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
 
-        return (
-            <div className="space-y-6 animate-fade-in pb-10">
-                <div className="flex justify-between items-center bg-white p-4 rounded-[1.5rem] shadow-sm border border-navy-100">
-                    <h2 className="text-lg md:text-xl font-bold text-navy-800 ml-2 line-clamp-1 flex-1 pr-4">Detail Warta</h2>
-                    <button onClick={() => setSelectedWarta(null)} className="bg-navy-50 hover:bg-navy-100 text-navy-600 px-4 py-2 rounded-xl font-bold transition flex items-center shrink-0">
-                        <Icon name="ArrowLeft" className="w-4 h-4 mr-2" /> Kembali
-                    </button>
-                </div>
+        // Artikel Rekomendasi / Terkait (ambil 3 artikel lain selain yang sedang dibaca)
+        const relatedWarta = sortedWarta.filter(w => w.rowIndex !== selectedWarta.rowIndex).slice(0, 3);
 
-                <div className="glass-box rounded-[1.5rem] p-5 md:p-8 shadow-sm border border-navy-100/60">
-                    <h1 className="text-2xl md:text-3xl font-black text-navy-900 leading-tight mb-4">{selectedWarta.judul}</h1>
-                    <div className="flex flex-wrap items-center text-sm text-navy-500 font-medium mb-6 pb-6 border-b border-navy-50">
-                        <span className="flex items-center mr-4 mb-2 md:mb-0"><Icon name="Calendar" className="w-4 h-4 mr-1.5 text-gold-500" /> {formatDate(selectedWarta.tanggal)}</span>
-                        <span className="flex items-center"><Icon name="Edit" className="w-4 h-4 mr-1.5 text-gold-500" /> {selectedWarta.penulis || 'Admin'}</span>
+        const fontSizeClass = fontSizeLevel === 2
+            ? 'text-xl md:text-2xl leading-loose'
+            : (fontSizeLevel === 1 ? 'text-lg md:text-xl leading-relaxed' : 'text-base md:text-lg leading-relaxed');
+
+        return (
+            <div className="space-y-6 animate-fade-in pb-16 max-w-5xl mx-auto">
+                {/* Top Action Bar & Breadcrumbs */}
+                <div className="liquid-glass-box p-3 sm:p-3.5 rounded-2xl flex flex-wrap items-center justify-between gap-3 sticky top-16 md:top-[4.5rem] z-40 transition-all overflow-hidden relative warta-no-print print:hidden no-print">
+                    {/* Reading Progress Indicator */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-navy-100/70 dark:bg-navy-800/80">
+                        <div
+                            className="h-full bg-gradient-to-r from-gold-500 via-amber-400 to-gold-300 transition-all duration-150 ease-out"
+                            style={{ width: `${readingProgress}%` }}
+                        />
                     </div>
 
-                    {safeUrls.length > 0 && (
-                        <div className="relative w-full rounded-xl overflow-hidden bg-navy-50 aspect-video mb-8 border border-navy-100 group">
-                            <div className="flex transition-transform duration-500 ease-out h-full" style={{ transform: `translateX(-${modalSlide * 100}%)` }}>
-                                {safeUrls.map((url, idx) => (
-                                    <div key={idx} className="w-full h-full flex-shrink-0">
-                                        {!imageErrors[`detail-${idx}`] ? (
-                                            <img src={url} className="w-full h-full object-contain bg-black/5" alt={`Gambar ${idx + 1}`} onError={() => handleImageError(`detail-${idx}`)} referrerPolicy="no-referrer" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-red-400 bg-red-50"><span className="text-sm font-medium">Gambar gagal dimuat</span></div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
+                    <div className="flex items-center gap-2 min-w-0">
+                        <button
+                            onClick={() => setSelectedWarta(null)}
+                            className="bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-800 dark:text-gold-300 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center shadow-sm shrink-0"
+                        >
+                            <Icon name="ArrowLeft" className="w-4 h-4 mr-1.5" /> Semua Warta
+                        </button>
+                        <div className="hidden md:flex items-center text-xs text-navy-400 dark:text-navy-500 truncate">
+                            <span className="cursor-pointer hover:underline" onClick={() => setSelectedWarta(null)}>Warta</span>
+                            <span className="mx-1.5">/</span>
+                            <span className="font-semibold text-navy-600 dark:text-gold-400/80">{info.category}</span>
+                        </div>
+                    </div>
 
-                            {safeUrls.length > 1 && (
-                                <>
-                                    <button onClick={() => setModalSlide(p => (p === 0 ? safeUrls.length - 1 : p - 1))} className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-navy-900 p-2.5 rounded-full shadow backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"><Icon name="ChevronLeft" className="w-5 h-5" /></button>
-                                    <button onClick={() => setModalSlide(p => (p + 1) % safeUrls.length)} className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-navy-900 p-2.5 rounded-full shadow backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"><Icon name="ChevronRight" className="w-5 h-5" /></button>
-                                    <div className="absolute bottom-4 left-0 w-full flex justify-center gap-2">
-                                        {safeUrls.map((_, idx) => (
-                                            <button key={idx} onClick={() => setModalSlide(idx)} className={`h-1.5 rounded-full transition-all ${modalSlide === idx ? 'bg-gold-500 w-6' : 'bg-white/70 w-2 hover:bg-white'}`} />
-                                        ))}
-                                    </div>
-                                    <div className="absolute top-4 right-4 bg-black/60 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg backdrop-blur-sm">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 ml-auto">
+                        {/* Tombol Suara (Text-to-Speech) */}
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={handleToggleTTS}
+                                className={`px-2.5 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5 text-xs font-bold ${ttsState === 'playing' ? 'bg-gold-500 text-white animate-pulse' : (ttsState === 'paused' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300')}`}
+                                title={ttsState === 'playing' ? "Jeda Pembacaan Warta" : (ttsState === 'paused' ? "Lanjutkan Pembacaan Warta" : "Dengarkan Warta (Suara Bahasa Indonesia)")}
+                            >
+                                <Icon name={ttsState === 'playing' ? "Pause" : "Volume2"} className={`w-4 h-4 ${ttsState === 'playing' ? 'text-white' : 'text-gold-500'}`} />
+                                <span className="hidden sm:inline">{ttsState === 'playing' ? 'Jeda' : (ttsState === 'paused' ? 'Lanjut' : 'Dengarkan')}</span>
+                            </button>
+                            {ttsState !== 'idle' && (
+                                <button
+                                    onClick={handleStopTTS}
+                                    className="p-2 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 transition shadow-sm"
+                                    title="Hentikan Pembacaan"
+                                >
+                                    <Icon name="Square" className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Tombol Simpan Warta (Bookmark) */}
+                        <button
+                            onClick={() => toggleBookmark(selectedWarta.rowIndex)}
+                            className={`p-2 rounded-xl transition shadow-sm flex items-center gap-1 text-xs font-bold ${bookmarkedIds.includes(selectedWarta.rowIndex) ? 'bg-amber-500 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
+                            title={bookmarkedIds.includes(selectedWarta.rowIndex) ? "Hapus dari Warta Tersimpan" : "Simpan Warta untuk Dibaca Nanti"}
+                        >
+                            <Icon name="Bookmark" className={`w-4 h-4 ${bookmarkedIds.includes(selectedWarta.rowIndex) ? 'fill-current' : ''}`} />
+                            <span className="hidden md:inline">{bookmarkedIds.includes(selectedWarta.rowIndex) ? 'Tersimpan' : 'Simpan'}</span>
+                        </button>
+
+                        {/* Tombol Salin Format WA */}
+                        <button
+                            onClick={handleCopyQuote}
+                            className={`p-2 rounded-xl transition shadow-sm flex items-center gap-1 text-xs font-bold ${copiedQuote ? 'bg-emerald-600 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
+                            title="Salin Teks Format WhatsApp untuk Status / Grup"
+                        >
+                            <Icon name="MessageCircle" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                            <span className="hidden md:inline">{copiedQuote ? 'Tersalin' : 'Format WA'}</span>
+                        </button>
+
+                        {/* Pengatur Ukuran Huruf (A- / A+) */}
+                        <div className="flex items-center bg-navy-50 dark:bg-navy-800/80 rounded-xl p-1 border border-navy-200/50 dark:border-navy-700/50 text-xs" title="Ukuran Teks Berita">
+                            <button
+                                onClick={() => setFontSizeLevel(p => Math.max(0, p - 1))}
+                                disabled={fontSizeLevel === 0}
+                                className={`px-2 py-1 rounded-lg font-bold transition ${fontSizeLevel === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300'}`}
+                            >
+                                A-
+                            </button>
+                            <span className="px-1 text-[10px] text-navy-400 font-bold uppercase tracking-wider">Teks</span>
+                            <button
+                                onClick={() => setFontSizeLevel(p => Math.min(2, p + 1))}
+                                disabled={fontSizeLevel === 2}
+                                className={`px-2 py-1 rounded-lg font-bold transition ${fontSizeLevel === 2 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300'}`}
+                            >
+                                A+
+                            </button>
+                        </div>
+
+                        {/* Tombol Cetak */}
+                        <button
+                            onClick={() => window.print()}
+                            className="p-2 bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300 rounded-xl transition shadow-sm"
+                            title="Cetak Berita (Format Buletin Resmi)"
+                        >
+                            <Icon name="Printer" className="w-4 h-4" />
+                        </button>
+
+                        {/* Tombol Salin Link */}
+                        <button
+                            onClick={handleCopyLink}
+                            className={`p-2 rounded-xl transition shadow-sm flex items-center gap-1 text-xs font-bold ${copiedLink ? 'bg-emerald-600 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
+                            title="Salin Tautan"
+                        >
+                            {copiedLink ? <Icon name="CheckCircle" className="w-4 h-4 text-white" /> : <Icon name="Copy" className="w-4 h-4" />}
+                            {copiedLink && <span className="hidden sm:inline text-[11px]">Tersalin</span>}
+                        </button>
+
+                        {/* Tombol Share Cerdas (Native Web Share / WA) */}
+                        <button
+                            onClick={() => handleSmartShare(info.cleanTitle)}
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                            title="Bagikan Warta"
+                        >
+                            <Icon name="Share2" className="w-4 h-4" />
+                            <span className="hidden sm:inline">Bagikan</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Article Header Card */}
+                <article className="bg-white dark:bg-navy-900 rounded-[1.75rem] p-6 sm:p-8 md:p-10 shadow-sm border border-navy-100/80 dark:border-navy-800 overflow-hidden relative warta-article-print">
+                    {/* Print Header: Official Church Masthead (Hanya muncul saat dicetak) */}
+                    <div className="hidden print:block border-b-2 border-black pb-4 mb-6 text-center">
+                        <h2 className="text-xl font-black uppercase tracking-wider text-black">GEREJA MASEHI ADVENT HARI KETUJUH</h2>
+                        <h3 className="text-base font-bold text-gray-900">JEMAAT PISGAH BATAM (PISGAH BISDAC)</h3>
+                        <p className="text-xs text-gray-600 mt-0.5">Buletin Resmi Warta Jemaat & Kabar Pelayanan</p>
+                        <div className="flex justify-between items-center text-[10px] text-gray-600 mt-3 pt-2 border-t border-gray-300">
+                            <span>Tanggal: {formatIndoDate(selectedWarta.tanggal)}</span>
+                            <span>Kategori: {info.category}</span>
+                            <span>Penulis: {selectedWarta.penulis || 'Redaksi Warta'}</span>
+                        </div>
+                    </div>
+                    {/* Category Pill & Reading Time */}
+                    <div className="flex flex-wrap items-center gap-2.5 mb-4">
+                        <span className={`text-[11px] md:text-xs font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full border shadow-xs ${info.categoryStyle.bg}`}>
+                            {info.category}
+                        </span>
+                        <span className="text-xs font-semibold text-navy-500 dark:text-navy-400 flex items-center bg-navy-50 dark:bg-navy-800 px-3 py-1.5 rounded-full">
+                            <Icon name="Clock" className="w-3.5 h-3.5 mr-1.5 text-gold-500" />
+                            {info.readingTime}
+                        </span>
+                    </div>
+
+                    {/* Headline Title */}
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-navy-950 dark:text-gold-400 leading-[1.2] tracking-tight mb-6">
+                        {info.cleanTitle}
+                    </h1>
+
+                    {/* Byline Metadata Bar */}
+                    <div className="flex flex-wrap items-center justify-between gap-4 py-4 px-5 rounded-2xl bg-navy-50/70 dark:bg-navy-950/60 border border-navy-100 dark:border-navy-800/80 mb-8">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold-400 to-navy-900 text-white font-black text-sm flex items-center justify-center shadow-sm">
+                                {(selectedWarta.penulis || 'Redaksi').charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-navy-900 dark:text-gold-300">
+                                    {selectedWarta.penulis || 'Redaksi Warta Jemaat'}
+                                </p>
+                                <p className="text-[11px] text-navy-500 dark:text-navy-400">
+                                    PISGAH BISDAC Publishing
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center text-xs font-semibold text-navy-600 dark:text-navy-300 gap-1.5">
+                            <Icon name="Calendar" className="w-4 h-4 text-gold-500" />
+                            <span>{formatIndoDate(selectedWarta.tanggal)}</span>
+                        </div>
+                    </div>
+
+                    {/* Featured Photo / Image Carousel Showcase */}
+                    {safeUrls.length > 0 && (
+                        <div className="space-y-3 mb-10 print:mb-6">
+                            <div className="relative w-full rounded-2xl overflow-hidden bg-navy-950 h-[240px] sm:h-[320px] md:h-[400px] max-h-[420px] shadow-md border border-navy-100 dark:border-navy-800 group print:bg-white print:border-none print:shadow-none print:h-auto print:max-h-[380px]">
+                                <div className="flex transition-transform duration-500 ease-out h-full print:block" style={{ transform: `translateX(-${modalSlide * 100}%)` }}>
+                                    {safeUrls.map((url, idx) => (
+                                        <div key={idx} className={`w-full h-full flex-shrink-0 relative flex items-center justify-center bg-navy-950 overflow-hidden print:bg-white print:h-auto ${idx !== modalSlide ? 'print:hidden' : ''}`}>
+                                            {!imageErrors[`detail-${idx}`] ? (
+                                                <>
+                                                    {/* Ambient blurred backdrop */}
+                                                    <img
+                                                        src={url}
+                                                        className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-35 scale-110 pointer-events-none print:hidden"
+                                                        alt=""
+                                                        aria-hidden="true"
+                                                    />
+                                                    <img
+                                                        src={url}
+                                                        className="relative z-10 max-h-full w-auto h-full object-contain cursor-zoom-in transition-transform duration-300 group-hover:scale-[1.01] print:max-h-[340px] print:mx-auto print:rounded-xl print:border print:border-navy-100"
+                                                        alt={`${info.cleanTitle} - Gambar ${idx + 1}`}
+                                                        onError={() => handleImageError(`detail-${idx}`)}
+                                                        onClick={() => setLightboxIndex(idx)}
+                                                        referrerPolicy="no-referrer"
+                                                    />
+                                                </>
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-red-400 bg-red-50 dark:bg-navy-950 print:hidden">
+                                                    <span className="text-sm font-medium">Gambar gagal dimuat</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Lightbox Zoom Pill Overlay */}
+                                <button
+                                    onClick={() => setLightboxIndex(modalSlide)}
+                                    className="absolute bottom-4 right-4 bg-navy-900/80 hover:bg-navy-900 text-white px-3 py-1.5 rounded-xl text-xs font-bold backdrop-blur-md flex items-center gap-1.5 shadow transition print:hidden"
+                                >
+                                    <Icon name="ZoomIn" className="w-3.5 h-3.5 text-gold-400" /> Perbesar Foto
+                                </button>
+
+                                {/* Slide Counter Badge */}
+                                {safeUrls.length > 1 && (
+                                    <div className="absolute top-4 right-4 bg-black/70 text-white text-xs font-bold px-3 py-1 rounded-lg backdrop-blur-md print:hidden">
                                         {modalSlide + 1} / {safeUrls.length}
                                     </div>
-                                </>
+                                )}
+
+                                {/* Navigation Arrows */}
+                                {safeUrls.length > 1 && (
+                                    <div className="print:hidden">
+                                        <button
+                                            onClick={() => setModalSlide(p => (p === 0 ? safeUrls.length - 1 : p - 1))}
+                                            className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-navy-900/90 hover:bg-white text-navy-900 dark:text-gold-400 p-2.5 rounded-full shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
+                                            title="Foto Sebelumnya"
+                                        >
+                                            <Icon name="ChevronLeft" className="w-5 h-5" />
+                                        </button>
+                                        <button
+                                            onClick={() => setModalSlide(p => (p + 1) % safeUrls.length)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-navy-900/90 hover:bg-white text-navy-900 dark:text-gold-400 p-2.5 rounded-full shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
+                                            title="Foto Selanjutnya"
+                                        >
+                                            <Icon name="ChevronRight" className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Filmstrip Thumbnails (jika ada lebih dari 1 foto) */}
+                            {safeUrls.length > 1 && (
+                                <div className="flex gap-2.5 overflow-x-auto pb-1 hide-scrollbar print:hidden">
+                                    {safeUrls.map((url, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setModalSlide(idx)}
+                                            className={`relative w-20 h-14 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all ${modalSlide === idx ? 'border-gold-500 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                                        >
+                                            <img src={url} className="w-full h-full object-cover" alt="thumbnail" referrerPolicy="no-referrer" />
+                                        </button>
+                                    ))}
+                                </div>
                             )}
                         </div>
                     )}
 
-                    <div className="prose max-w-none text-base md:text-lg text-navy-800 leading-relaxed warta-content" dangerouslySetInnerHTML={{ __html: selectedWarta.isi }}></div>
-                </div>
-            </div>
-        );
-    }
+                    {/* Article Body Content */}
+                    <div
+                        className={`prose max-w-none text-navy-800 dark:text-navy-100 warta-content pt-2 ${fontSizeClass}`}
+                        onClick={(e) => {
+                            if (e.target && e.target.tagName === 'IMG' && e.target.src) {
+                                setLightboxImg(e.target.src);
+                            }
+                        }}
+                        dangerouslySetInnerHTML={{ __html: selectedWarta.isi }}
+                    />
 
-    return (
-        <div className="space-y-6 animate-fade-in relative">
-            {/* Banner Ajakan Galeri */}
-            <div className="glass-card rounded-[1.25rem] md:rounded-[1.5rem] shadow-lg border border-gold-200/60 overflow-hidden relative z-10">
-                <div className="p-5 md:p-6 bg-gradient-to-br from-navy-800 via-gold-50/40 to-gold-400 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="text-center sm:text-left flex-1">
-                        <h3 className="font-black text-navy-900 text-lg mb-1">Galeri Dokumentasi</h3>
-                        <p className="text-xs md:text-sm font-medium text-navy-600 leading-relaxed">
-                            Lihat dan simpan berbagai kenangan momen kegiatan di Jemaat PISGAH BISDAC.
-                        </p>
+                    {/* Redaksi Signature & Sharing Bar */}
+                    <div className="mt-12 pt-8 border-t border-navy-100 dark:border-navy-800 space-y-6 warta-no-print print:hidden no-print">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-gradient-to-r from-navy-50 to-gold-50/30 dark:from-navy-950 dark:to-navy-900 border border-navy-100 dark:border-navy-800">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center font-black text-xl shadow-sm">
+                                    P
+                                </div>
+                                <div>
+                                    <h4 className="font-extrabold text-navy-900 dark:text-gold-400 text-sm">Redaksi Warta Jemaat</h4>
+                                    <p className="text-xs text-navy-500 dark:text-navy-400">GMAHK Jemaat Pisgah Batam International Seventh-Day Adventist Church</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button onClick={() => handleSmartShare(info.cleanTitle)} className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                    <Icon name="Share2" className="w-4 h-4" /> Bagikan Warta
+                                </button>
+                                <button onClick={handleCopyLink} className="px-3.5 py-2 bg-navy-900 hover:bg-navy-800 text-gold-400 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                    <Icon name="Copy" className="w-4 h-4" /> Salin Link
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <button onClick={() => setShowGallery(true)} className="flex items-center justify-center w-full sm:w-auto bg-navy-900 hover:bg-navy-800 text-gold-400 py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 group shrink-0">
-                        <span className="text-[11px] md:text-sm font-bold uppercase tracking-widest transition-colors">Buka Galeri Utama</span>
-                        <Icon name="Image" className="w-4 h-4 ml-2" />
-                    </button>
-                </div>
-            </div>
+                </article>
 
-            {/* Area Daftar Warta (Thumbnails Grid) */}
-            <div className="glass-box rounded-[1.5rem] p-6 shadow-sm border border-navy-100/60">
-                <div className="flex items-center justify-between border-b border-navy-50 pb-4 mb-6">
-                    <h2 className="text-2xl font-black text-navy-900 flex items-center">
-                        <Icon name="BookOpen" className="w-6 h-6 mr-2 text-gold-500" /> Warta Jemaat
-                    </h2>
-                    <span className="bg-navy-50 text-navy-500 text-xs font-bold px-3 py-1 rounded-lg">Hal. {currentPage} / {totalPages || 1}</span>
-                </div>
-
-                {sortedWarta.length === 0 ? (
-                    <div className="text-center py-10 bg-navy-50/50 rounded-2xl border border-dashed border-navy-200">
-                        <Icon name="Info" className="w-10 h-10 mx-auto text-navy-300 mb-2" />
-                        <p className="text-navy-500 font-medium">Belum ada warta yang diterbitkan.</p>
-                    </div>
-                ) : (
-                    <>
-                        {/* GRID KARTU WARTA (4 KOLOM) */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
-                            {paginatedWarta.map((warta) => {
-                                const rawUrls = parseGambarUrls(warta.gambarUrl);
-                                const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
-                                const thumbnailImg = safeUrls.length > 0 ? safeUrls[0] : null;
-
-                                const plainText = stripHtml(warta.isi);
-                                const shortPreview = truncateText(plainText, 120); // Potongan singkat untuk preview kartu
+                {/* Section Warta Lainnya (Related Stories) */}
+                {relatedWarta.length > 0 && (
+                    <div className="mt-12 space-y-5 warta-no-print print:hidden no-print">
+                        <div className="flex items-center justify-between border-b border-navy-100 dark:border-navy-800 pb-3">
+                            <h3 className="text-xl font-extrabold text-navy-900 dark:text-gold-400 flex items-center gap-2">
+                                <Icon name="BookOpen" className="w-5 h-5 text-gold-500" /> Warta Terkini Lainnya
+                            </h3>
+                            <button onClick={() => setSelectedWarta(null)} className="text-xs font-bold text-navy-600 dark:text-gold-400 hover:underline">
+                                Lihat Semua →
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            {relatedWarta.map((item) => {
+                                const itemInfo = parseWartaInfo(item);
+                                const itemUrls = parseGambarUrls(item.gambarUrl).map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
+                                const itemThumb = itemUrls.length > 0 ? itemUrls[0] : null;
 
                                 return (
                                     <div
-                                        key={warta.rowIndex}
-                                        onClick={() => setSelectedWarta(warta)}
-                                        className="bg-white border border-navy-100/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer group transform hover:-translate-y-1"
+                                        key={item.rowIndex}
+                                        onClick={() => { setSelectedWarta(item); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                        className="bg-white dark:bg-navy-900 rounded-2xl p-4 border border-navy-100 dark:border-navy-800 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col"
                                     >
-                                        {/* Area Gambar Thumbnail (Rasio 16:9) */}
-                                        <div className="relative aspect-video bg-navy-50 overflow-hidden border-b border-navy-50">
-                                            {thumbnailImg ? (
-                                                <img
-                                                    src={thumbnailImg}
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                                                    alt={warta.judul}
-                                                    referrerPolicy="no-referrer"
-                                                />
+                                        <div className="aspect-video rounded-xl overflow-hidden bg-navy-50 dark:bg-navy-950 mb-3 relative">
+                                            {itemThumb ? (
+                                                <img src={itemThumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={itemInfo.cleanTitle} referrerPolicy="no-referrer" />
                                             ) : (
-                                                <div className="flex flex-col items-center justify-center h-full text-navy-300 bg-navy-50/50">
-                                                    <Icon name="Image" className="w-10 h-10 mb-2 opacity-50" />
-                                                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Tanpa Gambar</span>
+                                                <div className="w-full h-full flex items-center justify-center text-navy-300 dark:text-navy-700">
+                                                    <Icon name="Image" className="w-8 h-8 opacity-40" />
                                                 </div>
                                             )}
-
-                                            {/* Badge Jumlah Gambar */}
-                                            {safeUrls.length > 1 && (
-                                                <div className="absolute top-3 right-3 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded backdrop-blur-sm flex items-center">
-                                                    <Icon name="Image" className="w-3 h-3 mr-1" /> +{safeUrls.length - 1}
-                                                </div>
-                                            )}
-
-                                            {/* Badge Tanggal (Floating) */}
-                                            <div className="absolute bottom-3 left-3 bg-white/90 text-navy-900 text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm backdrop-blur-md">
-                                                {formatDate(warta.tanggal)}
-                                            </div>
+                                            <span className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs ${itemInfo.categoryStyle.bg}`}>
+                                                {itemInfo.category}
+                                            </span>
                                         </div>
-
-                                        {/* Area Konten Teks */}
-                                        <div className="p-5 flex flex-col flex-1">
-                                            <h3 className="font-bold text-navy-900 text-base leading-tight mb-2 group-hover:text-gold-600 transition-colors line-clamp-2">
-                                                {warta.judul}
-                                            </h3>
-                                            <p className="text-xs text-navy-600 font-medium line-clamp-3 mb-4 flex-1 leading-relaxed">
-                                                {shortPreview}
-                                            </p>
-                                            <div className="mt-auto flex justify-between items-center pt-3 border-t border-navy-50">
-                                                <span className="text-[10px] text-navy-400 font-bold uppercase tracking-wider flex items-center">
-                                                    <Icon name="Edit" className="w-3 h-3 mr-1 text-gold-400" />
-                                                    {warta.penulis || 'Admin'}
-                                                </span>
-                                                <span className="bg-gold-500 hover:bg-gold-600 text-white dark:text-navy-900 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center shadow-sm transition-colors group-hover:shadow-md">
-                                                    Baca <Icon name="ChevronRight" className="w-3 h-3 ml-0.5" />
-                                                </span>
-                                            </div>
+                                        <h4 className="font-bold text-sm text-navy-900 dark:text-gold-300 group-hover:text-gold-600 line-clamp-2 leading-snug mb-1.5">
+                                            {itemInfo.cleanTitle}
+                                        </h4>
+                                        <p className="text-[11px] text-navy-500 dark:text-navy-400 line-clamp-2 leading-relaxed mb-3 flex-1">
+                                            {itemInfo.excerpt}
+                                        </p>
+                                        <div className="mt-auto pt-2 border-t border-navy-50 dark:border-navy-800/80 flex items-center justify-between text-[10px] text-navy-400">
+                                            <span>{formatIndoDateShort(item.tanggal)}</span>
+                                            <span className="font-bold text-gold-600 dark:text-gold-400 flex items-center gap-0.5">Baca <Icon name="ChevronRight" className="w-3 h-3" /></span>
                                         </div>
                                     </div>
                                 );
                             })}
                         </div>
+                    </div>
+                )}
 
-                        {/* PAGINATION CONTROLS */}
-                        {totalPages > 1 && (
-                            <div className="flex justify-center items-center gap-2 mt-8 pt-6 border-t border-navy-100/60">
-                                <button
-                                    onClick={() => goToPage(currentPage - 1)}
-                                    disabled={currentPage === 1}
-                                    className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all shadow-sm ${currentPage === 1
-                                        ? 'bg-navy-50 text-navy-300 cursor-not-allowed'
-                                        : 'bg-white border border-navy-200 text-navy-700 hover:bg-gold-50 hover:text-gold-600 hover:border-gold-300'
-                                        }`}
-                                >
-                                    <Icon name="ChevronLeft" className="w-5 h-5" />
-                                </button>
+                {/* Lightbox Modal (Full-Screen Image Zoom Dimount ke document.body) */}
+                {lightboxIndex !== null && safeUrls[lightboxIndex] && createPortal(
+                    <div className="fixed inset-0 z-[99999] bg-black/95 backdrop-blur-md flex flex-col justify-between p-4 md:p-8 animate-fade-in">
+                        <div className="flex justify-between items-center text-white">
+                            <span className="text-sm font-semibold text-white/80">
+                                Foto {lightboxIndex + 1} dari {safeUrls.length}
+                            </span>
+                            <button
+                                onClick={() => setLightboxIndex(null)}
+                                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-xl transition"
+                            >
+                                <Icon name="X" className="w-6 h-6" />
+                            </button>
+                        </div>
 
-                                <div className="flex gap-1.5 px-2">
-                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                                        <button
-                                            key={page}
-                                            onClick={() => goToPage(page)}
-                                            className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all ${page === currentPage
-                                                ? 'bg-navy-900 text-gold-400 shadow-md scale-110'
-                                                : 'bg-white border border-navy-100 text-navy-600 hover:bg-navy-50 hover:border-navy-300'
-                                                }`}
-                                        >
-                                            {page}
-                                        </button>
-                                    ))}
-                                </div>
+                        <div className="flex-1 flex items-center justify-center relative p-2">
+                            <img
+                                src={safeUrls[lightboxIndex]}
+                                className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                                alt="Perbesar Foto"
+                                referrerPolicy="no-referrer"
+                            />
 
-                                <button
-                                    onClick={() => goToPage(currentPage + 1)}
-                                    disabled={currentPage === totalPages}
-                                    className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all shadow-sm ${currentPage === totalPages
-                                        ? 'bg-navy-50 text-navy-300 cursor-not-allowed'
-                                        : 'bg-white border border-navy-200 text-navy-700 hover:bg-gold-50 hover:text-gold-600 hover:border-gold-300'
-                                        }`}
-                                >
-                                    <Icon name="ChevronRight" className="w-5 h-5" />
-                                </button>
-                            </div>
-                        )}
-                    </>
+                            {safeUrls.length > 1 && (
+                                <>
+                                    <button
+                                        onClick={() => setLightboxIndex(p => (p === 0 ? safeUrls.length - 1 : p - 1))}
+                                        className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition"
+                                    >
+                                        <Icon name="ChevronLeft" className="w-6 h-6" />
+                                    </button>
+                                    <button
+                                        onClick={() => setLightboxIndex(p => (p + 1) % safeUrls.length)}
+                                        className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition"
+                                    >
+                                        <Icon name="ChevronRight" className="w-6 h-6" />
+                                    </button>
+                                </>
+                            )}
+                        </div>
+
+                        <div className="text-center text-white/60 text-xs">
+                            Tekan tombol silang atau area luar untuk kembali
+                        </div>
+                    </div>,
+                    document.body
                 )}
             </div>
+        );
+    }
+
+    // ==============================================================
+    // TAMPILAN BERANDA PORTAL BERITA (NEWSROOM HOMEPAGE GRID & HERO)
+    // ==============================================================
+    return (
+        <div className="space-y-6 sm:space-y-8 animate-fade-in relative pb-16">
+            {/* OFFLINE INDICATOR BANNER */}
+            {isOffline && (
+                <div className="bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-200 px-4 py-3 rounded-2xl flex items-center justify-between gap-3 text-xs font-semibold shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                            <Icon name="WifiOff" className="w-4 h-4" />
+                        </div>
+                        <div>
+                            <span className="font-bold">Mode Offline Aktif</span>
+                            <p className="text-[11px] opacity-80">Anda sedang mengakses warta yang tersimpan di perangkat. Tetap terbaca lancar di dalam gedung gereja.</p>
+                        </div>
+                    </div>
+                    <span className="text-[10px] bg-amber-500/20 text-amber-900 dark:text-amber-200 px-2.5 py-1 rounded-full font-black uppercase shrink-0">
+                        Tersimpan Lokal
+                    </span>
+                </div>
+            )}
+
+            {/* PORTAL MASTHEAD & EDITORIAL HEADER */}
+            <header className="bg-gradient-to-br from-navy-950 via-navy-900 to-[#172554] rounded-[1.75rem] p-6 sm:p-8 md:p-10 shadow-lg text-white relative overflow-hidden border border-navy-800/80">
+                <div className="absolute -right-16 -top-16 w-64 h-64 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="absolute -left-16 -bottom-16 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div className="space-y-2.5 max-w-2xl">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className="bg-gold-500 text-navy-950 font-black text-[10px] md:text-xs uppercase tracking-widest px-3 py-1 rounded-full shadow-xs flex items-center gap-1.5">
+                                <Icon name="Sparkles" className="w-3.5 h-3.5" /> Portal Resmi Jemaat
+                            </span>
+                            <span className="text-gold-200/80 text-xs font-semibold">
+                                {formatIndoDate(new Date())}
+                            </span>
+                        </div>
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
+                            Warta & Kabar Pelayanan
+                        </h1>
+                        <p className="text-xs sm:text-sm text-navy-200 font-medium leading-relaxed">
+                            Buletin resmi ibadah, informasi kegiatan pelayanan, renungan rohani, dan seputar kabar jemaat PISGAH BISDAC.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+                        {/* Tombol Akses Galeri Dokumentasi */}
+                        <button
+                            onClick={() => setShowGallery(true)}
+                            className="bg-white/10 hover:bg-white/20 text-gold-300 hover:text-white px-5 py-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 border border-white/10 backdrop-blur-sm shadow-sm"
+                        >
+                            <Icon name="Image" className="w-4 h-4 text-gold-400" />
+                            <span>Galeri Foto</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Search Bar & Instant Filter */}
+                <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-1">
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Cari judul berita, topik kegiatan, pengumuman, atau penulis..."
+                            className="w-full bg-navy-900/90 text-white placeholder-navy-400 px-4 py-3.5 pl-11 pr-10 rounded-xl text-sm border border-white/15 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition shadow-inner"
+                        />
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gold-400">
+                            <Icon name="Search" className="w-4 h-4" />
+                        </span>
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-navy-400 hover:text-white p-1"
+                            >
+                                <Icon name="X" className="w-4 h-4" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </header>
+
+            {/* CATEGORY FILTER NAVIGATION PILLS */}
+            <div className="glass-box rounded-2xl p-2.5 shadow-sm border border-navy-100/60 dark:border-navy-800 flex items-center gap-2 overflow-x-auto hide-scrollbar">
+                <button
+                    onClick={() => setSelectedCategory('Semua')}
+                    className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 ${selectedCategory === 'Semua' ? 'bg-navy-900 dark:bg-gold-500 text-gold-400 dark:text-navy-950 shadow-sm scale-102' : 'text-navy-600 dark:text-navy-300 hover:bg-navy-50 dark:hover:bg-navy-800'}`}
+                >
+                    <span>Semua Berita</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${selectedCategory === 'Semua' ? 'bg-gold-500/20 text-gold-300 dark:bg-navy-900/20 dark:text-navy-950' : 'bg-navy-100 dark:bg-navy-800 text-navy-500 dark:text-navy-400'}`}>
+                        {categoryCounts['Semua'] || 0}
+                    </span>
+                </button>
+
+                {WARTA_CATEGORIES.map((cat) => {
+                    const count = categoryCounts[cat] || 0;
+                    const isActive = selectedCategory === cat;
+                    return (
+                        <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 ${isActive ? 'bg-navy-900 dark:bg-gold-500 text-gold-400 dark:text-navy-950 shadow-sm scale-102' : 'text-navy-600 dark:text-navy-300 hover:bg-navy-50 dark:hover:bg-navy-800'}`}
+                        >
+                            <span>{cat}</span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-gold-500/20 text-gold-300 dark:bg-navy-900/20 dark:text-navy-950' : 'bg-navy-100 dark:bg-navy-800 text-navy-500 dark:text-navy-400'}`}>
+                                {count}
+                            </span>
+                        </button>
+                    );
+                })}
+
+                {/* Tab Warta Tersimpan (Bookmark Offline) */}
+                <button
+                    onClick={() => setSelectedCategory('Tersimpan')}
+                    className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 ${selectedCategory === 'Tersimpan' ? 'bg-amber-500 dark:bg-amber-400 text-white dark:text-navy-950 shadow-sm scale-102' : 'text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-navy-800'}`}
+                >
+                    <Icon name="Bookmark" className={`w-3.5 h-3.5 ${selectedCategory === 'Tersimpan' ? 'fill-current' : ''}`} />
+                    <span>Tersimpan</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${selectedCategory === 'Tersimpan' ? 'bg-black/20 text-white dark:text-navy-950' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'}`}>
+                        {categoryCounts['Tersimpan'] || 0}
+                    </span>
+                </button>
+            </div>
+
+            {/* STATUS FILTER / HASIL PENCARIAN */}
+            {(selectedCategory !== 'Semua' || searchQuery.trim()) && (
+                <div className="flex items-center justify-between text-xs text-navy-600 dark:text-navy-300 px-2">
+                    <p>
+                        Menampilkan <strong>{filteredWarta.length}</strong> warta
+                        {selectedCategory !== 'Semua' && <span> dalam kategori <strong>"{selectedCategory}"</strong></span>}
+                        {searchQuery.trim() && <span> dengan kata kunci <strong>"{searchQuery}"</strong></span>}
+                    </p>
+                    <button
+                        onClick={() => { setSelectedCategory('Semua'); setSearchQuery(''); }}
+                        className="text-gold-600 dark:text-gold-400 font-bold hover:underline"
+                    >
+                        Reset Filter
+                    </button>
+                </div>
+            )}
+
+            {/* EMPTY STATE */}
+            {filteredWarta.length === 0 ? (
+                <div className="text-center py-16 px-4 bg-white dark:bg-navy-900 rounded-[1.75rem] border border-dashed border-navy-200 dark:border-navy-800 shadow-sm">
+                    <div className="w-16 h-16 rounded-full bg-navy-50 dark:bg-navy-800 text-navy-400 flex items-center justify-center mx-auto mb-4">
+                        <Icon name={selectedCategory === 'Tersimpan' ? "Bookmark" : "Search"} className="w-8 h-8 opacity-60 text-gold-500" />
+                    </div>
+                    <h3 className="text-lg font-bold text-navy-900 dark:text-gold-400 mb-1">
+                        {selectedCategory === 'Tersimpan' ? 'Belum Ada Warta yang Disimpan' : 'Tidak Ada Warta yang Ditemukan'}
+                    </h3>
+                    <p className="text-xs text-navy-500 dark:text-navy-400 max-w-sm mx-auto mb-5">
+                        {selectedCategory === 'Tersimpan'
+                            ? 'Klik ikon bookmark pada warta atau renungan apa saja untuk menyimpannya di sini agar mudah dibaca kembali bahkan tanpa internet.'
+                            : 'Coba gunakan kata kunci pencarian yang lain atau pilih kategori berita yang berbeda.'}
+                    </p>
+                    <button
+                        onClick={() => { setSelectedCategory('Semua'); setSearchQuery(''); }}
+                        className="bg-navy-900 hover:bg-navy-800 text-gold-400 px-5 py-2.5 rounded-xl font-bold text-xs transition shadow-sm"
+                    >
+                        Tampilkan Semua Warta
+                    </button>
+                </div>
+            ) : (
+                <>
+                    {/* FEATURED HEADLINE HERO (BERITA UTAMA BESAR) */}
+                    {featuredWarta && (() => {
+                        const featInfo = parseWartaInfo(featuredWarta);
+                        const featUrls = parseGambarUrls(featuredWarta.gambarUrl).map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
+                        const featThumb = featUrls.length > 0 ? featUrls[0] : null;
+
+                        return (
+                            <section
+                                onClick={() => setSelectedWarta(featuredWarta)}
+                                className="bg-white dark:bg-navy-900 rounded-[1.75rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-navy-100/90 dark:border-navy-800 group cursor-pointer"
+                            >
+                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 items-stretch">
+                                    {/* Cover Visual Proporsional (5 Kolom di Desktop, Max Height Dibatasi) */}
+                                    <div className="lg:col-span-5 relative h-[210px] sm:h-[250px] md:h-[280px] lg:h-full lg:min-h-[280px] lg:max-h-[320px] bg-navy-950 overflow-hidden flex items-center justify-center">
+                                        {featThumb ? (
+                                            <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-navy-950">
+                                                {/* Ambient Blurred Backdrop agar proporsi foto apapun tampil rapi & elegan */}
+                                                <img
+                                                    src={featThumb}
+                                                    className="absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-110 pointer-events-none"
+                                                    alt=""
+                                                    aria-hidden="true"
+                                                />
+                                                <img
+                                                    src={featThumb}
+                                                    className="relative z-10 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                                                    alt={featInfo.cleanTitle}
+                                                    referrerPolicy="no-referrer"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="w-full h-full min-h-[210px] flex flex-col items-center justify-center text-navy-400 bg-gradient-to-br from-navy-900 to-navy-950">
+                                                <Icon name="Image" className="w-14 h-14 opacity-30 mb-2" />
+                                                <span className="text-xs font-bold uppercase tracking-widest text-navy-500">Warta Pisgah BISDAC</span>
+                                            </div>
+                                        )}
+
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden pointer-events-none"></div>
+
+                                        {/* Floating Badge Berita Utama */}
+                                        <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
+                                            <span className="bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 animate-pulse">
+                                                <span className="w-2 h-2 rounded-full bg-white"></span> Berita Utama
+                                            </span>
+                                            <span className={`text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-md ${featInfo.categoryStyle.badge}`}>
+                                                {featInfo.category}
+                                            </span>
+                                        </div>
+
+                                        {featUrls.length > 1 && (
+                                            <div className="absolute top-4 right-4 bg-black/70 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg backdrop-blur-md flex items-center gap-1 z-10">
+                                                <Icon name="Image" className="w-3.5 h-3.5" /> +{featUrls.length - 1} Foto
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Text Info Hero Berita (7 Kolom di Desktop - Luas, Terbaca & Proporsional) */}
+                                    <div className="lg:col-span-7 p-5 sm:p-6 md:p-8 flex flex-col justify-between">
+                                        <div>
+                                            <div className="flex items-center gap-3 text-xs text-navy-500 dark:text-navy-400 mb-2.5">
+                                                <span className="flex items-center font-semibold">
+                                                    <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5 text-gold-500" />
+                                                    {formatIndoDate(featuredWarta.tanggal)}
+                                                </span>
+                                                <span>•</span>
+                                                <span className="flex items-center font-semibold">
+                                                    <Icon name="Clock" className="w-3.5 h-3.5 mr-1 text-gold-500" />
+                                                    {featInfo.readingTime}
+                                                </span>
+                                            </div>
+
+                                            <h2 className="text-xl sm:text-2xl lg:text-2xl xl:text-3xl font-black text-navy-950 dark:text-gold-400 group-hover:text-gold-600 leading-tight tracking-tight mb-3 transition-colors line-clamp-2">
+                                                {highlightSearchText(featInfo.cleanTitle, searchQuery)}
+                                            </h2>
+
+                                            <p className="text-xs sm:text-sm text-navy-600 dark:text-navy-300 line-clamp-3 leading-relaxed font-normal mb-5">
+                                                {highlightSearchText(featInfo.excerpt, searchQuery)}
+                                            </p>
+                                        </div>
+
+                                        <div className="pt-3 border-t border-navy-100 dark:border-navy-800 flex items-center justify-between mt-auto">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="w-8 h-8 rounded-full bg-navy-900 dark:bg-gold-500 text-gold-400 dark:text-navy-950 font-black text-xs flex items-center justify-center">
+                                                    {(featuredWarta.penulis || 'R').charAt(0).toUpperCase()}
+                                                </div>
+                                                <span className="text-xs font-bold text-navy-800 dark:text-navy-200">
+                                                    {featuredWarta.penulis || 'Redaksi Warta'}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleBookmark(featuredWarta.rowIndex);
+                                                    }}
+                                                    className={`p-2 rounded-xl border transition-all ${bookmarkedIds.includes(featuredWarta.rowIndex) ? 'bg-amber-500 text-white border-amber-600 shadow-sm' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 text-navy-500 dark:text-navy-300 border-navy-200/50 dark:border-navy-700'}`}
+                                                    title={bookmarkedIds.includes(featuredWarta.rowIndex) ? "Hapus dari Simpanan" : "Simpan Warta"}
+                                                >
+                                                    <Icon name="Bookmark" className={`w-4 h-4 ${bookmarkedIds.includes(featuredWarta.rowIndex) ? 'fill-current' : ''}`} />
+                                                </button>
+                                                <span className="bg-navy-900 group-hover:bg-gold-500 text-gold-400 group-hover:text-navy-950 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                                                    Baca Selengkapnya →
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        );
+                    })()}
+
+                    {/* SECTION TITLE BERITA TERBARU */}
+                    <div className="flex items-center justify-between pt-4">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-2 h-6 bg-gold-500 rounded-full"></div>
+                            <h3 className="text-lg md:text-xl font-black text-navy-950 dark:text-gold-400">
+                                {isShowingFeatured ? 'Warta & Pengumuman Lainnya' : `Daftar Berita ${selectedCategory !== 'Semua' ? '• ' + selectedCategory : ''}`}
+                            </h3>
+                        </div>
+                        <span className="text-xs font-bold text-navy-500 dark:text-navy-400 bg-navy-50 dark:bg-navy-800 px-3 py-1 rounded-lg">
+                            Halaman {currentPage} dari {totalPages || 1}
+                        </span>
+                    </div>
+
+                    {/* EDITORIAL NEWS GRID (3 - 4 KOLOM) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
+                        {paginatedWarta.map((warta) => {
+                            const info = parseWartaInfo(warta);
+                            const rawUrls = parseGambarUrls(warta.gambarUrl);
+                            const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
+                            const thumbnailImg = safeUrls.length > 0 ? safeUrls[0] : null;
+
+                            return (
+                                <article
+                                    key={warta.rowIndex}
+                                    onClick={() => setSelectedWarta(warta)}
+                                    className="bg-white dark:bg-navy-900 rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col border border-navy-100/80 dark:border-navy-800 group cursor-pointer transform hover:-translate-y-1"
+                                >
+                                    {/* Thumbnail Visual (16:9) */}
+                                    <div className="relative aspect-video bg-navy-950 overflow-hidden">
+                                        {thumbnailImg ? (
+                                            <img
+                                                src={thumbnailImg}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                                                alt={info.cleanTitle}
+                                                referrerPolicy="no-referrer"
+                                            />
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center h-full text-navy-400 bg-gradient-to-br from-navy-900 to-navy-950">
+                                                <Icon name="Image" className="w-10 h-10 mb-1 opacity-30" />
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Pisgah BISDAC</span>
+                                            </div>
+                                        )}
+
+                                        {/* Category Badge Floating */}
+                                        <div className="absolute top-3 left-3 z-10">
+                                            <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md ${info.categoryStyle.badge}`}>
+                                                {info.category}
+                                            </span>
+                                        </div>
+
+                                        {/* Multi-Photo Indicator */}
+                                        {safeUrls.length > 1 && (
+                                            <div className="absolute top-3 right-3 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-sm flex items-center gap-1 z-10">
+                                                <Icon name="Image" className="w-3 h-3" /> +{safeUrls.length - 1}
+                                            </div>
+                                        )}
+
+                                        {/* Floating Date Badge */}
+                                        <div className="absolute bottom-3 left-3 bg-white/95 dark:bg-navy-900/90 text-navy-900 dark:text-gold-300 text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm backdrop-blur-md">
+                                            {formatDate(warta.tanggal)}
+                                        </div>
+                                    </div>
+
+                                    {/* Card Content */}
+                                    <div className="p-5 flex flex-col flex-1">
+                                        <div className="flex items-center gap-2 text-[11px] font-semibold text-navy-400 dark:text-navy-500 mb-2">
+                                            <Icon name="Clock" className="w-3 h-3 text-gold-500" />
+                                            <span>{info.readingTime}</span>
+                                        </div>
+
+                                        <h3 className="font-extrabold text-navy-950 dark:text-gold-400 text-base leading-snug mb-2 group-hover:text-gold-600 transition-colors line-clamp-2">
+                                            {highlightSearchText(info.cleanTitle, searchQuery)}
+                                        </h3>
+
+                                        <p className="text-xs text-navy-600 dark:text-navy-300 line-clamp-3 mb-4 flex-1 leading-relaxed">
+                                            {highlightSearchText(info.excerpt, searchQuery)}
+                                        </p>
+
+                                        {/* Card Footer */}
+                                        <div className="mt-auto pt-3 border-t border-navy-50 dark:border-navy-800/80 flex items-center justify-between">
+                                            <span className="text-[11px] text-navy-500 dark:text-navy-400 font-bold flex items-center truncate mr-2">
+                                                <Icon name="Edit" className="w-3 h-3 mr-1 text-gold-400 shrink-0" />
+                                                <span className="truncate">{warta.penulis || 'Admin'}</span>
+                                            </span>
+
+                                            <div className="flex items-center gap-1.5 shrink-0">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleBookmark(warta.rowIndex);
+                                                    }}
+                                                    className={`p-1.5 rounded-lg border transition-all ${bookmarkedIds.includes(warta.rowIndex) ? 'bg-amber-500 text-white border-amber-600 shadow-sm' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 text-navy-500 dark:text-navy-300 border-navy-200/50 dark:border-navy-700'}`}
+                                                    title={bookmarkedIds.includes(warta.rowIndex) ? "Hapus dari Simpanan" : "Simpan Warta"}
+                                                >
+                                                    <Icon name="Bookmark" className={`w-3.5 h-3.5 ${bookmarkedIds.includes(warta.rowIndex) ? 'fill-current' : ''}`} />
+                                                </button>
+                                                <span className="bg-gold-500 hover:bg-gold-600 text-white dark:text-navy-950 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center shadow-xs transition-colors shrink-0">
+                                                    Baca <Icon name="ChevronRight" className="w-3 h-3 ml-0.5" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
+
+                    {/* PAGINATION CONTROLS */}
+                    {totalPages > 1 && (
+                        <div className="flex justify-center items-center gap-2 mt-10 pt-6 border-t border-navy-100 dark:border-navy-800">
+                            <button
+                                onClick={() => goToPage(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-bold transition-all shadow-sm ${currentPage === 1
+                                    ? 'bg-navy-50 dark:bg-navy-800 text-navy-300 dark:text-navy-600 cursor-not-allowed'
+                                    : 'bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-navy-700 dark:text-gold-300 hover:bg-gold-50 dark:hover:bg-navy-800 hover:text-gold-600'}`}
+                            >
+                                <Icon name="ChevronLeft" className="w-5 h-5" />
+                            </button>
+
+                            <div className="flex gap-1.5 px-2">
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                    <button
+                                        key={page}
+                                        onClick={() => goToPage(page)}
+                                        className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-bold transition-all ${page === currentPage
+                                            ? 'bg-navy-950 dark:bg-gold-500 text-gold-400 dark:text-navy-950 shadow-md scale-105'
+                                            : 'bg-white dark:bg-navy-900 border border-navy-100 dark:border-navy-800 text-navy-600 dark:text-navy-300 hover:bg-navy-50 dark:hover:bg-navy-800'}`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => goToPage(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-bold transition-all shadow-sm ${currentPage === totalPages
+                                    ? 'bg-navy-50 dark:bg-navy-800 text-navy-300 dark:text-navy-600 cursor-not-allowed'
+                                    : 'bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-navy-700 dark:text-gold-300 hover:bg-gold-50 dark:hover:bg-navy-800 hover:text-gold-600'}`}
+                            >
+                                <Icon name="ChevronRight" className="w-5 h-5" />
+                            </button>
+                        </div>
+                    )}
+                </>
+            )}
         </div>
     );
 };
@@ -5207,22 +6428,134 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
     const [wartaJudul, setWartaJudul] = React.useState('');
     const [wartaIsi, setWartaIsi] = React.useState('');
+    const [wartaKategori, setWartaKategori] = React.useState('Warta Sabat');
+    const [editWartaKategori, setEditWartaKategori] = React.useState('Warta Sabat');
+    const [editWartaViewMode, setEditWartaViewMode] = React.useState('editor'); // 'editor' | 'preview'
+    const [wartaViewMode, setWartaViewMode] = React.useState('editor'); // 'editor' | 'preview'
+    const [wartaSearchPosting, setWartaSearchPosting] = React.useState('');
     const [wartaGambarList, setWartaGambarList] = React.useState([]);
     const [isSavingWarta, setIsSavingWarta] = React.useState(false);
     const [wartaPenulis, setWartaPenulis] = React.useState('');
     const [editWartaPenulis, setEditWartaPenulis] = React.useState('');
     const [wartaCurrentPage, setWartaCurrentPage] = React.useState(1);
-    const wartaItemsPerPage = 3;
+    const wartaItemsPerPage = 6;
     const wartaEditorRef = React.useRef(null);      // <-- tambah
     const editWartaEditorRef = React.useRef(null);  // <-- tambah
 
-    // RichTextEditor Component (WYSIWYG)
-    const RichTextEditor = React.forwardRef(({ initialValue = "", onChange, placeholder }, ref) => {
+    // Jadwal Publikasi Warta
+    const [wartaPublishType, setWartaPublishType] = React.useState('now'); // 'now' | 'scheduled'
+    const [wartaScheduledDate, setWartaScheduledDate] = React.useState('');
+    const [editWartaPublishType, setEditWartaPublishType] = React.useState('now'); // 'now' | 'scheduled'
+    const [editWartaScheduledDate, setEditWartaScheduledDate] = React.useState('');
+    const [wartaStatusFilter, setWartaStatusFilter] = React.useState('all'); // 'all' | 'published' | 'scheduled'
+
+    // ============ AUTOSAVE DRAFT RUANG REDAKSI & STUDIO ============
+    const [draftNewAvailable, setDraftNewAvailable] = React.useState(null);
+    const [autosaveNewStatus, setAutosaveNewStatus] = React.useState('');
+    const [autosaveEditStatus, setAutosaveEditStatus] = React.useState('');
+
+    // Periksa draft input baru tersimpan di localStorage saat awal dibuka
+    React.useEffect(() => {
+        try {
+            const raw = localStorage.getItem('PISGAH_WARTA_DRAFT_NEW');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed && (parsed.judul || parsed.isi)) {
+                    setDraftNewAvailable(parsed);
+                }
+            }
+        } catch (e) { }
+    }, []);
+
+    // Autosave debounced untuk warta baru
+    React.useEffect(() => {
+        if (!wartaJudul && !wartaIsi && !wartaPenulis) return;
+        setAutosaveNewStatus('Menyimpan draft...');
+        const timer = setTimeout(() => {
+            try {
+                const currentContent = wartaEditorRef.current ? wartaEditorRef.current.getContent() : wartaIsi;
+                const draftObj = {
+                    judul: wartaJudul,
+                    isi: currentContent,
+                    penulis: wartaPenulis,
+                    kategori: wartaKategori,
+                    publishType: wartaPublishType,
+                    scheduledDate: wartaScheduledDate,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('PISGAH_WARTA_DRAFT_NEW', JSON.stringify(draftObj));
+                setAutosaveNewStatus('Draft tersimpan');
+            } catch (e) { }
+        }, 1200);
+        return () => clearTimeout(timer);
+    }, [wartaJudul, wartaIsi, wartaPenulis, wartaKategori, wartaPublishType, wartaScheduledDate]);
+
+    const handleRestoreNewDraft = () => {
+        if (!draftNewAvailable) return;
+        setWartaJudul(draftNewAvailable.judul || '');
+        setWartaIsi(draftNewAvailable.isi || '');
+        setWartaPenulis(draftNewAvailable.penulis || '');
+        if (draftNewAvailable.kategori) setWartaKategori(draftNewAvailable.kategori);
+        if (draftNewAvailable.publishType) setWartaPublishType(draftNewAvailable.publishType);
+        if (draftNewAvailable.scheduledDate) setWartaScheduledDate(draftNewAvailable.scheduledDate);
+        if (wartaEditorRef.current) wartaEditorRef.current.setContent(draftNewAvailable.isi || '');
+        setDraftNewAvailable(null);
+    };
+
+    const handleDiscardNewDraft = () => {
+        localStorage.removeItem('PISGAH_WARTA_DRAFT_NEW');
+        setDraftNewAvailable(null);
+        setAutosaveNewStatus('');
+    };
+
+    // Autosave debounced untuk modal edit warta fullscreen
+    React.useEffect(() => {
+        if (!editWartaModal || !editingWarta) return;
+        setAutosaveEditStatus('Menyimpan...');
+        const timer = setTimeout(() => {
+            try {
+                const currentContent = editWartaEditorRef.current ? editWartaEditorRef.current.getContent() : editWartaIsi;
+                const draftObj = {
+                    judul: editWartaJudul,
+                    isi: currentContent,
+                    penulis: editWartaPenulis,
+                    kategori: editWartaKategori,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('PISGAH_WARTA_DRAFT_EDIT_' + editingWarta.rowIndex, JSON.stringify(draftObj));
+                setAutosaveEditStatus('Draft tersimpan');
+            } catch (e) { }
+        }, 1200);
+        return () => clearTimeout(timer);
+    }, [editWartaModal, editingWarta, editWartaJudul, editWartaIsi, editWartaPenulis, editWartaKategori]);
+
+    // RichTextEditor Component (WYSIWYG) dengan Dukungan Sisipkan Gambar Inline Profesional
+    const RichTextEditor = React.forwardRef(({ initialValue = "", onChange, placeholder, onUploadImage, allowImage = true }, ref) => {
         const editorRef = React.useRef(null);
         const [isFocused, setIsFocused] = React.useState(false);
+        const [showImageModal, setShowImageModal] = React.useState(false);
+        const [imageTab, setImageTab] = React.useState('upload'); // 'upload' | 'url'
+        const [imageUrlInput, setImageUrlInput] = React.useState('');
+        const [imageCaption, setImageCaption] = React.useState('');
+        const [imageAlignment, setImageAlignment] = React.useState('center'); // 'center' | 'left' | 'right' | 'full'
+        const [selectedFileObj, setSelectedFileObj] = React.useState(null);
+        const [selectedFilePreview, setSelectedFilePreview] = React.useState('');
+        const [isProcessingImage, setIsProcessingImage] = React.useState(false);
+        const [inlineUploadError, setInlineUploadError] = React.useState('');
+        const [selectedFigure, setSelectedFigure] = React.useState(null);
+        const fileInputRef = React.useRef(null);
 
         React.useImperativeHandle(ref, () => ({
-            getContent: () => editorRef.current ? editorRef.current.innerHTML : '',
+            getContent: () => {
+                if (!editorRef.current) return '';
+                const clone = editorRef.current.cloneNode(true);
+                const marker = clone.querySelector('#warta-insert-target');
+                if (marker) marker.remove();
+                clone.querySelectorAll('.ring-4').forEach(el => {
+                    el.classList.remove('ring-4', 'ring-gold-400', 'ring-offset-2');
+                });
+                return clone.innerHTML;
+            },
             setContent: (html) => { if (editorRef.current) editorRef.current.innerHTML = html; }
         }));
 
@@ -5232,16 +6565,118 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             }
         }, [initialValue]);
 
+        const handleInput = () => {
+            if (onChange && editorRef.current) {
+                const clone = editorRef.current.cloneNode(true);
+                const marker = clone.querySelector('#warta-insert-target');
+                if (marker) marker.remove();
+                clone.querySelectorAll('.ring-4').forEach(el => {
+                    el.classList.remove('ring-4', 'ring-gold-400', 'ring-offset-2');
+                });
+                onChange(clone.innerHTML);
+            }
+        };
+
         const handleBlur = () => {
             setIsFocused(false);
-            if (onChange) onChange(editorRef.current.innerHTML);
+            handleInput();
+        };
+
+        const handleEditorClick = (e) => {
+            const fig = e.target.closest('figure[data-warta-image="true"]');
+            if (fig) {
+                setSelectedFigure(fig);
+            } else {
+                setSelectedFigure(null);
+            }
+        };
+
+        const openImageModal = () => {
+            // Hapus penanda lama jika ada
+            if (editorRef.current) {
+                const oldMarker = editorRef.current.querySelector('#warta-insert-target');
+                if (oldMarker) oldMarker.remove();
+            }
+
+            // Buat penanda visual posisi kursor
+            const marker = document.createElement('div');
+            marker.id = 'warta-insert-target';
+            marker.className = 'warta-insert-indicator flex items-center gap-2 p-2.5 my-3 bg-gradient-to-r from-amber-50 to-gold-50 dark:from-navy-850 dark:to-navy-800 border-2 border-dashed border-gold-400 rounded-xl text-navy-900 dark:text-gold-300 font-bold text-xs shadow-md select-none animate-pulse';
+            marker.setAttribute('contenteditable', 'false');
+            marker.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-gold-500 animate-ping"></span> 📸 <span class="tracking-wide">[Posisi Gambar Akan Disisipkan Tepat di Sini]</span>';
+
+            const sel = window.getSelection();
+            let inserted = false;
+
+            if (sel && sel.rangeCount > 0 && editorRef.current) {
+                const range = sel.getRangeAt(0);
+                if (editorRef.current.contains(range.commonAncestorContainer)) {
+                    range.deleteContents();
+                    range.insertNode(marker);
+                    inserted = true;
+                }
+            }
+
+            if (!inserted && editorRef.current) {
+                editorRef.current.appendChild(marker);
+            }
+
+            setTimeout(() => {
+                marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 50);
+
+            setImageUrlInput('');
+            setImageCaption('');
+            setImageAlignment('center');
+            setSelectedFileObj(null);
+            setSelectedFilePreview('');
+            setInlineUploadError('');
+            setImageTab('upload');
+            setShowImageModal(true);
+        };
+
+        const closeImageModal = () => {
+            if (editorRef.current) {
+                const marker = editorRef.current.querySelector('#warta-insert-target');
+                if (marker) marker.remove();
+            }
+            setShowImageModal(false);
+            handleInput();
+        };
+
+        const setFigureAlignment = (fig, align) => {
+            if (!fig) return;
+            let alignClasses = 'my-6 mx-auto block text-center max-w-full clear-both';
+            let imgClasses = 'rounded-2xl shadow-md max-w-full h-auto mx-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+
+            if (align === 'left') {
+                alignClasses = 'my-4 float-left mr-6 mb-4 max-w-[48%] text-left clear-left';
+                imgClasses = 'rounded-xl shadow-md max-w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+            } else if (align === 'right') {
+                alignClasses = 'my-4 float-right ml-6 mb-4 max-w-[48%] text-right clear-right';
+                imgClasses = 'rounded-xl shadow-md max-w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+            } else if (align === 'full') {
+                alignClasses = 'my-6 w-full block text-center clear-both';
+                imgClasses = 'rounded-2xl shadow-md w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+            }
+
+            fig.className = alignClasses;
+            const img = fig.querySelector('img');
+            if (img) img.className = imgClasses;
+            handleInput();
+        };
+
+        const deleteFigure = (fig) => {
+            if (!fig) return;
+            fig.remove();
+            setSelectedFigure(null);
+            handleInput();
         };
 
         const execCommand = (cmd, valueArg = null) => {
             editorRef.current.focus();
 
             if (cmd === 'formatBlock' && valueArg === '<h3>') {
-                // Manual insert H3
                 const selection = window.getSelection();
                 if (selection.rangeCount) {
                     const range = selection.getRangeAt(0);
@@ -5259,7 +6694,6 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 }
             }
             else if (cmd === 'insertUnorderedList') {
-                // Manual insert unordered list
                 const selection = window.getSelection();
                 if (selection.rangeCount) {
                     const range = selection.getRangeAt(0);
@@ -5279,7 +6713,6 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 }
             }
             else if (cmd === 'insertOrderedList') {
-                // Manual insert ordered list
                 const selection = window.getSelection();
                 if (selection.rangeCount) {
                     const range = selection.getRangeAt(0);
@@ -5299,7 +6732,6 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 }
             }
             else if (cmd === 'insertHTML' && valueArg === '<br>') {
-                // Manual insert line break
                 const br = document.createElement('br');
                 const selection = window.getSelection();
                 if (selection.rangeCount) {
@@ -5313,7 +6745,6 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 }
             }
             else {
-                // Default execCommand untuk bold, italic, underline, createLink
                 document.execCommand(cmd, false, valueArg);
             }
 
@@ -5341,29 +6772,408 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             handleInput();
         };
 
+        const handleConfirmInsert = async () => {
+            setInlineUploadError('');
+            let finalUrl = '';
+
+            if (imageTab === 'upload') {
+                if (!selectedFileObj) {
+                    setInlineUploadError('Silakan pilih berkas foto terlebih dahulu.');
+                    return;
+                }
+                setIsProcessingImage(true);
+                try {
+                    const compressed = await compressImage(selectedFileObj, 1000);
+                    if (onUploadImage) {
+                        finalUrl = await onUploadImage(compressed, selectedFileObj.name);
+                    } else {
+                        finalUrl = compressed;
+                    }
+                } catch (err) {
+                    setInlineUploadError('Gagal memproses foto: ' + err.message);
+                    setIsProcessingImage(false);
+                    return;
+                }
+                setIsProcessingImage(false);
+            } else {
+                finalUrl = imageUrlInput.trim();
+                if (!finalUrl) {
+                    setInlineUploadError('Silakan masukkan link URL gambar yang valid.');
+                    return;
+                }
+            }
+
+            // Cari penanda visual target
+            const marker = editorRef.current?.querySelector('#warta-insert-target');
+
+            // Susun elemen figure profesional
+            const figure = document.createElement('figure');
+            figure.setAttribute('data-warta-image', 'true');
+            figure.setAttribute('contenteditable', 'false');
+
+            let alignClasses = 'my-6 mx-auto block text-center max-w-full clear-both';
+            let imgClasses = 'rounded-2xl shadow-md max-w-full h-auto mx-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+
+            if (imageAlignment === 'left') {
+                alignClasses = 'my-4 float-left mr-6 mb-4 max-w-[48%] text-left clear-left';
+                imgClasses = 'rounded-xl shadow-md max-w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+            } else if (imageAlignment === 'right') {
+                alignClasses = 'my-4 float-right ml-6 mb-4 max-w-[48%] text-right clear-right';
+                imgClasses = 'rounded-xl shadow-md max-w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+            } else if (imageAlignment === 'full') {
+                alignClasses = 'my-6 w-full block text-center clear-both';
+                imgClasses = 'rounded-2xl shadow-md w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+            }
+
+            figure.className = alignClasses;
+
+            const img = document.createElement('img');
+            img.src = finalUrl;
+            img.alt = imageCaption || 'Foto Warta';
+            img.className = imgClasses;
+            img.style.maxHeight = '480px';
+            img.style.objectFit = 'contain';
+            img.setAttribute('loading', 'lazy');
+            figure.appendChild(img);
+
+            if (imageCaption && imageCaption.trim()) {
+                const captionEl = document.createElement('figcaption');
+                captionEl.className = 'text-xs text-center text-navy-500 dark:text-navy-400 mt-2 italic font-medium';
+                captionEl.setAttribute('contenteditable', 'true');
+                captionEl.textContent = imageCaption.trim();
+                figure.appendChild(captionEl);
+            }
+
+            if (marker && marker.parentNode) {
+                marker.parentNode.replaceChild(figure, marker);
+            } else if (editorRef.current) {
+                editorRef.current.appendChild(figure);
+            }
+
+            // Tambahkan baris kosong setelah gambar agar bisa langsung lanjut mengetik
+            const p = document.createElement('p');
+            p.innerHTML = '<br>';
+            if (figure.parentNode) {
+                figure.parentNode.insertBefore(p, figure.nextSibling);
+            }
+
+            setShowImageModal(false);
+            handleInput();
+
+            // Efek highlight emas & scroll otomatis
+            setTimeout(() => {
+                figure.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                figure.classList.add('ring-4', 'ring-gold-400', 'ring-offset-2');
+                setTimeout(() => {
+                    figure.classList.remove('ring-4', 'ring-gold-400', 'ring-offset-2');
+                }, 2500);
+            }, 50);
+        };
+
+        const handlePaste = async (e) => {
+            const items = e.clipboardData?.items;
+            if (items) {
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) {
+                        e.preventDefault();
+                        const file = items[i].getAsFile();
+                        if (file) {
+                            openImageModal();
+                            setSelectedFileObj(file);
+                            setSelectedFilePreview(URL.createObjectURL(file));
+                            setImageTab('upload');
+                        }
+                        break;
+                    }
+                }
+            }
+        };
+
+        const handleDrop = async (e) => {
+            const files = e.dataTransfer?.files;
+            if (files && files.length > 0 && files[0].type.startsWith('image/')) {
+                e.preventDefault();
+                const file = files[0];
+                openImageModal();
+                setSelectedFileObj(file);
+                setSelectedFilePreview(URL.createObjectURL(file));
+                setImageTab('upload');
+            }
+        };
+
         return (
-            <div className="border border-navy-200 rounded-lg overflow-hidden bg-white">
-                <div className="flex flex-wrap gap-1 p-2 bg-navy-50 border-b border-navy-100">
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('bold'); }} className="p-1.5 hover:bg-navy-200 rounded" title="Tebal"><Icon name="Bold" className="w-4 h-4" /></button>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('italic'); }} className="p-1.5 hover:bg-navy-200 rounded" title="Miring"><Icon name="Italic" className="w-4 h-4" /></button>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('underline'); }} className="p-1.5 hover:bg-navy-200 rounded" title="Garis Bawah"><Icon name="Underline" className="w-4 h-4" /></button>
-                    <div className="w-px h-5 bg-navy-300 mx-1 self-center"></div>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('formatBlock', '<h3>'); }} className="p-1 hover:bg-navy-200 rounded font-black text-xs px-2">H3</button>
-                    <div className="w-px h-5 bg-navy-300 mx-1 self-center"></div>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertUnorderedList'); }} className="p-1.5 hover:bg-navy-200 rounded"><Icon name="List" className="w-4 h-4" /></button>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertOrderedList'); }} className="p-1.5 hover:bg-navy-200 rounded"><Icon name="ListOrdered" className="w-4 h-4" /></button>
-                    <div className="w-px h-5 bg-navy-300 mx-1 self-center"></div>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); insertLink(); }} className="p-1.5 hover:bg-navy-200 rounded"><Icon name="LinkIcon" className="w-4 h-4" /></button>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); insertBreak(); }} className="p-1 hover:bg-navy-200 rounded font-bold text-xs px-2">BR</button>
+            <div className="border border-navy-200 dark:border-navy-700 rounded-xl overflow-hidden bg-white dark:bg-navy-900 shadow-sm relative">
+                {/* Main Toolbar */}
+                <div className="flex flex-wrap items-center gap-1 p-2 bg-navy-50 dark:bg-navy-800 border-b border-navy-100 dark:border-navy-700/60">
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('bold'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Tebal (Bold)"><Icon name="Bold" className="w-4 h-4" /></button>
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('italic'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Miring (Italic)"><Icon name="Italic" className="w-4 h-4" /></button>
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('underline'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Garis Bawah (Underline)"><Icon name="Underline" className="w-4 h-4" /></button>
+                    <div className="w-px h-5 bg-navy-300 dark:bg-navy-700 mx-1 self-center"></div>
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('formatBlock', '<h3>'); }} className="p-1 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-800 dark:text-gold-400 rounded font-black text-xs px-2 transition" title="Subjudul (H3)">H3</button>
+                    <div className="w-px h-5 bg-navy-300 dark:bg-navy-700 mx-1 self-center"></div>
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertUnorderedList'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Daftar Poin (Bullet List)"><Icon name="List" className="w-4 h-4" /></button>
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertOrderedList'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Daftar Nomor (Numbered List)"><Icon name="ListOrdered" className="w-4 h-4" /></button>
+                    <div className="w-px h-5 bg-navy-300 dark:bg-navy-700 mx-1 self-center"></div>
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); insertLink(); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Sisipkan Tautan (Link)"><Icon name="LinkIcon" className="w-4 h-4" /></button>
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); insertBreak(); }} className="p-1 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-800 dark:text-navy-200 rounded font-bold text-xs px-2 transition" title="Garis Baru (Line Break)">BR</button>
+                    <div className="w-px h-5 bg-navy-300 dark:bg-navy-700 mx-1 self-center"></div>
+                    {allowImage && (
+                        <button
+                            type="button"
+                            onClick={openImageModal}
+                            className="p-1.5 px-2.5 bg-gold-400/20 hover:bg-gold-400/30 text-gold-700 dark:text-gold-300 border border-gold-400/40 rounded-lg flex items-center gap-1.5 font-extrabold text-xs transition shadow-sm ml-auto sm:ml-0"
+                            title="Sisipkan Gambar di Posisi Kursor Tulisan"
+                        >
+                            <Icon name="Image" className="w-4 h-4 text-gold-600 dark:text-gold-400" />
+                            <span>+ Sisipkan Gambar</span>
+                        </button>
+                    )}
                 </div>
+
+                {/* Sub-Toolbar Konteks: Format Gambar Terpilih */}
+                {selectedFigure && (
+                    <div className="flex flex-wrap items-center justify-between gap-2 p-2 px-3 bg-amber-50/90 dark:bg-navy-800/90 border-b border-gold-300/50 dark:border-navy-700 text-xs animate-fade-in">
+                        <div className="flex items-center gap-1.5 font-extrabold text-navy-900 dark:text-gold-400">
+                            <Icon name="Image" className="w-3.5 h-3.5 text-gold-500" />
+                            <span>Format Gambar Terpilih:</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <button
+                                type="button"
+                                onClick={() => setFigureAlignment(selectedFigure, 'center')}
+                                className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-[11px] font-bold hover:bg-gold-50 text-navy-800 dark:text-navy-200 shadow-xs"
+                                title="Rata Tengah"
+                            >
+                                ↔ Tengah
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setFigureAlignment(selectedFigure, 'left')}
+                                className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-[11px] font-bold hover:bg-gold-50 text-navy-800 dark:text-navy-200 shadow-xs"
+                                title="Rata Kiri"
+                            >
+                                ⬅ Kiri
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setFigureAlignment(selectedFigure, 'right')}
+                                className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-[11px] font-bold hover:bg-gold-50 text-navy-800 dark:text-navy-200 shadow-xs"
+                                title="Rata Kanan"
+                            >
+                                ➡ Kanan
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setFigureAlignment(selectedFigure, 'full')}
+                                className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-[11px] font-bold hover:bg-gold-50 text-navy-800 dark:text-navy-200 shadow-xs"
+                                title="Lebar Penuh"
+                            >
+                                ⬛ Penuh
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => deleteFigure(selectedFigure)}
+                                className="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-[11px] font-bold transition ml-1"
+                                title="Hapus Gambar Ini"
+                            >
+                                <Icon name="Trash" className="w-3 h-3 inline mr-1" /> Hapus Foto
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* ContentEditable Canvas */}
                 <div
                     ref={editorRef}
                     contentEditable
                     onFocus={() => setIsFocused(true)}
                     onBlur={handleBlur}
-                    className="rich-text-editor p-3 min-h-[200px] max-h-[400px] overflow-y-auto focus:outline-none bg-white prose prose-sm max-w-none"
+                    onInput={handleInput}
+                    onClick={handleEditorClick}
+                    onPaste={handlePaste}
+                    onDrop={handleDrop}
+                    onDragOver={(e) => e.preventDefault()}
+                    className="rich-text-editor p-4 min-h-[240px] max-h-[500px] overflow-y-auto focus:outline-none bg-white dark:bg-navy-900 dark:text-white prose prose-sm max-w-none"
                     style={{ whiteSpace: 'pre-wrap' }}
                 />
+
+                {/* Modal Sisipkan Gambar (Dimount Langsung ke document.body via Portal agar 100% di Tengah Layar) */}
+                {showImageModal && createPortal(
+                    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 md:p-6 bg-navy-950/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+                        <div className="bg-white dark:bg-navy-900 border border-navy-100 dark:border-navy-800 rounded-2xl max-w-lg w-full p-5 md:p-6 shadow-2xl relative text-left my-auto">
+                            {/* Modal Header */}
+                            <div className="flex items-center justify-between border-b border-navy-100 dark:border-navy-800 pb-3 mb-4">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-9 h-9 rounded-xl bg-gold-500/10 text-gold-500 flex items-center justify-center font-bold">
+                                        <Icon name="Image" className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-extrabold text-navy-900 dark:text-gold-400 text-base">Sisipkan Gambar ke Isi Warta</h3>
+                                        <p className="text-[11px] text-navy-500 dark:text-navy-400">Gambar akan muncul tepat pada posisi kursor tulisan yang telah ditandai</p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={closeImageModal}
+                                    className="p-1.5 text-navy-400 hover:text-navy-600 dark:hover:text-navy-200 rounded-lg hover:bg-navy-100 dark:hover:bg-navy-800 transition"
+                                >
+                                    <Icon name="X" className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            {/* Mode Tab: Upload vs URL */}
+                            <div className="flex rounded-xl bg-navy-100 dark:bg-navy-800 p-1 mb-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setImageTab('upload')}
+                                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 ${imageTab === 'upload' ? 'bg-white dark:bg-navy-900 text-navy-900 dark:text-gold-400 shadow-sm' : 'text-navy-600 dark:text-navy-300'}`}
+                                >
+                                    <Icon name="Upload" className="w-3.5 h-3.5" /> Unggah Foto Perangkat
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setImageTab('url')}
+                                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 ${imageTab === 'url' ? 'bg-white dark:bg-navy-900 text-navy-900 dark:text-gold-400 shadow-sm' : 'text-navy-600 dark:text-navy-300'}`}
+                                >
+                                    <Icon name="LinkIcon" className="w-3.5 h-3.5" /> Masukkan Link (URL)
+                                </button>
+                            </div>
+
+                            {/* Upload Area */}
+                            {imageTab === 'upload' ? (
+                                <div className="mb-4">
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                setSelectedFileObj(file);
+                                                setSelectedFilePreview(URL.createObjectURL(file));
+                                            }
+                                        }}
+                                    />
+                                    {selectedFilePreview ? (
+                                        <div className="relative border border-navy-200 dark:border-navy-700 rounded-xl p-3 bg-navy-50/50 dark:bg-navy-950 text-center">
+                                            <img src={selectedFilePreview} alt="Preview" className="max-h-48 mx-auto rounded-lg object-contain shadow-sm" />
+                                            <div className="mt-2.5 flex items-center justify-between text-xs text-navy-500 dark:text-navy-400 px-2">
+                                                <span className="truncate max-w-[200px] font-medium">{selectedFileObj?.name}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    className="text-gold-600 hover:text-gold-700 dark:text-gold-400 font-bold underline"
+                                                >
+                                                    Ganti Foto
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="border-2 border-dashed border-navy-300 dark:border-navy-700 hover:border-gold-500 rounded-xl p-7 text-center cursor-pointer transition hover:bg-gold-50/20 dark:hover:bg-navy-800/50"
+                                        >
+                                            <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-500 flex items-center justify-center mx-auto mb-2.5">
+                                                <Icon name="Upload" className="w-6 h-6" />
+                                            </div>
+                                            <p className="text-xs font-bold text-navy-800 dark:text-navy-200 mb-1">Klik untuk Memilih Foto dari HP atau Laptop</p>
+                                            <p className="text-[11px] text-navy-400">Mendukung format JPG, PNG, atau WebP (Otomatis dikompres)</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="mb-4">
+                                    <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1.5">URL Gambar Eksternal</label>
+                                    <input
+                                        type="url"
+                                        value={imageUrlInput}
+                                        onChange={(e) => setImageUrlInput(e.target.value)}
+                                        placeholder="https://contoh.com/foto-kegiatan.jpg"
+                                        className="w-full p-2.5 border border-navy-200 dark:border-navy-700 rounded-xl text-xs bg-navy-50/50 dark:bg-navy-950 dark:text-white focus:border-gold-500 outline-none"
+                                    />
+                                    {imageUrlInput && (
+                                        <div className="mt-2 p-2 border border-navy-100 dark:border-navy-800 rounded-lg text-center bg-navy-50/30">
+                                            <img src={imageUrlInput} alt="Preview" className="max-h-36 mx-auto rounded object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Caption Field */}
+                            <div className="mb-4">
+                                <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1">
+                                    Keterangan / Takarir Foto <span className="text-navy-400 font-normal">(Opsional)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={imageCaption}
+                                    onChange={(e) => setImageCaption(e.target.value)}
+                                    placeholder="Contoh: Suasana ibadah Sabat di GMAHK Pisgah"
+                                    className="w-full p-2.5 border border-navy-200 dark:border-navy-700 rounded-xl text-xs bg-navy-50/50 dark:bg-navy-950 dark:text-white focus:border-gold-500 outline-none"
+                                />
+                            </div>
+
+                            {/* Alignment Options */}
+                            <div className="mb-5">
+                                <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1.5">
+                                    Tata Letak / Posisi Gambar
+                                </label>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {[
+                                        { id: 'center', label: '↔ Tengah' },
+                                        { id: 'left', label: '⬅ Kiri' },
+                                        { id: 'right', label: '➡ Kanan' },
+                                        { id: 'full', label: '⬛ Penuh' }
+                                    ].map((opt) => (
+                                        <button
+                                            key={opt.id}
+                                            type="button"
+                                            onClick={() => setImageAlignment(opt.id)}
+                                            className={`py-2 px-2 rounded-xl text-xs font-bold border transition text-center ${imageAlignment === opt.id ? 'bg-gold-500 text-navy-950 border-gold-500 shadow-sm' : 'border-navy-200 dark:border-navy-700 text-navy-600 dark:text-navy-400 hover:bg-navy-50 dark:hover:bg-navy-800'}`}
+                                        >
+                                            {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {inlineUploadError && (
+                                <p className="text-xs text-red-500 mb-3 font-semibold">{inlineUploadError}</p>
+                            )}
+
+                            {/* Modal Actions */}
+                            <div className="flex items-center justify-end gap-2 pt-3 border-t border-navy-100 dark:border-navy-800">
+                                <button
+                                    type="button"
+                                    onClick={closeImageModal}
+                                    className="px-4 py-2 rounded-xl text-xs font-bold text-navy-600 dark:text-navy-300 hover:bg-navy-100 dark:hover:bg-navy-800 transition"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleConfirmInsert}
+                                    disabled={isProcessingImage}
+                                    className="px-5 py-2 rounded-xl text-xs font-bold bg-navy-900 text-gold-400 hover:bg-navy-800 dark:bg-gold-500 dark:text-navy-950 dark:hover:bg-gold-400 transition shadow-sm flex items-center gap-1.5 disabled:opacity-50"
+                                >
+                                    {isProcessingImage ? (
+                                        <>
+                                            <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                            <span>Memproses Foto...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Icon name="Check" className="w-3.5 h-3.5" />
+                                            <span>Sisipkan ke Tulisan</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>,
+                    document.body
+                )}
             </div>
         );
     });
@@ -5627,10 +7437,22 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                 canvas.width = width;
                                 canvas.height = height;
                                 const ctx = canvas.getContext('2d');
+                                ctx.clearRect(0, 0, width, height);
                                 ctx.drawImage(img, 0, 0, width, height);
 
-                                // Gunakan quality 0.85 untuk hasil lebih baik (default browser 0.92)
-                                imageData = canvas.toDataURL('image/jpeg', 0.85);
+                                // Deteksi transparansi berkas (PNG / WebP / GIF)
+                                const isTrans = file.type === 'image/png' || file.type === 'image/webp' || file.name.toLowerCase().endsWith('.png');
+                                let hasAlpha = false;
+                                if (isTrans) {
+                                    try {
+                                        const pData = ctx.getImageData(0, 0, width, height).data;
+                                        for (let j = 3; j < pData.length; j += 16) {
+                                            if (pData[j] < 250) { hasAlpha = true; break; }
+                                        }
+                                    } catch (e) { hasAlpha = isTrans; }
+                                }
+
+                                imageData = hasAlpha ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', 0.85);
 
                                 uploadToGAS(imageData);
                             };
@@ -5827,16 +7649,58 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         setWartaCurrentPage(1);
     }, [daftarWarta]);
 
-    // Fungsi simpan warta// 
+    const handleRemoveWartaImage = (indexToRemove) => {
+        setWartaGambarList(prev => prev.filter((_, idx) => idx !== indexToRemove));
+    };
+
+    const handleRemoveEditWartaImage = (indexToRemove) => {
+        setEditWartaGambarList(prev => prev.filter((_, idx) => idx !== indexToRemove));
+    };
+
+    // Fungsi upload gambar inline langsung ke Google Drive
+    const handleUploadInlineImage = async (base64Data, filename) => {
+        try {
+            const upRes = await fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'uploadImageToDrive',
+                    password: adminToken,
+                    folderId: null,
+                    title: `WartaInline_${(filename || 'gambar').replace(/[^a-zA-Z0-9]/g, '_').substring(0, 25)}_${Date.now()}`,
+                    imageBase64: base64Data
+                })
+            });
+            const upData = await upRes.json();
+            if (upData && upData.success && upData.url) {
+                return upData.url;
+            }
+        } catch (e) {
+            console.warn("Upload inline image to Drive failed, fallback to base64:", e);
+        }
+        return base64Data;
+    };
+
+    // Fungsi simpan warta
     const handleWartaFormSubmit = async (e) => {
         e.preventDefault();
-        setIsSavingWarta(true);
 
         // Ambil nilai terbaru dari editor
         let latestHtml = wartaIsi;
         if (wartaEditorRef.current) {
             latestHtml = wartaEditorRef.current.getContent();
             setWartaIsi(latestHtml);
+        }
+
+        if (!wartaJudul.trim()) {
+            alert("Judul warta tidak boleh kosong!");
+            return;
+        }
+
+        setIsSavingWarta(true);
+
+        let finalJudul = wartaJudul.trim();
+        if (wartaKategori && !finalJudul.startsWith('[')) {
+            finalJudul = `[${wartaKategori}] ${finalJudul}`;
         }
 
         let finalGambarUrl = "";
@@ -5850,24 +7714,41 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         }
 
         try {
+            const publishTimestamp = (wartaPublishType === 'scheduled' && wartaScheduledDate)
+                ? new Date(wartaScheduledDate).toISOString()
+                : new Date().toISOString();
+
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
                 body: JSON.stringify({
                     action: 'saveWarta',
                     password: adminToken,
-                    judul: wartaJudul,
+                    judul: finalJudul,
                     isi: latestHtml,
                     gambarUrl: finalGambarUrl,
-                    penulis: wartaPenulis
+                    penulis: wartaPenulis || 'Redaksi Warta',
+                    tanggal: publishTimestamp
                 })
             });
             const result = await res.json();
             if (result.success) {
-                alert("Warta berhasil disimpan!");
+                alert(wartaPublishType === 'scheduled'
+                    ? `Warta berhasil dijadwalkan tayang pada ${formatIndoDateTime(publishTimestamp)}!`
+                    : "Warta berhasil dipublikasikan ke Portal Berita!");
+                try {
+                    localStorage.removeItem('PISGAH_WARTA_DRAFT_NEW');
+                } catch (e) { }
+                setDraftNewAvailable(null);
+                setAutosaveNewStatus('');
                 setWartaJudul('');
                 setWartaIsi('');
                 setWartaGambarList([]);
                 setWartaPenulis('');
+                setWartaPublishType('now');
+                setWartaScheduledDate('');
+                setWartaKategori('Warta Sabat');
+                setWartaViewMode('editor');
+                if (wartaEditorRef.current) wartaEditorRef.current.setContent('');
                 if (refreshWarta) refreshWarta();
             } else {
                 alert("Gagal menyimpan: " + (result.message || "Unknown error"));
@@ -5878,26 +7759,85 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         setIsSavingWarta(false);
     };
 
-    // Fingsi Update dan Delete Warta
+    // Fungsi Update dan Delete Warta
     const handleEditWarta = (warta) => {
+        const info = parseWartaInfo(warta);
         setEditingWarta(warta);
-        setEditWartaJudul(warta.judul);
-        setEditWartaIsi(warta.isi);
-        setEditWartaPenulis(warta.penulis || '');
+
+        let initialKategori = info.category || 'Warta Sabat';
+        let initialJudul = info.cleanTitle || warta.judul || '';
+        let initialIsi = warta.isi || '';
+        let initialPenulis = warta.penulis || '';
+
+        const pubDate = new Date(warta.tanggal);
+        const isFuture = !isNaN(pubDate.getTime()) && pubDate.getTime() > Date.now();
+        setEditWartaPublishType(isFuture ? 'scheduled' : 'now');
+        if (isFuture) {
+            const pad = n => n < 10 ? '0' + n : n;
+            const y = pubDate.getFullYear();
+            const m = pad(pubDate.getMonth() + 1);
+            const d = pad(pubDate.getDate());
+            const h = pad(pubDate.getHours());
+            const min = pad(pubDate.getMinutes());
+            setEditWartaScheduledDate(`${y}-${m}-${d}T${h}:${min}`);
+        } else {
+            setEditWartaScheduledDate('');
+        }
+
+        try {
+            const rawDraft = localStorage.getItem('PISGAH_WARTA_DRAFT_EDIT_' + warta.rowIndex);
+            if (rawDraft) {
+                const parsed = JSON.parse(rawDraft);
+                if (parsed && (parsed.judul || parsed.isi)) {
+                    if (parsed.kategori) initialKategori = parsed.kategori;
+                    if (parsed.judul) initialJudul = parsed.judul;
+                    if (parsed.isi) initialIsi = parsed.isi;
+                    if (parsed.penulis) initialPenulis = parsed.penulis;
+                }
+            }
+        } catch (e) { }
+
+        setEditWartaKategori(initialKategori);
+        setEditWartaJudul(initialJudul);
+        setEditWartaIsi(initialIsi);
+        setEditWartaPenulis(initialPenulis);
         setEditWartaGambarList([]);
+        setEditWartaViewMode('editor');
         setEditWartaModal(true);
     };
+
+    // Lock scroll body saat modal edit warta (full 1 layar) terbuka
+    React.useEffect(() => {
+        if (editWartaModal) {
+            const originalOverflow = document.body.style.overflow;
+            document.body.style.overflow = 'hidden';
+            return () => {
+                document.body.style.overflow = originalOverflow;
+            };
+        }
+    }, [editWartaModal]);
 
     const handleUpdateWarta = async (e) => {
         e.preventDefault();
         if (!editingWarta) return;
-        setIsUpdatingWarta(true);
 
         // Ambil nilai terbaru dari editor
         let latestHtml = editWartaIsi;
         if (editWartaEditorRef.current) {
             latestHtml = editWartaEditorRef.current.getContent();
             setEditWartaIsi(latestHtml);
+        }
+
+        if (!editWartaJudul.trim()) {
+            alert("Judul warta tidak boleh kosong!");
+            return;
+        }
+
+        setIsUpdatingWarta(true);
+
+        let finalJudul = editWartaJudul.trim();
+        if (editWartaKategori && !finalJudul.startsWith('[')) {
+            finalJudul = `[${editWartaKategori}] ${finalJudul}`;
         }
 
         let finalGambarUrl = editingWarta.gambarUrl;
@@ -5911,23 +7851,38 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         }
 
         try {
+            const publishTimestamp = (editWartaPublishType === 'scheduled' && editWartaScheduledDate)
+                ? new Date(editWartaScheduledDate).toISOString()
+                : (editWartaPublishType === 'now' && !isWartaPublished(editingWarta.tanggal)
+                    ? new Date().toISOString()
+                    : (editingWarta.tanggal || new Date().toISOString()));
+
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
                 body: JSON.stringify({
                     action: 'updateWarta',
                     password: adminToken,
                     rowIndex: editingWarta.rowIndex,
-                    judul: editWartaJudul,
+                    judul: finalJudul,
                     isi: latestHtml,
                     gambarUrl: finalGambarUrl,
-                    penulis: editWartaPenulis
+                    penulis: editWartaPenulis || 'Redaksi Warta',
+                    tanggal: publishTimestamp
                 })
             });
             const result = await res.json();
             if (result.success) {
-                alert("Warta berhasil diperbarui!");
+                alert(editWartaPublishType === 'scheduled'
+                    ? `Warta berhasil dijadwalkan tayang pada ${formatIndoDateTime(publishTimestamp)}!`
+                    : "Warta berhasil diperbarui!");
+                try {
+                    localStorage.removeItem('PISGAH_WARTA_DRAFT_EDIT_' + editingWarta.rowIndex);
+                } catch (e) { }
+                setAutosaveEditStatus('');
                 setEditWartaModal(false);
                 setEditingWarta(null);
+                setEditWartaPublishType('now');
+                setEditWartaScheduledDate('');
                 if (refreshWarta) refreshWarta();
             } else {
                 alert("Gagal memperbarui: " + (result.message || "Unknown error"));
@@ -5936,6 +7891,34 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             alert("Terjadi kesalahan: " + err.message);
         }
         setIsUpdatingWarta(false);
+    };
+
+    const handlePublishNow = async (warta) => {
+        if (!window.confirm(`Tayangkan warta "${warta.judul}" sekarang juga agar langsung dapat dibaca oleh seluruh jemaat?`)) return;
+        try {
+            const res = await fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'updateWarta',
+                    password: adminToken,
+                    rowIndex: warta.rowIndex,
+                    judul: warta.judul,
+                    isi: warta.isi,
+                    gambarUrl: warta.gambarUrl,
+                    penulis: warta.penulis,
+                    tanggal: new Date().toISOString()
+                })
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert("Warta berhasil ditayangkan langsung!");
+                if (refreshWarta) refreshWarta();
+            } else {
+                alert("Gagal memperbarui: " + (result.message || "Unknown error"));
+            }
+        } catch (err) {
+            alert("Terjadi kesalahan: " + err.message);
+        }
     };
 
     const handleDeleteWarta = async (rowIndex, judul) => {
@@ -5961,32 +7944,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         }
     };
 
-    // Fungsi kompresi gambar otomatis sebelum diupload (Mencegah Limit Size Apps Script)//
-    const compressImage = (file, maxWidth = 1200) => {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    let width = img.width;
-                    let height = img.height;
-                    if (width > maxWidth) {
-                        height *= maxWidth / width;
-                        width = maxWidth;
-                    }
-                    const canvas = document.createElement('canvas');
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    // Kualitas 0.5 agar string Base64 jauh lebih pendek dan tidak terpotong oleh limit sel Google Sheets
-                    resolve(canvas.toDataURL('image/jpeg', 0.5));
-                };
-            };
-            reader.readAsDataURL(file);
-        });
-    };
+    // Kompresi gambar warta didelegasikan ke compressImage utama di atas yang menjaga transparansi PNG/WebP/SVG
 
     // Drag and Drop States
     const [draggedItem, setDraggedItem] = React.useState(null);
@@ -7025,9 +8983,21 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, width, height);
                 ctx.drawImage(img, 0, 0, width, height);
 
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                const isTrans = file.type === 'image/png' || file.type === 'image/webp' || file.name.toLowerCase().endsWith('.png');
+                let hasAlpha = false;
+                if (isTrans) {
+                    try {
+                        const d = ctx.getImageData(0, 0, width, height).data;
+                        for (let k = 3; k < d.length; k += 16) {
+                            if (d[k] < 250) { hasAlpha = true; break; }
+                        }
+                    } catch (e) { hasAlpha = isTrans; }
+                }
+
+                const dataUrl = hasAlpha ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', 0.7);
 
                 const updated = dataPejabat.map(p => p.id === id ? { ...p, img: dataUrl } : p);
                 setDataPejabat(updated);
@@ -7052,79 +9022,376 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
                 <div className={`p-4 md:p-6 ${adminTab === 'jadwal' ? 'bg-navy-50/30' : 'bg-white'}`}>
                 </div>
-                {/* Modal Edit Warta */}
-                {editWartaModal && (
-                    <div className="fixed inset-0 z-[100] flex justify-center bg-navy-900/60 px-4 backdrop-blur-md overflow-y-auto" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 4rem)', paddingBottom: '1rem' }}>
-                        <div className="glass-box rounded-[1.5rem] shadow-2xl p-6 md:p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto relative border border-navy-100/60 mt-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)' }}>
+                {/* Modal Edit Warta (Full 1 Layar Penuh via createPortal) */}
+                {editWartaModal && createPortal(
+                    <div className="fixed inset-0 z-[99999] bg-gray-50 dark:bg-[#0b1a30] text-navy-900 dark:text-gray-100 flex flex-col overflow-hidden animate-fade-in">
+                        {/* Header Bar Fullscreen Studio */}
+                        <header className="sticky top-0 z-30 bg-white/95 dark:bg-navy-900/95 backdrop-blur-md border-b border-navy-100 dark:border-navy-800 shadow-sm px-4 sm:px-6 md:px-8 py-3.5 flex items-center justify-between gap-3 shrink-0">
+                            <div className="flex items-center gap-3 min-w-0">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (window.confirm('Tutup editor warta? Perubahan yang belum disimpan akan hilang.')) {
+                                            try {
+                                                localStorage.removeItem('PISGAH_WARTA_DRAFT_EDIT_' + editingWarta.rowIndex);
+                                            } catch (e) { }
+                                            setAutosaveEditStatus('');
+                                            setEditWartaModal(false);
+                                            setEditingWarta(null);
+                                        }
+                                    }}
+                                    className="p-2 sm:px-3 sm:py-2 bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-xs shrink-0"
+                                >
+                                    <Icon name="ArrowLeft" className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Kembali / Batal</span>
+                                </button>
+                                <div className="h-6 w-px bg-navy-200 dark:bg-navy-700 hidden sm:block"></div>
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <h2 className="text-base sm:text-lg font-black text-navy-950 dark:text-gold-400 truncate">
+                                            Edit Warta & Berita
+                                        </h2>
+                                        <span className="hidden md:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gold-500/15 text-gold-600 dark:text-gold-300 border border-gold-400/30">
+                                            {editWartaKategori}
+                                        </span>
+                                    </div>
+                                    <p className="text-[11px] text-navy-400 dark:text-navy-500 truncate hidden md:block">
+                                        {editWartaJudul || 'Tanpa Judul'}
+                                    </p>
+                                </div>
+                            </div>
 
-                            {/* Tombol Close (absolut, tidak mengapung) */}
-                            <button
-                                onClick={() => setEditWartaModal(false)}
-                                className="absolute right-4 text-navy-400 hover:text-red-500 transition-colors bg-navy-50 w-8 h-8 rounded-full flex items-center justify-center font-bold z-20"
-                                style={{ top: '1.75rem' }}
-                            >
-                                ×
-                            </button>
-
-                            <h3 className="text-xl font-bold mb-4 pr-8">Edit Warta</h3>
-
-                            <form onSubmit={handleUpdateWarta}>
-                                <div className="mb-4">
-                                    <label className="block text-sm font-medium text-navy-700 mb-1">Judul Warta</label>
-                                    <input type="text" value={editWartaJudul} onChange={e => setEditWartaJudul(e.target.value)} required className="w-full px-4 py-2 border border-navy-300 rounded-lg" />
+                            {/* Actions: Mode Switcher & Simpan */}
+                            <div className="flex items-center gap-2 shrink-0">
+                                {autosaveEditStatus && (
+                                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold hidden md:flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 px-2.5 py-1 rounded-lg">
+                                        <Icon name="CheckCircle" className="w-3.5 h-3.5 text-emerald-500" /> {autosaveEditStatus}
+                                    </span>
+                                )}
+                                <div className="flex items-center bg-navy-50 dark:bg-navy-800 p-1 rounded-xl border border-navy-100 dark:border-navy-700/60 text-xs">
+                                    <button
+                                        type="button"
+                                        onClick={() => setEditWartaViewMode('editor')}
+                                        className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 ${editWartaViewMode === 'editor' ? 'bg-navy-900 text-gold-400 dark:bg-gold-500 dark:text-navy-950 shadow-sm' : 'text-navy-600 dark:text-navy-300 hover:text-navy-900'}`}
+                                    >
+                                        <Icon name="Edit" className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Editor</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (editWartaEditorRef.current) setEditWartaIsi(editWartaEditorRef.current.getContent());
+                                            setEditWartaViewMode('preview');
+                                        }}
+                                        className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 ${editWartaViewMode === 'preview' ? 'bg-navy-900 text-gold-400 dark:bg-gold-500 dark:text-navy-950 shadow-sm' : 'text-navy-600 dark:text-navy-300 hover:text-navy-900'}`}
+                                    >
+                                        <Icon name="Eye" className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Pratinjau</span>
+                                    </button>
                                 </div>
 
-                                <div className="mb-4">
-                                    <label className="block text-sm font-medium text-navy-700 mb-1">Isi Warta</label>
-                                    <RichTextEditor
-                                        ref={editWartaEditorRef}
-                                        initialValue={editWartaIsi}
-                                        onChange={(html) => setEditWartaIsi(html)}
-                                        placeholder="Edit isi warta di sini..."
-                                    />
-                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleUpdateWarta}
+                                    disabled={isUpdatingWarta}
+                                    className="bg-navy-900 hover:bg-navy-800 dark:bg-gold-500 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950 font-bold px-4 py-2 rounded-xl text-xs sm:text-sm transition flex items-center gap-2 shadow-md disabled:opacity-50"
+                                >
+                                    {isUpdatingWarta ? (
+                                        <>
+                                            <Icon name="RefreshCw" className="w-4 h-4 animate-spin" />
+                                            <span>Menyimpan...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Icon name="Check" className="w-4 h-4" />
+                                            <span>Simpan Perubahan</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </header>
 
-                                <div className="mb-5">
-                                    <label className="block text-sm font-medium text-navy-700 mb-1">Penulis</label>
-                                    <input type="text" value={editWartaPenulis} onChange={e => setEditWartaPenulis(e.target.value)} className="w-full px-4 py-2 border border-navy-300 rounded-lg" />
-                                </div>
-
-                                <div className="mb-6">
-                                    <label className="block text-sm font-medium text-navy-700 mb-1">Ganti Gambar (Opsional)</label>
-                                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-navy-300 border-dashed rounded-lg">
-                                        <div className="space-y-1 text-center">
-                                            <div className="flex text-sm text-navy-600 justify-center">
-                                                <label className="relative cursor-pointer bg-white rounded-md font-medium text-gold-600 hover:text-navy-800">
-                                                    <span>Pilih file gambar baru</span>
-                                                    <input type="file" accept="image/*" multiple className="sr-only" onChange={(e) => setEditWartaGambarList(Array.from(e.target.files))} />
-                                                </label>
+                        {/* Scrollable Form Body */}
+                        <div className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 py-6">
+                            <div className="max-w-5xl mx-auto w-full pb-20">
+                                {editWartaViewMode === 'editor' ? (
+                                    <form onSubmit={handleUpdateWarta} className="space-y-6">
+                                        {/* Kategori Selector */}
+                                        <div className="bg-white dark:bg-navy-900 rounded-2xl p-5 border border-navy-100 dark:border-navy-800 shadow-sm">
+                                            <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-2.5">
+                                                Kategori Berita <span className="text-red-500">*</span>
+                                            </label>
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                                                {WARTA_CATEGORIES.map(cat => {
+                                                    const isSelected = editWartaKategori === cat;
+                                                    return (
+                                                        <button
+                                                            key={cat}
+                                                            type="button"
+                                                            onClick={() => setEditWartaKategori(cat)}
+                                                            className={`px-3 py-2.5 rounded-xl text-xs font-bold transition border text-center flex items-center justify-center gap-1.5 ${isSelected ? 'bg-navy-900 text-gold-400 border-navy-900 dark:bg-gold-500 dark:text-navy-950 dark:border-gold-500 shadow-sm scale-102' : 'bg-navy-50/50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-navy-300 border-navy-200/60 dark:border-navy-700'}`}
+                                                        >
+                                                            <span>{cat}</span>
+                                                        </button>
+                                                    );
+                                                })}
                                             </div>
-                                            <p className="text-xs text-navy-500">PNG, JPG up to 10MB. (Maksimal 3 Gambar)</p>
-                                            {editWartaGambarList.length > 0 && <p className="text-sm font-semibold text-gold-600 mt-2">{editWartaGambarList.length} gambar baru dipilih</p>}
+                                        </div>
+
+                                        {/* Judul & Penulis Card */}
+                                        <div className="bg-white dark:bg-navy-900 rounded-2xl p-5 sm:p-6 border border-navy-100 dark:border-navy-800 shadow-sm space-y-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1.5">
+                                                    Judul Warta / Berita <span className="text-red-500">*</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={editWartaJudul}
+                                                    onChange={e => setEditWartaJudul(e.target.value)}
+                                                    required
+                                                    placeholder="Judul warta..."
+                                                    className="w-full px-4 py-3 border border-navy-300 dark:border-navy-700 bg-white dark:bg-navy-950 text-navy-900 dark:text-white rounded-xl focus:ring-2 focus:ring-gold-500 text-base font-bold shadow-xs"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <div className="flex items-center justify-between mb-1.5">
+                                                    <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider">
+                                                        Penulis / Redaksi
+                                                    </label>
+                                                    <span className="text-[11px] text-navy-400">Pilih preset atau ketik manual:</span>
+                                                </div>
+                                                <div className="flex flex-wrap gap-1.5 mb-2.5">
+                                                    {['Redaksi Warta', 'Pendeta Jemaat', 'Ketua Jemaat', 'Sekretariat Jemaat', 'Dep. Komunikasi', 'Departemen Pemuda'].map(tag => (
+                                                        <button
+                                                            key={tag}
+                                                            type="button"
+                                                            onClick={() => setEditWartaPenulis(tag)}
+                                                            className={`text-[11px] px-3 py-1 rounded-lg transition font-medium border ${editWartaPenulis === tag ? 'bg-gold-500 text-navy-950 border-gold-500 font-bold' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-300 border-navy-200/60 dark:border-navy-700'}`}
+                                                        >
+                                                            + {tag}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    value={editWartaPenulis}
+                                                    onChange={e => setEditWartaPenulis(e.target.value)}
+                                                    placeholder="Nama penulis atau redaksi..."
+                                                    className="w-full px-4 py-2.5 border border-navy-300 dark:border-navy-700 bg-white dark:bg-navy-950 text-navy-900 dark:text-white rounded-xl text-sm"
+                                                />
+                                            </div>
+
+                                            {/* Waktu Publikasi (Langsung vs Terjadwal) */}
+                                            <div className="bg-navy-50/70 dark:bg-navy-950/60 p-4 rounded-xl border border-navy-200/60 dark:border-navy-800 space-y-2.5">
+                                                <div className="flex items-center justify-between">
+                                                    <label className="text-xs font-bold text-navy-800 dark:text-navy-200 uppercase tracking-wider flex items-center gap-1.5">
+                                                        <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-500" />
+                                                        Jadwal Publikasi
+                                                    </label>
+                                                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${editWartaPublishType === 'now' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 animate-pulse'}`}>
+                                                        {editWartaPublishType === 'now' ? '🟢 Terbit Langsung' : '🟡 Terjadwal Otomatis'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-navy-800 dark:text-navy-200">
+                                                    <label className="flex items-center gap-2 cursor-pointer">
+                                                        <input
+                                                            type="radio"
+                                                            name="editWartaPublishType"
+                                                            value="now"
+                                                            checked={editWartaPublishType === 'now'}
+                                                            onChange={() => setEditWartaPublishType('now')}
+                                                            className="text-gold-500 focus:ring-gold-500"
+                                                        />
+                                                        <span>Publikasikan Sekarang</span>
+                                                    </label>
+                                                    <label className="flex items-center gap-2 cursor-pointer">
+                                                        <input
+                                                            type="radio"
+                                                            name="editWartaPublishType"
+                                                            value="scheduled"
+                                                            checked={editWartaPublishType === 'scheduled'}
+                                                            onChange={() => {
+                                                                setEditWartaPublishType('scheduled');
+                                                                if (!editWartaScheduledDate) {
+                                                                    const tm = new Date();
+                                                                    tm.setDate(tm.getDate() + 1);
+                                                                    tm.setHours(8, 0, 0, 0);
+                                                                    const pad = n => n < 10 ? '0' + n : n;
+                                                                    setEditWartaScheduledDate(`${tm.getFullYear()}-${pad(tm.getMonth() + 1)}-${pad(tm.getDate())}T08:00`);
+                                                                }
+                                                            }}
+                                                            className="text-gold-500 focus:ring-gold-500"
+                                                        />
+                                                        <span>Jadwalkan Waktu Tayang</span>
+                                                    </label>
+                                                </div>
+                                                {editWartaPublishType === 'scheduled' && (
+                                                    <div className="pt-2.5 border-t border-navy-200/50 dark:border-navy-800/80 flex flex-col sm:flex-row sm:items-center gap-2">
+                                                        <span className="text-xs text-navy-600 dark:text-navy-400 font-medium shrink-0">Waktu Tayang:</span>
+                                                        <input
+                                                            type="datetime-local"
+                                                            value={editWartaScheduledDate}
+                                                            onChange={e => setEditWartaScheduledDate(e.target.value)}
+                                                            className="px-3 py-1.5 border border-navy-300 dark:border-navy-700 rounded-lg text-xs bg-white dark:bg-navy-900 text-navy-900 dark:text-white font-bold"
+                                                        />
+                                                        <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                                                            * Warta akan otomatis tayang saat jam ini tiba.
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Foto Dokumentasi & Sampul Card */}
+                                        <div className="bg-white dark:bg-navy-900 rounded-2xl p-5 sm:p-6 border border-navy-100 dark:border-navy-800 shadow-sm space-y-4">
+                                            <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider">
+                                                Foto Sampul & Dokumentasi Berita
+                                            </label>
+
+                                            {/* Foto Saat Ini */}
+                                            {editingWarta?.gambarUrl && editWartaGambarList.length === 0 && (
+                                                <div>
+                                                    <p className="text-xs font-semibold text-navy-500 dark:text-navy-400 mb-2">Foto yang saat ini aktif:</p>
+                                                    <div className="flex flex-wrap gap-3">
+                                                        {parseGambarUrls(editingWarta.gambarUrl).map((url, i) => (
+                                                            <div key={i} className="relative h-24 w-36 rounded-xl overflow-hidden border-2 border-navy-200 dark:border-navy-700 bg-navy-950 shadow-sm">
+                                                                <img src={formatImageUrl(url)} className="h-full w-full object-cover" alt="current" referrerPolicy="no-referrer" />
+                                                                {i === 0 && (
+                                                                    <span className="absolute top-1.5 left-1.5 bg-gold-500 text-navy-950 font-black text-[9px] uppercase tracking-wider px-2 py-0.5 rounded shadow">
+                                                                        Sampul Utama
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Upload Foto Baru */}
+                                            <div className="p-5 border-2 border-dashed border-navy-300 dark:border-navy-700 rounded-2xl bg-navy-50/40 dark:bg-navy-950/40 text-center space-y-3">
+                                                <div className="w-10 h-10 rounded-full bg-gold-500/10 text-gold-500 flex items-center justify-center mx-auto">
+                                                    <Icon name="Upload" className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <label className="relative cursor-pointer bg-navy-900 hover:bg-navy-800 text-gold-400 px-5 py-2.5 rounded-xl font-bold text-xs inline-flex items-center gap-2 shadow-sm transition">
+                                                        <Icon name="Image" className="w-4 h-4" />
+                                                        <span>{editingWarta?.gambarUrl ? "Ganti Foto Warta (Pilih Baru)" : "Pilih Foto Berita"}</span>
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            multiple
+                                                            className="sr-only"
+                                                            onChange={(e) => setEditWartaGambarList(Array.from(e.target.files))}
+                                                        />
+                                                    </label>
+                                                </div>
+                                                <p className="text-xs text-navy-500 dark:text-navy-400">
+                                                    Mendukung PNG transparan (alpha channel tetap utuh), JPG, dan WebP hingga 5MB. Rekomendasi rasio 16:9 landscape. Foto pertama otomatis jadi foto sampul. Pilih foto baru akan menggantikan foto lama.
+                                                </p>
+
+                                                {editWartaGambarList.length > 0 && (
+                                                    <div className="pt-3 border-t border-navy-100 dark:border-navy-800/80">
+                                                        <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 text-left mb-2">
+                                                            {editWartaGambarList.length} Foto Baru Terpilih (Akan Menggantikan Foto Lama):
+                                                        </p>
+                                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 text-left">
+                                                            {editWartaGambarList.map((file, idx) => {
+                                                                const tempUrl = URL.createObjectURL(file);
+                                                                const sizeStr = file.size < 1024 * 1024 ? (file.size / 1024).toFixed(0) + ' KB' : (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+                                                                return (
+                                                                    <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border-2 border-navy-200 dark:border-navy-700 group bg-navy-950">
+                                                                        <img src={tempUrl} className="w-full h-full object-cover" alt="preview" />
+                                                                        {idx === 0 && (
+                                                                            <span className="absolute top-1.5 left-1.5 bg-gold-500 text-navy-950 font-black text-[9px] uppercase tracking-wider px-2 py-0.5 rounded shadow">
+                                                                                Sampul Baru
+                                                                            </span>
+                                                                        )}
+                                                                        <span className="absolute bottom-1.5 left-1.5 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded backdrop-blur-xs">
+                                                                            {sizeStr}
+                                                                        </span>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Rich Text Editor Card */}
+                                        <div className="bg-white dark:bg-navy-900 rounded-2xl p-5 sm:p-6 border border-navy-100 dark:border-navy-800 shadow-sm space-y-3">
+                                            <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider">
+                                                Isi Warta / Artikel Berita <span className="text-red-500">*</span>
+                                            </label>
+                                            <RichTextEditor
+                                                ref={editWartaEditorRef}
+                                                initialValue={editWartaIsi}
+                                                onChange={(html) => setEditWartaIsi(html)}
+                                                onUploadImage={handleUploadInlineImage}
+                                                placeholder="Tulis isi warta secara lengkap..."
+                                            />
+                                        </div>
+
+                                        {/* Bottom Action Footer */}
+                                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    if (window.confirm('Tutup editor warta? Perubahan yang belum disimpan akan hilang.')) {
+                                                        setEditWartaModal(false);
+                                                        setEditingWarta(null);
+                                                    }
+                                                }}
+                                                className="w-full sm:w-auto px-6 py-3 rounded-xl border border-navy-200 dark:border-navy-700 text-navy-700 dark:text-navy-300 hover:bg-navy-100 font-bold text-sm transition"
+                                            >
+                                                Batal
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                disabled={isUpdatingWarta}
+                                                className="w-full sm:w-auto bg-navy-900 hover:bg-navy-800 dark:bg-gold-500 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950 font-bold px-8 py-3 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2"
+                                            >
+                                                {isUpdatingWarta ? "Menyimpan Perubahan..." : "Simpan Perubahan Warta"}
+                                            </button>
+                                        </div>
+                                    </form>
+                                ) : (
+                                    /* Pratinjau Berita Warta */
+                                    <div className="bg-white dark:bg-navy-900 rounded-3xl p-6 sm:p-10 border border-navy-100 dark:border-navy-800 shadow-lg space-y-6">
+                                        <div className="flex items-center gap-2">
+                                            <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-gold-500 text-navy-950 shadow-sm">
+                                                {editWartaKategori}
+                                            </span>
+                                            <span className="text-xs text-navy-400">
+                                                Pratinjau Tampilan Berita
+                                            </span>
+                                        </div>
+                                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-navy-950 dark:text-gold-400 leading-tight">
+                                            {editWartaJudul || 'Judul Warta'}
+                                        </h1>
+                                        <div className="flex items-center gap-3 text-xs text-navy-500 border-y border-navy-100 dark:border-navy-800 py-3">
+                                            <span className="font-bold text-navy-800 dark:text-gold-300">{editWartaPenulis || 'Redaksi Warta'}</span>
+                                            <span>•</span>
+                                            <span>{formatIndoDate(editingWarta?.tanggal || new Date().toISOString())}</span>
+                                        </div>
+                                        <div
+                                            className="prose max-w-none text-navy-800 dark:text-navy-100 warta-content pt-2"
+                                            dangerouslySetInnerHTML={{ __html: editWartaIsi || '<p class="text-navy-400 italic">Belum ada konten warta...</p>' }}
+                                        />
+                                        <div className="pt-6 border-t border-navy-100 dark:border-navy-800 flex justify-end">
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditWartaViewMode('editor')}
+                                                className="px-6 py-2.5 bg-navy-900 hover:bg-navy-800 text-gold-400 rounded-xl font-bold text-xs transition shadow-sm flex items-center gap-1.5"
+                                            >
+                                                <Icon name="Edit" className="w-3.5 h-3.5" /> Kembali ke Mode Edit
+                                            </button>
                                         </div>
                                     </div>
-                                    {editingWarta?.gambarUrl && editWartaGambarList.length === 0 && (
-                                        <div className="mt-2">
-                                            <p className="text-xs text-navy-500">Gambar saat ini ({parseGambarUrls(editingWarta.gambarUrl).length}):</p>
-                                            <div className="flex justify-center gap-2 mt-1 overflow-x-auto hide-scrollbar max-w-[200px]">
-                                                {parseGambarUrls(editingWarta.gambarUrl).map((url, i) => (
-                                                    <img key={i} src={formatImageUrl(url)} className="h-16 w-auto object-cover rounded" alt="current" referrerPolicy="no-referrer" />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Tombol Submit - tidak mengapung, hanya margin atas */}
-                                <button type="submit" disabled={isUpdatingWarta} className="w-full bg-navy-800 hover:bg-navy-700 text-gold-400 font-bold py-3 px-4 rounded-lg transition-colors mt-4">
-                                    {isUpdatingWarta ? "Menyimpan..." : "Simpan Perubahan"}
-                                </button>
-
-                                {/* Padding bawah ekstra agar melewati menu navigasi */}
-                                <div className="h-4"></div>
-                            </form>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    </div>,
+                    document.body
                 )}
 
                 {adminTab === 'jadwal' && (
@@ -7382,113 +9649,548 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                             </button>
                         </div>
 
-                        {/* Konten Input Baru */}
+                        {/* Konten Input Baru - Redaksi Studio */}
                         {wartaSubTab === 'input' && (
-                            <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6 mb-24">
-                                <h1 className="text-xl font-bold text-navy-800 mb-4 border-b pb-2">Input Warta Baru</h1>
-                                <p className="text-navy-500 mb-4">Silahkan isi konten warta di bawah ini.</p>
-                                <form onSubmit={handleWartaFormSubmit}>
-                                    <div className="mb-5">
-                                        <label className="block text-sm font-medium text-navy-700 mb-1">Judul Warta</label>
-                                        <input type="text" value={wartaJudul} onChange={e => setWartaJudul(e.target.value)} required className="w-full px-4 py-2 border border-navy-300 rounded-lg focus:ring-2 focus:ring-navy-500" />
-                                    </div>
-                                    <div className="mb-5">
-                                        <label className="block text-sm font-medium text-navy-700 mb-1">Penulis</label>
-                                        <input type="text" value={wartaPenulis} onChange={e => setWartaPenulis(e.target.value)} className="w-full px-4 py-2 border border-navy-300 rounded-lg" />
-                                    </div>
-                                    <div className="mb-5">
-                                        <label className="block text-sm font-medium text-navy-700 mb-1">Isi Warta</label>
-                                        <RichTextEditor
-                                            ref={wartaEditorRef}
-                                            initialValue={wartaIsi}
-                                            onChange={(html) => setWartaIsi(html)}
-                                            placeholder="Tulis isi warta di sini..."
-                                        />
-                                    </div>
-                                    <div className="mb-8">
-                                        <label className="block text-sm font-medium text-navy-700 mb-1">Unggah Gambar (Opsional)</label>
-                                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-navy-300 border-dashed rounded-lg">
-                                            <div className="space-y-1 text-center">
-                                                <div className="flex text-sm text-navy-600 justify-center">
-                                                    <label className="relative cursor-pointer bg-white rounded-md font-medium text-gold-400 hover:text-navy-800">
-                                                        <span>Pilih file gambar</span>
-                                                        <input type="file" accept="image/*" multiple className="sr-only" onChange={(e) => setWartaGambarList(Array.from(e.target.files))} />
-                                                    </label>
-                                                </div>
-                                                <p className="text-xs text-navy-500">PNG, JPG up to 10MB. (Maksimal 3 Gambar agar tidak rusak)</p>
-                                                {wartaGambarList.length > 0 && <p className="text-sm font-semibold text-navy-600 mt-2">{wartaGambarList.length} gambar dipilih</p>}
+                            <div className="glass-box rounded-[1.75rem] shadow-sm border border-navy-100/60 p-5 md:p-8 mb-24 bg-white dark:bg-navy-900">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-navy-100 dark:border-navy-800 pb-5 mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-gold-500/10 text-gold-500 flex items-center justify-center font-bold">
+                                            <Icon name="Warta" className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <h1 className="text-xl md:text-2xl font-black text-navy-900 dark:text-gold-400">Ruang Redaksi Warta</h1>
+                                                {autosaveNewStatus && (
+                                                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 px-2 py-0.5 rounded-md">
+                                                        <Icon name="CheckCircle" className="w-3 h-3 text-emerald-500" /> {autosaveNewStatus}
+                                                    </span>
+                                                )}
                                             </div>
+                                            <p className="text-xs text-navy-500 dark:text-navy-400">Tulis, atur kategori, dan publikasikan warta jemaat dengan standar portal berita.</p>
                                         </div>
                                     </div>
-                                    <button type="submit" disabled={isSavingWarta} className="w-full bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md hover:shadow-lg font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                                        {isSavingWarta ? "Menyimpan..." : "Simpan Warta"}
-                                    </button>
-                                </form>
+
+                                    {/* Mode Switcher: Tulis vs Pratinjau */}
+                                    <div className="flex items-center bg-navy-50 dark:bg-navy-800 p-1 rounded-xl border border-navy-100 dark:border-navy-700/60 self-start sm:self-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => setWartaViewMode('editor')}
+                                            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${wartaViewMode === 'editor' ? 'bg-navy-900 text-gold-400 dark:bg-gold-500 dark:text-navy-950 shadow-sm' : 'text-navy-600 dark:text-navy-300 hover:text-navy-900'}`}
+                                        >
+                                            <Icon name="Edit" className="w-3.5 h-3.5" /> Editor
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (wartaEditorRef.current) setWartaIsi(wartaEditorRef.current.getContent());
+                                                setWartaViewMode('preview');
+                                            }}
+                                            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${wartaViewMode === 'preview' ? 'bg-navy-900 text-gold-400 dark:bg-gold-500 dark:text-navy-950 shadow-sm' : 'text-navy-600 dark:text-navy-300 hover:text-navy-900'}`}
+                                        >
+                                            <Icon name="Eye" className="w-3.5 h-3.5" /> Pratinjau Berita
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Banner Pemulihan Draft Otomatis */}
+                                {draftNewAvailable && (
+                                    <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                                        <div className="flex items-center gap-2.5">
+                                            <Icon name="Info" className="w-5 h-5 text-amber-500 shrink-0" />
+                                            <div>
+                                                <p className="font-bold text-amber-900 dark:text-amber-200">Ditemukan draft artikel tersimpan otomatis dari sesi sebelumnya</p>
+                                                <p className="text-[11px] text-amber-700 dark:text-amber-300">Judul: "{draftNewAvailable.judul || 'Tanpa Judul'}"</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 self-end sm:self-auto">
+                                            <button
+                                                type="button"
+                                                onClick={handleRestoreNewDraft}
+                                                className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold transition shadow-xs"
+                                            >
+                                                Pulihkan Draft
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={handleDiscardNewDraft}
+                                                className="px-3 py-1.5 bg-white dark:bg-navy-800 text-navy-600 dark:text-navy-300 hover:bg-navy-100 rounded-xl font-bold transition border border-navy-200 dark:border-navy-700"
+                                            >
+                                                Abaikan & Hapus
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {wartaViewMode === 'editor' ? (
+                                    <form onSubmit={handleWartaFormSubmit} className="space-y-6">
+                                        {/* Kategori Berita Pills */}
+                                        <div>
+                                            <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-2.5">
+                                                Kategori Berita <span className="text-red-500">*</span>
+                                            </label>
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                                                {WARTA_CATEGORIES.map(cat => {
+                                                    const isSelected = wartaKategori === cat;
+                                                    return (
+                                                        <button
+                                                            key={cat}
+                                                            type="button"
+                                                            onClick={() => setWartaKategori(cat)}
+                                                            className={`px-3 py-2.5 rounded-xl text-xs font-bold transition border text-center flex items-center justify-center gap-1.5 ${isSelected ? 'bg-navy-900 text-gold-400 border-navy-900 dark:bg-gold-500 dark:text-navy-950 dark:border-gold-500 shadow-sm scale-102' : 'bg-navy-50/50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-navy-300 border-navy-200/60 dark:border-navy-700'}`}
+                                                        >
+                                                            <span>{cat}</span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        {/* Judul Warta */}
+                                        <div>
+                                            <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1.5">
+                                                Judul Warta / Berita <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={wartaJudul}
+                                                onChange={e => setWartaJudul(e.target.value)}
+                                                required
+                                                placeholder="Contoh: Jadwal Kebaktian Sabat Raya & Perjamuan Kudus..."
+                                                className="w-full px-4 py-3 border border-navy-300 dark:border-navy-700 bg-white dark:bg-navy-950 text-navy-900 dark:text-white rounded-xl focus:ring-2 focus:ring-gold-500 text-sm font-semibold shadow-xs"
+                                            />
+                                        </div>
+
+                                        {/* Penulis / Redaksi dengan Presets */}
+                                        <div>
+                                            <div className="flex items-center justify-between mb-1.5">
+                                                <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider">
+                                                    Penulis / Redaksi
+                                                </label>
+                                                <span className="text-[11px] text-navy-400">Pilih preset atau ketik manual:</span>
+                                            </div>
+                                            <div className="flex flex-wrap gap-1.5 mb-2.5">
+                                                {['Redaksi Warta', 'Pendeta Jemaat', 'Ketua Jemaat', 'Sekretariat Jemaat', 'Dep. Komunikasi', 'Departemen Pemuda'].map(tag => (
+                                                    <button
+                                                        key={tag}
+                                                        type="button"
+                                                        onClick={() => setWartaPenulis(tag)}
+                                                        className={`text-[11px] px-3 py-1 rounded-lg transition font-medium border ${wartaPenulis === tag ? 'bg-gold-500 text-navy-950 border-gold-500 font-bold' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-300 border-navy-200/60 dark:border-navy-700'}`}
+                                                    >
+                                                        + {tag}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <input
+                                                type="text"
+                                                value={wartaPenulis}
+                                                onChange={e => setWartaPenulis(e.target.value)}
+                                                placeholder="Nama penulis atau redaksi..."
+                                                className="w-full px-4 py-2.5 border border-navy-300 dark:border-navy-700 bg-white dark:bg-navy-950 text-navy-900 dark:text-white rounded-xl text-sm"
+                                            />
+                                        </div>
+
+                                        {/* Waktu Publikasi (Langsung vs Terjadwal) */}
+                                        <div className="bg-navy-50/70 dark:bg-navy-950/60 p-4 rounded-xl border border-navy-200/60 dark:border-navy-800 space-y-2.5">
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-xs font-bold text-navy-800 dark:text-navy-200 uppercase tracking-wider flex items-center gap-1.5">
+                                                    <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-500" />
+                                                    Jadwal Publikasi
+                                                </label>
+                                                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${wartaPublishType === 'now' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 animate-pulse'}`}>
+                                                    {wartaPublishType === 'now' ? '🟢 Langsung Tayang' : '🟡 Terjadwal Otomatis'}
+                                                </span>
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-navy-800 dark:text-navy-200">
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <input
+                                                        type="radio"
+                                                        name="wartaPublishType"
+                                                        value="now"
+                                                        checked={wartaPublishType === 'now'}
+                                                        onChange={() => setWartaPublishType('now')}
+                                                        className="text-gold-500 focus:ring-gold-500"
+                                                    />
+                                                    <span>Publikasikan Sekarang</span>
+                                                </label>
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <input
+                                                        type="radio"
+                                                        name="wartaPublishType"
+                                                        value="scheduled"
+                                                        checked={wartaPublishType === 'scheduled'}
+                                                        onChange={() => {
+                                                            setWartaPublishType('scheduled');
+                                                            if (!wartaScheduledDate) {
+                                                                const tm = new Date();
+                                                                tm.setDate(tm.getDate() + 1);
+                                                                tm.setHours(8, 0, 0, 0);
+                                                                const pad = n => n < 10 ? '0' + n : n;
+                                                                setWartaScheduledDate(`${tm.getFullYear()}-${pad(tm.getMonth() + 1)}-${pad(tm.getDate())}T08:00`);
+                                                            }
+                                                        }}
+                                                        className="text-gold-500 focus:ring-gold-500"
+                                                    />
+                                                    <span>Jadwalkan Waktu Tayang</span>
+                                                </label>
+                                            </div>
+                                            {wartaPublishType === 'scheduled' && (
+                                                <div className="pt-2.5 border-t border-navy-200/50 dark:border-navy-800/80 flex flex-col sm:flex-row sm:items-center gap-2">
+                                                    <span className="text-xs text-navy-600 dark:text-navy-400 font-medium shrink-0">Waktu Tayang:</span>
+                                                    <input
+                                                        type="datetime-local"
+                                                        value={wartaScheduledDate}
+                                                        onChange={e => setWartaScheduledDate(e.target.value)}
+                                                        className="px-3 py-1.5 border border-navy-300 dark:border-navy-700 rounded-lg text-xs bg-white dark:bg-navy-900 text-navy-900 dark:text-white font-bold"
+                                                    />
+                                                    <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                                                        * Warta otomatis muncul ke jemaat saat jam ini tiba.
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Foto Dokumentasi & Sampul Berita */}
+                                        <div>
+                                            <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1.5">
+                                                Foto Sampul & Dokumentasi Berita (Opsional)
+                                            </label>
+
+                                            <div className="p-5 border-2 border-dashed border-navy-300 dark:border-navy-700 rounded-2xl bg-navy-50/40 dark:bg-navy-950/40 text-center space-y-3">
+                                                <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-500 flex items-center justify-center mx-auto">
+                                                    <Icon name="Upload" className="w-6 h-6" />
+                                                </div>
+                                                <div>
+                                                    <label className="relative cursor-pointer bg-navy-900 hover:bg-navy-800 text-gold-400 px-5 py-2.5 rounded-xl font-bold text-xs inline-flex items-center gap-2 shadow-sm transition">
+                                                        <Icon name="Image" className="w-4 h-4" />
+                                                        <span>Pilih Foto Berita</span>
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            multiple
+                                                            className="sr-only"
+                                                            onChange={(e) => {
+                                                                const files = Array.from(e.target.files);
+                                                                setWartaGambarList(prev => [...prev, ...files].slice(0, 5));
+                                                            }}
+                                                        />
+                                                    </label>
+                                                </div>
+                                                <p className="text-xs text-navy-500 dark:text-navy-400">
+                                                    Mendukung PNG transparan (alpha channel tetap utuh), JPG, dan WebP hingga 5MB. Rekomendasi rasio 16:9 landscape (Maks. 3-5 foto). Foto pertama otomatis menjadi <strong>Foto Sampul Berita</strong>.
+                                                </p>
+
+                                                {/* Preview Grid Foto Terpilih */}
+                                                {wartaGambarList.length > 0 && (
+                                                    <div className="pt-3 border-t border-navy-100 dark:border-navy-800/80">
+                                                        <p className="text-xs font-bold text-navy-700 dark:text-gold-400 text-left mb-2">
+                                                            {wartaGambarList.length} Foto Siap Diunggah:
+                                                        </p>
+                                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 text-left">
+                                                            {wartaGambarList.map((file, idx) => {
+                                                                const tempUrl = URL.createObjectURL(file);
+                                                                const sizeStr = file.size < 1024 * 1024 ? (file.size / 1024).toFixed(0) + ' KB' : (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+                                                                return (
+                                                                    <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border-2 border-navy-200 dark:border-navy-700 group bg-navy-950">
+                                                                        <img src={tempUrl} className="w-full h-full object-cover" alt="preview" />
+                                                                        {idx === 0 && (
+                                                                            <span className="absolute top-1.5 left-1.5 bg-gold-500 text-navy-950 font-black text-[9px] uppercase tracking-wider px-2 py-0.5 rounded shadow">
+                                                                                Sampul Utama
+                                                                            </span>
+                                                                        )}
+                                                                        <span className="absolute bottom-1.5 left-1.5 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded backdrop-blur-xs">
+                                                                            {sizeStr}
+                                                                        </span>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleRemoveWartaImage(idx)}
+                                                                            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center font-bold text-xs shadow transition"
+                                                                            title="Hapus Foto"
+                                                                        >
+                                                                            ×
+                                                                        </button>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Isi Warta / Berita */}
+                                        <div>
+                                            <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1.5">
+                                                Konten & Isi Warta <span className="text-red-500">*</span>
+                                            </label>
+                                            <RichTextEditor
+                                                ref={wartaEditorRef}
+                                                initialValue={wartaIsi}
+                                                onChange={(html) => setWartaIsi(html)}
+                                                onUploadImage={handleUploadInlineImage}
+                                                placeholder="Tuliskan isi berita, susunan acara, jadwal, atau pengumuman di sini..."
+                                            />
+                                        </div>
+
+                                        {/* Action Bar */}
+                                        <div className="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-navy-100 dark:border-navy-800">
+                                            <button
+                                                type="submit"
+                                                disabled={isSavingWarta}
+                                                className="w-full sm:flex-1 bg-navy-900 hover:bg-navy-800 dark:bg-gold-500 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950 shadow-md hover:shadow-lg font-bold py-3.5 px-6 rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
+                                            >
+                                                <Icon name="Warta" className="w-4 h-4" />
+                                                <span>{isSavingWarta ? "Sedang Mempublikasikan..." : "Publikasikan Warta Sekarang"}</span>
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    if (confirm('Yakin ingin mengosongkan formulir warta ini?')) {
+                                                        setWartaJudul('');
+                                                        setWartaIsi('');
+                                                        setWartaGambarList([]);
+                                                        setWartaPenulis('');
+                                                        try {
+                                                            localStorage.removeItem('PISGAH_WARTA_DRAFT_NEW');
+                                                        } catch (e) { }
+                                                        setDraftNewAvailable(null);
+                                                        setAutosaveNewStatus('');
+                                                        if (wartaEditorRef.current) wartaEditorRef.current.setContent('');
+                                                    }
+                                                }}
+                                                className="w-full sm:w-auto px-5 py-3.5 bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-navy-300 rounded-xl text-xs font-bold transition"
+                                            >
+                                                Bersihkan Form
+                                            </button>
+                                        </div>
+                                    </form>
+                                ) : (
+                                    /* LIVE PREVIEW TAB */
+                                    <div className="space-y-6">
+                                        <div className="p-4 rounded-xl bg-gold-50 dark:bg-navy-950/60 border border-gold-200 dark:border-gold-800 text-xs text-navy-800 dark:text-gold-300 flex items-center justify-between">
+                                            <span>Pratinjau tampilan warta di halaman pembaca sebelum diterbitkan:</span>
+                                            <button
+                                                onClick={() => setWartaViewMode('editor')}
+                                                className="text-xs font-bold text-navy-900 dark:text-gold-400 underline"
+                                            >
+                                                ← Kembali ke Editor
+                                            </button>
+                                        </div>
+
+                                        <article className="border border-navy-100 dark:border-navy-800 rounded-2xl p-6 sm:p-8 bg-white dark:bg-navy-900 shadow-sm">
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <span className="text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-gold-500 text-navy-950">
+                                                    {wartaKategori}
+                                                </span>
+                                                <span className="text-xs text-navy-400">
+                                                    {formatIndoDate(new Date())}
+                                                </span>
+                                            </div>
+
+                                            <h1 className="text-2xl sm:text-3xl font-black text-navy-900 dark:text-gold-400 leading-tight mb-4">
+                                                {wartaJudul || '(Judul Warta Belum Diisi)'}
+                                            </h1>
+
+                                            <p className="text-xs text-navy-500 mb-6 pb-4 border-b border-navy-100">
+                                                Ditulis oleh: <strong>{wartaPenulis || 'Redaksi Warta'}</strong>
+                                            </p>
+
+                                            {wartaGambarList.length > 0 && (
+                                                <div className="aspect-video rounded-xl overflow-hidden bg-navy-950 mb-6">
+                                                    <img
+                                                        src={URL.createObjectURL(wartaGambarList[0])}
+                                                        className="w-full h-full object-cover"
+                                                        alt="Sampul Berita"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            <div
+                                                className="prose max-w-none text-navy-800 dark:text-navy-100 warta-content"
+                                                dangerouslySetInnerHTML={{ __html: wartaIsi || '<p class="italic text-navy-400">Belum ada konten warta yang ditulis...</p>' }}
+                                            />
+                                        </article>
+
+                                        <div className="flex justify-end gap-3">
+                                            <button
+                                                onClick={() => setWartaViewMode('editor')}
+                                                className="px-5 py-2.5 rounded-xl bg-navy-100 text-navy-700 text-xs font-bold"
+                                            >
+                                                Kembali Edit
+                                            </button>
+                                            <button
+                                                onClick={handleWartaFormSubmit}
+                                                disabled={isSavingWarta}
+                                                className="px-6 py-2.5 rounded-xl bg-navy-900 text-gold-400 font-bold text-xs shadow-sm"
+                                            >
+                                                {isSavingWarta ? "Menyimpan..." : "Publikasikan Sekarang"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 
-                        {/* Konten Posting (Daftar Warta) */}
+                        {/* Konten Posting (Daftar & Manajemen Warta) */}
                         {wartaSubTab === 'posting' && (
-                            <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8">
-                                <h3 className="text-xl font-bold text-navy-800 mb-4 border-b pb-2">Daftar Warta</h3>
+                            <div className="glass-box rounded-[1.75rem] shadow-sm border border-navy-100/60 p-5 md:p-8 bg-white dark:bg-navy-900 mb-24">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-navy-100 dark:border-navy-800 pb-4 mb-6">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-navy-900 dark:text-gold-400">Daftar & Manajemen Warta</h3>
+                                        <p className="text-xs text-navy-500 dark:text-navy-400">Total {daftarWarta.length} berita & pengumuman telah diterbitkan.</p>
+                                    </div>
+
+                                    {/* Search Filter Posting */}
+                                    <div className="relative w-full sm:w-64">
+                                        <input
+                                            type="text"
+                                            value={wartaSearchPosting}
+                                            onChange={e => setWartaSearchPosting(e.target.value)}
+                                            placeholder="Cari judul warta..."
+                                            className="w-full text-xs py-2 pl-8 pr-3 border border-navy-200 dark:border-navy-700 rounded-xl bg-navy-50/50 dark:bg-navy-950 text-navy-900 dark:text-white"
+                                        />
+                                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-navy-400">
+                                            <Icon name="Search" className="w-3.5 h-3.5" />
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Status Filter Tabs */}
+                                <div className="flex flex-wrap items-center gap-2 mb-6">
+                                    <button
+                                        onClick={() => { setWartaStatusFilter('all'); setWartaCurrentPage(1); }}
+                                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${wartaStatusFilter === 'all' ? 'bg-navy-900 text-gold-400 dark:bg-gold-500 dark:text-navy-950 shadow-sm' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 text-navy-600 dark:text-navy-300'}`}
+                                    >
+                                        <span>Semua Status</span>
+                                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${wartaStatusFilter === 'all' ? 'bg-gold-500/20 text-gold-300 dark:bg-navy-900/20 dark:text-navy-950' : 'bg-navy-200/60 dark:bg-navy-700 text-navy-600 dark:text-navy-300'}`}>
+                                            {daftarWarta.length}
+                                        </span>
+                                    </button>
+                                    <button
+                                        onClick={() => { setWartaStatusFilter('published'); setWartaCurrentPage(1); }}
+                                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${wartaStatusFilter === 'published' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300'}`}
+                                    >
+                                        <span>🟢 Terpublikasi</span>
+                                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${wartaStatusFilter === 'published' ? 'bg-white/20 text-white' : 'bg-emerald-200/60 dark:bg-emerald-800/60 text-emerald-800 dark:text-emerald-200'}`}>
+                                            {daftarWarta.filter(w => isWartaPublished(w.tanggal)).length}
+                                        </span>
+                                    </button>
+                                    <button
+                                        onClick={() => { setWartaStatusFilter('scheduled'); setWartaCurrentPage(1); }}
+                                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${wartaStatusFilter === 'scheduled' ? 'bg-amber-500 text-white shadow-sm' : 'bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300'}`}
+                                    >
+                                        <span>🟡 Terjadwal</span>
+                                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${wartaStatusFilter === 'scheduled' ? 'bg-white/20 text-white' : 'bg-amber-200/60 dark:bg-amber-800/60 text-amber-800 dark:text-amber-200'}`}>
+                                            {daftarWarta.filter(w => !isWartaPublished(w.tanggal)).length}
+                                        </span>
+                                    </button>
+                                </div>
+
                                 {daftarWarta.length === 0 ? (
-                                    <p className="text-navy-500">Belum ada warta.</p>
+                                    <div className="text-center py-12 text-navy-400">
+                                        <Icon name="BookOpen" className="w-12 h-12 mx-auto opacity-30 mb-2" />
+                                        <p className="font-semibold text-sm">Belum ada warta yang diterbitkan.</p>
+                                    </div>
                                 ) : (
                                     <>
                                         {(() => {
-                                            const sortedWarta = [...daftarWarta].sort((a, b) => (b.rowIndex || 0) - (a.rowIndex || 0));
+                                            const sortedWarta = [...daftarWarta]
+                                                .sort((a, b) => (b.rowIndex || 0) - (a.rowIndex || 0))
+                                                .filter(w => {
+                                                    if (wartaStatusFilter === 'published' && !isWartaPublished(w.tanggal)) return false;
+                                                    if (wartaStatusFilter === 'scheduled' && isWartaPublished(w.tanggal)) return false;
+                                                    if (!wartaSearchPosting.trim()) return true;
+                                                    const q = wartaSearchPosting.toLowerCase();
+                                                    return (w.judul || '').toLowerCase().includes(q) || (w.penulis || '').toLowerCase().includes(q);
+                                                });
+
                                             const totalPages = Math.ceil(sortedWarta.length / wartaItemsPerPage);
                                             const startIdx = (wartaCurrentPage - 1) * wartaItemsPerPage;
                                             const paginatedWarta = sortedWarta.slice(startIdx, startIdx + wartaItemsPerPage);
-                                            return (
-                                                <div className="space-y-5">
-                                                    {paginatedWarta.map((warta, idx) => {
-                                                        const plainPreview = stripHtml(warta.isi);
-                                                        const shortPreview = plainPreview.length > 120 ? plainPreview.substring(0, 120) + '...' : plainPreview;
 
+                                            return (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    {paginatedWarta.map((warta, idx) => {
+                                                        const info = parseWartaInfo(warta);
                                                         const safeUrls = parseGambarUrls(warta.gambarUrl).map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
                                                         const thumbnailImg = safeUrls.length > 0 ? safeUrls[0] : null;
 
                                                         return (
-                                                            <div key={idx} className="bg-white border border-navy-100/80 rounded-[1.25rem] p-4 sm:p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col sm:flex-row gap-4 sm:gap-5 relative group">
+                                                            <div key={idx} className="bg-white dark:bg-navy-950/60 border border-navy-100/90 dark:border-navy-800 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-md transition-all flex flex-col sm:flex-row md:flex-col lg:flex-row gap-4 relative group">
                                                                 {/* Thumbnail Image */}
-                                                                <div className="w-full sm:w-40 h-48 sm:h-32 flex-shrink-0 rounded-xl overflow-hidden bg-navy-50 border border-navy-100 relative">
+                                                                <div className="w-full sm:w-44 md:w-full lg:w-40 h-44 sm:h-32 md:h-44 lg:h-32 flex-shrink-0 rounded-xl overflow-hidden bg-navy-950 relative border border-navy-100 dark:border-navy-800">
                                                                     {thumbnailImg ? (
-                                                                        <img src={thumbnailImg} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={warta.judul} referrerPolicy="no-referrer" />
+                                                                        <img src={thumbnailImg} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={info.cleanTitle} referrerPolicy="no-referrer" />
                                                                     ) : (
-                                                                        <div className="flex flex-col items-center justify-center h-full text-navy-300">
-                                                                            <Icon name="Image" className="w-8 h-8 mb-1 opacity-50" />
-                                                                            <span className="text-[9px] font-bold uppercase tracking-widest opacity-50">Tanpa Gambar</span>
+                                                                        <div className="flex flex-col items-center justify-center h-full text-navy-400">
+                                                                            <Icon name="Image" className="w-8 h-8 opacity-40 mb-1" />
+                                                                            <span className="text-[9px] font-bold uppercase tracking-widest text-navy-500">Tanpa Foto</span>
                                                                         </div>
                                                                     )}
+                                                                    <span className={`absolute top-2 left-2 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs ${info.categoryStyle.badge}`}>
+                                                                        {info.category}
+                                                                    </span>
                                                                     {safeUrls.length > 1 && (
-                                                                        <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-sm flex items-center">
-                                                                            <Icon name="Image" className="w-3 h-3 mr-1" /> +{safeUrls.length - 1}
+                                                                        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-[9px] font-bold px-2 py-0.5 rounded backdrop-blur-sm">
+                                                                            +{safeUrls.length - 1} Foto
                                                                         </div>
                                                                     )}
                                                                 </div>
 
                                                                 {/* Detail & Konten Warta */}
                                                                 <div className="flex-1 flex flex-col min-w-0">
-                                                                    <h4 className="font-bold text-navy-900 text-base sm:text-lg line-clamp-2 leading-tight mb-1.5 group-hover:text-gold-600 transition-colors pr-2">{warta.judul}</h4>
-                                                                    <p className="text-[10px] font-bold text-navy-500 uppercase tracking-widest mb-2 flex items-center">
-                                                                        <Icon name="Calendar" className="w-3 h-3 mr-1.5 text-gold-500" /> {formatDate(warta.tanggal)}
-                                                                    </p>
-                                                                    <p className="text-xs text-navy-600 line-clamp-2 leading-relaxed mb-4 flex-1">
-                                                                        {shortPreview}
+                                                                    <div className="flex items-center gap-1.5 text-[11px] text-navy-500 dark:text-navy-400 mb-1 font-semibold flex-wrap">
+                                                                        <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-500 shrink-0" />
+                                                                        <span>{formatIndoDateTime(warta.tanggal)}</span>
+                                                                        <span>•</span>
+                                                                        <span>{info.readingTime}</span>
+                                                                        {isWartaPublished(warta.tanggal) ? (
+                                                                            <span className="ml-auto px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300/40">
+                                                                                🟢 Tayang
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span className="ml-auto px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300/40 animate-pulse">
+                                                                                🟡 Terjadwal
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+
+                                                                    <h4 className="font-extrabold text-navy-950 dark:text-gold-400 text-sm sm:text-base leading-snug line-clamp-2 mb-1.5 group-hover:text-gold-600 transition-colors">
+                                                                        {info.cleanTitle}
+                                                                    </h4>
+
+                                                                    <p className="text-xs text-navy-600 dark:text-navy-300 line-clamp-2 leading-relaxed mb-3 flex-1">
+                                                                        {info.excerpt}
                                                                     </p>
 
                                                                     {/* Action Buttons (Edit & Hapus) */}
-                                                                    <div className="flex flex-wrap items-center gap-2 mt-auto pt-3 border-t border-navy-50">
-                                                                        <span className="text-[10px] text-navy-400 font-bold uppercase tracking-wider flex items-center mr-auto">
+                                                                    <div className="flex flex-wrap items-center gap-1.5 mt-auto pt-3 border-t border-navy-50 dark:border-navy-800">
+                                                                        <span className="text-[11px] text-navy-400 dark:text-navy-500 font-bold flex items-center mr-auto">
                                                                             <Icon name="Edit" className="w-3 h-3 mr-1 text-gold-400" />
                                                                             {warta.penulis || 'Admin'}
                                                                         </span>
-                                                                        <button onClick={() => handleEditWarta(warta)} className="px-3.5 py-1.5 bg-navy-50 hover:bg-navy-100 text-navy-700 text-xs font-bold rounded-lg transition-colors flex items-center shadow-sm">
-                                                                            <Icon name="Edit" className="w-3.5 h-3.5 mr-1.5 text-gold-500" /> Edit
+
+                                                                        {!isWartaPublished(warta.tanggal) && (
+                                                                            <button
+                                                                                onClick={() => handlePublishNow(warta)}
+                                                                                className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition flex items-center gap-1 shadow-xs"
+                                                                                title="Tayangkan warta ini sekarang tanpa menunggu jadwal"
+                                                                            >
+                                                                                <Icon name="Play" className="w-3.5 h-3.5" /> Tayang Sekarang
+                                                                            </button>
+                                                                        )}
+
+                                                                        <button
+                                                                            onClick={() => handleEditWarta(warta)}
+                                                                            className="px-2.5 py-1.5 bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300 text-xs font-bold rounded-lg transition flex items-center gap-1 shadow-xs"
+                                                                        >
+                                                                            <Icon name="Edit" className="w-3.5 h-3.5 text-gold-500" /> Edit
                                                                         </button>
-                                                                        <button onClick={() => handleDeleteWarta(warta.rowIndex, warta.judul)} className="px-3.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold rounded-lg transition-colors flex items-center shadow-sm">
-                                                                            <Icon name="Trash" className="w-3.5 h-3.5 mr-1.5" /> Hapus
+                                                                        <button
+                                                                            onClick={() => handleDeleteWarta(warta.rowIndex, warta.judul)}
+                                                                            className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 text-xs font-bold rounded-lg transition flex items-center gap-1 shadow-xs"
+                                                                        >
+                                                                            <Icon name="Trash" className="w-3.5 h-3.5" /> Hapus
                                                                         </button>
                                                                     </div>
                                                                 </div>
@@ -7501,18 +10203,45 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
                                         {/* Pagination Controls */}
                                         {(() => {
-                                            const sortedWarta = [...daftarWarta].sort((a, b) => (b.rowIndex || 0) - (a.rowIndex || 0));
+                                            const sortedWarta = [...daftarWarta]
+                                                .sort((a, b) => (b.rowIndex || 0) - (a.rowIndex || 0))
+                                                .filter(w => {
+                                                    if (wartaStatusFilter === 'published' && !isWartaPublished(w.tanggal)) return false;
+                                                    if (wartaStatusFilter === 'scheduled' && isWartaPublished(w.tanggal)) return false;
+                                                    if (!wartaSearchPosting.trim()) return true;
+                                                    const q = wartaSearchPosting.toLowerCase();
+                                                    return (w.judul || '').toLowerCase().includes(q) || (w.penulis || '').toLowerCase().includes(q);
+                                                });
+
                                             const totalPages = Math.ceil(sortedWarta.length / wartaItemsPerPage);
                                             if (totalPages <= 1) return null;
                                             return (
-                                                <div className="flex justify-center items-center gap-2 mt-6 pt-4 border-t border-navy-100">
-                                                    <button onClick={() => setWartaCurrentPage(p => Math.max(1, p - 1))} disabled={wartaCurrentPage === 1} className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${wartaCurrentPage === 1 ? 'bg-navy-100 text-navy-400 cursor-not-allowed' : 'bg-navy-200 text-navy-700 hover:bg-navy-300'}`}>Sebelumnya</button>
+                                                <div className="flex justify-center items-center gap-2 mt-8 pt-4 border-t border-navy-100 dark:border-navy-800">
+                                                    <button
+                                                        onClick={() => setWartaCurrentPage(p => Math.max(1, p - 1))}
+                                                        disabled={wartaCurrentPage === 1}
+                                                        className={`px-4 py-2 rounded-xl text-xs font-bold transition ${wartaCurrentPage === 1 ? 'bg-navy-50 dark:bg-navy-800 text-navy-400 cursor-not-allowed' : 'bg-navy-100 dark:bg-navy-800 text-navy-700 dark:text-gold-300 hover:bg-navy-200'}`}
+                                                    >
+                                                        Sebelumnya
+                                                    </button>
                                                     <div className="flex gap-1">
                                                         {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                                                            <button key={page} onClick={() => setWartaCurrentPage(page)} className={`w-9 h-9 rounded-full text-sm font-bold transition-colors ${page === wartaCurrentPage ? 'bg-gold-500 text-white shadow-sm' : 'bg-navy-100 text-navy-600 hover:bg-navy-200'}`}>{page}</button>
+                                                            <button
+                                                                key={page}
+                                                                onClick={() => setWartaCurrentPage(page)}
+                                                                className={`w-8 h-8 rounded-lg text-xs font-bold transition ${page === wartaCurrentPage ? 'bg-navy-900 dark:bg-gold-500 text-gold-400 dark:text-navy-950 shadow-sm' : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300'}`}
+                                                            >
+                                                                {page}
+                                                            </button>
                                                         ))}
                                                     </div>
-                                                    <button onClick={() => setWartaCurrentPage(p => Math.min(totalPages, p + 1))} disabled={wartaCurrentPage === totalPages} className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${wartaCurrentPage === totalPages ? 'bg-navy-100 text-navy-400 cursor-not-allowed' : 'bg-navy-200 text-navy-700 hover:bg-navy-300'}`}>Selanjutnya</button>
+                                                    <button
+                                                        onClick={() => setWartaCurrentPage(p => Math.min(totalPages, p + 1))}
+                                                        disabled={wartaCurrentPage === totalPages}
+                                                        className={`px-4 py-2 rounded-xl text-xs font-bold transition ${wartaCurrentPage === totalPages ? 'bg-navy-50 dark:bg-navy-800 text-navy-400 cursor-not-allowed' : 'bg-navy-100 dark:bg-navy-800 text-navy-700 dark:text-gold-300 hover:bg-navy-200'}`}
+                                                    >
+                                                        Selanjutnya
+                                                    </button>
                                                 </div>
                                             );
                                         })()}
@@ -7850,8 +10579,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                             if (cat.id === 'manual') setIsManualFolderName(true);
                                                         }}
                                                         className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all text-left flex items-center gap-1.5 ${newFolderCategory === cat.id
-                                                                ? 'ring-2 ring-gold-400 shadow-sm ' + cat.badge
-                                                                : 'border-navy-200 text-navy-600 hover:bg-navy-50'
+                                                            ? 'ring-2 ring-gold-400 shadow-sm ' + cat.badge
+                                                            : 'border-navy-200 text-navy-600 hover:bg-navy-50'
                                                             }`}
                                                     >
                                                         <Icon name={cat.icon} className="w-3.5 h-3.5 shrink-0 text-gold-500" />
@@ -9725,7 +12454,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
     if (!selectedBook) {
         return (
             <div className="animate-fade-in pb-10">
-                <div className="sticky top-14 md:top-16 z-40 bg-white/95 dark:bg-[#0b1a30]/95 backdrop-blur-md pt-2 pb-3 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 flex flex-col gap-2.5 shadow-sm transition-all">
+                <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-3 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 flex flex-col gap-2.5 transition-all">
                     <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
                         <button
                             onClick={() => window.history.back()}
@@ -9820,7 +12549,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
         const chapters = Array.from({ length: selectedBook.pasal }, (_, i) => i + 1);
         return (
             <div className="animate-fade-in pb-10">
-                <div className="sticky top-14 md:top-16 z-40 bg-white/95 dark:bg-[#0b1a30]/95 backdrop-blur-md pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 shadow-sm transition-all">
+                <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 transition-all">
                     <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
                         <button
                             onClick={() => setSelectedBook(null)}
@@ -9860,7 +12589,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
         return (
             <div className="animate-fade-in pb-10">
                 {/* Sticky Header: Tombol Panah (Kiri), Kotak Kitab (Tengah), Tombol Home (Kanan) */}
-                <div className="sticky top-14 md:top-16 z-40 bg-white/95 dark:bg-[#0b1a30]/95 backdrop-blur-md pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 border-b border-navy-100 dark:border-navy-800 shadow-sm transition-all">
+                <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 transition-all">
                     <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
                         {/* Tombol Panah (Kembali) di sebelah kiri */}
                         <button
@@ -10508,7 +13237,7 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
 };
 
 
-const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, dataPejabat, pengumuman, daftarBuku, setInitialBook, laguSionDb = [], setLaguSionInitialSong }) => {
+const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, dataPejabat, pengumuman, daftarBuku, setInitialBook, laguSionDb = [], setLaguSionInitialSong, setSelectedWarta }) => {
     const [query, setQuery] = React.useState('');
 
     // Fungsi untuk membersihkan HTML
@@ -10532,12 +13261,15 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
             laguSion: []
         };
 
-        // 1. Warta: cari di judul dan isi
+        // 1. Warta: cari di judul dan isi (hanya warta yang sudah tayang)
         if (daftarWarta && daftarWarta.length) {
-            results.warta = daftarWarta.filter(w =>
-                w.judul.toLowerCase().includes(q) ||
-                stripHtml(w.isi).toLowerCase().includes(q)
-            ).slice(0, 20); // batasi 20
+            results.warta = daftarWarta
+                .filter(w => isWartaPublished(w.tanggal))
+                .filter(w =>
+                    (w.judul || '').toLowerCase().includes(q) ||
+                    (w.penulis || '').toLowerCase().includes(q) ||
+                    stripHtml(w.isi || '').toLowerCase().includes(q)
+                ).slice(0, 20); // batasi 20
         }
 
         // 2. Pejabat: cari nama, jabatan
@@ -10726,7 +13458,7 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                             <h3 className="text-xs font-black text-gold-600 uppercase tracking-widest mb-3 px-2">Warta</h3>
                             <div className="space-y-3">
                                 {searchResults.warta.map(w => (
-                                    <div key={w.rowIndex} onClick={() => { setActiveTab('warta'); window.selectedWartaDetail = w; }} className="glass-box rounded-2xl border border-navy-100/60 p-4 cursor-pointer hover:border-gold-300 transition">
+                                    <div key={w.rowIndex} onClick={() => { if (setSelectedWarta) setSelectedWarta(w); setActiveTab('warta'); }} className="glass-box rounded-2xl border border-navy-100/60 p-4 cursor-pointer hover:border-gold-300 transition">
                                         <div className="font-bold text-navy-900">{w.judul}</div>
                                         <div className="text-xs text-navy-500 mt-1">{w.tanggal}</div>
                                         <div className="text-sm text-navy-600 mt-2 line-clamp-2">{stripHtml(w.isi)}</div>
@@ -11017,8 +13749,15 @@ const App = () => {
     // Pengumuman default State
     const [pengumuman, setPengumuman] = React.useState({ header: "Pengumuman Jemaat", isi: "", kolom: "1", marginBawah: "mb-6 md:mb-8" });
 
-    // Warta default State
-    const [daftarWarta, setDaftarWarta] = React.useState([]);
+    // Warta default State (Offline cache ready)
+    const [daftarWarta, setDaftarWarta] = React.useState(() => {
+        try {
+            const cached = localStorage.getItem('PISGAH_OFFLINE_WARTA_CACHE');
+            return cached ? JSON.parse(cached) : [];
+        } catch (e) {
+            return [];
+        }
+    });
     const [daftarBuku, setDaftarBuku] = React.useState([]);
     const [initialBook, setInitialBook] = React.useState(null);
 
@@ -11034,6 +13773,9 @@ const App = () => {
             if (data.daftarWarta) {
                 console.log("Warta diterima:", data.daftarWarta);
                 setDaftarWarta(data.daftarWarta);
+                try {
+                    localStorage.setItem('PISGAH_OFFLINE_WARTA_CACHE', JSON.stringify(data.daftarWarta));
+                } catch (e) { }
             }
         } catch (err) {
             console.error("Gagal refresh warta", err);
@@ -11282,7 +14024,12 @@ const App = () => {
                     } catch (e) { }
                 }
 
-                if (data.daftarWarta) setDaftarWarta(data.daftarWarta);
+                if (data.daftarWarta) {
+                    setDaftarWarta(data.daftarWarta);
+                    try {
+                        localStorage.setItem('PISGAH_OFFLINE_WARTA_CACHE', JSON.stringify(data.daftarWarta));
+                    } catch (e) { }
+                }
 
                 let fetchedBuku = [];
                 // Ambil data buku (public)
@@ -11431,7 +14178,7 @@ const App = () => {
             case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} carouselVideos={carouselVideos} setCarouselVideos={setCarouselVideos} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
             case 'alkitab': return <Alkitab setHideGlobalBack={setHideGlobalBack} />;
             case 'lagu_sion': return <LaguSion setActiveTab={setActiveTab} subTab={laguSionSubTab} setSubTab={setLaguSionSubTab} initialSong={laguSionInitialSong} clearInitialSong={() => setLaguSionInitialSong(null)} laguSionDb={laguSionDb} />;
-            case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} />;
+            case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} setSelectedWarta={setSelectedWartaDetail} />;
             default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
         }
     };
@@ -11450,7 +14197,7 @@ const App = () => {
 
 
             {/* HEADER UTAMA (Responsif untuk Mobile & Desktop) */}
-            <header className="bg-white/80 dark:bg-navy-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-navy-50 dark:border-navy-800 shadow-sm transition-colors duration-300">
+            <header className="liquid-glass-header sticky top-0 z-50 transition-colors duration-300 print:hidden no-print">
                 <div className="w-full mx-auto flex items-center justify-between px-4 lg:px-[6vw] py-3 gap-3">
                     <div className="flex items-center gap-2 md:gap-3 flex-1 justify-start">
                         <div className="flex flex-col items-start shrink-0 cursor-pointer" onClick={() => setActiveTab('home')}>
@@ -11502,7 +14249,7 @@ const App = () => {
 
             {/* Notifikasi Mode Offline */}
             {!isOnline && (
-                <div className="fixed top-[70px] left-1/2 transform -translate-x-1/2 z-[45] bg-amber-900/90 dark:bg-amber-950/95 backdrop-blur-md border border-amber-500/50 text-amber-100 px-5 py-2.5 rounded-full shadow-2xl text-xs md:text-sm font-bold flex items-center gap-2.5 animate-fade-in w-max max-w-[92vw]">
+                <div className="fixed top-[70px] left-1/2 transform -translate-x-1/2 z-[45] bg-amber-900/90 dark:bg-amber-950/95 backdrop-blur-md border border-amber-500/50 text-amber-100 px-5 py-2.5 rounded-full shadow-2xl text-xs md:text-sm font-bold flex items-center gap-2.5 animate-fade-in w-max max-w-[92vw] print:hidden no-print">
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
                     <span className="truncate">Mode Offline Aktif — Lagu Sion & Alkitab tetap dapat dibaca lancar</span>
                 </div>
@@ -11510,7 +14257,7 @@ const App = () => {
 
             {/* Notifikasi Sinkronisasi */}
             {showSyncNotif && (
-                <div className="fixed top-[70px] left-1/2 transform -translate-x-1/2 z-[40] bg-navy-900/90 backdrop-blur-md border border-navy-700 text-white px-5 py-2.5 rounded-full shadow-xl text-xs md:text-sm font-bold flex items-center gap-2 animate-fade-in w-max max-w-[90vw]">
+                <div className="fixed top-[70px] left-1/2 transform -translate-x-1/2 z-[40] bg-navy-900/90 backdrop-blur-md border border-navy-700 text-white px-5 py-2.5 rounded-full shadow-xl text-xs md:text-sm font-bold flex items-center gap-2 animate-fade-in w-max max-w-[90vw] print:hidden no-print">
                     {isSyncing ? (
                         <>
                             <Icon name="RefreshCw" className="w-4 h-4 animate-spin text-gold-400 shrink-0" />
@@ -11525,12 +14272,12 @@ const App = () => {
                 </div>
             )}
 
-            <main className={`flex-1 w-full mx-auto p-4 md:px-8 lg:px-4 ${(activeTab === 'lagu_sion' && laguSionSubTab === 'numpad') ? 'pb-20 md:pb-6' : 'pb-32 md:pb-12'}`}>
+            <main className={`flex-1 w-full mx-auto p-4 md:px-8 lg:px-4 ${(activeTab === 'lagu_sion' && laguSionSubTab === 'numpad') ? 'pb-20 md:pb-6' : 'pb-32 md:pb-12'} print:p-0 print:pb-0`}>
                 {activeTab !== 'home' && activeTab !== 'lagu_sion' && !hideGlobalBack && (
-                    <div className="sticky top-16 md:top-[4.5rem] z-[35] -mx-4 md:-mx-8 lg:-mx-4 px-4 md:px-8 lg:px-4 py-3 mb-6 bg-white/80 backdrop-blur-md border-b border-navy-50 shadow-sm transition-all">
+                    <div className="sticky top-16 md:top-[4.5rem] z-[35] -mx-4 md:-mx-8 lg:-mx-4 px-4 md:px-8 lg:px-4 py-3 mb-6 liquid-glass-header transition-all print:hidden no-print">
                         <button
                             onClick={() => window.history.back()}
-                            className="flex items-center justify-center px-5 py-2.5 bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/60 dark:border-navy-600 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group w-max"
+                            className="flex items-center justify-center px-4 py-2 liquid-glass-pill text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group w-max"
                         >
                             <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                             <span>Kembali</span>
@@ -11541,7 +14288,7 @@ const App = () => {
             </main>
 
             {activeTab === 'lagu_sion' && (
-                <nav className="bottom-bar mx-auto max-w-lg transition-all duration-300" style={{ zIndex: 50 }}>
+                <nav className="bottom-bar mx-auto max-w-lg transition-all duration-300 print:hidden no-print" style={{ zIndex: 50 }}>
                     <div className="relative flex justify-around items-center w-full">
                         {(() => {
                             const lsTabs = [
@@ -11606,7 +14353,7 @@ const App = () => {
                         maxWidth: '480px'
                     }}
                 >
-                    <div className="bg-white/95 dark:bg-[#161b26]/95 backdrop-blur-2xl border border-slate-200/95 dark:border-white/10 rounded-[28px] p-2.5 sm:p-3 shadow-[0_10px_30px_-4px_rgba(15,23,42,0.12),0_4px_12px_-2px_rgba(15,23,42,0.08)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.5)]">
+                    <div className="liquid-glass-box rounded-[32px] p-2.5 sm:p-3">
                         {mobileNavPopup === 'belajar' && (
                             <div className="flex items-center justify-around">
                                 {[
@@ -11725,14 +14472,14 @@ const App = () => {
             {/* Navigasi Mobile Utama (Bentuk & Ukuran Sama Persis Seperti Popup) */}
             {activeTab !== 'lagu_sion' && (
                 <nav
-                    className="fixed z-[52] left-1/2 -translate-x-1/2 md:hidden pointer-events-auto"
+                    className="fixed z-[52] left-1/2 -translate-x-1/2 md:hidden pointer-events-auto print:hidden no-print"
                     style={{
                         bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
                         width: 'calc(100% - 32px)',
                         maxWidth: '480px'
                     }}
                 >
-                    <div className="bg-white/95 dark:bg-[#161b26]/95 backdrop-blur-2xl border border-slate-200/95 dark:border-white/10 rounded-[28px] p-2.5 sm:p-3 shadow-[0_10px_30px_-4px_rgba(15,23,42,0.12),0_4px_12px_-2px_rgba(15,23,42,0.08)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.5)]">
+                    <div className="liquid-glass-box rounded-[32px] p-2.5 sm:p-3">
                         <div className="flex items-center justify-around">
                             {[
                                 { id: 'belajar', label: 'Belajar', icon: 'BookOpen', isPopup: true },
@@ -11799,7 +14546,7 @@ const App = () => {
 
             {/* Floating Action Button (Hubungi / WA & Sinkronisasi) - Dipercantik dengan Glassmorphism & Diangkat agar Tidak Menyentuh Menu */}
             {activeTab !== 'admin_dashboard' && activeTab !== 'hubungi' && activeTab !== 'lagu_sion' && !mobileNavPopup && (
-                <>
+                <div className="print:hidden no-print">
                     {/* Floating Sync Button */}
                     <button
                         onClick={() => {
@@ -11808,7 +14555,7 @@ const App = () => {
                                 setShowSyncNotif(true);
                             }
                         }}
-                        className="fixed left-4 md:left-6 z-[45] w-11 h-11 md:w-12 md:h-12 bg-white/85 dark:bg-[#161b26]/85 hover:bg-white/95 dark:hover:bg-[#161b26]/95 backdrop-blur-2xl border border-slate-200/90 dark:border-white/15 rounded-full transition-all duration-300 flex items-center justify-center cursor-pointer shadow-[0_10px_30px_-4px_rgba(15,23,42,0.15),0_4px_12px_-2px_rgba(15,23,42,0.1)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.6)] group active:scale-95"
+                        className="fixed left-4 md:left-6 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb flex items-center justify-center cursor-pointer group active:scale-95"
                         style={{
                             bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
                             transform: isScrollingDown ? 'translateY(120px)' : '',
@@ -11830,7 +14577,7 @@ const App = () => {
                     {/* Floating WhatsApp Button */}
                     <button
                         onClick={() => setActiveTab('hubungi')}
-                        className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 bg-white/85 dark:bg-[#161b26]/85 hover:bg-white/95 dark:hover:bg-[#161b26]/95 backdrop-blur-2xl border border-slate-200/90 dark:border-white/15 rounded-full transition-all duration-300 flex items-center justify-center cursor-pointer shadow-[0_10px_30px_-4px_rgba(15,23,42,0.15),0_4px_12px_-2px_rgba(15,23,42,0.1)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.6)] group active:scale-95"
+                        className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb flex items-center justify-center cursor-pointer group active:scale-95"
                         style={{
                             bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
                             transform: isScrollingDown ? 'translateY(120px)' : '',
@@ -11846,7 +14593,7 @@ const App = () => {
                     {showScrollTop && (
                         <button
                             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                            className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 bg-white/85 dark:bg-[#161b26]/85 hover:bg-[#4A7045] hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-900 text-[#4A7045] dark:text-gold-400 backdrop-blur-2xl border border-slate-200/90 dark:border-white/15 rounded-full transition-all duration-300 flex items-center justify-center cursor-pointer shadow-[0_10px_30px_-4px_rgba(15,23,42,0.15),0_4px_12px_-2px_rgba(15,23,42,0.1)] dark:shadow-[0_12px_35px_-4px_rgba(0,0,0,0.6)] group active:scale-95"
+                            className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb text-[#4A7045] dark:text-gold-400 hover:text-[#2C3F21] dark:hover:text-gold-300 flex items-center justify-center cursor-pointer group active:scale-95"
                             style={{
                                 bottom: 'calc(env(safe-area-inset-bottom, 0px) + 154px)'
                             }}
@@ -11856,7 +14603,7 @@ const App = () => {
                             <Icon name="ArrowUp" className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
                         </button>
                     )}
-                </>
+                </div>
             )}
         </div>
     );
