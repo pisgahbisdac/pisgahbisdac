@@ -256,6 +256,17 @@ const compressImage = (file, maxWidth = 1200) => {
     });
 };
 
+// Helper pengatur posisi scroll halaman agar selalu kembali ke puncak saat navigasi menu
+const scrollToTop = () => {
+    try {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    } catch (e) {
+        window.scrollTo(0, 0);
+    }
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+};
+
 const getGoogleDriveFileId = (url) => {
     if (!url || typeof url !== 'string') return null;
     const match = url.match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=[^&]+&)?id=|thumbnail\?id=)|docs\.google\.com\/(?:presentation|document|spreadsheets)\/d\/|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]{20,})/);
@@ -1359,9 +1370,10 @@ const SabbathCountdownWidget = ({ setActiveTab }) => {
                 </span>
                 <button
                     onClick={() => setActiveTab('jadwal')}
-                    className="text-[#4A7045] dark:text-gold-400 hover:underline font-extrabold flex items-center gap-1 text-xs"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/90 dark:bg-navy-800/90 text-[#4A7045] dark:text-gold-400 border border-[#C5D5BC] dark:border-navy-700 hover:border-[#4A7045] dark:hover:border-gold-500/60 hover:bg-[#F2F6ED] dark:hover:bg-navy-700/80 font-extrabold text-xs shadow-xs hover:shadow transition-all duration-200 active:scale-95 group backdrop-blur-md"
                 >
-                    Lihat Jadwal <Icon name="ChevronRight" className="w-3.5 h-3.5" />
+                    <span>Lihat Jadwal</span>
+                    <Icon name="ChevronRight" className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </button>
             </div>
         </div>
@@ -1675,10 +1687,10 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab }) => {
                                 </div>
                                 <button
                                     onClick={() => setActiveTab('jadwal')}
-                                    className="mt-3.5 pt-2 border-t border-[#E2E8D8] dark:border-navy-800 text-[#4A7045] dark:text-gold-400 hover:underline text-xs font-bold flex items-center justify-between w-full"
+                                    className="mt-3.5 w-full inline-flex items-center justify-between px-3.5 py-2 rounded-xl bg-white/90 dark:bg-navy-800/90 text-[#4A7045] dark:text-gold-400 border border-[#C5D5BC] dark:border-navy-700 hover:border-[#4A7045] dark:hover:border-gold-500/60 hover:bg-[#F2F6ED] dark:hover:bg-navy-700/80 text-xs font-extrabold shadow-xs hover:shadow transition-all duration-200 active:scale-95 group backdrop-blur-md"
                                 >
                                     <span>Lihat Jadwal Lengkap</span>
-                                    <Icon name="ChevronRight" className="w-3.5 h-3.5" />
+                                    <Icon name="ChevronRight" className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                                 </button>
                             </div>
                         ))}
@@ -2316,51 +2328,43 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                             <div className="mb-3">
                                 <h3 className="text-xl md:text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] via-[#4A7045] to-[#D19B45] dark:from-gold-300 dark:to-gold-500 tracking-tight leading-tight">
-                                    Visi & Misi GMAHK
+                                    Visi & Misi Gereja Advent
                                 </h3>
                             </div>
 
                             <div className="text-xs md:text-sm leading-relaxed space-y-3 w-full my-auto py-1">
                                 <div className="p-3.5 bg-amber-50/50 dark:bg-navy-950/70 rounded-2xl border border-amber-200/60 dark:border-navy-800 shadow-sm transition-colors">
-                                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#D19B45]/15 text-[#9A6B1A] dark:bg-gold-500/20 dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] mb-1.5 border border-[#D19B45]/30 dark:border-gold-500/30">Visi</span>
+                                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#D19B45]/15 text-[#9A6B1A] dark:bg-gold-500/20 dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] mb-1.5 border border-[#D19B45]/30 dark:border-gold-500/30">Visi Gereja Advent</span>
                                     <p className="text-[#2C3F21] dark:text-gray-200 leading-snug">
-                                        Selaras dengan wahyu Alkitab, anggota Gereja melihat sebagai klimaks agar{' '}
-                                        <span className="font-extrabold text-[#9A6B1A] dark:text-gold-400">
-                                            selaras sepenuhnya dengan kehendak dan kebenaran-Nya
-                                        </span>.
+                                        Selaras dengan <strong className="font-extrabold text-[#9A6B1A] dark:text-gold-400">wahyu Alkitab</strong>, anggota-anggota Gereja Masehi Advent Hari Ketujuh melihat sebagai <strong className="font-extrabold text-[#9A6B1A] dark:text-gold-400">klimaks</strong> agar <strong className="font-extrabold text-[#9A6B1A] dark:text-gold-400">selaras sepenuhnya</strong> dengan <strong className="font-extrabold text-[#9A6B1A] dark:text-gold-400">kehendak dan kebenaran-Nya yang sempurna</strong>.
                                     </p>
                                 </div>
                                 <div className="p-3.5 bg-emerald-50/50 dark:bg-navy-950/70 rounded-2xl border border-emerald-200/60 dark:border-navy-800 shadow-sm transition-colors">
-                                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#4A7045]/15 text-[#2C3F21] dark:bg-emerald-500/20 dark:text-emerald-300 font-extrabold uppercase tracking-widest text-[10px] mb-1.5 border border-[#4A7045]/30 dark:border-emerald-500/30">Misi</span>
+                                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#4A7045]/15 text-[#2C3F21] dark:bg-emerald-500/20 dark:text-emerald-300 font-extrabold uppercase tracking-widest text-[10px] mb-1.5 border border-[#4A7045]/30 dark:border-emerald-500/30">Misi Gereja Advent</span>
                                     <p className="text-[#2C3F21] dark:text-gray-200 leading-snug">
-                                        <span className="font-extrabold text-[#2E5E28] dark:text-emerald-400">
-                                            Memanggil semua orang menjadi murid Yesus Kristus
-                                        </span>
-                                        ,{' '}
-                                        <span className="font-extrabold text-[#9A6B1A] dark:text-gold-400">
-                                            memberitakan Injil kekal
-                                        </span>
-                                        , dan{' '}
-                                        <span className="font-extrabold text-[#B4791E] dark:text-amber-300">
-                                            mempersiapkan dunia bagi kedatangan-Nya
-                                        </span>.
+                                        Untuk memanggil <strong className="font-extrabold text-[#2E5E28] dark:text-emerald-400">semua orang</strong> menjadi <strong className="font-extrabold text-[#2E5E28] dark:text-emerald-400">murid Yesus Kristus</strong>, <strong className="font-extrabold text-[#9A6B1A] dark:text-gold-400">memberitakan Injil kekal Pekabaran Tiga Malaikat (Wahyu 14:6-12)</strong>, dan <strong className="font-extrabold text-[#2E5E28] dark:text-emerald-400">mempersiapkan dunia</strong> bagi <strong className="font-extrabold text-[#B4791E] dark:text-amber-300">kedatangan Kristus</strong> kembali yang tidak lama lagi.
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="pt-3 mt-3 border-t border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between">
-                                <a href="./pembangunan.html" className="text-[#4A7045] dark:text-gold-400 hover:underline font-extrabold text-xs flex items-center gap-1.5">
-                                    <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-gold-400 dark:to-gold-600 text-white dark:text-navy-900 rounded-lg p-1.5 shadow-sm">
+                            <div className="pt-3 mt-3 border-t border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between gap-2 flex-wrap">
+                                <a
+                                    href="./pembangunan.html"
+                                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/90 dark:bg-navy-800/90 text-[#2C3F21] dark:text-gold-300 border border-[#C5D5BC] dark:border-navy-700 hover:border-[#4A7045] dark:hover:border-gold-500/60 hover:bg-[#F2F6ED] dark:hover:bg-navy-700/80 font-extrabold text-xs shadow-xs hover:shadow-md transition-all duration-200 active:scale-95 group backdrop-blur-md"
+                                >
+                                    <div className="bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-gold-400 dark:to-gold-600 text-white dark:text-navy-900 rounded-lg p-1.5 shadow-xs group-hover:scale-105 transition-transform">
                                         <Icon name="Church" className="w-3.5 h-3.5" />
                                     </div>
-                                    Progres Pembangunan <Icon name="ChevronRight" className="w-3 h-3" />
+                                    <span>Progres Pembangunan</span>
+                                    <Icon name="ChevronRight" className="w-3.5 h-3.5 text-[#4A7045] dark:text-gold-400 group-hover:translate-x-0.5 transition-transform" />
                                 </a>
                                 <button
                                     onClick={() => window.installPWA && window.installPWA()}
                                     title="Instal Aplikasi PWA"
-                                    className="p-2 rounded-xl bg-[#F7F9F3] dark:bg-navy-800 text-[#D19B45] hover:bg-[#E2E8D8] dark:hover:bg-navy-700 transition shadow-sm border border-[#E2E8D8] dark:border-navy-700"
+                                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/90 dark:bg-navy-800/90 text-[#D19B45] hover:text-[#9A6B1A] dark:hover:text-gold-400 border border-[#E2E8D8] dark:border-navy-700 hover:border-[#D19B45]/50 dark:hover:border-gold-500/50 hover:bg-[#FDF9ED] dark:hover:bg-navy-700/80 transition-all duration-200 shadow-xs hover:shadow-md text-xs font-bold active:scale-95 backdrop-blur-md"
                                 >
                                     <Icon name="MonitorDown" className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Instal App</span>
                                 </button>
                             </div>
                         </div>
@@ -2380,14 +2384,16 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                 </div>
                                 <button
                                     onClick={() => setActiveTab('warta')}
-                                    className="self-start sm:self-center bg-[#4A7045] hover:bg-[#3A5836] text-white dark:bg-gold-500 dark:hover:bg-gold-600 dark:text-navy-900 text-xs font-bold py-2.5 px-5 rounded-xl transition-all shadow-sm flex items-center gap-1.5 shrink-0"
+                                    className="self-start sm:self-center inline-flex items-center gap-2 bg-[#4A7045] hover:bg-[#3A5836] text-white dark:bg-gold-500 dark:hover:bg-gold-600 dark:text-navy-900 text-xs font-extrabold py-2.5 px-4 rounded-xl transition-all shadow-sm hover:shadow-md border border-[#3A5836]/30 dark:border-gold-400/40 active:scale-95 shrink-0 group"
                                 >
-                                    Semua Warta <Icon name="ChevronRight" className="w-3.5 h-3.5" />
+                                    <span>Semua Warta</span>
+                                    <Icon name="ChevronRight" className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                                 </button>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {sortedWartaHome.slice(0, 3).map((warta, idx) => {
+                                    const info = parseWartaInfo(warta);
                                     const rawUrls = parseGambarUrls(warta.gambarUrl);
                                     const safeUrls = rawUrls.map(u => formatImageUrl(u)).filter(u => u.startsWith('http') || u.startsWith('data:image'));
                                     const thumb = safeUrls.length > 0 ? safeUrls[0] : null;
@@ -2396,21 +2402,40 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                         <div key={idx} onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }} className="rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 overflow-hidden transition-all duration-300 hover:border-[#4A7045] dark:hover:border-gold-500 hover:shadow-md cursor-pointer flex flex-col group shadow-sm">
                                             <div className="h-48 overflow-hidden relative m-2.5 rounded-[1.25rem]">
                                                 {thumb ? (
-                                                    <img src={thumb} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Warta" />
+                                                    <img src={thumb} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={info.cleanTitle} />
                                                 ) : (
                                                     <div className="w-full h-full bg-[#E5E9D8] dark:bg-navy-900 flex items-center justify-center text-[#4A7045] dark:text-navy-600 transition-colors">
                                                         <Icon name="Image" className="w-12 h-12 opacity-30" />
                                                     </div>
                                                 )}
-                                                <div className="absolute top-3 left-3 bg-white/90 dark:bg-navy-900/90 backdrop-blur-sm text-[#2C3F21] dark:text-gold-400 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm transition-colors">
-                                                    {formatDate(warta.tanggal)}
+                                                {/* Penulis di posisi kiri sampul (menggantikan posisi tanggal sebelumnya) */}
+                                                <div className="absolute top-3 left-3 bg-white/95 dark:bg-navy-900/90 backdrop-blur-md text-[#2C3F21] dark:text-gold-400 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm transition-colors flex items-center gap-1.5 border border-[#E2E8D8]/80 dark:border-navy-700/80">
+                                                    <Icon name="User" className="w-3 h-3 text-[#D19B45] shrink-0" />
+                                                    <span className="truncate max-w-[120px]">{warta.penulis || 'Redaksi'}</span>
+                                                </div>
+
+                                                {/* Kategori di posisi kanan sampul thumbnail */}
+                                                <div className="absolute top-3 right-3 bg-white/95 dark:bg-navy-900/90 backdrop-blur-md text-[#2C3F21] dark:text-gold-400 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-sm transition-colors border border-[#E2E8D8]/80 dark:border-navy-700/80">
+                                                    {info.category}
                                                 </div>
                                             </div>
+
                                             <div className="p-5 pt-2 flex-1 flex flex-col">
-                                                <h3 className="font-extrabold text-base text-[#2C3F21] dark:text-gold-400 leading-tight mb-2 line-clamp-2 transition-colors">{warta.judul}</h3>
+                                                {/* Tanggal terbit di bawah gambar sampul thumbnail */}
+                                                <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#596B4D] dark:text-gold-300/80 mb-2">
+                                                    <Icon name="Calendar" className="w-3.5 h-3.5 text-[#D19B45] shrink-0" />
+                                                    <span>{formatIndoDateTime(warta.tanggal)}</span>
+                                                </div>
+
+                                                {/* Judul bersih tanpa kategori di depannya */}
+                                                <h3 className="font-extrabold text-base text-[#2C3F21] dark:text-gold-400 leading-tight mb-2 line-clamp-2 transition-colors">
+                                                    {info.cleanTitle}
+                                                </h3>
+
                                                 <div className="text-[#6C7D5D] dark:text-gold-100/70 text-xs leading-relaxed mb-4 line-clamp-3 font-medium transition-colors">
                                                     {truncateText(stripHtml(warta.isi), 120)}
                                                 </div>
+
                                                 <div className="mt-auto">
                                                     <button className="bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-900 hover:bg-[#3A5836] dark:hover:bg-gold-600 font-bold py-2 px-5 rounded-xl transition-colors text-xs w-max">
                                                         Baca Lengkap
@@ -2442,8 +2467,12 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                             <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-gold-400 transition-colors">Pustaka Buku</h3>
                                             <p className="text-[#596B4D] dark:text-gold-200/80 font-medium text-xs md:text-sm mt-1 transition-colors">Buku referensi & rohani terbaru.</p>
                                         </div>
-                                        <button onClick={() => setActiveTab('belajar_perpustakaan')} className="border-2 border-[#4A7045] dark:border-gold-500 text-[#4A7045] dark:text-gold-500 hover:bg-[#4A7045] dark:hover:bg-gold-500 hover:text-white dark:hover:text-navy-900 font-bold py-2 px-4 rounded-xl transition-all flex items-center text-xs md:text-sm">
-                                            Selengkapnya <Icon name="ArrowRight" className="w-3.5 h-3.5 ml-1.5" />
+                                        <button
+                                            onClick={() => setActiveTab('belajar_perpustakaan')}
+                                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/90 dark:bg-navy-800/90 border border-[#4A7045]/60 dark:border-gold-500/60 text-[#4A7045] dark:text-gold-400 hover:bg-[#4A7045] dark:hover:bg-gold-500 hover:text-white dark:hover:text-navy-900 font-extrabold text-xs md:text-sm shadow-xs hover:shadow-md transition-all duration-200 active:scale-95 group backdrop-blur-md shrink-0"
+                                        >
+                                            <span>Selengkapnya</span>
+                                            <Icon name="ArrowRight" className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                                         </button>
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
@@ -5153,22 +5182,20 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
     const ITEMS_PER_PAGE = 8;
 
     React.useEffect(() => {
-        if (setHideGlobalBack) setHideGlobalBack(!!selectedWarta || showGallery);
+        if (setHideGlobalBack) setHideGlobalBack(true);
         return () => { if (setHideGlobalBack) setHideGlobalBack(false); };
-    }, [selectedWarta, showGallery, setHideGlobalBack]);
+    }, [setHideGlobalBack]);
 
     // Reset halaman saat filter berubah
     React.useEffect(() => {
         setCurrentPage(1);
     }, [effectiveWarta, selectedCategory, searchQuery]);
 
-    // Reset slide & scroll ke atas saat membuka berita
+    // Reset slide & scroll ke atas saat membuka atau menutup berita
     React.useEffect(() => {
         setModalSlide(0);
         setLightboxIndex(null);
-        if (selectedWarta) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        scrollToTop();
     }, [selectedWarta]);
 
     // Reading Progress Listener saat membaca warta
@@ -5422,9 +5449,9 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                     <div className="flex items-center gap-2 min-w-0">
                         <button
                             onClick={() => setSelectedWarta(null)}
-                            className="bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-800 dark:text-gold-300 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center shadow-sm shrink-0"
+                            className="bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-800 dark:text-gold-300 border border-navy-200/80 dark:border-navy-700/80 hover:border-gold-500/50 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs hover:shadow flex items-center shrink-0 active:scale-95 group"
                         >
-                            <Icon name="ArrowLeft" className="w-4 h-4 mr-1.5" /> Semua Warta
+                            <Icon name="ArrowLeft" className="w-4 h-4 mr-1.5 group-hover:-translate-x-0.5 transition-transform" /> Semua Warta
                         </button>
                         <div className="hidden md:flex items-center text-xs text-navy-400 dark:text-navy-500 truncate">
                             <span className="cursor-pointer hover:underline" onClick={() => setSelectedWarta(null)}>Warta</span>
@@ -5705,8 +5732,12 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                             <h3 className="text-xl font-extrabold text-navy-900 dark:text-gold-400 flex items-center gap-2">
                                 <Icon name="BookOpen" className="w-5 h-5 text-gold-500" /> Warta Terkini Lainnya
                             </h3>
-                            <button onClick={() => setSelectedWarta(null)} className="text-xs font-bold text-navy-600 dark:text-gold-400 hover:underline">
-                                Lihat Semua →
+                            <button
+                                onClick={() => { setSelectedWarta(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/90 dark:bg-navy-800/90 text-navy-800 dark:text-gold-300 border border-navy-200/80 dark:border-navy-700/80 hover:border-gold-500/60 dark:hover:border-gold-500/60 hover:bg-gold-50/80 dark:hover:bg-navy-700/80 hover:text-gold-600 dark:hover:text-gold-400 font-extrabold text-xs shadow-xs hover:shadow-md transition-all duration-200 active:scale-95 group backdrop-blur-md"
+                            >
+                                <span>Lihat Semua</span>
+                                <Icon name="ChevronRight" className="w-3.5 h-3.5 text-gold-500 group-hover:translate-x-0.5 transition-transform" />
                             </button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -5729,9 +5760,20 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                                                     <Icon name="Image" className="w-8 h-8 opacity-40" />
                                                 </div>
                                             )}
-                                            <span className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs ${itemInfo.categoryStyle.bg}`}>
+                                            {/* Penulis di posisi kiri sampul */}
+                                            <div className="absolute top-2 left-2 bg-white/95 dark:bg-navy-900/90 text-navy-800 dark:text-gold-300 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1 border border-black/5 dark:border-white/10">
+                                                <Icon name="User" className="w-2.5 h-2.5 text-gold-500 shrink-0" />
+                                                <span className="truncate max-w-[90px]">{item.penulis || 'Redaksi'}</span>
+                                            </div>
+                                            {/* Kategori di posisi kanan sampul */}
+                                            <span className={`absolute top-2 right-2 text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-xs ${itemInfo.categoryStyle.bg} border border-black/5 dark:border-white/10`}>
                                                 {itemInfo.category}
                                             </span>
+                                        </div>
+                                        {/* Tanggal terbit di bawah gambar sampul thumbnail */}
+                                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-navy-500 dark:text-gold-400/80 mb-1.5">
+                                            <Icon name="Calendar" className="w-3 h-3 text-gold-500 shrink-0" />
+                                            <span>{formatIndoDateTime(item.tanggal)}</span>
                                         </div>
                                         <h4 className="font-bold text-sm text-navy-900 dark:text-gold-300 group-hover:text-gold-600 line-clamp-2 leading-snug mb-1.5">
                                             {itemInfo.cleanTitle}
@@ -5806,6 +5848,67 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
     // ==============================================================
     return (
         <div className="space-y-6 sm:space-y-8 animate-fade-in relative pb-16">
+            {/* STICKY TOP BAR: TOMBOL KEMBALI + FILTER KATEGORI */}
+            <div className="sticky top-16 md:top-[4.5rem] z-[35] -mx-4 md:-mx-8 lg:-mx-4 px-4 md:px-8 lg:px-4 py-2.5 liquid-glass-header transition-all print:hidden no-print flex items-center gap-2.5 sm:gap-3">
+                <button
+                    onClick={() => {
+                        if (window.history.length > 1) {
+                            window.history.back();
+                        } else {
+                            setActiveTab('home');
+                        }
+                    }}
+                    className="flex items-center justify-center px-3.5 py-2 rounded-xl liquid-glass-pill text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-extrabold transition-all gap-1.5 group shrink-0 shadow-xs"
+                    title="Kembali ke Halaman Sebelumnya"
+                >
+                    <Icon name="ArrowLeft" className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                    <span className="text-xs sm:text-sm">Kembali</span>
+                </button>
+
+                <div className="h-6 w-px bg-navy-200/60 dark:bg-navy-700/60 shrink-0" />
+
+                {/* Filter Kategori Navigation Pills (Horizontal Scroll) */}
+                <div className="flex-1 flex items-center gap-1.5 sm:gap-2 overflow-x-auto hide-scrollbar py-0.5 min-w-0">
+                    <button
+                        onClick={() => setSelectedCategory('Semua')}
+                        className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 ${selectedCategory === 'Semua' ? 'bg-navy-900 dark:bg-gold-500 text-gold-400 dark:text-navy-950 shadow-xs scale-102' : 'text-navy-700 dark:text-navy-300 hover:bg-navy-100/70 dark:hover:bg-navy-800/80 bg-white/60 dark:bg-navy-900/60 border border-navy-200/60 dark:border-navy-700/60'}`}
+                    >
+                        <span>Semua Berita</span>
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${selectedCategory === 'Semua' ? 'bg-gold-500/20 text-gold-300 dark:bg-navy-900/20 dark:text-navy-950' : 'bg-navy-100 dark:bg-navy-800 text-navy-600 dark:text-navy-400'}`}>
+                            {categoryCounts['Semua'] || 0}
+                        </span>
+                    </button>
+
+                    {WARTA_CATEGORIES.map((cat) => {
+                        const count = categoryCounts[cat] || 0;
+                        const isActive = selectedCategory === cat;
+                        return (
+                            <button
+                                key={cat}
+                                onClick={() => setSelectedCategory(cat)}
+                                className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 ${isActive ? 'bg-navy-900 dark:bg-gold-500 text-gold-400 dark:text-navy-950 shadow-xs scale-102' : 'text-navy-700 dark:text-navy-300 hover:bg-navy-100/70 dark:hover:bg-navy-800/80 bg-white/60 dark:bg-navy-900/60 border border-navy-200/60 dark:border-navy-700/60'}`}
+                            >
+                                <span>{cat}</span>
+                                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${isActive ? 'bg-gold-500/20 text-gold-300 dark:bg-navy-900/20 dark:text-navy-950' : 'bg-navy-100 dark:bg-navy-800 text-navy-600 dark:text-navy-400'}`}>
+                                    {count}
+                                </span>
+                            </button>
+                        );
+                    })}
+
+                    {/* Tab Warta Tersimpan (Bookmark Offline) */}
+                    <button
+                        onClick={() => setSelectedCategory('Tersimpan')}
+                        className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 ${selectedCategory === 'Tersimpan' ? 'bg-amber-500 dark:bg-amber-400 text-white dark:text-navy-950 shadow-xs scale-102' : 'text-amber-700 dark:text-amber-400 hover:bg-amber-100/70 dark:hover:bg-navy-800/80 bg-white/60 dark:bg-navy-900/60 border border-amber-200/60 dark:border-navy-700/60'}`}
+                    >
+                        <Icon name="Bookmark" className={`w-3.5 h-3.5 ${selectedCategory === 'Tersimpan' ? 'fill-current' : ''}`} />
+                        <span>Tersimpan</span>
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${selectedCategory === 'Tersimpan' ? 'bg-black/20 text-white dark:text-navy-950' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'}`}>
+                            {categoryCounts['Tersimpan'] || 0}
+                        </span>
+                    </button>
+                </div>
+            </div>
             {/* OFFLINE INDICATOR BANNER */}
             {isOffline && (
                 <div className="bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-200 px-4 py-3 rounded-2xl flex items-center justify-between gap-3 text-xs font-semibold shadow-xs">
@@ -5884,48 +5987,6 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                 </div>
             </header>
 
-            {/* CATEGORY FILTER NAVIGATION PILLS */}
-            <div className="glass-box rounded-2xl p-2.5 shadow-sm border border-navy-100/60 dark:border-navy-800 flex items-center gap-2 overflow-x-auto hide-scrollbar">
-                <button
-                    onClick={() => setSelectedCategory('Semua')}
-                    className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 ${selectedCategory === 'Semua' ? 'bg-navy-900 dark:bg-gold-500 text-gold-400 dark:text-navy-950 shadow-sm scale-102' : 'text-navy-600 dark:text-navy-300 hover:bg-navy-50 dark:hover:bg-navy-800'}`}
-                >
-                    <span>Semua Berita</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${selectedCategory === 'Semua' ? 'bg-gold-500/20 text-gold-300 dark:bg-navy-900/20 dark:text-navy-950' : 'bg-navy-100 dark:bg-navy-800 text-navy-500 dark:text-navy-400'}`}>
-                        {categoryCounts['Semua'] || 0}
-                    </span>
-                </button>
-
-                {WARTA_CATEGORIES.map((cat) => {
-                    const count = categoryCounts[cat] || 0;
-                    const isActive = selectedCategory === cat;
-                    return (
-                        <button
-                            key={cat}
-                            onClick={() => setSelectedCategory(cat)}
-                            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 ${isActive ? 'bg-navy-900 dark:bg-gold-500 text-gold-400 dark:text-navy-950 shadow-sm scale-102' : 'text-navy-600 dark:text-navy-300 hover:bg-navy-50 dark:hover:bg-navy-800'}`}
-                        >
-                            <span>{cat}</span>
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-gold-500/20 text-gold-300 dark:bg-navy-900/20 dark:text-navy-950' : 'bg-navy-100 dark:bg-navy-800 text-navy-500 dark:text-navy-400'}`}>
-                                {count}
-                            </span>
-                        </button>
-                    );
-                })}
-
-                {/* Tab Warta Tersimpan (Bookmark Offline) */}
-                <button
-                    onClick={() => setSelectedCategory('Tersimpan')}
-                    className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 ${selectedCategory === 'Tersimpan' ? 'bg-amber-500 dark:bg-amber-400 text-white dark:text-navy-950 shadow-sm scale-102' : 'text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-navy-800'}`}
-                >
-                    <Icon name="Bookmark" className={`w-3.5 h-3.5 ${selectedCategory === 'Tersimpan' ? 'fill-current' : ''}`} />
-                    <span>Tersimpan</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${selectedCategory === 'Tersimpan' ? 'bg-black/20 text-white dark:text-navy-950' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'}`}>
-                        {categoryCounts['Tersimpan'] || 0}
-                    </span>
-                </button>
-            </div>
-
             {/* STATUS FILTER / HASIL PENCARIAN */}
             {(selectedCategory !== 'Semua' || searchQuery.trim()) && (
                 <div className="flex items-center justify-between text-xs text-navy-600 dark:text-navy-300 px-2">
@@ -5936,9 +5997,10 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                     </p>
                     <button
                         onClick={() => { setSelectedCategory('Semua'); setSearchQuery(''); }}
-                        className="text-gold-600 dark:text-gold-400 font-bold hover:underline"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/90 dark:bg-navy-800/90 text-gold-600 dark:text-gold-400 hover:bg-gold-50 dark:hover:bg-navy-700 border border-navy-200/80 dark:border-navy-700 font-extrabold text-xs shadow-xs hover:shadow transition-all active:scale-95 shrink-0"
                     >
-                        Reset Filter
+                        <Icon name="RotateCcw" className="w-3 h-3" />
+                        <span>Reset Filter</span>
                     </button>
                 </div>
             )}
@@ -6121,8 +6183,14 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                                             </div>
                                         )}
 
-                                        {/* Category Badge Floating */}
-                                        <div className="absolute top-3 left-3 z-10">
+                                        {/* Penulis di posisi kiri sampul */}
+                                        <div className="absolute top-3 left-3 bg-white/95 dark:bg-navy-900/90 text-navy-900 dark:text-gold-300 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm backdrop-blur-md flex items-center gap-1 z-10 border border-black/5 dark:border-white/10">
+                                            <Icon name="User" className="w-3 h-3 text-gold-500 shrink-0" />
+                                            <span className="truncate max-w-[110px]">{warta.penulis || 'Redaksi'}</span>
+                                        </div>
+
+                                        {/* Kategori di posisi kanan sampul thumbnail */}
+                                        <div className="absolute top-3 right-3 z-10">
                                             <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md ${info.categoryStyle.badge}`}>
                                                 {info.category}
                                             </span>
@@ -6130,22 +6198,25 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
 
                                         {/* Multi-Photo Indicator */}
                                         {safeUrls.length > 1 && (
-                                            <div className="absolute top-3 right-3 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-sm flex items-center gap-1 z-10">
+                                            <div className="absolute bottom-3 right-3 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-sm flex items-center gap-1 z-10">
                                                 <Icon name="Image" className="w-3 h-3" /> +{safeUrls.length - 1}
                                             </div>
                                         )}
-
-                                        {/* Floating Date Badge */}
-                                        <div className="absolute bottom-3 left-3 bg-white/95 dark:bg-navy-900/90 text-navy-900 dark:text-gold-300 text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm backdrop-blur-md">
-                                            {formatDate(warta.tanggal)}
-                                        </div>
                                     </div>
 
                                     {/* Card Content */}
                                     <div className="p-5 flex flex-col flex-1">
-                                        <div className="flex items-center gap-2 text-[11px] font-semibold text-navy-400 dark:text-navy-500 mb-2">
-                                            <Icon name="Clock" className="w-3 h-3 text-gold-500" />
-                                            <span>{info.readingTime}</span>
+                                        {/* Tanggal terbit di bawah gambar sampul thumbnail */}
+                                        <div className="flex items-center gap-2 text-[11px] font-semibold text-navy-500 dark:text-navy-400 mb-2">
+                                            <span className="flex items-center gap-1 font-bold text-navy-700 dark:text-gold-300">
+                                                <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-500 shrink-0" />
+                                                {formatIndoDateTime(warta.tanggal)}
+                                            </span>
+                                            <span>•</span>
+                                            <span className="flex items-center gap-1">
+                                                <Icon name="Clock" className="w-3 h-3 text-gold-500" />
+                                                {info.readingTime}
+                                            </span>
                                         </div>
 
                                         <h3 className="font-extrabold text-navy-950 dark:text-gold-400 text-base leading-snug mb-2 group-hover:text-gold-600 transition-colors line-clamp-2">
@@ -6230,11 +6301,839 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
 };
 // ========== AKHIR WARTA PAGE ==========
 
+// ==========================================
+// RichTextEditor Component (WYSIWYG)
+// Ditempatkan di level modul agar komponen tidak unmount saat parent re-render
+// ==========================================
+const RichTextEditor = React.forwardRef(({ initialValue = "", onChange, placeholder, onUploadImage, allowImage = true }, ref) => {
+    const editorRef = React.useRef(null);
+    const lastHtmlRef = React.useRef(initialValue);
+    const savedRangeRef = React.useRef(null);
+    const [isFocused, setIsFocused] = React.useState(false);
+    const [showImageModal, setShowImageModal] = React.useState(false);
+    const [isReplacingImage, setIsReplacingImage] = React.useState(false);
+    const [imageTab, setImageTab] = React.useState('upload'); // 'upload' | 'url'
+    const [imageUrlInput, setImageUrlInput] = React.useState('');
+    const [imageCaption, setImageCaption] = React.useState('');
+    const [imageAlignment, setImageAlignment] = React.useState('center'); // 'center' | 'left' | 'right' | 'full'
+    const [selectedFileObj, setSelectedFileObj] = React.useState(null);
+    const [selectedFilePreview, setSelectedFilePreview] = React.useState('');
+    const [isProcessingImage, setIsProcessingImage] = React.useState(false);
+    const [inlineUploadError, setInlineUploadError] = React.useState('');
+    const [selectedFigure, setSelectedFigure] = React.useState(null);
+    const fileInputRef = React.useRef(null);
+
+    // Simpan range/posisi kursor secara proaktif
+    const saveSelection = React.useCallback(() => {
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0 && editorRef.current) {
+            const range = sel.getRangeAt(0);
+            if (editorRef.current.contains(range.commonAncestorContainer)) {
+                savedRangeRef.current = range.cloneRange();
+            }
+        }
+    }, []);
+
+    React.useImperativeHandle(ref, () => ({
+        getContent: () => {
+            if (!editorRef.current) return '';
+            const clone = editorRef.current.cloneNode(true);
+            const marker = clone.querySelector('#warta-insert-target');
+            if (marker) marker.remove();
+            clone.querySelectorAll('.ring-4').forEach(el => {
+                el.classList.remove('ring-4', 'ring-gold-400', 'ring-offset-2');
+            });
+            return clone.innerHTML;
+        },
+        setContent: (html) => {
+            if (editorRef.current) {
+                editorRef.current.innerHTML = html || '';
+                lastHtmlRef.current = html || '';
+            }
+        },
+        focus: () => {
+            if (editorRef.current) editorRef.current.focus();
+        }
+    }));
+
+    // Inisialisasi awal saat dimuat
+    React.useEffect(() => {
+        if (editorRef.current && initialValue && !editorRef.current.innerHTML) {
+            editorRef.current.innerHTML = initialValue;
+            lastHtmlRef.current = initialValue;
+        }
+    }, []);
+
+    // Sinkronisasi nilai eksternal jika form di-reset atau ganti data tanpa merusak kursor yang sedang mengetik
+    React.useEffect(() => {
+        if (editorRef.current && initialValue !== lastHtmlRef.current) {
+            if (document.activeElement !== editorRef.current && !editorRef.current.contains(document.activeElement)) {
+                editorRef.current.innerHTML = initialValue || '';
+                lastHtmlRef.current = initialValue || '';
+            }
+        }
+    }, [initialValue]);
+
+    const handleInput = () => {
+        if (editorRef.current) {
+            saveSelection();
+            const clone = editorRef.current.cloneNode(true);
+            const marker = clone.querySelector('#warta-insert-target');
+            if (marker) marker.remove();
+            clone.querySelectorAll('.ring-4').forEach(el => {
+                el.classList.remove('ring-4', 'ring-gold-400', 'ring-offset-2');
+            });
+            const currentHtml = clone.innerHTML;
+            lastHtmlRef.current = currentHtml;
+            if (onChange) {
+                onChange(currentHtml);
+            }
+        }
+    };
+
+    const handleBlur = () => {
+        setIsFocused(false);
+        saveSelection();
+        handleInput();
+    };
+
+    const handleEditorClick = (e) => {
+        saveSelection();
+        const fig = e.target.closest('figure[data-warta-image="true"]');
+        if (fig) {
+            setSelectedFigure(fig);
+        } else {
+            setSelectedFigure(null);
+        }
+    };
+
+    const openImageModal = () => {
+        setIsReplacingImage(false);
+        // Simpan kursor sebelum modal terbuka
+        saveSelection();
+
+        // Hapus penanda lama jika ada
+        if (editorRef.current) {
+            const oldMarker = editorRef.current.querySelector('#warta-insert-target');
+            if (oldMarker) oldMarker.remove();
+        }
+
+        // Buat penanda visual posisi kursor
+        const marker = document.createElement('div');
+        marker.id = 'warta-insert-target';
+        marker.className = 'warta-insert-indicator flex items-center gap-2 p-2.5 my-3 bg-gradient-to-r from-amber-50 to-gold-50 dark:from-navy-850 dark:to-navy-800 border-2 border-dashed border-gold-400 rounded-xl text-navy-900 dark:text-gold-300 font-bold text-xs shadow-md select-none animate-pulse';
+        marker.setAttribute('contenteditable', 'false');
+        marker.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-gold-500 animate-ping"></span> 📸 <span class="tracking-wide">[Posisi Gambar Akan Disisipkan Tepat di Sini]</span>';
+
+        let inserted = false;
+        let range = null;
+
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0 && editorRef.current) {
+            const r = sel.getRangeAt(0);
+            if (editorRef.current.contains(r.commonAncestorContainer)) {
+                range = r;
+            }
+        }
+        if (!range && savedRangeRef.current && editorRef.current) {
+            if (editorRef.current.contains(savedRangeRef.current.commonAncestorContainer)) {
+                range = savedRangeRef.current;
+            }
+        }
+
+        if (range && editorRef.current) {
+            try {
+                range.deleteContents();
+                range.insertNode(marker);
+                inserted = true;
+            } catch (err) {
+                console.warn("Could not insert marker at range:", err);
+            }
+        }
+
+        if (!inserted && editorRef.current) {
+            editorRef.current.appendChild(marker);
+        }
+
+        setTimeout(() => {
+            if (marker && marker.scrollIntoView) {
+                marker.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }, 50);
+
+        setImageUrlInput('');
+        setImageCaption('');
+        setImageAlignment('center');
+        setSelectedFileObj(null);
+        setSelectedFilePreview('');
+        setInlineUploadError('');
+        setImageTab('upload');
+        setShowImageModal(true);
+    };
+
+    const openReplaceImageModal = (fig) => {
+        if (!fig) return;
+        setIsReplacingImage(true);
+        setSelectedFigure(fig);
+
+        const img = fig.querySelector('img');
+        const existingSrc = img?.src || '';
+        const captionEl = fig.querySelector('figcaption');
+        const existingCaption = captionEl ? captionEl.textContent : '';
+
+        let existingAlign = 'center';
+        if (fig.className.includes('float-left')) existingAlign = 'left';
+        else if (fig.className.includes('float-right')) existingAlign = 'right';
+        else if (fig.className.includes('w-full')) existingAlign = 'full';
+
+        setImageUrlInput(existingSrc.startsWith('http') ? existingSrc : '');
+        setImageCaption(existingCaption);
+        setImageAlignment(existingAlign);
+        setSelectedFileObj(null);
+        setSelectedFilePreview(existingSrc);
+        setInlineUploadError('');
+        setImageTab(existingSrc.startsWith('http') ? 'url' : 'upload');
+        setShowImageModal(true);
+    };
+
+    const closeImageModal = () => {
+        if (editorRef.current) {
+            const marker = editorRef.current.querySelector('#warta-insert-target');
+            if (marker) marker.remove();
+        }
+        setShowImageModal(false);
+        setIsReplacingImage(false);
+        handleInput();
+        if (editorRef.current) {
+            editorRef.current.focus();
+        }
+    };
+
+    const setFigureAlignment = (fig, align) => {
+        if (!fig) return;
+        let alignClasses = 'my-6 mx-auto block text-center max-w-full clear-both';
+        let imgClasses = 'rounded-2xl shadow-md max-w-full h-auto mx-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+
+        if (align === 'left') {
+            alignClasses = 'my-4 float-left mr-6 mb-4 max-w-[48%] text-left clear-left';
+            imgClasses = 'rounded-xl shadow-md max-w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+        } else if (align === 'right') {
+            alignClasses = 'my-4 float-right ml-6 mb-4 max-w-[48%] text-right clear-right';
+            imgClasses = 'rounded-xl shadow-md max-w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+        } else if (align === 'full') {
+            alignClasses = 'my-6 w-full block text-center clear-both';
+            imgClasses = 'rounded-2xl shadow-md w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+        }
+
+        fig.className = alignClasses;
+        const img = fig.querySelector('img');
+        if (img) img.className = imgClasses;
+        handleInput();
+    };
+
+    const deleteFigure = (fig) => {
+        if (!fig) return;
+        fig.remove();
+        setSelectedFigure(null);
+        handleInput();
+    };
+
+    const execCommand = (cmd, valueArg = null) => {
+        if (!editorRef.current) return;
+        editorRef.current.focus();
+
+        if (cmd === 'formatBlock' && valueArg === '<h3>') {
+            const selection = window.getSelection();
+            if (selection && selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                const selectedText = range.toString();
+                if (selectedText) {
+                    const h3 = document.createElement('h3');
+                    h3.textContent = selectedText;
+                    range.deleteContents();
+                    range.insertNode(h3);
+                    range.setStartAfter(h3);
+                    range.setEndAfter(h3);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            }
+        }
+        else if (cmd === 'insertUnorderedList') {
+            const selection = window.getSelection();
+            if (selection && selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                const selectedText = range.toString();
+                if (selectedText) {
+                    const ul = document.createElement('ul');
+                    const li = document.createElement('li');
+                    li.textContent = selectedText;
+                    ul.appendChild(li);
+                    range.deleteContents();
+                    range.insertNode(ul);
+                    range.setStartAfter(ul);
+                    range.setEndAfter(ul);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            }
+        }
+        else if (cmd === 'insertOrderedList') {
+            const selection = window.getSelection();
+            if (selection && selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                const selectedText = range.toString();
+                if (selectedText) {
+                    const ol = document.createElement('ol');
+                    const li = document.createElement('li');
+                    li.textContent = selectedText;
+                    ol.appendChild(li);
+                    range.deleteContents();
+                    range.insertNode(ol);
+                    range.setStartAfter(ol);
+                    range.setEndAfter(ol);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            }
+        }
+        else if (cmd === 'insertHTML' && valueArg === '<br>') {
+            const br = document.createElement('br');
+            const selection = window.getSelection();
+            if (selection && selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(br);
+                range.setStartAfter(br);
+                range.setEndAfter(br);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+        else {
+            document.execCommand(cmd, false, valueArg);
+        }
+
+        saveSelection();
+        handleInput();
+    };
+
+    const insertLink = () => {
+        const url = prompt('Masukkan URL tautan:', 'https://');
+        if (url) execCommand('createLink', url);
+    };
+
+    const insertBreak = () => {
+        if (!editorRef.current) return;
+        editorRef.current.focus();
+        const br = document.createElement('br');
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount) {
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(br);
+            range.setStartAfter(br);
+            range.setEndAfter(br);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+        saveSelection();
+        handleInput();
+    };
+
+    const handleConfirmInsert = async () => {
+        setInlineUploadError('');
+        let finalUrl = '';
+
+        if (imageTab === 'upload') {
+            if (!selectedFileObj) {
+                setInlineUploadError('Silakan pilih berkas foto terlebih dahulu.');
+                return;
+            }
+            setIsProcessingImage(true);
+            try {
+                const compressed = await compressImage(selectedFileObj, 1000);
+                if (onUploadImage) {
+                    finalUrl = await onUploadImage(compressed, selectedFileObj.name);
+                } else {
+                    finalUrl = compressed;
+                }
+            } catch (err) {
+                setInlineUploadError('Gagal memproses foto: ' + err.message);
+                setIsProcessingImage(false);
+                return;
+            }
+            setIsProcessingImage(false);
+        } else {
+            finalUrl = imageUrlInput.trim();
+            if (!finalUrl) {
+                setInlineUploadError('Silakan masukkan link URL gambar yang valid.');
+                return;
+            }
+        }
+
+        // Mode Ganti Foto pada gambar sisipan yang sudah ada di editor
+        if (isReplacingImage && selectedFigure) {
+            const img = selectedFigure.querySelector('img');
+            if (img) {
+                img.src = finalUrl;
+                img.alt = imageCaption || 'Foto Warta';
+            }
+
+            let captionEl = selectedFigure.querySelector('figcaption');
+            if (imageCaption && imageCaption.trim()) {
+                if (!captionEl) {
+                    captionEl = document.createElement('figcaption');
+                    selectedFigure.appendChild(captionEl);
+                }
+                captionEl.className = 'text-xs text-center text-navy-500 dark:text-navy-400 mt-2 italic font-medium';
+                captionEl.setAttribute('contenteditable', 'true');
+                captionEl.textContent = imageCaption.trim();
+            } else if (captionEl) {
+                captionEl.remove();
+            }
+
+            setFigureAlignment(selectedFigure, imageAlignment);
+
+            setShowImageModal(false);
+            setIsReplacingImage(false);
+            handleInput();
+
+            setTimeout(() => {
+                if (editorRef.current) {
+                    editorRef.current.focus();
+                }
+                if (selectedFigure && selectedFigure.scrollIntoView) {
+                    selectedFigure.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+                selectedFigure.classList.add('ring-4', 'ring-gold-400', 'ring-offset-2');
+                setTimeout(() => {
+                    selectedFigure.classList.remove('ring-4', 'ring-gold-400', 'ring-offset-2');
+                }, 2500);
+            }, 60);
+            return;
+        }
+
+        // Cari penanda visual target
+        const marker = editorRef.current?.querySelector('#warta-insert-target');
+
+        // Susun elemen figure profesional
+        const figure = document.createElement('figure');
+        figure.setAttribute('data-warta-image', 'true');
+        figure.setAttribute('contenteditable', 'false');
+
+        let alignClasses = 'my-6 mx-auto block text-center max-w-full clear-both';
+        let imgClasses = 'rounded-2xl shadow-md max-w-full h-auto mx-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+
+        if (imageAlignment === 'left') {
+            alignClasses = 'my-4 float-left mr-6 mb-4 max-w-[48%] text-left clear-left';
+            imgClasses = 'rounded-xl shadow-md max-w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+        } else if (imageAlignment === 'right') {
+            alignClasses = 'my-4 float-right ml-6 mb-4 max-w-[48%] text-right clear-right';
+            imgClasses = 'rounded-xl shadow-md max-w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+        } else if (imageAlignment === 'full') {
+            alignClasses = 'my-6 w-full block text-center clear-both';
+            imgClasses = 'rounded-2xl shadow-md w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
+        }
+
+        figure.className = alignClasses;
+
+        const img = document.createElement('img');
+        img.src = finalUrl;
+        img.alt = imageCaption || 'Foto Warta';
+        img.className = imgClasses;
+        img.style.maxHeight = '480px';
+        img.style.objectFit = 'contain';
+        img.setAttribute('loading', 'lazy');
+        figure.appendChild(img);
+
+        if (imageCaption && imageCaption.trim()) {
+            const captionEl = document.createElement('figcaption');
+            captionEl.className = 'text-xs text-center text-navy-500 dark:text-navy-400 mt-2 italic font-medium';
+            captionEl.setAttribute('contenteditable', 'true');
+            captionEl.textContent = imageCaption.trim();
+            figure.appendChild(captionEl);
+        }
+
+        if (marker && marker.parentNode) {
+            marker.parentNode.replaceChild(figure, marker);
+        } else if (editorRef.current) {
+            editorRef.current.appendChild(figure);
+        }
+
+        // Tambahkan baris kosong setelah gambar agar bisa langsung lanjut mengetik
+        const p = document.createElement('p');
+        p.innerHTML = '<br>';
+        if (figure.parentNode) {
+            figure.parentNode.insertBefore(p, figure.nextSibling);
+        }
+
+        setShowImageModal(false);
+        handleInput();
+
+        // Fokuskan kursor tepat di bawah gambar di baris baru dan scroll secara halus tanpa lompat
+        setTimeout(() => {
+            if (editorRef.current) {
+                editorRef.current.focus();
+                const sel = window.getSelection();
+                if (sel) {
+                    const newRange = document.createRange();
+                    newRange.selectNodeContents(p);
+                    newRange.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(newRange);
+                    savedRangeRef.current = newRange.cloneRange();
+                }
+            }
+            if (figure && figure.scrollIntoView) {
+                figure.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            figure.classList.add('ring-4', 'ring-gold-400', 'ring-offset-2');
+            setTimeout(() => {
+                figure.classList.remove('ring-4', 'ring-gold-400', 'ring-offset-2');
+            }, 2500);
+        }, 60);
+    };
+
+    const handlePaste = async (e) => {
+        const items = e.clipboardData?.items;
+        if (items) {
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    e.preventDefault();
+                    const file = items[i].getAsFile();
+                    if (file) {
+                        openImageModal();
+                        setSelectedFileObj(file);
+                        setSelectedFilePreview(URL.createObjectURL(file));
+                        setImageTab('upload');
+                    }
+                    break;
+                }
+            }
+        }
+    };
+
+    const handleDrop = async (e) => {
+        const files = e.dataTransfer?.files;
+        if (files && files.length > 0 && files[0].type.startsWith('image/')) {
+            e.preventDefault();
+            const file = files[0];
+            openImageModal();
+            setSelectedFileObj(file);
+            setSelectedFilePreview(URL.createObjectURL(file));
+            setImageTab('upload');
+        }
+    };
+
+    return (
+        <div className="border border-navy-200 dark:border-navy-700 rounded-xl overflow-hidden bg-white dark:bg-navy-900 shadow-sm relative">
+            {/* Main Toolbar */}
+            <div className="flex flex-wrap items-center gap-1 p-2 bg-navy-50 dark:bg-navy-800 border-b border-navy-100 dark:border-navy-700/60">
+                <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('bold'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Tebal (Bold)"><Icon name="Bold" className="w-4 h-4" /></button>
+                <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('italic'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Miring (Italic)"><Icon name="Italic" className="w-4 h-4" /></button>
+                <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('underline'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Garis Bawah (Underline)"><Icon name="Underline" className="w-4 h-4" /></button>
+                <div className="w-px h-5 bg-navy-300 dark:bg-navy-700 mx-1 self-center"></div>
+                <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('formatBlock', '<h3>'); }} className="p-1 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-800 dark:text-gold-400 rounded font-black text-xs px-2 transition" title="Subjudul (H3)">H3</button>
+                <div className="w-px h-5 bg-navy-300 dark:bg-navy-700 mx-1 self-center"></div>
+                <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertUnorderedList'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Daftar Poin (Bullet List)"><Icon name="List" className="w-4 h-4" /></button>
+                <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertOrderedList'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Daftar Nomor (Numbered List)"><Icon name="ListOrdered" className="w-4 h-4" /></button>
+                <div className="w-px h-5 bg-navy-300 dark:bg-navy-700 mx-1 self-center"></div>
+                <button type="button" onMouseDown={(e) => { e.preventDefault(); insertLink(); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Sisipkan Tautan (Link)"><Icon name="LinkIcon" className="w-4 h-4" /></button>
+                <button type="button" onMouseDown={(e) => { e.preventDefault(); insertBreak(); }} className="p-1 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-800 dark:text-navy-200 rounded font-bold text-xs px-2 transition" title="Garis Baru (Line Break)">BR</button>
+                <div className="w-px h-5 bg-navy-300 dark:bg-navy-700 mx-1 self-center"></div>
+                {allowImage && (
+                    <button
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); openImageModal(); }}
+                        onClick={openImageModal}
+                        className="p-1.5 px-2.5 bg-gold-400/20 hover:bg-gold-400/30 text-gold-700 dark:text-gold-300 border border-gold-400/40 rounded-lg flex items-center gap-1.5 font-extrabold text-xs transition shadow-sm ml-auto sm:ml-0 active:scale-95"
+                        title="Sisipkan Gambar di Posisi Kursor Tulisan"
+                    >
+                        <Icon name="Image" className="w-4 h-4 text-gold-600 dark:text-gold-400" />
+                        <span>+ Sisipkan Gambar</span>
+                    </button>
+                )}
+            </div>
+
+            {/* Sub-Toolbar Konteks: Format Gambar Terpilih */}
+            {selectedFigure && (
+                <div className="flex flex-wrap items-center justify-between gap-2 p-2 px-3 bg-amber-50/90 dark:bg-navy-800/90 border-b border-gold-300/50 dark:border-navy-700 text-xs animate-fade-in">
+                    <div className="flex items-center gap-1.5 font-extrabold text-navy-900 dark:text-gold-400">
+                        <Icon name="Image" className="w-3.5 h-3.5 text-gold-500" />
+                        <span>Format Gambar Terpilih:</span>
+                    </div>
+                    <div className="flex items-center gap-1 flex-wrap">
+                        <button
+                            type="button"
+                            onClick={() => openReplaceImageModal(selectedFigure)}
+                            className="px-2.5 py-1 rounded-lg bg-gold-500 hover:bg-gold-600 text-navy-950 text-[11px] font-extrabold transition shadow-xs flex items-center gap-1 active:scale-95"
+                            title="Ganti gambar ini dengan foto baru dari HP/Laptop atau URL"
+                        >
+                            <Icon name="RefreshCw" className="w-3 h-3 stroke-[2.5]" />
+                            <span>Ganti Foto</span>
+                        </button>
+                        <div className="w-px h-4 bg-navy-200 dark:bg-navy-700 mx-0.5 self-center"></div>
+                        <button
+                            type="button"
+                            onClick={() => setFigureAlignment(selectedFigure, 'center')}
+                            className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-[11px] font-bold hover:bg-gold-50 text-navy-800 dark:text-navy-200 shadow-xs"
+                            title="Rata Tengah"
+                        >
+                            ↔ Tengah
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setFigureAlignment(selectedFigure, 'left')}
+                            className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-[11px] font-bold hover:bg-gold-50 text-navy-800 dark:text-navy-200 shadow-xs"
+                            title="Rata Kiri"
+                        >
+                            ⬅ Kiri
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setFigureAlignment(selectedFigure, 'right')}
+                            className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-[11px] font-bold hover:bg-gold-50 text-navy-800 dark:text-navy-200 shadow-xs"
+                            title="Rata Kanan"
+                        >
+                            ➡ Kanan
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setFigureAlignment(selectedFigure, 'full')}
+                            className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-[11px] font-bold hover:bg-gold-50 text-navy-800 dark:text-navy-200 shadow-xs"
+                            title="Lebar Penuh"
+                        >
+                            ⬛ Penuh
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => deleteFigure(selectedFigure)}
+                            className="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-[11px] font-bold transition ml-1"
+                            title="Hapus Gambar Ini"
+                        >
+                            <Icon name="Trash" className="w-3 h-3 inline mr-1" /> Hapus Foto
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* ContentEditable Canvas */}
+            <div
+                ref={editorRef}
+                contentEditable
+                onFocus={() => { setIsFocused(true); saveSelection(); }}
+                onBlur={handleBlur}
+                onInput={handleInput}
+                onClick={handleEditorClick}
+                onDoubleClick={(e) => {
+                    const fig = e.target.closest('figure[data-warta-image="true"]');
+                    if (fig) openReplaceImageModal(fig);
+                }}
+                onKeyUp={saveSelection}
+                onMouseUp={saveSelection}
+                onSelect={saveSelection}
+                onTouchEnd={saveSelection}
+                onPaste={handlePaste}
+                onDrop={handleDrop}
+                onDragOver={(e) => e.preventDefault()}
+                className="rich-text-editor p-4 min-h-[240px] max-h-[500px] overflow-y-auto focus:outline-none bg-white dark:bg-navy-900 dark:text-white prose prose-sm max-w-none"
+                style={{ whiteSpace: 'pre-wrap' }}
+            />
+
+            {/* Modal Sisipkan Gambar (Dimount Langsung ke document.body via Portal agar 100% di Tengah Layar) */}
+            {showImageModal && createPortal(
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 md:p-6 bg-navy-950/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+                    <div className="bg-white dark:bg-navy-900 border border-navy-100 dark:border-navy-800 rounded-2xl max-w-lg w-full p-5 md:p-6 shadow-2xl relative text-left my-auto">
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between border-b border-navy-100 dark:border-navy-800 pb-3 mb-4">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-9 h-9 rounded-xl bg-gold-500/10 text-gold-500 flex items-center justify-center font-bold">
+                                    <Icon name={isReplacingImage ? "RefreshCw" : "Image"} className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h3 className="font-extrabold text-navy-900 dark:text-gold-400 text-base">
+                                        {isReplacingImage ? "Ganti Foto Sisipan" : "Sisipkan Gambar ke Isi Warta"}
+                                    </h3>
+                                    <p className="text-[11px] text-navy-500 dark:text-navy-400">
+                                        {isReplacingImage ? "Pilih foto pengganti baru dari perangkat atau masukkan URL baru" : "Gambar akan muncul tepat pada posisi kursor tulisan yang telah ditandai"}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={closeImageModal}
+                                className="p-1.5 text-navy-400 hover:text-navy-600 dark:hover:text-navy-200 rounded-lg hover:bg-navy-100 dark:hover:bg-navy-800 transition"
+                            >
+                                <Icon name="X" className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Mode Tab: Upload vs URL */}
+                        <div className="flex rounded-xl bg-navy-100 dark:bg-navy-800 p-1 mb-4">
+                            <button
+                                type="button"
+                                onClick={() => setImageTab('upload')}
+                                className={`flex-1 py-2 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 ${imageTab === 'upload' ? 'bg-white dark:bg-navy-900 text-navy-900 dark:text-gold-400 shadow-sm' : 'text-navy-600 dark:text-navy-300'}`}
+                            >
+                                <Icon name="Upload" className="w-3.5 h-3.5" /> Unggah Foto Perangkat
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setImageTab('url')}
+                                className={`flex-1 py-2 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 ${imageTab === 'url' ? 'bg-white dark:bg-navy-900 text-navy-900 dark:text-gold-400 shadow-sm' : 'text-navy-600 dark:text-navy-300'}`}
+                            >
+                                <Icon name="LinkIcon" className="w-3.5 h-3.5" /> Masukkan Link (URL)
+                            </button>
+                        </div>
+
+                        {/* Upload Area */}
+                        {imageTab === 'upload' ? (
+                            <div className="mb-4">
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setSelectedFileObj(file);
+                                            setSelectedFilePreview(URL.createObjectURL(file));
+                                        }
+                                    }}
+                                />
+                                {selectedFilePreview ? (
+                                    <div className="relative border border-navy-200 dark:border-navy-700 rounded-xl p-3 bg-navy-50/50 dark:bg-navy-950 text-center">
+                                        <img src={selectedFilePreview} alt="Preview" className="max-h-48 mx-auto rounded-lg object-contain shadow-sm" />
+                                        <div className="mt-2.5 flex items-center justify-between text-xs text-navy-500 dark:text-navy-400 px-2">
+                                            <span className="truncate max-w-[200px] font-medium">{selectedFileObj?.name}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="text-gold-600 hover:text-gold-700 dark:text-gold-400 font-bold underline"
+                                            >
+                                                Ganti Foto
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="border-2 border-dashed border-navy-300 dark:border-navy-700 hover:border-gold-500 rounded-xl p-7 text-center cursor-pointer transition hover:bg-gold-50/20 dark:hover:bg-navy-800/50"
+                                    >
+                                        <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-500 flex items-center justify-center mx-auto mb-2.5">
+                                            <Icon name="Upload" className="w-6 h-6" />
+                                        </div>
+                                        <p className="text-xs font-bold text-navy-800 dark:text-navy-200 mb-1">Klik untuk Memilih Foto dari HP atau Laptop</p>
+                                        <p className="text-[11px] text-navy-400">Mendukung format JPG, PNG, atau WebP (Otomatis dikompres)</p>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="mb-4">
+                                <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1.5">URL Gambar Eksternal</label>
+                                <input
+                                    type="url"
+                                    value={imageUrlInput}
+                                    onChange={(e) => setImageUrlInput(e.target.value)}
+                                    placeholder="https://contoh.com/foto-kegiatan.jpg"
+                                    className="w-full p-2.5 border border-navy-200 dark:border-navy-700 rounded-xl text-xs bg-navy-50/50 dark:bg-navy-950 dark:text-white focus:border-gold-500 outline-none"
+                                />
+                                {imageUrlInput && (
+                                    <div className="mt-2 p-2 border border-navy-100 dark:border-navy-800 rounded-lg text-center bg-navy-50/30">
+                                        <img src={imageUrlInput} alt="Preview" className="max-h-36 mx-auto rounded object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Caption Field */}
+                        <div className="mb-4">
+                            <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1">
+                                Keterangan / Takarir Foto <span className="text-navy-400 font-normal">(Opsional)</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={imageCaption}
+                                onChange={(e) => setImageCaption(e.target.value)}
+                                placeholder="Contoh: Suasana ibadah Sabat di GMAHK Pisgah"
+                                className="w-full p-2.5 border border-navy-200 dark:border-navy-700 rounded-xl text-xs bg-navy-50/50 dark:bg-navy-950 dark:text-white focus:border-gold-500 outline-none"
+                            />
+                        </div>
+
+                        {/* Alignment Options */}
+                        <div className="mb-5">
+                            <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1.5">
+                                Tata Letak / Posisi Gambar
+                            </label>
+                            <div className="grid grid-cols-4 gap-2">
+                                {[
+                                    { id: 'center', label: '↔ Tengah' },
+                                    { id: 'left', label: '⬅ Kiri' },
+                                    { id: 'right', label: '➡ Kanan' },
+                                    { id: 'full', label: '⬛ Penuh' }
+                                ].map((opt) => (
+                                    <button
+                                        key={opt.id}
+                                        type="button"
+                                        onClick={() => setImageAlignment(opt.id)}
+                                        className={`py-2 px-2 rounded-xl text-xs font-bold border transition text-center ${imageAlignment === opt.id ? 'bg-gold-500 text-navy-950 border-gold-500 shadow-sm' : 'border-navy-200 dark:border-navy-700 text-navy-600 dark:text-navy-400 hover:bg-navy-50 dark:hover:bg-navy-800'}`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {inlineUploadError && (
+                            <p className="text-xs text-red-500 mb-3 font-semibold">{inlineUploadError}</p>
+                        )}
+
+                        {/* Modal Actions */}
+                        <div className="flex items-center justify-end gap-2 pt-3 border-t border-navy-100 dark:border-navy-800">
+                            <button
+                                type="button"
+                                onClick={closeImageModal}
+                                className="px-4 py-2 rounded-xl text-xs font-bold text-navy-600 dark:text-navy-300 hover:bg-navy-100 dark:hover:bg-navy-800 transition"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmInsert}
+                                disabled={isProcessingImage}
+                                className="px-5 py-2 rounded-xl text-xs font-bold bg-navy-900 text-gold-400 hover:bg-navy-800 dark:bg-gold-500 dark:text-navy-950 dark:hover:bg-gold-400 transition shadow-sm flex items-center gap-1.5 disabled:opacity-50"
+                            >
+                                {isProcessingImage ? (
+                                    <>
+                                        <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Memproses Foto...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Icon name="Check" className="w-3.5 h-3.5" />
+                                        <span>{isReplacingImage ? "Perbarui & Ganti Foto" : "Sisipkan ke Tulisan"}</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+        </div>
+    );
+});
+
 // --- KOMPONEN AdminDashboard yang DIPERBAIKI (dengan fitur warta) ---
 const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken,
     youtubeUrl, setYoutubeUrl, anthemUrl, setAnthemUrl, anthemUrl2, setAnthemUrl2, anthemTitle, setAnthemTitle, anthemTitle2, setAnthemTitle2, youtubeTitle, setYoutubeTitle, youtubeChannelTitle, setYoutubeChannelTitle, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages,
     pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, perpuluhanDate, setPerpuluhanDate, perjamuanNote, setPerjamuanNote, perpuluhanNote, setPerpuluhanNote, daftarRekening, setDaftarRekening, handleLogout, carouselEvents, setCarouselEvents, carouselVideos, setCarouselVideos }) => {
     const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan, buku
+    React.useEffect(() => {
+        scrollToTop();
+    }, [adminTab]);
     const [viewMonth, setViewMonth] = React.useState(new Date().getMonth());
     const [viewYear, setViewYear] = React.useState(new Date().getFullYear());
     const [subTab, setSubTab] = React.useState('rabu');
@@ -6529,657 +7428,12 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         return () => clearTimeout(timer);
     }, [editWartaModal, editingWarta, editWartaJudul, editWartaIsi, editWartaPenulis, editWartaKategori]);
 
-    // RichTextEditor Component (WYSIWYG) dengan Dukungan Sisipkan Gambar Inline Profesional
-    const RichTextEditor = React.forwardRef(({ initialValue = "", onChange, placeholder, onUploadImage, allowImage = true }, ref) => {
-        const editorRef = React.useRef(null);
-        const [isFocused, setIsFocused] = React.useState(false);
-        const [showImageModal, setShowImageModal] = React.useState(false);
-        const [imageTab, setImageTab] = React.useState('upload'); // 'upload' | 'url'
-        const [imageUrlInput, setImageUrlInput] = React.useState('');
-        const [imageCaption, setImageCaption] = React.useState('');
-        const [imageAlignment, setImageAlignment] = React.useState('center'); // 'center' | 'left' | 'right' | 'full'
-        const [selectedFileObj, setSelectedFileObj] = React.useState(null);
-        const [selectedFilePreview, setSelectedFilePreview] = React.useState('');
-        const [isProcessingImage, setIsProcessingImage] = React.useState(false);
-        const [inlineUploadError, setInlineUploadError] = React.useState('');
-        const [selectedFigure, setSelectedFigure] = React.useState(null);
-        const fileInputRef = React.useRef(null);
-
-        React.useImperativeHandle(ref, () => ({
-            getContent: () => {
-                if (!editorRef.current) return '';
-                const clone = editorRef.current.cloneNode(true);
-                const marker = clone.querySelector('#warta-insert-target');
-                if (marker) marker.remove();
-                clone.querySelectorAll('.ring-4').forEach(el => {
-                    el.classList.remove('ring-4', 'ring-gold-400', 'ring-offset-2');
-                });
-                return clone.innerHTML;
-            },
-            setContent: (html) => { if (editorRef.current) editorRef.current.innerHTML = html; }
-        }));
-
-        React.useEffect(() => {
-            if (editorRef.current && editorRef.current.innerHTML !== initialValue) {
-                editorRef.current.innerHTML = initialValue;
-            }
-        }, [initialValue]);
-
-        const handleInput = () => {
-            if (onChange && editorRef.current) {
-                const clone = editorRef.current.cloneNode(true);
-                const marker = clone.querySelector('#warta-insert-target');
-                if (marker) marker.remove();
-                clone.querySelectorAll('.ring-4').forEach(el => {
-                    el.classList.remove('ring-4', 'ring-gold-400', 'ring-offset-2');
-                });
-                onChange(clone.innerHTML);
-            }
-        };
-
-        const handleBlur = () => {
-            setIsFocused(false);
-            handleInput();
-        };
-
-        const handleEditorClick = (e) => {
-            const fig = e.target.closest('figure[data-warta-image="true"]');
-            if (fig) {
-                setSelectedFigure(fig);
-            } else {
-                setSelectedFigure(null);
-            }
-        };
-
-        const openImageModal = () => {
-            // Hapus penanda lama jika ada
-            if (editorRef.current) {
-                const oldMarker = editorRef.current.querySelector('#warta-insert-target');
-                if (oldMarker) oldMarker.remove();
-            }
-
-            // Buat penanda visual posisi kursor
-            const marker = document.createElement('div');
-            marker.id = 'warta-insert-target';
-            marker.className = 'warta-insert-indicator flex items-center gap-2 p-2.5 my-3 bg-gradient-to-r from-amber-50 to-gold-50 dark:from-navy-850 dark:to-navy-800 border-2 border-dashed border-gold-400 rounded-xl text-navy-900 dark:text-gold-300 font-bold text-xs shadow-md select-none animate-pulse';
-            marker.setAttribute('contenteditable', 'false');
-            marker.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-gold-500 animate-ping"></span> 📸 <span class="tracking-wide">[Posisi Gambar Akan Disisipkan Tepat di Sini]</span>';
-
-            const sel = window.getSelection();
-            let inserted = false;
-
-            if (sel && sel.rangeCount > 0 && editorRef.current) {
-                const range = sel.getRangeAt(0);
-                if (editorRef.current.contains(range.commonAncestorContainer)) {
-                    range.deleteContents();
-                    range.insertNode(marker);
-                    inserted = true;
-                }
-            }
-
-            if (!inserted && editorRef.current) {
-                editorRef.current.appendChild(marker);
-            }
-
-            setTimeout(() => {
-                marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 50);
-
-            setImageUrlInput('');
-            setImageCaption('');
-            setImageAlignment('center');
-            setSelectedFileObj(null);
-            setSelectedFilePreview('');
-            setInlineUploadError('');
-            setImageTab('upload');
-            setShowImageModal(true);
-        };
-
-        const closeImageModal = () => {
-            if (editorRef.current) {
-                const marker = editorRef.current.querySelector('#warta-insert-target');
-                if (marker) marker.remove();
-            }
-            setShowImageModal(false);
-            handleInput();
-        };
-
-        const setFigureAlignment = (fig, align) => {
-            if (!fig) return;
-            let alignClasses = 'my-6 mx-auto block text-center max-w-full clear-both';
-            let imgClasses = 'rounded-2xl shadow-md max-w-full h-auto mx-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
-
-            if (align === 'left') {
-                alignClasses = 'my-4 float-left mr-6 mb-4 max-w-[48%] text-left clear-left';
-                imgClasses = 'rounded-xl shadow-md max-w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
-            } else if (align === 'right') {
-                alignClasses = 'my-4 float-right ml-6 mb-4 max-w-[48%] text-right clear-right';
-                imgClasses = 'rounded-xl shadow-md max-w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
-            } else if (align === 'full') {
-                alignClasses = 'my-6 w-full block text-center clear-both';
-                imgClasses = 'rounded-2xl shadow-md w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
-            }
-
-            fig.className = alignClasses;
-            const img = fig.querySelector('img');
-            if (img) img.className = imgClasses;
-            handleInput();
-        };
-
-        const deleteFigure = (fig) => {
-            if (!fig) return;
-            fig.remove();
-            setSelectedFigure(null);
-            handleInput();
-        };
-
-        const execCommand = (cmd, valueArg = null) => {
-            editorRef.current.focus();
-
-            if (cmd === 'formatBlock' && valueArg === '<h3>') {
-                const selection = window.getSelection();
-                if (selection.rangeCount) {
-                    const range = selection.getRangeAt(0);
-                    const selectedText = range.toString();
-                    if (selectedText) {
-                        const h3 = document.createElement('h3');
-                        h3.textContent = selectedText;
-                        range.deleteContents();
-                        range.insertNode(h3);
-                        range.setStartAfter(h3);
-                        range.setEndAfter(h3);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
-                    }
-                }
-            }
-            else if (cmd === 'insertUnorderedList') {
-                const selection = window.getSelection();
-                if (selection.rangeCount) {
-                    const range = selection.getRangeAt(0);
-                    const selectedText = range.toString();
-                    if (selectedText) {
-                        const ul = document.createElement('ul');
-                        const li = document.createElement('li');
-                        li.textContent = selectedText;
-                        ul.appendChild(li);
-                        range.deleteContents();
-                        range.insertNode(ul);
-                        range.setStartAfter(ul);
-                        range.setEndAfter(ul);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
-                    }
-                }
-            }
-            else if (cmd === 'insertOrderedList') {
-                const selection = window.getSelection();
-                if (selection.rangeCount) {
-                    const range = selection.getRangeAt(0);
-                    const selectedText = range.toString();
-                    if (selectedText) {
-                        const ol = document.createElement('ol');
-                        const li = document.createElement('li');
-                        li.textContent = selectedText;
-                        ol.appendChild(li);
-                        range.deleteContents();
-                        range.insertNode(ol);
-                        range.setStartAfter(ol);
-                        range.setEndAfter(ol);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
-                    }
-                }
-            }
-            else if (cmd === 'insertHTML' && valueArg === '<br>') {
-                const br = document.createElement('br');
-                const selection = window.getSelection();
-                if (selection.rangeCount) {
-                    const range = selection.getRangeAt(0);
-                    range.deleteContents();
-                    range.insertNode(br);
-                    range.setStartAfter(br);
-                    range.setEndAfter(br);
-                    selection.removeAllRanges();
-                    selection.addRange(range);
-                }
-            }
-            else {
-                document.execCommand(cmd, false, valueArg);
-            }
-
-            handleInput();
-        };
-
-        const insertLink = () => {
-            const url = prompt('Masukkan URL tautan:', 'https://');
-            if (url) execCommand('createLink', url);
-        };
-
-        const insertBreak = () => {
-            editorRef.current.focus();
-            const br = document.createElement('br');
-            const selection = window.getSelection();
-            if (selection.rangeCount) {
-                const range = selection.getRangeAt(0);
-                range.deleteContents();
-                range.insertNode(br);
-                range.setStartAfter(br);
-                range.setEndAfter(br);
-                selection.removeAllRanges();
-                selection.addRange(range);
-            }
-            handleInput();
-        };
-
-        const handleConfirmInsert = async () => {
-            setInlineUploadError('');
-            let finalUrl = '';
-
-            if (imageTab === 'upload') {
-                if (!selectedFileObj) {
-                    setInlineUploadError('Silakan pilih berkas foto terlebih dahulu.');
-                    return;
-                }
-                setIsProcessingImage(true);
-                try {
-                    const compressed = await compressImage(selectedFileObj, 1000);
-                    if (onUploadImage) {
-                        finalUrl = await onUploadImage(compressed, selectedFileObj.name);
-                    } else {
-                        finalUrl = compressed;
-                    }
-                } catch (err) {
-                    setInlineUploadError('Gagal memproses foto: ' + err.message);
-                    setIsProcessingImage(false);
-                    return;
-                }
-                setIsProcessingImage(false);
-            } else {
-                finalUrl = imageUrlInput.trim();
-                if (!finalUrl) {
-                    setInlineUploadError('Silakan masukkan link URL gambar yang valid.');
-                    return;
-                }
-            }
-
-            // Cari penanda visual target
-            const marker = editorRef.current?.querySelector('#warta-insert-target');
-
-            // Susun elemen figure profesional
-            const figure = document.createElement('figure');
-            figure.setAttribute('data-warta-image', 'true');
-            figure.setAttribute('contenteditable', 'false');
-
-            let alignClasses = 'my-6 mx-auto block text-center max-w-full clear-both';
-            let imgClasses = 'rounded-2xl shadow-md max-w-full h-auto mx-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
-
-            if (imageAlignment === 'left') {
-                alignClasses = 'my-4 float-left mr-6 mb-4 max-w-[48%] text-left clear-left';
-                imgClasses = 'rounded-xl shadow-md max-w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
-            } else if (imageAlignment === 'right') {
-                alignClasses = 'my-4 float-right ml-6 mb-4 max-w-[48%] text-right clear-right';
-                imgClasses = 'rounded-xl shadow-md max-w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
-            } else if (imageAlignment === 'full') {
-                alignClasses = 'my-6 w-full block text-center clear-both';
-                imgClasses = 'rounded-2xl shadow-md w-full h-auto block border border-navy-100 dark:border-navy-800 transition hover:shadow-lg cursor-pointer';
-            }
-
-            figure.className = alignClasses;
-
-            const img = document.createElement('img');
-            img.src = finalUrl;
-            img.alt = imageCaption || 'Foto Warta';
-            img.className = imgClasses;
-            img.style.maxHeight = '480px';
-            img.style.objectFit = 'contain';
-            img.setAttribute('loading', 'lazy');
-            figure.appendChild(img);
-
-            if (imageCaption && imageCaption.trim()) {
-                const captionEl = document.createElement('figcaption');
-                captionEl.className = 'text-xs text-center text-navy-500 dark:text-navy-400 mt-2 italic font-medium';
-                captionEl.setAttribute('contenteditable', 'true');
-                captionEl.textContent = imageCaption.trim();
-                figure.appendChild(captionEl);
-            }
-
-            if (marker && marker.parentNode) {
-                marker.parentNode.replaceChild(figure, marker);
-            } else if (editorRef.current) {
-                editorRef.current.appendChild(figure);
-            }
-
-            // Tambahkan baris kosong setelah gambar agar bisa langsung lanjut mengetik
-            const p = document.createElement('p');
-            p.innerHTML = '<br>';
-            if (figure.parentNode) {
-                figure.parentNode.insertBefore(p, figure.nextSibling);
-            }
-
-            setShowImageModal(false);
-            handleInput();
-
-            // Efek highlight emas & scroll otomatis
-            setTimeout(() => {
-                figure.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                figure.classList.add('ring-4', 'ring-gold-400', 'ring-offset-2');
-                setTimeout(() => {
-                    figure.classList.remove('ring-4', 'ring-gold-400', 'ring-offset-2');
-                }, 2500);
-            }, 50);
-        };
-
-        const handlePaste = async (e) => {
-            const items = e.clipboardData?.items;
-            if (items) {
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i].type.indexOf('image') !== -1) {
-                        e.preventDefault();
-                        const file = items[i].getAsFile();
-                        if (file) {
-                            openImageModal();
-                            setSelectedFileObj(file);
-                            setSelectedFilePreview(URL.createObjectURL(file));
-                            setImageTab('upload');
-                        }
-                        break;
-                    }
-                }
-            }
-        };
-
-        const handleDrop = async (e) => {
-            const files = e.dataTransfer?.files;
-            if (files && files.length > 0 && files[0].type.startsWith('image/')) {
-                e.preventDefault();
-                const file = files[0];
-                openImageModal();
-                setSelectedFileObj(file);
-                setSelectedFilePreview(URL.createObjectURL(file));
-                setImageTab('upload');
-            }
-        };
-
-        return (
-            <div className="border border-navy-200 dark:border-navy-700 rounded-xl overflow-hidden bg-white dark:bg-navy-900 shadow-sm relative">
-                {/* Main Toolbar */}
-                <div className="flex flex-wrap items-center gap-1 p-2 bg-navy-50 dark:bg-navy-800 border-b border-navy-100 dark:border-navy-700/60">
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('bold'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Tebal (Bold)"><Icon name="Bold" className="w-4 h-4" /></button>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('italic'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Miring (Italic)"><Icon name="Italic" className="w-4 h-4" /></button>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('underline'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Garis Bawah (Underline)"><Icon name="Underline" className="w-4 h-4" /></button>
-                    <div className="w-px h-5 bg-navy-300 dark:bg-navy-700 mx-1 self-center"></div>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('formatBlock', '<h3>'); }} className="p-1 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-800 dark:text-gold-400 rounded font-black text-xs px-2 transition" title="Subjudul (H3)">H3</button>
-                    <div className="w-px h-5 bg-navy-300 dark:bg-navy-700 mx-1 self-center"></div>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertUnorderedList'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Daftar Poin (Bullet List)"><Icon name="List" className="w-4 h-4" /></button>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); execCommand('insertOrderedList'); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Daftar Nomor (Numbered List)"><Icon name="ListOrdered" className="w-4 h-4" /></button>
-                    <div className="w-px h-5 bg-navy-300 dark:bg-navy-700 mx-1 self-center"></div>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); insertLink(); }} className="p-1.5 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 rounded transition" title="Sisipkan Tautan (Link)"><Icon name="LinkIcon" className="w-4 h-4" /></button>
-                    <button type="button" onMouseDown={(e) => { e.preventDefault(); insertBreak(); }} className="p-1 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-800 dark:text-navy-200 rounded font-bold text-xs px-2 transition" title="Garis Baru (Line Break)">BR</button>
-                    <div className="w-px h-5 bg-navy-300 dark:bg-navy-700 mx-1 self-center"></div>
-                    {allowImage && (
-                        <button
-                            type="button"
-                            onClick={openImageModal}
-                            className="p-1.5 px-2.5 bg-gold-400/20 hover:bg-gold-400/30 text-gold-700 dark:text-gold-300 border border-gold-400/40 rounded-lg flex items-center gap-1.5 font-extrabold text-xs transition shadow-sm ml-auto sm:ml-0"
-                            title="Sisipkan Gambar di Posisi Kursor Tulisan"
-                        >
-                            <Icon name="Image" className="w-4 h-4 text-gold-600 dark:text-gold-400" />
-                            <span>+ Sisipkan Gambar</span>
-                        </button>
-                    )}
-                </div>
-
-                {/* Sub-Toolbar Konteks: Format Gambar Terpilih */}
-                {selectedFigure && (
-                    <div className="flex flex-wrap items-center justify-between gap-2 p-2 px-3 bg-amber-50/90 dark:bg-navy-800/90 border-b border-gold-300/50 dark:border-navy-700 text-xs animate-fade-in">
-                        <div className="flex items-center gap-1.5 font-extrabold text-navy-900 dark:text-gold-400">
-                            <Icon name="Image" className="w-3.5 h-3.5 text-gold-500" />
-                            <span>Format Gambar Terpilih:</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                            <button
-                                type="button"
-                                onClick={() => setFigureAlignment(selectedFigure, 'center')}
-                                className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-[11px] font-bold hover:bg-gold-50 text-navy-800 dark:text-navy-200 shadow-xs"
-                                title="Rata Tengah"
-                            >
-                                ↔ Tengah
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setFigureAlignment(selectedFigure, 'left')}
-                                className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-[11px] font-bold hover:bg-gold-50 text-navy-800 dark:text-navy-200 shadow-xs"
-                                title="Rata Kiri"
-                            >
-                                ⬅ Kiri
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setFigureAlignment(selectedFigure, 'right')}
-                                className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-[11px] font-bold hover:bg-gold-50 text-navy-800 dark:text-navy-200 shadow-xs"
-                                title="Rata Kanan"
-                            >
-                                ➡ Kanan
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setFigureAlignment(selectedFigure, 'full')}
-                                className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-[11px] font-bold hover:bg-gold-50 text-navy-800 dark:text-navy-200 shadow-xs"
-                                title="Lebar Penuh"
-                            >
-                                ⬛ Penuh
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => deleteFigure(selectedFigure)}
-                                className="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-[11px] font-bold transition ml-1"
-                                title="Hapus Gambar Ini"
-                            >
-                                <Icon name="Trash" className="w-3 h-3 inline mr-1" /> Hapus Foto
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* ContentEditable Canvas */}
-                <div
-                    ref={editorRef}
-                    contentEditable
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={handleBlur}
-                    onInput={handleInput}
-                    onClick={handleEditorClick}
-                    onPaste={handlePaste}
-                    onDrop={handleDrop}
-                    onDragOver={(e) => e.preventDefault()}
-                    className="rich-text-editor p-4 min-h-[240px] max-h-[500px] overflow-y-auto focus:outline-none bg-white dark:bg-navy-900 dark:text-white prose prose-sm max-w-none"
-                    style={{ whiteSpace: 'pre-wrap' }}
-                />
-
-                {/* Modal Sisipkan Gambar (Dimount Langsung ke document.body via Portal agar 100% di Tengah Layar) */}
-                {showImageModal && createPortal(
-                    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 md:p-6 bg-navy-950/80 backdrop-blur-md animate-fade-in overflow-y-auto">
-                        <div className="bg-white dark:bg-navy-900 border border-navy-100 dark:border-navy-800 rounded-2xl max-w-lg w-full p-5 md:p-6 shadow-2xl relative text-left my-auto">
-                            {/* Modal Header */}
-                            <div className="flex items-center justify-between border-b border-navy-100 dark:border-navy-800 pb-3 mb-4">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="w-9 h-9 rounded-xl bg-gold-500/10 text-gold-500 flex items-center justify-center font-bold">
-                                        <Icon name="Image" className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-extrabold text-navy-900 dark:text-gold-400 text-base">Sisipkan Gambar ke Isi Warta</h3>
-                                        <p className="text-[11px] text-navy-500 dark:text-navy-400">Gambar akan muncul tepat pada posisi kursor tulisan yang telah ditandai</p>
-                                    </div>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={closeImageModal}
-                                    className="p-1.5 text-navy-400 hover:text-navy-600 dark:hover:text-navy-200 rounded-lg hover:bg-navy-100 dark:hover:bg-navy-800 transition"
-                                >
-                                    <Icon name="X" className="w-5 h-5" />
-                                </button>
-                            </div>
-
-                            {/* Mode Tab: Upload vs URL */}
-                            <div className="flex rounded-xl bg-navy-100 dark:bg-navy-800 p-1 mb-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setImageTab('upload')}
-                                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 ${imageTab === 'upload' ? 'bg-white dark:bg-navy-900 text-navy-900 dark:text-gold-400 shadow-sm' : 'text-navy-600 dark:text-navy-300'}`}
-                                >
-                                    <Icon name="Upload" className="w-3.5 h-3.5" /> Unggah Foto Perangkat
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setImageTab('url')}
-                                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 ${imageTab === 'url' ? 'bg-white dark:bg-navy-900 text-navy-900 dark:text-gold-400 shadow-sm' : 'text-navy-600 dark:text-navy-300'}`}
-                                >
-                                    <Icon name="LinkIcon" className="w-3.5 h-3.5" /> Masukkan Link (URL)
-                                </button>
-                            </div>
-
-                            {/* Upload Area */}
-                            {imageTab === 'upload' ? (
-                                <div className="mb-4">
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        accept="image/*"
-                                        className="hidden"
-                                        onChange={(e) => {
-                                            const file = e.target.files?.[0];
-                                            if (file) {
-                                                setSelectedFileObj(file);
-                                                setSelectedFilePreview(URL.createObjectURL(file));
-                                            }
-                                        }}
-                                    />
-                                    {selectedFilePreview ? (
-                                        <div className="relative border border-navy-200 dark:border-navy-700 rounded-xl p-3 bg-navy-50/50 dark:bg-navy-950 text-center">
-                                            <img src={selectedFilePreview} alt="Preview" className="max-h-48 mx-auto rounded-lg object-contain shadow-sm" />
-                                            <div className="mt-2.5 flex items-center justify-between text-xs text-navy-500 dark:text-navy-400 px-2">
-                                                <span className="truncate max-w-[200px] font-medium">{selectedFileObj?.name}</span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => fileInputRef.current?.click()}
-                                                    className="text-gold-600 hover:text-gold-700 dark:text-gold-400 font-bold underline"
-                                                >
-                                                    Ganti Foto
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div
-                                            onClick={() => fileInputRef.current?.click()}
-                                            className="border-2 border-dashed border-navy-300 dark:border-navy-700 hover:border-gold-500 rounded-xl p-7 text-center cursor-pointer transition hover:bg-gold-50/20 dark:hover:bg-navy-800/50"
-                                        >
-                                            <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-500 flex items-center justify-center mx-auto mb-2.5">
-                                                <Icon name="Upload" className="w-6 h-6" />
-                                            </div>
-                                            <p className="text-xs font-bold text-navy-800 dark:text-navy-200 mb-1">Klik untuk Memilih Foto dari HP atau Laptop</p>
-                                            <p className="text-[11px] text-navy-400">Mendukung format JPG, PNG, atau WebP (Otomatis dikompres)</p>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="mb-4">
-                                    <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1.5">URL Gambar Eksternal</label>
-                                    <input
-                                        type="url"
-                                        value={imageUrlInput}
-                                        onChange={(e) => setImageUrlInput(e.target.value)}
-                                        placeholder="https://contoh.com/foto-kegiatan.jpg"
-                                        className="w-full p-2.5 border border-navy-200 dark:border-navy-700 rounded-xl text-xs bg-navy-50/50 dark:bg-navy-950 dark:text-white focus:border-gold-500 outline-none"
-                                    />
-                                    {imageUrlInput && (
-                                        <div className="mt-2 p-2 border border-navy-100 dark:border-navy-800 rounded-lg text-center bg-navy-50/30">
-                                            <img src={imageUrlInput} alt="Preview" className="max-h-36 mx-auto rounded object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Caption Field */}
-                            <div className="mb-4">
-                                <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1">
-                                    Keterangan / Takarir Foto <span className="text-navy-400 font-normal">(Opsional)</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    value={imageCaption}
-                                    onChange={(e) => setImageCaption(e.target.value)}
-                                    placeholder="Contoh: Suasana ibadah Sabat di GMAHK Pisgah"
-                                    className="w-full p-2.5 border border-navy-200 dark:border-navy-700 rounded-xl text-xs bg-navy-50/50 dark:bg-navy-950 dark:text-white focus:border-gold-500 outline-none"
-                                />
-                            </div>
-
-                            {/* Alignment Options */}
-                            <div className="mb-5">
-                                <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1.5">
-                                    Tata Letak / Posisi Gambar
-                                </label>
-                                <div className="grid grid-cols-4 gap-2">
-                                    {[
-                                        { id: 'center', label: '↔ Tengah' },
-                                        { id: 'left', label: '⬅ Kiri' },
-                                        { id: 'right', label: '➡ Kanan' },
-                                        { id: 'full', label: '⬛ Penuh' }
-                                    ].map((opt) => (
-                                        <button
-                                            key={opt.id}
-                                            type="button"
-                                            onClick={() => setImageAlignment(opt.id)}
-                                            className={`py-2 px-2 rounded-xl text-xs font-bold border transition text-center ${imageAlignment === opt.id ? 'bg-gold-500 text-navy-950 border-gold-500 shadow-sm' : 'border-navy-200 dark:border-navy-700 text-navy-600 dark:text-navy-400 hover:bg-navy-50 dark:hover:bg-navy-800'}`}
-                                        >
-                                            {opt.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {inlineUploadError && (
-                                <p className="text-xs text-red-500 mb-3 font-semibold">{inlineUploadError}</p>
-                            )}
-
-                            {/* Modal Actions */}
-                            <div className="flex items-center justify-end gap-2 pt-3 border-t border-navy-100 dark:border-navy-800">
-                                <button
-                                    type="button"
-                                    onClick={closeImageModal}
-                                    className="px-4 py-2 rounded-xl text-xs font-bold text-navy-600 dark:text-navy-300 hover:bg-navy-100 dark:hover:bg-navy-800 transition"
-                                >
-                                    Batal
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleConfirmInsert}
-                                    disabled={isProcessingImage}
-                                    className="px-5 py-2 rounded-xl text-xs font-bold bg-navy-900 text-gold-400 hover:bg-navy-800 dark:bg-gold-500 dark:text-navy-950 dark:hover:bg-gold-400 transition shadow-sm flex items-center gap-1.5 disabled:opacity-50"
-                                >
-                                    {isProcessingImage ? (
-                                        <>
-                                            <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                                            <span>Memproses Foto...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Icon name="Check" className="w-3.5 h-3.5" />
-                                            <span>Sisipkan ke Tulisan</span>
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-                    </div>,
-                    document.body
-                )}
-            </div>
-        );
-    });
 
     // Subtab untuk Warta
     const [wartaSubTab, setWartaSubTab] = React.useState('input'); // 'input' atau 'posting'
+    React.useEffect(() => {
+        scrollToTop();
+    }, [wartaSubTab]);
     const wartaScrollContainerRef = React.useRef(null);
 
     const scrollWartaTabs = (direction) => {
@@ -7653,8 +7907,47 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         setWartaGambarList(prev => prev.filter((_, idx) => idx !== indexToRemove));
     };
 
+    const handleSetMainWartaImage = (index) => {
+        setWartaGambarList(prev => {
+            const next = [...prev];
+            const [target] = next.splice(index, 1);
+            next.unshift(target);
+            return next;
+        });
+    };
+
+    const handleAddWartaImages = (newFiles) => {
+        const newItems = newFiles.map((file, idx) => ({
+            id: `new_${idx}_${Date.now()}_${Math.random()}`,
+            url: URL.createObjectURL(file),
+            file: file,
+            sizeStr: file.size < 1024 * 1024 ? (file.size / 1024).toFixed(0) + ' KB' : (file.size / (1024 * 1024)).toFixed(1) + ' MB'
+        }));
+        setWartaGambarList(prev => [...prev, ...newItems]);
+    };
+
     const handleRemoveEditWartaImage = (indexToRemove) => {
         setEditWartaGambarList(prev => prev.filter((_, idx) => idx !== indexToRemove));
+    };
+
+    const handleSetMainEditWartaImage = (index) => {
+        setEditWartaGambarList(prev => {
+            const next = [...prev];
+            const [target] = next.splice(index, 1);
+            next.unshift(target);
+            return next;
+        });
+    };
+
+    const handleAddEditWartaImages = (newFiles) => {
+        const newItems = newFiles.map((file, idx) => ({
+            id: `new_${idx}_${Date.now()}_${Math.random()}`,
+            type: 'new',
+            url: URL.createObjectURL(file),
+            file: file,
+            sizeStr: file.size < 1024 * 1024 ? (file.size / 1024).toFixed(0) + ' KB' : (file.size / (1024 * 1024)).toFixed(1) + ' MB'
+        }));
+        setEditWartaGambarList(prev => [...prev, ...newItems]);
     };
 
     // Fungsi upload gambar inline langsung ke Google Drive
@@ -7706,9 +7999,16 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         let finalGambarUrl = "";
         if (wartaGambarList && wartaGambarList.length > 0) {
             let base64Array = [];
-            for (let file of wartaGambarList) {
-                const compressedBase64 = await compressImage(file, 1200);
-                base64Array.push(compressedBase64);
+            for (let item of wartaGambarList) {
+                const fileObj = item.file || item;
+                if (fileObj instanceof File || fileObj instanceof Blob) {
+                    const compressedBase64 = await compressImage(fileObj, 1200);
+                    base64Array.push(compressedBase64);
+                } else if (typeof item === 'string') {
+                    base64Array.push(item);
+                } else if (item.url && typeof item.url === 'string') {
+                    base64Array.push(item.url);
+                }
             }
             finalGambarUrl = base64Array.join('|||');
         }
@@ -7801,7 +8101,12 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         setEditWartaJudul(initialJudul);
         setEditWartaIsi(initialIsi);
         setEditWartaPenulis(initialPenulis);
-        setEditWartaGambarList([]);
+        const existingPhotos = parseGambarUrls(warta.gambarUrl).map((url, idx) => ({
+            id: `exist_${idx}_${Date.now()}`,
+            type: 'existing',
+            url: url
+        }));
+        setEditWartaGambarList(existingPhotos);
         setEditWartaViewMode('editor');
         setEditWartaModal(true);
     };
@@ -7840,14 +8145,22 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             finalJudul = `[${editWartaKategori}] ${finalJudul}`;
         }
 
-        let finalGambarUrl = editingWarta.gambarUrl;
+        let finalGambarUrl = "";
         if (editWartaGambarList && editWartaGambarList.length > 0) {
-            let base64Array = [];
-            for (let file of editWartaGambarList) {
-                const compressedBase64 = await compressImage(file, 1200);
-                base64Array.push(compressedBase64);
+            let urlParts = [];
+            for (let item of editWartaGambarList) {
+                if (item.type === 'existing') {
+                    urlParts.push(item.url);
+                } else if (item.type === 'new' && (item.file || item instanceof File)) {
+                    const compressed = await compressImage(item.file || item, 1200);
+                    urlParts.push(compressed);
+                } else if (typeof item === 'string') {
+                    urlParts.push(item);
+                } else if (item.url && typeof item.url === 'string') {
+                    urlParts.push(item.url);
+                }
             }
-            finalGambarUrl = base64Array.join('|||');
+            finalGambarUrl = urlParts.join('|||');
         }
 
         try {
@@ -9243,78 +9556,92 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
                                         {/* Foto Dokumentasi & Sampul Card */}
                                         <div className="bg-white dark:bg-navy-900 rounded-2xl p-5 sm:p-6 border border-navy-100 dark:border-navy-800 shadow-sm space-y-4">
-                                            <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider">
-                                                Foto Sampul & Dokumentasi Berita
-                                            </label>
-
-                                            {/* Foto Saat Ini */}
-                                            {editingWarta?.gambarUrl && editWartaGambarList.length === 0 && (
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-navy-100 dark:border-navy-800/80 pb-3">
                                                 <div>
-                                                    <p className="text-xs font-semibold text-navy-500 dark:text-navy-400 mb-2">Foto yang saat ini aktif:</p>
-                                                    <div className="flex flex-wrap gap-3">
-                                                        {parseGambarUrls(editingWarta.gambarUrl).map((url, i) => (
-                                                            <div key={i} className="relative h-24 w-36 rounded-xl overflow-hidden border-2 border-navy-200 dark:border-navy-700 bg-navy-950 shadow-sm">
-                                                                <img src={formatImageUrl(url)} className="h-full w-full object-cover" alt="current" referrerPolicy="no-referrer" />
-                                                                {i === 0 && (
-                                                                    <span className="absolute top-1.5 left-1.5 bg-gold-500 text-navy-950 font-black text-[9px] uppercase tracking-wider px-2 py-0.5 rounded shadow">
-                                                                        Sampul Utama
+                                                    <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider">
+                                                        Foto Sampul & Dokumentasi Berita
+                                                    </label>
+                                                    <p className="text-xs text-navy-500 dark:text-navy-400 mt-0.5">
+                                                        Foto pertama (paling kiri) otomatis menjadi <strong>Sampul Utama</strong>. Klik <em>"Set Utama"</em> untuk memilih foto sampul lain, atau ikon tempat sampah untuk menghapus foto tertentu.
+                                                    </p>
+                                                </div>
+                                                <label className="relative cursor-pointer bg-navy-900 hover:bg-navy-800 dark:bg-gold-500 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950 px-4 py-2 rounded-xl font-bold text-xs inline-flex items-center gap-1.5 shadow-sm transition shrink-0 self-start sm:self-auto">
+                                                    <Icon name="Upload" className="w-4 h-4" />
+                                                    <span>+ Tambah Foto</span>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        multiple
+                                                        className="sr-only"
+                                                        onChange={(e) => {
+                                                            const files = Array.from(e.target.files);
+                                                            if (files.length > 0) {
+                                                                handleAddEditWartaImages(files);
+                                                            }
+                                                            e.target.value = '';
+                                                        }}
+                                                    />
+                                                </label>
+                                            </div>
+
+                                            {/* Grid Foto Warta */}
+                                            {editWartaGambarList && editWartaGambarList.length > 0 ? (
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 pt-1">
+                                                    {editWartaGambarList.map((item, idx) => {
+                                                        const isMain = idx === 0;
+                                                        const displayUrl = item.type === 'existing' ? formatImageUrl(item.url) : item.url;
+                                                        return (
+                                                            <div
+                                                                key={item.id || idx}
+                                                                className={`relative aspect-video rounded-xl overflow-hidden border-2 transition group bg-navy-950 shadow-sm ${isMain ? 'border-gold-500 ring-2 ring-gold-400/40' : 'border-navy-200 dark:border-navy-700 hover:border-navy-400'}`}
+                                                            >
+                                                                <img
+                                                                    src={displayUrl}
+                                                                    className="w-full h-full object-cover"
+                                                                    alt="foto warta"
+                                                                    referrerPolicy="no-referrer"
+                                                                />
+
+                                                                {/* Badge Sampul Utama atau Tombol Set Utama */}
+                                                                {isMain ? (
+                                                                    <span className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-gold-500 text-navy-950 font-black text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-lg shadow-md flex items-center gap-1">
+                                                                        <span>★ Sampul Utama</span>
                                                                     </span>
+                                                                ) : (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleSetMainEditWartaImage(idx)}
+                                                                        className="absolute top-2 left-2 bg-navy-950/75 hover:bg-gold-500 hover:text-navy-950 text-gold-300 text-[10px] font-bold px-2 py-1 rounded-lg backdrop-blur-xs transition flex items-center gap-1 shadow border border-gold-500/30"
+                                                                        title="Jadikan Foto Ini sebagai Sampul Utama"
+                                                                    >
+                                                                        <span>⭐ Set Utama</span>
+                                                                    </button>
                                                                 )}
+
+                                                                {/* Status Label (Lama / Baru) */}
+                                                                <span className="absolute bottom-2 left-2 bg-navy-950/80 text-[9px] font-semibold text-white/90 px-2 py-0.5 rounded-md backdrop-blur-xs">
+                                                                    {item.type === 'existing' ? 'Foto Saat Ini' : (item.sizeStr || 'Foto Baru')}
+                                                                </span>
+
+                                                                {/* Tombol Hapus Foto */}
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleRemoveEditWartaImage(idx)}
+                                                                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-600/90 hover:bg-red-700 text-white flex items-center justify-center font-bold text-xs shadow-md transition hover:scale-110"
+                                                                    title="Hapus Foto Ini"
+                                                                >
+                                                                    <Icon name="Trash" className="w-3.5 h-3.5" />
+                                                                </button>
                                                             </div>
-                                                        ))}
-                                                    </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                <div className="p-8 border-2 border-dashed border-navy-200 dark:border-navy-700 rounded-2xl text-center text-xs text-navy-500 dark:text-navy-400 space-y-2">
+                                                    <p>Belum ada foto sampul untuk warta ini.</p>
+                                                    <p className="text-[11px] text-navy-400">Klik tombol <strong>+ Tambah Foto</strong> di kanan atas untuk mengunggah foto sampul atau dokumentasi berita.</p>
                                                 </div>
                                             )}
-
-                                            {/* Upload Foto Baru */}
-                                            <div className="p-5 border-2 border-dashed border-navy-300 dark:border-navy-700 rounded-2xl bg-navy-50/40 dark:bg-navy-950/40 text-center space-y-3">
-                                                <div className="w-10 h-10 rounded-full bg-gold-500/10 text-gold-500 flex items-center justify-center mx-auto">
-                                                    <Icon name="Upload" className="w-5 h-5" />
-                                                </div>
-                                                <div>
-                                                    <label className="relative cursor-pointer bg-navy-900 hover:bg-navy-800 text-gold-400 px-5 py-2.5 rounded-xl font-bold text-xs inline-flex items-center gap-2 shadow-sm transition">
-                                                        <Icon name="Image" className="w-4 h-4" />
-                                                        <span>{editingWarta?.gambarUrl ? "Ganti Foto Warta (Pilih Baru)" : "Pilih Foto Berita"}</span>
-                                                        <input
-                                                            type="file"
-                                                            accept="image/*"
-                                                            multiple
-                                                            className="sr-only"
-                                                            onChange={(e) => setEditWartaGambarList(Array.from(e.target.files))}
-                                                        />
-                                                    </label>
-                                                </div>
-                                                <p className="text-xs text-navy-500 dark:text-navy-400">
-                                                    Mendukung PNG transparan (alpha channel tetap utuh), JPG, dan WebP hingga 5MB. Rekomendasi rasio 16:9 landscape. Foto pertama otomatis jadi foto sampul. Pilih foto baru akan menggantikan foto lama.
-                                                </p>
-
-                                                {editWartaGambarList.length > 0 && (
-                                                    <div className="pt-3 border-t border-navy-100 dark:border-navy-800/80">
-                                                        <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 text-left mb-2">
-                                                            {editWartaGambarList.length} Foto Baru Terpilih (Akan Menggantikan Foto Lama):
-                                                        </p>
-                                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 text-left">
-                                                            {editWartaGambarList.map((file, idx) => {
-                                                                const tempUrl = URL.createObjectURL(file);
-                                                                const sizeStr = file.size < 1024 * 1024 ? (file.size / 1024).toFixed(0) + ' KB' : (file.size / (1024 * 1024)).toFixed(1) + ' MB';
-                                                                return (
-                                                                    <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border-2 border-navy-200 dark:border-navy-700 group bg-navy-950">
-                                                                        <img src={tempUrl} className="w-full h-full object-cover" alt="preview" />
-                                                                        {idx === 0 && (
-                                                                            <span className="absolute top-1.5 left-1.5 bg-gold-500 text-navy-950 font-black text-[9px] uppercase tracking-wider px-2 py-0.5 rounded shadow">
-                                                                                Sampul Baru
-                                                                            </span>
-                                                                        )}
-                                                                        <span className="absolute bottom-1.5 left-1.5 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded backdrop-blur-xs">
-                                                                            {sizeStr}
-                                                                        </span>
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
                                         </div>
 
                                         {/* Rich Text Editor Card */}
@@ -9373,6 +9700,21 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                             <span>•</span>
                                             <span>{formatIndoDate(editingWarta?.tanggal || new Date().toISOString())}</span>
                                         </div>
+
+                                        {editWartaGambarList && editWartaGambarList.length > 0 && (
+                                            <div className="aspect-video rounded-2xl overflow-hidden bg-navy-950 relative shadow-md">
+                                                <img
+                                                    src={editWartaGambarList[0].type === 'existing' ? formatImageUrl(editWartaGambarList[0].url) : editWartaGambarList[0].url}
+                                                    className="w-full h-full object-cover"
+                                                    alt="Sampul Berita"
+                                                    referrerPolicy="no-referrer"
+                                                />
+                                                <span className="absolute top-2.5 left-2.5 bg-gradient-to-r from-amber-500 to-gold-500 text-navy-950 font-black text-[10px] uppercase tracking-wider px-3 py-1 rounded-lg shadow-md">
+                                                    ★ Sampul Utama
+                                                </span>
+                                            </div>
+                                        )}
+
                                         <div
                                             className="prose max-w-none text-navy-800 dark:text-navy-100 warta-content pt-2"
                                             dangerouslySetInnerHTML={{ __html: editWartaIsi || '<p class="text-navy-400 italic">Belum ada konten warta...</p>' }}
@@ -9850,71 +10192,113 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                         </div>
 
                                         {/* Foto Dokumentasi & Sampul Berita */}
-                                        <div>
-                                            <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider mb-1.5">
-                                                Foto Sampul & Dokumentasi Berita (Opsional)
-                                            </label>
-
-                                            <div className="p-5 border-2 border-dashed border-navy-300 dark:border-navy-700 rounded-2xl bg-navy-50/40 dark:bg-navy-950/40 text-center space-y-3">
-                                                <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-500 flex items-center justify-center mx-auto">
-                                                    <Icon name="Upload" className="w-6 h-6" />
-                                                </div>
+                                        <div className="bg-white dark:bg-navy-900 rounded-2xl p-5 sm:p-6 border border-navy-100 dark:border-navy-800 shadow-sm space-y-4">
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-navy-100 dark:border-navy-800/80 pb-3">
                                                 <div>
-                                                    <label className="relative cursor-pointer bg-navy-900 hover:bg-navy-800 text-gold-400 px-5 py-2.5 rounded-xl font-bold text-xs inline-flex items-center gap-2 shadow-sm transition">
-                                                        <Icon name="Image" className="w-4 h-4" />
-                                                        <span>Pilih Foto Berita</span>
-                                                        <input
-                                                            type="file"
-                                                            accept="image/*"
-                                                            multiple
-                                                            className="sr-only"
-                                                            onChange={(e) => {
-                                                                const files = Array.from(e.target.files);
-                                                                setWartaGambarList(prev => [...prev, ...files].slice(0, 5));
-                                                            }}
-                                                        />
+                                                    <label className="block text-xs font-bold text-navy-700 dark:text-navy-300 uppercase tracking-wider">
+                                                        Foto Sampul & Dokumentasi Berita
                                                     </label>
+                                                    <p className="text-xs text-navy-500 dark:text-navy-400 mt-0.5">
+                                                        Foto pertama (paling kiri) otomatis menjadi <strong>Sampul Utama</strong>. Klik <em>"Set Utama"</em> pada foto mana pun untuk mengubah sampul berita.
+                                                    </p>
                                                 </div>
-                                                <p className="text-xs text-navy-500 dark:text-navy-400">
-                                                    Mendukung PNG transparan (alpha channel tetap utuh), JPG, dan WebP hingga 5MB. Rekomendasi rasio 16:9 landscape (Maks. 3-5 foto). Foto pertama otomatis menjadi <strong>Foto Sampul Berita</strong>.
-                                                </p>
-
-                                                {/* Preview Grid Foto Terpilih */}
-                                                {wartaGambarList.length > 0 && (
-                                                    <div className="pt-3 border-t border-navy-100 dark:border-navy-800/80">
-                                                        <p className="text-xs font-bold text-navy-700 dark:text-gold-400 text-left mb-2">
-                                                            {wartaGambarList.length} Foto Siap Diunggah:
-                                                        </p>
-                                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 text-left">
-                                                            {wartaGambarList.map((file, idx) => {
-                                                                const tempUrl = URL.createObjectURL(file);
-                                                                const sizeStr = file.size < 1024 * 1024 ? (file.size / 1024).toFixed(0) + ' KB' : (file.size / (1024 * 1024)).toFixed(1) + ' MB';
-                                                                return (
-                                                                    <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border-2 border-navy-200 dark:border-navy-700 group bg-navy-950">
-                                                                        <img src={tempUrl} className="w-full h-full object-cover" alt="preview" />
-                                                                        {idx === 0 && (
-                                                                            <span className="absolute top-1.5 left-1.5 bg-gold-500 text-navy-950 font-black text-[9px] uppercase tracking-wider px-2 py-0.5 rounded shadow">
-                                                                                Sampul Utama
-                                                                            </span>
-                                                                        )}
-                                                                        <span className="absolute bottom-1.5 left-1.5 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded backdrop-blur-xs">
-                                                                            {sizeStr}
-                                                                        </span>
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => handleRemoveWartaImage(idx)}
-                                                                            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center font-bold text-xs shadow transition"
-                                                                            title="Hapus Foto"
-                                                                        >
-                                                                            ×
-                                                                        </button>
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                )}
+                                                <label className="relative cursor-pointer bg-navy-900 hover:bg-navy-800 dark:bg-gold-500 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950 px-4 py-2 rounded-xl font-bold text-xs inline-flex items-center gap-1.5 shadow-sm transition shrink-0 self-start sm:self-auto">
+                                                    <Icon name="Upload" className="w-4 h-4" />
+                                                    <span>+ Tambah Foto</span>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        multiple
+                                                        className="sr-only"
+                                                        onChange={(e) => {
+                                                            const files = Array.from(e.target.files);
+                                                            if (files.length > 0) {
+                                                                handleAddWartaImages(files);
+                                                            }
+                                                            e.target.value = '';
+                                                        }}
+                                                    />
+                                                </label>
                                             </div>
+
+                                            {/* Preview Grid Foto Terpilih */}
+                                            {wartaGambarList && wartaGambarList.length > 0 ? (
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 pt-1">
+                                                    {wartaGambarList.map((item, idx) => {
+                                                        const isMain = idx === 0;
+                                                        const displayUrl = item.url || (item.file ? URL.createObjectURL(item.file) : (item instanceof File ? URL.createObjectURL(item) : ''));
+                                                        const sizeStr = item.sizeStr || (item instanceof File ? (item.size < 1024 * 1024 ? (item.size / 1024).toFixed(0) + ' KB' : (item.size / (1024 * 1024)).toFixed(1) + ' MB') : '');
+                                                        return (
+                                                            <div
+                                                                key={item.id || idx}
+                                                                className={`relative aspect-video rounded-xl overflow-hidden border-2 transition group bg-navy-950 shadow-sm ${isMain ? 'border-gold-500 ring-2 ring-gold-400/40' : 'border-navy-200 dark:border-navy-700 hover:border-navy-400'}`}
+                                                            >
+                                                                <img src={displayUrl} className="w-full h-full object-cover" alt="preview" />
+
+                                                                {/* Badge Sampul Utama atau Tombol Set Utama */}
+                                                                {isMain ? (
+                                                                    <span className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-gold-500 text-navy-950 font-black text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-lg shadow-md flex items-center gap-1">
+                                                                        <span>★ Sampul Utama</span>
+                                                                    </span>
+                                                                ) : (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleSetMainWartaImage(idx)}
+                                                                        className="absolute top-2 left-2 bg-navy-950/75 hover:bg-gold-500 hover:text-navy-950 text-gold-300 text-[10px] font-bold px-2 py-1 rounded-lg backdrop-blur-xs transition flex items-center gap-1 shadow border border-gold-500/30"
+                                                                        title="Jadikan Foto Ini sebagai Sampul Utama"
+                                                                    >
+                                                                        <span>⭐ Set Utama</span>
+                                                                    </button>
+                                                                )}
+
+                                                                {sizeStr && (
+                                                                    <span className="absolute bottom-2 left-2 bg-navy-950/80 text-[9px] font-semibold text-white/90 px-2 py-0.5 rounded-md backdrop-blur-xs">
+                                                                        {sizeStr}
+                                                                    </span>
+                                                                )}
+
+                                                                {/* Tombol Hapus Foto */}
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleRemoveWartaImage(idx)}
+                                                                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-600/90 hover:bg-red-700 text-white flex items-center justify-center font-bold text-xs shadow-md transition hover:scale-110"
+                                                                    title="Hapus Foto Ini"
+                                                                >
+                                                                    <Icon name="Trash" className="w-3.5 h-3.5" />
+                                                                </button>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                <div className="p-8 border-2 border-dashed border-navy-200 dark:border-navy-700 rounded-2xl bg-navy-50/40 dark:bg-navy-950/40 text-center space-y-3">
+                                                    <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-500 flex items-center justify-center mx-auto">
+                                                        <Icon name="Upload" className="w-6 h-6" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="relative cursor-pointer bg-navy-900 hover:bg-navy-800 dark:bg-gold-500 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950 px-5 py-2.5 rounded-xl font-bold text-xs inline-flex items-center gap-2 shadow-sm transition">
+                                                            <Icon name="Image" className="w-4 h-4" />
+                                                            <span>Pilih Foto Berita / Sampul</span>
+                                                            <input
+                                                                type="file"
+                                                                accept="image/*"
+                                                                multiple
+                                                                className="sr-only"
+                                                                onChange={(e) => {
+                                                                    const files = Array.from(e.target.files);
+                                                                    if (files.length > 0) {
+                                                                        handleAddWartaImages(files);
+                                                                    }
+                                                                    e.target.value = '';
+                                                                }}
+                                                            />
+                                                        </label>
+                                                    </div>
+                                                    <p className="text-xs text-navy-500 dark:text-navy-400">
+                                                        Mendukung format PNG (transparansi utuh), JPG, dan WebP hingga 5MB
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Isi Warta / Berita */}
@@ -9995,13 +10379,16 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                 Ditulis oleh: <strong>{wartaPenulis || 'Redaksi Warta'}</strong>
                                             </p>
 
-                                            {wartaGambarList.length > 0 && (
-                                                <div className="aspect-video rounded-xl overflow-hidden bg-navy-950 mb-6">
+                                            {wartaGambarList && wartaGambarList.length > 0 && (
+                                                <div className="aspect-video rounded-2xl overflow-hidden bg-navy-950 mb-6 relative shadow-md">
                                                     <img
-                                                        src={URL.createObjectURL(wartaGambarList[0])}
+                                                        src={wartaGambarList[0].url || (wartaGambarList[0].file ? URL.createObjectURL(wartaGambarList[0].file) : (wartaGambarList[0] instanceof File ? URL.createObjectURL(wartaGambarList[0]) : ''))}
                                                         className="w-full h-full object-cover"
                                                         alt="Sampul Berita"
                                                     />
+                                                    <span className="absolute top-2.5 left-2.5 bg-gradient-to-r from-amber-500 to-gold-500 text-navy-950 font-black text-[10px] uppercase tracking-wider px-3 py-1 rounded-lg shadow-md">
+                                                        ★ Sampul Utama
+                                                    </span>
                                                 </div>
                                             )}
 
@@ -13636,11 +14023,21 @@ const App = () => {
         if (tabId !== 'warta') setSelectedWartaDetail(null);
         // Mengganti hash di URL tanpa menambah tumpukan riwayat (history stack tetap stabil)
         window.history.replaceState(window.history.state, '', `#${tabId}`);
+        scrollToTop();
     }, []);
 
     React.useEffect(() => {
         setMobileNavPopup(null);
+        scrollToTop();
     }, [activeTab]);
+
+    React.useEffect(() => {
+        scrollToTop();
+    }, [selectedWartaDetail]);
+
+    React.useEffect(() => {
+        scrollToTop();
+    }, [laguSionSubTab]);
 
     React.useEffect(() => {
         // State 'root': titik akhir sebelum keluar aplikasi
@@ -13650,6 +14047,7 @@ const App = () => {
 
         const handlePopState = (event) => {
             setMobileNavPopup(null);
+            scrollToTop();
             setRawActiveTab((currentTab) => {
                 // Jika kembali ke state root (pengguna menekan back Android)
                 if (event.state && event.state.isAppRoot) {
