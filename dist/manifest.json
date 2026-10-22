@@ -2,7 +2,7 @@
   "name": "PISGAH BISDAC",
   "short_name": "PISGAH",
   "description": "Aplikasi Web Jemaat GMAHK PISGAH BISDAC",
-  "start_url": "./",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f4f6f9",
   "theme_color": "#0b1a30",
