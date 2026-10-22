@@ -397,23 +397,24 @@ const formatImageUrl = (url) => {
 const getCoverFallback = (b) => {
     if (!b) return getDefaultBookCover('Umum');
 
-    // 1. PRIORITAS UTAMA: Ambil langsung dari halaman awal buku (file PDF/dokumen di Google Drive)
-    // Sesuai permintaan: sampul buku diambil dari halaman awal buku (contoh: https://drive.google.com/thumbnail?id=...&sz=w1000)
-    const pdfDriveId = getGoogleDriveFileId(b.pdfUrl || b.fileUrl || b.url || b.link || b.driveUrl);
-    if (pdfDriveId) {
-        return `https://drive.google.com/thumbnail?id=${pdfDriveId}&sz=w1000`;
-    }
-
-    // 2. Cek jika b.cover diisi link/ID Google Drive
-    if (b.cover && typeof b.cover === 'string' && b.cover.trim() !== '') {
+    // 1. PRIORITAS UTAMA: Jika bagian "URL Sampul (Cover)" diisi, gunakan link tersebut!
+    // Sesuai permintaan pengguna: jika mengisi bagian ini maka akan menggunakan link nya
+    if (b.cover && typeof b.cover === 'string' && b.cover.trim() !== '' && !b.cover.includes('hopesoftware.org')) {
         const coverDriveId = getGoogleDriveFileId(b.cover);
         if (coverDriveId) {
             return `https://drive.google.com/thumbnail?id=${coverDriveId}&sz=w1000`;
         }
         const fmt = formatImageUrl(b.cover);
-        if (fmt && !fmt.includes('hopesoftware.org')) {
+        if (fmt) {
             return fmt;
         }
+        return b.cover.trim();
+    }
+
+    // 2. JIKA KOSONG: Otomatis diambil dari halaman awal dokumen PDF buku (Google Drive)
+    const pdfDriveId = getGoogleDriveFileId(b.pdfUrl || b.fileUrl || b.url || b.link || b.driveUrl);
+    if (pdfDriveId) {
+        return `https://drive.google.com/thumbnail?id=${pdfDriveId}&sz=w1000`;
     }
 
     // 3. Cek jika b.id sendiri adalah file ID Google Drive
@@ -429,14 +430,14 @@ const getCoverFallback = (b) => {
 const handleBookCoverError = (e, book) => {
     if (!e || !e.target) return;
 
-    // 1. Jika URL thumbnail drive.google.com gagal (misal 403/privat), coba mirror lh3.googleusercontent.com
-    const driveId = getGoogleDriveFileId(book?.pdfUrl || book?.fileUrl || book?.url || book?.link || book?.cover || (e.target && e.target.src));
+    // 1. Jika URL thumbnail drive.google.com gagal (misal 403 atau blocked), coba mirror lh3.googleusercontent.com
+    const driveId = getGoogleDriveFileId(book?.cover) || getGoogleDriveFileId(book?.pdfUrl || book?.fileUrl || book?.url || book?.link || (e.target && e.target.src));
     if (driveId && e.target.src && e.target.src.includes('drive.google.com/thumbnail') && !e.target.src.includes('lh3.googleusercontent.com')) {
         e.target.src = `https://lh3.googleusercontent.com/d/${driveId}`;
         return;
     }
 
-    // 2. Jika tidak ada halaman sampul / link kosong / gagal dari Google Drive: gunakan default sesuai kategori
+    // 2. Jika link cover khusus gagal atau link PDF gagal: gunakan default sesuai kategori
     const defaultCover = getDefaultBookCover(book?.category);
     if (defaultCover && e.target.src !== defaultCover) {
         e.target.src = defaultCover;
@@ -12688,12 +12689,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                     let driveId = getGoogleDriveFileId(val);
                                                     if (driveId) {
                                                         let newPdfUrl = `https://drive.google.com/file/d/${driveId}/preview`;
-                                                        // Jika cover masih kosong, otomatis isi dengan thumbnail halaman awal dokumen buku!
-                                                        let newCover = bookFormData.cover;
-                                                        if (!newCover || newCover.trim() === '' || newCover.includes('thumbnail?id=')) {
-                                                            newCover = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
-                                                        }
-                                                        setBookFormData({ ...bookFormData, pdfUrl: newPdfUrl, cover: newCover });
+                                                        setBookFormData({ ...bookFormData, pdfUrl: newPdfUrl });
                                                         return;
                                                     }
                                                     setBookFormData({ ...bookFormData, pdfUrl: val });
