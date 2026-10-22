@@ -890,9 +890,9 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                             <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
                                 <div className="flex items-center gap-2 mb-3 flex-wrap">
                                     {eventsToDisplay[currentEventIdx]?.dateStr && (
-                                        <span className="inline-flex items-center bg-[#D19B45] text-[#2C3F21] text-xs sm:text-sm font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md">
-                                            <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5" />
-                                            {eventsToDisplay[currentEventIdx].dateStr}
+                                        <span className="inline-flex max-w-[calc(100%-85px)] truncate items-center bg-[#D19B45] text-[#2C3F21] text-xs sm:text-sm font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md">
+                                            <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                                            <span className="truncate">{eventsToDisplay[currentEventIdx].dateStr}</span>
                                         </span>
                                     )}
                                     <span className="inline-flex items-center bg-black/40 backdrop-blur-md text-white border border-white/20 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow-sm">
@@ -900,7 +900,7 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                                         Acara Mendatang
                                     </span>
                                 </div>
-                                <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight text-white drop-shadow-md">
+                                <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight text-white drop-shadow-md line-clamp-3 sm:line-clamp-none">
                                     {eventsToDisplay[currentEventIdx]?.title || ''}
                                 </h3>
                                 {eventsToDisplay[currentEventIdx]?.location && (
@@ -910,27 +910,53 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                                     </p>
                                 )}
 
-                                {/* Action Buttons: Google Calendar & WhatsApp */}
-                                <div className="flex items-center gap-2 mt-4 pt-1">
-                                    <a
-                                        href={createGoogleCalendarUrl(eventsToDisplay[currentEventIdx])}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 transition-all active:scale-95 shadow-sm"
-                                        title="Simpan Acara ke Google Calendar"
-                                    >
-                                        <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5 text-gold-300" />
-                                        + Kalender
-                                    </a>
-                                    <button
-                                        type="button"
-                                        onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
-                                        className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-[#25D366]/30 hover:bg-[#25D366]/50 backdrop-blur-md text-white border border-[#25D366]/40 transition-all active:scale-95 shadow-sm"
-                                        title="Bagikan Acara ke WhatsApp"
-                                    >
-                                        <Icon name="Share" className="w-3.5 h-3.5 mr-1.5 text-emerald-300" />
-                                        Bagikan WA
-                                    </button>
+                                {/* Action Buttons: Google Calendar & WhatsApp & Slide Indicator */}
+                                <div className="flex items-center justify-between gap-3 mt-4 pt-1 flex-wrap">
+                                    <div className="flex items-center gap-2">
+                                        <a
+                                            href={createGoogleCalendarUrl(eventsToDisplay[currentEventIdx])}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 transition-all active:scale-95 shadow-sm"
+                                            title="Simpan Acara ke Google Calendar"
+                                        >
+                                            <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5 text-gold-300" />
+                                            + Kalender
+                                        </a>
+                                        <button
+                                            type="button"
+                                            onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
+                                            className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-[#25D366]/30 hover:bg-[#25D366]/50 backdrop-blur-md text-white border border-[#25D366]/40 transition-all active:scale-95 shadow-sm"
+                                            title="Bagikan Acara ke WhatsApp"
+                                        >
+                                            <Icon name="Share" className="w-3.5 h-3.5 mr-1.5 text-emerald-300" />
+                                            Bagikan WA
+                                        </button>
+                                    </div>
+
+                                    {/* Event Dots & Pause Button */}
+                                    {eventsToDisplay.length > 1 && (
+                                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-md border border-white/15 shadow-md shrink-0">
+                                            {eventsToDisplay.map((_, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    type="button"
+                                                    onClick={() => setCurrentEventIdx(idx)}
+                                                    className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-6 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
+                                                    aria-label={`Ke acara ${idx + 1}`}
+                                                />
+                                            ))}
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsEventPaused(prev => !prev)}
+                                                className="p-1 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors ml-1"
+                                                title={isEventPaused ? "Lanjutkan Slide" : "Jeda Slide"}
+                                                aria-label={isEventPaused ? "Lanjutkan Slide" : "Jeda Slide"}
+                                            >
+                                                <Icon name={isEventPaused ? "Play" : "Pause"} className="w-3 h-3" />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -954,31 +980,6 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                                         aria-label="Acara Selanjutnya"
                                     >
                                         <Icon name="ChevronRight" className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            )}
-
-                            {/* Event Dots & Pause Button */}
-                            {eventsToDisplay.length > 1 && (
-                                <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/15 z-20 shadow-md">
-                                    {eventsToDisplay.map((_, idx) => (
-                                        <button
-                                            key={idx}
-                                            type="button"
-                                            onClick={() => setCurrentEventIdx(idx)}
-                                            className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-6 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'
-                                                }`}
-                                            aria-label={`Ke acara ${idx + 1}`}
-                                        />
-                                    ))}
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsEventPaused(prev => !prev)}
-                                        className="p-1 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors ml-1"
-                                        title={isEventPaused ? "Lanjutkan Slide" : "Jeda Slide"}
-                                        aria-label={isEventPaused ? "Lanjutkan Slide" : "Jeda Slide"}
-                                    >
-                                        <Icon name={isEventPaused ? "Play" : "Pause"} className="w-3 h-3" />
                                     </button>
                                 </div>
                             )}
@@ -1484,7 +1485,11 @@ const DailyVerseWidget = ({ setActiveTab }) => {
     };
 
     const handleCopy = () => {
-        const verseUrl = getCleanShareUrl('belajar_alkitab');
+        const verseUrl = getCleanShareUrl('alkitab', {
+            kitab: verse.bookName,
+            pasal: verse.chapter,
+            ayat: verse.verse
+        });
         const shareText = `📖 *Ayat Alkitab Hari Ini*\n\n"${verse.text}"\n\n📌 *${verse.bookName} ${verse.chapter}:${verse.verse}*\nTema: ${verse.theme}\n\n🕊️ _GMAHK Pisgah BISDAC_\n${verseUrl}`;
         navigator.clipboard.writeText(shareText).then(() => {
             setCopied(true);
@@ -1493,7 +1498,11 @@ const DailyVerseWidget = ({ setActiveTab }) => {
     };
 
     const handleShareWA = () => {
-        const verseUrl = getCleanShareUrl('belajar_alkitab');
+        const verseUrl = getCleanShareUrl('alkitab', {
+            kitab: verse.bookName,
+            pasal: verse.chapter,
+            ayat: verse.verse
+        });
         const shareText = `📖 *Ayat Alkitab Hari Ini*\n\n"${verse.text}"\n\n📌 *${verse.bookName} ${verse.chapter}:${verse.verse}*\nTema: ${verse.theme}\n\n🕊️ _GMAHK Pisgah BISDAC_\n${verseUrl}`;
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
     };
@@ -2268,38 +2277,54 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                     )}
 
                                     <div className="relative z-10 w-full">
-                                        <span className="inline-block bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full mb-2 shadow-md">
+                                        <span className="inline-block max-w-[calc(100%-75px)] truncate bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full mb-2 shadow-md">
                                             {eventsToDisplay[currentEventIdx]?.dateStr || ''}
                                         </span>
-                                        <h4 className="text-lg md:text-xl font-black leading-tight mb-1.5 tracking-tight drop-shadow-md">
+                                        <h4 className="text-base sm:text-lg md:text-xl font-black leading-snug mb-1.5 tracking-tight drop-shadow-md line-clamp-3 sm:line-clamp-none">
                                             {eventsToDisplay[currentEventIdx]?.title || ''}
                                         </h4>
-                                        <p className="text-xs text-gray-200 flex items-center font-medium drop-shadow-sm">
+                                        <p className="text-xs text-gray-200 flex items-center font-medium drop-shadow-sm mb-1">
                                             <Icon name="MapPin" className="w-3.5 h-3.5 mr-1.5 shrink-0 text-[#D19B45]" />
                                             <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span>
                                         </p>
 
-                                        {/* Quick Actions: Google Calendar & WhatsApp */}
-                                        <div className="flex items-center gap-2 mt-3 pt-0.5">
-                                            <a
-                                                href={createGoogleCalendarUrl(eventsToDisplay[currentEventIdx])}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 transition-all active:scale-95 shadow-sm"
-                                                title="Simpan Acara ke Google Calendar"
-                                            >
-                                                <Icon name="Calendar" className="w-3 h-3 mr-1 text-gold-300" />
-                                                + Kalender
-                                            </a>
-                                            <button
-                                                type="button"
-                                                onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
-                                                className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-lg bg-[#25D366]/30 hover:bg-[#25D366]/50 backdrop-blur-md text-white border border-[#25D366]/40 transition-all active:scale-95 shadow-sm"
-                                                title="Bagikan Acara ke WhatsApp"
-                                            >
-                                                <Icon name="Share" className="w-3 h-3 mr-1 text-emerald-300" />
-                                                Bagikan WA
-                                            </button>
+                                        {/* Quick Actions: Google Calendar & WhatsApp & Slide Indicator */}
+                                        <div className="flex items-center justify-between gap-2 mt-3 pt-0.5 flex-wrap">
+                                            <div className="flex items-center gap-2">
+                                                <a
+                                                    href={createGoogleCalendarUrl(eventsToDisplay[currentEventIdx])}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 transition-all active:scale-95 shadow-sm"
+                                                    title="Simpan Acara ke Google Calendar"
+                                                >
+                                                    <Icon name="Calendar" className="w-3 h-3 mr-1 text-gold-300" />
+                                                    + Kalender
+                                                </a>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
+                                                    className="inline-flex items-center text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-[#25D366]/30 hover:bg-[#25D366]/50 backdrop-blur-md text-white border border-[#25D366]/40 transition-all active:scale-95 shadow-sm"
+                                                    title="Bagikan Acara ke WhatsApp"
+                                                >
+                                                    <Icon name="Share" className="w-3 h-3 mr-1 text-emerald-300" />
+                                                    Bagikan WA
+                                                </button>
+                                            </div>
+
+                                            {eventsToDisplay.length > 1 && (
+                                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/15 shadow-sm shrink-0">
+                                                    {eventsToDisplay.map((_, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            type="button"
+                                                            onClick={() => setCurrentEventIdx(idx)}
+                                                            className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-5 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
+                                                            aria-label={`Ke acara ${idx + 1}`}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
@@ -2322,18 +2347,6 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                         >
                                             <Icon name="ChevronRight" className="w-3.5 h-3.5" />
                                         </button>
-                                    </div>
-
-                                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 z-20 shadow-md">
-                                        {eventsToDisplay.map((_, idx) => (
-                                            <button
-                                                key={idx}
-                                                type="button"
-                                                onClick={() => setCurrentEventIdx(idx)}
-                                                className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-5 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
-                                                aria-label={`Ke acara ${idx + 1}`}
-                                            />
-                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -4628,12 +4641,11 @@ const GaleriPublik = () => {
                                     const shareTitle = currentImg.title || 'Foto Dokumentasi Jemaat Pisgah BISDAC';
                                     const shareText = `*${shareTitle}*\nDokumentasi GMAHK Jemaat Pisgah BISDAC:\n${photoUrl}`;
 
-                                    if (navigator.share && navigator.canShare) {
+                                    if (navigator.share) {
                                         try {
                                             await navigator.share({
                                                 title: shareTitle,
-                                                text: shareText,
-                                                url: photoUrl
+                                                text: shareText
                                             });
                                             return;
                                         } catch (e) {
@@ -5187,10 +5199,11 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
     const [searchQuery, setSearchQuery] = React.useState('');
     const [fontSizeLevel, setFontSizeLevel] = React.useState(0); // 0: normal, 1: large, 2: extra-large
     const [lightboxIndex, setLightboxIndex] = React.useState(null);
+    const [lightboxImg, setLightboxImg] = React.useState(null);
     const [copiedLink, setCopiedLink] = React.useState(false);
     const [modalSlide, setModalSlide] = React.useState(0);
     const [imageErrors, setImageErrors] = React.useState({});
-    const [readingProgress, setReadingProgress] = React.useState(0);
+    const readingProgressBarRef = React.useRef(null);
 
     // Kesiapan Offline (PWA & Sanctuary Network)
     const [isOffline, setIsOffline] = React.useState(!navigator.onLine);
@@ -5239,28 +5252,37 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
     React.useEffect(() => {
         setModalSlide(0);
         setLightboxIndex(null);
+        setLightboxImg(null);
         scrollToTop();
     }, [selectedWarta]);
 
-    // Reading Progress Listener saat membaca warta
+    // Reading Progress Listener saat membaca warta (langsung manipulasi DOM ref via rAF agar 0 re-render saat scrolling di mobile)
     React.useEffect(() => {
         if (!selectedWarta) {
-            setReadingProgress(0);
+            if (readingProgressBarRef.current) {
+                readingProgressBarRef.current.style.width = '0%';
+            }
             return;
         }
+        let rafId = null;
         const updateProgress = () => {
-            const scrollTop = window.scrollY || document.documentElement.scrollTop;
-            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-            if (scrollHeight > 0) {
-                const pct = Math.min(100, Math.max(0, (scrollTop / scrollHeight) * 100));
-                setReadingProgress(pct);
-            } else {
-                setReadingProgress(0);
-            }
+            if (rafId) return;
+            rafId = requestAnimationFrame(() => {
+                rafId = null;
+                const bar = readingProgressBarRef.current;
+                if (!bar) return;
+                const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const pct = scrollHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / scrollHeight) * 100)) : 0;
+                bar.style.width = `${pct}%`;
+            });
         };
         window.addEventListener('scroll', updateProgress, { passive: true });
         updateProgress();
-        return () => window.removeEventListener('scroll', updateProgress);
+        return () => {
+            window.removeEventListener('scroll', updateProgress);
+            if (rafId) cancelAnimationFrame(rafId);
+        };
     }, [selectedWarta]);
 
     const handleImageError = (key) => {
@@ -5411,12 +5433,11 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
         const shareTitle = title || 'Warta Jemaat PISGAH BISDAC';
         const textMsg = customText || `*${shareTitle}*\n\nBaca warta selengkapnya di Portal Berita Jemaat PISGAH BISDAC:\n${shareUrl}`;
 
-        if (navigator.share && navigator.canShare) {
+        if (navigator.share) {
             try {
                 await navigator.share({
                     title: shareTitle,
-                    text: textMsg,
-                    url: shareUrl
+                    text: textMsg
                 });
                 return;
             } catch (err) {
@@ -5477,6 +5498,14 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
         // Artikel Rekomendasi / Terkait (ambil 3 artikel lain selain yang sedang dibaca)
         const relatedWarta = sortedWarta.filter(w => w.rowIndex !== selectedWarta.rowIndex).slice(0, 3);
 
+        // Bersihkan HTML artikel: paksa eager loading & auto decoding untuk gambar sisipan agar tidak blank/hilang saat scroll di mobile
+        const cleanedArticleHtml = React.useMemo(() => {
+            if (!selectedWarta?.isi) return '';
+            return selectedWarta.isi
+                .replace(/\sloading=["']lazy["']/gi, ' loading="eager"')
+                .replace(/\sdecoding=["']async["']/gi, ' decoding="auto"');
+        }, [selectedWarta?.isi]);
+
         const fontSizeClass = fontSizeLevel === 2
             ? 'text-xl md:text-2xl leading-loose'
             : (fontSizeLevel === 1 ? 'text-lg md:text-xl leading-relaxed' : 'text-base md:text-lg leading-relaxed');
@@ -5488,8 +5517,9 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                     {/* Reading Progress Indicator */}
                     <div className="absolute bottom-0 left-0 right-0 h-1 bg-navy-100/70 dark:bg-navy-800/80">
                         <div
-                            className="h-full bg-gradient-to-r from-gold-500 via-amber-400 to-gold-300 transition-all duration-150 ease-out"
-                            style={{ width: `${readingProgress}%` }}
+                            ref={readingProgressBarRef}
+                            className="h-full bg-gradient-to-r from-gold-500 via-amber-400 to-gold-300 transition-[width] duration-75 ease-out"
+                            style={{ width: '0%' }}
                         />
                     </div>
 
@@ -5600,7 +5630,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                 </div>
 
                 {/* Article Header Card */}
-                <article className="bg-white dark:bg-navy-900 rounded-[1.75rem] p-6 sm:p-8 md:p-10 shadow-sm border border-navy-100/80 dark:border-navy-800 overflow-hidden relative warta-article-print">
+                <article className="bg-white dark:bg-navy-900 rounded-[1.75rem] p-6 sm:p-8 md:p-10 shadow-sm border border-navy-100/80 dark:border-navy-800 relative warta-article-print">
                     {/* Print Header: Official Church Masthead (Hanya muncul saat dicetak) */}
                     <div className="hidden print:block border-b-2 border-black pb-4 mb-6 text-center">
                         <h2 className="text-xl font-black uppercase tracking-wider text-black">GEREJA MASEHI ADVENT HARI KETUJUH</h2>
@@ -5745,7 +5775,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                                 setLightboxImg(e.target.src);
                             }
                         }}
-                        dangerouslySetInnerHTML={{ __html: selectedWarta.isi }}
+                        dangerouslySetInnerHTML={{ __html: cleanedArticleHtml }}
                     />
 
                     {/* Redaksi Signature & Sharing Bar */}
@@ -5878,6 +5908,39 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                                     </button>
                                 </>
                             )}
+                        </div>
+
+                        <div className="text-center text-white/60 text-xs">
+                            Tekan tombol silang atau area luar untuk kembali
+                        </div>
+                    </div>,
+                    document.body
+                )}
+
+                {/* Lightbox Modal untuk Gambar Sisipan Artikel */}
+                {lightboxImg && createPortal(
+                    <div className="fixed inset-0 z-[99999] bg-black/95 backdrop-blur-md flex flex-col justify-between p-4 md:p-8 animate-fade-in" onClick={() => setLightboxImg(null)}>
+                        <div className="flex justify-between items-center text-white" onClick={(e) => e.stopPropagation()}>
+                            <span className="text-sm font-semibold text-white/80">
+                                Perbesar Gambar Sisipan
+                            </span>
+                            <button
+                                onClick={() => setLightboxImg(null)}
+                                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-xl transition"
+                                title="Tutup"
+                            >
+                                <Icon name="X" className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 flex items-center justify-center relative p-2" onClick={() => setLightboxImg(null)}>
+                            <img
+                                src={lightboxImg}
+                                className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+                                alt="Perbesar Gambar Sisipan"
+                                referrerPolicy="no-referrer"
+                                onClick={(e) => e.stopPropagation()}
+                            />
                         </div>
 
                         <div className="text-center text-white/60 text-xs">
@@ -6791,7 +6854,8 @@ const RichTextEditor = React.forwardRef(({ initialValue = "", onChange, placehol
         img.className = imgClasses;
         img.style.maxHeight = '480px';
         img.style.objectFit = 'contain';
-        img.setAttribute('loading', 'lazy');
+        img.setAttribute('loading', 'eager');
+        img.setAttribute('decoding', 'auto');
         figure.appendChild(img);
 
         if (imageCaption && imageCaption.trim()) {
@@ -12513,7 +12577,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
         if (!ayatNum) return;
         setSelectedAyat(String(ayatNum));
 
-        const tryScroll = (attemptsLeft = 6) => {
+        const tryScroll = (attemptsLeft = 12) => {
             const el = document.getElementById(`ayat-${ayatNum}`);
             if (el) {
                 const headerOffset = 145;
@@ -12537,7 +12601,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     }
                 }
             } else if (attemptsLeft > 0) {
-                setTimeout(() => tryScroll(attemptsLeft - 1), 120);
+                setTimeout(() => tryScroll(attemptsLeft - 1), 150);
             }
         };
 
@@ -12545,18 +12609,22 @@ const Alkitab = ({ setHideGlobalBack }) => {
     }, []);
 
     const processDirectTarget = React.useCallback((target) => {
-        if (!target || !target.bookName) return;
-        const targetBookName = target.bookName.trim().toLowerCase();
-        const matchedBook = ALKITAB_BOOKS.find(b =>
-            b.nama.toLowerCase() === targetBookName ||
-            targetBookName.startsWith(b.nama.toLowerCase()) ||
-            b.nama.toLowerCase().startsWith(targetBookName) ||
-            (target.bookId && b.singkat.toLowerCase() === String(target.bookId).trim().toLowerCase())
-        );
+        if (!target) return;
+        const targetBookName = (target.bookName || target.kitab || '').trim().toLowerCase();
+        const targetBookId = (target.bookId || '').toString().trim().toLowerCase();
+        const matchedBook = ALKITAB_BOOKS.find(b => {
+            const bName = b.nama.toLowerCase();
+            const bSingkat = b.singkat.toLowerCase();
+            const bId = String(b.id);
+            return (
+                (targetBookName && (bName === targetBookName || bSingkat === targetBookName || targetBookName.startsWith(bName) || bName.startsWith(targetBookName))) ||
+                (targetBookId && (bId === targetBookId || bSingkat === targetBookId || bName === targetBookId))
+            );
+        });
         if (!matchedBook) return;
 
-        const chapterNum = parseInt(target.chapter, 10) || 1;
-        const rawVerse = String(target.verse || target.rawVerse || '1');
+        const chapterNum = parseInt(target.chapter || target.pasal, 10) || 1;
+        const rawVerse = String(target.verse || target.ayat || target.rawVerse || '1');
         const startAyat = parseInt(rawVerse.split('-')[0], 10) || 1;
         const endAyat = rawVerse.includes('-') ? (parseInt(rawVerse.split('-')[1], 10) || startAyat) : startAyat;
 
@@ -12584,6 +12652,23 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     localStorage.removeItem('alkitabDirectTarget');
                 } catch (e) { }
             }
+        }
+        if (!target) {
+            try {
+                const searchParams = new URLSearchParams(window.location.search);
+                const bookName = searchParams.get('kitab') || searchParams.get('book') || searchParams.get('buku');
+                const bookId = searchParams.get('bookId');
+                const chapter = searchParams.get('pasal') || searchParams.get('chapter');
+                const verse = searchParams.get('ayat') || searchParams.get('verse');
+                if (bookName || bookId) {
+                    target = {
+                        bookName: bookName || '',
+                        bookId: bookId || '',
+                        chapter: chapter || 1,
+                        verse: verse || 1
+                    };
+                }
+            } catch (e) { }
         }
         if (target) {
             processDirectTarget(target);
@@ -12691,6 +12776,12 @@ const Alkitab = ({ setHideGlobalBack }) => {
         if (selectedBook && selectedChapter) {
             loadChapter(selectedBook.id, selectedChapter);
             setSelectedVerses(new Set());
+            try {
+                const origin = window.location.origin;
+                const ayatParam = selectedAyat ? `&ayat=${selectedAyat}` : '';
+                const newUrl = `${origin}/?tab=alkitab&kitab=${encodeURIComponent(selectedBook.nama)}&pasal=${selectedChapter}${ayatParam}`;
+                window.history.replaceState(window.history.state, '', newUrl);
+            } catch (e) { }
         }
     }, [selectedBook, selectedChapter, loadChapter]);
 
@@ -12741,7 +12832,11 @@ const Alkitab = ({ setHideGlobalBack }) => {
         ranges.push(start === end ? `${start}` : `${start}-${end}`);
         const ayatString = ranges.join(', ');
 
-        const appUrl = getCleanShareUrl('belajar_alkitab');
+        const appUrl = getCleanShareUrl('alkitab', {
+            kitab: selectedBook.nama,
+            pasal: selectedChapter,
+            ayat: ayatString
+        });
         const shareText = `${selectedBook.nama} ${selectedChapter}:${ayatString}\n\n${textParts.join('\n')}\n\nBaca selengkapnya di: ${appUrl}`;
 
         const fallbackCopy = (text) => {
@@ -14057,7 +14152,14 @@ const App = () => {
         try {
             const params = new URLSearchParams(window.location.search);
             const tabParam = params.get('tab');
+            if (tabParam === 'alkitab' || tabParam === 'belajar_alkitab') {
+                if (tabParam === 'alkitab' || params.get('kitab') || params.get('pasal') || params.get('ayat') || params.get('verse')) {
+                    return 'alkitab';
+                }
+                return 'belajar_alkitab';
+            }
             if (tabParam) return tabParam;
+            if (params.get('kitab') || params.get('pasal') || params.get('ayat') || params.get('verse')) return 'alkitab';
             if (params.get('warta') || params.get('id')) return 'warta';
             if (params.get('song') || params.get('lagu')) return 'lagu_sion';
             if (params.get('book')) return 'belajar_perpustakaan';
@@ -14293,6 +14395,26 @@ const App = () => {
             }
         } catch (e) { }
     }, [daftarBuku]);
+
+    // Otomatis buka alkitab langsung ke target ayat jika terdapat parameter ?kitab= atau ?pasal= atau ?ayat= di URL
+    React.useEffect(() => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const bookName = params.get('kitab') || params.get('book');
+            const chapter = params.get('pasal') || params.get('chapter');
+            const verse = params.get('ayat') || params.get('verse');
+            if (bookName || (params.get('tab') === 'alkitab' && (chapter || verse))) {
+                const targetPayload = {
+                    bookName: bookName || '',
+                    chapter: chapter || 1,
+                    verse: verse || 1
+                };
+                window.__alkitabDirectTarget = targetPayload;
+                window.dispatchEvent(new CustomEvent('alkitab-direct-target', { detail: targetPayload }));
+                setRawActiveTab('alkitab');
+            }
+        } catch (e) { }
+    }, []);
 
     // Laporan Keuangan default State
     // daftarLaporan dihapus — pencarian kini redirect langsung ke laporan.html

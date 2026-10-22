@@ -227,6 +227,13 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   background-color: transparent !important;
   background: transparent !important;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  content-visibility: visible !important;
+  contain: none !important;
+  will-change: auto;
 }
 
 .warta-content figure img:hover,
