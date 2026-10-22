@@ -5356,13 +5356,28 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
         setTtsState('idle');
     };
 
+    // Helper format pesan warta resmi untuk dibagikan (Format WhatsApp Lengkap)
+    const getWartaFormattedShareText = (warta) => {
+        if (!warta) return '';
+        const wartaUrl = getWartaShareUrl(warta);
+        const plainText = stripHtml(warta.isi || '').replace(/\s+/g, ' ').trim().slice(0, 260);
+        const title = warta.judul || 'Warta Jemaat PISGAH BISDAC';
+        const dateStr = formatIndoDate(warta.tanggal);
+        const author = warta.penulis || 'Redaksi';
+
+        let text = `📰 *WARTA JEMAAT PISGAH BISDAC*\n*${title}*\n📅 ${dateStr} | ✍️ ${author}`;
+        if (plainText) {
+            text += `\n\n"${plainText}..."`;
+        }
+        text += `\n\n🔗 *Baca selengkapnya di portal resmi:*\n${wartaUrl}`;
+        return text;
+    };
+
     // --- FITUR SALIN FORMAT WHATSAPP CEPAT ---
     const [copiedQuote, setCopiedQuote] = React.useState(false);
     const handleCopyQuote = () => {
         if (!selectedWarta) return;
-        const plainText = stripHtml(selectedWarta.isi || '').slice(0, 260);
-        const wartaUrl = getWartaShareUrl(selectedWarta);
-        const textMsg = `📰 *WARTA JEMAAT PISGAH BISDAC*\n*${selectedWarta.judul}*\n📅 ${formatIndoDate(selectedWarta.tanggal)} | ✍️ ${selectedWarta.penulis || 'Redaksi'}\n\n"${plainText}..."\n\n🔗 *Baca selengkapnya di portal resmi:*\n${wartaUrl}`;
+        const textMsg = getWartaFormattedShareText(selectedWarta);
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(textMsg).then(() => {
                 setCopiedQuote(true);
@@ -5421,17 +5436,25 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
         return gridArticles.slice(start, end);
     }, [gridArticles, currentPage]);
 
+    // Bersihkan HTML artikel warta di level komponen: paksa eager loading & auto decoding untuk gambar sisipan agar tidak blank/hilang saat scroll di mobile
+    const cleanedArticleHtml = React.useMemo(() => {
+        if (!selectedWarta?.isi) return '';
+        return selectedWarta.isi
+            .replace(/\sloading=["']lazy["']/gi, ' loading="eager"')
+            .replace(/\sdecoding=["']async["']/gi, ' decoding="auto"');
+    }, [selectedWarta?.isi]);
+
     const goToPage = (page) => {
         if (page < 1 || page > totalPages) return;
         setCurrentPage(page);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Fungsi Berbagi Cerdas (Native Web Share dengan Fallback WhatsApp)
+    // Fungsi Berbagi Cerdas (Native Web Share dengan Fallback WhatsApp) - Menggunakan format WhatsApp resmi yang rapi & lengkap
     const handleSmartShare = async (title, customText) => {
-        const shareUrl = getWartaShareUrl(selectedWarta);
-        const shareTitle = title || 'Warta Jemaat PISGAH BISDAC';
-        const textMsg = customText || `*${shareTitle}*\n\nBaca warta selengkapnya di Portal Berita Jemaat PISGAH BISDAC:\n${shareUrl}`;
+        if (!selectedWarta) return;
+        const textMsg = customText || getWartaFormattedShareText(selectedWarta);
+        const shareTitle = selectedWarta.judul || title || 'Warta Jemaat PISGAH BISDAC';
 
         if (navigator.share) {
             try {
@@ -5447,10 +5470,10 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
     };
 
-    const handleShareWA = (title) => {
-        const shareUrl = getWartaShareUrl(selectedWarta);
-        const shareText = `*${title}*\n\nBaca warta selengkapnya di Portal Berita Jemaat PISGAH BISDAC:\n${shareUrl}`;
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+    const handleShareWA = () => {
+        if (!selectedWarta) return;
+        const textMsg = getWartaFormattedShareText(selectedWarta);
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
     };
 
     const handleCopyLink = () => {
@@ -5497,14 +5520,6 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
 
         // Artikel Rekomendasi / Terkait (ambil 3 artikel lain selain yang sedang dibaca)
         const relatedWarta = sortedWarta.filter(w => w.rowIndex !== selectedWarta.rowIndex).slice(0, 3);
-
-        // Bersihkan HTML artikel: paksa eager loading & auto decoding untuk gambar sisipan agar tidak blank/hilang saat scroll di mobile
-        const cleanedArticleHtml = React.useMemo(() => {
-            if (!selectedWarta?.isi) return '';
-            return selectedWarta.isi
-                .replace(/\sloading=["']lazy["']/gi, ' loading="eager"')
-                .replace(/\sdecoding=["']async["']/gi, ' decoding="auto"');
-        }, [selectedWarta?.isi]);
 
         const fontSizeClass = fontSizeLevel === 2
             ? 'text-xl md:text-2xl leading-loose'
@@ -5769,7 +5784,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
 
                     {/* Article Body Content */}
                     <div
-                        className={`prose max-w-none text-navy-800 dark:text-navy-100 warta-content pt-2 ${fontSizeClass}`}
+                        className={`prose max-w-none text-navy-800 dark:text-white warta-content pt-2 ${fontSizeClass}`}
                         onClick={(e) => {
                             if (e.target && e.target.tagName === 'IMG' && e.target.src) {
                                 setLightboxImg(e.target.src);

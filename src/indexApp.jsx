@@ -5356,13 +5356,28 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
         setTtsState('idle');
     };
 
+    // Helper format pesan warta resmi untuk dibagikan (Format WhatsApp Lengkap)
+    const getWartaFormattedShareText = (warta) => {
+        if (!warta) return '';
+        const wartaUrl = getWartaShareUrl(warta);
+        const plainText = stripHtml(warta.isi || '').replace(/\s+/g, ' ').trim().slice(0, 260);
+        const title = warta.judul || 'Warta Jemaat PISGAH BISDAC';
+        const dateStr = formatIndoDate(warta.tanggal);
+        const author = warta.penulis || 'Redaksi';
+
+        let text = `📰 *WARTA JEMAAT PISGAH BISDAC*\n*${title}*\n📅 ${dateStr} | ✍️ ${author}`;
+        if (plainText) {
+            text += `\n\n"${plainText}..."`;
+        }
+        text += `\n\n🔗 *Baca selengkapnya di portal resmi:*\n${wartaUrl}`;
+        return text;
+    };
+
     // --- FITUR SALIN FORMAT WHATSAPP CEPAT ---
     const [copiedQuote, setCopiedQuote] = React.useState(false);
     const handleCopyQuote = () => {
         if (!selectedWarta) return;
-        const plainText = stripHtml(selectedWarta.isi || '').slice(0, 260);
-        const wartaUrl = getWartaShareUrl(selectedWarta);
-        const textMsg = `📰 *WARTA JEMAAT PISGAH BISDAC*\n*${selectedWarta.judul}*\n📅 ${formatIndoDate(selectedWarta.tanggal)} | ✍️ ${selectedWarta.penulis || 'Redaksi'}\n\n"${plainText}..."\n\n🔗 *Baca selengkapnya di portal resmi:*\n${wartaUrl}`;
+        const textMsg = getWartaFormattedShareText(selectedWarta);
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(textMsg).then(() => {
                 setCopiedQuote(true);
@@ -5421,17 +5436,37 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
         return gridArticles.slice(start, end);
     }, [gridArticles, currentPage]);
 
+    // Bersihkan HTML artikel warta di level komponen: paksa eager loading & auto decoding untuk semua gambar sisipan agar tidak blank/hilang saat scroll di mobile
+    const cleanedArticleHtml = React.useMemo(() => {
+        if (!selectedWarta?.isi) return '';
+        return selectedWarta.isi
+            .replace(/<img\b([^>]*)>/gi, (match, attrs) => {
+                let newAttrs = attrs;
+                if (!/loading=/i.test(newAttrs)) {
+                    newAttrs += ' loading="eager"';
+                } else {
+                    newAttrs = newAttrs.replace(/loading=["'][^"']*["']/gi, 'loading="eager"');
+                }
+                if (!/decoding=/i.test(newAttrs)) {
+                    newAttrs += ' decoding="auto"';
+                } else {
+                    newAttrs = newAttrs.replace(/decoding=["'][^"']*["']/gi, 'decoding="auto"');
+                }
+                return `<img${newAttrs}>`;
+            });
+    }, [selectedWarta?.isi]);
+
     const goToPage = (page) => {
         if (page < 1 || page > totalPages) return;
         setCurrentPage(page);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Fungsi Berbagi Cerdas (Native Web Share dengan Fallback WhatsApp)
+    // Fungsi Berbagi Cerdas (Native Web Share dengan Fallback WhatsApp) - Menggunakan format WhatsApp resmi yang rapi & lengkap
     const handleSmartShare = async (title, customText) => {
-        const shareUrl = getWartaShareUrl(selectedWarta);
-        const shareTitle = title || 'Warta Jemaat PISGAH BISDAC';
-        const textMsg = customText || `*${shareTitle}*\n\nBaca warta selengkapnya di Portal Berita Jemaat PISGAH BISDAC:\n${shareUrl}`;
+        if (!selectedWarta) return;
+        const textMsg = customText || getWartaFormattedShareText(selectedWarta);
+        const shareTitle = selectedWarta.judul || title || 'Warta Jemaat PISGAH BISDAC';
 
         if (navigator.share) {
             try {
@@ -5447,10 +5482,10 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
     };
 
-    const handleShareWA = (title) => {
-        const shareUrl = getWartaShareUrl(selectedWarta);
-        const shareText = `*${title}*\n\nBaca warta selengkapnya di Portal Berita Jemaat PISGAH BISDAC:\n${shareUrl}`;
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+    const handleShareWA = () => {
+        if (!selectedWarta) return;
+        const textMsg = getWartaFormattedShareText(selectedWarta);
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
     };
 
     const handleCopyLink = () => {
@@ -5498,24 +5533,16 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
         // Artikel Rekomendasi / Terkait (ambil 3 artikel lain selain yang sedang dibaca)
         const relatedWarta = sortedWarta.filter(w => w.rowIndex !== selectedWarta.rowIndex).slice(0, 3);
 
-        // Bersihkan HTML artikel: paksa eager loading & auto decoding untuk gambar sisipan agar tidak blank/hilang saat scroll di mobile
-        const cleanedArticleHtml = React.useMemo(() => {
-            if (!selectedWarta?.isi) return '';
-            return selectedWarta.isi
-                .replace(/\sloading=["']lazy["']/gi, ' loading="eager"')
-                .replace(/\sdecoding=["']async["']/gi, ' decoding="auto"');
-        }, [selectedWarta?.isi]);
-
         const fontSizeClass = fontSizeLevel === 2
             ? 'text-xl md:text-2xl leading-loose'
             : (fontSizeLevel === 1 ? 'text-lg md:text-xl leading-relaxed' : 'text-base md:text-lg leading-relaxed');
 
         return (
             <div className="space-y-6 animate-fade-in pb-16 max-w-5xl mx-auto">
-                {/* Top Action Bar & Breadcrumbs */}
-                <div className="liquid-glass-box p-3 sm:p-3.5 rounded-2xl flex flex-wrap items-center justify-between gap-3 sticky top-16 md:top-[4.5rem] z-40 transition-all overflow-hidden relative warta-no-print print:hidden no-print">
+                {/* Top Action Bar & Breadcrumbs (Sleek, Compact, Single-Row di Mobile & Desktop) */}
+                <div className="liquid-glass-box px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl flex items-center justify-between gap-2 sticky top-16 md:top-[4.5rem] z-40 transition-all relative warta-no-print print:hidden no-print shadow-sm">
                     {/* Reading Progress Indicator */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-navy-100/70 dark:bg-navy-800/80">
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-navy-100/70 dark:bg-navy-800/80 rounded-b-2xl overflow-hidden pointer-events-none">
                         <div
                             ref={readingProgressBarRef}
                             className="h-full bg-gradient-to-r from-gold-500 via-amber-400 to-gold-300 transition-[width] duration-75 ease-out"
@@ -5523,38 +5550,42 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                         />
                     </div>
 
-                    <div className="flex items-center gap-2 min-w-0">
+                    {/* Sisi Kiri: Tombol Kembali & Breadcrumb */}
+                    <div className="flex items-center gap-2 min-w-0 shrink-0">
                         <button
                             onClick={() => setSelectedWarta(null)}
-                            className="bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-800 dark:text-gold-300 border border-navy-200/80 dark:border-navy-700/80 hover:border-gold-500/50 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs hover:shadow flex items-center shrink-0 active:scale-95 group"
+                            className="bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-800 dark:text-gold-300 border border-navy-200/80 dark:border-navy-700/80 hover:border-gold-500/50 px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs flex items-center shrink-0 active:scale-95 group"
                         >
-                            <Icon name="ArrowLeft" className="w-4 h-4 mr-1.5 group-hover:-translate-x-0.5 transition-transform" /> Semua Warta
+                            <Icon name="ArrowLeft" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-1.5 group-hover:-translate-x-0.5 transition-transform" />
+                            <span className="hidden xs:inline">Semua Warta</span>
+                            <span className="xs:hidden">Kembali</span>
                         </button>
-                        <div className="hidden md:flex items-center text-xs text-navy-400 dark:text-navy-500 truncate">
+                        <div className="hidden lg:flex items-center text-xs text-navy-400 dark:text-navy-500 truncate">
                             <span className="cursor-pointer hover:underline" onClick={() => setSelectedWarta(null)}>Warta</span>
                             <span className="mx-1.5">/</span>
                             <span className="font-semibold text-navy-600 dark:text-gold-400/80">{info.category}</span>
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 ml-auto">
+                    {/* Sisi Kanan: Action Buttons Baris Tunggal Rapi (Tidak Melipat ke Baris Baru) */}
+                    <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto hide-scrollbar py-0.5 ml-auto shrink-0">
                         {/* Tombol Suara (Text-to-Speech) */}
                         <div className="flex items-center gap-1">
                             <button
                                 onClick={handleToggleTTS}
-                                className={`px-2.5 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5 text-xs font-bold ${ttsState === 'playing' ? 'bg-gold-500 text-white animate-pulse' : (ttsState === 'paused' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300')}`}
+                                className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl transition shadow-2xs flex items-center gap-1 text-xs font-bold ${ttsState === 'playing' ? 'bg-gold-500 text-white animate-pulse' : (ttsState === 'paused' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300')}`}
                                 title={ttsState === 'playing' ? "Jeda Pembacaan Warta" : (ttsState === 'paused' ? "Lanjutkan Pembacaan Warta" : "Dengarkan Warta (Suara Bahasa Indonesia)")}
                             >
-                                <Icon name={ttsState === 'playing' ? "Pause" : "Volume2"} className={`w-4 h-4 ${ttsState === 'playing' ? 'text-white' : 'text-gold-500'}`} />
-                                <span className="hidden sm:inline">{ttsState === 'playing' ? 'Jeda' : (ttsState === 'paused' ? 'Lanjut' : 'Dengarkan')}</span>
+                                <Icon name={ttsState === 'playing' ? "Pause" : "Volume2"} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${ttsState === 'playing' ? 'text-white' : 'text-gold-500'}`} />
+                                <span className="hidden md:inline">{ttsState === 'playing' ? 'Jeda' : (ttsState === 'paused' ? 'Lanjut' : 'Dengarkan')}</span>
                             </button>
                             {ttsState !== 'idle' && (
                                 <button
                                     onClick={handleStopTTS}
-                                    className="p-2 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 transition shadow-sm"
+                                    className="p-1.5 sm:p-2 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 transition shadow-2xs"
                                     title="Hentikan Pembacaan"
                                 >
-                                    <Icon name="Square" className="w-3.5 h-3.5" />
+                                    <Icon name="Square" className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                 </button>
                             )}
                         </div>
@@ -5562,69 +5593,68 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                         {/* Tombol Simpan Warta (Bookmark) */}
                         <button
                             onClick={() => toggleBookmark(selectedWarta.rowIndex)}
-                            className={`p-2 rounded-xl transition shadow-sm flex items-center gap-1 text-xs font-bold ${bookmarkedIds.includes(selectedWarta.rowIndex) ? 'bg-amber-500 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
+                            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl transition shadow-2xs flex items-center gap-1 text-xs font-bold ${bookmarkedIds.includes(selectedWarta.rowIndex) ? 'bg-amber-500 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
                             title={bookmarkedIds.includes(selectedWarta.rowIndex) ? "Hapus dari Warta Tersimpan" : "Simpan Warta untuk Dibaca Nanti"}
                         >
-                            <Icon name="Bookmark" className={`w-4 h-4 ${bookmarkedIds.includes(selectedWarta.rowIndex) ? 'fill-current' : ''}`} />
-                            <span className="hidden md:inline">{bookmarkedIds.includes(selectedWarta.rowIndex) ? 'Tersimpan' : 'Simpan'}</span>
+                            <Icon name="Bookmark" className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${bookmarkedIds.includes(selectedWarta.rowIndex) ? 'fill-current' : ''}`} />
+                            <span className="hidden lg:inline">{bookmarkedIds.includes(selectedWarta.rowIndex) ? 'Tersimpan' : 'Simpan'}</span>
                         </button>
 
-                        {/* Tombol Salin Format WA */}
+                        {/* Tombol Salin Format WA (Di Desktop / Tablet) */}
                         <button
                             onClick={handleCopyQuote}
-                            className={`p-2 rounded-xl transition shadow-sm flex items-center gap-1 text-xs font-bold ${copiedQuote ? 'bg-emerald-600 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
+                            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl transition shadow-2xs items-center gap-1 text-xs font-bold hidden sm:flex ${copiedQuote ? 'bg-emerald-600 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
                             title="Salin Teks Format WhatsApp untuk Status / Grup"
                         >
-                            <Icon name="MessageCircle" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                            <span className="hidden md:inline">{copiedQuote ? 'Tersalin' : 'Format WA'}</span>
+                            <Icon name="MessageCircle" className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
+                            <span className="hidden lg:inline">{copiedQuote ? 'Tersalin' : 'Format WA'}</span>
                         </button>
 
                         {/* Pengatur Ukuran Huruf (A- / A+) */}
-                        <div className="flex items-center bg-navy-50 dark:bg-navy-800/80 rounded-xl p-1 border border-navy-200/50 dark:border-navy-700/50 text-xs" title="Ukuran Teks Berita">
+                        <div className="flex items-center bg-navy-50 dark:bg-navy-800/80 rounded-xl p-0.5 sm:p-1 border border-navy-200/50 dark:border-navy-700/50 text-[11px] sm:text-xs" title="Ukuran Teks Berita">
                             <button
                                 onClick={() => setFontSizeLevel(p => Math.max(0, p - 1))}
                                 disabled={fontSizeLevel === 0}
-                                className={`px-2 py-1 rounded-lg font-bold transition ${fontSizeLevel === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300'}`}
+                                className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg font-bold transition ${fontSizeLevel === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300'}`}
                             >
                                 A-
                             </button>
-                            <span className="px-1 text-[10px] text-navy-400 font-bold uppercase tracking-wider">Teks</span>
                             <button
                                 onClick={() => setFontSizeLevel(p => Math.min(2, p + 1))}
                                 disabled={fontSizeLevel === 2}
-                                className={`px-2 py-1 rounded-lg font-bold transition ${fontSizeLevel === 2 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300'}`}
+                                className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg font-bold transition ${fontSizeLevel === 2 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300'}`}
                             >
                                 A+
                             </button>
                         </div>
 
-                        {/* Tombol Cetak */}
+                        {/* Tombol Cetak (Tablet & Desktop) */}
                         <button
                             onClick={() => window.print()}
-                            className="p-2 bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300 rounded-xl transition shadow-sm"
+                            className="p-1.5 sm:p-2 bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300 rounded-xl transition shadow-2xs hidden md:flex items-center"
                             title="Cetak Berita (Format Buletin Resmi)"
                         >
-                            <Icon name="Printer" className="w-4 h-4" />
+                            <Icon name="Printer" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </button>
 
-                        {/* Tombol Salin Link */}
+                        {/* Tombol Salin Link (Tablet & Desktop) */}
                         <button
                             onClick={handleCopyLink}
-                            className={`p-2 rounded-xl transition shadow-sm flex items-center gap-1 text-xs font-bold ${copiedLink ? 'bg-emerald-600 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
+                            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl transition shadow-2xs items-center gap-1 text-xs font-bold hidden sm:flex ${copiedLink ? 'bg-emerald-600 text-white' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-600 dark:text-gold-300'}`}
                             title="Salin Tautan"
                         >
-                            {copiedLink ? <Icon name="CheckCircle" className="w-4 h-4 text-white" /> : <Icon name="Copy" className="w-4 h-4" />}
-                            {copiedLink && <span className="hidden sm:inline text-[11px]">Tersalin</span>}
+                            {copiedLink ? <Icon name="CheckCircle" className="w-3.5 h-3.5 text-white" /> : <Icon name="Copy" className="w-3.5 h-3.5" />}
+                            {copiedLink && <span className="hidden lg:inline text-[11px]">Tersalin</span>}
                         </button>
 
                         {/* Tombol Share Cerdas (Native Web Share / WA) */}
                         <button
                             onClick={() => handleSmartShare(info.cleanTitle)}
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 sm:gap-1.5 shadow-2xs shrink-0 active:scale-95"
                             title="Bagikan Warta"
                         >
-                            <Icon name="Share2" className="w-4 h-4" />
-                            <span className="hidden sm:inline">Bagikan</span>
+                            <Icon name="Share2" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            <span className="hidden xs:inline">Bagikan</span>
                         </button>
                     </div>
                 </div>
@@ -5769,7 +5799,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
 
                     {/* Article Body Content */}
                     <div
-                        className={`prose max-w-none text-navy-800 dark:text-navy-100 warta-content pt-2 ${fontSizeClass}`}
+                        className={`prose max-w-none text-navy-800 dark:text-white warta-content pt-2 ${fontSizeClass}`}
                         onClick={(e) => {
                             if (e.target && e.target.tagName === 'IMG' && e.target.src) {
                                 setLightboxImg(e.target.src);
@@ -14113,6 +14143,97 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
     );
 };
 
+// Floating Quick Action Buttons (Sinkronisasi, Hubungi WA, Scroll ke Atas)
+// Mengisolasi event listener scroll agar root App tidak re-render saat pengguna scroll layar
+const FloatingQuickActions = ({ isSyncing, setSyncTrigger, setShowSyncNotif, setActiveTab }) => {
+    const [isScrollingDown, setIsScrollingDown] = React.useState(false);
+    const [showScrollTop, setShowScrollTop] = React.useState(false);
+
+    React.useEffect(() => {
+        let lastScrollY = window.scrollY;
+        let ticking = false;
+        const handleScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const currentScrollY = window.scrollY;
+                    if (currentScrollY > lastScrollY && currentScrollY > 60) {
+                        setIsScrollingDown(true);
+                    } else if (currentScrollY < lastScrollY) {
+                        setIsScrollingDown(false);
+                    }
+                    setShowScrollTop(currentScrollY > 350);
+                    lastScrollY = currentScrollY;
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    return (
+        <div className="print:hidden no-print">
+            {/* Floating Sync Button */}
+            <button
+                onClick={() => {
+                    if (!isSyncing) {
+                        setSyncTrigger(prev => prev + 1);
+                        setShowSyncNotif(true);
+                    }
+                }}
+                className="fixed left-4 md:left-6 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb flex items-center justify-center cursor-pointer group active:scale-95 transition-all duration-300"
+                style={{
+                    bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
+                    transform: isScrollingDown ? 'translateY(120px)' : '',
+                    opacity: isScrollingDown ? 0 : 1,
+                    pointerEvents: isScrollingDown ? 'none' : 'auto'
+                }}
+                title="Sinkronisasi Data"
+            >
+                {isSyncing ? (
+                    <i className="fa-solid fa-rotate fa-spin text-amber-500 text-lg"></i>
+                ) : (
+                    <div className="relative flex items-center justify-center w-full h-full">
+                        <span className="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.9)]"></span>
+                        <span className="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
+                    </div>
+                )}
+            </button>
+
+            {/* Floating WhatsApp Button */}
+            <button
+                onClick={() => setActiveTab('hubungi')}
+                className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb flex items-center justify-center cursor-pointer group active:scale-95 transition-all duration-300"
+                style={{
+                    bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
+                    transform: isScrollingDown ? 'translateY(120px)' : '',
+                    opacity: isScrollingDown ? 0 : 1,
+                    pointerEvents: isScrollingDown ? 'none' : 'auto'
+                }}
+                title="Hubungi Kami"
+            >
+                <i className="fa-brands fa-whatsapp text-[#25D366] text-2xl transition-transform group-hover:scale-110 drop-shadow-[0_0_8px_rgba(37,211,102,0.4)]"></i>
+            </button>
+
+            {/* Floating Scroll-to-Top Button */}
+            {showScrollTop && (
+                <button
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb text-[#4A7045] dark:text-gold-400 hover:text-[#2C3F21] dark:hover:text-gold-300 flex items-center justify-center cursor-pointer group active:scale-95 transition-all duration-300"
+                    style={{
+                        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 154px)'
+                    }}
+                    title="Kembali ke Atas"
+                    aria-label="Kembali ke Atas"
+                >
+                    <Icon name="ArrowUp" className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
+                </button>
+            )}
+        </div>
+    );
+};
+
 const App = () => {
     const [isAppLoading, setIsAppLoading] = React.useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
@@ -14286,24 +14407,6 @@ const App = () => {
     }, []);
     // -----------------------------------------
     const [hideGlobalBack, setHideGlobalBack] = React.useState(false);
-    const [isScrollingDown, setIsScrollingDown] = React.useState(false);
-    const [showScrollTop, setShowScrollTop] = React.useState(false);
-
-    React.useEffect(() => {
-        let lastScrollY = window.scrollY;
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-            if (currentScrollY > lastScrollY && currentScrollY > 50) {
-                setIsScrollingDown(true);
-            } else if (currentScrollY < lastScrollY) {
-                setIsScrollingDown(false);
-            }
-            setShowScrollTop(currentScrollY > 350);
-            lastScrollY = currentScrollY;
-        };
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
 
     const [jadwalDB, setJadwalDB] = React.useState({});
     const [dataPejabat, setDataPejabat] = React.useState(initialDataPejabat);
@@ -15199,66 +15302,14 @@ const App = () => {
                 </nav>
             )}
 
-            {/* Floating Action Button (Hubungi / WA & Sinkronisasi) - Dipercantik dengan Glassmorphism & Diangkat agar Tidak Menyentuh Menu */}
+            {/* Floating Action Button (Hubungi / WA & Sinkronisasi) */}
             {activeTab !== 'admin_dashboard' && activeTab !== 'hubungi' && activeTab !== 'lagu_sion' && !mobileNavPopup && (
-                <div className="print:hidden no-print">
-                    {/* Floating Sync Button */}
-                    <button
-                        onClick={() => {
-                            if (!isSyncing) {
-                                setSyncTrigger(prev => prev + 1);
-                                setShowSyncNotif(true);
-                            }
-                        }}
-                        className="fixed left-4 md:left-6 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb flex items-center justify-center cursor-pointer group active:scale-95"
-                        style={{
-                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
-                            transform: isScrollingDown ? 'translateY(120px)' : '',
-                            opacity: isScrollingDown ? 0 : 1,
-                            pointerEvents: isScrollingDown ? 'none' : 'auto'
-                        }}
-                        title="Sinkronisasi Data"
-                    >
-                        {isSyncing ? (
-                            <i className="fa-solid fa-rotate fa-spin text-amber-500 text-lg"></i>
-                        ) : (
-                            <div className="relative flex items-center justify-center w-full h-full">
-                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.9)]"></span>
-                                <span className="absolute w-3 h-3 bg-amber-500 rounded-full animate-ping opacity-75"></span>
-                            </div>
-                        )}
-                    </button>
-
-                    {/* Floating WhatsApp Button */}
-                    <button
-                        onClick={() => setActiveTab('hubungi')}
-                        className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb flex items-center justify-center cursor-pointer group active:scale-95"
-                        style={{
-                            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 98px)',
-                            transform: isScrollingDown ? 'translateY(120px)' : '',
-                            opacity: isScrollingDown ? 0 : 1,
-                            pointerEvents: isScrollingDown ? 'none' : 'auto'
-                        }}
-                        title="Hubungi Kami"
-                    >
-                        <i className="fa-brands fa-whatsapp text-[#25D366] text-2xl transition-transform group-hover:scale-110 drop-shadow-[0_0_8px_rgba(37,211,102,0.4)]"></i>
-                    </button>
-
-                    {/* Floating Scroll-to-Top Button */}
-                    {showScrollTop && (
-                        <button
-                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                            className="fixed right-4 md:right-8 z-[45] w-11 h-11 md:w-12 md:h-12 liquid-glass-orb text-[#4A7045] dark:text-gold-400 hover:text-[#2C3F21] dark:hover:text-gold-300 flex items-center justify-center cursor-pointer group active:scale-95"
-                            style={{
-                                bottom: 'calc(env(safe-area-inset-bottom, 0px) + 154px)'
-                            }}
-                            title="Kembali ke Atas"
-                            aria-label="Kembali ke Atas"
-                        >
-                            <Icon name="ArrowUp" className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
-                        </button>
-                    )}
-                </div>
+                <FloatingQuickActions
+                    isSyncing={isSyncing}
+                    setSyncTrigger={setSyncTrigger}
+                    setShowSyncNotif={setShowSyncNotif}
+                    setActiveTab={setActiveTab}
+                />
             )}
         </div>
     );

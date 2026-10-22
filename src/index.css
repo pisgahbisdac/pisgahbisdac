@@ -224,22 +224,26 @@
   height: auto;
   display: block;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
   background-color: transparent !important;
   background: transparent !important;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
   content-visibility: visible !important;
   contain: none !important;
-  will-change: auto;
 }
 
-.warta-content figure img:hover,
-.warta-content img:hover {
-  transform: scale(1.01);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+@media (hover: hover) {
+
+  .warta-content figure img,
+  .warta-content img,
+  .rich-text-editor figure img,
+  .rich-text-editor img {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .warta-content figure img:hover,
+  .warta-content img:hover {
+    transform: scale(1.01);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
 }
 
 .warta-content figure figcaption {
@@ -515,13 +519,41 @@ html.dark .bg-white\/70 {
 
 /* Konten Spesifik Editor & Teks Panjang */
 html.dark .warta-content,
+html.dark .warta-content p,
+html.dark .warta-content span,
+html.dark .warta-content div,
+html.dark .warta-content li,
+html.dark .warta-content ol,
+html.dark .warta-content ul,
+html.dark .warta-content b,
+html.dark .warta-content strong,
+html.dark .warta-content i,
+html.dark .warta-content em,
+html.dark .warta-content u,
+html.dark .warta-content td,
+html.dark .warta-content th,
+html.dark .warta-content font,
 html.dark .pengumuman-text,
+html.dark .pengumuman-text p,
+html.dark .pengumuman-text span,
+html.dark .pengumuman-text div,
+html.dark .pengumuman-text li,
+html.dark .pengumuman-text b,
+html.dark .pengumuman-text strong,
+html.dark .pengumuman-text i,
+html.dark .pengumuman-text em,
 html.dark .prose p,
-html.dark .prose li {
-  color: #cbd4e1 !important;
+html.dark .prose li,
+html.dark .prose span {
+  color: #ffffff !important;
 }
 
+html.dark .warta-content h1,
+html.dark .warta-content h2,
 html.dark .warta-content h3,
+html.dark .warta-content h4,
+html.dark .pengumuman-text h1,
+html.dark .pengumuman-text h2,
 html.dark .pengumuman-text h3,
 html.dark .prose h1,
 html.dark .prose h2,
@@ -534,7 +566,12 @@ html.dark .warta-content b,
 html.dark .warta-content strong,
 html.dark .pengumuman-text b,
 html.dark .pengumuman-text strong {
-  color: #f4f6f9 !important;
+  color: #ffffff !important;
+}
+
+html.dark .warta-content a,
+html.dark .pengumuman-text a {
+  color: #fbbf24 !important;
 }
 
 /* Kartu Spesial (Welcome & Pembangunan) */
