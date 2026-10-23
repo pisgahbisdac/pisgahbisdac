@@ -699,7 +699,7 @@ export function renderSabbathBulletinPreview() {
       <div style="display:flex; align-items:center; gap: 10px;">
         <img src="./icons/PisgahColor.png" alt="Logo" style="width: 38px; height: 38px; object-fit: contain;">
         <div>
-          <h2 class="bulletin-header-title">GMAHK JEMAAT PISGAH</h2>
+          <h2 class="bulletin-header-title">GMAHK JEMAAT PISGAH BISDAC - BATAM</h2>
           <div class="bulletin-header-sub">WARTA &amp; BULETIN KEUANGAN JEMAAT</div>
         </div>
       </div>
@@ -1026,7 +1026,7 @@ export function copySabbathBulletinWhatsApp() {
     const expMonthDeptText = formatExpDept(d.expByDeptMonth);
 
     waText = `🕊️ *WARTA KEUANGAN SABAT*
-*GMAHK JEMAAT PISGAH*
+*GMAHK JEMAAT PISGAH BISDAC - BATAM*
 📅 *${d.cutOffDateLabel}*
 _${d.subtitleHeader}_
 ══════════════════════════
@@ -1095,7 +1095,7 @@ _Tuhan Memberkati Pelayanan & Persembahan Kita Bersama._
     const expMonthDeptText = formatExpDept(d.expByDeptMonth);
 
     waText = `🕊️ *LAPORAN KEUANGAN BULANAN*
-*GMAHK JEMAAT PISGAH*
+*GMAHK JEMAAT PISGAH BISDAC - BATAM*
 📅 *${d.titleHeader}*
 _${d.subtitleHeader}_
 ══════════════════════════
@@ -1149,7 +1149,7 @@ _Tuhan Memberkati Pelayanan & Persembahan Kita Bersama._
     const expWeekDeptText = formatExpDept(d.expByDeptWeek);
 
     waText = `🕊️ *WARTA KEUANGAN SABAT*
-*GMAHK JEMAAT PISGAH*
+*GMAHK JEMAAT PISGAH BISDAC - BATAM*
 📅 *${d.cutOffDateLabel}*
 ══════════════════════════
 

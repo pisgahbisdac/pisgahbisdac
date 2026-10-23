@@ -187,13 +187,17 @@ function processMultipleImages(gambarUrlStr, judul) {
   for (let i = 0; i < urls.length; i++) {
     let url = urls[i].trim();
     if (url && !url.startsWith('http') && (url.startsWith('data:image') || url.length > 500)) {
-      let hash = getMd5Hash(url);
-      let targetFolderId = getOrCreateNestedFolder("Warta_Images");
-      let safeTitle = judul ? judul.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30) : "Gambar";
-      let fileName = "Warta_" + safeTitle + "_" + (i + 1) + "_" + hash + ".jpg";
-      let uploadedUrl = uploadFileToDrive(url, fileName, targetFolderId);
-      processedUrls.push(uploadedUrl);
-    } else {
+      try {
+        let hash = getMd5Hash(url);
+        let targetFolderId = getOrCreateNestedFolder("Warta_Images");
+        let safeTitle = judul ? judul.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30) : "Gambar";
+        let fileName = "Warta_" + safeTitle + "_" + (i + 1) + "_" + hash + ".jpg";
+        let uploadedUrl = uploadFileToDrive(url, fileName, targetFolderId);
+        if (uploadedUrl) processedUrls.push(uploadedUrl);
+      } catch (err) {
+        // Cegah kegagalan simpan warta jika operasi Drive bermasalah
+      }
+    } else if (url) {
       processedUrls.push(url);
     }
   }

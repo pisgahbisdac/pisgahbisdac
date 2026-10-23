@@ -2454,10 +2454,969 @@ const DailyVerseWidget = ({ setActiveTab }) => {
 };
 
 // ============================================================
-// WIDGET 3: CARI TUGAS PELAYANAN SAYA
+// TAHAP 3: SISTEM KONFIRMASI KEHADIRAN PETUGAS, POKOK DOA & KALENDER/ULTAH
+// ============================================================
+const OFFICER_ATTENDANCE_STORAGE_KEY = 'PISGAH_OFFICER_ATTENDANCE_V1';
+const PRAYER_REQUESTS_STORAGE_KEY = 'PISGAH_PRAYER_REQUESTS_V1';
+const PRAYED_IDS_STORAGE_KEY = 'PISGAH_PRAYED_IDS_V1';
+const MEMBER_BIRTHDAYS_STORAGE_KEY = 'PISGAH_MEMBER_BIRTHDAYS_V1';
+const ANNUAL_CALENDAR_STORAGE_KEY = 'PISGAH_ANNUAL_CALENDAR_V1';
+
+const getOfficerAttendanceKey = (dateStr, tugas, nama) => {
+    const cleanDate = String(dateStr || '').trim();
+    const cleanTugas = String(tugas || '').trim().toLowerCase();
+    const cleanNama = String(nama || '').trim().toLowerCase();
+    return `${cleanDate}__${cleanTugas}__${cleanNama}`;
+};
+
+const loadOfficerAttendanceMap = () => {
+    try {
+        const raw = localStorage.getItem(OFFICER_ATTENDANCE_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+        return {};
+    }
+};
+
+const saveOfficerAttendanceRecord = (recordKey, payload) => {
+    try {
+        const current = loadOfficerAttendanceMap();
+        if (payload === null) {
+            delete current[recordKey];
+        } else {
+            current[recordKey] = {
+                ...payload,
+                updatedAt: Date.now()
+            };
+        }
+        localStorage.setItem(OFFICER_ATTENDANCE_STORAGE_KEY, JSON.stringify(current));
+        window.dispatchEvent(new CustomEvent('pisgah-attendance-updated'));
+    } catch (e) { }
+};
+
+const useOfficerAttendance = () => {
+    const [attendanceMap, setAttendanceMap] = React.useState(() => loadOfficerAttendanceMap());
+    React.useEffect(() => {
+        const refresh = () => setAttendanceMap(loadOfficerAttendanceMap());
+        window.addEventListener('pisgah-attendance-updated', refresh);
+        window.addEventListener('storage', refresh);
+        return () => {
+            window.removeEventListener('pisgah-attendance-updated', refresh);
+            window.removeEventListener('storage', refresh);
+        };
+    }, []);
+    return attendanceMap;
+};
+
+const findSecretaryPhone = (dataPejabat = []) => {
+    if (!Array.isArray(dataPejabat)) return '';
+    // Prioritaskan mencari pejabat dengan jabatan atau ID Sekretaris
+    const sec = dataPejabat.find(p => {
+        const j = String(p.jabatan || '').toLowerCase();
+        const id = String(p.id || '').toLowerCase();
+        return j.includes('sekretaris') || j.includes('sekertaris') || id.includes('sekretaris') || id.includes('sekertaris');
+    });
+    if (sec && sec.wa) {
+        const digits = String(sec.wa).replace(/\D/g, '');
+        if (digits && digits !== '62800000000' && digits.length >= 9) {
+            return digits.startsWith('0') ? '62' + digits.slice(1) : digits;
+        }
+    }
+    // Fallback ke pengurus jemaat lain jika nomor sekretaris belum diatur
+    const fallback = dataPejabat.find(p => {
+        const j = String(p.jabatan || '').toLowerCase();
+        return j.includes('ketua') || j.includes('gembala') || j.includes('pendeta');
+    });
+    if (fallback && fallback.wa) {
+        const digits = String(fallback.wa).replace(/\D/g, '');
+        if (digits && digits !== '62800000000' && digits.length >= 9) {
+            return digits.startsWith('0') ? '62' + digits.slice(1) : digits;
+        }
+    }
+    return '6285194344004';
+};
+
+const OfficerAttendanceModal = ({ modalData, onClose, dataPejabat = [] }) => {
+    const [status, setStatus] = React.useState('hadir');
+    const [substitute, setSubstitute] = React.useState('');
+    const [note, setNote] = React.useState('');
+
+    React.useEffect(() => {
+        if (modalData) {
+            setStatus(modalData.existing?.status || 'hadir');
+            setSubstitute(modalData.existing?.substitute || '');
+            setNote(modalData.existing?.note || '');
+        }
+    }, [modalData]);
+
+    if (!modalData) return null;
+
+    const recordKey = getOfficerAttendanceKey(modalData.dateStr, modalData.tugas, modalData.nama);
+
+    const handleSave = (sendWa = false) => {
+        const payload = {
+            dateStr: modalData.dateStr,
+            sesi: modalData.sesi,
+            waktu: modalData.waktu,
+            tugas: modalData.tugas,
+            nama: modalData.nama,
+            status,
+            substitute: substitute.trim(),
+            note: note.trim()
+        };
+        saveOfficerAttendanceRecord(recordKey, payload);
+
+        if (sendWa) {
+            const formattedDate = modalData.dateStr ? formatIndoDate(modalData.dateStr) : '-';
+            const statusText = status === 'hadir' ? '✅ *SIAP HADIR MELAYANI*' : '⚠️ *BERHALANGAN HADIR*';
+            let waMsg =
+                `Shalom Sekretaris Jemaat *GMAHK Jemaat Pisgah BISDAC - Batam* 🙏,\n\n` +
+                `Berikut konfirmasi kehadiran tugas pelayanan ibadah saya:\n\n` +
+                `👤 *Nama Petugas:* ${modalData.nama}\n` +
+                `📋 *Tugas Pelayanan:* ${modalData.tugas}\n` +
+                `⛪ *Kebaktian:* ${modalData.sesi || 'Ibadah Jemaat'}\n` +
+                `🗓️ *Hari/Tanggal:* ${formattedDate}\n` +
+                `⏰ *Waktu:* ${modalData.waktu || 'Sesuai Jadwal'}\n` +
+                `📌 *Status Kehadiran:* ${statusText}\n`;
+
+            if (status === 'berhalangan' && substitute.trim()) {
+                waMsg += `🔄 *Usulan Pengganti:* ${substitute.trim()}\n`;
+            }
+            if (note.trim()) {
+                waMsg += `📝 *Keterangan:* ${note.trim()}\n`;
+            }
+            waMsg += `\nTerima kasih. Tuhan Yesus memberkati pelayanan kita bersama! 🕊️`;
+
+            const targetPhone = findSecretaryPhone(dataPejabat);
+            const waUrl = targetPhone
+                ? `https://api.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(waMsg)}`
+                : `https://api.whatsapp.com/send?text=${encodeURIComponent(waMsg)}`;
+            window.open(waUrl, '_blank');
+        }
+        onClose();
+    };
+
+    const handleReset = () => {
+        saveOfficerAttendanceRecord(recordKey, null);
+        onClose();
+    };
+
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
+            <div className="bg-white dark:bg-navy-900 border border-navy-100 dark:border-navy-700 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-start justify-between gap-3 pb-3 mb-4 border-b border-navy-100 dark:border-navy-800">
+                    <div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-[#4A7045] dark:text-gold-400 block">
+                            Konfirmasi Kehadiran Pelayan Ibadah
+                        </span>
+                        <h3 className="text-base sm:text-lg font-black text-navy-900 dark:text-white mt-0.5">
+                            {modalData.nama}
+                        </h3>
+                        <p className="text-xs font-bold text-navy-500 dark:text-navy-300 mt-0.5">
+                            {modalData.tugas} • {modalData.dateStr ? formatIndoDateShort(modalData.dateStr) : ''}
+                        </p>
+                    </div>
+                    <button onClick={onClose} className="w-8 h-8 rounded-full bg-navy-50 dark:bg-navy-800 text-navy-500 hover:text-red-500 flex items-center justify-center font-bold cursor-pointer">✕</button>
+                </div>
+
+                <div className="space-y-4">
+                    <div>
+                        <label className="text-[11px] font-black uppercase tracking-wider text-navy-500 dark:text-navy-300 block mb-2">
+                            Pilih Status Kesiapan Anda:
+                        </label>
+                        <div className="grid grid-cols-2 gap-2.5">
+                            <button
+                                type="button"
+                                onClick={() => setStatus('hadir')}
+                                className={`p-3 rounded-2xl border-2 text-left transition flex flex-col gap-1 cursor-pointer ${status === 'hadir' ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 text-emerald-900 dark:text-emerald-300 shadow-sm' : 'bg-navy-50/50 dark:bg-navy-800 border-navy-100 dark:border-navy-700 text-navy-600 dark:text-navy-300'}`}
+                            >
+                                <span className="text-xs sm:text-sm font-black flex items-center gap-1.5">
+                                    <span>✅ Siap Hadir</span>
+                                </span>
+                                <span className="text-[10px] opacity-80 font-medium">Saya siap melayani tepat waktu</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setStatus('berhalangan')}
+                                className={`p-3 rounded-2xl border-2 text-left transition flex flex-col gap-1 cursor-pointer ${status === 'berhalangan' ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 text-amber-900 dark:text-amber-300 shadow-sm' : 'bg-navy-50/50 dark:bg-navy-800 border-navy-100 dark:border-navy-700 text-navy-600 dark:text-navy-300'}`}
+                            >
+                                <span className="text-xs sm:text-sm font-black flex items-center gap-1.5">
+                                    <span>⚠️ Berhalangan</span>
+                                </span>
+                                <span className="text-[10px] opacity-80 font-medium">Perlu koordinasi / pengganti</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {status === 'berhalangan' && (
+                        <div>
+                            <label className="text-[11px] font-black uppercase tracking-wider text-navy-500 dark:text-navy-300 block mb-1">
+                                Nama Petugas Pengganti (Jika sudah ada)
+                            </label>
+                            <input
+                                type="text"
+                                value={substitute}
+                                onChange={(e) => setSubstitute(e.target.value)}
+                                placeholder="Misal: Bpk. / Ibu ... (Opsional)"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-navy-50 dark:bg-navy-800 border border-navy-200 dark:border-navy-700 text-xs sm:text-sm font-bold text-navy-900 dark:text-white outline-none focus:border-gold-500"
+                            />
+                        </div>
+                    )}
+
+                    <div>
+                        <label className="text-[11px] font-black uppercase tracking-wider text-navy-500 dark:text-navy-300 block mb-1">
+                            Catatan Tambahan (Opsional)
+                        </label>
+                        <input
+                            type="text"
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                            placeholder={status === 'hadir' ? 'Misal: Hadir 15 menit sebelum mulai...' : 'Misal: Sedang dinas luar kota / sakit...'}
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-navy-50 dark:bg-navy-800 border border-navy-200 dark:border-navy-700 text-xs sm:text-sm font-medium text-navy-900 dark:text-white outline-none focus:border-gold-500"
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-2 pt-2">
+                        <button
+                            type="button"
+                            onClick={() => handleSave(false)}
+                            className="w-full py-2.5 px-4 rounded-xl bg-[#4A7045] hover:bg-[#3A5836] dark:bg-gold-500 dark:hover:bg-gold-400 text-white dark:text-navy-950 font-black text-xs sm:text-sm shadow-md transition cursor-pointer flex items-center justify-center gap-2"
+                        >
+                            <Icon name="CheckCircle" className="w-4 h-4" />
+                            <span>Simpan Status Konfirmasi</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleSave(true)}
+                            className="w-full py-2.5 px-4 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/40 font-extrabold text-xs sm:text-sm transition cursor-pointer flex items-center justify-center gap-2"
+                        >
+                            <i className="fa-brands fa-whatsapp text-base"></i>
+                            <span>Simpan & Kabari Sekretaris via WA</span>
+                        </button>
+                        {modalData.existing && (
+                            <button
+                                type="button"
+                                onClick={handleReset}
+                                className="w-full py-1.5 text-[11px] font-bold text-red-500 hover:text-red-600 cursor-pointer"
+                            >
+                                Reset / Batalkan Status Konfirmasi
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
+};
+
+// ============================================================
+// DATA & HELPER DINDING POKOK DOA (IBADAH RABU & PASTORAL)
+// ============================================================
+const PRAYER_CATEGORIES = [
+    { id: 'Kesehatan', label: 'Kesehatan & Pemulihan', icon: '🙏', badgeClass: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30' },
+    { id: 'Keluarga', label: 'Keluarga & Rumah Tangga', icon: '🏠', badgeClass: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30' },
+    { id: 'Pekerjaan', label: 'Pekerjaan & Pendidikan', icon: '💼', badgeClass: 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30' },
+    { id: 'Rohani', label: 'Pertumbuhan Iman', icon: '📖', badgeClass: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30' },
+    { id: 'Syukur', label: 'Ucapan Syukur', icon: '✨', badgeClass: 'bg-gold-500/20 text-amber-800 dark:text-gold-300 border-gold-500/40' },
+    { id: 'Pelayanan', label: 'Pelayanan Gereja', icon: '⛪', badgeClass: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30' }
+];
+
+const INITIAL_PRAYER_REQUESTS = [
+    {
+        id: 'pray_seed_1',
+        senderName: 'Majelis & Pelayan Jemaat',
+        isAnonymous: false,
+        category: 'Pelayanan',
+        content: 'Kiranya Tuhan mencurahkan Roh Kudus bagi seluruh keluarga besar GMAHK Jemaat Pisgah BISDAC - Batam agar semakin bertumbuh dalam iman, kasih persaudaraan, dan semangat penginjilan.',
+        privacy: 'public',
+        prayedCount: 18,
+        isAnswered: false,
+        createdAt: '2026-10-21T12:00:00.000Z'
+    },
+    {
+        id: 'pray_seed_2',
+        senderName: 'Hamba Tuhan (Anonim)',
+        isAnonymous: true,
+        category: 'Kesehatan',
+        content: 'Mohon dukungan doa pada Ibadah Rabu Malam untuk kesembuhan dan pemulihan kesehatan orang tua serta anggota jemaat yang sedang dalam masa perawatan.',
+        privacy: 'public',
+        prayedCount: 14,
+        isAnswered: false,
+        createdAt: '2026-10-22T09:30:00.000Z'
+    },
+    {
+        id: 'pray_seed_3',
+        senderName: 'Keluarga Jemaat Pisgah',
+        isAnonymous: false,
+        category: 'Syukur',
+        content: 'Mengucap syukur atas pemeliharaan Tuhan sepanjang pekan ini dalam pekerjaan, pendidikan anak-anak, dan berkat kesehatan yang Tuhan nyatakan.',
+        privacy: 'public',
+        prayedCount: 21,
+        isAnswered: false,
+        createdAt: '2026-10-22T15:15:00.000Z'
+    }
+];
+
+const loadPrayerRequests = () => {
+    try {
+        const raw = localStorage.getItem(PRAYER_REQUESTS_STORAGE_KEY);
+        if (raw !== null) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+        }
+    } catch (e) { }
+    return INITIAL_PRAYER_REQUESTS;
+};
+
+const savePrayerRequests = (list) => {
+    try {
+        localStorage.setItem(PRAYER_REQUESTS_STORAGE_KEY, JSON.stringify(list));
+        setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('pisgah-prayer-updated'));
+        }, 0);
+    } catch (e) { }
+};
+
+const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
+    const [prayers, setPrayers] = React.useState(() => loadPrayerRequests());
+    const [prayedIds, setPrayedIds] = React.useState(() => {
+        try {
+            const raw = localStorage.getItem(PRAYED_IDS_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            return [];
+        }
+    });
+    const [categoryFilter, setCategoryFilter] = React.useState('all');
+    const [isFormOpen, setIsFormOpen] = React.useState(false);
+    const [senderName, setSenderName] = React.useState('');
+    const [isAnonymous, setIsAnonymous] = React.useState(false);
+    const [category, setCategory] = React.useState('Kesehatan');
+    const [privacy, setPrivacy] = React.useState('public'); // 'public' | 'private'
+    const [content, setContent] = React.useState('');
+    const [submitSuccessMsg, setSubmitSuccessMsg] = React.useState(null);
+
+    React.useEffect(() => {
+        const sync = () => setPrayers(loadPrayerRequests());
+        window.addEventListener('pisgah-prayer-updated', sync);
+        window.addEventListener('storage', sync);
+        return () => {
+            window.removeEventListener('pisgah-prayer-updated', sync);
+            window.removeEventListener('storage', sync);
+        };
+    }, []);
+
+    const publicPrayers = React.useMemo(() => {
+        return prayers
+            .filter(p => p.privacy !== 'private')
+            .filter(p => categoryFilter === 'all' || p.category === categoryFilter)
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }, [prayers, categoryFilter]);
+
+    const handlePraySupport = (id) => {
+        const alreadyPrayed = prayedIds.includes(id);
+        const nextPrayedIds = alreadyPrayed ? prayedIds.filter(x => x !== id) : [...prayedIds, id];
+        setPrayedIds(nextPrayedIds);
+        try {
+            localStorage.setItem(PRAYED_IDS_STORAGE_KEY, JSON.stringify(nextPrayedIds));
+        } catch (e) { }
+
+        const nextList = prayers.map(p => {
+            if (p.id !== id) return p;
+            const currentCount = Number(p.prayedCount || 0);
+            return {
+                ...p,
+                prayedCount: alreadyPrayed ? Math.max(0, currentCount - 1) : currentCount + 1
+            };
+        });
+        setPrayers(nextList);
+        savePrayerRequests(nextList);
+    };
+
+    const handleSubmitPrayer = (e) => {
+        e.preventDefault();
+        if (!content.trim()) return;
+
+        const finalName = isAnonymous ? 'Hamba Tuhan (Anonim)' : (senderName.trim() || 'Anggota Jemaat');
+        const newPrayer = {
+            id: 'pray_' + Date.now(),
+            senderName: finalName,
+            isAnonymous,
+            category,
+            content: content.trim(),
+            privacy,
+            prayedCount: 1,
+            isAnswered: false,
+            createdAt: new Date().toISOString()
+        };
+
+        const nextList = [newPrayer, ...prayers];
+        setPrayers(nextList);
+        savePrayerRequests(nextList);
+
+        setContent('');
+        setIsFormOpen(false);
+        setSubmitSuccessMsg({
+            privacy,
+            prayer: newPrayer
+        });
+        setTimeout(() => setSubmitSuccessMsg(null), 9000);
+    };
+
+    const handleSendPrivateToPastorWA = (prayerObj) => {
+        const pastorPhone = findCoordinatorPhone(dataPejabat);
+        const text =
+            `Shalom Gembala / Majelis *GMAHK Jemaat Pisgah BISDAC - Batam* 🙏,\n\n` +
+            `Saya ingin menyampaikan *Pokok Doa Khusus (${prayerObj.privacy === 'private' ? 'Privat / Pastoral' : 'Ibadah Rabu'})*:\n\n` +
+            `👤 *Nama:* ${prayerObj.senderName}\n` +
+            `🏷️ *Kategori:* ${prayerObj.category}\n` +
+            `🙏 *Pokok Doa:* "${prayerObj.content}"\n\n` +
+            `Terima kasih atas dukungan doa Gembala & Majelis. Tuhan Yesus memberkati. 🕊️`;
+        const waUrl = pastorPhone
+            ? `https://api.whatsapp.com/send?phone=${pastorPhone}&text=${encodeURIComponent(text)}`
+            : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+        window.open(waUrl, '_blank');
+    };
+
+    const handleShareWednesdayRecapWA = () => {
+        const topPublic = publicPrayers.slice(0, 8);
+        let text = `*🙏 POKOK DOA SYAFAAT IBADAH RABU MALAM*\n*GMAHK Jemaat Pisgah BISDAC - Batam*\n\n`;
+        topPublic.forEach((p, idx) => {
+            text += `${idx + 1}. *[${p.category}] ${p.senderName}:*\n"${p.content}" _(Didoakan ${p.prayedCount || 1}x)_\n\n`;
+        });
+        text += `_"Karena itu hendaklah kamu saling mengaku dosamu dan saling mendoakan, supaya kamu sembuh."_ (Yakobus 5:16)\n\n` +
+            `Kirim pokok doa Anda di: ${getCleanShareUrl('jadwal')}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    };
+
+    return (
+        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700">
+            {/* Header Dinding Doa */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[#E2E8D8] dark:border-navy-800">
+                <div>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider mb-2 border border-[#4A7045]/20 dark:border-gold-500/30">
+                        <span>🙏 Persekutuan Doa Rabu & Pastoral</span>
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight">
+                        Kotak & Dinding Pokok Doa Jemaat
+                    </h3>
+                    <p className="text-xs md:text-sm text-[#596B4D] dark:text-gray-400 mt-1">
+                        Sampaikan pokok doa atau pergumulan Anda untuk didoakan bersama pada Ibadah Rabu Malam atau secara khusus (privat) oleh Pendeta & Majelis.
+                    </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    <button
+                        type="button"
+                        onClick={() => setIsFormOpen(prev => !prev)}
+                        className="px-4 py-2.5 rounded-xl bg-[#4A7045] hover:bg-[#3A5836] dark:bg-gold-500 dark:hover:bg-gold-400 text-white dark:text-navy-950 font-black text-xs sm:text-sm shadow-md transition flex items-center gap-2 cursor-pointer active:scale-95"
+                    >
+                        <Icon name={isFormOpen ? "X" : "Plus"} className="w-4 h-4" />
+                        <span>{isFormOpen ? 'Tutup Form' : '+ Kirim Pokok Doa'}</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleShareWednesdayRecapWA}
+                        className="px-3.5 py-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                        title="Bagikan Daftar Pokok Doa ke Grup WA Ibadah Rabu"
+                    >
+                        <i className="fa-brands fa-whatsapp text-sm"></i>
+                        <span>Rekap WA Rabu</span>
+                    </button>
+                </div>
+            </div>
+
+            {/* Notifikasi Sukses Kirim Doa */}
+            {submitSuccessMsg && (
+                <div className="mt-4 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in">
+                    <div className="text-xs sm:text-sm font-bold text-emerald-900 dark:text-emerald-200">
+                        {submitSuccessMsg.privacy === 'private' ? (
+                            <>🔒 Pokok doa <strong>Privat (Khusus Pendeta/Majelis)</strong> telah disimpan di Ruang Pastoral Admin.</>
+                        ) : (
+                            <>✨ Puji Tuhan! Pokok doa Anda telah ditambahkan ke <strong>Dinding Doa Jemaat</strong>.</>
+                        )}
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => handleSendPrivateToPastorWA(submitSuccessMsg.prayer)}
+                        className="px-3.5 py-2 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-xs font-black flex items-center gap-1.5 shrink-0 cursor-pointer shadow-xs"
+                    >
+                        <i className="fa-brands fa-whatsapp"></i>
+                        <span>Teruskan Langsung ke WA Gembala/Majelis</span>
+                    </button>
+                </div>
+            )}
+
+            {/* Form Kirim Pokok Doa */}
+            {isFormOpen && (
+                <form onSubmit={handleSubmitPrayer} className="mt-5 p-4 sm:p-5 rounded-2xl bg-[#F7F9F3] dark:bg-navy-950/80 border-2 border-[#C5D5BC] dark:border-gold-500/40 space-y-4 animate-fade-in">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                                <label className="text-[11px] font-black uppercase tracking-wider text-[#2C3F21] dark:text-gold-300">
+                                    Nama Pengirim / Keluarga
+                                </label>
+                                <label className="inline-flex items-center gap-1.5 text-xs font-bold text-[#4A7045] dark:text-gold-400 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={isAnonymous}
+                                        onChange={(e) => setIsAnonymous(e.target.checked)}
+                                        className="rounded accent-[#4A7045]"
+                                    />
+                                    <span>Kirim sebagai Anonim</span>
+                                </label>
+                            </div>
+                            <input
+                                type="text"
+                                disabled={isAnonymous}
+                                value={isAnonymous ? 'Hamba Tuhan (Anonim)' : senderName}
+                                onChange={(e) => setSenderName(e.target.value)}
+                                placeholder="Contoh: Kel. Bpk. ... / Sdr. ..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-xs sm:text-sm font-bold text-navy-900 dark:text-white outline-none focus:border-gold-500 disabled:opacity-60"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-[11px] font-black uppercase tracking-wider text-[#2C3F21] dark:text-gold-300 block mb-1.5">
+                                Kategori Pokok Doa
+                            </label>
+                            <select
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-xs sm:text-sm font-bold text-navy-900 dark:text-white outline-none focus:border-gold-500 cursor-pointer"
+                            >
+                                {PRAYER_CATEGORIES.map(c => (
+                                    <option key={c.id} value={c.id}>{c.icon} {c.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Opsi Privasi: Publik vs Privat */}
+                    <div>
+                        <label className="text-[11px] font-black uppercase tracking-wider text-[#2C3F21] dark:text-gold-300 block mb-1.5">
+                            Privasi Pengiriman Doa
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <button
+                                type="button"
+                                onClick={() => setPrivacy('public')}
+                                className={`p-3 rounded-xl border-2 text-left transition cursor-pointer ${privacy === 'public' ? 'bg-white dark:bg-navy-800 border-[#4A7045] dark:border-gold-500 shadow-xs' : 'bg-white/50 dark:bg-navy-900/50 border-[#E2E8D8] dark:border-navy-800 opacity-75'}`}
+                            >
+                                <div className="text-xs font-black text-[#2C3F21] dark:text-gold-400">🌐 Publik (Dinding Doa Ibadah Rabu)</div>
+                                <div className="text-[11px] text-[#596B4D] dark:text-gray-400 mt-0.5">Tampil di halaman Doa agar jemaat lain dapat ikut mendoakan bersama.</div>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setPrivacy('private')}
+                                className={`p-3 rounded-xl border-2 text-left transition cursor-pointer ${privacy === 'private' ? 'bg-white dark:bg-navy-800 border-amber-500 shadow-xs' : 'bg-white/50 dark:bg-navy-900/50 border-[#E2E8D8] dark:border-navy-800 opacity-75'}`}
+                            >
+                                <div className="text-xs font-black text-amber-700 dark:text-amber-400">🔒 Privat (Khusus Pendeta & Majelis)</div>
+                                <div className="text-[11px] text-[#596B4D] dark:text-gray-400 mt-0.5">Hanya muncul di Dashboard Admin Pastoral & dapat dikirim ke WA Gembala.</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="text-[11px] font-black uppercase tracking-wider text-[#2C3F21] dark:text-gold-300 block mb-1.5">
+                            Isi Pokok Doa / Pergumulan / Ucapan Syukur
+                        </label>
+                        <textarea
+                            rows="3"
+                            required
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            placeholder="Tuliskan pokok doa yang ingin didoakan bersama..."
+                            className="w-full p-3.5 rounded-xl bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-xs sm:text-sm font-medium text-navy-900 dark:text-white outline-none focus:border-gold-500 resize-none"
+                        />
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setIsFormOpen(false)}
+                            className="px-4 py-2 rounded-xl bg-gray-200/70 dark:bg-navy-800 text-navy-700 dark:text-navy-300 text-xs font-bold cursor-pointer"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="submit"
+                            className="px-5 py-2.5 rounded-xl bg-[#4A7045] hover:bg-[#3A5836] dark:bg-gold-500 dark:hover:bg-gold-400 text-white dark:text-navy-950 text-xs sm:text-sm font-black shadow-md cursor-pointer"
+                        >
+                            🙏 Kirim Pokok Doa
+                        </button>
+                    </div>
+                </form>
+            )}
+
+            {/* Filter Kategori Doa (Bisa digeser di Mobile) */}
+            <div
+                className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-3 mt-2 min-w-0 max-w-full scroll-smooth"
+                style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x', overscrollBehaviorX: 'contain' }}
+                onTouchStart={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+            >
+                <button
+                    type="button"
+                    onClick={() => setCategoryFilter('all')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${categoryFilter === 'all' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 font-black' : 'bg-[#F4F7EF] dark:bg-navy-800 text-[#596B4D] dark:text-navy-300'}`}
+                >
+                    Semua Doa ({prayers.filter(p => p.privacy !== 'private').length})
+                </button>
+                {PRAYER_CATEGORIES.map(c => {
+                    const count = prayers.filter(p => p.privacy !== 'private' && p.category === c.id).length;
+                    return (
+                        <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => setCategoryFilter(c.id)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${categoryFilter === c.id ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 font-black' : 'bg-[#F4F7EF] dark:bg-navy-800 text-[#596B4D] dark:text-navy-300'}`}
+                        >
+                            {c.icon} {c.id} ({count})
+                        </button>
+                    );
+                })}
+            </div>
+
+            {/* Daftar Kartu Pokok Doa Publik */}
+            <div className={`grid grid-cols-1 ${compact ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-3.5 mt-1`}>
+                {(compact ? publicPrayers.slice(0, 4) : publicPrayers.slice(0, 6)).map(item => {
+                    const catObj = PRAYER_CATEGORIES.find(c => c.id === item.category) || PRAYER_CATEGORIES[0];
+                    const hasPrayed = prayedIds.includes(item.id);
+                    return (
+                        <div
+                            key={item.id}
+                            className="p-4 rounded-2xl bg-[#F7F9F3] dark:bg-navy-950/70 border border-[#E2E8D8] dark:border-navy-800 flex flex-col justify-between gap-3 shadow-xs hover:border-[#4A7045]/60 dark:hover:border-gold-500/40 transition"
+                        >
+                            <div>
+                                <div className="flex items-center justify-between gap-2 mb-2">
+                                    <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${catObj.badgeClass}`}>
+                                        {catObj.icon} {item.category}
+                                    </span>
+                                    {item.isAnswered && (
+                                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500 text-white">
+                                            ✅ Dijawab / Didoakan
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="text-xs sm:text-sm text-[#2C3F21] dark:text-gray-100 leading-relaxed font-medium">
+                                    "{item.content}"
+                                </p>
+                            </div>
+
+                            <div className="pt-2.5 border-t border-[#E2E8D8]/80 dark:border-navy-800 flex items-center justify-between gap-2">
+                                <div className="min-w-0">
+                                    <div className="text-xs font-extrabold text-[#2C3F21] dark:text-gold-400 truncate">
+                                        {item.senderName}
+                                    </div>
+                                    <div className="text-[10px] text-[#596B4D] dark:text-gray-400">
+                                        {formatIndoDateShort(toYMD(new Date(item.createdAt || Date.now())))}
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => handlePraySupport(item.id)}
+                                    className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 shrink-0 transition cursor-pointer active:scale-95 ${hasPrayed ? 'bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-950 shadow-xs' : 'bg-white dark:bg-navy-800 text-[#2C3F21] dark:text-gold-300 border border-[#C5D5BC] dark:border-navy-700 hover:border-[#4A7045]'}`}
+                                >
+                                    <span>🙏</span>
+                                    <span>{hasPrayed ? 'Turut Mendoakan' : 'Saya Ikut Doakan'}</span>
+                                    <span className="px-1.5 py-0.2 rounded-full bg-black/10 dark:bg-white/15 text-[10px] font-black">
+                                        {item.prayedCount || 1}
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+// ============================================================
+// DATA & WIDGET ULANG TAHUN JEMAAT & KALENDER KEGIATAN TAHUNAN
+// ============================================================
+const INITIAL_MEMBER_BIRTHDAYS = [
+    { id: 'bday_1', nama: 'Pdt. / Gembala Jemaat', birthMonth: 10, birthDay: 24, kategori: 'Gembala & Keluarga', wa: '6285194344004' },
+    { id: 'bday_2', nama: 'Ketua & Majelis Jemaat', birthMonth: 10, birthDay: 26, kategori: 'Majelis Jemaat', wa: '' },
+    { id: 'bday_3', nama: 'Sdr/i. Pemuda Advent (PA)', birthMonth: 10, birthDay: 28, kategori: 'Pemuda Advent', wa: '' },
+    { id: 'bday_4', nama: 'Ibu-ibu BWA Pisgah', birthMonth: 11, birthDay: 5, kategori: 'Bakti Wanita Advent', wa: '' }
+];
+
+const INITIAL_ANNUAL_CALENDAR = [
+    { id: 'cal_1', title: 'Perjamuan Kudus Triwulan I', dateYMD: '2026-03-28', quarter: 1, category: 'Ibadah Sakramen', location: 'GMAHK Jemaat Pisgah BISDAC - Batam', desc: 'Kebaktian Perjamuan Kudus & Basuh Kaki Triwulan I' },
+    { id: 'cal_2', title: 'Pekan Doa Rumah Tangga & Keluarga', dateYMD: '2026-05-09', quarter: 2, category: 'Pelayanan Keluarga', location: 'GMAHK Jemaat Pisgah BISDAC - Batam', desc: 'Kebaktian Kebangunan Rohani Keluarga Advent' },
+    { id: 'cal_3', title: 'Perjamuan Kudus Triwulan II', dateYMD: '2026-06-27', quarter: 2, category: 'Ibadah Sakramen', location: 'GMAHK Jemaat Pisgah BISDAC - Batam', desc: 'Kebaktian Perjamuan Kudus & Basuh Kaki Triwulan II' },
+    { id: 'cal_4', title: 'Sabat Pathfinder & Adventurer Sedunia', dateYMD: '2026-09-19', quarter: 3, category: 'Pemuda & Anak', location: 'GMAHK Jemaat Pisgah BISDAC - Batam', desc: 'Pelayanan Khusus Klub Pathfinder & Adventurer' },
+    { id: 'cal_5', title: 'Perjamuan Kudus Triwulan III', dateYMD: '2026-09-26', quarter: 3, category: 'Ibadah Sakramen', location: 'GMAHK Jemaat Pisgah BISDAC - Batam', desc: 'Kebaktian Perjamuan Kudus & Basuh Kaki Triwulan III' },
+    { id: 'cal_6', title: 'Pekan Doa Akhir Tahun & Syukur', dateYMD: '2026-11-07', quarter: 4, category: 'Kerohanian', location: 'GMAHK Jemaat Pisgah BISDAC - Batam', desc: 'Pekan Doa Sedunia & Kebaktian Ucapan Syukur' },
+    { id: 'cal_7', title: 'Perjamuan Kudus Triwulan IV & Tutup Tahun', dateYMD: '2026-12-26', quarter: 4, category: 'Ibadah Sakramen', location: 'GMAHK Jemaat Pisgah BISDAC - Batam', desc: 'Kebaktian Perjamuan Kudus Penutup Tahun' }
+];
+
+const loadMemberBirthdays = () => {
+    try {
+        const raw = localStorage.getItem(MEMBER_BIRTHDAYS_STORAGE_KEY);
+        if (raw !== null) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+        }
+    } catch (e) { }
+    return INITIAL_MEMBER_BIRTHDAYS;
+};
+
+const saveMemberBirthdays = (list) => {
+    try {
+        const safeList = Array.isArray(list) ? list : [];
+        localStorage.setItem(MEMBER_BIRTHDAYS_STORAGE_KEY, JSON.stringify(safeList));
+        setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('pisgah-calendar-updated'));
+        }, 0);
+    } catch (e) { }
+};
+
+const loadAnnualCalendar = () => {
+    try {
+        const raw = localStorage.getItem(ANNUAL_CALENDAR_STORAGE_KEY);
+        if (raw !== null) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+        }
+    } catch (e) { }
+    return INITIAL_ANNUAL_CALENDAR;
+};
+
+const saveAnnualCalendar = (list) => {
+    try {
+        const safeList = Array.isArray(list) ? list : [];
+        localStorage.setItem(ANNUAL_CALENDAR_STORAGE_KEY, JSON.stringify(safeList));
+        setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('pisgah-calendar-updated'));
+        }, 0);
+    } catch (e) { }
+};
+
+const BirthdayAndCalendarWidget = () => {
+    const [activeMode, setActiveMode] = React.useState('calendar'); // 'calendar' | 'birthday'
+    const [quarterFilter, setQuarterFilter] = React.useState('all');
+    const [birthdays, setBirthdays] = React.useState(() => loadMemberBirthdays());
+    const [calendarItems, setCalendarItems] = React.useState(() => loadAnnualCalendar());
+
+    React.useEffect(() => {
+        const sync = () => {
+            setBirthdays(loadMemberBirthdays());
+            setCalendarItems(loadAnnualCalendar());
+        };
+        window.addEventListener('pisgah-calendar-updated', sync);
+        window.addEventListener('storage', sync);
+        return () => {
+            window.removeEventListener('pisgah-calendar-updated', sync);
+            window.removeEventListener('storage', sync);
+        };
+    }, []);
+
+    const currentMonth = new Date().getMonth() + 1;
+    const sortedBirthdays = React.useMemo(() => {
+        return [...birthdays].sort((a, b) => {
+            const aDiff = ((a.birthMonth - currentMonth + 12) % 12) * 31 + (a.birthDay || 1);
+            const bDiff = ((b.birthMonth - currentMonth + 12) % 12) * 31 + (b.birthDay || 1);
+            return aDiff - bDiff;
+        });
+    }, [birthdays, currentMonth]);
+
+    const filteredCalendar = React.useMemo(() => {
+        return [...calendarItems]
+            .filter(item => quarterFilter === 'all' || String(item.quarter) === String(quarterFilter))
+            .sort((a, b) => String(a.dateYMD || '').localeCompare(String(b.dateYMD || '')));
+    }, [calendarItems, quarterFilter]);
+
+    const handleSendBirthdayWA = (b) => {
+        const monthLabel = BIBLE_YEAR_MONTH_NAMES[(b.birthMonth || 1) - 1] || '';
+        const msg =
+            `🎉 *Selamat Ulang Tahun, ${b.nama}!* 🎂🙏\n` +
+            `_(${b.birthDay} ${monthLabel})_\n\n` +
+            `Keluarga besar *GMAHK Jemaat Pisgah BISDAC - Batam* mengucapkan selamat bersyukur atas bertambahnya usia yang Tuhan karuniakan.\n\n` +
+            `📖 *"TUHAN memberkati engkau dan melindungi engkau; TUHAN menyinari engkau dengan wajah-Nya dan memberi engkau kasih karunia."* (Bilangan 6:24-25)\n\n` +
+            `Kiranya umur panjang, kesehatan, dan sukacita senantiasa menyertai kehidupan dan pelayanan Anda. Tuhan Yesus memberkati! 🕊️`;
+        const digits = String(b.wa || '').replace(/\D/g, '');
+        const cleanPhone = digits ? (digits.startsWith('0') ? '62' + digits.slice(1) : digits) : '';
+        const url = cleanPhone
+            ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`
+            : `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+    };
+
+    const handleAddCalendarItemToGCal = (ev) => {
+        const ymdClean = String(ev.dateYMD || '2026-01-01').replace(/-/g, '');
+        const title = `${ev.title} - GMAHK Jemaat Pisgah BISDAC Batam`;
+        const details = `${ev.desc || ev.title}\nKategori: ${ev.category || 'Kegiatan Gereja'}\nPortal: ${getCleanBaseUrl()}`;
+        const location = ev.location || 'GMAHK Jemaat Pisgah BISDAC - Batam';
+        const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${ymdClean}T090000/${ymdClean}T123000&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}`;
+        window.open(url, '_blank');
+    };
+
+    return (
+        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#E2E8D8] dark:border-navy-800">
+                <div>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D19B45]/15 text-[#9A6B1A] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider mb-2 border border-[#D19B45]/30">
+                        <Icon name="Calendar" className="w-3.5 h-3.5" /> Agenda & Perhatian Jemaat
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight">
+                        Kalender Kegiatan Tahunan & Ulang Tahun Jemaat
+                    </h3>
+                </div>
+
+                {/* Switcher Tab: Kalender Kegiatan vs Ulang Tahun */}
+                <div className="flex items-center bg-[#F4F7EF] dark:bg-navy-950 p-1 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 self-start md:self-auto">
+                    <button
+                        type="button"
+                        onClick={() => setActiveMode('calendar')}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${activeMode === 'calendar' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 shadow-xs' : 'text-[#596B4D] dark:text-navy-300'}`}
+                    >
+                        <span>📅 Kalender Tahunan ({calendarItems.length})</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setActiveMode('birthday')}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${activeMode === 'birthday' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 shadow-xs' : 'text-[#596B4D] dark:text-navy-300'}`}
+                    >
+                        <span>🎂 Ulang Tahun ({birthdays.length})</span>
+                    </button>
+                </div>
+            </div>
+
+            {activeMode === 'calendar' ? (
+                <div className="mt-4 space-y-4">
+                    {/* Filter Triwulan */}
+                    <div
+                        className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 min-w-0 max-w-full"
+                        style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x' }}
+                    >
+                        {[
+                            { id: 'all', label: 'Semua Triwulan' },
+                            { id: '1', label: 'Triwulan I (Jan–Mar)' },
+                            { id: '2', label: 'Triwulan II (Apr–Jun)' },
+                            { id: '3', label: 'Triwulan III (Jul–Sep)' },
+                            { id: '4', label: 'Triwulan IV (Okt–Des)' }
+                        ].map(q => (
+                            <button
+                                key={q.id}
+                                type="button"
+                                onClick={() => setQuarterFilter(q.id)}
+                                className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${quarterFilter === q.id ? 'bg-[#4A7045] text-white dark:bg-gold-500 dark:text-navy-950 font-black' : 'bg-[#F4F7EF] dark:bg-navy-800 text-[#596B4D] dark:text-navy-300'}`}
+                            >
+                                {q.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {filteredCalendar.length === 0 ? (
+                        <div className="p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 text-[#596B4D] dark:text-gray-400 text-xs sm:text-sm font-bold">
+                            Belum ada agenda kalender kegiatan pada periode ini.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                            {filteredCalendar.map(ev => (
+                                <div
+                                    key={ev.id}
+                                    className="p-4 rounded-2xl bg-[#F7F9F3] dark:bg-navy-950/70 border border-[#E2E8D8] dark:border-navy-800 flex flex-col justify-between gap-3 hover:border-[#4A7045] dark:hover:border-gold-500/50 transition"
+                                >
+                                    <div>
+                                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                                            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#4A7045]/15 text-[#2C3F21] dark:bg-gold-500/15 dark:text-gold-400">
+                                                TW {ev.quarter || 1} • {ev.category}
+                                            </span>
+                                            <span className="text-[11px] font-bold text-[#9A6B1A] dark:text-gold-300">
+                                                {formatIndoDateShort(ev.dateYMD)}
+                                            </span>
+                                        </div>
+                                        <h4 className="text-sm sm:text-base font-black text-[#2C3F21] dark:text-white leading-snug">
+                                            {ev.title}
+                                        </h4>
+                                        {ev.desc && (
+                                            <p className="text-xs text-[#596B4D] dark:text-gray-400 mt-1 line-clamp-2">
+                                                {ev.desc}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="pt-2.5 border-t border-[#E2E8D8]/80 dark:border-navy-800 flex items-center justify-between gap-2">
+                                        <span className="text-[11px] text-[#596B4D] dark:text-gray-400 truncate flex items-center gap-1">
+                                            <Icon name="MapPin" className="w-3 h-3 text-[#D19B45] shrink-0" />
+                                            <span className="truncate">{ev.location || 'GMAHK Pisgah'}</span>
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleAddCalendarItemToGCal(ev)}
+                                            className="px-3 py-1.5 rounded-xl bg-white dark:bg-navy-800 hover:bg-[#4A7045] hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-950 text-[#2C3F21] dark:text-gold-300 border border-[#C5D5BC] dark:border-navy-700 text-[11px] font-extrabold shrink-0 transition cursor-pointer flex items-center gap-1"
+                                            title="Simpan ke Google Calendar HP"
+                                        >
+                                            <Icon name="CalendarPlus" className="w-3.5 h-3.5" />
+                                            <span>+ Kalender HP</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            ) : (
+                sortedBirthdays.length === 0 ? (
+                    <div className="mt-4 p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 text-[#596B4D] dark:text-gray-400 text-xs sm:text-sm font-bold">
+                        Belum ada data ulang tahun jemaat yang ditampilkan.
+                    </div>
+                ) : (
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                        {sortedBirthdays.map(b => {
+                            const monthName = BIBLE_YEAR_MONTH_NAMES[(b.birthMonth || 1) - 1] || '';
+                            const isThisMonth = Number(b.birthMonth) === currentMonth;
+                            return (
+                                <div
+                                    key={b.id}
+                                    className={`p-4 rounded-2xl border flex flex-col justify-between gap-3 transition ${isThisMonth ? 'bg-gradient-to-br from-amber-50/90 to-white dark:from-gold-500/10 dark:to-navy-950 border-gold-400 shadow-sm' : 'bg-[#F7F9F3] dark:bg-navy-950/70 border-[#E2E8D8] dark:border-navy-800'}`}
+                                >
+                                    <div>
+                                        <div className="flex items-center justify-between gap-2 mb-2">
+                                            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-gold-500/20 text-amber-800 dark:text-gold-300">
+                                                🎂 {b.birthDay} {monthName}
+                                            </span>
+                                            {isThisMonth && (
+                                                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500 text-white">
+                                                    Bulan Ini
+                                                </span>
+                                            )}
+                                        </div>
+                                        <h4 className="text-sm sm:text-base font-black text-[#2C3F21] dark:text-white">
+                                            {b.nama}
+                                        </h4>
+                                        <p className="text-xs text-[#596B4D] dark:text-gray-400 font-semibold mt-0.5">
+                                            {b.kategori || 'Anggota Jemaat'}
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleSendBirthdayWA(b)}
+                                        className="w-full py-2 px-3 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 text-xs font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                                    >
+                                        <i className="fa-brands fa-whatsapp"></i>
+                                        <span>🎉 Kirim Ucapan WA</span>
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )
+            )}
+        </div>
+    );
+};
+
+// ============================================================
+// WIDGET 3: CARI TUGAS PELAYANAN SAYA (+ KONFIRMASI KEHADIRAN)
 // ============================================================
 const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = [] }) => {
     const [searchQuery, setSearchQuery] = React.useState('');
+    const [attendanceModal, setAttendanceModal] = React.useState(null);
+    const attendanceMap = useOfficerAttendance();
 
     const dutiesFound = React.useMemo(() => {
         const query = searchQuery.trim().toLowerCase();
@@ -2503,16 +3462,17 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = [] }) => 
 
     return (
         <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700">
+            <OfficerAttendanceModal modalData={attendanceModal} onClose={() => setAttendanceModal(null)} dataPejabat={dataPejabat} />
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
                 <div>
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider mb-2 border border-[#4A7045]/20 dark:border-gold-500/30">
                         <Icon name="Users" className="w-3.5 h-3.5" /> Pelayanan Jemaat
                     </div>
                     <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight">
-                        Cari Jadwal Tugas Pelayanan Saya
+                        Cari & Konfirmasi Tugas Pelayanan Saya
                     </h3>
                     <p className="text-xs md:text-sm text-[#596B4D] dark:text-gray-400 mt-1">
-                        Cek jadwal penugasan Anda pada kebaktian mendatang (Khotbah, Sekolah Sabat, Rabu Malam, Diakon, Musik).
+                        Cek jadwal penugasan Anda pada kebaktian mendatang dan lakukan konfirmasi kesiapan hadir langsung dari sini.
                     </p>
                 </div>
 
@@ -2541,55 +3501,67 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = [] }) => 
             {searchQuery.trim().length >= 2 ? (
                 dutiesFound.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-2">
-                        {dutiesFound.map((item, idx) => (
-                            <div
-                                key={idx}
-                                className="p-4 rounded-2xl bg-[#F7F9F3] dark:bg-navy-950/70 border border-[#E2E8D8] dark:border-navy-700/80 hover:border-[#4A7045] dark:hover:border-gold-500 transition-all flex flex-col justify-between group shadow-sm hover:shadow-md"
-                            >
-                                <div>
-                                    <div className="flex items-center justify-between gap-2 mb-1.5">
-                                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-[#4A7045]/15 text-[#2C3F21] dark:bg-gold-500/15 dark:text-gold-400">
-                                            {item.sesi}
-                                        </span>
-                                        <span className="text-xs text-[#596B4D] dark:text-gray-400 font-semibold">
-                                            {item.formattedDate}
-                                        </span>
+                        {dutiesFound.map((item, idx) => {
+                            const recKey = getOfficerAttendanceKey(item.dateStr, item.tugas, item.nama);
+                            const att = attendanceMap[recKey];
+                            return (
+                                <div
+                                    key={idx}
+                                    className="p-4 rounded-2xl bg-[#F7F9F3] dark:bg-navy-950/70 border border-[#E2E8D8] dark:border-navy-700/80 hover:border-[#4A7045] dark:hover:border-gold-500 transition-all flex flex-col justify-between group shadow-sm hover:shadow-md"
+                                >
+                                    <div>
+                                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                                            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-[#4A7045]/15 text-[#2C3F21] dark:bg-gold-500/15 dark:text-gold-400">
+                                                {item.sesi}
+                                            </span>
+                                            <span className="text-xs text-[#596B4D] dark:text-gray-400 font-semibold">
+                                                {item.formattedDate}
+                                            </span>
+                                        </div>
+                                        <h4 className="text-base font-extrabold text-[#2C3F21] dark:text-white mt-2">
+                                            {item.tugas}
+                                        </h4>
+                                        <div className="flex items-center justify-between gap-2 mt-1">
+                                            <p className="text-xs text-[#596B4D] dark:text-gray-300 font-medium flex items-center gap-1.5">
+                                                <Icon name="User" className="w-3.5 h-3.5 text-[#D19B45]" />
+                                                <span>Petugas: <strong>{item.nama}</strong></span>
+                                            </p>
+                                            {att && (
+                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${att.status === 'hadir' ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-amber-500/20 text-amber-700 dark:text-amber-300'}`}>
+                                                    {att.status === 'hadir' ? '✅ Siap Hadir' : '⚠️ Berhalangan'}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <h4 className="text-base font-extrabold text-[#2C3F21] dark:text-white mt-2">
-                                        {item.tugas}
-                                    </h4>
-                                    <p className="text-xs text-[#596B4D] dark:text-gray-300 font-medium flex items-center gap-1.5 mt-1">
-                                        <Icon name="User" className="w-3.5 h-3.5 text-[#D19B45]" />
-                                        <span>Petugas: <strong>{item.nama}</strong></span>
-                                    </p>
+                                    <div className="mt-3.5 flex flex-wrap items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setAttendanceModal({ ...item, existing: att })}
+                                            className={`flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-extrabold transition cursor-pointer ${att?.status === 'hadir' ? 'bg-emerald-600 text-white' : att?.status === 'berhalangan' ? 'bg-amber-500 text-navy-950' : 'bg-[#4A7045] hover:bg-[#3A5836] dark:bg-gold-500 dark:hover:bg-gold-400 text-white dark:text-navy-950'}`}
+                                        >
+                                            <Icon name="CheckCircle" className="w-3.5 h-3.5" />
+                                            <span>{att ? 'Ubah Konfirmasi' : 'Konfirmasi Hadir'}</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => sendWhatsAppOfficerReminder({
+                                                nama: item.nama,
+                                                tugas: item.tugas,
+                                                sesi: item.sesi,
+                                                dateStr: item.dateStr,
+                                                waktu: item.waktu,
+                                                dataPejabat
+                                            })}
+                                            title={`Kirim Pengingat WhatsApp ke ${item.nama}`}
+                                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 text-xs font-extrabold transition-all duration-200 active:scale-95 shadow-xs cursor-pointer"
+                                        >
+                                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                                            <span>WA</span>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="mt-3.5 flex items-center gap-2">
-                                    <button
-                                        onClick={() => setActiveTab('jadwal')}
-                                        className="flex-1 inline-flex items-center justify-between px-3.5 py-2 rounded-xl bg-white/90 dark:bg-navy-800/90 text-[#4A7045] dark:text-gold-400 border border-[#C5D5BC] dark:border-navy-700 hover:border-[#4A7045] dark:hover:border-gold-500/60 hover:bg-[#F2F6ED] dark:hover:bg-navy-700/80 text-xs font-extrabold shadow-xs hover:shadow transition-all duration-200 active:scale-95 group backdrop-blur-md"
-                                    >
-                                        <span>Lihat Jadwal</span>
-                                        <Icon name="ChevronRight" className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => sendWhatsAppOfficerReminder({
-                                            nama: item.nama,
-                                            tugas: item.tugas,
-                                            sesi: item.sesi,
-                                            dateStr: item.dateStr,
-                                            waktu: item.waktu,
-                                            dataPejabat
-                                        })}
-                                        title={`Kirim Pengingat WhatsApp ke ${item.nama}`}
-                                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white dark:hover:text-white border border-[#25D366]/30 text-xs font-extrabold transition-all duration-200 active:scale-95 shadow-xs cursor-pointer"
-                                    >
-                                        <i className="fa-brands fa-whatsapp text-sm"></i>
-                                        <span>Ingatkan WA</span>
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 ) : (
                     <div className="p-6 rounded-2xl bg-[#F7F9F3] dark:bg-navy-950/40 border border-dashed border-[#E2E8D8] dark:border-navy-700 text-center">
@@ -2605,7 +3577,7 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = [] }) => 
             ) : (
                 <div className="pt-2 text-xs text-[#596B4D] dark:text-gray-400 flex items-center gap-2">
                     <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>Ketik minimal 2 huruf nama untuk mencari jadwal pelayanan Anda di kebaktian mendatang.</span>
+                    <span>Ketik minimal 2 huruf nama untuk mencari & mengonfirmasi kehadiran pelayanan Anda di kebaktian mendatang.</span>
                 </div>
             )}
         </div>
@@ -3045,8 +4017,51 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         <DailyVerseWidget setActiveTab={setActiveTab} />
                     </div>
 
-                    {/* ROW 2: CARI TUGAS PELAYANAN SAYA */}
-                    <QuickDutyFinderWidget jadwalDB={jadwalDB} setActiveTab={setActiveTab} dataPejabat={dataPejabat} />
+                    {/* ROW 2: CARI TUGAS PELAYANAN SAYA & KOTAK PENGUMUMAN JEMAAT (BERSEBELAHAN) */}
+                    <div className={`grid grid-cols-1 ${!isPengumumanReallyEmpty() ? 'lg:grid-cols-2' : ''} gap-6 items-stretch`}>
+                        <QuickDutyFinderWidget jadwalDB={jadwalDB} setActiveTab={setActiveTab} dataPejabat={dataPejabat} />
+
+                        {/* KOTAK PENGUMUMAN */}
+                        {(!isPengumumanReallyEmpty()) && (
+                            <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
+                                <div>
+                                    <div className="flex items-center justify-between gap-3 mb-2">
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
+                                            <Icon name="Megaphone" className="w-3.5 h-3.5" /> Pengumuman Jemaat
+                                        </span>
+                                        <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
+                                            Pekan Ini
+                                        </span>
+                                    </div>
+
+                                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight mb-4">
+                                        {pengumuman.header || "Pengumuman Pekan Ini"}
+                                    </h3>
+
+                                    <div
+                                        className="bg-[#F7F9F3] dark:bg-navy-950/60 p-4 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 text-[#596B4D] dark:text-gray-300 text-xs md:text-sm leading-relaxed overflow-y-auto custom-scrollbar font-medium min-h-[160px] max-h-[320px]"
+                                        dangerouslySetInnerHTML={{ __html: pengumuman.isi }}
+                                    ></div>
+                                </div>
+
+                                <div className="pt-3 mt-3 border-t border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between text-[11px] text-[#596B4D] dark:text-gray-400">
+                                    <span>GMAHK Jemaat Pisgah BISDAC</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveTab('warta')}
+                                        className="font-bold text-[#4A7045] dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                    >
+                                        <span>Buka Portal Warta</span>
+                                        <Icon name="ChevronRight" className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* ROW 2B: KOTAK POKOK DOA ONLINE & KALENDER/ULANG TAHUN JEMAAT */}
+                    <PrayerRequestWallWidget dataPejabat={dataPejabat} compact={true} />
+                    <BirthdayAndCalendarWidget />
 
                     {/* ROW 3: SABAT PERJAMUAN & PERPULUHAN SECTION (Jika Aktif) */}
                     {(showPerjamuan || showPerpuluhan) && (() => {
@@ -3086,8 +4101,8 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         );
                     })()}
 
-                    {/* ROW 4: ACARA TERDEKAT, PENGUMUMAN & VISI MISI */}
-                    <div className={`grid grid-cols-1 ${eventsToDisplay.length > 0 && !isPengumumanReallyEmpty() ? 'lg:grid-cols-3' : (eventsToDisplay.length > 0 || !isPengumumanReallyEmpty() ? 'lg:grid-cols-2' : 'lg:grid-cols-1')} gap-6 items-stretch`}>
+                    {/* ROW 4: ACARA TERDEKAT & VISI MISI */}
+                    <div className={`grid grid-cols-1 ${eventsToDisplay.length > 0 ? 'lg:grid-cols-2' : ''} gap-6 items-stretch`}>
 
                         {/* ACARA TERDEKAT */}
                         {eventsToDisplay.length > 0 && (
@@ -3200,28 +4215,6 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                         </button>
                                     </div>
                                 </div>
-                            </div>
-                        )}
-
-                        {/* PENGUMUMAN */}
-                        {(!isPengumumanReallyEmpty()) && (
-                            <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-7 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
-                                <div className="flex items-center justify-between gap-3 mb-3">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
-                                        <Icon name="Megaphone" className="w-3.5 h-3.5" /> Pengumuman
-                                    </span>
-                                    <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
-                                        Pekan Ini
-                                    </span>
-                                </div>
-
-                                <div className="mb-3">
-                                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight">
-                                        {pengumuman.header || "Pengumuman Pekan Ini"}
-                                    </h3>
-                                </div>
-
-                                <div className="flex-1 bg-[#F7F9F3] dark:bg-navy-950/60 p-4 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 text-[#596B4D] dark:text-gray-300 text-xs md:text-sm leading-relaxed overflow-y-auto custom-scrollbar font-medium min-h-[200px] max-h-[260px]" dangerouslySetInnerHTML={{ __html: pengumuman.isi }}></div>
                             </div>
                         )}
 
@@ -4160,8 +5153,8 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
     );
 };
 
-// Helper Rendering Sub-Group untuk Perjamuan (support dark mode + pengingat WA)
-const renderPerjamuanGroup = (title, members, dateStr = '', dataPejabat = []) => (
+// Helper Rendering Sub-Group untuk Perjamuan (support dark mode + pengingat WA + konfirmasi kehadiran)
+const renderPerjamuanGroup = (title, members, dateStr = '', dataPejabat = [], attendanceMap = {}, onOpenAttendance = null) => (
     <div className="flex flex-col">
         <div className="mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
             <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">{title}</h3>
@@ -4169,11 +5162,34 @@ const renderPerjamuanGroup = (title, members, dateStr = '', dataPejabat = []) =>
         <div className="flex flex-col">
             {members.map((m, idx) => {
                 const canRemind = isRealOfficerName(m.nama, m.tugas);
+                const tugasLabel = `${m.tugas} (${title})`;
+                const recKey = getOfficerAttendanceKey(dateStr, tugasLabel, m.nama);
+                const att = attendanceMap ? attendanceMap[recKey] : null;
                 return (
                     <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2 gap-2">
                         <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{m.tugas}</span>
-                        <div className="flex items-center gap-2 justify-end pl-2 min-w-0">
+                        <div className="flex items-center gap-1.5 justify-end pl-2 min-w-0 flex-wrap">
                             <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{m.nama || "-"}</span>
+                            {canRemind && onOpenAttendance && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onOpenAttendance({
+                                            dateStr,
+                                            sesi: 'Pelayanan Perjamuan Kudus',
+                                            waktu: '09:00 - 13:00 WIB',
+                                            tugas: tugasLabel,
+                                            nama: m.nama,
+                                            existing: att
+                                        });
+                                    }}
+                                    title={att ? (att.status === 'hadir' ? 'Status: Siap Hadir (Klik untuk ubah)' : `Status: Berhalangan${att.substitute ? ' • Pengganti: ' + att.substitute : ''}`) : `Konfirmasi Kehadiran ${m.nama}`}
+                                    className={`px-2 py-1 rounded-lg text-[10px] font-black flex items-center gap-1 transition-all shrink-0 active:scale-95 cursor-pointer border ${att?.status === 'hadir' ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40' : att?.status === 'berhalangan' ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40' : 'bg-navy-50 dark:bg-navy-700 text-navy-600 dark:text-gold-300 border-navy-200 dark:border-navy-600 hover:border-gold-400'}`}
+                                >
+                                    <span>{att?.status === 'hadir' ? '✅ Hadir' : att?.status === 'berhalangan' ? '⚠️ Izin' : '✓ Konfirmasi'}</span>
+                                </button>
+                            )}
                             {canRemind && (
                                 <button
                                     type="button"
@@ -4181,7 +5197,7 @@ const renderPerjamuanGroup = (title, members, dateStr = '', dataPejabat = []) =>
                                         e.stopPropagation();
                                         sendWhatsAppOfficerReminder({
                                             nama: m.nama,
-                                            tugas: `${m.tugas} (${title})`,
+                                            tugas: tugasLabel,
                                             sesi: 'Pelayanan Perjamuan Kudus',
                                             dateStr,
                                             waktu: '09:00 - 13:00 WIB',
@@ -4204,6 +5220,8 @@ const renderPerjamuanGroup = (title, members, dateStr = '', dataPejabat = []) =>
 
 const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjamuanNote, setActiveTab, carouselEvents, dataPejabat = [] }) => {
     const [isPerjamuanExpanded, setIsPerjamuanExpanded] = React.useState(false);
+    const [attendanceModal, setAttendanceModal] = React.useState(null);
+    const attendanceMap = useOfficerAttendance();
 
     const mergeJadwalDataLocal = (saved, initial) => {
         if (!saved) return initial;
@@ -4328,37 +5346,88 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
         return getSabbathSunsetSchedule(selectedDate || new Date());
     }, [selectedDate]);
 
+    const scheduleAttendanceStats = React.useMemo(() => {
+        if (!selectedDate || !activeJadwal) return { total: 0, hadir: 0, berhalangan: 0, pending: 0 };
+        const rows = isRabu
+            ? (activeJadwal.petugas || [])
+            : [
+                ...(activeJadwal.khotbah || []),
+                ...(activeJadwal.sekolahSabat || []),
+                ...(activeJadwal.diakon || []),
+                ...(activeJadwal.musik || [])
+            ];
+        let total = 0;
+        let hadir = 0;
+        let berhalangan = 0;
+        rows.forEach(p => {
+            if (!isRealOfficerName(p.nama, p.tugas)) return;
+            total++;
+            const rec = attendanceMap[getOfficerAttendanceKey(selectedDate, p.tugas, p.nama)];
+            if (rec?.status === 'hadir') hadir++;
+            else if (rec?.status === 'berhalangan') berhalangan++;
+        });
+        return { total, hadir, berhalangan, pending: Math.max(0, total - hadir - berhalangan) };
+    }, [selectedDate, activeJadwal, isRabu, attendanceMap]);
+
     const renderOfficerRow = (p, idx, sesiLabel, waktuLabel) => {
         const canRemind = isRealOfficerName(p.nama, p.tugas);
+        const recKey = getOfficerAttendanceKey(selectedDate, p.tugas, p.nama);
+        const att = attendanceMap[recKey];
         return (
-            <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2 gap-2">
-                <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                <div className="flex items-center gap-2 justify-end min-w-0">
-                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                    {canRemind && (
-                        <button
-                            type="button"
-                            onClick={() => sendWhatsAppOfficerReminder({
-                                nama: p.nama,
-                                tugas: p.tugas,
-                                sesi: sesiLabel,
-                                dateStr: selectedDate,
-                                waktu: waktuLabel,
-                                dataPejabat
-                            })}
-                            title={`Kirim Pengingat WhatsApp ke ${p.nama}`}
-                            className="w-7 h-7 rounded-lg bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white flex items-center justify-center transition-all shrink-0 active:scale-90 cursor-pointer border border-[#25D366]/30"
-                        >
-                            <i className="fa-brands fa-whatsapp text-sm"></i>
-                        </button>
-                    )}
+            <div key={idx} className="flex flex-col py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2 gap-1">
+                <div className="flex justify-between items-center gap-2">
+                    <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                    <div className="flex items-center gap-1.5 justify-end min-w-0 flex-wrap">
+                        <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
+                        {canRemind && (
+                            <button
+                                type="button"
+                                onClick={() => setAttendanceModal({
+                                    dateStr: selectedDate,
+                                    sesi: sesiLabel,
+                                    waktu: waktuLabel,
+                                    tugas: p.tugas,
+                                    nama: p.nama,
+                                    existing: att
+                                })}
+                                title={att ? (att.status === 'hadir' ? 'Status: Siap Hadir (Klik untuk ubah)' : `Status: Berhalangan${att.substitute ? ' • Pengganti: ' + att.substitute : ''}`) : `Konfirmasi Kehadiran ${p.nama}`}
+                                className={`px-2 py-1 rounded-lg text-[10px] font-black flex items-center gap-1 transition-all shrink-0 active:scale-95 cursor-pointer border ${att?.status === 'hadir' ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40' : att?.status === 'berhalangan' ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40' : 'bg-navy-50 dark:bg-navy-700/80 text-navy-600 dark:text-gold-300 border-navy-200 dark:border-navy-600 hover:border-gold-400'}`}
+                            >
+                                <span>{att?.status === 'hadir' ? '✅ Hadir' : att?.status === 'berhalangan' ? '⚠️ Berhalangan' : '✓ Konfirmasi'}</span>
+                            </button>
+                        )}
+                        {canRemind && (
+                            <button
+                                type="button"
+                                onClick={() => sendWhatsAppOfficerReminder({
+                                    nama: p.nama,
+                                    tugas: p.tugas,
+                                    sesi: sesiLabel,
+                                    dateStr: selectedDate,
+                                    waktu: waktuLabel,
+                                    dataPejabat
+                                })}
+                                title={`Kirim Pengingat WhatsApp ke ${p.nama}`}
+                                className="w-7 h-7 rounded-lg bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white flex items-center justify-center transition-all shrink-0 active:scale-90 cursor-pointer border border-[#25D366]/30"
+                            >
+                                <i className="fa-brands fa-whatsapp text-sm"></i>
+                            </button>
+                        )}
+                    </div>
                 </div>
+                {att && (att.substitute || att.note) && (
+                    <div className="text-[11px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50/70 dark:bg-amber-950/30 px-2.5 py-1 rounded-lg flex flex-wrap items-center justify-end gap-2">
+                        {att.substitute && <span>🔄 Pengganti: <strong>{att.substitute}</strong></span>}
+                        {att.note && <span>📝 Catatan: {att.note}</span>}
+                    </div>
+                )}
             </div>
         );
     };
 
     return (
         <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
+            <OfficerAttendanceModal modalData={attendanceModal} onClose={() => setAttendanceModal(null)} dataPejabat={dataPejabat} />
             <AcaraTerdekat allDates={allDates} selectedDate={selectedDate} handlePrev={handlePrev} handleNext={handleNext} canGoPrev={canGoPrev} canGoNext={canGoNext} title={title} setActiveTab={setActiveTab} carouselEvents={carouselEvents} handleDateSelect={(d) => setJadwalSelectedDate(d)} />
 
             {/* Widget Waktu Buka & Tutup Sabat Otomatis (Astronomis Sunset Timer) */}
@@ -4445,10 +5514,10 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
 
                     {isPerjamuanExpanded && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10 animate-fade-in">
-                            {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 3), perjamuanYMD, dataPejabat)}
-                            {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(3, 7), perjamuanYMD, dataPejabat)}
-                            {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(7, 11), perjamuanYMD, dataPejabat)}
-                            {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(11, 16), perjamuanYMD, dataPejabat)}
+                            {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 3), perjamuanYMD, dataPejabat, attendanceMap, setAttendanceModal)}
+                            {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(3, 7), perjamuanYMD, dataPejabat, attendanceMap, setAttendanceModal)}
+                            {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(7, 11), perjamuanYMD, dataPejabat, attendanceMap, setAttendanceModal)}
+                            {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(11, 16), perjamuanYMD, dataPejabat, attendanceMap, setAttendanceModal)}
                         </div>
                     )}
                 </div>
@@ -4456,7 +5525,7 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
 
             <div className="flex flex-col gap-6 md:gap-8">
                 <div className="bg-white dark:bg-navy-800/70 p-5 md:p-7 rounded-[1.5rem] shadow-sm border-t-[6px] border-navy-800 dark:border-gold-600 border-x border-b border-navy-100/60 dark:border-navy-700 relative overflow-hidden group">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-5 border-b pb-4 border-navy-50 dark:border-navy-700">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 border-b pb-4 border-navy-50 dark:border-navy-700">
                         <div className="flex items-center space-x-3">
                             <Icon name="Calendar" className="w-[1.4rem] h-[1.4rem] text-gold-500" />
                             <div>
@@ -4476,6 +5545,27 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
                             </span>
                         </div>
                     </div>
+
+                    {/* Bar Status Kesiapan & Konfirmasi Kehadiran Petugas */}
+                    {scheduleAttendanceStats.total > 0 && (
+                        <div className="mb-5 p-3 sm:p-3.5 rounded-2xl bg-navy-50/70 dark:bg-navy-900/70 border border-navy-100 dark:border-navy-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                            <div className="flex items-center gap-2 text-xs font-bold text-navy-700 dark:text-navy-200">
+                                <Icon name="CheckCircle" className="w-4 h-4 text-emerald-500 shrink-0" />
+                                <span>Petugas dapat menekan tombol <strong>✓ Konfirmasi</strong> di samping namanya untuk mengonfirmasi kehadiran.</span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                                <span className="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-[11px] font-black">
+                                    ✅ {scheduleAttendanceStats.hadir} Siap Hadir
+                                </span>
+                                <span className="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-[11px] font-black">
+                                    ⚠️ {scheduleAttendanceStats.berhalangan} Berhalangan
+                                </span>
+                                <span className="px-2.5 py-1 rounded-lg bg-navy-100 dark:bg-navy-800 text-navy-600 dark:text-navy-300 text-[11px] font-bold">
+                                    ⏳ {scheduleAttendanceStats.pending} Belum Konfirmasi
+                                </span>
+                            </div>
+                        </div>
+                    )}
 
                     {isRabu ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
@@ -4524,6 +5614,12 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
                         </div>
                     )}
                 </div>
+
+                {/* Dinding Pokok Doa Online (Ibadah Rabu & Pastoral) */}
+                <PrayerRequestWallWidget dataPejabat={dataPejabat} />
+
+                {/* Kalender Kegiatan Tahunan & Ulang Tahun Jemaat */}
+                <BirthdayAndCalendarWidget />
             </div>
         </div>
     );
@@ -8235,6 +9331,553 @@ const RichTextEditor = React.forwardRef(({ initialValue = "", onChange, placehol
     );
 });
 
+// --- PANEL ADMIN TAHAP 3: KELOLA POKOK DOA (PUBLIK & PRIVAT), KONFIRMASI PETUGAS, ULANG TAHUN & KALENDER ---
+const AdminPastoralAndCalendarPanel = () => {
+    const [section, setSection] = React.useState('prayers'); // 'prayers' | 'attendance' | 'birthdays' | 'calendar'
+    const [prayers, setPrayers] = React.useState(() => loadPrayerRequests());
+    const [birthdays, setBirthdays] = React.useState(() => loadMemberBirthdays());
+    const [calendarItems, setCalendarItems] = React.useState(() => loadAnnualCalendar());
+    const attendanceMap = useOfficerAttendance();
+
+    // Form Ulang Tahun Baru / Edit
+    const [editingBdayId, setEditingBdayId] = React.useState(null);
+    const [newBdayName, setNewBdayName] = React.useState('');
+    const [newBdayDay, setNewBdayDay] = React.useState(1);
+    const [newBdayMonth, setNewBdayMonth] = React.useState(new Date().getMonth() + 1);
+    const [newBdayKat, setNewBdayKat] = React.useState('Anggota Jemaat');
+    const [newBdayWa, setNewBdayWa] = React.useState('');
+
+    // Form Kalender Tahunan Baru / Edit
+    const [editingCalId, setEditingCalId] = React.useState(null);
+    const [newCalTitle, setNewCalTitle] = React.useState('');
+    const [newCalDate, setNewCalDate] = React.useState('');
+    const [newCalQuarter, setNewCalQuarter] = React.useState(1);
+    const [newCalCat, setNewCalCat] = React.useState('Kegiatan Gereja');
+    const [newCalLoc, setNewCalLoc] = React.useState('GMAHK Jemaat Pisgah BISDAC - Batam');
+    const [newCalDesc, setNewCalDesc] = React.useState('');
+
+    React.useEffect(() => {
+        const syncPrayers = () => setPrayers(loadPrayerRequests());
+        const syncCal = () => {
+            setBirthdays(loadMemberBirthdays());
+            setCalendarItems(loadAnnualCalendar());
+        };
+        window.addEventListener('pisgah-prayer-updated', syncPrayers);
+        window.addEventListener('pisgah-calendar-updated', syncCal);
+        return () => {
+            window.removeEventListener('pisgah-prayer-updated', syncPrayers);
+            window.removeEventListener('pisgah-calendar-updated', syncCal);
+        };
+    }, []);
+
+    const handleToggleAnswered = (id) => {
+        setPrayers(prev => {
+            const next = prev.map(p => String(p.id) === String(id) ? { ...p, isAnswered: !p.isAnswered } : p);
+            savePrayerRequests(next);
+            return next;
+        });
+    };
+
+    const handleDeletePrayer = (id) => {
+        if (!window.confirm('Hapus pokok doa ini?')) return;
+        const next = prayers.filter(p => String(p.id) !== String(id));
+        setPrayers(next);
+        savePrayerRequests(next);
+    };
+
+    const handleAddBirthday = (e) => {
+        e.preventDefault();
+        if (!newBdayName.trim()) return;
+        const itemData = {
+            id: editingBdayId || ('bday_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)),
+            nama: newBdayName.trim(),
+            birthDay: parseInt(newBdayDay, 10) || 1,
+            birthMonth: parseInt(newBdayMonth, 10) || 1,
+            kategori: newBdayKat.trim() || 'Anggota Jemaat',
+            wa: newBdayWa.trim()
+        };
+        const next = editingBdayId
+            ? birthdays.map(b => String(b.id) === String(editingBdayId) ? itemData : b)
+            : [...birthdays, itemData];
+        setBirthdays(next);
+        saveMemberBirthdays(next);
+        setEditingBdayId(null);
+        setNewBdayName('');
+        setNewBdayWa('');
+    };
+
+    const handleStartEditBirthday = (b) => {
+        setEditingBdayId(b.id);
+        setNewBdayName(b.nama || '');
+        setNewBdayDay(b.birthDay || 1);
+        setNewBdayMonth(b.birthMonth || 1);
+        setNewBdayKat(b.kategori || 'Anggota Jemaat');
+        setNewBdayWa(b.wa || '');
+    };
+
+    const handleDeleteBirthday = (id, idx) => {
+        const next = birthdays.filter((b, i) => {
+            if (b && b.id !== undefined && id !== undefined) {
+                return String(b.id) !== String(id);
+            }
+            return i !== idx;
+        });
+        setBirthdays(next);
+        saveMemberBirthdays(next);
+        if (editingBdayId && String(editingBdayId) === String(id)) {
+            setEditingBdayId(null);
+            setNewBdayName('');
+            setNewBdayWa('');
+        }
+    };
+
+    const handleClearAllBirthdays = () => {
+        if (!window.confirm('Kosongkan seluruh daftar ulang tahun jemaat?')) return;
+        setBirthdays([]);
+        saveMemberBirthdays([]);
+        setEditingBdayId(null);
+    };
+
+    const handleAddCalendarItem = (e) => {
+        e.preventDefault();
+        if (!newCalTitle.trim() || !newCalDate) return;
+        const itemData = {
+            id: editingCalId || ('cal_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)),
+            title: newCalTitle.trim(),
+            dateYMD: newCalDate,
+            quarter: parseInt(newCalQuarter, 10) || 1,
+            category: newCalCat.trim() || 'Kegiatan Gereja',
+            location: newCalLoc.trim() || 'GMAHK Jemaat Pisgah BISDAC - Batam',
+            desc: newCalDesc.trim()
+        };
+        const next = editingCalId
+            ? calendarItems.map(c => String(c.id) === String(editingCalId) ? itemData : c)
+            : [...calendarItems, itemData];
+        setCalendarItems(next);
+        saveAnnualCalendar(next);
+        setEditingCalId(null);
+        setNewCalTitle('');
+        setNewCalDate('');
+        setNewCalDesc('');
+    };
+
+    const handleStartEditCalendarItem = (c) => {
+        setEditingCalId(c.id);
+        setNewCalTitle(c.title || '');
+        setNewCalDate(c.dateYMD || '');
+        setNewCalQuarter(c.quarter || 1);
+        setNewCalCat(c.category || 'Kegiatan Gereja');
+        setNewCalLoc(c.location || 'GMAHK Jemaat Pisgah BISDAC - Batam');
+        setNewCalDesc(c.desc || '');
+    };
+
+    const handleDeleteCalendarItem = (id, idx) => {
+        const next = calendarItems.filter((c, i) => {
+            if (c && c.id !== undefined && id !== undefined) {
+                return String(c.id) !== String(id);
+            }
+            return i !== idx;
+        });
+        setCalendarItems(next);
+        saveAnnualCalendar(next);
+        if (editingCalId && String(editingCalId) === String(id)) {
+            setEditingCalId(null);
+            setNewCalTitle('');
+            setNewCalDate('');
+            setNewCalDesc('');
+        }
+    };
+
+    const handleClearAllCalendarItems = () => {
+        if (!window.confirm('Kosongkan seluruh agenda kalender tahunan?')) return;
+        setCalendarItems([]);
+        saveAnnualCalendar([]);
+        setEditingCalId(null);
+    };
+
+    const attendanceRecords = React.useMemo(() => {
+        return Object.entries(attendanceMap || {})
+            .map(([key, val]) => ({ key, ...val }))
+            .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    }, [attendanceMap]);
+
+    const privatePrayersCount = prayers.filter(p => p.privacy === 'private').length;
+
+    return (
+        <div className="p-4 md:p-6 space-y-6 animate-fade-in">
+            {/* Sub-Navigasi Ruang Pastoral & Kalender */}
+            <div className="flex flex-wrap items-center gap-2 bg-navy-50/70 p-2 rounded-2xl border border-navy-100">
+                <button
+                    type="button"
+                    onClick={() => setSection('prayers')}
+                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition cursor-pointer flex items-center gap-2 ${section === 'prayers' ? 'bg-navy-900 text-gold-400 shadow-sm' : 'text-navy-600 hover:bg-white'}`}
+                >
+                    <span>🙏 Pokok Doa ({prayers.length})</span>
+                    {privatePrayersCount > 0 && (
+                        <span className="px-2 py-0.5 rounded-full bg-amber-500 text-navy-950 text-[10px] font-black">
+                            🔒 {privatePrayersCount} Privat
+                        </span>
+                    )}
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setSection('attendance')}
+                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition cursor-pointer ${section === 'attendance' ? 'bg-navy-900 text-gold-400 shadow-sm' : 'text-navy-600 hover:bg-white'}`}
+                >
+                    ✅ Konfirmasi Petugas ({attendanceRecords.length})
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setSection('birthdays')}
+                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition cursor-pointer ${section === 'birthdays' ? 'bg-navy-900 text-gold-400 shadow-sm' : 'text-navy-600 hover:bg-white'}`}
+                >
+                    🎂 Ulang Tahun Jemaat ({birthdays.length})
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setSection('calendar')}
+                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition cursor-pointer ${section === 'calendar' ? 'bg-navy-900 text-gold-400 shadow-sm' : 'text-navy-600 hover:bg-white'}`}
+                >
+                    📅 Kalender Tahunan ({calendarItems.length})
+                </button>
+            </div>
+
+            {section === 'prayers' && (
+                <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 text-xs sm:text-sm text-navy-800 flex items-center justify-between gap-3 flex-wrap">
+                        <div>
+                            <strong>Ruang Doa Pastoral (Pendeta & Majelis):</strong> Menampilkan seluruh pokok doa jemaat, baik yang bersifat <strong>🌐 Publik</strong> maupun <strong>🔒 Privat (Rahasia Khusus Gembala/Majelis)</strong>.
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {prayers.map(p => (
+                            <div
+                                key={p.id}
+                                className={`p-4 rounded-2xl border flex flex-col justify-between gap-3 ${p.privacy === 'private' ? 'bg-amber-50/50 border-amber-300' : 'bg-white border-navy-100'}`}
+                            >
+                                <div>
+                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                            <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${p.privacy === 'private' ? 'bg-amber-500 text-navy-950' : 'bg-emerald-500/15 text-emerald-700'}`}>
+                                                {p.privacy === 'private' ? '🔒 Privat (Khusus Majelis)' : '🌐 Publik (Ibadah Rabu)'}
+                                            </span>
+                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-navy-100 text-navy-700">
+                                                {p.category}
+                                            </span>
+                                        </div>
+                                        <span className="text-[11px] font-bold text-navy-400">
+                                            🙏 {p.prayedCount || 1}x
+                                        </span>
+                                    </div>
+                                    <p className="text-sm text-navy-900 font-medium leading-relaxed">
+                                        "{p.content}"
+                                    </p>
+                                </div>
+                                <div className="pt-3 border-t border-navy-100 flex items-center justify-between gap-2">
+                                    <div className="text-xs font-extrabold text-navy-800">
+                                        👤 {p.senderName}
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleToggleAnswered(p.id)}
+                                            className={`px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer ${p.isAnswered ? 'bg-emerald-600 text-white' : 'bg-navy-100 text-navy-700 hover:bg-emerald-500 hover:text-white'}`}
+                                        >
+                                            {p.isAnswered ? '✅ Sudah Didoakan' : 'Tandai Didoakan'}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDeletePrayer(p.id)}
+                                            className="p-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white cursor-pointer"
+                                            title="Hapus Pokok Doa"
+                                        >
+                                            <Icon name="Trash" className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {section === 'attendance' && (
+                <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-navy-50/60 border border-navy-100 text-xs sm:text-sm text-navy-700">
+                        Daftar rekap petugas ibadah yang telah menekan tombol <strong>Konfirmasi Hadir ✅</strong> atau <strong>Berhalangan ⚠️</strong> pada halaman Jadwal & Home.
+                    </div>
+                    {attendanceRecords.length === 0 ? (
+                        <div className="p-8 text-center rounded-2xl border border-dashed border-navy-200 text-navy-400 text-sm font-bold">
+                            Belum ada data konfirmasi kehadiran petugas yang masuk.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                            {attendanceRecords.map(rec => (
+                                <div key={rec.key} className="p-4 rounded-2xl bg-white border border-navy-100 flex items-start justify-between gap-3 shadow-xs">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${rec.status === 'hadir' ? 'bg-emerald-500/20 text-emerald-700' : 'bg-amber-500/20 text-amber-700'}`}>
+                                                {rec.status === 'hadir' ? '✅ Siap Hadir' : '⚠️ Berhalangan'}
+                                            </span>
+                                            <span className="text-xs font-bold text-navy-500">{formatIndoDateShort(rec.dateStr)}</span>
+                                        </div>
+                                        <h4 className="font-black text-navy-900 text-sm">{rec.nama} — {rec.tugas}</h4>
+                                        <p className="text-xs text-navy-500">{rec.sesi}</p>
+                                        {rec.substitute && <p className="text-xs font-bold text-amber-700 mt-1">🔄 Usulan Pengganti: {rec.substitute}</p>}
+                                        {rec.note && <p className="text-xs text-navy-600 mt-0.5">📝 Catatan: {rec.note}</p>}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => saveOfficerAttendanceRecord(rec.key, null)}
+                                        className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer"
+                                        title="Hapus Konfirmasi"
+                                    >
+                                        <Icon name="Trash" className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {section === 'birthdays' && (
+                <div className="space-y-5">
+                    <form onSubmit={handleAddBirthday} className="p-4 sm:p-5 rounded-2xl bg-navy-50/50 border border-navy-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                        <div>
+                            <label className="text-[10px] font-black uppercase text-navy-500 block mb-1">Nama Jemaat</label>
+                            <input type="text" required value={newBdayName} onChange={e => setNewBdayName(e.target.value)} placeholder="Nama Lengkap..." className="w-full p-2.5 rounded-xl border border-navy-200 text-xs font-bold bg-white" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <div>
+                                <label className="text-[10px] font-black uppercase text-navy-500 block mb-1">Tanggal</label>
+                                <input type="number" min="1" max="31" value={newBdayDay} onChange={e => setNewBdayDay(e.target.value)} className="w-full p-2.5 rounded-xl border border-navy-200 text-xs font-bold bg-white" />
+                            </div>
+                            <div>
+                                <label className="text-[10px] font-black uppercase text-navy-500 block mb-1">Bulan</label>
+                                <select value={newBdayMonth} onChange={e => setNewBdayMonth(e.target.value)} className="w-full p-2.5 rounded-xl border border-navy-200 text-xs font-bold bg-white">
+                                    {BIBLE_YEAR_MONTH_NAMES.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-black uppercase text-navy-500 block mb-1">Departemen / Kelompok</label>
+                            <input type="text" value={newBdayKat} onChange={e => setNewBdayKat(e.target.value)} placeholder="Misal: Pemuda Advent" className="w-full p-2.5 rounded-xl border border-navy-200 text-xs font-bold bg-white" />
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-black uppercase text-navy-500 block mb-1">No. WA (Opsional)</label>
+                            <input type="text" value={newBdayWa} onChange={e => setNewBdayWa(e.target.value)} placeholder="628..." className="w-full p-2.5 rounded-xl border border-navy-200 text-xs font-bold bg-white" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button type="submit" className="flex-1 py-2.5 px-4 rounded-xl bg-navy-900 hover:bg-navy-800 text-gold-400 font-black text-xs cursor-pointer">
+                                {editingBdayId ? '💾 Simpan Edit' : '+ Tambah Ultah'}
+                            </button>
+                            {editingBdayId && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setEditingBdayId(null);
+                                        setNewBdayName('');
+                                        setNewBdayWa('');
+                                    }}
+                                    className="py-2.5 px-3 rounded-xl bg-navy-100 hover:bg-navy-200 text-navy-700 font-bold text-xs cursor-pointer"
+                                >
+                                    Batal
+                                </button>
+                            )}
+                        </div>
+                    </form>
+
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <span className="text-xs font-bold text-navy-500">
+                            Total {birthdays.length} data ulang tahun jemaat
+                        </span>
+                        <div className="flex items-center gap-2">
+                            {birthdays.length === 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setBirthdays(INITIAL_MEMBER_BIRTHDAYS);
+                                        saveMemberBirthdays(INITIAL_MEMBER_BIRTHDAYS);
+                                    }}
+                                    className="px-3 py-1.5 rounded-xl bg-navy-100 hover:bg-navy-200 text-navy-700 text-xs font-bold cursor-pointer"
+                                >
+                                    🔄 Muat Contoh Default
+                                </button>
+                            )}
+                            {birthdays.length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={handleClearAllBirthdays}
+                                    className="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-600 text-red-600 hover:text-white text-xs font-bold transition cursor-pointer flex items-center gap-1"
+                                >
+                                    <Icon name="Trash" className="w-3.5 h-3.5" />
+                                    <span>Hapus Semua</span>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {birthdays.length === 0 ? (
+                        <div className="p-8 text-center rounded-2xl border border-dashed border-navy-200 text-navy-400 text-sm font-bold">
+                            Daftar ulang tahun jemaat kosong. Silakan tambahkan data ulang tahun baru melalui formulir di atas.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {birthdays.map((b, idx) => (
+                                <div key={b.id || idx} className="p-3.5 rounded-xl bg-white border border-navy-100 flex items-center justify-between gap-2">
+                                    <div className="min-w-0">
+                                        <div className="text-xs font-black text-gold-600">🎂 {b.birthDay} {BIBLE_YEAR_MONTH_NAMES[(b.birthMonth || 1) - 1]}</div>
+                                        <div className="text-sm font-black text-navy-900 truncate">{b.nama}</div>
+                                        <div className="text-xs text-navy-500 truncate">{b.kategori}{b.wa ? ` • ${b.wa}` : ''}</div>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleStartEditBirthday(b)}
+                                            className="p-2 rounded-lg bg-navy-50 text-navy-600 hover:bg-navy-900 hover:text-gold-400 transition cursor-pointer"
+                                            title="Edit Data Ulang Tahun"
+                                        >
+                                            <Icon name="Edit" className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDeleteBirthday(b.id, idx)}
+                                            className="p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition cursor-pointer"
+                                            title="Hapus Data Ulang Tahun"
+                                        >
+                                            <Icon name="Trash" className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {section === 'calendar' && (
+                <div className="space-y-5">
+                    <form onSubmit={handleAddCalendarItem} className="p-4 sm:p-5 rounded-2xl bg-navy-50/50 border border-navy-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-end">
+                        <div>
+                            <label className="text-[10px] font-black uppercase text-navy-500 block mb-1">Nama Kegiatan Gereja</label>
+                            <input type="text" required value={newCalTitle} onChange={e => setNewCalTitle(e.target.value)} placeholder="Contoh: KKR Jemaat / Sabat Tamu" className="w-full p-2.5 rounded-xl border border-navy-200 text-xs font-bold bg-white" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <div>
+                                <label className="text-[10px] font-black uppercase text-navy-500 block mb-1">Tanggal</label>
+                                <input type="date" required value={newCalDate} onChange={e => setNewCalDate(e.target.value)} className="w-full p-2.5 rounded-xl border border-navy-200 text-xs font-bold bg-white" />
+                            </div>
+                            <div>
+                                <label className="text-[10px] font-black uppercase text-navy-500 block mb-1">Triwulan</label>
+                                <select value={newCalQuarter} onChange={e => setNewCalQuarter(e.target.value)} className="w-full p-2.5 rounded-xl border border-navy-200 text-xs font-bold bg-white">
+                                    <option value={1}>Triwulan I</option>
+                                    <option value={2}>Triwulan II</option>
+                                    <option value={3}>Triwulan III</option>
+                                    <option value={4}>Triwulan IV</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-black uppercase text-navy-500 block mb-1">Kategori Departemen</label>
+                            <input type="text" value={newCalCat} onChange={e => setNewCalCat(e.target.value)} placeholder="Misal: Ibadah Sakramen / PA" className="w-full p-2.5 rounded-xl border border-navy-200 text-xs font-bold bg-white" />
+                        </div>
+                        <div className="sm:col-span-2">
+                            <label className="text-[10px] font-black uppercase text-navy-500 block mb-1">Keterangan Singkat</label>
+                            <input type="text" value={newCalDesc} onChange={e => setNewCalDesc(e.target.value)} placeholder="Deskripsi acara..." className="w-full p-2.5 rounded-xl border border-navy-200 text-xs font-bold bg-white" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button type="submit" className="flex-1 py-2.5 px-4 rounded-xl bg-navy-900 hover:bg-navy-800 text-gold-400 font-black text-xs cursor-pointer">
+                                {editingCalId ? '💾 Simpan Edit Agenda' : '+ Tambah Agenda Kalender'}
+                            </button>
+                            {editingCalId && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setEditingCalId(null);
+                                        setNewCalTitle('');
+                                        setNewCalDate('');
+                                        setNewCalDesc('');
+                                    }}
+                                    className="py-2.5 px-3 rounded-xl bg-navy-100 hover:bg-navy-200 text-navy-700 font-bold text-xs cursor-pointer"
+                                >
+                                    Batal
+                                </button>
+                            )}
+                        </div>
+                    </form>
+
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <span className="text-xs font-bold text-navy-500">
+                            Total {calendarItems.length} agenda kegiatan tahunan
+                        </span>
+                        <div className="flex items-center gap-2">
+                            {calendarItems.length === 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setCalendarItems(INITIAL_ANNUAL_CALENDAR);
+                                        saveAnnualCalendar(INITIAL_ANNUAL_CALENDAR);
+                                    }}
+                                    className="px-3 py-1.5 rounded-xl bg-navy-100 hover:bg-navy-200 text-navy-700 text-xs font-bold cursor-pointer"
+                                >
+                                    🔄 Muat Contoh Default
+                                </button>
+                            )}
+                            {calendarItems.length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={handleClearAllCalendarItems}
+                                    className="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-600 text-red-600 hover:text-white text-xs font-bold transition cursor-pointer flex items-center gap-1"
+                                >
+                                    <Icon name="Trash" className="w-3.5 h-3.5" />
+                                    <span>Hapus Semua</span>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {calendarItems.length === 0 ? (
+                        <div className="p-8 text-center rounded-2xl border border-dashed border-navy-200 text-navy-400 text-sm font-bold">
+                            Daftar agenda kalender tahunan kosong. Silakan tambahkan kegiatan baru melalui formulir di atas.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {calendarItems.map((c, idx) => (
+                                <div key={c.id || idx} className="p-3.5 rounded-xl bg-white border border-navy-100 flex items-center justify-between gap-2">
+                                    <div className="min-w-0">
+                                        <div className="text-xs font-black text-gold-600">TW {c.quarter} • {formatIndoDateShort(c.dateYMD)} • {c.category}</div>
+                                        <div className="text-sm font-black text-navy-900 truncate">{c.title}</div>
+                                        {c.desc && <div className="text-xs text-navy-500 truncate">{c.desc}</div>}
+                                    </div>
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleStartEditCalendarItem(c)}
+                                            className="p-2 rounded-lg bg-navy-50 text-navy-600 hover:bg-navy-900 hover:text-gold-400 transition cursor-pointer"
+                                            title="Edit Agenda Kalender"
+                                        >
+                                            <Icon name="Edit" className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDeleteCalendarItem(c.id, idx)}
+                                            className="p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition cursor-pointer"
+                                            title="Hapus Agenda Kalender"
+                                        >
+                                            <Icon name="Trash" className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
+
 // --- KOMPONEN AdminDashboard yang DIPERBAIKI (dengan fitur warta) ---
 const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken,
     youtubeUrl, setYoutubeUrl, anthemUrl, setAnthemUrl, anthemUrl2, setAnthemUrl2, anthemTitle, setAnthemTitle, anthemTitle2, setAnthemTitle2, youtubeTitle, setYoutubeTitle, youtubeChannelTitle, setYoutubeChannelTitle, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages,
@@ -8442,9 +10085,11 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const [wartaViewMode, setWartaViewMode] = React.useState('editor'); // 'editor' | 'preview'
     const [wartaSearchPosting, setWartaSearchPosting] = React.useState('');
     const [wartaGambarList, setWartaGambarList] = React.useState([]);
+    const [wartaCoverUrlInput, setWartaCoverUrlInput] = React.useState('');
     const [isSavingWarta, setIsSavingWarta] = React.useState(false);
     const [wartaPenulis, setWartaPenulis] = React.useState('');
     const [editWartaPenulis, setEditWartaPenulis] = React.useState('');
+    const [editWartaCoverUrlInput, setEditWartaCoverUrlInput] = React.useState('');
     const [wartaCurrentPage, setWartaCurrentPage] = React.useState(1);
     const wartaItemsPerPage = 6;
     const wartaEditorRef = React.useRef(null);      // <-- tambah
@@ -9059,6 +10704,32 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         setEditWartaGambarList(prev => [...prev, ...newItems]);
     };
 
+    const getActiveAdminPassword = () => {
+        if (adminToken) return adminToken;
+        try {
+            return sessionStorage.getItem('PISGAH_ADMIN_SESSION_TOKEN') || localStorage.getItem('PISGAH_ADMIN_SESSION_TOKEN') || '';
+        } catch (e) {
+            return '';
+        }
+    };
+
+    const syncWartaLocalCache = (updaterFn) => {
+        setDaftarWarta(prev => {
+            const safePrev = Array.isArray(prev) ? prev : [];
+            const nextList = updaterFn(safePrev);
+            try {
+                localStorage.setItem('PISGAH_OFFLINE_WARTA_CACHE', JSON.stringify(nextList));
+                const rawCache = localStorage.getItem('pisgah_data_cache');
+                if (rawCache) {
+                    const parsedCache = JSON.parse(rawCache);
+                    parsedCache.daftarWarta = nextList;
+                    localStorage.setItem('pisgah_data_cache', JSON.stringify(parsedCache));
+                }
+            } catch (e) { }
+            return nextList;
+        });
+    };
+
     // Fungsi upload gambar inline langsung ke Google Drive
     const handleUploadInlineImage = async (base64Data, filename) => {
         try {
@@ -9066,13 +10737,14 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 method: 'POST',
                 body: JSON.stringify({
                     action: 'uploadImageToDrive',
-                    password: adminToken,
+                    password: getActiveAdminPassword(),
                     folderId: null,
                     title: `WartaInline_${(filename || 'gambar').replace(/[^a-zA-Z0-9]/g, '_').substring(0, 25)}_${Date.now()}`,
                     imageBase64: base64Data
                 })
             });
-            const upData = await upRes.json();
+            const upText = await upRes.text();
+            const upData = JSON.parse(upText);
             if (upData && upData.success && upData.url) {
                 return upData.url;
             }
@@ -9082,9 +10754,80 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         return base64Data;
     };
 
+    // Helper upload foto sampul/dokumentasi warta ke Google Drive agar tidak melebihi batas 50.000 karakter per sel Google Sheets
+    const uploadWartaPhotoItem = async (fileOrBase64, idx = 0) => {
+        try {
+            if (typeof fileOrBase64 === 'string' && fileOrBase64.startsWith('http')) {
+                const driveId = getGoogleDriveFileId(fileOrBase64);
+                return driveId ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200` : formatImageUrl(fileOrBase64);
+            }
+
+            let base64Str = fileOrBase64;
+            if (fileOrBase64 instanceof File || fileOrBase64 instanceof Blob) {
+                base64Str = await compressImage(fileOrBase64, 1200, 0.8);
+            }
+            if (typeof base64Str === 'string' && base64Str.startsWith('data:image')) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 8000);
+                    const upRes = await fetch(GAS_API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'uploadImageToDrive',
+                            password: getActiveAdminPassword(),
+                            folderId: null,
+                            title: `Warta_${Date.now()}_${idx + 1}`,
+                            imageBase64: base64Str
+                        }),
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    const upText = await upRes.text();
+                    const upData = JSON.parse(upText);
+                    if (upData && upData.success && upData.url) {
+                        return upData.url;
+                    }
+                } catch (upErr) {
+                    console.warn("Upload foto warta ke Drive server tidak berhasil atau timeout:", upErr);
+                }
+                // Jika upload ke Drive gagal / timeout, jangan kirim base64 mentah ke saveWarta
+                return '';
+            }
+            return typeof base64Str === 'string' ? base64Str : '';
+        } catch (e) {
+            console.warn("Gagal memproses foto warta:", e);
+            return '';
+        }
+    };
+
+    // Pastikan isi HTML warta tidak melebihi batas 50.000 karakter sel Google Sheets akibat gambar inline base64
+    const prepareWartaHtmlForSave = async (rawHtml) => {
+        let html = rawHtml || '';
+        if (html.includes('data:image/')) {
+            const regex = /src=["'](data:image\/[^"']+)["']/g;
+            const matches = [...html.matchAll(regex)];
+            for (let i = 0; i < matches.length; i++) {
+                const dataUri = matches[i][1];
+                if (dataUri && dataUri.length > 1000) {
+                    const uploadedUrl = await handleUploadInlineImage(dataUri, `inline_${i + 1}`);
+                    if (uploadedUrl && !uploadedUrl.startsWith('data:image/')) {
+                        html = html.split(dataUri).join(uploadedUrl);
+                    }
+                }
+            }
+        }
+        if (html.length > 47000) {
+            html = html.replace(/<img[^>]+src=["']data:image\/[^"']+["'][^>]*>/gi, '');
+        }
+        if (html.length > 48500) {
+            html = html.substring(0, 48500);
+        }
+        return html;
+    };
+
     // Fungsi simpan warta
     const handleWartaFormSubmit = async (e) => {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
 
         // Ambil nilai terbaru dari editor
         let latestHtml = wartaIsi;
@@ -9098,49 +10841,112 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             return;
         }
 
+        const activePwd = getActiveAdminPassword();
+        if (!activePwd) {
+            alert("Sesi login admin Anda perlu disegarkan. Silakan keluar (Logout) lalu masuk (Login) kembali.");
+            return;
+        }
+
         setIsSavingWarta(true);
 
-        let finalJudul = wartaJudul.trim();
-        if (wartaKategori && !finalJudul.startsWith('[')) {
-            finalJudul = `[${wartaKategori}] ${finalJudul}`;
-        }
+        try {
+            let finalJudul = wartaJudul.trim();
+            if (wartaKategori && !finalJudul.startsWith('[')) {
+                finalJudul = `[${wartaKategori}] ${finalJudul}`;
+            }
 
-        let finalGambarUrl = "";
-        if (wartaGambarList && wartaGambarList.length > 0) {
-            let base64Array = [];
-            for (let item of wartaGambarList) {
-                const fileObj = item.file || item;
-                if (fileObj instanceof File || fileObj instanceof Blob) {
-                    const compressedBase64 = await compressImage(fileObj, 1200);
-                    base64Array.push(compressedBase64);
-                } else if (typeof item === 'string') {
-                    base64Array.push(item);
-                } else if (item.url && typeof item.url === 'string') {
-                    base64Array.push(item.url);
+            // Gabungkan gambar dari wartaGambarList dan input URL sampul langsung
+            let workingImageList = [...wartaGambarList];
+            if (wartaCoverUrlInput && wartaCoverUrlInput.trim()) {
+                const driveId = getGoogleDriveFileId(wartaCoverUrlInput);
+                const directUrl = driveId
+                    ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`
+                    : formatImageUrl(wartaCoverUrlInput.trim());
+                if (!workingImageList.some(img => (img.url || img) === directUrl)) {
+                    workingImageList.unshift({
+                        id: `url_cover_${Date.now()}`,
+                        url: directUrl,
+                        type: 'url'
+                    });
                 }
             }
-            finalGambarUrl = base64Array.join('|||');
-        }
 
-        try {
+            let finalGambarUrl = "";
+            if (workingImageList && workingImageList.length > 0) {
+                let uploadedUrls = [];
+                for (let i = 0; i < workingImageList.length; i++) {
+                    const item = workingImageList[i];
+                    const fileObj = item.file || item;
+                    if (fileObj instanceof File || fileObj instanceof Blob) {
+                        const urlOrB64 = await uploadWartaPhotoItem(fileObj, i);
+                        if (urlOrB64) uploadedUrls.push(urlOrB64);
+                    } else if (typeof item === 'string' && !item.startsWith('blob:')) {
+                        const urlOrB64 = await uploadWartaPhotoItem(item, i);
+                        if (urlOrB64) uploadedUrls.push(urlOrB64);
+                    } else if (item.url && typeof item.url === 'string' && !item.url.startsWith('blob:')) {
+                        const urlOrB64 = await uploadWartaPhotoItem(item.url, i);
+                        if (urlOrB64) uploadedUrls.push(urlOrB64);
+                    }
+                }
+                const validHttpUrls = uploadedUrls.filter(u => u && typeof u === 'string' && u.startsWith('http'));
+                finalGambarUrl = validHttpUrls.join('|||');
+                if (finalGambarUrl.length > 47000) {
+                    finalGambarUrl = validHttpUrls[0] || '';
+                }
+            }
+
+            const safeHtml = await prepareWartaHtmlForSave(latestHtml);
             const publishTimestamp = (wartaPublishType === 'scheduled' && wartaScheduledDate)
                 ? new Date(wartaScheduledDate).toISOString()
-                : new Date().toISOString();
+                : new Date(Date.now() - 5000).toISOString();
 
-            const res = await fetch(GAS_API_URL, {
-                method: 'POST',
-                body: JSON.stringify({
+            const wartaPayload = {
+                judul: finalJudul,
+                isi: safeHtml,
+                gambarUrl: finalGambarUrl,
+                penulis: wartaPenulis || 'Redaksi Warta',
+                tanggal: publishTimestamp
+            };
+
+            const sendSaveRequest = async (imgUrlOverride) => {
+                const bodyObj = {
                     action: 'saveWarta',
-                    password: adminToken,
-                    judul: finalJudul,
-                    isi: latestHtml,
-                    gambarUrl: finalGambarUrl,
-                    penulis: wartaPenulis || 'Redaksi Warta',
-                    tanggal: publishTimestamp
-                })
-            });
-            const result = await res.json();
-            if (result.success) {
+                    password: activePwd,
+                    ...wartaPayload,
+                    gambarUrl: imgUrlOverride !== undefined ? imgUrlOverride : wartaPayload.gambarUrl,
+                    data: JSON.stringify({
+                        ...wartaPayload,
+                        gambarUrl: imgUrlOverride !== undefined ? imgUrlOverride : wartaPayload.gambarUrl
+                    })
+                };
+                const res = await fetch(GAS_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(bodyObj)
+                });
+                const rawText = await res.text();
+                try {
+                    return JSON.parse(rawText);
+                } catch (parseErr) {
+                    throw new Error("Respons server tidak valid: " + rawText.substring(0, 120));
+                }
+            };
+
+            let result = await sendSaveRequest();
+            if (!result.success && finalGambarUrl) {
+                // Retry tanpa gambar jika ada kendala kolom gambar di server
+                result = await sendSaveRequest('');
+            }
+
+            if (result && (result.success || result.status === 'success')) {
+                const maxRowIndex = (Array.isArray(daftarWarta) && daftarWarta.length > 0)
+                    ? Math.max(...daftarWarta.map(w => Number(w.rowIndex) || 1))
+                    : 1;
+                const optimisticWarta = {
+                    rowIndex: maxRowIndex + 1,
+                    ...wartaPayload
+                };
+                syncWartaLocalCache(prev => [optimisticWarta, ...prev]);
+
                 alert(wartaPublishType === 'scheduled'
                     ? `Warta berhasil dijadwalkan tayang pada ${formatIndoDateTime(publishTimestamp)}!`
                     : "Warta berhasil dipublikasikan ke Portal Berita!");
@@ -9152,20 +10958,23 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 setWartaJudul('');
                 setWartaIsi('');
                 setWartaGambarList([]);
+                setWartaCoverUrlInput('');
                 setWartaPenulis('');
                 setWartaPublishType('now');
                 setWartaScheduledDate('');
                 setWartaKategori('Warta Sabat');
                 setWartaViewMode('editor');
                 if (wartaEditorRef.current) wartaEditorRef.current.setContent('');
+                setWartaSubTab('posting');
                 if (refreshWarta) refreshWarta();
             } else {
-                alert("Gagal menyimpan: " + (result.message || "Unknown error"));
+                alert("Gagal menyimpan warta: " + (result?.message || "Unknown error"));
             }
         } catch (err) {
-            alert("Terjadi kesalahan: " + err.message);
+            alert("Terjadi kesalahan saat mempublikasikan warta: " + err.message);
+        } finally {
+            setIsSavingWarta(false);
         }
-        setIsSavingWarta(false);
     };
 
     // Fungsi Update dan Delete Warta
@@ -9216,6 +11025,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             url: url
         }));
         setEditWartaGambarList(existingPhotos);
+        setEditWartaCoverUrlInput('');
         setEditWartaViewMode('editor');
         setEditWartaModal(true);
     };
@@ -9232,7 +11042,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     }, [editWartaModal]);
 
     const handleUpdateWarta = async (e) => {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
         if (!editingWarta) return;
 
         // Ambil nilai terbaru dari editor
@@ -9247,53 +11057,105 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             return;
         }
 
+        const activePwd = getActiveAdminPassword();
+        if (!activePwd) {
+            alert("Sesi login admin Anda perlu disegarkan. Silakan keluar (Logout) lalu masuk (Login) kembali.");
+            return;
+        }
+
         setIsUpdatingWarta(true);
 
-        let finalJudul = editWartaJudul.trim();
-        if (editWartaKategori && !finalJudul.startsWith('[')) {
-            finalJudul = `[${editWartaKategori}] ${finalJudul}`;
-        }
+        try {
+            let finalJudul = editWartaJudul.trim();
+            if (editWartaKategori && !finalJudul.startsWith('[')) {
+                finalJudul = `[${editWartaKategori}] ${finalJudul}`;
+            }
 
-        let finalGambarUrl = "";
-        if (editWartaGambarList && editWartaGambarList.length > 0) {
-            let urlParts = [];
-            for (let item of editWartaGambarList) {
-                if (item.type === 'existing') {
-                    urlParts.push(item.url);
-                } else if (item.type === 'new' && (item.file || item instanceof File)) {
-                    const compressed = await compressImage(item.file || item, 1200);
-                    urlParts.push(compressed);
-                } else if (typeof item === 'string') {
-                    urlParts.push(item);
-                } else if (item.url && typeof item.url === 'string') {
-                    urlParts.push(item.url);
+            let workingImageList = [...editWartaGambarList];
+            if (editWartaCoverUrlInput && editWartaCoverUrlInput.trim()) {
+                const driveId = getGoogleDriveFileId(editWartaCoverUrlInput);
+                const directUrl = driveId
+                    ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`
+                    : formatImageUrl(editWartaCoverUrlInput.trim());
+                if (!workingImageList.some(img => (img.url || img) === directUrl)) {
+                    workingImageList.unshift({
+                        id: `url_cover_${Date.now()}`,
+                        url: directUrl,
+                        type: 'url'
+                    });
                 }
             }
-            finalGambarUrl = urlParts.join('|||');
-        }
 
-        try {
+            let finalGambarUrl = "";
+            if (workingImageList && workingImageList.length > 0) {
+                let urlParts = [];
+                for (let i = 0; i < workingImageList.length; i++) {
+                    const item = workingImageList[i];
+                    if (item.type === 'existing' && item.url) {
+                        urlParts.push(item.url);
+                    } else if (item.type === 'new' && (item.file || item instanceof File || item instanceof Blob)) {
+                        const uploaded = await uploadWartaPhotoItem(item.file || item, i);
+                        if (uploaded) urlParts.push(uploaded);
+                    } else if (typeof item === 'string' && !item.startsWith('blob:')) {
+                        const uploaded = await uploadWartaPhotoItem(item, i);
+                        if (uploaded) urlParts.push(uploaded);
+                    } else if (item.url && typeof item.url === 'string' && !item.url.startsWith('blob:')) {
+                        const uploaded = await uploadWartaPhotoItem(item.url, i);
+                        if (uploaded) urlParts.push(uploaded);
+                    }
+                }
+                const validHttpUrls = urlParts.filter(u => u && typeof u === 'string' && u.startsWith('http'));
+                finalGambarUrl = validHttpUrls.join('|||');
+                if (finalGambarUrl.length > 47000) {
+                    finalGambarUrl = validHttpUrls[0] || '';
+                }
+            }
+
+            const safeHtml = await prepareWartaHtmlForSave(latestHtml);
             const publishTimestamp = (editWartaPublishType === 'scheduled' && editWartaScheduledDate)
                 ? new Date(editWartaScheduledDate).toISOString()
                 : (editWartaPublishType === 'now' && !isWartaPublished(editingWarta.tanggal)
-                    ? new Date().toISOString()
-                    : (editingWarta.tanggal || new Date().toISOString()));
+                    ? new Date(Date.now() - 5000).toISOString()
+                    : (editingWarta.tanggal || new Date(Date.now() - 5000).toISOString()));
 
-            const res = await fetch(GAS_API_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'updateWarta',
-                    password: adminToken,
-                    rowIndex: editingWarta.rowIndex,
-                    judul: finalJudul,
-                    isi: latestHtml,
-                    gambarUrl: finalGambarUrl,
-                    penulis: editWartaPenulis || 'Redaksi Warta',
-                    tanggal: publishTimestamp
-                })
-            });
-            const result = await res.json();
-            if (result.success) {
+            const updatePayload = {
+                rowIndex: editingWarta.rowIndex,
+                judul: finalJudul,
+                isi: safeHtml,
+                gambarUrl: finalGambarUrl,
+                penulis: editWartaPenulis || 'Redaksi Warta',
+                tanggal: publishTimestamp
+            };
+
+            const sendUpdateRequest = async (imgUrlOverride) => {
+                const payloadWithImg = {
+                    ...updatePayload,
+                    gambarUrl: imgUrlOverride !== undefined ? imgUrlOverride : updatePayload.gambarUrl
+                };
+                const res = await fetch(GAS_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'updateWarta',
+                        password: activePwd,
+                        ...payloadWithImg,
+                        data: JSON.stringify(payloadWithImg)
+                    })
+                });
+                const rawText = await res.text();
+                try {
+                    return JSON.parse(rawText);
+                } catch (parseErr) {
+                    throw new Error("Respons server tidak valid: " + rawText.substring(0, 120));
+                }
+            };
+
+            let result = await sendUpdateRequest();
+            if (!result.success && finalGambarUrl) {
+                result = await sendUpdateRequest('');
+            }
+
+            if (result && (result.success || result.status === 'success')) {
+                syncWartaLocalCache(prev => prev.map(w => Number(w.rowIndex) === Number(editingWarta.rowIndex) ? { ...w, ...updatePayload } : w));
                 alert(editWartaPublishType === 'scheduled'
                     ? `Warta berhasil dijadwalkan tayang pada ${formatIndoDateTime(publishTimestamp)}!`
                     : "Warta berhasil diperbarui!");
@@ -9303,40 +11165,50 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 setAutosaveEditStatus('');
                 setEditWartaModal(false);
                 setEditingWarta(null);
+                setEditWartaCoverUrlInput('');
                 setEditWartaPublishType('now');
                 setEditWartaScheduledDate('');
                 if (refreshWarta) refreshWarta();
             } else {
-                alert("Gagal memperbarui: " + (result.message || "Unknown error"));
+                alert("Gagal memperbarui: " + (result?.message || "Unknown error"));
             }
         } catch (err) {
             alert("Terjadi kesalahan: " + err.message);
+        } finally {
+            setIsUpdatingWarta(false);
         }
-        setIsUpdatingWarta(false);
     };
 
     const handlePublishNow = async (warta) => {
         if (!window.confirm(`Tayangkan warta "${warta.judul}" sekarang juga agar langsung dapat dibaca oleh seluruh jemaat?`)) return;
+        const activePwd = getActiveAdminPassword();
         try {
+            const nowIso = new Date(Date.now() - 5000).toISOString();
+            const updatePayload = {
+                rowIndex: warta.rowIndex,
+                judul: warta.judul,
+                isi: warta.isi,
+                gambarUrl: warta.gambarUrl,
+                penulis: warta.penulis,
+                tanggal: nowIso
+            };
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
                 body: JSON.stringify({
                     action: 'updateWarta',
-                    password: adminToken,
-                    rowIndex: warta.rowIndex,
-                    judul: warta.judul,
-                    isi: warta.isi,
-                    gambarUrl: warta.gambarUrl,
-                    penulis: warta.penulis,
-                    tanggal: new Date().toISOString()
+                    password: activePwd,
+                    ...updatePayload,
+                    data: JSON.stringify(updatePayload)
                 })
             });
-            const result = await res.json();
-            if (result.success) {
+            const rawText = await res.text();
+            const result = JSON.parse(rawText);
+            if (result && (result.success || result.status === 'success')) {
+                syncWartaLocalCache(prev => prev.map(w => Number(w.rowIndex) === Number(warta.rowIndex) ? { ...w, tanggal: nowIso } : w));
                 alert("Warta berhasil ditayangkan langsung!");
                 if (refreshWarta) refreshWarta();
             } else {
-                alert("Gagal memperbarui: " + (result.message || "Unknown error"));
+                alert("Gagal memperbarui: " + (result?.message || "Unknown error"));
             }
         } catch (err) {
             alert("Terjadi kesalahan: " + err.message);
@@ -9345,21 +11217,24 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
     const handleDeleteWarta = async (rowIndex, judul) => {
         if (!window.confirm(`Yakin ingin menghapus warta "${judul}"?`)) return;
+        const activePwd = getActiveAdminPassword();
         try {
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
                 body: JSON.stringify({
                     action: 'deleteWarta',
-                    password: adminToken,
+                    password: activePwd,
                     rowIndex: rowIndex
                 })
             });
-            const result = await res.json();
-            if (result.success) {
+            const rawText = await res.text();
+            const result = JSON.parse(rawText);
+            if (result && (result.success || result.status === 'success')) {
+                syncWartaLocalCache(prev => prev.filter(w => Number(w.rowIndex) !== Number(rowIndex)));
                 alert("Warta berhasil dihapus!");
                 if (refreshWarta) refreshWarta();
             } else {
-                alert("Gagal menghapus: " + (result.message || "Unknown error"));
+                alert("Gagal menghapus: " + (result?.message || "Unknown error"));
             }
         } catch (err) {
             alert("Terjadi kesalahan: " + err.message);
@@ -10436,6 +12311,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 <div className="flex flex-col sm:flex-row border-b border-navy-50 bg-navy-50/20">
                     <button onClick={() => setAdminTab('jadwal')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors ${adminTab === 'jadwal' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Jadwal</button>
                     <button onClick={() => setAdminTab('warta')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'warta' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Buat Warta</button>
+                    <button onClick={() => setAdminTab('pastoral')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'pastoral' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Doa & Kalender</button>
                     <button onClick={() => setAdminTab('pelayan')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'pelayan' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Pejabat</button>
                     <button onClick={() => setAdminTab('buku')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'buku' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Buku</button>
                     <button onClick={() => setAdminTab('pengaturan')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'pengaturan' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Pengaturan Admin</button>
@@ -10676,7 +12552,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                 </div>
                                                 <label className="relative cursor-pointer bg-navy-900 hover:bg-navy-800 dark:bg-gold-500 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950 px-4 py-2 rounded-xl font-bold text-xs inline-flex items-center gap-1.5 shadow-sm transition shrink-0 self-start sm:self-auto">
                                                     <Icon name="Upload" className="w-4 h-4" />
-                                                    <span>+ Tambah Foto</span>
+                                                    <span>+ Unggah Berkas</span>
                                                     <input
                                                         type="file"
                                                         accept="image/*"
@@ -10691,6 +12567,43 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                         }}
                                                     />
                                                 </label>
+                                            </div>
+
+                                            {/* Opsi Masukkan URL Sampul Langsung */}
+                                            <div className="p-3.5 rounded-xl bg-navy-50/70 dark:bg-navy-950/70 border border-navy-100 dark:border-navy-800">
+                                                <label className="block text-xs font-bold text-navy-800 dark:text-gold-400 mb-1">
+                                                    URL Sampul (Cover) - Opsional
+                                                </label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="url"
+                                                        value={editWartaCoverUrlInput}
+                                                        onChange={(e) => setEditWartaCoverUrlInput(e.target.value)}
+                                                        placeholder="Tempel link Google Drive atau URL gambar (https://...)"
+                                                        className="flex-1 p-2.5 rounded-xl border border-navy-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-navy-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-gold-500 outline-none"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (!editWartaCoverUrlInput.trim()) return;
+                                                            const driveId = getGoogleDriveFileId(editWartaCoverUrlInput);
+                                                            const directUrl = driveId
+                                                                ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`
+                                                                : formatImageUrl(editWartaCoverUrlInput.trim());
+                                                            setEditWartaGambarList(prev => [
+                                                                { id: `url_edit_${Date.now()}`, url: directUrl, type: 'url' },
+                                                                ...prev
+                                                            ]);
+                                                            setEditWartaCoverUrlInput('');
+                                                        }}
+                                                        className="px-4 py-2.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-navy-950 font-black text-xs transition cursor-pointer shrink-0"
+                                                    >
+                                                        + Gunakan Link
+                                                    </button>
+                                                </div>
+                                                <p className="text-[11px] text-navy-500 dark:text-navy-400 mt-1">
+                                                    💡 <strong>Tips:</strong> Anda dapat menempelkan link Google Drive publik, Google Photos, atau URL gambar web langsung tanpa perlu mengunggah berkas.
+                                                </p>
                                             </div>
 
                                             {/* Grid Foto Warta */}
@@ -11396,7 +13309,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                 </div>
                                                 <label className="relative cursor-pointer bg-navy-900 hover:bg-navy-800 dark:bg-gold-500 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950 px-4 py-2 rounded-xl font-bold text-xs inline-flex items-center gap-1.5 shadow-sm transition shrink-0 self-start sm:self-auto">
                                                     <Icon name="Upload" className="w-4 h-4" />
-                                                    <span>+ Tambah Foto</span>
+                                                    <span>+ Unggah Berkas</span>
                                                     <input
                                                         type="file"
                                                         accept="image/*"
@@ -11411,6 +13324,43 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                         }}
                                                     />
                                                 </label>
+                                            </div>
+
+                                            {/* Opsi Masukkan URL Sampul Langsung */}
+                                            <div className="p-3.5 rounded-xl bg-navy-50/70 dark:bg-navy-950/70 border border-navy-100 dark:border-navy-800">
+                                                <label className="block text-xs font-bold text-navy-800 dark:text-gold-400 mb-1">
+                                                    URL Sampul (Cover) - Opsional
+                                                </label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="url"
+                                                        value={wartaCoverUrlInput}
+                                                        onChange={(e) => setWartaCoverUrlInput(e.target.value)}
+                                                        placeholder="Tempel link Google Drive atau URL gambar (https://...)"
+                                                        className="flex-1 p-2.5 rounded-xl border border-navy-200 dark:border-navy-700 bg-white dark:bg-navy-900 text-navy-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-gold-500 outline-none"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (!wartaCoverUrlInput.trim()) return;
+                                                            const driveId = getGoogleDriveFileId(wartaCoverUrlInput);
+                                                            const directUrl = driveId
+                                                                ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`
+                                                                : formatImageUrl(wartaCoverUrlInput.trim());
+                                                            setWartaGambarList(prev => [
+                                                                { id: `url_${Date.now()}`, url: directUrl, type: 'url' },
+                                                                ...prev
+                                                            ]);
+                                                            setWartaCoverUrlInput('');
+                                                        }}
+                                                        className="px-4 py-2.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-navy-950 font-black text-xs transition cursor-pointer shrink-0"
+                                                    >
+                                                        + Gunakan Link
+                                                    </button>
+                                                </div>
+                                                <p className="text-[11px] text-navy-500 dark:text-navy-400 mt-1">
+                                                    💡 <strong>Tips:</strong> Anda dapat menempelkan link Google Drive publik, Google Photos, atau URL gambar web langsung tanpa perlu mengunggah berkas.
+                                                </p>
                                             </div>
 
                                             {/* Preview Grid Foto Terpilih */}
@@ -13556,6 +15506,10 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                             , document.body)}
                     </div>
                 )}
+
+                {adminTab === 'pastoral' && (
+                    <AdminPastoralAndCalendarPanel />
+                )}
             </div>
         </div>
     );
@@ -15466,9 +17420,10 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     {ttsState !== 'idle' && createPortal(
                         <>
                             <style>{`
-                                .floating-alkitab-bar { bottom: calc(env(safe-area-inset-bottom, 0px) + 100px) !important; }
+                                .main-mobile-nav { opacity: 0 !important; pointer-events: none !important; transform: translate(-50%, 80px) !important; }
+                                .floating-quick-actions-container { opacity: 0 !important; pointer-events: none !important; transform: translateY(60px) !important; }
+                                .floating-alkitab-bar { bottom: calc(env(safe-area-inset-bottom, 0px) + 14px) !important; }
                                 @media (min-width: 768px) { .floating-alkitab-bar { bottom: 24px !important; } }
-                                .floating-quick-actions-container { opacity: 0 !important; pointer-events: none !important; transform: translateY(40px) !important; }
                             `}</style>
                             <div className="fixed floating-alkitab-bar left-0 right-0 z-[54] flex justify-center px-3 sm:px-4 pointer-events-none animate-slide-up">
                                 <div className="pointer-events-auto bg-navy-950/95 dark:bg-navy-900/95 backdrop-blur-md text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl sm:rounded-full shadow-2xl border border-gold-500/40 flex items-center gap-2 sm:gap-4 max-w-lg w-full justify-between">
@@ -15548,9 +17503,10 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     {selectedVerses.size > 0 && ttsState === 'idle' && createPortal(
                         <>
                             <style>{`
-                                .floating-alkitab-bar { bottom: calc(env(safe-area-inset-bottom, 0px) + 100px) !important; }
+                                .main-mobile-nav { opacity: 0 !important; pointer-events: none !important; transform: translate(-50%, 80px) !important; }
+                                .floating-quick-actions-container { opacity: 0 !important; pointer-events: none !important; transform: translateY(60px) !important; }
+                                .floating-alkitab-bar { bottom: calc(env(safe-area-inset-bottom, 0px) + 14px) !important; }
                                 @media (min-width: 768px) { .floating-alkitab-bar { bottom: 24px !important; } }
-                                .floating-quick-actions-container { opacity: 0 !important; pointer-events: none !important; transform: translateY(40px) !important; }
                             `}</style>
                             <div className="fixed floating-alkitab-bar left-0 right-0 z-[54] flex justify-center px-2.5 sm:px-4 pointer-events-none animate-slide-up">
                                 <div className="pointer-events-auto flex flex-col gap-2 bg-navy-950/95 dark:bg-navy-900/95 backdrop-blur-md p-2.5 sm:p-3 rounded-3xl shadow-2xl border border-gold-500/40 max-w-xl w-full">
@@ -17065,8 +19021,22 @@ const App = () => {
         }
     };
 
-    // Token Admin (berisi password valid setelah login)
-    const [adminToken, setAdminToken] = React.useState('');
+    // Token Admin (berisi password valid setelah login, disimpan di sessionStorage agar tahan reload)
+    const [adminToken, setAdminToken] = React.useState(() => {
+        try {
+            return sessionStorage.getItem('PISGAH_ADMIN_SESSION_TOKEN') || '';
+        } catch (e) {
+            return '';
+        }
+    });
+
+    React.useEffect(() => {
+        try {
+            if (adminToken) {
+                sessionStorage.setItem('PISGAH_ADMIN_SESSION_TOKEN', adminToken);
+            }
+        } catch (e) { }
+    }, [adminToken]);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -17398,7 +19368,13 @@ const App = () => {
     }, [syncTrigger]);
 
     // FIX TYPO: Memperbaiki penulisan state yang sebelumnya kurang kurung siku
-    const [isAdminLoggedIn, setIsAdminLoggedIn] = React.useState(false);
+    const [isAdminLoggedIn, setIsAdminLoggedIn] = React.useState(() => {
+        try {
+            return Boolean(sessionStorage.getItem('PISGAH_ADMIN_SESSION_TOKEN'));
+        } catch (e) {
+            return false;
+        }
+    });
     const [showLoginModal, setShowLoginModal] = React.useState(false);
     const [showIosPrompt, setShowIosPrompt] = React.useState(false);
     const [showManualInstall, setShowManualInstall] = React.useState(false);
@@ -17438,7 +19414,15 @@ const App = () => {
     ];
 
     const handleAdminClick = () => { if (isAdminLoggedIn) { setActiveTab('admin_dashboard'); } else { setShowLoginModal(true); } };
-    const handleLogout = () => { setIsAdminLoggedIn(false); setAdminToken(''); setActiveTab('home'); };
+    const handleLogout = () => {
+        try {
+            sessionStorage.removeItem('PISGAH_ADMIN_SESSION_TOKEN');
+            localStorage.removeItem('PISGAH_ADMIN_SESSION_TOKEN');
+        } catch (e) { }
+        setIsAdminLoggedIn(false);
+        setAdminToken('');
+        setActiveTab('home');
+    };
 
     const renderContent = () => {
         switch (activeTab) {
@@ -17755,7 +19739,7 @@ const App = () => {
             {/* Navigasi Mobile Utama (Bentuk & Ukuran Sama Persis Seperti Popup) */}
             {activeTab !== 'lagu_sion' && (
                 <nav
-                    className="fixed z-[52] left-1/2 -translate-x-1/2 md:hidden pointer-events-auto print:hidden no-print"
+                    className="fixed z-[52] left-1/2 -translate-x-1/2 md:hidden pointer-events-auto print:hidden no-print main-mobile-nav transition-all duration-300 ease-in-out"
                     style={{
                         bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
                         width: 'calc(100% - 32px)',

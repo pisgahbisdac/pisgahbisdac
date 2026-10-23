@@ -646,7 +646,7 @@ Gagal: ${l}`)}async function To(){const t=window.cachedIncome||[],e=window.cache
       <div style="display:flex; align-items:center; gap: 10px;">
         <img src="./icons/PisgahColor.png" alt="Logo" style="width: 38px; height: 38px; object-fit: contain;">
         <div>
-          <h2 class="bulletin-header-title">GMAHK JEMAAT PISGAH</h2>
+          <h2 class="bulletin-header-title">GMAHK JEMAAT PISGAH BISDAC - BATAM</h2>
           <div class="bulletin-header-sub">WARTA &amp; BULETIN KEUANGAN JEMAAT</div>
         </div>
       </div>
@@ -923,7 +923,7 @@ Gagal: ${l}`)}async function To(){const t=window.cachedIncome||[],e=window.cache
     </html>
   `;e.contentDocument.write(a),e.contentDocument.close(),setTimeout(()=>{document.body.contains(e)&&document.body.removeChild(e)},15e3)}function zo(){const t=window.notify||alert;if(!mn)return t("Data buletin belum siap.","error");const e=mn,a=e.netBalances,n=e.startBalancesWeek||{},i=e.startBalancesMonth||{},o=e.incWeek||{},s=e.incMonth||{},r=e.expWeek||{totalOut:e.totalOutWeek,outBersih:e.totalOutWeek,outDaerah:0},l=e.expMonth||{totalOut:e.totalOutMonth,outBersih:e.totalOutMonth,outDaerah:0},u=systemConfig.sig_name_bendahara||"Herbert JS Sagala",d=systemConfig.sig_name_ketua||"Yosep Santoso",m=systemConfig.sig_name_pendeta||"Pdt. Joseph Sitohang",c=g=>!g||Object.keys(g).length===0?"  - (Tidak ada pengeluaran dicatat)":Object.entries(g).map(([p,y])=>`  - ${p} : -Rp ${h(y)}`).join(`
 `);let f="";if(e.mode==="kombinasi"){const g=c(e.expByDeptWeek),p=c(e.expByDeptMonth);f=`🕊️ *WARTA KEUANGAN SABAT*
-*GMAHK JEMAAT PISGAH*
+*GMAHK JEMAAT PISGAH BISDAC - BATAM*
 📅 *${e.cutOffDateLabel}*
 _${e.subtitleHeader}_
 ══════════════════════════
@@ -988,7 +988,7 @@ ${p}
 
 _Tuhan Memberkati Pelayanan & Persembahan Kita Bersama._
 *Perbendaharaan GMAHK Jemaat Pisgah*`}else if(e.mode==="bulan"){const g=c(e.expByDeptMonth);f=`🕊️ *LAPORAN KEUANGAN BULANAN*
-*GMAHK JEMAAT PISGAH*
+*GMAHK JEMAAT PISGAH BISDAC - BATAM*
 📅 *${e.titleHeader}*
 _${e.subtitleHeader}_
 ══════════════════════════
@@ -1037,7 +1037,7 @@ Saldo Awal (${h(i.saldoBersih)}) + Masuk Jemaat (+${h(s.incBersih)}) - Beban Jem
 
 _Tuhan Memberkati Pelayanan & Persembahan Kita Bersama._
 *Perbendaharaan GMAHK Jemaat Pisgah*`}else{const g=c(e.expByDeptWeek);f=`🕊️ *WARTA KEUANGAN SABAT*
-*GMAHK JEMAAT PISGAH*
+*GMAHK JEMAAT PISGAH BISDAC - BATAM*
 📅 *${e.cutOffDateLabel}*
 ══════════════════════════
 
