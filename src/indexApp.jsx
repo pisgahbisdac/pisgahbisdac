@@ -1372,54 +1372,254 @@ const DAILY_VERSES = [
 ];
 
 // ============================================================
-// WIDGET 1: SABBATH COUNTDOWN & GREETING
+// PERHITUNGAN ASTRONOMIS WAKTU MATAHARI TERBENAM (BUKA & TUTUP SABAT)
+// Lokasi Default: GMAHK Jemaat Pisgah Bisdac, Batam (1.1278° LU, 104.0326° BT, UTC+7 WIB)
+// ============================================================
+const PISGAH_DEFAULT_COORDS = { lat: 1.1278, lng: 104.0326, tz: 7, city: 'Batam, Kepri' };
+
+const getAstronomicalSunsetWIB = (dateInput, coords = PISGAH_DEFAULT_COORDS) => {
+    const d = dateInput instanceof Date ? new Date(dateInput) : new Date(dateInput + 'T12:00:00');
+    if (isNaN(d.getTime())) {
+        return { hours: 18, minutes: 10, totalMinutes: 18 * 60 + 10, formatted: '18:10' };
+    }
+    const startOfYear = new Date(d.getFullYear(), 0, 0);
+    const dayOfYear = Math.floor((d - startOfYear) / (1000 * 60 * 60 * 24));
+    const rad = Math.PI / 180;
+    const deg = 180 / Math.PI;
+
+    // Fractional year (gamma) in radians
+    const gamma = ((2 * Math.PI) / 365) * (dayOfYear - 1 + 0.5);
+
+    // Equation of time (in minutes)
+    const eqTime = 229.18 * (
+        0.000075 +
+        0.001868 * Math.cos(gamma) -
+        0.032077 * Math.sin(gamma) -
+        0.014615 * Math.cos(2 * gamma) -
+        0.040849 * Math.sin(2 * gamma)
+    );
+
+    // Solar declination (in radians)
+    const decl =
+        0.006918 -
+        0.399912 * Math.cos(gamma) +
+        0.070257 * Math.sin(gamma) -
+        0.006758 * Math.cos(2 * gamma) +
+        0.000907 * Math.sin(2 * gamma) -
+        0.002697 * Math.cos(3 * gamma) +
+        0.00148 * Math.sin(3 * gamma);
+
+    // Zenith untuk matahari terbenam standar (90.833 derajat)
+    const latRad = coords.lat * rad;
+    const zenithRad = 90.833 * rad;
+    const cosHA = (Math.cos(zenithRad) / (Math.cos(latRad) * Math.cos(decl))) - (Math.tan(latRad) * Math.tan(decl));
+    const clampedCosHA = Math.max(-1, Math.min(1, cosHA));
+    const haDeg = Math.acos(clampedCosHA) * deg;
+
+    // Waktu sunset dalam menit dari tengah malam UTC, lalu tambah zona waktu (WIB = UTC+7)
+    const sunsetUTCMinutes = 720 - 4 * (coords.lng - haDeg) - eqTime;
+    const localMinutes = Math.round(sunsetUTCMinutes + coords.tz * 60);
+    const hours = Math.floor(localMinutes / 60);
+    const minutes = localMinutes % 60;
+    const formatted = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+    return {
+        hours,
+        minutes,
+        totalMinutes: hours * 60 + minutes,
+        formatted
+    };
+};
+
+// Menghitung jadwal Buka Sabat (Jumat sore) & Tutup Sabat (Sabtu sore) untuk pekan berjalan atau tanggal terpilih
+const getSabbathSunsetSchedule = (refDateInput = new Date()) => {
+    const ref = refDateInput instanceof Date ? new Date(refDateInput) : new Date(refDateInput + 'T12:00:00');
+    const day = ref.getDay(); // 0: Min ... 5: Jum, 6: Sab
+    const fridayDate = new Date(ref);
+    fridayDate.setHours(12, 0, 0, 0);
+
+    if (day === 6) {
+        // Jika hari Sabtu, Jumatnya adalah kemarin (H-1)
+        fridayDate.setDate(ref.getDate() - 1);
+    } else {
+        // Hari Minggu–Jumat: cari Jumat pekan ini
+        const diffToFriday = (5 - day + 7) % 7;
+        fridayDate.setDate(ref.getDate() + diffToFriday);
+    }
+
+    const saturdayDate = new Date(fridayDate);
+    saturdayDate.setDate(fridayDate.getDate() + 1);
+
+    const bukaSabat = getAstronomicalSunsetWIB(fridayDate);
+    const tutupSabat = getAstronomicalSunsetWIB(saturdayDate);
+
+    return {
+        fridayDate,
+        saturdayDate,
+        fridayYMD: toYMD(fridayDate),
+        saturdayYMD: toYMD(saturdayDate),
+        bukaSabat,
+        tutupSabat,
+        location: PISGAH_DEFAULT_COORDS.city
+    };
+};
+
+// ============================================================
+// HELPER PENGINGAT WHATSAPP SEKALI KLIK UNTUK PETUGAS IBADAH
+// ============================================================
+const DEFAULT_PLACEHOLDER_OFFICERS = new Set([
+    '-', '', 'pemimpin', 'renungan', 'doa', 'tempat', 'lagu pujian', 'diakon', 'diakones',
+    'pianis', 'pemimpin acara', 'video', 'doa tutup', 'sermon', 'syafaat', 'sermonette',
+    'spesialsong', 'pianis ss', 'pianis khotbah', 'gitar'
+]);
+
+const isRealOfficerName = (nama, tugas = '') => {
+    if (!nama || typeof nama !== 'string') return false;
+    const clean = nama.trim();
+    if (!clean || clean === '-' || clean === '...') return false;
+    if (DEFAULT_PLACEHOLDER_OFFICERS.has(clean.toLowerCase())) return false;
+    if (tugas && clean.toLowerCase() === String(tugas).trim().toLowerCase()) return false;
+    return true;
+};
+
+const findOfficerPhoneFromPejabat = (officerName, dataPejabat = []) => {
+    if (!officerName || !Array.isArray(dataPejabat)) return '';
+    const normalizeName = (str) =>
+        String(str || '')
+            .toLowerCase()
+            .replace(/^(pdt\.|bpk\.|ibu\.|ibu|sdr\.|sdri\.|zw\.|eld\.|ev\.)\s*/gi, '')
+            .replace(/[^a-z0-9\s]/gi, '')
+            .trim();
+
+    const target = normalizeName(officerName);
+    if (!target || target.length < 3) return '';
+
+    const match = dataPejabat.find(p => {
+        if (!p || !p.nama || !p.wa) return false;
+        const pClean = normalizeName(p.nama);
+        if (!pClean || pClean.includes('nama ')) return false;
+        return pClean === target || pClean.includes(target) || target.includes(pClean);
+    });
+
+    if (match && match.wa) {
+        const digits = String(match.wa).replace(/\D/g, '');
+        if (digits && digits !== '62800000000' && digits.length >= 9) {
+            return digits.startsWith('0') ? '62' + digits.slice(1) : digits;
+        }
+    }
+    return '';
+};
+
+const sendWhatsAppOfficerReminder = ({ nama, tugas, sesi, dateStr, waktu, dataPejabat = [] }) => {
+    if (!nama) return;
+    const jadwalUrl = getCleanShareUrl('jadwal');
+    const kertasAcaraUrl = getCleanShareUrl('susunan_ibadah');
+    const formattedDate = dateStr ? formatIndoDate(dateStr) : '-';
+    const timeLabel = waktu || 'Sesuai Jadwal Ibadah';
+
+    const message =
+        `Shalom *${nama.trim()}* 🙏,\n\n` +
+        `Salam kasih dalam Tuhan Yesus. Mengingatkan dengan kasih untuk jadwal pelayanan Anda di *GMAHK Jemaat Pisgah Bisdac*:\n\n` +
+        `🗓️ *Hari/Tanggal:* ${formattedDate}\n` +
+        `⛪ *Kebaktian:* ${sesi || 'Ibadah Jemaat'}\n` +
+        `⏰ *Waktu:* ${timeLabel}\n` +
+        `📋 *Tugas Pelayanan:* *${tugas || 'Pelayan Ibadah'}*\n\n` +
+        `Mohon kesediaannya untuk hadir 15 menit lebih awal untuk doa persiapan bersama. Apabila berhalangan hadir, mohon dapat menginformasikan lebih awal kepada Koordinator Ibadah / Sekretaris Gereja.\n\n` +
+        `📄 *Lihat Jadwal & Kertas Acara:*\n` +
+        `• Jadwal: ${jadwalUrl}\n` +
+        `• Kertas Acara: ${kertasAcaraUrl}\n\n` +
+        `Terima kasih atas pelayanan Anda. Tuhan Yesus memberkati! 🕊️`;
+
+    const phone = findOfficerPhoneFromPejabat(nama, dataPejabat);
+    const waUrl = phone
+        ? `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+
+    window.open(waUrl, '_blank');
+};
+
+// ============================================================
+// WIDGET 1: SABBATH COUNTDOWN & GREETING (ASTRONOMICAL SUNSET)
 // ============================================================
 const SabbathCountdownWidget = ({ setActiveTab }) => {
-    const [status, setStatus] = React.useState({
-        isSabbath: false,
-        days: 0,
-        hours: 0,
-        minutes: 0,
-        seconds: 0
+    const [status, setStatus] = React.useState(() => {
+        const sched = getSabbathSunsetSchedule(new Date());
+        return {
+            isSabbath: false,
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+            bukaFormatted: sched.bukaSabat.formatted,
+            tutupFormatted: sched.tutupSabat.formatted,
+            fridayShort: formatIndoDateShort(sched.fridayYMD),
+            saturdayShort: formatIndoDateShort(sched.saturdayYMD),
+            location: sched.location
+        };
     });
 
     React.useEffect(() => {
         const calculate = () => {
             const now = new Date();
             const day = now.getDay(); // 0: Min, 1: Sen, ..., 5: Jum, 6: Sab
-            const hour = now.getHours();
-            const min = now.getMinutes();
-            const sec = now.getSeconds();
-            const currentMinutes = hour * 60 + min;
-            const sunsetMinutes = 18 * 60; // 18:00 WIB
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-            // Sabat: Jumat 18:00 s/d Sabtu 18:00
-            const isSabbath = (day === 5 && currentMinutes >= sunsetMinutes) || (day === 6 && currentMinutes < sunsetMinutes);
+            const todaySunset = getAstronomicalSunsetWIB(now);
+            // Cek apakah saat ini sedang dalam jam Sabat Kudus (Jumat setelah sunset s/d Sabtu sebelum sunset)
+            const isSabbath =
+                (day === 5 && currentMinutes >= todaySunset.totalMinutes) ||
+                (day === 6 && currentMinutes < todaySunset.totalMinutes);
 
             if (isSabbath) {
-                const end = new Date(now);
-                if (day === 5) end.setDate(now.getDate() + 1);
-                end.setHours(18, 0, 0, 0);
+                const sched = getSabbathSunsetSchedule(now);
+                const end = new Date(sched.saturdayDate);
+                end.setHours(sched.tutupSabat.hours, sched.tutupSabat.minutes, 0, 0);
+
                 const diff = Math.max(0, end.getTime() - now.getTime());
                 const hours = Math.floor(diff / (1000 * 60 * 60));
                 const minutes = Math.floor((diff / (1000 * 60)) % 60);
                 const seconds = Math.floor((diff / 1000) % 60);
-                setStatus({ isSabbath: true, days: 0, hours, minutes, seconds });
+
+                setStatus({
+                    isSabbath: true,
+                    days: 0,
+                    hours,
+                    minutes,
+                    seconds,
+                    bukaFormatted: sched.bukaSabat.formatted,
+                    tutupFormatted: sched.tutupSabat.formatted,
+                    fridayShort: formatIndoDateShort(sched.fridayYMD),
+                    saturdayShort: formatIndoDateShort(sched.saturdayYMD),
+                    location: sched.location
+                });
             } else {
-                let daysUntilFriday = (5 - day + 7) % 7;
-                if (daysUntilFriday === 0 && currentMinutes >= sunsetMinutes) {
-                    daysUntilFriday = 7;
+                // Jika hari Sabtu dan sudah lewat waktu tutup Sabat, hitung menuju Jumat minggu depan
+                const refForNext = new Date(now);
+                if (day === 6 && currentMinutes >= todaySunset.totalMinutes) {
+                    refForNext.setDate(now.getDate() + 2);
                 }
-                const target = new Date(now);
-                target.setDate(now.getDate() + daysUntilFriday);
-                target.setHours(18, 0, 0, 0);
+                const sched = getSabbathSunsetSchedule(refForNext);
+                const target = new Date(sched.fridayDate);
+                target.setHours(sched.bukaSabat.hours, sched.bukaSabat.minutes, 0, 0);
 
                 const diff = Math.max(0, target.getTime() - now.getTime());
                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
                 const minutes = Math.floor((diff / (1000 * 60)) % 60);
                 const seconds = Math.floor((diff / 1000) % 60);
-                setStatus({ isSabbath: false, days, hours, minutes, seconds });
+
+                setStatus({
+                    isSabbath: false,
+                    days,
+                    hours,
+                    minutes,
+                    seconds,
+                    bukaFormatted: sched.bukaSabat.formatted,
+                    tutupFormatted: sched.tutupSabat.formatted,
+                    fridayShort: formatIndoDateShort(sched.fridayYMD),
+                    saturdayShort: formatIndoDateShort(sched.saturdayYMD),
+                    location: sched.location
+                });
             }
         };
 
@@ -1432,15 +1632,16 @@ const SabbathCountdownWidget = ({ setActiveTab }) => {
         return (
             <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#2C3F21] via-[#3A5836] to-[#4A7045] dark:from-navy-950 dark:via-navy-900 dark:to-navy-800 text-white p-6 md:p-7 shadow-xl border-2 border-[#D19B45]/40 flex flex-col justify-between group">
                 <div className="absolute top-0 right-0 w-44 h-44 bg-[#D19B45]/15 rounded-full blur-3xl pointer-events-none"></div>
-                <div className="relative z-10 flex items-center justify-between gap-3 mb-4">
+                <div className="relative z-10 flex items-center justify-between gap-2 mb-3 flex-wrap">
                     <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#D19B45] text-navy-950 font-black text-[11px] uppercase tracking-wider shadow-md">
                         🕊️ Hari Sabat Kudus
                     </span>
-                    <span className="text-xs text-white/80 font-medium bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/15">
-                        Berakhir pk 18:00 WIB
+                    <span className="text-[11px] text-white/90 font-bold bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/15 flex items-center gap-1.5">
+                        <Icon name="Sun" className="w-3.5 h-3.5 text-gold-300" />
+                        Tutup Sabat: pk {status.tutupFormatted} WIB
                     </span>
                 </div>
-                <div className="relative z-10 mb-5">
+                <div className="relative z-10 mb-4">
                     <h3 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight mb-2">
                         Selamat Hari Sabat!
                     </h3>
@@ -1451,6 +1652,31 @@ const SabbathCountdownWidget = ({ setActiveTab }) => {
                         — Yehezkiel 20:20
                     </span>
                 </div>
+
+                {/* Info Buka & Tutup Sabat Otomatis */}
+                <div className="relative z-10 grid grid-cols-2 gap-2.5 mb-4 bg-black/20 backdrop-blur-md p-3 rounded-2xl border border-white/15">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-amber-400/20 border border-amber-300/30 flex items-center justify-center text-amber-300 shrink-0">
+                            <Icon name="Sun" className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                            <span className="block text-[9px] uppercase tracking-wider text-white/70 font-bold truncate">Buka Sabat (Jumat)</span>
+                            <span className="block text-xs sm:text-sm font-black text-white">{status.bukaFormatted} WIB</span>
+                            <span className="block text-[10px] text-white/60 truncate">{status.fridayShort}</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2.5 border-l border-white/15 pl-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-gold-400/20 border border-gold-300/30 flex items-center justify-center text-gold-300 shrink-0">
+                            <Icon name="Moon" className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                            <span className="block text-[9px] uppercase tracking-wider text-white/70 font-bold truncate">Tutup Sabat (Sabtu)</span>
+                            <span className="block text-xs sm:text-sm font-black text-gold-300">{status.tutupFormatted} WIB</span>
+                            <span className="block text-[10px] text-white/60 truncate">{status.saturdayShort}</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="relative z-10 flex flex-wrap items-center gap-3 pt-3 border-t border-white/15">
                     <button
                         onClick={() => setActiveTab('susunan_ibadah')}
@@ -1464,8 +1690,8 @@ const SabbathCountdownWidget = ({ setActiveTab }) => {
                     >
                         <Icon name="Music" className="w-4 h-4" /> Lagu Sion
                     </button>
-                    <span className="text-[11px] text-white/70 ml-auto font-mono">
-                        Sisa: {String(status.hours).padStart(2, '0')}:{String(status.minutes).padStart(2, '0')}:{String(status.seconds).padStart(2, '0')}
+                    <span className="text-[11px] text-white/80 ml-auto font-mono bg-black/25 px-2.5 py-1 rounded-lg">
+                        Tutup dlm: {String(status.hours).padStart(2, '0')}:{String(status.minutes).padStart(2, '0')}:{String(status.seconds).padStart(2, '0')}
                     </span>
                 </div>
             </div>
@@ -1475,26 +1701,50 @@ const SabbathCountdownWidget = ({ setActiveTab }) => {
     return (
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white via-[#F7F9F3] to-[#E9EFE2] dark:from-navy-900 dark:via-navy-800 dark:to-navy-900 p-6 md:p-7 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
             <div className="absolute top-0 right-0 w-40 h-40 bg-[#4A7045]/10 dark:bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="relative z-10 flex items-center justify-between gap-3 mb-4">
+            <div className="relative z-10 flex items-center justify-between gap-2 mb-3 flex-wrap">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
-                    <Icon name="Calendar" className="w-3.5 h-3.5 text-[#4A7045] dark:text-gold-400" /> Hitung Mundur Sabat
+                    <Icon name="Sun" className="w-3.5 h-3.5 text-[#D19B45] dark:text-gold-400" /> Waktu Sabat & Sunset
                 </span>
-                <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
-                    Jumat, pk 18:00 WIB
+                <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-bold flex items-center gap-1">
+                    <Icon name="MapPin" className="w-3 h-3 text-[#D19B45]" /> {status.location}
                 </span>
             </div>
 
-            <div className="relative z-10 mb-4">
+            <div className="relative z-10 mb-3">
                 <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight leading-snug">
                     Menyambut Hari Sabat Kudus
                 </h3>
-                <p className="text-[#596B4D] dark:text-gray-300 text-xs md:text-sm mt-1">
-                    Mari siapkan hati dan pikiran kita menyongsong perhentian kudus bersama Tuhan.
+                <p className="text-[#596B4D] dark:text-gray-300 text-xs md:text-sm mt-0.5">
+                    Hitung mundur otomatis menuju waktu matahari terbenam (Buka Sabat).
                 </p>
             </div>
 
+            {/* Jadwal Buka & Tutup Sabat Otomatis (Sunset Pekan Ini) */}
+            <div className="relative z-10 grid grid-cols-2 gap-2.5 mb-3 bg-white/85 dark:bg-navy-950/60 p-3 rounded-2xl border border-[#E2E8D8] dark:border-navy-700/80 shadow-2xs">
+                <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500/15 dark:bg-gold-500/15 border border-amber-500/30 flex items-center justify-center text-[#D19B45] dark:text-gold-400 shrink-0">
+                        <Icon name="Sun" className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                        <span className="block text-[9px] uppercase tracking-wider text-[#596B4D] dark:text-gray-400 font-extrabold truncate">🌅 Buka Sabat (Jumat)</span>
+                        <span className="block text-xs sm:text-sm font-black text-[#2C3F21] dark:text-gold-400">{status.bukaFormatted} WIB</span>
+                        <span className="block text-[10px] text-[#596B4D] dark:text-gray-400 font-medium truncate">{status.fridayShort}</span>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2.5 border-l border-[#E2E8D8] dark:border-navy-700 pl-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-[#4A7045]/15 dark:bg-emerald-500/15 border border-[#4A7045]/30 flex items-center justify-center text-[#4A7045] dark:text-emerald-400 shrink-0">
+                        <Icon name="Moon" className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                        <span className="block text-[9px] uppercase tracking-wider text-[#596B4D] dark:text-gray-400 font-extrabold truncate">🌇 Tutup Sabat (Sabtu)</span>
+                        <span className="block text-xs sm:text-sm font-black text-[#2C3F21] dark:text-emerald-400">{status.tutupFormatted} WIB</span>
+                        <span className="block text-[10px] text-[#596B4D] dark:text-gray-400 font-medium truncate">{status.saturdayShort}</span>
+                    </div>
+                </div>
+            </div>
+
             {/* Countdown Tiles */}
-            <div className="relative z-10 grid grid-cols-4 gap-2 md:gap-3 my-2">
+            <div className="relative z-10 grid grid-cols-4 gap-2 md:gap-3 my-1">
                 <div className="bg-white/80 dark:bg-navy-950/70 backdrop-blur-md rounded-2xl p-2.5 text-center border border-[#E2E8D8] dark:border-navy-700 shadow-sm">
                     <span className="block text-xl md:text-2xl font-black text-[#2C3F21] dark:text-gold-400 font-mono">
                         {status.days}
@@ -1529,7 +1779,7 @@ const SabbathCountdownWidget = ({ setActiveTab }) => {
                 </div>
             </div>
 
-            <div className="relative z-10 pt-3 mt-3 border-t border-[#E2E8D8] dark:border-navy-700/60 flex items-center justify-between text-xs">
+            <div className="relative z-10 pt-3 mt-2.5 border-t border-[#E2E8D8] dark:border-navy-700/60 flex items-center justify-between text-xs">
                 <span className="text-[11px] text-[#596B4D] dark:text-gray-400 italic">
                     "Ingatlah dan kuduskanlah hari Sabat"
                 </span>
@@ -1794,7 +2044,7 @@ const DailyVerseWidget = ({ setActiveTab }) => {
 // ============================================================
 // WIDGET 3: CARI TUGAS PELAYANAN SAYA
 // ============================================================
-const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab }) => {
+const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = [] }) => {
     const [searchQuery, setSearchQuery] = React.useState('');
 
     const dutiesFound = React.useMemo(() => {
@@ -1811,7 +2061,7 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab }) => {
             if (!j) return;
             const isRabu = new Date(dateStr + 'T00:00:00').getDay() === 3;
 
-            const checkOfficer = (p, sesi) => {
+            const checkOfficer = (p, sesi, waktu) => {
                 if (!p || !p.nama) return;
                 const officerName = String(p.nama).toLowerCase();
                 if (officerName.includes(query)) {
@@ -1819,6 +2069,7 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab }) => {
                         dateStr,
                         formattedDate: formatIndoDate(dateStr),
                         sesi,
+                        waktu: waktu || (isRabu ? '19:30 WIB - selesai' : '10:00 - 13:00 WIB'),
                         tugas: p.tugas || 'Petugas',
                         nama: p.nama
                     });
@@ -1826,12 +2077,12 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab }) => {
             };
 
             if (isRabu && Array.isArray(j.petugas)) {
-                j.petugas.forEach(p => checkOfficer(p, 'Ibadah Permintaan Doa'));
+                j.petugas.forEach(p => checkOfficer(p, 'Ibadah Permintaan Doa', j.time || '19:30 WIB - selesai'));
             } else {
-                if (Array.isArray(j.sekolahSabat)) j.sekolahSabat.forEach(p => checkOfficer(p, 'Sekolah Sabat'));
-                if (Array.isArray(j.khotbah)) j.khotbah.forEach(p => checkOfficer(p, 'Kebaktian Khotbah'));
-                if (Array.isArray(j.diakon)) j.diakon.forEach(p => checkOfficer(p, 'Pelayanan Diakon'));
-                if (Array.isArray(j.musik)) j.musik.forEach(p => checkOfficer(p, 'Pelayanan Musik'));
+                if (Array.isArray(j.sekolahSabat)) j.sekolahSabat.forEach(p => checkOfficer(p, 'Sekolah Sabat', j.sekolahSabatTime || '11:45 - 12:40 WIB'));
+                if (Array.isArray(j.khotbah)) j.khotbah.forEach(p => checkOfficer(p, 'Kebaktian Khotbah', j.khotbahTime || '10:00 - 11:45 WIB'));
+                if (Array.isArray(j.diakon)) j.diakon.forEach(p => checkOfficer(p, 'Pelayanan Diakon', j.time || '10:00 - 13:00 WIB'));
+                if (Array.isArray(j.musik)) j.musik.forEach(p => checkOfficer(p, 'Pelayanan Musik', j.time || '10:00 - 13:00 WIB'));
             }
         });
 
@@ -1900,13 +2151,31 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab }) => {
                                         <span>Petugas: <strong>{item.nama}</strong></span>
                                     </p>
                                 </div>
-                                <button
-                                    onClick={() => setActiveTab('jadwal')}
-                                    className="mt-3.5 w-full inline-flex items-center justify-between px-3.5 py-2 rounded-xl bg-white/90 dark:bg-navy-800/90 text-[#4A7045] dark:text-gold-400 border border-[#C5D5BC] dark:border-navy-700 hover:border-[#4A7045] dark:hover:border-gold-500/60 hover:bg-[#F2F6ED] dark:hover:bg-navy-700/80 text-xs font-extrabold shadow-xs hover:shadow transition-all duration-200 active:scale-95 group backdrop-blur-md"
-                                >
-                                    <span>Lihat Jadwal Lengkap</span>
-                                    <Icon name="ChevronRight" className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                                </button>
+                                <div className="mt-3.5 flex items-center gap-2">
+                                    <button
+                                        onClick={() => setActiveTab('jadwal')}
+                                        className="flex-1 inline-flex items-center justify-between px-3.5 py-2 rounded-xl bg-white/90 dark:bg-navy-800/90 text-[#4A7045] dark:text-gold-400 border border-[#C5D5BC] dark:border-navy-700 hover:border-[#4A7045] dark:hover:border-gold-500/60 hover:bg-[#F2F6ED] dark:hover:bg-navy-700/80 text-xs font-extrabold shadow-xs hover:shadow transition-all duration-200 active:scale-95 group backdrop-blur-md"
+                                    >
+                                        <span>Lihat Jadwal</span>
+                                        <Icon name="ChevronRight" className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => sendWhatsAppOfficerReminder({
+                                            nama: item.nama,
+                                            tugas: item.tugas,
+                                            sesi: item.sesi,
+                                            dateStr: item.dateStr,
+                                            waktu: item.waktu,
+                                            dataPejabat
+                                        })}
+                                        title={`Kirim Pengingat WhatsApp ke ${item.nama}`}
+                                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white dark:hover:text-white border border-[#25D366]/30 text-xs font-extrabold transition-all duration-200 active:scale-95 shadow-xs cursor-pointer"
+                                    >
+                                        <i className="fa-brands fa-whatsapp text-sm"></i>
+                                        <span>Ingatkan WA</span>
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -2365,7 +2634,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                     </div>
 
                     {/* ROW 2: CARI TUGAS PELAYANAN SAYA */}
-                    <QuickDutyFinderWidget jadwalDB={jadwalDB} setActiveTab={setActiveTab} />
+                    <QuickDutyFinderWidget jadwalDB={jadwalDB} setActiveTab={setActiveTab} dataPejabat={dataPejabat} />
 
                     {/* ROW 3: SABAT PERJAMUAN & PERPULUHAN SECTION (Jika Aktif) */}
                     {(showPerjamuan || showPerpuluhan) && (() => {
@@ -3479,24 +3748,49 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
     );
 };
 
-// Helper Rendering Sub-Group untuk Perjamuan (support dark mode)
-const renderPerjamuanGroup = (title, members) => (
+// Helper Rendering Sub-Group untuk Perjamuan (support dark mode + pengingat WA)
+const renderPerjamuanGroup = (title, members, dateStr = '', dataPejabat = []) => (
     <div className="flex flex-col">
         <div className="mb-2 bg-navy-50/50 dark:bg-navy-700/50 p-3 rounded-xl border border-navy-100/50 dark:border-navy-600">
             <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">{title}</h3>
         </div>
         <div className="flex flex-col">
-            {members.map((m, idx) => (
-                <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                    <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{m.tugas}</span>
-                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words pl-2">{m.nama || "-"}</span>
-                </div>
-            ))}
+            {members.map((m, idx) => {
+                const canRemind = isRealOfficerName(m.nama, m.tugas);
+                return (
+                    <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2 gap-2">
+                        <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{m.tugas}</span>
+                        <div className="flex items-center gap-2 justify-end pl-2 min-w-0">
+                            <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{m.nama || "-"}</span>
+                            {canRemind && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        sendWhatsAppOfficerReminder({
+                                            nama: m.nama,
+                                            tugas: `${m.tugas} (${title})`,
+                                            sesi: 'Pelayanan Perjamuan Kudus',
+                                            dateStr,
+                                            waktu: '09:00 - 13:00 WIB',
+                                            dataPejabat
+                                        });
+                                    }}
+                                    title={`Kirim Pengingat WA ke ${m.nama}`}
+                                    className="w-7 h-7 rounded-lg bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white flex items-center justify-center transition-all shrink-0 active:scale-90 cursor-pointer border border-[#25D366]/30"
+                                >
+                                    <i className="fa-brands fa-whatsapp text-sm"></i>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     </div>
 );
 
-const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjamuanNote, setActiveTab, carouselEvents }) => {
+const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjamuanNote, setActiveTab, carouselEvents, dataPejabat = [] }) => {
     const [isPerjamuanExpanded, setIsPerjamuanExpanded] = React.useState(false);
 
     const mergeJadwalDataLocal = (saved, initial) => {
@@ -3618,9 +3912,87 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
         window.open(gCalUrl, '_blank');
     };
 
+    const sabbathSunsetInfo = React.useMemo(() => {
+        return getSabbathSunsetSchedule(selectedDate || new Date());
+    }, [selectedDate]);
+
+    const renderOfficerRow = (p, idx, sesiLabel, waktuLabel) => {
+        const canRemind = isRealOfficerName(p.nama, p.tugas);
+        return (
+            <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2 gap-2">
+                <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
+                <div className="flex items-center gap-2 justify-end min-w-0">
+                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
+                    {canRemind && (
+                        <button
+                            type="button"
+                            onClick={() => sendWhatsAppOfficerReminder({
+                                nama: p.nama,
+                                tugas: p.tugas,
+                                sesi: sesiLabel,
+                                dateStr: selectedDate,
+                                waktu: waktuLabel,
+                                dataPejabat
+                            })}
+                            title={`Kirim Pengingat WhatsApp ke ${p.nama}`}
+                            className="w-7 h-7 rounded-lg bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white flex items-center justify-center transition-all shrink-0 active:scale-90 cursor-pointer border border-[#25D366]/30"
+                        >
+                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                        </button>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
             <AcaraTerdekat allDates={allDates} selectedDate={selectedDate} handlePrev={handlePrev} handleNext={handleNext} canGoPrev={canGoPrev} canGoNext={canGoNext} title={title} setActiveTab={setActiveTab} carouselEvents={carouselEvents} handleDateSelect={(d) => setJadwalSelectedDate(d)} />
+
+            {/* Widget Waktu Buka & Tutup Sabat Otomatis (Astronomis Sunset Timer) */}
+            <div className="bg-gradient-to-r from-[#2C3F21] via-[#3A5836] to-[#2C3F21] dark:from-navy-900 dark:via-navy-800 dark:to-navy-900 text-white p-4 sm:p-5 rounded-[1.25rem] shadow-md border border-[#D19B45]/40 dark:border-gold-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-2xl bg-[#D19B45]/20 border border-[#D19B45]/40 flex items-center justify-center text-[#D19B45] dark:text-gold-400 shrink-0 shadow-inner">
+                        <Icon name="Sun" className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-[#D19B45] text-navy-950">
+                                Sunset Otomatis
+                            </span>
+                            <span className="text-xs text-white/80 font-semibold flex items-center gap-1">
+                                <Icon name="MapPin" className="w-3 h-3 text-[#D19B45]" /> {sabbathSunsetInfo.location}
+                            </span>
+                        </div>
+                        <h3 className="font-extrabold text-sm sm:text-base text-white mt-1">
+                            Jadwal Buka & Tutup Sabat Pekan Ini
+                        </h3>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
+                    <div className="bg-black/25 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-white/15 flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0">
+                            <Icon name="Sun" className="w-4 h-4" />
+                        </div>
+                        <div>
+                            <span className="block text-[9px] uppercase tracking-wider text-white/70 font-bold">🌅 Buka Sabat (Jumat)</span>
+                            <span className="block text-sm sm:text-base font-black text-amber-300 font-mono">{sabbathSunsetInfo.bukaSabat.formatted} WIB</span>
+                            <span className="block text-[10px] text-white/70">{formatIndoDateShort(sabbathSunsetInfo.fridayYMD)}</span>
+                        </div>
+                    </div>
+                    <div className="bg-black/25 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-white/15 flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-400/20 text-emerald-300 flex items-center justify-center shrink-0">
+                            <Icon name="Moon" className="w-4 h-4" />
+                        </div>
+                        <div>
+                            <span className="block text-[9px] uppercase tracking-wider text-white/70 font-bold">🌇 Tutup Sabat (Sabtu)</span>
+                            <span className="block text-sm sm:text-base font-black text-emerald-300 font-mono">{sabbathSunsetInfo.tutupSabat.formatted} WIB</span>
+                            <span className="block text-[10px] text-white/70">{formatIndoDateShort(sabbathSunsetInfo.saturdayYMD)}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {/* Tombol GDrive Jadwal Lengkap */}
             <div className="bg-white dark:bg-navy-800/70 p-5 md:p-6 rounded-[1.25rem] shadow-sm border border-navy-100/60 dark:border-navy-700 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -3661,10 +4033,10 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
 
                     {isPerjamuanExpanded && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10 animate-fade-in">
-                            {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 3))}
-                            {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(3, 7))}
-                            {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(7, 11))}
-                            {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(11, 16))}
+                            {renderPerjamuanGroup("Persiapan Roti & Anggur", activePerjamuan.slice(0, 3), perjamuanYMD, dataPejabat)}
+                            {renderPerjamuanGroup("Persiapan & Basuh Kaki", activePerjamuan.slice(3, 7), perjamuanYMD, dataPejabat)}
+                            {renderPerjamuanGroup("Pelayan Perjamuan", activePerjamuan.slice(7, 11), perjamuanYMD, dataPejabat)}
+                            {renderPerjamuanGroup("Pembersihan Alat", activePerjamuan.slice(11, 16), perjamuanYMD, dataPejabat)}
                         </div>
                     )}
                 </div>
@@ -3695,12 +4067,7 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
 
                     {isRabu ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
-                            {activeJadwal.petugas.map((p, idx) => (
-                                <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                    <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                    <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                                </div>
-                            ))}
+                            {activeJadwal.petugas.map((p, idx) => renderOfficerRow(p, idx, 'Ibadah Permintaan Doa (Rabu)', activeJadwal.time))}
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
@@ -3711,12 +4078,7 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
                                         <span className="text-[11px] text-navy-600 dark:text-gray-400 font-bold bg-white dark:bg-navy-800 px-2 py-0.5 rounded-full border border-navy-100 dark:border-navy-600">{activeJadwal.khotbahTime}</span>
                                     </div>
                                     <div className="flex flex-col">
-                                        {activeJadwal.khotbah.map((p, idx) => (
-                                            <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                                <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                                <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                                            </div>
-                                        ))}
+                                        {activeJadwal.khotbah.map((p, idx) => renderOfficerRow(p, idx, 'Ibadah Khotbah / Umum (Sabat)', activeJadwal.khotbahTime))}
                                     </div>
                                 </div>
                                 <div>
@@ -3724,12 +4086,7 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
                                         <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Diakon & Diakones</h3>
                                     </div>
                                     <div className="flex flex-col">
-                                        {activeJadwal.diakon.map((p, idx) => (
-                                            <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                                <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                                <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                                            </div>
-                                        ))}
+                                        {activeJadwal.diakon.map((p, idx) => renderOfficerRow(p, idx, 'Pelayanan Diakon & Diakones (Sabat)', activeJadwal.time))}
                                     </div>
                                 </div>
                             </div>
@@ -3740,12 +4097,7 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
                                         <span className="text-[11px] text-navy-600 dark:text-gray-400 font-bold bg-white dark:bg-navy-800 px-2 py-0.5 rounded-full border border-navy-100 dark:border-navy-600">{activeJadwal.sekolahSabatTime}</span>
                                     </div>
                                     <div className="flex flex-col">
-                                        {activeJadwal.sekolahSabat.map((p, idx) => (
-                                            <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                                <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                                <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                                            </div>
-                                        ))}
+                                        {activeJadwal.sekolahSabat.map((p, idx) => renderOfficerRow(p, idx, 'Sekolah Sabat', activeJadwal.sekolahSabatTime))}
                                     </div>
                                 </div>
                                 <div>
@@ -3753,12 +4105,7 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
                                         <h3 className="font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider">Pelayanan Musik</h3>
                                     </div>
                                     <div className="flex flex-col">
-                                        {activeJadwal.musik.map((p, idx) => (
-                                            <div key={idx} className="flex justify-between items-center py-2.5 px-3 border border-navy-100/60 dark:border-navy-700/60 hover:bg-navy-50/30 dark:hover:bg-navy-700/30 transition-colors rounded-xl mb-2">
-                                                <span className="text-sm text-navy-500 dark:text-gray-400 font-medium">{p.tugas}</span>
-                                                <span className="text-sm font-bold text-navy-900 dark:text-white text-right break-words">{p.nama}</span>
-                                            </div>
-                                        ))}
+                                        {activeJadwal.musik.map((p, idx) => renderOfficerRow(p, idx, 'Pelayanan Musik (Sabat)', activeJadwal.time))}
                                     </div>
                                 </div>
                             </div>
@@ -5490,7 +5837,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
     };
 
     // --- FITUR SUARA WARTA (TEXT-TO-SPEECH BAHASA INDONESIA) ---
-    const WARTA_TTS_SPEEDS = [0.5, 1, 1.5, 2];
+    const WARTA_TTS_SPEEDS = [0.8, 0.9, 1, 1.15, 1.2];
     const [ttsState, setTtsState] = React.useState('idle'); // 'idle' | 'playing' | 'paused'
     const [ttsRate, setTtsRate] = React.useState(1);
     const ttsRateRef = React.useRef(1);
@@ -5784,7 +6131,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                             <button
                                 onClick={handleToggleTtsRate}
                                 className="px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-xl bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-700 dark:text-gold-300 font-black text-[11px] sm:text-xs transition shadow-2xs"
-                                title="Ubah Kecepatan Suara Warta (0.5x, 1x, 1.5x, 2x)"
+                                title="Ubah Kecepatan Suara Warta (0.8x, 0.9x, 1x, 1.15x, 1.2x)"
                             >
                                 {ttsRate}x
                             </button>
@@ -10224,7 +10571,19 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                         {editForm.slice(0, 3).map((p, i) => (
                                                                             <div key={i}>
                                                                                 <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
-                                                                                <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                <div className="flex items-center gap-1.5">
+                                                                                    <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i, e.target.value)} className="flex-1 min-w-0 p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                    {isRealOfficerName(p.nama, p.tugas) && (
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            onClick={() => sendWhatsAppOfficerReminder({ nama: p.nama, tugas: p.tugas, sesi: 'Ibadah Perjamuan Kudus (Roti & Anggur)', dateStr: date, waktu: '09:00 - 12:00 WIB', dataPejabat })}
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            title={`Kirim Pengingat WA ke ${p.nama}`}
+                                                                                        >
+                                                                                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                                                                                        </button>
+                                                                                    )}
+                                                                                </div>
                                                                             </div>
                                                                         ))}
                                                                     </div>
@@ -10233,7 +10592,19 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                         {editForm.slice(3, 7).map((p, i) => (
                                                                             <div key={i + 3}>
                                                                                 <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
-                                                                                <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i + 3, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                <div className="flex items-center gap-1.5">
+                                                                                    <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i + 3, e.target.value)} className="flex-1 min-w-0 p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                    {isRealOfficerName(p.nama, p.tugas) && (
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            onClick={() => sendWhatsAppOfficerReminder({ nama: p.nama, tugas: p.tugas, sesi: 'Ibadah Perjamuan Kudus (Basuh Kaki)', dateStr: date, waktu: '09:00 - 12:00 WIB', dataPejabat })}
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            title={`Kirim Pengingat WA ke ${p.nama}`}
+                                                                                        >
+                                                                                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                                                                                        </button>
+                                                                                    )}
+                                                                                </div>
                                                                             </div>
                                                                         ))}
                                                                     </div>
@@ -10242,7 +10613,19 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                         {editForm.slice(7, 11).map((p, i) => (
                                                                             <div key={i + 7}>
                                                                                 <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
-                                                                                <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i + 7, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                <div className="flex items-center gap-1.5">
+                                                                                    <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i + 7, e.target.value)} className="flex-1 min-w-0 p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                    {isRealOfficerName(p.nama, p.tugas) && (
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            onClick={() => sendWhatsAppOfficerReminder({ nama: p.nama, tugas: p.tugas, sesi: 'Ibadah Perjamuan Kudus (Pelayan Perjamuan)', dateStr: date, waktu: '09:00 - 12:00 WIB', dataPejabat })}
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            title={`Kirim Pengingat WA ke ${p.nama}`}
+                                                                                        >
+                                                                                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                                                                                        </button>
+                                                                                    )}
+                                                                                </div>
                                                                             </div>
                                                                         ))}
                                                                     </div>
@@ -10251,7 +10634,19 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                         {editForm.slice(11, 16).map((p, i) => (
                                                                             <div key={i + 11}>
                                                                                 <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
-                                                                                <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i + 11, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                <div className="flex items-center gap-1.5">
+                                                                                    <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i + 11, e.target.value)} className="flex-1 min-w-0 p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                    {isRealOfficerName(p.nama, p.tugas) && (
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            onClick={() => sendWhatsAppOfficerReminder({ nama: p.nama, tugas: p.tugas, sesi: 'Ibadah Perjamuan Kudus (Pembersihan Alat)', dateStr: date, waktu: '09:00 - 12:00 WIB', dataPejabat })}
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            title={`Kirim Pengingat WA ke ${p.nama}`}
+                                                                                        >
+                                                                                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                                                                                        </button>
+                                                                                    )}
+                                                                                </div>
                                                                             </div>
                                                                         ))}
                                                                     </div>
@@ -10280,12 +10675,47 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                         isEditing ? (
                                                             <td colSpan="2" className="p-4 bg-gold-50/30">
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 text-left">
-                                                                    {editForm.map((p, i) => (
-                                                                        <div key={i} className="space-y-1 p-3 bg-white rounded-xl border border-navy-100 shadow-sm h-fit">
-                                                                            <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
-                                                                            <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i, e.target.value)} className="w-full p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
-                                                                        </div>
-                                                                    ))}
+                                                                    {editForm.map((p, i) => {
+                                                                        const sesiLabelMap = {
+                                                                            rabu: 'Ibadah Rabu Malam',
+                                                                            sekolahSabat: 'Sekolah Sabat',
+                                                                            khotbah: 'Khotbah / Ibadah Umum Sabat',
+                                                                            diakon: 'Pelayanan Diakon & Diakones',
+                                                                            musik: 'Pelayanan Musik'
+                                                                        };
+                                                                        const waktuLabelMap = {
+                                                                            rabu: '19:30 - 21:00 WIB',
+                                                                            sekolahSabat: '09:00 - 10:30 WIB',
+                                                                            khotbah: '10:45 - 12:00 WIB',
+                                                                            diakon: '08:45 - 12:00 WIB',
+                                                                            musik: '09:00 - 12:00 WIB'
+                                                                        };
+                                                                        return (
+                                                                            <div key={i} className="space-y-1 p-3 bg-white rounded-xl border border-navy-100 shadow-sm h-fit">
+                                                                                <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">{p.tugas}</label>
+                                                                                <div className="flex items-center gap-1.5">
+                                                                                    <input type="text" value={p.nama || ''} onChange={(e) => handleEditFormChange(i, e.target.value)} className="flex-1 min-w-0 p-2.5 border border-navy-200 rounded-xl text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" />
+                                                                                    {isRealOfficerName(p.nama, p.tugas) && (
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            onClick={() => sendWhatsAppOfficerReminder({
+                                                                                                nama: p.nama,
+                                                                                                tugas: p.tugas,
+                                                                                                sesi: sesiLabelMap[subTab] || 'Ibadah Jemaat',
+                                                                                                dateStr: date,
+                                                                                                waktu: waktuLabelMap[subTab] || '',
+                                                                                                dataPejabat
+                                                                                            })}
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            title={`Kirim Pengingat WA ke ${p.nama}`}
+                                                                                        >
+                                                                                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                                                                                        </button>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        );
+                                                                    })}
                                                                 </div>
                                                                 <div className="mt-5 flex justify-end space-x-3">
                                                                     <button onClick={() => setEditingDate(null)} className="px-5 py-2.5 text-navy-600 bg-navy-100 hover:bg-navy-200 rounded-xl text-sm font-bold transition-colors">Batal</button>
@@ -10301,7 +10731,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                 </td>
                                                                 <td className="p-2 lg:p-4 text-center align-middle">
                                                                     <div className="flex justify-center space-x-1.5 lg:space-x-2 min-w-[60px] lg:min-w-[80px]">
-                                                                        <button onClick={() => handleEditClick(date)} className="p-2 lg:p-2.5 text-navy-500 hover:text-gold-500 hover:bg-navy-50 rounded-xl transition-colors" title="Edit Baris"><Icon name="Edit" className="w-3.5 h-3.5 lg:w-4 lg:h-4" /></button>
+                                                                        <button onClick={() => handleEditClick(date)} className="p-2 lg:p-2.5 text-navy-500 hover:text-gold-500 hover:bg-navy-50 rounded-xl transition-colors" title="Edit Baris & Kirim Pengingat WA"><Icon name="Edit" className="w-3.5 h-3.5 lg:w-4 lg:h-4" /></button>
                                                                         {isSaved ? (<button onClick={() => handleDeleteRow(date)} className="p-2 lg:p-2.5 text-navy-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Hapus (Kembali ke Default)"><Icon name="Trash" className="w-3.5 h-3.5 lg:w-4 lg:h-4" /></button>) : (<div className="w-8 lg:w-10"></div>)}
                                                                     </div>
                                                                 </td>
@@ -12798,13 +13228,26 @@ const Alkitab = ({ setHideGlobalBack }) => {
     const [searchQuery, setSearchQuery] = React.useState('');
     const [searchResults, setSearchResults] = React.useState(null);
     const [isSearching, setIsSearching] = React.useState(false);
-    const [fontSize, setFontSize] = React.useState(16);
+    const [fontSize, setFontSize] = React.useState(() => {
+        try {
+            const saved = parseInt(localStorage.getItem('PISGAH_ALKITAB_FONT_SIZE'), 10);
+            if (!isNaN(saved) && saved >= 12 && saved <= 28) return saved;
+        } catch (e) { }
+        return 16;
+    });
+    const updateFontSize = (newSize) => {
+        const clamped = Math.min(28, Math.max(12, newSize));
+        setFontSize(clamped);
+        try {
+            localStorage.setItem('PISGAH_ALKITAB_FONT_SIZE', String(clamped));
+        } catch (e) { }
+    };
     const [selectedVerses, setSelectedVerses] = React.useState(new Set());
     const [selectedAyat, setSelectedAyat] = React.useState('');
     const [pendingTarget, setPendingTarget] = React.useState(null);
 
     // --- FITUR AUDIO ALKITAB (TEXT-TO-SPEECH BAHASA INDONESIA) ---
-    const ALKITAB_TTS_SPEEDS = [0.5, 1, 1.5, 2];
+    const ALKITAB_TTS_SPEEDS = [0.8, 0.9, 1, 1.15, 1.2];
     const [ttsState, setTtsState] = React.useState('idle'); // 'idle' | 'playing' | 'paused'
     const [activePlayingAyat, setActivePlayingAyat] = React.useState(null);
     const [ttsRate, setTtsRate] = React.useState(1);
@@ -13635,15 +14078,15 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     ) : <div className="flex-1"></div>}
 
                     <div className="flex-[1.2] md:flex-[2] flex items-center justify-between md:justify-center gap-1 bg-navy-50 dark:bg-navy-800/50 rounded-xl px-1.5 md:px-2 py-1.5 h-full border border-transparent dark:border-navy-800 shrink-0">
-                        <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="w-10 md:w-12 h-full flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-navy-700 text-navy-500 dark:text-navy-300 shadow-sm transition-colors active:scale-95" title="Perkecil Teks">
-                            <Icon name="Minus" className="w-4 h-4 md:w-5 md:h-5" />
+                        <button onClick={() => updateFontSize(fontSize - 2)} disabled={fontSize <= 12} className="w-10 md:w-12 h-full flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-navy-700 text-navy-600 dark:text-navy-200 font-black text-xs md:text-sm shadow-sm transition-colors active:scale-95 disabled:opacity-40 cursor-pointer" title="Perkecil Teks (A-)">
+                            A-
                         </button>
                         <div className="flex flex-col items-center justify-center px-2 min-w-[3rem]">
-                            <span className="text-[10px] md:text-xs font-bold text-navy-600 dark:text-navy-300 leading-none">Aa</span>
-                            <span className="text-[9px] md:text-[10px] text-navy-400 font-bold tracking-tighter leading-none mt-1">{fontSize}px</span>
+                            <span className="text-[10px] md:text-xs font-bold text-navy-600 dark:text-navy-300 leading-none">Ukuran</span>
+                            <span className="text-[9px] md:text-[10px] text-gold-600 dark:text-gold-400 font-black tracking-tighter leading-none mt-1">{fontSize}px</span>
                         </div>
-                        <button onClick={() => setFontSize(Math.min(28, fontSize + 2))} className="w-10 md:w-12 h-full flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-navy-700 text-navy-500 dark:text-navy-300 shadow-sm transition-colors active:scale-95" title="Perbesar Teks">
-                            <Icon name="Plus" className="w-4 h-4 md:w-5 md:h-5" />
+                        <button onClick={() => updateFontSize(fontSize + 2)} disabled={fontSize >= 28} className="w-10 md:w-12 h-full flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-navy-700 text-navy-600 dark:text-navy-200 font-black text-xs md:text-sm shadow-sm transition-colors active:scale-95 disabled:opacity-40 cursor-pointer" title="Perbesar Teks (A+)">
+                            A+
                         </button>
                     </div>
 
@@ -13701,6 +14144,25 @@ const Alkitab = ({ setHideGlobalBack }) => {
                                                 <span className="hidden sm:inline">Berhenti</span>
                                             </button>
                                         )}
+
+                                        {/* Pengatur Ukuran Huruf Cepat (A- / A+) */}
+                                        <div className="flex items-center bg-navy-50 dark:bg-navy-800/90 rounded-xl p-0.5 border border-navy-200/60 dark:border-navy-700 text-xs" title="Ubah Ukuran Teks Alkitab">
+                                            <button
+                                                onClick={() => updateFontSize(fontSize - 2)}
+                                                disabled={fontSize <= 12}
+                                                className="px-2 py-1 rounded-lg font-black text-navy-700 dark:text-gold-300 hover:bg-white dark:hover:bg-navy-700 disabled:opacity-35 transition cursor-pointer"
+                                            >
+                                                A-
+                                            </button>
+                                            <span className="px-1.5 text-[10px] font-bold text-navy-400 dark:text-navy-400 select-none">{fontSize}px</span>
+                                            <button
+                                                onClick={() => updateFontSize(fontSize + 2)}
+                                                disabled={fontSize >= 28}
+                                                className="px-2 py-1 rounded-lg font-black text-navy-700 dark:text-gold-300 hover:bg-white dark:hover:bg-navy-700 disabled:opacity-35 transition cursor-pointer"
+                                            >
+                                                A+
+                                            </button>
+                                        </div>
 
                                         <span className="bg-navy-100 dark:bg-navy-800 text-navy-600 dark:text-navy-300 text-xs font-bold px-3 py-1.5 rounded-full">
                                             {verses.filter(v => v.type === 'content').length} ayat
@@ -13891,7 +14353,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
                                     <button
                                         onClick={handleToggleTtsRate}
                                         className="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[9px] sm:text-xs font-black text-gold-300 transition cursor-pointer"
-                                        title="Ubah Kecepatan Suara (0.5x, 1x, 1.5x, 2x)"
+                                        title="Ubah Kecepatan Suara (0.8x, 0.9x, 1x, 1.15x, 1.2x)"
                                     >
                                         {ttsRate}x
                                     </button>
@@ -13956,6 +14418,20 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
     const [db, setDb] = React.useState([]);
     const [isLoading, setIsLoading] = React.useState(false);
     const [copied, setCopied] = React.useState(false);
+    const [lyricFontSize, setLyricFontSize] = React.useState(() => {
+        try {
+            const saved = parseInt(localStorage.getItem('PISGAH_LAGUSION_FONT_SIZE'), 10);
+            if (!isNaN(saved) && saved >= 14 && saved <= 30) return saved;
+        } catch (e) { }
+        return 18;
+    });
+    const updateLyricFontSize = (newSize) => {
+        const clamped = Math.min(30, Math.max(14, newSize));
+        setLyricFontSize(clamped);
+        try {
+            localStorage.setItem('PISGAH_LAGUSION_FONT_SIZE', String(clamped));
+        } catch (e) { }
+    };
 
     // Load lyrics from public/lagu_sion.json if not passed from parent
     React.useEffect(() => {
@@ -14277,25 +14753,49 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                             </div>
 
                             {/* Gold Song Title block */}
-                            <div className="bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white px-5 py-4 rounded-2xl flex items-center justify-between shadow-md">
-                                <div className="flex-1 min-w-0 pr-4">
+                            <div className="bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white px-5 py-4 rounded-2xl flex items-center justify-between gap-3 shadow-md">
+                                <div className="flex-1 min-w-0 pr-2">
                                     <h2 className="font-black text-xl leading-tight truncate">{selectedSong.title}</h2>
                                     <p className="text-xs text-amber-100/90 font-medium mt-0.5 truncate">
                                         {selectedSong.keyTime} {selectedSong.artist ? `| ${selectedSong.artist}` : ''}
                                     </p>
                                 </div>
-                                <button onClick={handleShare} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 active:bg-white/35 transition-colors relative shrink-0">
-                                    <Icon name="Share" className="w-5 h-5" />
-                                    {copied && (
-                                        <span className="absolute -top-9 right-0 bg-navy-900 text-white text-[10px] px-2 py-1 rounded shadow-md whitespace-nowrap animate-fade-in">
-                                            Disalin!
-                                        </span>
-                                    )}
-                                </button>
+                                <div className="flex items-center gap-2 shrink-0">
+                                    {/* Pengatur Ukuran Huruf Lirik (A- / A+) */}
+                                    <div className="flex items-center bg-black/20 backdrop-blur-sm rounded-xl p-1 border border-white/20" title="Ukuran Huruf Lirik Lagu">
+                                        <button
+                                            type="button"
+                                            onClick={() => updateLyricFontSize(lyricFontSize - 2)}
+                                            disabled={lyricFontSize <= 14}
+                                            className="px-2 py-1 rounded-lg font-black text-xs text-white hover:bg-white/20 disabled:opacity-35 transition cursor-pointer"
+                                            title="Perkecil Lirik (A-)"
+                                        >
+                                            A-
+                                        </button>
+                                        <span className="px-1.5 text-[10px] font-bold text-amber-100 select-none">{lyricFontSize}px</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => updateLyricFontSize(lyricFontSize + 2)}
+                                            disabled={lyricFontSize >= 30}
+                                            className="px-2 py-1 rounded-lg font-black text-xs text-white hover:bg-white/20 disabled:opacity-35 transition cursor-pointer"
+                                            title="Perbesar Lirik (A+)"
+                                        >
+                                            A+
+                                        </button>
+                                    </div>
+                                    <button onClick={handleShare} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 active:bg-white/35 transition-colors relative shrink-0" title="Bagikan Lirik Lagu">
+                                        <Icon name="Share" className="w-5 h-5" />
+                                        {copied && (
+                                            <span className="absolute -top-9 right-0 bg-navy-900 text-white text-[10px] px-2 py-1 rounded shadow-md whitespace-nowrap animate-fade-in">
+                                                Disalin!
+                                            </span>
+                                        )}
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Lyrics sheet card */}
-                            <div className="bg-white rounded-3xl border border-navy-100/50 p-6 md:p-8 shadow-sm space-y-6 select-text">
+                            <div className="bg-white dark:bg-navy-900 rounded-3xl border border-navy-100/50 dark:border-navy-800 p-6 md:p-8 shadow-sm space-y-6 select-text">
                                 {(() => {
                                     let result = [];
                                     let chorusRef = null;
@@ -14318,10 +14818,13 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                                         const isCh = verse.type === 'chorus';
                                         return (
                                             <div key={idx} className={`space-y-2 ${isCh ? 'pl-4 border-l-4 border-[#D19B45] bg-[#D19B45]/10 py-2 pr-2 rounded-r-lg' : ''} ${verse.isAuto ? 'opacity-90' : ''}`}>
-                                                <div className={`text-xs font-black uppercase tracking-wider ${isCh ? 'text-[#D19B45]' : 'text-navy-400'}`}>
+                                                <div className={`text-xs font-black uppercase tracking-wider ${isCh ? 'text-[#D19B45]' : 'text-navy-400 dark:text-navy-400'}`}>
                                                     {verse.label} {verse.isAuto && <span className="text-[10px] ml-1 opacity-60 normal-case font-normal">(otomatis)</span>}
                                                 </div>
-                                                <div className={`text-base md:text-lg leading-relaxed font-medium ${isCh ? 'italic text-navy-800' : 'text-navy-900'}`}>
+                                                <div
+                                                    className={`leading-relaxed font-medium transition-all ${isCh ? 'italic text-navy-800 dark:text-gold-200' : 'text-navy-900 dark:text-navy-100'}`}
+                                                    style={{ fontSize: `${lyricFontSize}px` }}
+                                                >
                                                     {verse.lines.map((line, lIdx) => (
                                                         <p key={lIdx} className="mb-1">{line}</p>
                                                     ))}
@@ -14451,8 +14954,8 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
         // 2. Pejabat: cari nama, jabatan
         if (dataPejabat && dataPejabat.length) {
             results.pejabat = dataPejabat.filter(p =>
-                p.nama.toLowerCase().includes(q) ||
-                p.jabatan.toLowerCase().includes(q)
+                (p.nama || '').toLowerCase().includes(q) ||
+                (p.jabatan || '').toLowerCase().includes(q)
             ).slice(0, 20);
         }
 
@@ -14513,14 +15016,14 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
         // 7. Lagu Sion
         if (laguSionDb && laguSionDb.length > 0) {
             laguSionDb.forEach(song => {
-                const numStr = song.number.toString();
+                const numStr = String(song.number || '');
                 const matchesNum = numStr === q;
-                const matchesTitle = song.title.toLowerCase().includes(q);
+                const matchesTitle = (song.title || '').toLowerCase().includes(q);
                 let matchesLyrics = false;
                 let matchedLine = '';
-                for (const verse of song.verses) {
-                    for (const line of verse.lines) {
-                        if (line.toLowerCase().includes(q)) {
+                for (const verse of (song.verses || [])) {
+                    for (const line of (verse.lines || [])) {
+                        if ((line || '').toLowerCase().includes(q)) {
                             matchesLyrics = true;
                             matchedLine = line;
                             break;
@@ -14535,14 +15038,80 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
             results.laguSion = results.laguSion.slice(0, 15);
         }
 
-        // 8. Alkitab
-        results.alkitab = [{ redirectQuery: query.trim() }];
+        // 8. Alkitab (Pencarian Pintar Kitab, Pasal:Ayat, Ayat Populer, & Kata Kunci)
+        const alkitabMatches = [];
+        const rawTrimmed = query.trim();
+
+        // A. Deteksi format referensi langsung, misal: "Yohanes 3:16", "Mazmur 23", "1 Korintus 13:4-7", "Kej 1:1"
+        const refMatch = rawTrimmed.match(/^([1-3]?\s*[a-zA-Z\s.\-]+?)\s+(\d+)(?:\s*[:.]\s*(\d+(?:\s*-\s*\d+)?))?$/);
+        if (refMatch) {
+            const bookPart = refMatch[1].trim().toLowerCase().replace(/\./g, '');
+            const chapNum = parseInt(refMatch[2], 10);
+            const versePart = refMatch[3] ? refMatch[3].replace(/\s+/g, '') : '';
+            const matchedBook = ALKITAB_BOOKS.find(b => {
+                const bName = (b.nama || '').toLowerCase();
+                const bSingkat = (b.singkat || '').toLowerCase();
+                return bName === bookPart || bSingkat === bookPart || bName.startsWith(bookPart) || bookPart.startsWith(bName);
+            });
+            if (matchedBook && chapNum >= 1 && chapNum <= matchedBook.pasal) {
+                alkitabMatches.push({
+                    type: 'direct_ref',
+                    book: matchedBook,
+                    chapter: chapNum,
+                    verse: versePart || null,
+                    label: `${matchedBook.nama} ${chapNum}${versePart ? `:${versePart}` : ''}`
+                });
+            }
+        }
+
+        // B. Cocokkan nama Kitab Alkitab (66 Kitab)
+        ALKITAB_BOOKS.forEach(b => {
+            const bName = (b.nama || '').toLowerCase();
+            const bSingkat = (b.singkat || '').toLowerCase();
+            if (bName.includes(q) || bSingkat === q) {
+                if (!alkitabMatches.some(m => m.type === 'book' && m.book.id === b.id)) {
+                    alkitabMatches.push({
+                        type: 'book',
+                        book: b,
+                        label: `Kitab ${b.nama} (${b.pasal} Pasal • ${b.testamen === 'PL' ? 'Perjanjian Lama' : 'Perjanjian Baru'})`
+                    });
+                }
+            }
+        });
+
+        // C. Cocokkan dari koleksi Ayat Emas / Ayat Harian jika kata kunci cocok
+        if (typeof DAILY_VERSES !== 'undefined' && Array.isArray(DAILY_VERSES)) {
+            DAILY_VERSES.forEach(dv => {
+                const dvRef = dv.ref || `${dv.bookName || ''} ${dv.chapter || ''}:${dv.verse || ''}`.trim();
+                const dvText = dv.text || '';
+                const dvTheme = dv.theme || '';
+                if (dvText.toLowerCase().includes(q) || dvRef.toLowerCase().includes(q) || dvTheme.toLowerCase().includes(q)) {
+                    alkitabMatches.push({
+                        type: 'popular_verse',
+                        ref: dvRef,
+                        bookName: dv.bookName || '',
+                        bookId: dv.bookId || '',
+                        chapter: dv.chapter || 1,
+                        verse: dv.verse || 1,
+                        text: dvText
+                    });
+                }
+            });
+        }
+
+        // D. Selalu sediakan tombol pencarian penuh di seluruh ayat Alkitab TB
+        alkitabMatches.push({
+            type: 'full_search',
+            redirectQuery: rawTrimmed
+        });
+
+        results.alkitab = alkitabMatches.slice(0, 10);
 
         return results;
     }, [query, daftarWarta, dataPejabat, jadwalDB, daftarBuku, pengumuman, rabuYMD, sabatYMD, laguSionDb]);
 
     // Filter menu seperti sebelumnya
-    const filteredMenus = tabs.filter(t => t.id !== 'admin_dashboard' && t.id !== 'search' && t.label.toLowerCase().includes(query.toLowerCase()));
+    const filteredMenus = (tabs || []).filter(t => t && t.id !== 'admin_dashboard' && t.id !== 'search' && (t.label || '').toLowerCase().includes((query || '').toLowerCase()));
 
     return (
         <div className="space-y-6 animate-fade-in pb-10">
@@ -14585,20 +15154,123 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
                     {/* Hasil Alkitab */}
                     {searchResults.alkitab && searchResults.alkitab.length > 0 && (
                         <div>
-                            <h3 className="text-xs font-black text-navy-500 uppercase tracking-widest mb-3 px-2">Alkitab</h3>
-                            <div className="glass-box rounded-2xl border border-navy-100/60 overflow-hidden shadow-sm">
-                                <button onClick={() => {
-                                    window.localStorage.setItem('alkitabInitialSearch', query.trim());
-                                    setActiveTab('alkitab');
-                                }} className="w-full flex items-center p-4 text-left hover:bg-gold-50/50 transition-colors">
-                                    <div className="w-10 h-10 rounded-xl bg-navy-50 flex items-center justify-center text-navy-600 mr-4">
-                                        <Icon name="Book" className="w-5 h-5 text-gold-500" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="font-bold text-navy-900 text-sm md:text-base truncate">Cari "{query}" di Alkitab</div>
-                                    </div>
-                                    <Icon name="ArrowRight" className="w-4 h-4 text-navy-300" />
-                                </button>
+                            <h3 className="text-xs font-black text-gold-600 uppercase tracking-widest mb-3 px-2">Alkitab (Kitab & Ayat)</h3>
+                            <div className="bg-white dark:bg-navy-900 rounded-2xl border border-navy-100/60 dark:border-navy-800 overflow-hidden shadow-sm divide-y divide-navy-50 dark:divide-navy-800">
+                                {searchResults.alkitab.map((item, idx) => {
+                                    if (item.type === 'direct_ref') {
+                                        return (
+                                            <button
+                                                key={`alk-ref-${idx}`}
+                                                onClick={() => {
+                                                    const targetObj = {
+                                                        bookName: item.book.nama,
+                                                        bookId: item.book.id,
+                                                        chapter: item.chapter,
+                                                        verse: item.verse || 1
+                                                    };
+                                                    window.__alkitabDirectTarget = targetObj;
+                                                    try {
+                                                        localStorage.setItem('alkitabDirectTarget', JSON.stringify(targetObj));
+                                                    } catch (e) { }
+                                                    setActiveTab('alkitab');
+                                                }}
+                                                className="w-full flex items-center p-4 text-left bg-gold-50/60 dark:bg-gold-500/10 hover:bg-gold-100/70 dark:hover:bg-gold-500/20 transition-colors cursor-pointer"
+                                            >
+                                                <div className="w-10 h-10 rounded-xl bg-gold-500 text-navy-950 flex items-center justify-center mr-4 shrink-0 shadow-sm">
+                                                    <Icon name="BookOpen" className="w-5 h-5" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-[10px] font-black uppercase tracking-widest text-gold-600 dark:text-gold-400">Buka Langsung Referensi Alkitab</div>
+                                                    <div className="font-black text-navy-900 dark:text-white text-sm md:text-base truncate">{item.label}</div>
+                                                </div>
+                                                <Icon name="ArrowRight" className="w-4 h-4 text-gold-600 ml-2 shrink-0" />
+                                            </button>
+                                        );
+                                    }
+                                    if (item.type === 'book') {
+                                        return (
+                                            <button
+                                                key={`alk-book-${item.book.id}`}
+                                                onClick={() => {
+                                                    const targetObj = {
+                                                        bookName: item.book.nama,
+                                                        bookId: item.book.id,
+                                                        chapter: 1,
+                                                        verse: 1
+                                                    };
+                                                    window.__alkitabDirectTarget = targetObj;
+                                                    try {
+                                                        localStorage.setItem('alkitabDirectTarget', JSON.stringify(targetObj));
+                                                    } catch (e) { }
+                                                    setActiveTab('alkitab');
+                                                }}
+                                                className="w-full flex items-center p-4 text-left hover:bg-gold-50/50 dark:hover:bg-navy-800 transition-colors cursor-pointer"
+                                            >
+                                                <div className="w-10 h-10 rounded-xl bg-navy-50 dark:bg-navy-800 flex items-center justify-center text-gold-500 mr-4 shrink-0 font-black text-xs">
+                                                    {item.book.singkat}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="font-bold text-navy-900 dark:text-white text-sm md:text-base truncate">{item.book.nama}</div>
+                                                    <div className="text-xs text-navy-500 dark:text-navy-400 truncate">{item.book.pasal} Pasal • {item.book.testamen === 'PL' ? 'Perjanjian Lama' : 'Perjanjian Baru'}</div>
+                                                </div>
+                                                <Icon name="ChevronRight" className="w-4 h-4 text-navy-300 ml-2 shrink-0" />
+                                            </button>
+                                        );
+                                    }
+                                    if (item.type === 'popular_verse') {
+                                        return (
+                                            <button
+                                                key={`alk-pop-${idx}`}
+                                                onClick={() => {
+                                                    if (item.bookName || item.bookId) {
+                                                        const targetObj = {
+                                                            bookName: item.bookName,
+                                                            bookId: item.bookId,
+                                                            chapter: item.chapter || 1,
+                                                            verse: item.verse || 1
+                                                        };
+                                                        window.__alkitabDirectTarget = targetObj;
+                                                        try {
+                                                            localStorage.setItem('alkitabDirectTarget', JSON.stringify(targetObj));
+                                                        } catch (e) { }
+                                                    } else {
+                                                        window.localStorage.setItem('alkitabInitialSearch', item.ref);
+                                                    }
+                                                    setActiveTab('alkitab');
+                                                }}
+                                                className="w-full flex items-start p-4 text-left hover:bg-gold-50/50 dark:hover:bg-navy-800 transition-colors cursor-pointer"
+                                            >
+                                                <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-navy-800 flex items-center justify-center text-gold-600 mr-4 shrink-0 mt-0.5">
+                                                    <Icon name="Sparkles" className="w-5 h-5" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="font-black text-gold-600 dark:text-gold-400 text-xs mb-0.5">{item.ref}</div>
+                                                    <div className="text-xs md:text-sm text-navy-800 dark:text-navy-200 line-clamp-2 italic">"{item.text}"</div>
+                                                </div>
+                                                <Icon name="ChevronRight" className="w-4 h-4 text-navy-300 ml-2 mt-2 shrink-0" />
+                                            </button>
+                                        );
+                                    }
+                                    return (
+                                        <button
+                                            key={`alk-full-${idx}`}
+                                            onClick={() => {
+                                                window.localStorage.setItem('alkitabInitialSearch', item.redirectQuery);
+                                                setActiveTab('alkitab');
+                                            }}
+                                            className="w-full flex items-center p-4 text-left hover:bg-gold-50/50 dark:hover:bg-navy-800 transition-colors cursor-pointer"
+                                        >
+                                            <div className="w-10 h-10 rounded-xl bg-navy-50 dark:bg-navy-800 flex items-center justify-center text-navy-600 mr-4 shrink-0">
+                                                <Icon name="Search" className="w-5 h-5 text-gold-500" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="font-bold text-navy-900 dark:text-white text-sm md:text-base truncate">Cari kata "{item.redirectQuery}" di seluruh ayat Alkitab</div>
+                                                <div className="text-xs text-navy-500 dark:text-navy-400">Telusuri seluruh isi Perjanjian Lama & Perjanjian Baru</div>
+                                            </div>
+                                            <Icon name="ArrowRight" className="w-4 h-4 text-navy-300 ml-2 shrink-0" />
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
@@ -15550,7 +16222,7 @@ const App = () => {
             case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} initialBook={initialBook} onBookOpened={() => setInitialBook(null)} setHideGlobalBack={setHideGlobalBack} />;
             case 'warta': return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta} selectedWarta={selectedWartaDetail} setSelectedWarta={setSelectedWartaDetail} setHideGlobalBack={setHideGlobalBack} />;
             case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} liveUrl={liveUrl} />;
-            case 'jadwal': return <Jadwal jadwalDB={jadwalDB} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} perjamuanNote={perjamuanNote} setActiveTab={setActiveTab} carouselEvents={carouselEvents} />;
+            case 'jadwal': return <Jadwal jadwalDB={jadwalDB} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} perjamuanNote={perjamuanNote} setActiveTab={setActiveTab} carouselEvents={carouselEvents} dataPejabat={dataPejabat} />;
             case 'persembahan': return <Persembahan dataPejabat={dataPejabat} daftarRekening={daftarRekening} />;
             case 'keanggotaan': return <Keanggotaan setActiveTab={setActiveTab} />;
             case 'member_baru': return <MemberBaru setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
